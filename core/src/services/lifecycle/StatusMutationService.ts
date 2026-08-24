@@ -1,19 +1,27 @@
-import mongoose from 'mongoose';
-import { pLimit } from '../../utils/pLimit';
-import { type ValidDomain } from './LifecycleGuard';
+import mongoose, { type ClientSession } from 'mongoose';
+import type { ListingUpdate } from '../../domains/listings/ports/ListingRepositoryPort';
+import { 
+    validateTransition as validateLifecycleTransition, 
+    resolveLifecycleDomain,
+    type ValidDomain 
+} from './LifecycleGuard';
+import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
 import logger from '../../utils/logger';
-import { ActorMetadata, LISTING_STATUS } from '@esparex/contracts';
-import { lifecycleEvents } from '../../events';
+import { ActorMetadata, BusinessErrorCode } from '@esparex/contracts';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import {
     isListingLifecycleDomain,
+    canBypassInvalidTransition,
+    createHistoryRecord,
     recordMutationMetric,
 } from './StatusMutationTelemetry';
 import { dispatchStatusMutationEvents } from './StatusMutationEvents';
-import {
-    getModelForDomain,
-    executeGenericStatusMutation,
-    executeListingStatusMutation,
-} from './StatusMutationExecutor';
+import { createStatusMutationBulkHandler } from './statusMutationBulk';
+
+// Import domain models
+import Ad from '../../models/Ad';
+import User from '../../models/User';
+import Business from '../../models/Business';
 
 export type { ValidDomain };
 
@@ -26,6 +34,29 @@ export interface MutationRequest {
     patch?: Record<string, unknown>;
     metadata?: Record<string, unknown>;
     session?: unknown;
+}
+
+interface IStatusable {
+    status: string;
+    statusChangedAt?: Date;
+    statusReason?: string;
+    moderationStatus?: string;
+    listingType?: string;
+    save: (options?: { session?: ClientSession }) => Promise<mongoose.Document>;
+    toObject: () => Record<string, unknown>;
+    [key: string]: unknown;
+}
+
+export function getModelForDomain(domain: ValidDomain) {
+    switch (domain) {
+        case 'ad': return Ad;
+        case 'user': return User;
+        case 'business': return Business;
+        case 'service': return Ad;
+        case 'spare_part_listing': return Ad;
+        case 'catalog_part': throw new Error('Domain \'catalog_part\' uses CatalogStatus — route through admin catalog service, not statusMutationService');
+        default: throw new Error(`Unsupported domain: ${domain as string}`);
+    }
 }
 
 /**
@@ -42,25 +73,134 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
     try {
         let result: Record<string, unknown> | null = null;
 
-        const executeOperations = async (activeSession: any) => {
-            const executor = isListingLifecycleDomain(domain)
-                ? executeListingStatusMutation
-                : executeGenericStatusMutation;
+        const executeOperations = async (activeSession: unknown) => {
+            if (isListingLifecycleDomain(domain)) {
+                return executeListingOperations(activeSession);
+            }
+            
+            const Model = getModelForDomain(domain);
+            const doc = await Model.findById(entityId).setOptions({ withDeleted: true }).session((activeSession || null) as ClientSession | null) as (mongoose.Document & IStatusable) | null;
+            if (!doc) {
+                throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
+            }
 
-            const res = await executor({
-                domain,
-                entityId,
+            fromStatus = doc.status;
+            const listingType = doc.listingType;
+            resolvedListingType = listingType;
+
+            const resolvedDomain = resolveLifecycleDomain(domain, listingType);
+            try {
+                validateLifecycleTransition(resolvedDomain, fromStatus, toStatus);
+            } catch (error) {
+                if (!canBypassInvalidTransition({ error, actor, toStatus, resolvedDomain, metadata })) {
+                    throw error;
+                }
+
+                logger.warn('Status Mutation BYPASS: allowing admin moderation deactivation outside strict transition map', {
+                    domain,
+                    resolvedDomain,
+                    entityId: String(entityId),
+                    fromStatus,
+                    toStatus,
+                    action: metadata?.action,
+                    actorType: actor.type,
+                    actorId: actor.id,
+                });
+            }
+            enforceLifecycleMutationPolicy({
+                domain: resolvedDomain,
+                fromStatus,
                 toStatus,
                 actor,
-                reason,
                 patch,
                 metadata,
-                activeSession,
             });
 
-            fromStatus = res.fromStatus;
-            resolvedListingType = res.resolvedListingType;
-            return res.result;
+            doc.status = toStatus;
+            doc.statusChangedAt = new Date();
+            if (reason) doc.statusReason = reason;
+
+            const VALID_MODERATION_STATUSES = new Set([
+                'auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden'
+            ]);
+            const currentModerationStatus = doc.moderationStatus;
+            if (currentModerationStatus && !VALID_MODERATION_STATUSES.has(currentModerationStatus)) {
+                logger.warn('StatusMutationService: coercing stale moderationStatus', {
+                    entityId: String(entityId),
+                    domain,
+                    staleValue: currentModerationStatus,
+                    coercedTo: 'manual_approved',
+                });
+                doc.moderationStatus = 'manual_approved';
+            }
+
+            if (patch) {
+                for (const [key, value] of Object.entries(patch)) {
+                    if (key === '$push' && typeof value === 'object' && value !== null) {
+                        for (const [pKey, pVal] of Object.entries(value as Record<string, unknown>)) {
+                            const field = doc[pKey];
+                            if (Array.isArray(field)) {
+                                field.push(pVal);
+                            }
+                        }
+                    } else {
+                        doc[key] = value;
+                    }
+                }
+            }
+            
+            await doc.save({ session: (activeSession || undefined) as ClientSession | undefined });
+
+            await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
+
+            return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
+        };
+
+        const executeListingOperations = async (activeSession: unknown) => {
+            const { getListingRepository } = await import('../../composition/listings');
+            const repo = getListingRepository();
+            const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] }, session: activeSession });
+            
+            if (!listing) {
+                throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
+            }
+
+            fromStatus = listing.status as string;
+            resolvedListingType = listing.listingType as string;
+
+            const resolvedDomain = resolveLifecycleDomain(domain, resolvedListingType);
+            try {
+                validateLifecycleTransition(resolvedDomain, fromStatus, toStatus);
+            } catch (error) {
+                if (!canBypassInvalidTransition({ error, actor, toStatus, resolvedDomain, metadata })) {
+                    throw error;
+                }
+            }
+            enforceLifecycleMutationPolicy({ domain: resolvedDomain, fromStatus, toStatus, actor, patch, metadata });
+
+            const updateDoc: Record<string, unknown> = {
+                status: toStatus,
+                statusChangedAt: new Date(),
+            };
+            if (reason) updateDoc.statusReason = reason;
+
+            const VALID_MODERATION_STATUSES = new Set(['auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden']);
+            const currentModerationStatus = listing.moderationStatus;
+            if (currentModerationStatus && !VALID_MODERATION_STATUSES.has(currentModerationStatus)) {
+                updateDoc.moderationStatus = 'manual_approved';
+            }
+
+            if (patch) {
+                for (const [key, value] of Object.entries(patch)) {
+                    updateDoc[key] = value;
+                }
+            }
+
+            const updated = await repo.updateOne(entityId.toString(), updateDoc as ListingUpdate, activeSession);
+
+            await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
+
+            return updated as Record<string, unknown>;
         };
 
         if (externalSession) {
@@ -123,47 +263,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
     }
 };
 
-const MUTATE_STATUSES_CONCURRENCY = 5;
+const bulkHandler = createStatusMutationBulkHandler(mutateStatus, getModelForDomain);
 
-export const mutateStatuses = async (requests: MutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
-    const limit = pLimit(MUTATE_STATUSES_CONCURRENCY);
-    return Promise.all(requests.map(request => limit(() => mutateStatus(request))));
-};
-
-export const mutateStatusesBulk = async (
-    domain: ValidDomain,
-    entityIds: string[],
-    toStatus: string,
-    actor: MutationRequest['actor'],
-    reason?: string
-): Promise<number> => {
-    if (!entityIds.length) return 0;
-    
-    const Model = getModelForDomain(domain);
-    type BulkMutationDoc = { _id: mongoose.Types.ObjectId; listingType?: string };
-    const docs = await (Model as mongoose.Model<any>).find({ _id: { $in: entityIds } })
-        .select('_id status listingType')
-        .lean<BulkMutationDoc[]>();
-    if (!docs.length) return 0;
-
-    await mutateStatuses(
-        docs.map((doc) => ({
-            domain,
-            entityId: String(doc._id),
-            toStatus,
-            actor,
-            reason,
-            metadata: {
-                action: 'bulk_mutation',
-                sourceRoute: 'StatusMutationService.mutateStatusesBulk',
-                listingType: doc.listingType,
-            },
-        }))
-    );
-
-    if (domain === 'ad' && toStatus === LISTING_STATUS.EXPIRED) {
-        await lifecycleEvents.dispatch('ad.expired.bulk', { count: docs.length, source: 'cron_expireOutdatedAds' });
-    }
-
-    return docs.length;
-};
+export const mutateStatuses = bulkHandler.mutateStatuses;
+export const mutateStatusesBulk = bulkHandler.mutateStatusesBulk;

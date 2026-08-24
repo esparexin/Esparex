@@ -46,11 +46,11 @@ export function useCatalogRequestsBulkActions({
   const requestType = firstSelectedRequest?.requestType || "brand";
 
   useEffect(() => {
-    if (searchQuery.length < 2) {
-      setSearchResults([]);
-      return;
-    }
-    const performSearch = async () => {
+    const timer = setTimeout(async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        return;
+      }
       setSearching(true);
       try {
         if (requestType === "brand") {
@@ -71,8 +71,7 @@ export function useCatalogRequestsBulkActions({
       } finally {
         setSearching(false);
       }
-    };
-    const timer = setTimeout(performSearch, 300);
+    }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery, requestType]);
 

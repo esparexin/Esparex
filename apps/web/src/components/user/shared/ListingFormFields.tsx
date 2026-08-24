@@ -118,11 +118,11 @@ export function ListingDescriptionField({ label = "Description", error, required
 }
 
 interface CategorySelectorGridProps {
-    categories: Array<{ id?: string; name?: string; icon?: any }>;
+    categories: Array<{ id?: string; name?: string; icon?: React.ComponentType<{ className?: string }> }>;
     selectedCategoryId?: string;
     onSelect: (id: string) => void;
     disabled?: boolean;
-    defaultIcon: any;
+    defaultIcon: React.ComponentType<{ className?: string }>;
     error?: string;
 }
 

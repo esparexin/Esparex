@@ -39,7 +39,7 @@ export const createHistoryRecord = async (params: {
     actor: ActorMetadata;
     reason?: string;
     metadata?: Record<string, unknown>;
-    session: any;
+    session?: unknown;
 }) => {
     const { domain, entityId, fromStatus, toStatus, actor, reason, metadata, session } = params;
     await StatusHistory.create([{
