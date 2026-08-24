@@ -44,7 +44,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
           {listing.isSpotlight ? (
             <View className="absolute top-2 left-2 flex-row items-center bg-amber-500 px-2 py-0.5 rounded-full shadow-sm z-10">
               <AppIcon name="Sparkles" size={10} color="#ffffff" />
-              <AppText variant="caption" className="text-white text-[10px] font-bold ml-1 uppercase tracking-wider">
+              <AppText variant="caption" className="text-white text-tiny font-bold ml-1 uppercase tracking-wider">
                 Spotlight
               </AppText>
             </View>
@@ -106,7 +106,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                 />
                 <AppText
                   variant="caption"
-                  className={`ml-1 text-[10px] font-bold uppercase tracking-wider ${
+                  className={`ml-1 text-tiny font-bold uppercase tracking-wider ${
                     listing.condition === 'power_on'
                       ? 'text-emerald-700 dark:text-emerald-400'
                       : 'text-rose-700 dark:text-rose-400'

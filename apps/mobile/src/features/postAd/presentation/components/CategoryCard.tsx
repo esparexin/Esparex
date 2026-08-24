@@ -52,7 +52,7 @@ export const CategoryCard = ({
       <AppText
         variant="caption"
         className={[
-          'text-center text-[11px] leading-tight font-medium px-0.5',
+          'text-center text-tiny leading-tight font-medium px-0.5',
           selected ? 'text-brand-600 dark:text-brand-400 font-semibold' : 'text-slate-700 dark:text-slate-300',
         ].join(' ')}
         numberOfLines={2}
