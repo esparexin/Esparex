@@ -1,7 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { type Ad } from "@/schemas/ad.schema";
 import { Check, CircuitBoard } from "@/icons/IconRegistry";
+import { getSpareParts } from "@/lib/api/user/masterData";
 
 export interface NormalizedSparePartItem {
     id: string;
@@ -62,6 +65,46 @@ interface ListingWorkingSparePartsTabProps {
 }
 
 export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorkingSparePartsTabProps) {
+    const categoryId = String(ad.categoryId || "");
+    const { data: catalogSpareParts = [] } = useQuery({
+        queryKey: ["spare-parts-catalog", categoryId, ad.listingType],
+        queryFn: () => getSpareParts(categoryId, ad.listingType),
+        enabled: Boolean(categoryId),
+        staleTime: 10 * 60 * 1000,
+    });
+
+    const catalogMap = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const p of catalogSpareParts) {
+            const id = String(p.id || p._id || "");
+            if (id) map.set(id, p.name);
+            if (p.slug) map.set(p.slug, p.name);
+        }
+        return map;
+    }, [catalogSpareParts]);
+
+    const resolvedSpareParts = useMemo(() => {
+        const resolved: NormalizedSparePartItem[] = [...sparePartItems];
+        const seenNames = new Set(resolved.map(r => r.name.toLowerCase()));
+
+        if (Array.isArray(ad.spareParts)) {
+            for (const item of ad.spareParts) {
+                const idStr = typeof item === "string" ? item : (item && typeof item === "object" ? String(item.id || item._id || "") : "");
+                if (idStr && catalogMap.has(idStr)) {
+                    const catalogName = catalogMap.get(idStr)!;
+                    if (!seenNames.has(catalogName.toLowerCase())) {
+                        seenNames.add(catalogName.toLowerCase());
+                        resolved.push({
+                            id: idStr,
+                            name: catalogName,
+                        });
+                    }
+                }
+            }
+        }
+        return resolved;
+    }, [sparePartItems, ad.spareParts, catalogMap]);
+
     return (
         <div
             role="tabpanel"
@@ -72,21 +115,21 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm md:text-base font-bold text-foreground">Working Spare Parts</h3>
+                    <h3 className="text-sm md:text-base font-bold text-foreground">Spare Parts</h3>
                     <p className="text-xs text-foreground-subtle">
-                        Functional components and spare parts verified available from this listing.
+                        Components and spare parts available with this listing.
                     </p>
                 </div>
-                {sparePartItems.length > 0 && (
+                {resolvedSpareParts.length > 0 && (
                     <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                        {sparePartItems.length} {sparePartItems.length === 1 ? "Part" : "Parts"}
+                        {resolvedSpareParts.length} {resolvedSpareParts.length === 1 ? "Part" : "Parts"}
                     </span>
                 )}
             </div>
 
-            {sparePartItems.length > 0 ? (
+            {resolvedSpareParts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    {sparePartItems.map((part) => (
+                    {resolvedSpareParts.map((part) => (
                         <div
                             key={part.id}
                             className="flex items-start justify-between gap-3 p-3.5 rounded-2xl border border-border bg-card shadow-2xs hover:border-primary/40 transition-colors"
@@ -104,7 +147,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                             </div>
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
                                 <Check className="size-3" />
-                                Working
+                                Available
                             </span>
                         </div>
                     ))}

@@ -12,7 +12,6 @@ import { AdSellerCard } from "./AdSellerCard";
 import { AdBusinessCard } from "./AdBusinessCard";
 import { AdSafetyTips } from "./AdSafetyTips";
 import { AdOwnerActions } from "./AdOwnerActions";
-import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSection";
 
 interface ListingDetailSidebarProps {
     ad: Ad;
@@ -98,14 +97,6 @@ export function ListingDetailSidebar({
                     navigateTo={navigateTo}
                 />
             ) : null}
-
-            {!isOwner && (
-                <ListingRelatedBusinessesSection
-                    ad={ad}
-                    navigateTo={navigateTo}
-                    variant="sidebar"
-                />
-            )}
 
             {!isOwner && <AdSafetyTips adId={ad.id} />}
 

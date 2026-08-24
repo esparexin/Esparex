@@ -62,13 +62,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
 
     return (
         <section className="space-y-4 pt-2 pb-6 border-b border-border/80">
-            {/* Header: Strictly "Description" */}
-            <h2 className="font-bold text-foreground text-base md:text-lg flex items-center gap-2">
-                <FileText className="size-5 text-primary" />
-                Description
-            </h2>
-
-            {/* Accessible 3-Tab Controls: Repair Shops | Description | Working Spare Parts */}
+            {/* Accessible 3-Tab Controls: Repair Shops | Description | Spare Parts */}
             <div
                 role="tablist"
                 aria-label="Listing content sections"
@@ -131,7 +125,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     )}
                 >
                     <CircuitBoard className="size-4 shrink-0 text-current" />
-                    <span>Working Spare Parts</span>
+                    <span>Spare Parts</span>
                     {sparePartItems.length > 0 && (
                         <span className={cn(
                             "rounded-full px-1.5 py-0.2 text-2xs font-bold",
@@ -165,7 +159,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                 <ListingDescriptionTab ad={ad} description={description} />
             )}
 
-            {/* Tab 3 Panel: Working Spare Parts */}
+            {/* Tab 3 Panel: Spare Parts */}
             {activeTab === "spare-parts" && (
                 <ListingWorkingSparePartsTab ad={ad} sparePartItems={sparePartItems} />
             )}
