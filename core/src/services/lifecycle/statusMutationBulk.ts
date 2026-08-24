@@ -1,10 +1,21 @@
 import mongoose from 'mongoose';
-import { LISTING_STATUS } from '@esparex/contracts';
+import { LISTING_STATUS, type ActorMetadata } from '@esparex/contracts';
 import { pLimit } from '../../utils/pLimit';
 import { lifecycleEvents } from '../../events';
-import type { ValidDomain, MutationRequest } from './StatusMutationService';
+import type { ValidDomain } from './LifecycleGuard';
 
 const MUTATE_STATUSES_CONCURRENCY = 5;
+
+export interface BulkMutationRequest {
+    domain: ValidDomain;
+    entityId: string | mongoose.Types.ObjectId;
+    toStatus: string;
+    actor: ActorMetadata;
+    reason?: string;
+    patch?: Record<string, unknown>;
+    metadata?: Record<string, unknown>;
+    session?: unknown;
+}
 
 type StatusFindableModel = {
     find: (filter: Record<string, unknown>) => {
@@ -15,10 +26,10 @@ type StatusFindableModel = {
 };
 
 export const createStatusMutationBulkHandler = (
-    mutateStatus: (request: MutationRequest) => Promise<Record<string, unknown> | null>,
+    mutateStatus: (request: BulkMutationRequest) => Promise<Record<string, unknown> | null>,
     getModelForDomain: (domain: ValidDomain) => StatusFindableModel
 ) => {
-    const mutateStatuses = async (requests: MutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
+    const mutateStatuses = async (requests: BulkMutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
         const limit = pLimit(MUTATE_STATUSES_CONCURRENCY);
         return Promise.all(requests.map(request => limit(() => mutateStatus(request))));
     };
@@ -27,7 +38,7 @@ export const createStatusMutationBulkHandler = (
         domain: ValidDomain,
         entityIds: string[],
         toStatus: string,
-        actor: MutationRequest['actor'],
+        actor: BulkMutationRequest['actor'],
         reason?: string
     ): Promise<number> => {
         if (!entityIds.length) return 0;

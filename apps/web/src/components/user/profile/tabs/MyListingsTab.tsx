@@ -20,7 +20,7 @@ import {
   renderAdItem,
   renderServiceItem,
   renderSpareItem,
-} from "./myListingsConfig";
+} from "./MyListingsConfig";
 import { MyListingsDialogs } from "./MyListingsDialogs";
 
 // ── Props ─────────────────────────────────────────────────────────────────────

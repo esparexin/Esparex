@@ -15,7 +15,7 @@ import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { CatalogBulkRejectModal, CatalogBulkDuplicateModal } from "@/components/catalog/CatalogBulkModals";
 import { useCatalogRequestsBulkActions } from "./useCatalogRequestsBulkActions";
-import { generateCatalogRequestsColumns } from "./catalogRequestsColumns";
+import { generateCatalogRequestsColumns } from "./CatalogRequestsColumns";
 
 const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "resolved"]);
 

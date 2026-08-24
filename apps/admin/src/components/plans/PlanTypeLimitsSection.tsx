@@ -2,7 +2,7 @@
 
 import type { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import type { PlanFormValues } from "./planForm.schema";
-import { FieldError } from "./planFormHelpers";
+import { FieldError } from "./PlanFormHelpers";
 
 interface PlanTypeLimitsSectionProps {
   formType: PlanFormValues["type"];
