@@ -76,16 +76,14 @@ export const AdCardGrid = memo(function AdCardGrid({
             className="aspect-[4/3] w-full"
           >
             {/* Favorite button — bottom-right overlay */}
-            {onToggleSave && (
-              <AdCardActions
-                adId={adId}
-                isSaved={isSaved}
-                onToggleSave={onToggleSave}
-                isBusiness={isBusiness}
-                showBusinessBadge={showBusinessBadge}
-                className="absolute bottom-1.5 right-1.5 md:bottom-2 md:right-2"
-              />
-            )}
+            <AdCardActions
+              adId={adId}
+              isSaved={isSaved}
+              onToggleSave={onToggleSave}
+              isBusiness={isBusiness}
+              showBusinessBadge={showBusinessBadge}
+              className="absolute bottom-1.5 right-1.5 md:bottom-2 md:right-2"
+            />
           </AdCardCover>
 
           {/* Content section */}

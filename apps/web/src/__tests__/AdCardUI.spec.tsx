@@ -8,6 +8,7 @@ import { AdCardActions } from "@/components/user/ad-card/primitives/AdCardAction
 import { AdCardShell } from "@/components/user/ad-card/primitives/AdCardShell";
 import { resolveDeviceCondition, getConditionBadge, isSpotlightAd } from "@/components/user/ad-card/shared";
 import { formatShortRelativeTime } from "@/lib/formatters";
+import { useFavoriteAd } from "@/hooks/listings/useFavoriteAd";
 
 const createMockAd = (overrides = {}) =>
   AdSchema.parse({
@@ -31,6 +32,7 @@ describe("AdCard Component SSOT & Architecture", () => {
     expect(typeof AdCardCover).toBe("object"); // memoized component
     expect(typeof AdCardActions).toBe("object"); // memoized component
     expect(typeof AdCardShell).toBe("object"); // memoized component
+    expect(typeof useFavoriteAd).toBe("function");
   });
 
   describe("Device Condition Resolution & Badge Generation", () => {
