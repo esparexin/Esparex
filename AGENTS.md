@@ -958,15 +958,33 @@ Before any commit command is executed, run and confirm:
 
 ## 18. ESPAREX FRONTEND LAYOUT & SURFACE ARCHITECTURE GOVERNANCE (EFAS v1.0.0)
 
-### 18.1 Mandatory Rules
-1. **Single Responsibility Hierarchy**:
-   `PageShell (Layout)` $\rightarrow$ `PageLayout (Grid)` $\rightarrow$ `Container (Bounds)` $\rightarrow$ `Section (Grouping)` $\rightarrow$ `Card (Surface)` $\rightarrow$ `Content (Data)`.
-2. **Prohibited Surface misuse**:
-   - Card MUST NOT be used as a full-page wrapper or form wrapper.
-   - Ad-hoc card-like `div` containers with raw border/shadow utility strings are strictly forbidden. Use `@esparex/ui` `<Card>` for surfaces or `<Container>` + `<Section>` for layout bounds.
-3. **SSOT Imports**:
-   - Web surfaces MUST consume `@esparex/ui` (`Card`, `PageShell`, `Container`, `Section`).
-   - Mobile surfaces MUST consume `@esparex/mobile-ui` (`Card`, `Screen`, `Container`). Redundant explicit background/border prop overrides are forbidden.
+## 19. ESPAREX UI/UX SKILL PRECEDENCE & PERMANENT TYPOGRAPHY PREVENTION STANDARD
+
+### 19.1 Four-Tier Skill & Governance Precedence Hierarchy
+1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
+2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
+3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
+4. **Tier 4 (Auxiliary Design Guides)**: `ui-styling`, `ui-ux-pro-max`, `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants.
+
+### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
+All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
+- `text-display`: `2.25rem` (36px), line-height `1.2`, tracking `-0.02em` (Hero titles)
+- `text-h1`: `1.875rem` (30px), line-height `1.25`, tracking `-0.02em` (Page headers `<h1>`)
+- `text-h2`: `1.5rem` (24px), line-height `1.3`, tracking `-0.01em` (Section headers `<h2>`)
+- `text-h3`: `1.25rem` (20px), line-height `1.35`, tracking `-0.01em` (Card group titles `<h3>`)
+- `text-h4`: `1.125rem` (18px), line-height `1.4`, tracking `0` (Subsection headers, prominent desktop prices)
+- `text-body-lg`: `1.0rem` (16px), line-height `1.5`, tracking `0` (Lead text, desktop card prices)
+- `text-body`: `0.875rem` (14px), line-height `1.55`, tracking `0` (Standard body text, desktop card titles)
+- `text-small`: `0.8125rem` (13px), line-height `1.5`, tracking `0` (Compact listings, helper text)
+- `text-caption`: `0.75rem` (12px), line-height `1.4`, tracking `0` (Mobile card titles, footer links, form labels)
+- `text-tiny`: `0.6875rem` (11px), line-height `1.4`, tracking `0` (Badges, chips, timestamps)
+
+### 19.3 Non-Negotiable UI/UX Invariants
+1. **Zero Arbitrary Font Size Rule**: `text-[13px]`, `text-[1.2rem]`, etc., are strictly prohibited.
+2. **Font Family Invariant**: **Geist** (`var(--font-primary)`) is the single font family SSOT. Competing fonts (Inter, Roboto, Poppins) are forbidden.
+3. **Single-Instance Responsive Invariant**: No duplicate `Desktop*` vs `Mobile*` component trees.
+4. **Native Popup SSOT**: Alerts and notifications MUST use `popupBus` / `notify`. External toast packages (`sonner`, `react-hot-toast`) are banned.
+
 
 
 
