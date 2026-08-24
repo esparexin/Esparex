@@ -23,7 +23,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
   return (
     <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-wider">
+        <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider">
           Credit History
         </h4>
         {pagination && (
@@ -57,7 +57,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
 
       {!isLoading && items.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-caption">
             <thead>
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
                 <th className="py-2 px-3">Date</th>

@@ -19,7 +19,7 @@ export function MoreMenuTab({
   renderTabBadge,
 }: MoreMenuTabProps) {
   return (
-    <div className="block md:hidden w-full bg-white divide-y divide-slate-100">
+    <div className="block md:hidden w-full bg-card divide-y divide-border">
       <div className="py-1" role="list">
         <AccountNavItemList
           items={PROFILE_TAB_ITEMS}
@@ -34,7 +34,7 @@ export function MoreMenuTab({
         <button
           type="button"
           onClick={() => { void onLogout(); }}
-          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-left font-medium text-sm text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           <span>Logout</span>

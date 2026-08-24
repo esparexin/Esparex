@@ -9,7 +9,7 @@ interface WalletOverviewCardProps {
 
 export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }) => {
   return (
-    <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+    <Card className="rounded-2xl border border-border bg-card shadow-xs">
       <CardContent className="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
         <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
           Ad Credits & Allowances
@@ -17,26 +17,26 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {/* Group 1: Ad Postings */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-200/70 flex flex-col justify-between space-y-3">
+          <div className="bg-muted/50 rounded-xl p-3.5 border border-border flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+                <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
                   <Package className="w-4 h-4 shrink-0" />
                 </div>
                 <span className="text-small font-bold text-foreground">Ad Postings</span>
               </div>
-              <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {wallet.monthlyFreeAdsRemaining + wallet.paidAdCredits} Available
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
+            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-border">
               <span>Free Monthly: <strong className="text-foreground">{wallet.monthlyFreeAdsRemaining}</strong> / {wallet.monthlyFreeAdsTotal}</span>
               <span>Extra Paid: <strong className="text-foreground">{wallet.paidAdCredits}</strong></span>
             </div>
           </div>
 
           {/* Group 2: Smart Alerts */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-200/70 flex flex-col justify-between space-y-3">
+          <div className="bg-muted/50 rounded-xl p-3.5 border border-border flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -48,13 +48,13 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
                 {wallet.smartAlertSlots ?? 0} Active
               </span>
             </div>
-            <div className="text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
+            <div className="text-tiny text-muted-foreground pt-2 border-t border-border">
               Instant match notifications for buyer requests
             </div>
           </div>
 
           {/* Group 3: Listing Boosts */}
-          <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-200/70 flex flex-col justify-between space-y-3">
+          <div className="bg-muted/50 rounded-xl p-3.5 border border-border flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
@@ -66,7 +66,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
                 {wallet.spotlightCredits + wallet.topAdCredits} Credits
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
+            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-border">
               <span>Spotlight: <strong className="text-foreground">{wallet.spotlightCredits}</strong></span>
               <span>Top Ad: <strong className="text-foreground">{wallet.topAdCredits}</strong></span>
             </div>

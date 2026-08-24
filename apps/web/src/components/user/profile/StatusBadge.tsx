@@ -22,11 +22,11 @@ export function StatusBadge({ status, className = "" }: { status: string; classN
     case "rejected":
       return renderBadge("Rejected", "bg-red-100 text-red-700");
     case "expired":
-      return renderBadge("Expired", "bg-slate-200 text-foreground-secondary");
+      return renderBadge("Expired", "bg-muted text-foreground-secondary");
     case "deactivated":
       return renderBadge("Deactivated", "bg-orange-100 text-orange-700");
     default:
-      return renderBadge(status || "Unknown", "bg-gray-100 text-foreground-tertiary");
+      return renderBadge(status || "Unknown", "bg-muted text-foreground-tertiary");
   }
 }
 

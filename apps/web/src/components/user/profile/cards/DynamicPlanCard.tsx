@@ -19,14 +19,14 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
   return (
     <div
-      className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between relative overflow-hidden bg-white shadow-xs ${
+      className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between relative overflow-hidden bg-card shadow-xs ${
         isCurrent
-          ? 'border-blue-600 ring-2 ring-blue-500/20'
+          ? 'border-primary ring-2 ring-primary/20'
           : isSpotlight
           ? 'border-amber-200 hover:border-amber-400 hover:shadow-md'
           : isTopAd
-          ? 'border-blue-200 hover:border-blue-400 hover:shadow-md'
-          : 'border-slate-200/90 hover:border-slate-300 hover:shadow-md'
+          ? 'border-primary/20 hover:border-primary/40 hover:shadow-md'
+          : 'border-border hover:border-border/80 hover:shadow-md'
       }`}
     >
       {plan.popular && !isCurrent && (
@@ -42,14 +42,14 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
               isSpotlight
                 ? 'bg-amber-50 text-amber-800 border-amber-200'
                 : isTopAd
-                ? 'bg-blue-50 text-blue-800 border-blue-200'
+                ? 'bg-primary/10 text-primary border-primary/20'
                 : isMoreAds
                 ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
                 : 'bg-emerald-50 text-emerald-800 border-emerald-200'
             }`}
           >
             {isSpotlight && <Sparkles className="h-3 w-3 text-amber-500 fill-amber-400" />}
-            {isTopAd && <Zap className="h-3 w-3 text-blue-600" />}
+            {isTopAd && <Zap className="h-3 w-3 text-primary" />}
             {isMoreAds && <Package className="h-3 w-3 text-indigo-600" />}
             {isAlertSlots && <BellRing className="h-3 w-3 text-emerald-600" />}
             <span>{plan.type}</span>
@@ -62,14 +62,14 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
           )}
         </div>
 
-        <h4 className="text-base font-bold text-slate-900 tracking-tight">{plan.name}</h4>
+        <h4 className="text-body-lg font-bold text-foreground tracking-tight">{plan.name}</h4>
         <div className="mt-2 flex items-baseline gap-1.5">
-          <span className="text-2xl font-black text-slate-900">₹{plan.price.toLocaleString()}</span>
-          <span className="text-xs font-semibold text-slate-500">/ {plan.duration}</span>
+          <span className="text-2xl font-black text-foreground">₹{plan.price.toLocaleString()}</span>
+          <span className="text-caption font-semibold text-foreground-subtle">/ {plan.duration}</span>
         </div>
 
         {plan.features && plan.features.length > 0 && (
-          <ul className="mt-4 space-y-2 text-xs text-slate-700 border-t border-slate-100 pt-3">
+          <ul className="mt-4 space-y-2 text-caption text-foreground-secondary border-t border-border pt-3">
             {plan.features.map((feat, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
@@ -82,12 +82,12 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
       <button
         onClick={() => onSelect(plan)}
-        className={`w-full h-10 mt-5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+        className={`w-full h-10 mt-5 rounded-xl text-caption font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
           isCurrent
-            ? 'bg-slate-100 text-slate-400 cursor-default border border-slate-200'
+            ? 'bg-muted text-foreground-subtle cursor-default border border-border'
             : isSpotlight
             ? 'bg-amber-500 hover:bg-amber-600 text-white'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
+            : 'bg-primary hover:bg-primary/90 text-primary-foreground'
         }`}
         disabled={isCurrent}
       >

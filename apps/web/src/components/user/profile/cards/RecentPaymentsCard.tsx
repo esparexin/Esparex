@@ -30,8 +30,8 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
         <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground mb-1">
           <FileText className="w-4 h-4" />
         </div>
-        <h4 className="text-xs sm:text-sm font-bold text-foreground">No Payment Receipts Yet</h4>
-        <p className="text-2xs sm:text-xs text-muted-foreground max-w-sm mx-auto">
+        <h4 className="text-caption sm:text-body font-bold text-foreground">No Payment Receipts Yet</h4>
+        <p className="text-2xs sm:text-caption text-muted-foreground max-w-sm mx-auto">
           When you upgrade your plan or buy credit packs, your tax invoices and download receipts will appear here.
         </p>
       </div>
@@ -42,7 +42,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
     <>
       <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+          <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary shrink-0" />
             My Invoices & Receipts ({payments.length})
           </h4>
@@ -52,7 +52,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-caption">
             <thead>
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
                 <th className="py-2 px-3">Date</th>
