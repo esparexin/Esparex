@@ -116,11 +116,11 @@ export function RelatedBusinessesSection({
           <h3 className="text-base font-bold md:text-lg text-foreground">{sectionCopy.title}</h3>
         </div>
         {!isLoading && businesses.length > 0 ? (
-          <div className="hidden gap-2 md:flex">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <Button
               size="icon"
               variant="outline"
-              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg sm:rounded-xl border-border hover:bg-muted cursor-pointer"
               onClick={() => scrollCarousel("left")}
               aria-label="Previous repair shops"
             >
@@ -129,7 +129,7 @@ export function RelatedBusinessesSection({
             <Button
               size="icon"
               variant="outline"
-              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg sm:rounded-xl border-border hover:bg-muted cursor-pointer"
               onClick={() => scrollCarousel("right")}
               aria-label="Next repair shops"
             >
