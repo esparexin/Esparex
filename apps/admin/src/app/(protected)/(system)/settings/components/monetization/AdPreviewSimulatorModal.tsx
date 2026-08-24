@@ -29,7 +29,20 @@ export function AdPreviewSimulatorModal({
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="text-body font-bold text-foreground">Multi-Device In-Content Ad Simulator</h3>
           </div>
-          <div className="flex items-center gap-1 bg-muted p-1 rounded-xl">
+          <div className="flex items-center gap-2">
+            <select
+              value={previewPlacement}
+              onChange={(e) => setPreviewPlacement(e.target.value as InContentPlacementId)}
+              className="h-8 px-2 rounded-xl border border-border bg-card text-caption text-foreground focus:outline-none"
+              aria-label="Select placement slot for simulation"
+            >
+              {Object.entries(PLACEMENT_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setPreviewDevice("desktop")}
@@ -60,6 +73,7 @@ export function AdPreviewSimulatorModal({
             >
               <Smartphone className="h-4 w-4" />
             </button>
+          </div>
           </div>
         </div>
 

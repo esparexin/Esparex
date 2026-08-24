@@ -8,21 +8,71 @@ export type AdProviderType =
   | "custom_banner"
   | "house_ad";
 
-export type InContentPlacementId =
-  | "listing_detail_sidebar_bottom"
-  | "listing_detail_below_description"
-  | "home_below_hero"
-  | "home_between_sections"
-  | "browse_in_feed"
-  | "global_footer";
+export const CANONICAL_PLACEMENTS = [
+  "homepage_hero_top",
+  "homepage_feed_inline",
+  "search_results_header",
+  "search_results_inline",
+  "category_page_header",
+  "category_page_inline",
+  "listing_details_sidebar",
+  "listing_details_incontent",
+  "services_page_header",
+  "spare_parts_header",
+  "business_profile_sidebar",
+  "user_dashboard_top",
+  "user_my_listings_inline",
+  "business_dashboard_top",
+  "static_pages_footer",
+  "footer_leaderboard",
+  "mobile_sticky_bottom",
+] as const;
+
+export const LEGACY_PLACEMENT_ALIASES = [
+  "listing_detail_sidebar_bottom",
+  "listing_detail_below_description",
+  "home_below_hero",
+  "home_between_sections",
+  "browse_in_feed",
+  "global_footer",
+] as const;
+
+export type CanonicalPlacementId = typeof CANONICAL_PLACEMENTS[number];
+export type LegacyPlacementId = typeof LEGACY_PLACEMENT_ALIASES[number];
+
+export type InContentPlacementId = CanonicalPlacementId | LegacyPlacementId;
+
+export const PLACEMENT_ALIASES_MAP: Record<string, CanonicalPlacementId> = {
+  home_below_hero: "homepage_hero_top",
+  home_between_sections: "homepage_feed_inline",
+  browse_in_feed: "search_results_inline",
+  listing_detail_sidebar_bottom: "listing_details_sidebar",
+  listing_detail_below_description: "listing_details_incontent",
+  global_footer: "footer_leaderboard",
+};
+
+export const normalizePlacementId = (placementId: string): string => {
+  return PLACEMENT_ALIASES_MAP[placementId] || placementId;
+};
+
+export const getPlacementEquivalents = (placementId: string): string[] => {
+  const canonical = PLACEMENT_ALIASES_MAP[placementId] || placementId;
+  const legacyKeys = Object.entries(PLACEMENT_ALIASES_MAP)
+    .filter(([_, canon]) => canon === canonical)
+    .map(([leg]) => leg);
+  return Array.from(new Set([placementId, canonical, ...legacyKeys]));
+};
 
 export type AdCampaignStatus = "draft" | "active" | "paused" | "expired";
+
+export type AdFallbackStrategy = "collapse" | "house_ad" | "internal_promo";
 
 export interface AdTargetingCriteria {
   states?: string[];
   cities?: string[];
   categories?: string[];
   device?: "all" | "desktop" | "mobile" | "tablet";
+  viewports?: ("desktop" | "tablet" | "mobile")[];
   userType?: "all" | "authenticated" | "guest" | "business";
 }
 
@@ -42,7 +92,7 @@ export interface AdRenderingRules {
 export interface AdProviderConfig {
   googleSlotId?: string;
   googlePublisherId?: string;
-  googleFormat?: "auto" | "rectangle" | "horizontal";
+  googleFormat?: "auto" | "rectangle" | "horizontal" | "vertical" | "fluid";
   bannerImageUrl?: string;
   bannerTargetUrl?: string;
   bannerAltText?: string;
@@ -64,6 +114,7 @@ export interface AdCampaignItem {
   providerType: AdProviderType;
   priority: number; // 1 = highest, 2 = secondary fallback, 3 = tertiary house ad
   status: AdCampaignStatus;
+  fallbackStrategy?: AdFallbackStrategy;
   startAt?: string; // ISO 8601
   endAt?: string; // ISO 8601
   targeting: AdTargetingCriteria;

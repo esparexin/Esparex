@@ -1,10 +1,74 @@
 import GoogleAdPlacement from "../models/GoogleAdPlacement";
-import { GOOGLE_AD_STATUS, type GoogleAdPlacementDTO } from "@esparex/contracts";
+import { getAdvertisementCampaignModel } from "../models/AdvertisementCampaign";
+import {
+    GOOGLE_AD_STATUS,
+    type GoogleAdPlacementDTO,
+    type InContentPlacementId,
+} from "@esparex/contracts";
 import { AppError } from "../utils/AppError";
 import { getCache, setCache, delCache } from "../utils/redisCache";
 
 const PUBLIC_ADS_CACHE_KEY = "sys:google_ads:active_placements";
 const PUBLIC_ADS_CACHE_TTL = 300; // 5 minutes
+
+const syncToAdvertisementCampaign = async (placement: any, isDelete = false) => {
+    try {
+        const campaignModel = getAdvertisementCampaignModel();
+        const campaignName = `[GoogleAd] ${placement.name}`;
+
+        if (isDelete || placement.isDeleted) {
+            await campaignModel.deleteMany({
+                $or: [
+                    { "providerConfig.googleSlotId": placement.adSlotId },
+                    { name: campaignName },
+                ],
+            });
+            return;
+        }
+
+        const placementId = (placement.location || placement.placementKey || "homepage_hero_top") as InContentPlacementId;
+        const status = placement.status === "active" ? "active" : placement.status === "paused" ? "paused" : "draft";
+
+        await campaignModel.findOneAndUpdate(
+            {
+                $or: [
+                    { "providerConfig.googleSlotId": placement.adSlotId },
+                    { name: campaignName },
+                ],
+            },
+            {
+                $set: {
+                    name: campaignName,
+                    placementId,
+                    providerType: "google_adsense",
+                    priority: Math.max(1, placement.priority || 1),
+                    status,
+                    fallbackStrategy: placement.fallbackStrategy === "internal_promo" ? "internal_promo" : "collapse",
+                    targeting: {
+                        device: "all",
+                        viewports: placement.viewports || ["desktop", "tablet", "mobile"],
+                        states: [],
+                        cities: [],
+                        categories: [],
+                        userType: "all",
+                    },
+                    providerConfig: {
+                        googleSlotId: placement.adSlotId,
+                        googlePublisherId: placement.publisherClientId || "",
+                        googleFormat: placement.format === "fluid" ? "fluid" : "auto",
+                        bannerImageUrl: placement.fallbackImageUri,
+                        bannerTargetUrl: placement.fallbackTargetUrl,
+                    },
+                    startAt: placement.startDate || null,
+                    endAt: placement.endDate || null,
+                },
+            },
+            { upsert: true, new: true }
+        );
+    } catch (err) {
+        console.warn("[GoogleAdsService] Campaign sync warning:", err);
+    }
+};
 
 export const serializeGoogleAdPlacement = (doc: any): GoogleAdPlacementDTO => {
     return {
@@ -109,6 +173,7 @@ export const createGoogleAdPlacement = async (data: Partial<GoogleAdPlacementDTO
     });
 
     await placement.save();
+    await syncToAdvertisementCampaign(placement);
     await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
@@ -132,6 +197,7 @@ export const updateGoogleAdPlacement = async (id: string, data: Partial<GoogleAd
 
     Object.assign(placement, data);
     await placement.save();
+    await syncToAdvertisementCampaign(placement);
     await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
@@ -144,6 +210,7 @@ export const mutateGoogleAdPlacementStatus = async (id: string, status: string) 
 
     placement.status = status;
     await placement.save();
+    await syncToAdvertisementCampaign(placement);
     await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
@@ -156,6 +223,7 @@ export const deleteGoogleAdPlacement = async (id: string) => {
 
     placement.isDeleted = true;
     await placement.save();
+    await syncToAdvertisementCampaign(placement, true);
     await delCache(PUBLIC_ADS_CACHE_KEY);
     return true;
 };

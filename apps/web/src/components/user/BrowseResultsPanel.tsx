@@ -9,6 +9,7 @@ import { Button, cn } from "@esparex/ui";
 import { BrowseGridSkeleton } from "./BrowseGridSkeleton";
 import { BrowseEmptyState } from "./BrowseEmptyState";
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 export type BrowseVirtualizedListProps<TItem> = {
   items: TItem[];
@@ -103,6 +104,8 @@ export function BrowseResultsPanel<TItem>({
             onSortChange={onSortChange}
             onViewChange={onViewChange}
           />
+
+          <AdPlacementSlot placement="search_results_header" />
 
           {error ? (
             <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">

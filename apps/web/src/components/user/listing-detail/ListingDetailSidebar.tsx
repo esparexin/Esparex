@@ -12,6 +12,7 @@ import { AdSellerCard } from "./AdSellerCard";
 import { AdBusinessCard } from "./AdBusinessCard";
 import { AdSafetyTips } from "./AdSafetyTips";
 import { AdOwnerActions } from "./AdOwnerActions";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 interface ListingDetailSidebarProps {
     ad: Ad;
@@ -128,6 +129,8 @@ export function ListingDetailSidebar({
                     </Button>
                 </div>
             )}
+
+            <AdPlacementSlot placement="listing_details_sidebar" />
         </div>
     );
 }
