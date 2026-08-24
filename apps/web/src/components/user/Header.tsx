@@ -10,14 +10,10 @@ import {
   LogIn,
   ChevronDown,
   TrendingUp,
-  Building2,
-  LayoutDashboard,
-  LogOut,
 } from "@/icons/IconRegistry";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
-import { User } from "@/types/User";
-import { getUserInitials } from "@/lib/headerUtils";
+import type { User } from "@/types/User";
 import {
   Button,
   Z_INDEX,
@@ -36,23 +32,16 @@ import {
 } from "@/config/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
-import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
-import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
+import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { HeaderAccountMenu } from "./header/HeaderAccountMenu";
+import { HeaderBusinessButton } from "./header/HeaderBusinessButton";
+import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 
 export interface HeaderProps {
   currentPage?: string;
@@ -88,8 +77,6 @@ export function Header({
     () => toSafeImageSrc(user?.profilePhoto, ""),
     [user?.profilePhoto]
   );
-  const [imgErrPhoto, setImgErrPhoto] = useState<string | null>(null);
-  const avatarSrc = imgErrPhoto === safeProfilePhoto ? DEFAULT_IMAGE_PLACEHOLDER : (safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
 
   const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
     isLoggedIn,
@@ -175,7 +162,7 @@ export function Header({
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
         {/* Logo */}
-        <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1">
+        <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1 cursor-pointer">
           <Image
             src="/icons/logo.png"
             alt="Esparex Logo"
@@ -186,7 +173,7 @@ export function Header({
           />
         </button>
 
-        {/* Location Selector — desktop trigger only (overlay is rendered at header root) */}
+        {/* Location Selector */}
         <div className="relative" ref={locationDropdownRef}>
           <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
         </div>
@@ -198,7 +185,7 @@ export function Header({
             <Input
               id="header-desktop-search"
               aria-label="Search for mobiles, parts, services"
-              className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base md:text-sm"
+              className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-xs text-body"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -224,42 +211,13 @@ export function Header({
             </>
           ) : isLoggedIn ? (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`hidden md:flex gap-2 ${
-                  isBusinessLive ? "text-primary font-semibold" : "text-muted-foreground"
-                } hover:text-foreground`}
-                onClick={() => {
-                  if (isBusinessLive || shouldShowPendingReview || !canRegister) {
-                    navigateTo("business-entry");
-                  } else {
-                    navigateTo("business-register");
-                  }
-                }}
-              >
-                {isBusinessLive ? (
-                  <>
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span className="hidden xl:inline">Business Hub</span>
-                  </>
-                ) : shouldShowPendingReview ? (
-                  <>
-                    <Building2 className="h-4 w-4 text-amber-500" />
-                    <span className="hidden xl:inline text-amber-600">Pending Review</span>
-                  </>
-                ) : businessStatus === "rejected" ? (
-                  <>
-                    <Building2 className="h-4 w-4 text-red-500" />
-                    <span className="hidden xl:inline text-red-600">Fix Application</span>
-                  </>
-                ) : (
-                  <>
-                    <Building2 className="h-4 w-4" />
-                    <span className="hidden xl:inline">Register Business</span>
-                  </>
-                )}
-              </Button>
+              <HeaderBusinessButton
+                isBusinessLive={isBusinessLive}
+                shouldShowPendingReview={shouldShowPendingReview}
+                canRegister={canRegister}
+                businessStatus={businessStatus}
+                onNavigate={navigateTo}
+              />
 
               <NotificationBellDropdown
                 notificationsData={notificationsData}
@@ -268,67 +226,16 @@ export function Header({
                 variant="desktop"
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative rounded-full h-8 w-8 flex-shrink-0 border-none hover:bg-transparent p-0 overflow-hidden ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    aria-label="Open account menu"
-                  >
-                    {safeProfilePhoto ? (
-                      <Image
-                        src={avatarSrc}
-                        alt={user?.name || "Profile"}
-                        width={32}
-                        height={32}
-                        unoptimized
-                        className="h-8 w-8 rounded-full object-cover"
-                        onError={() => setImgErrPhoto(safeProfilePhoto)}
-                      />
-                    ) : (
-                      <div className="flex h-8 w-8 items-center justify-center bg-muted text-foreground-secondary font-semibold border border-border rounded-full hover:bg-accent text-xs">
-                        {getUserInitials(user?.name || "", user?.mobile)}
-                      </div>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-border p-1">
-                  <DropdownMenuLabel className="font-normal p-3 bg-muted/50 rounded-t-xl mb-1">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-semibold leading-none">{user?.name || "Esparex User"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {user?.mobile ? `****** ${user.mobile.slice(-4)}` : ""}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-border" />
-                  {profileMenuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={item.id}
-                        onClick={() => handleMenuItemClick(item)}
-                        className="cursor-pointer rounded-lg focus:bg-muted"
-                      >
-                        <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span>{item.label}</span>
-                      </DropdownMenuItem>
-                    );
-                  })}
-                  <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem
-                    onClick={onLogout}
-                    className="cursor-pointer rounded-lg text-red-600 focus:bg-red-50 focus:text-red-700"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <HeaderAccountMenu
+                user={user}
+                safeProfilePhoto={safeProfilePhoto}
+                profileMenuItems={profileMenuItems}
+                onMenuItemClick={handleMenuItemClick}
+                onLogout={onLogout}
+              />
             </>
           ) : (
-            <Button variant="ghost" size="sm" onClick={onShowLogin}>
+            <Button variant="ghost" size="sm" onClick={onShowLogin} className="cursor-pointer">
               Login
             </Button>
           )}
@@ -337,7 +244,7 @@ export function Header({
             size="sm"
             onClick={handlePostAdClick}
             disabled={!isBackendUp}
-            className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
           >
             <TrendingUp className="h-4 w-4" /> Post Ad
@@ -351,7 +258,7 @@ export function Header({
         <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
           <button
             type="button"
-            className="flex items-center mr-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+            className="flex items-center mr-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md cursor-pointer"
             onClick={() => navigateTo("home")}
             aria-label="Go to homepage"
           >
@@ -369,7 +276,7 @@ export function Header({
 
           <button
             type="button"
-            className="active:bg-muted transition-colors flex items-center flex-1 min-w-0 text-left h-10"
+            className="active:bg-muted transition-colors flex items-center flex-1 min-w-0 text-left h-10 cursor-pointer"
             onClick={() => isMounted && setShowLocationSelector(true)}
             aria-label={
               headerLocationDetails.headerText
@@ -377,8 +284,8 @@ export function Header({
                 : "Open location selector"
             }
           >
-            <MapPin className="h-4 w-4 text-blue-600 mr-1.5 flex-shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-xs sm:text-sm font-normal text-foreground-secondary">
+            <MapPin className="h-4 w-4 text-primary mr-1.5 flex-shrink-0" />
+            <span className="min-w-0 flex-1 truncate text-caption sm:text-body font-normal text-foreground-secondary">
               <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                 {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
               </span>
@@ -392,7 +299,7 @@ export function Header({
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary"
+            className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer"
             aria-label="Open navigation menu"
             onClick={() => setIsMobileDrawerOpen(true)}
           >
@@ -406,11 +313,11 @@ export function Header({
                 setIsMobileSearchEditing(true);
                 setSearchQuery(browseParams.q || "");
               }}
-              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer"
               aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
             >
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
-              <span className="truncate text-sm font-medium text-foreground-secondary">
+              <span className="truncate text-body font-medium text-foreground-secondary">
                 {stickySearchLabel}
               </span>
             </button>
@@ -426,7 +333,7 @@ export function Header({
               <Input
                 id="header-mobile-search"
                 autoFocus={isMobileSearchEditing}
-                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
+                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-xl text-body placeholder:text-foreground-subtle"
                 placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -445,7 +352,7 @@ export function Header({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 rounded-xl text-link hover:bg-blue-50"
+                className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
                 onClick={onShowLogin}
                 aria-label="Login"
               >
@@ -465,12 +372,7 @@ export function Header({
         </div>
       </div>
 
-      {/* ── LOCATION OVERLAY ─────────────────────────────────────────────────────────────────────────
-           Rendered at the <header> root — NEVER inside a display:none container.
-           Radix UI's DismissableLayer requires an interactive DOM branch to function correctly.
-           On mobile: renders a bottom Sheet portalled to document.body.
-           On desktop: renders a position:fixed dropdown anchored to locationDropdownRef bounds.
-      ────────────────────────────────────────────────────────────────────────────────────────────── */}
+      {/* ── LOCATION OVERLAY ───────────────────────────────────────────────────────────────────────── */}
       <LocationOverlayHost
         isOpen={showLocationSelector}
         onClose={() => setShowLocationSelector(false)}

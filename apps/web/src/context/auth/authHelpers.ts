@@ -1,6 +1,7 @@
 import type { useRouter } from "next/navigation";
 import type { User } from "@/types/User";
 import { isAPIError } from "@/lib/api/APIError";
+import { authApi } from "@/lib/api/auth";
 
 export const AUTH_SESSION_STORAGE_KEY = "esparex_user_session";
 
@@ -38,4 +39,33 @@ export function replaceToHomeSafely(router: ReturnType<typeof useRouter>) {
   }
 
   void router.push("/");
+}
+
+export function getDevUser(): User {
+  return {
+    id: "local-dev-user",
+    name: "Local Dev User",
+    email: "dev@localhost",
+    mobile: "9999999999",
+    role: "user",
+    isPhoneVerified: true,
+    businessStatus: "pending",
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export async function cleanupUnauthorizedSession(router: ReturnType<typeof useRouter>, hadActiveSession: boolean) {
+  try {
+    await authApi.logout();
+  } catch {
+    // Ignore cleanup failures
+  }
+
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+  }
+
+  if (hadActiveSession) {
+    replaceToHomeSafely(router);
+  }
 }

@@ -7,52 +7,35 @@ import {
   useEffect,
   useCallback,
   useMemo,
-  ReactNode,
+  type ReactNode,
   useRef,
 } from "react";
-
 import { useRouter } from "next/navigation";
 import type { User } from "@/types/User";
-
-import { normalizeError } from "@/lib/api/normalizeError";
 import { authApi } from "@/lib/api/auth";
 import logger from "@/lib/logger";
-
 import {
   AUTH_SESSION_STORAGE_KEY,
   isValidUser,
   isBenignLogoutError,
-  replaceToHomeSafely,
 } from "./auth/authHelpers";
 import { useBackendReadyPoller } from "./auth/useBackendReadyPoller";
+import { useUserFetcher } from "./auth/useUserFetcher";
+import { useSessionSync } from "./auth/useSessionSync";
+import type {
+  AuthStatus,
+  AuthStatusContextType,
+  AuthUserContextType,
+  AuthContextType,
+  BackendReadyContextType,
+} from "./auth/authTypes";
 
-/* -------------------------------------------------------------------------- */
-/* Types                                                                      */
-/* -------------------------------------------------------------------------- */
-
-export type AuthStatus =
-  | "loading"
-  | "unauthenticated"
-  | "authenticated";
-
-export interface AuthStatusContextType {
-  status: AuthStatus;
-  isAuthResolved: boolean;
-  error: Error | null;
-  refreshUser: () => Promise<void>;
-  logout: (options?: { skipServerLogout?: boolean }) => Promise<void>;
-}
-
-export interface AuthUserContextType {
-  user: User | null;
-  updateUser: (user: User) => void;
-}
-
-export interface AuthContextType extends AuthStatusContextType, AuthUserContextType {}
-
-interface BackendReadyContextType {
-  backendReady: boolean;
-}
+export type {
+  AuthStatus,
+  AuthStatusContextType,
+  AuthUserContextType,
+  AuthContextType,
+};
 
 /* -------------------------------------------------------------------------- */
 /* Contexts                                                                   */
@@ -104,199 +87,31 @@ export function AuthProvider({
   const networkRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const networkRetryCountRef = useRef(0);
 
-  /* ------------------------------------------------------------------------ */
-  /* Fetch User                                                               */
-  /* ------------------------------------------------------------------------ */
+  const { fetchUser } = useUserFetcher({
+    backendReady,
+    setBackendReady,
+    setHasAuthHint,
+    user,
+    setUser,
+    setStatus,
+    setError,
+    routerRef,
+    fetchingRef,
+    authBannerShownRef,
+    wasAuthenticatedRef,
+    staleSessionCleanupRef,
+    networkRetryTimerRef,
+    networkRetryCountRef,
+  });
 
-  const fetchUser = useCallback(async function doFetch(): Promise<void> {
-    /* ---------------- Dev Bypass ---------------- */
-
-    if (!backendReady) {
-      if (
-        process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH === "true" &&
-        process.env.NODE_ENV !== "production"
-      ) {
-        logger.warn("⚠️ LOCAL DEV AUTH ENABLED — DO NOT DEPLOY");
-
-        const devUser: User = {
-          id: "local-dev-user",
-          name: "Local Dev User",
-          email: "dev@localhost",
-          mobile: "9999999999",
-          role: "user",
-          isPhoneVerified: true,
-          businessStatus: "pending",
-          createdAt: new Date().toISOString(),
-        };
-
-        setUser(devUser);
-        setStatus("authenticated");
-        setBackendReady(true);
-        setError(null);
-
-        return;
-      }
-
-      setStatus("loading");
-      return;
-    }
-
-    /* ---------------- Idempotency ---------------- */
-
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
-    if (!user) {
-      setStatus("loading");
-    }
-
-    try {
-      const response = await authApi.me({ silent: true });
-      const rawUser = response.user;
-
-      if (isValidUser(rawUser)) {
-        setUser(rawUser);
-        setStatus("authenticated");
-        setError(null);
-        setHasAuthHint(true);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(AUTH_SESSION_STORAGE_KEY, "1");
-        }
-        authBannerShownRef.current = false;
-        wasAuthenticatedRef.current = true;
-        staleSessionCleanupRef.current = false;
-      } else {
-        setUser(null);
-        setStatus("unauthenticated");
-        setHasAuthHint(false);
-      }
-    } catch (rawError: unknown) {
-      const err = normalizeError(rawError);
-
-      if (
-        err.response?.status === 401 ||
-        err.response?.status === 403
-      ) {
-        if (!staleSessionCleanupRef.current) {
-          staleSessionCleanupRef.current = true;
-          try {
-            await authApi.logout();
-          } catch {
-            // Ignore cleanup failures
-          }
-        }
-
-        if (typeof window !== "undefined") {
-          localStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
-        }
-
-        setUser(null);
-        setStatus("unauthenticated");
-        setError(null);
-        setHasAuthHint(false);
-        const hadActiveSession = wasAuthenticatedRef.current;
-        wasAuthenticatedRef.current = false;
-        if (hadActiveSession && !authBannerShownRef.current) {
-          authBannerShownRef.current = true;
-          replaceToHomeSafely(routerRef.current);
-        }
-
-        return;
-      }
-
-      if (!err.response) {
-        const MAX_NETWORK_RETRIES = 3;
-        if (networkRetryCountRef.current < MAX_NETWORK_RETRIES) {
-          networkRetryCountRef.current += 1;
-          const delay = networkRetryCountRef.current * 5_000;
-          if (process.env.NODE_ENV === "development") {
-            logger.warn(`[Auth] Network error — retrying in ${delay / 1000}s (attempt ${networkRetryCountRef.current}/${MAX_NETWORK_RETRIES})`);
-          }
-          networkRetryTimerRef.current = setTimeout(() => {
-            fetchingRef.current = false;
-            void doFetch();
-          }, delay);
-          return;
-        }
-        networkRetryCountRef.current = 0;
-        setUser(null);
-        setStatus("unauthenticated");
-        return;
-      }
-
-      if (
-        err.isExpected ||
-        err.response?.status === 429
-      ) {
-        setUser(null);
-        setStatus("unauthenticated");
-        setError(null);
-
-        return;
-      }
-
-      if (process.env.NODE_ENV === "development") {
-        logger.error("[Auth] Fetch failed:", err.message);
-      }
-
-      setError(
-        new Error(
-          err.message || "Authentication failed"
-        )
-      );
-
-      setUser(null);
-      setStatus("unauthenticated");
-      setHasAuthHint(false);
-    } finally {
-      fetchingRef.current = false;
-    }
-  }, [backendReady, setBackendReady, setHasAuthHint]);
-
-  /* ------------------------------------------------------------------------ */
-  /* Session Sync                                                             */
-  /* ------------------------------------------------------------------------ */
-
-  useEffect(() => {
-    if (!backendReady) return;
-
-    const pathname = window.location.pathname;
-
-    if (pathname.startsWith("/admin")) {
-      setTimeout(() => {
-        setStatus((prev) =>
-          prev === "loading" ? "unauthenticated" : prev
-        );
-      }, 0);
-      return;
-    }
-
-    const handleAuthUpdate = () => {
-      if (!pathname.startsWith("/admin")) {
-        fetchUser();
-      }
-    };
-
-    if (!hasAuthHint) {
-      setUser(null);
-      setStatus("unauthenticated");
-      setError(null);
-      return;
-    }
-
-    fetchUser();
-
-    window.addEventListener(
-      "esparex_auth_update",
-      handleAuthUpdate
-    );
-
-    return () => {
-      window.removeEventListener(
-        "esparex_auth_update",
-        handleAuthUpdate
-      );
-    };
-  }, [backendReady, fetchUser, hasAuthHint]);
+  useSessionSync({
+    backendReady,
+    hasAuthHint,
+    fetchUser,
+    setUser,
+    setStatus,
+    setError,
+  });
 
   /* ------------------------------------------------------------------------ */
   /* Manual Update                                                            */
@@ -338,11 +153,11 @@ export function AuthProvider({
       if (!options?.skipServerLogout) {
         await authApi.logout();
       }
-    } catch (error) {
-      if (isBenignLogoutError(error)) {
+    } catch (logoutError) {
+      if (isBenignLogoutError(logoutError)) {
         logger.info("[Auth] Logout skipped: session already cleared.");
       } else {
-        logger.error("[Auth] Logout failed:", error);
+        logger.error("[Auth] Logout failed:", logoutError);
       }
     } finally {
       if (typeof window !== "undefined") {
