@@ -20,7 +20,7 @@ describe("ListingDescriptionCard 3-Tab Architecture & Structure", () => {
       description: "Working SSD and motherboard",
       images: [],
       sellerId: "user-1",
-      status: "active",
+      status: "live",
       createdAt: new Date().toISOString(),
       location: { city: "Guntur" },
       sparePartsSnapshot: [
