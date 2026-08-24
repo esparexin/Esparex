@@ -72,7 +72,7 @@ const parsePathEntries = (path: unknown): string[] =>
     Array.isArray(path)
         ? path.map((e) => toLocationIdString(e)).filter((e): e is string => Boolean(e))
         : typeof path === 'string'
-            ? path.split(/[,\/]/).map((e) => e.trim()).filter(Boolean)
+            ? path.split(/[,/]/).map((e) => e.trim()).filter(Boolean)
             : [];
 
 export const buildLocationSummary = (
