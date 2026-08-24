@@ -48,16 +48,16 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     
     const activeSubTabColor = subTabs?.find(t => t.value === activeSubTab)?.color ?? "blue";
     const activeTabClass = {
-        blue: "border-blue-600 text-link-dark",
+        blue: "border-primary text-primary",
         violet: "border-violet-600 text-violet-700",
         teal: "border-teal-600 text-teal-700",
-    }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-blue-600 text-link-dark";
+    }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-primary text-primary";
 
     const postBtnClass = {
-        blue: "bg-blue-600 hover:bg-blue-700",
-        violet: "bg-violet-600 hover:bg-violet-700",
-        teal: "bg-teal-600 hover:bg-teal-700",
-    }[activeSubTabColor as "blue" | "violet" | "teal"] || "bg-blue-600 hover:bg-blue-700";
+        blue: "bg-primary hover:bg-primary/90 text-primary-foreground",
+        violet: "bg-violet-600 hover:bg-violet-700 text-white",
+        teal: "bg-teal-600 hover:bg-teal-700 text-white",
+    }[activeSubTabColor as "blue" | "violet" | "teal"] || "bg-primary hover:bg-primary/90 text-primary-foreground";
 
     const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
 
@@ -65,25 +65,21 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
         <div className="w-full">
             {/* ── Header (sticky on mobile, static on desktop) ── */}
             <div className={[
-                // Mobile: no top padding (title is hidden — pt-3 was showing as blank gap)
                 "px-3 md:px-6 pb-2 md:pt-3 md:pb-2.5",
-                // Mobile sticky — sits directly below AccountHeader (h-14 / top-0)
-                // border-b provides visual separation between sticky bar and scrolling content
-                "sticky top-14 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-slate-200/60",
-                // Desktop — plain, no sticky, no border
+                "sticky top-14 z-10 bg-background/95 backdrop-blur-xs border-b border-border",
                 "md:static md:bg-transparent md:backdrop-blur-none md:border-b-0",
             ].join(" ")}>
-                {/* Title row — desktop only (mobile: Post Ad lives in AccountHeader) */}
+                {/* Title row */}
                 <div className="hidden md:flex items-center justify-between mb-2.5">
-                    <h1 className="flex items-center gap-2 text-base md:text-lg font-bold text-slate-900 tracking-tight">
-                        {icon || <LayoutGrid className="h-5 w-5 text-link" />}
+                    <h1 className="flex items-center gap-2 text-body-lg md:text-h4 font-bold text-foreground tracking-tight">
+                        {icon || <LayoutGrid className="h-5 w-5 text-primary" />}
                         {title}
                     </h1>
                     {onPost && (
                         <Button
                             onClick={onPost}
                             size="sm"
-                            className={`${postBtnClass} text-white text-xs h-9 px-3 font-semibold rounded-lg shadow-sm`}
+                            className={`${postBtnClass} text-caption h-9 px-3 font-semibold rounded-lg shadow-xs cursor-pointer`}
                         >
                             <PlusCircle className="h-3.5 w-3.5 mr-1" />
                             {postLabel || "Post Ad"}
@@ -93,12 +89,12 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
                 {/* Sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
-                    <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
+                    <div className="flex gap-0 border-b border-border overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
                         {subTabs.map(t => (
                             <button
                                 key={t.value}
                                 onClick={() => onSubTabChange(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px]
+                                className={`flex items-center gap-1.5 px-4 py-2 text-caption font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px] cursor-pointer
                                     ${activeSubTab === t.value
                                         ? activeTabClass
                                         : "border-transparent text-muted-foreground hover:text-foreground-secondary"
@@ -113,7 +109,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
                 {/* Segmented Control Status Tabs */}
                 <div
-                    className="grid gap-0.5 bg-slate-100/90 p-0.5 rounded-lg h-8 max-w-xs"
+                    className="grid gap-0.5 bg-muted p-0.5 rounded-lg h-8 max-w-xs"
                     role="tablist"
                     aria-label="Filter listings by status"
                     style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
@@ -124,9 +120,9 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             role="tab"
                             aria-selected={selectedStatus === status}
                             onClick={() => onStatusChange(status)}
-                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${selectedStatus === status
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
+                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 cursor-pointer ${selectedStatus === status
+                                ? "bg-card text-foreground shadow-xs"
+                                : "text-foreground-tertiary hover:text-foreground hover:bg-muted/60"
                                 }`}
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -146,18 +142,18 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     <LoadingSkeleton />
                 ) : error ? (
                     <div className="py-12 text-center">
-                        <p className="text-muted-foreground text-sm mb-4">{errorMessage}</p>
-                        {onRetry && <Button onClick={onRetry} variant="outline" size="sm">Retry</Button>}
+                        <p className="text-muted-foreground text-body mb-4">{errorMessage}</p>
+                        {onRetry && <Button onClick={onRetry} variant="outline" size="sm" className="cursor-pointer">Retry</Button>}
                     </div>
                 ) : items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                         <div className="mb-4 text-foreground-subtle flex justify-center [&>svg]:h-10 [&>svg]:w-10 md:[&>svg]:h-12 md:[&>svg]:w-12">{emptyState.icon}</div>
-                        <h3 className="text-sm font-semibold text-foreground mb-1">{emptyState.title}</h3>
-                        <p className="text-xs text-muted-foreground max-w-[240px] mb-6">{emptyState.description}</p>
+                        <h3 className="text-body font-semibold text-foreground mb-1">{emptyState.title}</h3>
+                        <p className="text-caption text-muted-foreground max-w-[240px] mb-6">{emptyState.description}</p>
                         {emptyState.cta}
                     </div>
                 ) : (
-                    <div className="divide-y divide-slate-100 border-t border-slate-100">
+                    <div className="divide-y divide-border border-t border-border">
                         {items.map((item) => (
                             <div key={getItemKey(item)}>{renderItem(item)}</div>
                         ))}
@@ -170,7 +166,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
 function LoadingSkeleton() {
     return (
-        <div className="divide-y divide-slate-100 border-t border-slate-100">
+        <div className="divide-y divide-border border-t border-border">
             {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex items-start gap-3 py-3 md:gap-4 md:py-3.5">
                     <Skeleton className="h-16 w-16 md:h-[72px] md:w-[72px] rounded-lg shrink-0" />
