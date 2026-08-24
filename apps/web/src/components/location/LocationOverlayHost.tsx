@@ -49,9 +49,6 @@ export function LocationOverlayHost({
         if (rect) {
             setDropdownStyle({
                 position: "fixed",
-                top: rect.bottom + 2,
-                left: rect.left,
-                width: rect.width,
             });
         }
     }, [isOpen, isMobile, containerRef]);
@@ -114,25 +111,8 @@ export function LocationOverlayHost({
         <div
             ref={dropdownRef}
             // design-token-ignore: dynamic anchored dropdown positioning
-            style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }}
-            className="max-h-[min(380px,65vh)] bg-popover border border-border rounded-xl shadow-md overflow-hidden flex flex-col overscroll-contain"
-            onClick={(e) => e.stopPropagation()}
-        >
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-1.5 focus:outline-none">
-                <LocationResultsList
-                    query={locationQuery}
-                    showSkeleton={desktopSearchApi.showSkeleton}
-                    searchError={desktopSearchApi.searchError}
-                    retryCount={desktopSearchApi.retryCount}
-                    locations={desktopSearchApi.locations}
-                    isSearching={desktopSearchApi.isSearching}
-                    selectedIndex={-1}
-                    selectedCityName={location?.city || location?.name}
-                    onRetry={desktopSearchApi.handleRetry}
-                    onSelect={handleDesktopSelect}
-                    getLocationPrimaryLabel={(loc) => loc.name || loc.city || loc.displayName || ""}
-                    getLocationSecondaryLabel={(loc) => loc.state || ""}
-                />
+            style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }
+              
             </div>
         </div>
     );

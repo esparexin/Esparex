@@ -1232,54 +1232,48 @@ N/A - Verification tasks.
 
 ### EA-037
 
-**Sprint**: Tech Debt Remediation  
-**PR**: PR #459 (`refactor: remediate technical debt backlog (tokens, modularity, circularity)`)  
-**Category**: Governance / Quality Gate Audit & Prevention Plan  
-**Status**: ✅ Completed  
 
-**Action**  
-Conducted a deep-dive Root Cause Audit and authored a comprehensive Systemic Prevention Implementation Plan for the repository integrity gate failure (`DUP-001` / `SSOT-001`) observed during CI execution of PR #459.
-
-**Reason**  
-PR #459 failed CI on `DUP-001 (Duplicate & Dead Code Baseline)` with an 83% health score despite monorepo compliance with modularity rules and active AI skills. Documenting the root causes and enforcing the prevention plan prevents future CI regressions during modularization and file-splitting refactors.
-
-#### Root Cause Analysis Summary
-
-1. **Immediate Technical Cause (`DUP-001` JSCPD Ratchet Regression)**:
-   - `duplicate-validator.js` enforces an automatic zero-config ratchet: `currentRate > previousBaseline + 0.01`.
-   - The `.jscpd-baseline.json` baseline had ratcheted down to `0.08%`. Across ~1.8 million tokens in the repository, a `0.01%` increase represents only ~180 tokens (~15–20 lines of code).
-   - During technical debt remediation (splitting large files such as `securityValidators.ts`, `locationService.ts`, `PersonalTab.tsx`, `SmartAlertsTab.tsx`), newly split files introduced structural boilerplate and repeated schema wrappers that elevated duplication above the strict ratchet threshold.
-2. **Constraint Tension (Modularity Limits vs. Token Duplication)**:
-   - Strict file size thresholds (components ≤ 250 lines, services ≤ 300 lines) incentivized rapid file splitting.
-   - When split sub-files re-implement common imports, error handlers, and dialog structures, `jscpd` detects new token clones.
-3. **SSOT Symbol Collisions (`SSOT-001 ~ WARN`)**:
-   - Local exports in `apps/web` or `apps/admin` that share symbol names with canonical workspace packages (`@esparex/ui`, `@esparex/contracts`) without importing from them trigger SSOT warnings.
-4. **Verification Scope Mismatch**:
-   - Developers and AI agents ran localized checks (`type-check`, `test`, `guard:pr-quality`) while omitting the full 18-validator suite (`npm run repo:gate`) from the pre-commit workflow.
-
-#### Systemic Prevention Implementation Plan
-
-| Phase | Responsibility | Prevention Protocol |
-|:---|:---|:---|
-| **Phase 1: Extraction Before Splitting** | Architecture / Modularity | When refactoring oversized files, **extract shared contracts, types, schemas, and helper functions into canonical SSOT modules first** (`@esparex/contracts` or `@esparex/shared`), rather than duplicating boilerplate across split files. |
-| **Phase 2: SSOT Symbol Alignment** | Frontend / API | Always import canonical interfaces and components directly from `@esparex/contracts` and `@esparex/ui`. Prohibit unlinked local symbol shadowing. |
-| **Phase 3: Anti-Duplication Monitoring** | CI / Local Dev | Run `npm run guard:duplicate-code` after refactoring to inspect token clone reports before triggering repository gates. |
-| **Phase 4: Mandatory Full Gate Run** | Pre-Commit Gate | Enforce execution of `npm run repo:gate` locally. Pushing is strictly blocked unless the repository health score is **100% (PASS)**. |
-| **Phase 5: Pre-Commit SOP Alignment** | Quality Assurance | Follow the strict 8-step pre-commit protocol (`guard:pr-quality` → `guard:duplicate-code` → `type-check` → `test` → `repo:gate`). |
-
-**Files Modified**:
-```
 docs/tracking/engineering-action-register.md
 ```
 
 **Verification**:
-- ✅ `node scripts/git/repo-gate.js` → PASS (Health Score: 100%, 18/18 checks pass)
-- ✅ `node scripts/git/esparex/duplicate-validator.js` → PASS (0 orphan files, 0.09% duplicate rate preserved)
-- ✅ `node scripts/git/esparex/ssot-validator.js` → PASS (0 deep imports, 0 unresolved collisions)
+
+```
+
+---
+
+### EA-038
+
+**Sprint**: Tech Debt & Governance Optimization  
+**PR**: PR Governance Hardening  
+**Category**: Architecture Governance & Workflow Standardization  
+**Status**: ✅ Completed  
+
+**Action**  
+Codified the **Extract-Before-Split Modularity Standard**, **Top-Level Symbol Shadowing Prohibition**, and **Dynamic JSCPD Token Ratchet Rules** into `AGENTS.md`, `.agents/AGENTS.md`, `.agents/skills/skill-orchestrator/SKILL.md`, and `package.json` (`pr:gate`).
+
+**Reason**  
+Permanently prevents developer and AI agent friction caused by file splitting duplicating boilerplate tokens, symbol collisions triggering SSOT warnings, and stale JSCPD reports on pre-push execution.
+
+**Files Modified**:
+```
+AGENTS.md
+.agents/AGENTS.md
+.agents/skills/skill-orchestrator/SKILL.md
+package.json
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm run guard:duplicate-code` ──► PASS (0.08% duplicate rate preserved)
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score: 100%, 18/18 checks pass)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test` ──► PASS (100% green)
 
 **Rollback**:
 ```bash
-git checkout docs/tracking/engineering-action-register.md
+git checkout HEAD~1
 ```
+
 
 

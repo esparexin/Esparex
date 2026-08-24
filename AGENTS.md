@@ -950,9 +950,44 @@ Every developer and AI agent MUST execute these 8 steps sequentially before stag
 
 Before any commit command is executed, run and confirm:
 - [ ] `npm run guard:pr-quality` → **PASS** (Zero file size or ratchet violations)
+- [ ] `npm run guard:duplicate-code` → **PASS** (Fresh JSCPD report, 0 new clones)
+- [ ] `npm run guard:design-token-adoption` → **PASS** (0 raw palette/inline style violations)
 - [ ] `npm run type-check` → **PASS** (Zero TypeScript errors)
 - [ ] `npm test -w <target-package>` → **PASS** (100% green tests)
-- [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed)
+- [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed, 100% Health Score)
+
+---
+
+### 4. Extract-Before-Split Modularity Standard (Anti-Clone Protocol)
+
+> **CORE ANTI-DUPLICATION RULE**:  
+> When modularizing or splitting files exceeding line length thresholds (Component ≤ 250, Hook ≤ 200, Service ≤ 300, Utility ≤ 150), developers and AI agents **MUST extract shared types, validation schemas, error handlers, and helper utilities into a single canonical module (`@esparex/contracts` or `@esparex/shared`) BEFORE splitting into sub-files**.  
+> Never replicate identical schema boilerplate, dialog scaffolding, or handler functions across split sub-files.
+
+---
+
+### 5. Explicit Prohibition of Top-Level Symbol Shadowing (SSOT-001)
+
+App-level (`apps/web`, `apps/admin`) types, classes, functions, and interfaces **MUST NOT** declare top-level symbols that shadow canonical package exports in `@esparex/core`, `@esparex/contracts`, or `@esparex/ui` (e.g. declaring local `interface ValidationResult` when `@esparex/core` already exports `ValidationResult`).
+
+**Rules**:
+1. App-level helper types must use domain-scoped prefixes (e.g., `FieldValidationResult`, `WebFormState`).
+2. If consuming domain contracts, directly import from `@esparex/contracts` or `@esparex/shared` rather than re-declaring types locally.
+
+---
+
+### 6. Dynamic JSCPD Token Duplication Ratchet Governance (`DUP-001`)
+
+The monorepo enforces an automatic dynamic duplication ratchet in `.jscpd-baseline.json` (currently **0.08%**).
+- The validator enforces `currentRate <= previousBaseline + 0.01%`.
+- Across ~1.8 million tokens in the monorepo, a `0.01%` increase is only **~180 tokens (~15–20 lines of code)**.
+- Every refactoring and modularization task MUST run `npm run guard:duplicate-code` to verify token clone counts before executing `repo:gate`.
+
+---
+
+### 7. Safe-Area & Dynamic Layout Design Token Invariant
+
+Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary bracket classes (e.g., `pt-[max(0.75rem,env(safe-area-inset-top))]`, `pb-[max(0.5rem,env(safe-area-inset-bottom))]`) instead of inline `style={{ ... }}` blocks to ensure strict compliance with `guard:design-token-adoption` without requiring ignore comments.
 
 ---
 

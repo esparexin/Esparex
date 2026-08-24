@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { ChevronDown, MapPin, Target } from "@/icons/IconRegistry";
-import { Spinner } from "@esparex/ui";
-import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
 import { useMounted } from "@/hooks/useMounted";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
@@ -77,63 +73,6 @@ export function HeaderLocation({
     const displayValue = isFocused || (isOpen && query) ? query : resolvedHeaderText;
 
     return (
-        <div
-            onClick={handleContainerClick}
-            className={cn(
-                "flex items-center gap-1.5 rounded-xl border border-border bg-background px-2.5 h-11 shadow-xs transition-all w-[220px] lg:w-[260px] cursor-text",
-                isOpen
-                    ? "border-primary ring-2 ring-primary/20 bg-background"
-                    : "hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
-            )}
-            title={mounted ? (tooltipText || resolvedHeaderText) : DEFAULT_APP_LOCATION.display}
-        >
-            <MapPin className="h-4 w-4 text-primary shrink-0 transition-transform group-hover:scale-105" />
 
-            <input
-                ref={inputRef}
-                type="text"
-                value={displayValue}
-                placeholder="Search city..."
-                onChange={(e) => {
-                    if (onQueryChange) onQueryChange(e.target.value);
-                    if (!isOpen && onOpenChange) onOpenChange(true);
-                }}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-                className="min-w-0 flex-1 bg-transparent border-0 p-0 text-body font-medium text-foreground placeholder:text-foreground-subtle focus:outline-none truncate cursor-text"
-                aria-label="Location search and selection"
-                aria-expanded={isOpen}
-            />
-
-            {/* GPS Auto-Detect Button inside the Header Field */}
-            <button
-                type="button"
-                onClick={handleGpsClick}
-                disabled={isDetecting}
-                title="Detect current location using GPS"
-                aria-label="Detect current location using GPS"
-                className="flex items-center justify-center h-7 w-7 rounded-lg hover:bg-muted text-muted-foreground hover:text-primary transition-colors shrink-0 cursor-pointer p-0.5"
-            >
-                {isDetecting ? (
-                    <Spinner size="sm" className="h-3.5 w-3.5 text-primary" />
-                ) : (
-                    <Target className="h-4 w-4 text-primary shrink-0" />
-                )}
-            </button>
-
-            {/* Dropdown Chevron */}
-            <button
-                type="button"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (onOpenChange) onOpenChange(!isOpen);
-                }}
-                aria-label={isOpen ? "Close location dropdown" : "Open location dropdown"}
-                className="flex items-center justify-center h-6 w-4 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-            >
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
-            </button>
-        </div>
     );
 }
