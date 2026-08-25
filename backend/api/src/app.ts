@@ -16,7 +16,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
+import cookieParser from './middleware/cookieParser';
 import '@esparex/core/models/registry';
 import { env } from '@esparex/core/config/env';
 import { validateOtpConfiguration } from './middleware/otpGuard';
@@ -220,7 +220,7 @@ import { verifyCsrfToken } from './middleware/csrfProtection';
 
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
-app.use(cookieParser());
+app.use(cookieParser);
 app.use(verifyCsrfToken);
 
 // Request ID MUST be registered first — it establishes the TraceContext
