@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
 import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
-import { deleteAccountFormSchema } from "@/schemas/profileSettings.schema";
+import { deleteAccountFormSchema } from "@esparex/contracts";
 import type {
   DeleteAccountFieldErrors,
   DeleteAccountPayload,

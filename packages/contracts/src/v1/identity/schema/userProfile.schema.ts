@@ -1,11 +1,21 @@
 import { z } from "zod";
 
+export const DELETE_ACCOUNT_REASONS = [
+  "no_longer_needed",
+  "privacy_concerns",
+  "too_many_notifications",
+  "created_another_account",
+  "other",
+] as const;
+
+export type DeleteAccountReason = (typeof DELETE_ACCOUNT_REASONS)[number];
+
 export const personalProfileSchema = z.object({
   name: z
     .string()
-    .min(1, "Name is required")
-    .max(50, "Name cannot exceed 50 characters")
-    .regex(/^[a-zA-Z\s]*$/, "Name can only contain letters and spaces"),
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name cannot exceed 100 characters")
+    .refine((val) => /^[\p{L}\p{N}\s.\-'_,]+$/u.test(val.trim()), "Name contains invalid characters"),
   email: z
     .string()
     .email("Please enter a valid email address")
@@ -32,3 +42,17 @@ export const notificationSettingsSchema = z.object({
 });
 
 export type NotificationSettingsValues = z.infer<typeof notificationSettingsSchema>;
+
+export const deleteAccountFormSchema = z.object({
+  reason: z.enum(DELETE_ACCOUNT_REASONS),
+  feedback: z
+    .string()
+    .max(500, "Feedback must be 500 characters or fewer.")
+    .optional(),
+  confirmText: z
+    .string()
+    .min(1, "Type delete to confirm.")
+    .refine((value) => value.trim().toLowerCase() === "delete", "Type delete to confirm."),
+});
+
+export type DeleteAccountFormValues = z.infer<typeof deleteAccountFormSchema>;
