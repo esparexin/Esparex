@@ -241,7 +241,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
 
       {/* ── Bottom Zone ─────────────────────────────────────────── */}
       <div className="conv-bottom shrink-0">
-        {!isReadOnly && messages.length === 0 && (
+        {!isReadOnly && (
           <QuickReplies
             onSelect={handleQuickReply}
             disabled={isSending}
