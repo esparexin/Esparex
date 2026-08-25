@@ -36,6 +36,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [previewPhoto, setPreviewPhoto] = useState<string | null>(safeProfilePhoto);
+    const [isPhotoRemoved, setIsPhotoRemoved] = useState(false);
     const [photoError, setPhotoError] = useState<string | undefined>(undefined);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +73,9 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
             if (selectedPhotoFile) {
                 formData.append("profilePhoto", selectedPhotoFile);
+            } else if (isPhotoRemoved) {
+                formData.append("removePhoto", "true");
+                formData.append("profilePhoto", "");
             }
 
             const updated = await updateProfile(formData);
@@ -103,6 +107,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         }
 
         setSelectedPhotoFile(file);
+        setIsPhotoRemoved(false);
         setPhotoError(undefined);
         setGlobalError(null);
 
@@ -117,9 +122,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
     const handlePhotoDelete = () => {
         setPreviewPhoto(null);
         setSelectedPhotoFile(null);
+        setIsPhotoRemoved(true);
         setPhotoError(undefined);
         setGlobalError(null);
-        notify.success("Photo removed! Click 'Save changes' to apply.");
+        notify.success("Photo marked for removal. Click 'Save changes' to apply.");
     };
 
     const nameError = form.formState.errors.name?.message;
