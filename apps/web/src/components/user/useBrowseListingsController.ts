@@ -171,7 +171,7 @@ export function useBrowseListingsController<TItem, TFilters>({
     }
     setPage(1);
     void fetchItems(1);
-  }, [fetchItems, isLoaded, shouldUseInitialResults]);
+  }, [fetchItems, isLoaded, setLoading, shouldUseInitialResults]);
 
   const minPriceParam = searchParams.get("minPrice");
   const maxPriceParam = searchParams.get("maxPrice");
