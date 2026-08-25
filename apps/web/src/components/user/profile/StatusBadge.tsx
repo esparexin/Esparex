@@ -4,7 +4,7 @@ import React from "react";
 
 export function StatusBadge({ status, className = "" }: { status: string; className?: string }) {
   const renderBadge = (label: string, styleClass: string) => (
-    <span className={`px-2 py-0.5 rounded text-2xs uppercase tracking-wider font-semibold ${styleClass} ${className}`}>
+    <span className={`px-2 py-0.5 rounded text-tiny uppercase tracking-wider font-semibold ${styleClass} ${className}`}>
       {label}
     </span>
   );
