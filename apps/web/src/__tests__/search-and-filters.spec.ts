@@ -64,4 +64,22 @@ describe("Phase 5: Search & Filter State Wiring (FIND-004, FIND-005, FIND-018)",
         expect(content).toContain('isRecent ? "Recent Searches" : "Popular Searches"');
         expect(content).toContain('onClearHistory()');
     });
+
+    it("verifies buildBaseBrowseFilters resolves category slug to canonical categoryId", async () => {
+        const { buildBaseBrowseFilters } = await import("@/components/user/browseFilterBuilders");
+        const mockCategories = [
+            { id: "69c24a14a58d20c75c6b09d9", name: "LED TVs", slug: "led-tvs" },
+            { id: "69c24a14a58d20c75c6b09da", name: "Mobiles", slug: "mobiles" },
+        ];
+
+        const filters = buildBaseBrowseFilters({
+            page: 1,
+            pageSize: 20,
+            query: "",
+            selectedCategory: "led-tvs",
+            categories: mockCategories as any,
+        });
+
+        expect(filters.categoryId).toBe("69c24a14a58d20c75c6b09d9");
+    });
 });

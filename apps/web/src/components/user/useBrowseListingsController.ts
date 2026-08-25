@@ -18,16 +18,8 @@ import {
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
-import { useBrowseAdsData } from "@/components/user/useBrowseAdsData";
+import { useBrowseAdsData, type BrowsePageResult } from "@/components/user/useBrowseAdsData";
 import { useBrowseFilterPipeline } from "@/components/user/useBrowseFilterPipeline";
-
-type BrowsePageResult<T> = {
-  data: T[];
-  pagination: {
-    total?: number;
-    hasMore?: boolean;
-  };
-};
 
 interface BrowseListingsControllerConfig<TItem, TFilters> {
   browseType: PublicBrowseType;
@@ -88,6 +80,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlRadiusKm = routeParams.radiusKm;
   const stableLocation = location;
+  const categoriesRef = useRef<Category[]>(initialCategories ?? []);
 
   const constructFilters = useCallback(
     (requestedPage: number) =>
@@ -96,7 +89,7 @@ export function useBrowseListingsController<TItem, TFilters>({
         pageSize,
         query,
         selectedCategory,
-        categories: [],
+        categories: categoriesRef.current,
         location: stableLocation,
         sort,
         urlLocationId: urlLocationId || undefined,
@@ -123,6 +116,12 @@ export function useBrowseListingsController<TItem, TFilters>({
     buildFilters: constructFilters,
     fetchPage,
   });
+
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      categoriesRef.current = categories;
+    }
+  }, [categories]);
 
   useEffect(() => {
     return () => {
