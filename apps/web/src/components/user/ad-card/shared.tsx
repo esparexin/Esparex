@@ -7,7 +7,6 @@ import { Sparkles, Zap } from "@/icons/IconRegistry";
 import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
-import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { AdData } from "@/types/home";
@@ -209,7 +208,7 @@ export function formatCompactCardDate(dateStr: string | undefined): string {
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-tiny font-bold uppercase tracking-wide h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
+  "border-0 text-2xs font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -360,30 +359,5 @@ export function getConditionBadge(
         </>
       )}
     </span>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Price display (ALWAYS text-green-600 for numeric prices and "Free")        */
-/* -------------------------------------------------------------------------- */
-
-export function AdCardPriceDisplay({
-  price,
-  className,
-}: {
-  price: number;
-  className?: string;
-}) {
-  const isFree = price === 0;
-  return (
-    <div
-      className={cn(
-        "font-bold text-green-600 tracking-tight",
-        className
-      )}
-      aria-label={`Price: ${isFree ? "Free" : formatPrice(price)}`}
-    >
-      {isFree ? "Free" : formatPrice(price)}
-    </div>
   );
 }
