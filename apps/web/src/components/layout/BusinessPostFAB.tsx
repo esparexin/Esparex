@@ -36,7 +36,7 @@ export function BusinessPostFAB() {
             {
                 id: "spare-part",
                 label: "Post Spare Part",
-                href: "/post-ad",
+                href: "/post-spare-part-listing",
                 icon: CircuitBoard,
                 bg: "bg-violet-600 hover:bg-violet-700",
             },
@@ -51,7 +51,7 @@ export function BusinessPostFAB() {
         {
             id: "smart-alert",
             label: "Create Smart Alert",
-            href: "/account/smartalerts",
+            href: "/account/alerts",
             icon: Bell,
             bg: "bg-amber-600 hover:bg-amber-700",
         },
@@ -60,7 +60,7 @@ export function BusinessPostFAB() {
     // Hide while the user is actively on creation / editing pages
     if (
         pathname?.startsWith("/post-service") ||
-        pathname?.startsWith("/post-spare-part") ||
+        pathname?.startsWith("/post-spare-part-listing") ||
         pathname?.startsWith("/post-ad") ||
         pathname?.startsWith("/edit-service") ||
         pathname?.startsWith("/edit-spare-part") ||
