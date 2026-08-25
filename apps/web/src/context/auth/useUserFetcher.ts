@@ -1,4 +1,4 @@
-import { useCallback, type MutableRefObject, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, type MutableRefObject, type Dispatch, type SetStateAction } from "react";
 import type { useRouter } from "next/navigation";
 import type { User } from "@/types/User";
 import type { AuthStatus } from "./authTypes";
@@ -47,6 +47,21 @@ export function useUserFetcher({
   networkRetryTimerRef,
   networkRetryCountRef,
 }: UseUserFetcherParams) {
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   const fetchUser = useCallback(async function doFetch(): Promise<void> {
     if (!backendReady) {
       if (process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH === "true" && process.env.NODE_ENV !== "production") {
@@ -63,10 +78,17 @@ export function useUserFetcher({
 
     if (fetchingRef.current) return;
     fetchingRef.current = true;
-    if (!user) setStatus("loading");
+    if (!userRef.current) setStatus("loading");
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
-      const response = await authApi.me({ silent: true });
+      const response = await authApi.me({ silent: true, signal: controller.signal });
+      if (controller.signal.aborted) return;
       const rawUser = response.user;
 
       if (isValidUser(rawUser)) {
@@ -84,6 +106,10 @@ export function useUserFetcher({
         setHasAuthHint(false);
       }
     } catch (rawError: unknown) {
+      if (controller.signal.aborted || (rawError as { name?: string })?.name === "AbortError") {
+        return;
+      }
+
       const err = normalizeError(rawError);
 
       if (err.response?.status === 401 || err.response?.status === 403) {
@@ -137,11 +163,13 @@ export function useUserFetcher({
       setStatus("unauthenticated");
       setHasAuthHint(false);
     } finally {
-      fetchingRef.current = false;
+      if (!controller.signal.aborted) {
+        fetchingRef.current = false;
+      }
     }
   }, [
     backendReady, setBackendReady, setHasAuthHint, setUser, setStatus, setError,
-    user, routerRef, fetchingRef, authBannerShownRef, wasAuthenticatedRef,
+    routerRef, fetchingRef, authBannerShownRef, wasAuthenticatedRef,
     staleSessionCleanupRef, networkRetryTimerRef, networkRetryCountRef,
   ]);
 
