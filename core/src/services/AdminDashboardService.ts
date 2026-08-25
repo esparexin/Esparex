@@ -1,45 +1,8 @@
 import { adminDashboardRepository } from '../composition/admin';
 
-interface CountResult { count: number }
-interface MonthlyCountResult { _id: { month: number; year: number }; count: number }
-interface AdsByLocationResult { _id: string; adsCount: number }
-
-interface OverviewFacetResult {
-    totalAds: CountResult[];
-    activeAds: CountResult[];
-    pendingAds: CountResult[];
-    totalServices: CountResult[];
-    activeServices: CountResult[];
-    pendingServices: CountResult[];
-    rejectedServices: CountResult[];
-    totalSpareParts: CountResult[];
-    activeSpareParts: CountResult[];
-    pendingSpareParts: CountResult[];
-}
-interface CardFacetResult {
-    live: CountResult[];
-    pending: CountResult[];
-}
-interface RevenueAggResult { _id: null; total: number }
-
-import type { CatalogRequestStatusValue } from '../models/CatalogRequest';
-import { escapeRegExp } from '../utils/stringUtils';
-import {
-    buildLocationSummary,
-    loadHierarchyMapForLocations,
-    normalizeStateLabel,
-    resolveLocationScope,
-} from '../utils/locationHierarchy';
-
 export const getDashboardOverviewStats = async (publicAdFilter: Record<string, unknown>) => {
     return adminDashboardRepository.getDashboardOverviewStats(publicAdFilter);
 };
-
-// Typed status constants derived from CatalogRequestStatusValue — type-safe without
-// runtime tuple indexing that would fail when the model is mocked in tests.
-const CATALOG_REQUEST_PENDING_STATUS = 'pending' satisfies CatalogRequestStatusValue;
-const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
-const CATALOG_REQUEST_MERGED_STATUS = 'merged' satisfies CatalogRequestStatusValue;
 
 export const getCatalogHealthMetrics = async () => {
     return adminDashboardRepository.getCatalogHealthMetrics();

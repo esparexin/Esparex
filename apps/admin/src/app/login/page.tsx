@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,9 +64,6 @@ function LoginForm() {
   });
 
   const twoFactorCodeValue = form.watch("twoFactorCode");
-
-  // Keep the focus logic for 2FA using a callback ref or manual DOM focus since RHF doesn't auto-focus dynamically revealed fields easily
-  const focus2FARef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!authLoading) return;

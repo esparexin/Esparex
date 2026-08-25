@@ -33,7 +33,7 @@ export const pLimit = (concurrency: number): LimitFunction => {
             if (active < concurrency) {
                 entry();
             } else {
-                queue.push(() => run(fn, resolve, reject));
+                enqueue(fn, resolve, reject);
             }
         });
 };

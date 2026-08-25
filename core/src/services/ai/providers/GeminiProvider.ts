@@ -102,7 +102,7 @@ export class GeminiProvider implements AIProvider {
                 latency: res.latency,
                 cached: res.cached,
             };
-        } catch (err) {
+        } catch {
             throw new GeminiProviderError('Failed to parse structured output', 'Validation');
         }
     }

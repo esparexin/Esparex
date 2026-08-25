@@ -2,7 +2,6 @@ import logger from './logger';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
 import Model from '../models/Model';
-import type { Model as MongooseModel } from 'mongoose';
 import { getDatabaseHealthProbe } from '../config/db';
 import { getQueueHealthProbe } from '../queues/queueHealth';
 import { getRedisHealthProbe } from './redisCache';
