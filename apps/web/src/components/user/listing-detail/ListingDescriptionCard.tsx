@@ -1,13 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import {
-    Wrench,
-    CircuitBoard,
-    FileText,
-} from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSection";
 import { ListingDescriptionTab } from "./ListingDescriptionTab";
@@ -33,8 +28,22 @@ type TabKey = typeof TAB_KEYS[number];
 
 export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCardProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("repair-shops");
+    const sectionRef = useRef<HTMLElement>(null);
     const description = cleanupListingDescription(String(ad.description || ""));
     const sparePartItems = extractSparePartItems(ad);
+
+    const scrollToSection = () => {
+        if (sectionRef.current) {
+            const yOffset = -80; // Offset for sticky header
+            const y = sectionRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: "smooth" });
+        }
+    };
+
+    const handleTabSelect = (tabKey: TabKey) => {
+        setActiveTab(tabKey);
+        scrollToSection();
+    };
 
     const handleTabKeyDown = (e: React.KeyboardEvent, currentTab: TabKey) => {
         const currentIndex = TAB_KEYS.indexOf(currentTab);
@@ -56,12 +65,13 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
         const nextTab = TAB_KEYS[nextIndex];
         if (nextTab) {
             setActiveTab(nextTab);
+            scrollToSection();
             document.getElementById(`tab-${nextTab}`)?.focus();
         }
     };
 
     return (
-        <section className="space-y-4 pt-2 pb-6 border-b border-border/80">
+        <section ref={sectionRef} className="space-y-4 pt-2 pb-6 border-b border-border/80 scroll-mt-20">
             {/* Accessible 3-Tab Controls: Repair Shops | Description | Spare Parts */}
             <div
                 role="tablist"
@@ -75,16 +85,15 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     aria-controls="tabpanel-repair-shops"
                     aria-selected={activeTab === "repair-shops"}
                     tabIndex={activeTab === "repair-shops" ? 0 : -1}
-                    onClick={() => setActiveTab("repair-shops")}
+                    onClick={() => handleTabSelect("repair-shops")}
                     onKeyDown={(e) => handleTabKeyDown(e, "repair-shops")}
                     className={cn(
-                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "repair-shops"
                             ? "border-primary text-primary font-bold bg-primary/5"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
-                    <Wrench className="size-4 shrink-0 text-current" />
                     <span>Repair Shops</span>
                 </button>
 
@@ -95,16 +104,15 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     aria-controls="tabpanel-description"
                     aria-selected={activeTab === "description"}
                     tabIndex={activeTab === "description" ? 0 : -1}
-                    onClick={() => setActiveTab("description")}
+                    onClick={() => handleTabSelect("description")}
                     onKeyDown={(e) => handleTabKeyDown(e, "description")}
                     className={cn(
-                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "description"
                             ? "border-primary text-primary font-bold bg-primary/5"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
-                    <FileText className="size-4 shrink-0 text-current" />
                     <span>Description</span>
                 </button>
 
@@ -115,16 +123,15 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     aria-controls="tabpanel-spare-parts"
                     aria-selected={activeTab === "spare-parts"}
                     tabIndex={activeTab === "spare-parts" ? 0 : -1}
-                    onClick={() => setActiveTab("spare-parts")}
+                    onClick={() => handleTabSelect("spare-parts")}
                     onKeyDown={(e) => handleTabKeyDown(e, "spare-parts")}
                     className={cn(
-                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "spare-parts"
                             ? "border-primary text-primary font-bold bg-primary/5"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
-                    <CircuitBoard className="size-4 shrink-0 text-current" />
                     <span>Spare Parts</span>
                     {sparePartItems.length > 0 && (
                         <span className={cn(
