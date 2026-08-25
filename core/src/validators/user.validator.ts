@@ -117,7 +117,7 @@ export const registerUserSchema = z.object({
 const updateUserProfileSchemaBase = z.object({
     name: nameSchema.optional(),
     email: commonSchemas.email.optional(),
-    gstin: commonSchemas.gstin.optional(),
+    gstin: z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please enter a valid 15-character GSTIN").optional(),
 
     // Profile photo (controller maps profilePhoto to avatar)
     profilePhoto: z.string().url("Invalid profile photo URL").optional(),
