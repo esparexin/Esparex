@@ -7,8 +7,8 @@ import { aiGenerateSchema } from '@esparex/core/validators/ai.validator';
 
 const router = express.Router();
 
-router.post('/generate', protect, mutationLimiter, validateRequest(aiGenerateSchema), aiController.generate);
-router.post('/catalog-suggest', protect, mutationLimiter, aiController.catalogSuggest);
+router.post('/generate', mutationLimiter, protect, validateRequest(aiGenerateSchema), aiController.generate);
+router.post('/catalog-suggest', mutationLimiter, protect, aiController.catalogSuggest);
 router.get('/status', protect, aiController.status);
 
 

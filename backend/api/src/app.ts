@@ -189,7 +189,12 @@ registerDeprecationRoutes(app);
 /* -------------------------------------------------------------------------- */
 // TLS 1.2+ and Secure Cipher Suites must be enforced at the Load Balancer / Ingress layer.
 app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'none'"],
+            frameAncestors: ["'none'"],
+        }
+    },
     crossOriginEmbedderPolicy: false,
     hsts: {
         maxAge: 31536000, // 1 year
@@ -209,11 +214,14 @@ app.use(helmet({
 app.use(compression());
 
 /* -------------------------------------------------------------------------- */
-/* CORE MIDDLEWARE                                                             */
+/* CORE MIDDLEWARE & CSRF PROTECTION                                           */
 /* -------------------------------------------------------------------------- */
+import { verifyCsrfToken } from './middleware/csrfProtection';
+
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
+app.use(verifyCsrfToken);
 
 // Request ID MUST be registered first — it establishes the TraceContext
 // (AsyncLocalStorage) used by every subsequent middleware and all log lines.
@@ -375,25 +383,15 @@ app.get('/metrics', requireMetricsAuth, async (_req, res) => {
         res.set('Content-Type', register.contentType);
         res.end(await register.metrics());
     } catch (err) {
-        res.status(500).end(err instanceof Error ? err.message : String(err));
+        logger.error('Failed to collect Prometheus metrics', { error: err });
+        res.status(500).end('Internal Server Error');
     }
 });
-
-/* -------------------------------------------------------------------------- */
-/* CSRF PROTECTION                                                             */
-/* -------------------------------------------------------------------------- */
-import { verifyCsrfToken } from './middleware/csrfProtection';
-
-// CSRF token endpoint (public, no auth required)
-// Handled by rootRoutes and adminRoutes
 
 /* -------------------------------------------------------------------------- */
 /* FAIL-FAST DB GATE (DATA ROUTES ONLY)                                         */
 /* -------------------------------------------------------------------------- */
 app.use('/api/v1', requireDb, maintenanceMiddleware);
-
-// Apply CSRF protection to all state-changing requests
-app.use('/api/v1', verifyCsrfToken);
 
 // Fallback routing for un-prefixed requests (Must be applied before /api 404 handler)
 app.use('/api', fallbackRoutes);

@@ -42,28 +42,28 @@ const businessUpload = createUploadMiddleware({
 router.get('/', validateRequest({ query: publicBusinessQuerySchema }), businessController.getBusinesses);
 
 // POST /api/v1/businesses - Register a new business
-router.post('/', protect, mutationLimiter, validateRequest(createBusinessSchema), idempotencyMiddleware, businessController.registerBusiness);
+router.post('/', mutationLimiter, protect, validateRequest(createBusinessSchema), idempotencyMiddleware, businessController.registerBusiness);
 
 // POST /api/v1/businesses/upload - Business-domain file upload (images + documents)
 // Uses business-specific multer (allows PDF) and reuses the shared uploadFile controller.
 // Must be declared before /:id routes to prevent route shadowing.
 // single('file') matches the controller's req.file expectation — no controller changes needed.
-router.post('/upload', protect, mutationLimiter, businessUpload.single('file'), uploadFile);
+router.post('/upload', mutationLimiter, protect, businessUpload.single('file'), uploadFile);
 
 // GET /api/v1/businesses/me - Get the current user's active business
 router.get('/me', protect, businessController.getMyBusiness);
 
 // DELETE /api/v1/businesses/me - Withdraw pending business application
-router.delete('/me', protect, mutationLimiter, businessController.withdrawBusiness);
+router.delete('/me', mutationLimiter, protect, businessController.withdrawBusiness);
 
 // GET /api/v1/businesses/me/stats - Get my business stats
 router.get('/me/stats', protect, businessController.getMyBusinessStats);
 
 // Lifecycle Actions (User-owned)
-router.post('/me/deactivate', protect, mutationLimiter, businessController.deactivateBusiness);
-router.post('/me/reactivate', protect, mutationLimiter, businessController.reactivateBusiness);
-router.post('/me/close', protect, mutationLimiter, businessController.closeBusiness);
-router.post('/:id/renew', protect, mutationLimiter, businessController.renewBusiness);
+router.post('/me/deactivate', mutationLimiter, protect, businessController.deactivateBusiness);
+router.post('/me/reactivate', mutationLimiter, protect, businessController.reactivateBusiness);
+router.post('/me/close', mutationLimiter, protect, businessController.closeBusiness);
+router.post('/:id/renew', mutationLimiter, protect, businessController.renewBusiness);
 
 
 // GET /api/v1/businesses/:id/stats - Get public business stats by ID/slug
@@ -73,7 +73,7 @@ router.get('/:id/stats', validateIdOrSlug('id'), businessController.getBusinessS
 router.get('/:id', validateIdOrSlug('id'), extractUser, businessController.getBusinessById);
 
 // PATCH /api/v1/businesses/:id - Update business
-router.patch('/:id', validateObjectId, protect, mutationLimiter, validateRequest(updateBusinessSchema), idempotencyMiddleware, businessController.updateBusiness);
+router.patch('/:id', mutationLimiter, validateObjectId, protect, validateRequest(updateBusinessSchema), idempotencyMiddleware, businessController.updateBusiness);
 
 // GET /api/v1/businesses/:id/services - Get business services (Public)
 router.get('/:id/services', validateIdOrSlug('id'), businessController.getBusinessServices);
