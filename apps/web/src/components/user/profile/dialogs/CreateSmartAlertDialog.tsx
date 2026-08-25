@@ -235,7 +235,7 @@ export function CreateSmartAlertDialog({
                                 <Label htmlFor="alert-keywords" className="text-caption font-semibold text-foreground">
                                     Search Keywords <span className="text-foreground-subtle font-normal">(Optional Fallback)</span>
                                 </Label>
-                                <span className="text-2xs text-foreground-subtle">
+                                <span className="text-tiny text-foreground-subtle">
                                     {(formData.keywords || "").length}/150
                                 </span>
                             </div>
@@ -281,7 +281,7 @@ export function CreateSmartAlertDialog({
                                 onChange={(e) => updateFormData({ radiusKm: parseInt(e.target.value, 10) || 5 })}
                                 className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
-                            <div className="flex items-center justify-between text-2xs font-medium text-foreground-subtle mt-0.5">
+                            <div className="flex items-center justify-between text-tiny font-medium text-foreground-subtle mt-0.5">
                                 <span>5 km</span>
                                 <span>500 km</span>
                             </div>

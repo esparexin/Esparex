@@ -17,7 +17,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           <Package className="w-4 h-4" />
         </div>
         <h4 className="text-caption sm:text-body font-bold text-foreground">No Credit Packs Purchased Yet</h4>
-        <p className="text-2xs sm:text-caption text-muted-foreground max-w-sm mx-auto">
+        <p className="text-tiny sm:text-caption text-muted-foreground max-w-sm mx-auto">
           When you buy extra ad posting packs or alert slots, your itemized packs and usage progress will display here.
         </p>
       </div>
@@ -39,7 +39,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           My Credit Packs ({creditPacks.length})
         </h4>
         {historyPacks.length > 0 && !showAll && (
-          <span className="text-2xs font-semibold text-muted-foreground">
+          <span className="text-tiny font-semibold text-muted-foreground">
             {activePacks.length} Active • {historyPacks.length} Past
           </span>
         )}
@@ -109,7 +109,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
                 />
               </div>
 
-              <div className="flex items-center justify-between text-2xs text-muted-foreground">
+              <div className="flex items-center justify-between text-tiny text-muted-foreground">
                 <span>Granted: <strong className="text-foreground">{pack.totalGranted}</strong> • Used: <strong className="text-foreground">{pack.consumed}</strong></span>
                 <span className="font-semibold text-primary">
                   {pack.expiresAt ? (

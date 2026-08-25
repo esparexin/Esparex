@@ -38,7 +38,7 @@ export default function NotFound() {
                                 <Compass size={16} className="animate-spin hidden sm:block" style={{ animationDuration: '8s' }} />
                             </div>
                         </div>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200/60 text-green-700 text-2xs sm:text-tiny font-bold uppercase tracking-wider mt-1">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-50 border border-green-200/60 text-green-700 text-tiny font-bold uppercase tracking-wider mt-1">
                             Error 404
                         </span>
                     </div>

@@ -208,7 +208,7 @@ export function formatCompactCardDate(dateStr: string | undefined): string {
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-2xs font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
+  "border-0 text-tiny font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -339,7 +339,7 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
+        "inline-flex items-center gap-1 text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-red-50 text-red-700 border-red-200",

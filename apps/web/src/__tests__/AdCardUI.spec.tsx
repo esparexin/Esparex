@@ -81,7 +81,7 @@ describe("AdCard Component SSOT & Architecture", () => {
   });
 
   describe("Badge Sizing & Density Tokens", () => {
-    it("renders condition badges with compact text-2xs and h-4.5 classes", () => {
+    it("renders condition badges with compact text-tiny and h-4.5 classes", () => {
       const onBadge = getConditionBadge("power_on");
       expect(onBadge).not.toBeNull();
       const offBadge = getConditionBadge("power_off");

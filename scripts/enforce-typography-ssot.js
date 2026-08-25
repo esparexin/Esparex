@@ -34,6 +34,33 @@ const ARBITRARY_FONT_SIZE_PATTERN = /\btext-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g;
 const ARBITRARY_FONT_WEIGHT_PATTERN = /\bfont-\[\d+\]/g;
 const SUPPRESSION_PATTERN = /typography-ssot-ignore(?::\s*(.+))?/;
 
+/**
+ * Banned tokens: retired or non-canonical typography utilities that must
+ * never reappear in source code after the typography SSOT remediation.
+ *
+ * text-2xs  — 10px legacy scale, retired in favour of text-tiny (11px)
+ * --text-h5 — non-canonical CSS variable removed from design-token emit
+ * --text-h6 — non-canonical CSS variable removed from design-token emit
+ */
+const BANNED_TOKEN_PATTERNS = [
+    {
+        pattern: /\btext-2xs\b/,
+        token: "text-2xs",
+        remedy: "Use text-tiny (11px) — the smallest canonical SSOT token.",
+    },
+    {
+        pattern: /var\(--text-h5\)/,
+        token: "var(--text-h5)",
+        remedy: "Use var(--text-body-lg) — --text-h5 was removed from the design-token emit.",
+    },
+    {
+        pattern: /var\(--text-h6\)/,
+        token: "var(--text-h6)",
+        remedy: "Use var(--text-body) — --text-h6 was removed from the design-token emit.",
+    },
+];
+
+let bannedViolations = [];
 let sizeViolations = [];
 let weightViolations = [];
 let emptySuppressions = [];
@@ -70,12 +97,26 @@ const walkDir = (dir) => {
             const lines = content.split("\n");
 
             lines.forEach((line, index) => {
+                const relPath = path.relative(repoRoot, fullPath);
+
+                // Check for explicitly banned (retired) typography tokens — no suppressions allowed.
+                for (const { pattern, token, remedy } of BANNED_TOKEN_PATTERNS) {
+                    if (pattern.test(line)) {
+                        bannedViolations.push({
+                            file: relPath,
+                            line: index + 1,
+                            token,
+                            remedy,
+                            code: line.trim(),
+                        });
+                    }
+                }
+
                 const sizeMatches = line.match(ARBITRARY_FONT_SIZE_PATTERN);
                 const weightMatches = line.match(ARBITRARY_FONT_WEIGHT_PATTERN);
 
                 if (sizeMatches || weightMatches) {
                     const suppression = checkLineForSuppression(lines, index);
-                    const relPath = path.relative(repoRoot, fullPath);
 
                     if (suppression.emptySuppression) {
                         emptySuppressions.push({
@@ -112,6 +153,19 @@ for (const dir of TARGET_DIRECTORIES) {
 }
 
 let hasErrors = false;
+
+if (bannedViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Banned (Retired) Token Detected!");
+    console.error("The following typography tokens have been permanently retired from the Esparex SSOT.");
+    console.error("They are absolutely prohibited. No suppression is allowed for banned tokens.\n");
+    for (const v of bannedViolations) {
+        console.error(`  ✗ ${v.file}:${v.line}`);
+        console.error(`    Token:   ${v.token}`);
+        console.error(`    Remedy:  ${v.remedy}`);
+        console.error(`    Code:    ${v.code}\n`);
+    }
+}
 
 if (emptySuppressions.length > 0) {
     hasErrors = true;
@@ -161,5 +215,5 @@ if (weightViolations.length > 0) {
 if (hasErrors) {
     process.exit(1);
 } else {
-    console.log("✅ Typography SSOT Governance Gate Passed — 0 unexempted arbitrary typography utilities found.");
+    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 unexempted arbitrary typography utilities found.");
 }

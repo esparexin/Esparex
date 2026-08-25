@@ -16,7 +16,6 @@ const config = {
 			fontFamily: typography.fonts,
 			fontSize: {
 				...typography.fontSizes,
-				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
 				// Standard Tailwind scale harmonization mapped to canonical design tokens
 				xs: typography.fontSizes.caption,   // 12px / 0.75rem (lineHeight: 1.4)
 				sm: typography.fontSizes.body,      // 14px / 0.875rem (lineHeight: 1.55)

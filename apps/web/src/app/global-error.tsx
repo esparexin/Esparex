@@ -68,7 +68,7 @@ export default function GlobalError({
                             </div>
 
                             {error.digest ? (
-                                <p className="mt-5 text-2xs text-slate-400">
+                                <p className="mt-5 text-tiny text-foreground-subtle">
                                     Error ID: {error.digest}
                                 </p>
                             ) : null}

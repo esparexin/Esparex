@@ -31,7 +31,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           <FileText className="w-4 h-4" />
         </div>
         <h4 className="text-caption sm:text-body font-bold text-foreground">No Payment Receipts Yet</h4>
-        <p className="text-2xs sm:text-caption text-muted-foreground max-w-sm mx-auto">
+        <p className="text-tiny sm:text-caption text-muted-foreground max-w-sm mx-auto">
           When you upgrade your plan or buy credit packs, your tax invoices and download receipts will appear here.
         </p>
       </div>
@@ -46,7 +46,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
             <FileText className="w-4 h-4 text-primary shrink-0" />
             My Invoices & Receipts ({payments.length})
           </h4>
-          <span className="text-2xs text-muted-foreground">
+          <span className="text-tiny text-muted-foreground">
             Showing last {payments.length} orders
           </span>
         </div>

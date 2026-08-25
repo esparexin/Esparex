@@ -44,7 +44,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
                 {business.name}
               </h3>
               {business.status === "live" && (
-                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-2xs font-semibold border-none">
+                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-tiny font-semibold border-none">
                   Verified
                 </Badge>
               )}
@@ -60,17 +60,17 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <div className="flex flex-wrap gap-1">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-2xs font-medium text-blue-700 border-none">
+              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-tiny font-medium text-blue-700 border-none">
                 {matchingServicesCount} matching
               </Badge>
             ) : activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-2xs font-medium text-slate-600 border-none">
+              <Badge variant="secondary" className="rounded-md bg-muted px-1.5 py-0.5 text-tiny font-medium text-foreground-secondary border-none">
                 {activeServicesCount} live
               </Badge>
             ) : null}
           </div>
 
-          <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-semibold text-2xs shrink-0 transition-colors">
+          <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-semibold text-tiny shrink-0 transition-colors">
             <Wrench className="mr-1 h-3 w-3" />
             View
           </span>
