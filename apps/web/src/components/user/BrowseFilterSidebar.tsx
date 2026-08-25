@@ -61,13 +61,13 @@ export function BrowseFilterSidebar({
     <div
       role="region"
       aria-label="Filter listings"
-      className={cn("w-[260px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-5", className)}
+      className={cn("w-[260px] rounded-2xl border border-border bg-card p-5 shadow-xs space-y-5", className)}
     >
       {/* Header Bar */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+      <div className="flex items-center justify-between border-b border-border/60 pb-3.5">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="size-4 text-foreground-secondary" />
-          <h2 className="text-h4 font-bold text-foreground tracking-tight">Filters</h2>
+          <h2 className="text-body-lg font-bold text-foreground tracking-tight">Filters</h2>
           {activeFilterCount > 0 && (
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-caption font-bold text-primary-foreground">
               {activeFilterCount}
@@ -75,7 +75,7 @@ export function BrowseFilterSidebar({
           )}
         </div>
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={onReset} className="h-8 text-caption font-semibold text-foreground-subtle hover:text-destructive px-2 gap-1">
+          <Button variant="ghost" size="sm" onClick={onReset} className="h-7 text-caption font-semibold text-foreground-subtle hover:text-destructive px-2 gap-1">
             <RotateCcw className="size-3" />
             Clear
           </Button>
