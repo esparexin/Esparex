@@ -28,6 +28,22 @@ describe('getAdsQuerySchema', () => {
         ).toThrow(/userId/i);
     });
 
+    it('accepts string locationId (e.g. hyderabad) as well as MongoDB ObjectId', () => {
+        const parsedSlug = getAdsQuerySchema.parse({
+            page: '1',
+            limit: '20',
+            locationId: 'hyderabad',
+        });
+        expect(parsedSlug.locationId).toBe('hyderabad');
+
+        const parsedObjectId = getAdsQuerySchema.parse({
+            page: '1',
+            limit: '20',
+            locationId: validObjectId,
+        });
+        expect(parsedObjectId.locationId).toBe(validObjectId);
+    });
+
     it('rejects deprecated text aliases for search/category/location filters', () => {
         expect(() =>
             getAdsQuerySchema.parse({

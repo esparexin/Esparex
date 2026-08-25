@@ -102,7 +102,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     category: z.string().optional(),
     brandId: commonSchemas.objectId.optional(),
     modelId: commonSchemas.objectId.optional(),
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     
     // Canonical ownership filter
@@ -135,7 +135,7 @@ export const getAdsQuerySchema = z.preprocess((raw) => {
 }, getAdsQuerySchemaBase);
 
 const feedLocationSchema = z.object({
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     radiusKm: z.string().transform(Number).pipe(z.number().min(0).max(500)).optional(),
     lat: z.string().transform(Number).pipe(z.number().min(-90).max(90)).optional(),
@@ -161,7 +161,7 @@ export const homeFeedQuerySchema = z.preprocess((raw) => {
 
 const trendingAdsQuerySchemaBase = z.object({
     limit: z.string().transform(Number).pipe(z.number().int().min(1).max(20)).optional(),
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     categoryId: commonSchemas.objectId.optional(),
 });
 

@@ -98,7 +98,7 @@ export function applyProximityLocationFilters<TFilter extends ProximityFilterSha
 
   const latitude = getLatitude(location);
   const longitude = getLongitude(location);
-  if (!isRegionLevel && latitude != undefined && longitude != undefined && !filters.locationId) {
+  if (!isRegionLevel && latitude != undefined && longitude != undefined) {
     filters.lat = latitude;
     filters.lng = longitude;
     filters.radiusKm = radiusKm;
@@ -127,7 +127,7 @@ export function applyServiceLocationFilters<TFilter extends ServiceLocationFilte
 
   const latitude = getLatitude(location);
   const longitude = getLongitude(location);
-  if (!isRegionLevel && latitude != undefined && longitude != undefined && !filters.locationId) {
+  if (!isRegionLevel && latitude != undefined && longitude != undefined) {
     filters.lat = latitude;
     filters.lng = longitude;
     filters.radiusKm = radiusKm;
