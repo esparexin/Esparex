@@ -42,7 +42,7 @@ function ShopImageTile({
                 className="object-cover"
             />
             <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/65 via-slate-900/0 to-slate-900/0 p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                <span className="rounded-full bg-white/90 px-2 py-0.5 text-2xs font-semibold text-foreground-secondary shadow-sm">
+                <span className="rounded-full bg-white/90 px-2 py-0.5 text-tiny font-semibold text-foreground-secondary shadow-sm">
                     Photo {index + 1}
                 </span>
                 <Button

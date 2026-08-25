@@ -90,13 +90,13 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-2 gap-2 bg-muted/40 border border-border rounded-2xl p-3 text-left mx-auto sm:mx-0 w-full max-w-sm sm:max-w-xl">
                                     <div className="space-y-0.5">
-                                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
+                                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <Megaphone className="w-3 h-3" /> Live Listings
                                         </p>
                                         <p className="text-h3 font-bold text-foreground">{listingSummary.totalActive}</p>
                                     </div>
                                     <div className="space-y-0.5 border-l border-border pl-3">
-                                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
+                                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <LayoutGrid className="w-3 h-3" /> Showing Here
                                         </p>
                                         <p className="text-h3 font-bold text-foreground">{listingSummary.visibleCount}</p>

@@ -16,7 +16,6 @@ describe("tailwind-merge design token collision audit", () => {
         expect(cn("text-h2", "text-foreground")).toBe("text-h2 text-foreground");
         expect(cn("text-h1", "text-foreground")).toBe("text-h1 text-foreground");
         expect(cn("text-display", "text-foreground")).toBe("text-display text-foreground");
-        expect(cn("text-2xs", "text-foreground-subtle")).toBe("text-2xs text-foreground-subtle");
     });
 
     it("correctly overrides conflicting font-size tokens", () => {

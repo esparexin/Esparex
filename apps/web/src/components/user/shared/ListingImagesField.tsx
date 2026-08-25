@@ -116,7 +116,7 @@ export function ListingImagesField({
                                     <Upload className={cn("w-4 h-4 text-primary", isDraggingOver && "animate-bounce")} />
                                     <span>{isDraggingOver ? "Drop photos here" : "+ Add Photos"}</span>
                                     {!isDraggingOver && (
-                                        <span className="text-2xs font-normal text-muted-foreground ml-1">(First photo is cover)</span>
+                                        <span className="text-tiny font-normal text-muted-foreground ml-1">(First photo is cover)</span>
                                     )}
                                 </button>
                             )}
@@ -152,7 +152,7 @@ export function ListingImagesField({
                                     className="aspect-square flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card hover:bg-muted/40 hover:border-primary/50 text-foreground transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs"
                                 >
                                     <Upload className="w-4 h-4 text-primary" />
-                                    <span className="text-2xs font-semibold text-muted-foreground">+ Add</span>
+                                    <span className="text-tiny font-semibold text-muted-foreground">+ Add</span>
                                 </button>
                             )}
                         </div>

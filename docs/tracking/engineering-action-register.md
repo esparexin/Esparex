@@ -1277,3 +1277,73 @@ git checkout HEAD~1
 
 
 
+---
+
+### EA-039
+
+**Sprint**: Typography Architecture Remediation  
+**Branch**: `feat/issue-typography-architecture-remediation`  
+**Category**: Design Token SSOT & CI Governance  
+**Status**: ✅ Completed  
+
+**Action**  
+Executed a comprehensive 3-phase remediation of the Esparex typography architecture to establish a permanent 10-level SSOT scale and eliminate all legacy/arbitrary token variants.
+
+**Reason**  
+A comprehensive audit revealed 3 critical violations in the typography architecture:
+1. **Token fragmentation** — `text-2xs` (10px) existed alongside `text-tiny` (11px) creating a non-canonical 11th scale level with no design justification.
+2. **Orphaned CSS variables** — `--text-h5` and `--text-h6` were defined in `admin/globals.css` but never emitted by `generate-css.ts`, creating phantom tokens.
+3. **CI guard gap** — `enforce-typography-ssot.js` only caught arbitrary bracket utilities (`text-[10px]`) but not named-class violations like `text-2xs`.
+
+**Phase 1 — Token Infrastructure Harmonization**
+- Updated `packages/design-tokens/scripts/generate-css.ts` to emit all canonical `--text-*` and `--font-weight-*` CSS variables into `:root`.
+- Removed `'2xs'` legacy fontSize entry from `apps/web/tailwind.config.js` and `apps/admin/tailwind.config.ts`.
+- Removed `"text-2xs"` from custom `tailwind-merge` class group in `packages/ui/src/utils.ts`.
+- Removed `--text-h5` and `--text-h6` CSS variables from `apps/admin/src/styles/globals.css`; mapped `h5`/`h6` selectors to `var(--text-body-lg)` / `var(--text-body)`.
+
+**Phase 2 — Component-Level Token Harmonization**  
+Migrated 34 source files replacing all `text-2xs` occurrences with `text-tiny` (canonical 11px SSOT token) and harmonizing associated raw palette colors (`text-slate-*`, `bg-slate-*`) with semantic tokens (`text-foreground-subtle`, `bg-muted`, `border-border`).
+
+**Phase 3 — CI Guard Hardening**  
+Added `BANNED_TOKEN_PATTERNS` registry to `scripts/enforce-typography-ssot.js`:
+- `\btext-2xs\b` — retired 10px scale, no suppression allowed
+- `var(--text-h5)` — removed CSS variable, no suppression allowed  
+- `var(--text-h6)` — removed CSS variable, no suppression allowed
+
+**Files Modified** (key files):
+```
+packages/design-tokens/scripts/generate-css.ts
+apps/web/tailwind.config.js
+apps/admin/tailwind.config.ts
+apps/admin/src/styles/globals.css
+packages/ui/src/utils.ts
+scripts/enforce-typography-ssot.js
+34× apps/web/src components migrated from text-2xs → text-tiny
+1×  apps/admin/src component migrated from text-2xs → text-tiny
+```
+
+**Canonical Typography Scale (SSOT)**:
+| Token | Size | Use |
+|---|---|---|
+| `text-display` | 36px / 2.25rem | Hero headlines |
+| `text-h1` | 30px / 1.875rem | Page titles |
+| `text-h2` | 24px / 1.5rem | Section headers |
+| `text-h3` | 20px / 1.25rem | Card headers |
+| `text-h4` | 18px / 1.125rem | Sub-section titles |
+| `text-body-lg` | 16px / 1.0rem | Large body text |
+| `text-body` | 14px / 0.875rem | Default body |
+| `text-small` | 13px / 0.8125rem | Helper text |
+| `text-caption` | 12px / 0.75rem | Labels / captions |
+| `text-tiny` | 11px / 0.6875rem | Smallest text (badges, pills) |
+
+**Verification**:
+- ✅ `node scripts/enforce-typography-ssot.js` ──► PASS (0 banned tokens, 0 arbitrary utilities)
+- ✅ `npm run type-check` ──► PASS (0 errors across all workspaces)
+- ✅ Pre-commit guards ──► PASS (design token adoption, unused import, type safety)
+- ✅ `grep -r "text-2xs" apps/ packages/` ──► 0 results
+
+**Rollback**:
+```bash
+git revert de6ef845 bfeed650
+```
+

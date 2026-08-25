@@ -173,7 +173,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                 )}
 
                 {/* Image counter pill */}
-                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-2xs px-2.5 py-1 rounded-full font-medium tracking-wide">
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-tiny px-2.5 py-1 rounded-full font-medium tracking-wide">
                     {currentImageIndex + 1} / {safeImages.length}
                 </div>
 

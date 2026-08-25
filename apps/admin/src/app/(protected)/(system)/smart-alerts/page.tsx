@@ -209,7 +209,7 @@ export default function SmartAlertsPage() {
                                                                     <span className="text-xs text-foreground-tertiary mr-1">{log.adId.location}</span>
                                                                 </>
                                                             )}
-                                                            <span className="text-2xs font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                                            <span className="text-tiny font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
                                                                 {(log.adId.price ?? 0) > 0 ? `$${log.adId.price}` : "Free"}
                                                             </span>
                                                         </div>
@@ -224,7 +224,7 @@ export default function SmartAlertsPage() {
                                                         {Object.entries(log.alertId.criteria).map(([k, v]) => {
                                                             if (!v) return null;
                                                             return (
-                                                                <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-2xs font-medium bg-slate-100 text-foreground-secondary border border-slate-200">
+                                                                <span key={k} className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-foreground-secondary border border-border">
                                                                     <span className="text-foreground-subtle mr-1 capitalize">{k.replace(/([A-Z])/g, ' $1').trim()}:</span>
                                                                     {String(v)}
                                                                 </span>

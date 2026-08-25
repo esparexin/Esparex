@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { colors } from '../src/colors';
 import { radius } from '../src/radius';
+import { typography } from '../src/typography';
 
 // Helper to convert hex to HSL (Tailwind format: "H S% L%")
 function hexToHsl(hex: string): string {
@@ -43,14 +44,30 @@ function generateCss() {
   let css = `/* GENERATED FILE - DO NOT EDIT MANUALLY */\n`;
   css += `/* Source: @esparex/design-tokens */\n\n`;
   
-  // Generate Light Mode variables
+  // Generate Light Mode & Core variables
   css += `:root {\n`;
   
+  // Typography font sizes
+  css += `    /* Canonical Typography Scale (SSOT) */\n`;
+  for (const [key, [size]] of Object.entries(typography.fontSizes)) {
+    css += `    --text-${key}: ${size};\n`;
+  }
+  css += `\n`;
+
+  // Typography font weights
+  css += `    /* Canonical Typography Weights (SSOT) */\n`;
+  for (const [key, weight] of Object.entries(typography.fontWeights)) {
+    css += `    --font-weight-${key}: ${weight};\n`;
+  }
+  css += `\n`;
+
+  // Semantic Light Colors
+  css += `    /* Semantic Colors (Light Mode) */\n`;
   for (const [key, value] of Object.entries(colors.semantic.light)) {
     css += `    --${key}: ${hexToHsl(value as string)};\n`;
   }
   
-  // Hardcoded radius to preserve current globals.css behavior (usually handled by tokens, but globals uses rem for border-radius base)
+  // Hardcoded radius to preserve current globals.css behavior
   css += `    --radius: 0.5rem;\n`;
 
   css += `}\n\n`;

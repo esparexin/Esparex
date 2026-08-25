@@ -151,7 +151,7 @@ export function ProfileSettingsSidebar({
   const renderTabBadge = (value: ProfileTabValue) => {
     if (value !== "messages" || chatUnreadCount <= 0) return null;
     return (
-      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-2xs font-bold text-white">
+      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-tiny font-bold text-white">
         {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
       </span>
     );

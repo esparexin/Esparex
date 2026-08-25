@@ -211,7 +211,7 @@ export function BusinessPublicProfile({
                   <div className="flex flex-wrap items-center gap-1.5">
                     <h1 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">{business.name}</h1>
                     {business.status === "live" && (
-                      <Badge className="bg-blue-600 text-white text-2xs sm:text-tiny font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
+                      <Badge className="bg-blue-600 text-white text-tiny font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
                         <CheckCircle className="size-2.5 sm:size-3" />
                         Verified
                       </Badge>
@@ -344,7 +344,7 @@ export function BusinessPublicProfile({
                   >
                     {tab.icon}
                     {tab.label}
-                    <span className={`ml-1 rounded-full px-1.5 py-0.2 text-2xs font-bold ${
+                    <span className={`ml-1 rounded-full px-1.5 py-0.2 text-tiny font-bold ${
                       activeTab === tab.key ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-600"
                     }`}>
                       {tab.count}
@@ -406,7 +406,7 @@ export function BusinessPublicProfile({
                 </div>
                 {mapData.externalUrl ? (
                   <div className="flex items-center justify-between border-t border-slate-100 bg-white px-3 py-2">
-                    <span className="text-2xs text-slate-500">Google Maps</span>
+                    <span className="text-tiny text-foreground-subtle">Google Maps</span>
                     <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
                       Open in Maps <ExternalLink className="size-3" />
                     </a>

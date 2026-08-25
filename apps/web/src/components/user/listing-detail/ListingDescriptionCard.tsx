@@ -128,7 +128,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     <span>Spare Parts</span>
                     {sparePartItems.length > 0 && (
                         <span className={cn(
-                            "rounded-full px-1.5 py-0.2 text-2xs font-bold",
+                            "rounded-full px-1.5 py-0.2 text-tiny font-bold",
                             activeTab === "spare-parts" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                         )}>
                             {sparePartItems.length}

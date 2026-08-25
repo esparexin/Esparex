@@ -38,7 +38,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
       <div>
         <div className="flex items-center justify-between mb-2">
           <span
-            className={`inline-flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+            className={`inline-flex items-center gap-1.5 text-tiny font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
               isSpotlight
                 ? 'bg-amber-50 text-amber-800 border-amber-200'
                 : isTopAd
@@ -56,7 +56,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
           </span>
 
           {isCurrent && (
-            <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="px-2.5 py-0.5 rounded-full text-tiny font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
               Active
             </span>
           )}

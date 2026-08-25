@@ -14,8 +14,7 @@ const customTwMerge = extendTailwindMerge({
         "text-body",
         "text-small",
         "text-caption",
-        "text-tiny",
-        "text-2xs"
+        "text-tiny"
       ],
       "text-color": [
         "text-foreground-secondary",

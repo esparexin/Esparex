@@ -65,7 +65,7 @@ export function WalletCreditCard({
               Use {creditType} Credit
             </h4>
             <span
-              className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${
+              className={`text-tiny font-bold px-2 py-0.5 rounded-full border ${
                 isSpotlight
                   ? "bg-amber-100/90 text-amber-900 border-amber-200"
                   : "bg-blue-100/90 text-blue-900 border-blue-200"
@@ -87,7 +87,7 @@ export function WalletCreditCard({
         >
           1 Credit
         </p>
-        <p className="text-2xs text-slate-500 font-medium">₹0 to pay</p>
+        <p className="text-tiny text-foreground-subtle font-medium">₹0 to pay</p>
         {isSelected && (
           <CheckCircle2
             className={`h-4 w-4 ml-auto mt-0.5 ${
@@ -147,7 +147,7 @@ export function CatalogPlanCard({
           <div className="flex items-center gap-2">
             <h4 className="text-xs font-bold text-slate-800">{formattedName}</h4>
             <Badge
-              className={`text-2xs px-1.5 py-0 font-semibold border-0 ${
+              className={`text-tiny px-1.5 py-0 font-semibold border-0 ${
                 activeCategory === "SPOTLIGHT"
                   ? "bg-amber-100 text-amber-800"
                   : "bg-blue-100 text-blue-800"
