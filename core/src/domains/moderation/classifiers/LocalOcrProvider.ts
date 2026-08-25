@@ -23,7 +23,7 @@ export class LocalOcrProvider implements Stage3Processor {
 
     // Patterns for off-platform contact detection
     private readonly phonePattern = /(?:\+91[-.\s]?)?[6-9]\d{4}[-.\s]?\d{5}|\b[6-9]\d{9}\b/g;
-    private readonly urlPattern = /(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.(?:com|in|org|net|co|io|store|shop|app|biz)\b/gi;
+    private readonly urlPattern = /\b(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.(?:com|in|org|net|co|io|store|shop|app|biz)\b/gi;
     private readonly emailPattern = /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g;
     private readonly handlePattern = /(?:wa\.me|t\.me|instagram\.com|facebook\.com|telegram|whatsapp)\/[a-zA-Z0-9._]+/gi;
     private readonly upiPattern = /\b[a-zA-Z0-9._-]+@(upi|ybl|axl|paytm|okaxis|okicici|oksbi|ibl)\b/gi;

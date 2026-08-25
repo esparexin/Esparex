@@ -55,6 +55,7 @@ export interface AdFilters {
     priceMin?: number;
     priceMax?: number;
     onsiteService?: boolean;
+    deviceCondition?: 'power_on' | 'power_off';
     /** Filter by canonical Ad record listingType values. */
     listingType?: ListingTypeValue | ListingTypeValue[];
     businessId?: string | mongoose.Types.ObjectId;

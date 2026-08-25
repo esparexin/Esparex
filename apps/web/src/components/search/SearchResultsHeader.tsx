@@ -132,7 +132,7 @@ function SortDropdown({
 }
 
 export function SearchResultsHeader({
-    total: _total,
+    total,
     sort,
     onSortChange,
     filterNode,
@@ -141,16 +141,20 @@ export function SearchResultsHeader({
     const [sortOpen, setSortOpen] = React.useState(false);
 
     return (
-        <div className="py-1 mb-2 border-none bg-transparent shadow-none">
+        <div className="py-0.5 mb-1.5 border-none bg-transparent shadow-none">
             <div className="flex items-center justify-between gap-3">
-                {/* Left side: Filter Trigger (Mobile only) & Category Title */}
+                {/* Left side: Filter Trigger (Mobile only) & Result Count / Category Title */}
                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
                     {filterNode && <div className="shrink-0 lg:hidden">{filterNode}</div>}
-                    {categoryName && (
-                        <h2 className="hidden sm:block text-h4 font-bold text-foreground tracking-tight leading-none truncate">
+                    {categoryName ? (
+                        <h2 className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight leading-none truncate">
                             {categoryName}
                         </h2>
-                    )}
+                    ) : typeof total === "number" && total > 0 ? (
+                        <p className="text-small font-medium text-foreground-secondary tracking-tight">
+                            Showing <span className="font-bold text-foreground">{total}</span> {total === 1 ? "ad" : "ads"}
+                        </p>
+                    ) : null}
                 </div>
 
                 {/* Right side: SortDropdown instance */}

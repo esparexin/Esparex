@@ -63,13 +63,13 @@ export const AdCardMeta = memo(function AdCardMeta({
   })();
 
   return (
-    <div className={cn("flex flex-col justify-between gap-1", className)}>
+    <div className={cn("flex flex-col justify-between gap-1.5", className)}>
       {/* Price + Condition Badge Row */}
-      <div className="flex items-center justify-between min-h-[1.25rem] gap-1.5">
+      <div className="flex items-center justify-between min-h-[1.5rem] gap-1.5">
         <span
           className={cn(
-            "font-normal sm:font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate",
-            isList ? "text-body sm:text-h4" : isDashboard ? "text-body sm:text-body-lg" : "text-body sm:text-body-lg"
+            "font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate",
+            isList ? "text-body sm:text-h4" : isDashboard ? "text-body sm:text-body-lg" : "text-body-lg sm:text-h4"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
@@ -82,11 +82,11 @@ export const AdCardMeta = memo(function AdCardMeta({
         )}
       </div>
 
-      {/* Title — De-congested with snug line-height and discrete Geist font size */}
-      <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-start">
+      {/* Title — Snug line-height and discrete Geist font size */}
+      <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
-          "font-normal sm:font-semibold line-clamp-2 leading-snug text-foreground tracking-normal",
-          isList ? "text-caption sm:text-small" : "text-caption sm:text-small"
+          "font-medium sm:font-semibold line-clamp-2 leading-snug text-foreground tracking-tight",
+          isList ? "text-caption sm:text-small" : "text-small sm:text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>
@@ -95,7 +95,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Location + Date Metadata Row */}
       <div
         className={cn(
-          "flex items-center justify-between text-tiny text-foreground-tertiary gap-1.5 min-w-0 pt-0.5 mt-0.5",
+          "flex items-center justify-between text-caption text-foreground-tertiary gap-1.5 min-w-0 pt-1.5 mt-0.5 border-t border-border/40",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
@@ -123,10 +123,10 @@ export const AdCardMeta = memo(function AdCardMeta({
               {locationLabel && (
                 <>
                   <MapPin
-                    className="h-3 w-3 shrink-0 text-foreground-subtle"
+                    className="h-3.5 w-3.5 shrink-0 text-foreground-subtle"
                     aria-hidden="true"
                   />
-                  <span className="truncate font-medium text-tiny block shrink min-w-0 text-foreground-tertiary">
+                  <span className="truncate font-medium text-caption block shrink min-w-0 text-foreground-tertiary">
                     {locationLabel}
                   </span>
                 </>
@@ -135,7 +135,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
             {/* Posted Date */}
             {!isList && (
-              <span className="shrink-0 text-tiny text-foreground-tertiary font-normal whitespace-nowrap">
+              <span className="shrink-0 text-caption text-foreground-tertiary font-normal whitespace-nowrap">
                 {"createdAt" in ad && ad.createdAt
                   ? formatShortRelativeTime(ad.createdAt as string)
                   : "Just now"}

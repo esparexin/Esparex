@@ -13,6 +13,7 @@ import { env } from '@esparex/core/config/env';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { ZodError } from 'zod';
+import { isZodError } from '@esparex/core/utils/errorHelpers';
 import { AuditService } from '@esparex/core/services/AuditService';
 import type { IAuthUser } from '@esparex/core/types/auth';
 
@@ -198,9 +199,10 @@ export function customErrorHandler(
 
 
     // Global Zod Validation Middleware
-    if (err instanceof ZodError) {
+    const zodIssues = isZodError(err) ? err.issues : err instanceof ZodError ? err.issues : null;
+    if (zodIssues) {
         const structuredErrors = Object.fromEntries(
-            err.issues.map((issue) => [
+            zodIssues.map((issue: { path: Array<string | number>; message: string }) => [
                 issue.path.join('.') || '_root',
                 issue.message,
             ])

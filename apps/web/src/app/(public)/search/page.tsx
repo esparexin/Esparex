@@ -1,7 +1,5 @@
 import { Suspense } from 'react';
 import { BrowseAds } from '@/components/user/BrowseAds';
-import { BrowseServices } from '@/components/user/BrowseServices';
-import { BrowseSpareParts } from '@/components/user/BrowseSpareParts';
 import { AdCardSkeleton } from "@/components/user/ad-card/AdCardSkeleton";
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
@@ -81,7 +79,6 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
     }
 
     const endpoint = API_ROUTES.USER.LISTINGS;
-    const Component = parsed.type === 'service' ? BrowseServices : parsed.type === 'spare_part' ? BrowseSpareParts : BrowseAds;
 
     const rawCategoryInput = parsed.categoryId ?? parsed.category;
     const isCategorySlug = Boolean(rawCategoryInput && !/^[0-9a-fA-F]{24}$/.test(rawCategoryInput));
@@ -124,7 +121,8 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
             {/* Server-rendered H1 — always visible to Googlebot before hydration */}
             <h1 className="sr-only">{h1Map[parsed.type] ?? h1Default}</h1>
             <Suspense fallback={<SearchPageFallback />}>
-                <Component
+                <BrowseAds
+                    browseType={parsed.type}
                     initialCategory={parsed.categoryId ?? parsed.category}
                     initialSearchQuery={parsed.q}
                     initialResults={initialResults as ListingPageResult}

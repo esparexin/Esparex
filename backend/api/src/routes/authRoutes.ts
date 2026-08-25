@@ -50,7 +50,7 @@ router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
  * @desc    Invalidate current OTP session for a mobile number
  * @access  Public
  */
-router.post('/cancel-otp', otpConfigurationCheck, validateRequest(loginSchema), (req, res, next) => AuthController.cancelOtp(req, res, next));
+router.post('/cancel-otp', otpConfigurationCheck, validateRequest(loginSchema), otpIpLimiter, otpSendLimiter, (req, res, next) => AuthController.cancelOtp(req, res, next));
 
 /**
  * @route   POST /api/v1/auth/logout
