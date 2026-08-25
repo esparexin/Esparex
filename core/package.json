@@ -71,7 +71,6 @@
     "dotenv": "^17.2.3",
     "firebase-admin": "^13.8.0",
     "ioredis": "^5.9.3",
-    "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.3",
     "module-alias": "^2.3.4",
     "mongoose": "^9.0.2",
