@@ -91,7 +91,7 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <div className="flex flex-col h-full md:h-[460px] lg:h-[480px] md:max-h-[calc(100dvh-14rem)] md:min-h-[420px] rounded-none md:rounded-2xl border-0 md:border md:border-border/80 bg-white md:shadow-xs overflow-hidden flex-1 min-h-0">
+    <div className="flex flex-col h-full md:h-[420px] lg:h-[440px] md:max-h-[calc(100dvh-14rem)] md:min-h-[400px] rounded-none md:rounded-2xl border-0 md:border md:border-border/80 bg-white md:shadow-xs overflow-hidden flex-1 min-h-0">
       <div className="md:grid md:flex-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] overflow-hidden min-h-0 h-full">
         <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-border/80 bg-white h-full min-h-0 overflow-hidden flex flex-col`}>
           <ChatList
