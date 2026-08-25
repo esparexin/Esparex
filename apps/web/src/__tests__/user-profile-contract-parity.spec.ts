@@ -64,7 +64,7 @@ describe("User Profile & Settings Contract Parity & Validation Suite", () => {
   describe("UP-04: Delete Account Schema Parity", () => {
     it("should export deleteAccountFormSchema from contracts and validate payloads", () => {
       const payload = {
-        reason: "no_longer_needed",
+        reason: "not_useful",
         feedback: "Great app!",
         confirmText: "delete",
       };
@@ -75,7 +75,7 @@ describe("User Profile & Settings Contract Parity & Validation Suite", () => {
 
     it("should reject invalid confirmText when deleting account", () => {
       const payload = {
-        reason: "no_longer_needed",
+        reason: "not_useful",
         confirmText: "no",
       };
 

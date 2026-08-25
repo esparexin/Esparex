@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const DELETE_ACCOUNT_REASONS = [
-  "no_longer_needed",
+  "not_useful",
   "privacy_concerns",
-  "too_many_notifications",
-  "created_another_account",
+  "too_many_emails",
+  "found_alternative",
   "other",
 ] as const;
 
