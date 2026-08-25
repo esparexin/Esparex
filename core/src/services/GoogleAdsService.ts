@@ -4,6 +4,7 @@ import {
     GOOGLE_AD_STATUS,
     type GoogleAdPlacementDTO,
     type InContentPlacementId,
+    type GoogleAdStatusValue,
 } from "@esparex/contracts";
 import { AppError } from "../utils/AppError";
 import { getCache, setCache, delCache } from "../utils/redisCache";
@@ -205,7 +206,7 @@ export const updateGoogleAdPlacement = async (id: string, data: Partial<GoogleAd
     return serializeGoogleAdPlacement(placement);
 };
 
-export const mutateGoogleAdPlacementStatus = async (id: string, status: string) => {
+export const mutateGoogleAdPlacementStatus = async (id: string, status: GoogleAdStatusValue) => {
     const placement = await GoogleAdPlacement.findOne({ _id: id, isDeleted: { $ne: true } });
     if (!placement) {
         throw new AppError("Ad placement not found", 404);
