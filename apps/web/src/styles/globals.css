@@ -273,7 +273,7 @@ html {
 
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   min-height: 100dvh;
   position: relative;
 }
@@ -356,24 +356,24 @@ header {
 
 /* Default state (at top) */
 header.sticky {
-  background-color: transparent !important;
+  background-color: hsl(var(--background)) !important;
   backdrop-filter: none !important;
-  border-color: transparent !important;
+  border-color: hsl(var(--border) / 0.6) !important;
   box-shadow: none !important;
 }
 
-/* Scrolled state */
+/* Scrolled state (Solid opaque background + crisp elevation shadow) */
 [data-scrolled="true"] header.sticky {
-  background-color: hsl(var(--background) / 0.8) !important;
-  backdrop-filter: blur(12px) !important;
+  background-color: hsl(var(--background)) !important;
   border-color: hsl(var(--border)) !important;
-  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Mobile Header Safety */
 @media (max-width: 767px) {
   [data-scrolled="true"] header.sticky {
     background-color: hsl(var(--background)) !important;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06) !important;
   }
 }
 

@@ -27,12 +27,12 @@ export function AdTitlePriceCard({
             <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                 {/* Listing Type Badge */}
                 {isService ? (
-                    <Badge className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg inline-flex items-center gap-1">
+                    <Badge className="flex-shrink-0 text-caption font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg inline-flex items-center gap-1">
                         <Briefcase className="size-3 text-emerald-600" />
                         Service
                     </Badge>
                 ) : isSparePart ? (
-                    <Badge className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-lg inline-flex items-center gap-1">
+                    <Badge className="flex-shrink-0 text-caption font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-lg inline-flex items-center gap-1">
                         <CircuitBoard className="size-3 text-indigo-600" />
                         Spare Part
                     </Badge>
@@ -47,7 +47,7 @@ export function AdTitlePriceCard({
 
                 {/* On-Site Service Badge */}
                 {isService && ad.onsiteService !== undefined && (
-                    <Badge className="flex-shrink-0 text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg inline-flex items-center gap-1">
+                    <Badge className="flex-shrink-0 text-caption font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg inline-flex items-center gap-1">
                         <Wrench className="size-3 text-blue-600" />
                         {ad.onsiteService ? "Doorstep Service" : "In-Shop Repair"}
                     </Badge>
@@ -69,14 +69,14 @@ export function AdTitlePriceCard({
                     </Badge>
                 )}
                 {ad.isFeatured && !ad.isSpotlight && !ad.isBoosted && (
-                    <Badge className="bg-yellow-500 flex-shrink-0 text-xs text-white rounded-lg border-none">
+                    <Badge className="bg-yellow-500 flex-shrink-0 text-caption text-white rounded-lg border-none">
                         Featured
                     </Badge>
                 )}
             </div>
 
             {ad.isBusiness && ad.businessName && (
-                <div className="flex items-center gap-2 text-xs text-link-dark bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 text-caption text-link-dark bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
                     <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                         <Shield className="h-3.5 w-3.5 text-white" />
                     </div>
@@ -97,7 +97,7 @@ export function AdTitlePriceCard({
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
                 <div className="flex items-baseline gap-1">
                     {ad.price === 0 ? (
-                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1 text-xs md:text-caption font-bold uppercase tracking-wide">
+                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1 text-caption md:text-caption font-bold uppercase tracking-wide">
                             {isService ? "Contact for Quote" : "Free"}
                         </span>
                     ) : (
@@ -107,7 +107,7 @@ export function AdTitlePriceCard({
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 text-xs text-foreground-subtle">
+                <div className="flex items-center gap-3 text-caption text-foreground-subtle">
                     <div className="flex items-center gap-1 text-foreground-secondary font-medium">
                         <MapPin className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
                         <span className="truncate max-w-[140px] sm:max-w-[180px]">{locationLabel}</span>
