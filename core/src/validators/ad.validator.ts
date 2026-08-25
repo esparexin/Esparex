@@ -107,6 +107,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     minPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
     maxPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
 
+    deviceCondition: z.enum(['power_on', 'power_off']).optional(),
     isSpotlight: z.boolean().or(z.string().transform(val => val === 'true')).optional(),
     listingType: z.string().optional(),
 

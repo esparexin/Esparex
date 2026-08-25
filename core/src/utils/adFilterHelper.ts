@@ -16,6 +16,7 @@ export interface AdFilterCriteria {
     priceMax?: number;
     onsiteService?: boolean;
     screenSize?: string;
+    deviceCondition?: 'power_on' | 'power_off';
 
     keywords?: string;
     locationId?: string;
@@ -65,6 +66,11 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
     // Screen Size (Unified Filter)
     if (criteria.screenSize) {
         match.screenSize = criteria.screenSize;
+    }
+
+    // Device Condition (power_on | power_off)
+    if (criteria.deviceCondition === 'power_on' || criteria.deviceCondition === 'power_off') {
+        match.deviceCondition = criteria.deviceCondition;
     }
 
     const { hasGeo } = normalizeGeoInput(criteria.lat, criteria.lng);
@@ -134,21 +140,9 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
         match.onsiteService = criteria.onsiteService;
     }
 
-
-
     // Keywords (Text Search)
-    // Note: For aggregation pipelines ($geoNear), $text must be in the 'query' field.
     if (criteria.keywords?.trim()) {
-        const query = criteria.keywords.trim();
-        
-        // Strategy: Use $text search as primary (fast, indexed)
-        // If we want "fuzzy" support, we can also generate a regex fallback 
-        // that handles common 1-character typos.
-        match.$text = { $search: query };
-        
-        // 🧪 OPTIONAL: Fuzzy Regex Fallback
-        // This is useful if $text search returns 0 results. 
-        // For a single-stage buildFilter, we stick to $text but ensure it's normalized.
+        match.$text = { $search: criteria.keywords.trim() };
     }
 
     // Plan & Spotlight
