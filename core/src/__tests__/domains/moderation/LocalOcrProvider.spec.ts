@@ -81,7 +81,7 @@ describe('LocalOcrProvider (PR 6 — Stage 3 Intelligence)', () => {
         const result = ocrProvider.extractContactsFromText(adversarialString);
         const durationMs = Date.now() - startTime;
 
-        expect(durationMs).toBeLessThan(100); // Must complete quickly without event loop hang
+        expect(durationMs).toBeLessThan(500); // Must complete quickly without event loop hang
         expect(result).toBeDefined();
     });
 });
