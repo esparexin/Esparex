@@ -7,7 +7,7 @@ import {
     createSavedSearch,
     deleteSavedSearch,
     getSavedSearches
-} from '@esparex/core/services/SavedSearchService';
+} from '@esparex/core/domains/discovery/application/services/SavedSearchService';
 import { SavedSearchCreatePayload } from "@esparex/contracts";
 const getUserId = (req: Request): string | null => {
     const user = req.user;
