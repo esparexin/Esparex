@@ -30,7 +30,7 @@ export function MobileHeaderTopBar({
         aria-label="Go to Esparex Home"
       >
         <Image
-          src="/icons/icon-192x192.png"
+          src="/icons/brand-mark.png"
           alt="Esparex Home"
           width={48}
           height={48}
