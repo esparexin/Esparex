@@ -2,11 +2,11 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalProfileSchema, type PersonalProfileValues, MOBILE_VISIBILITY } from "@esparex/contracts";
 
-import { Button, Card, CardContent, Switch } from "@esparex/ui";
+import { Button, Card, CardContent } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import type { User as UserType } from "@/types/User";
 import type { ProfileUser } from "../types";
 import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
 import { PersonalProfileGstSection } from "./PersonalProfileGstSection";
+import { PersonalProfileMobileVisibilitySection } from "./PersonalProfileMobileVisibilitySection";
 
 interface PersonalTabProps {
     user: ProfileUser | null;
@@ -195,7 +196,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                     id="profile-name"
                                     type="text"
                                     placeholder="Enter your full name"
-                                    className="h-9 text-caption sm:text-body rounded-xl border-border bg-card px-3.5 focus-visible:ring-2 focus-visible:ring-primary"
+                                    className="h-10 text-caption sm:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary"
                                     {...form.register("name")}
                                 />
                                 <FormError message={nameError} />
@@ -214,7 +215,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                         value={formattedMobile}
                                         readOnly
                                         disabled
-                                        className="h-9 text-caption sm:text-body pl-8.5 pr-3.5 rounded-xl border-border bg-muted text-foreground font-medium cursor-not-allowed"
+                                        className="h-10 text-caption sm:text-body pl-8.5 pr-3.5 rounded-xl border-border bg-muted text-foreground font-medium cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -234,27 +235,9 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
                         <FormError message={globalError} />
 
-                        {/* Bottom Row: Toggle & Save Changes Button Side-by-Side */}
-                        <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                                <Controller
-                                    name="mobileVisibility"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <Switch
-                                            id="mobile-visibility-toggle"
-                                            checked={field.value === 'show'}
-                                            onCheckedChange={(checked) => field.onChange(checked ? 'show' : 'hide')}
-                                        />
-                                    )}
-                                />
-                                <div>
-                                    <Label htmlFor="mobile-visibility-toggle" className="text-caption sm:text-body font-semibold text-foreground cursor-pointer">
-                                        Show number to buyers
-                                    </Label>
-                                    <p className="text-tiny text-foreground-subtle">Buyers can call you directly</p>
-                                </div>
-                            </div>
+                        {/* Bottom Section: 3-State Mobile Privacy Selector & Save Button */}
+                        <div className="pt-3 border-t border-border flex flex-col gap-4">
+                            <PersonalProfileMobileVisibilitySection control={form.control} />
 
                             <Button
                                 type="submit"
