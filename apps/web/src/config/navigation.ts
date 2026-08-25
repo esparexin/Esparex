@@ -10,7 +10,6 @@ import {
   Search,
   Settings,
   Sparkles,
-  Wrench,
   CreditCard,
   ShoppingBag,
 } from "@/icons/IconRegistry";
@@ -126,16 +125,6 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
     showIn: ["mobile-bottom-nav"],
     section: "main",
     href: "/search",
-  },
-  {
-    id: "browse-service-listings",
-    label: "Browse Services",
-    slug: "browse-service-listings",
-    icon: Wrench,
-    roles: ["guest", "user", "business"],
-    showIn: ["mobile-drawer"],
-    section: "main",
-    page: "browse-service-listings",
   },
   {
     id: "profile",
