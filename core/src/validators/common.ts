@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 
 /**
  * Common validation schemas for reuse
@@ -99,10 +100,8 @@ export function sanitizeString(min?: number, max?: number) {
         schema = schema.max(max);
     }
 
-    return schema.transform(val => {
-        let sanitized = val.replace(/<[^>]*>/g, '');
-        sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
-        sanitized = sanitized.trim();
-        return sanitized;
-    });
+    return schema.transform(val => sanitizeHtml(val, {
+        allowedTags: [],
+        allowedAttributes: {},
+    }).trim());
 }
