@@ -50,16 +50,16 @@ export function AccountNavItemList({
               type="button"
               onClick={() => onTabChange(item.value)}
               aria-current={isActive ? "page" : undefined}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
                 ${isActive
-                  ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200"
-                  : "text-foreground-tertiary hover:bg-slate-50 hover:text-foreground"
+                  ? "bg-primary/10 text-primary shadow-xs ring-1 ring-primary/20"
+                  : "text-foreground-tertiary hover:bg-muted/60 hover:text-foreground"
                 }`}
             >
               <Icon
                 className={`h-4 w-4 flex-shrink-0 transition-colors ${
                   isActive
-                    ? "text-link"
+                    ? "text-primary"
                     : "text-foreground-subtle group-hover:text-foreground-tertiary"
                 }`}
               />
@@ -77,12 +77,12 @@ export function AccountNavItemList({
             type="button"
             role="listitem"
             onClick={() => onTabChange(item.value)}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-sm text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px]"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-foreground-secondary hover:bg-muted/60 active:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px]"
           >
-            <Icon className="h-5 w-5 text-slate-500 flex-shrink-0" />
-            <span className="flex-1 text-slate-700 font-normal text-xs sm:text-sm">{item.label}</span>
+            <Icon className="h-5 w-5 text-foreground-subtle flex-shrink-0" />
+            <span className="flex-1 text-foreground-secondary font-normal text-caption sm:text-body">{item.label}</span>
             {renderTabBadge?.(item.value)}
-            <ChevronRight className="h-4 w-4 text-slate-400 ml-auto" />
+            <ChevronRight className="h-4 w-4 text-foreground-subtle ml-auto" />
           </button>
         );
       })}
