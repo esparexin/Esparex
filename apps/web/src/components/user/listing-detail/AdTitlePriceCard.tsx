@@ -40,7 +40,7 @@ export function AdTitlePriceCard({
 
                 {/* Category Badge */}
                 {categoryLabel && categoryLabel !== "Category" && (
-                    <Badge variant="outline" className="flex-shrink-0 font-medium border-border text-foreground-subtle rounded-lg bg-muted px-2.5 py-0.5 text-2xs">
+                    <Badge variant="outline" className="flex-shrink-0 font-medium border-border text-foreground-subtle rounded-lg bg-muted px-2.5 py-0.5 text-tiny">
                         {categoryLabel}
                     </Badge>
                 )}
@@ -64,7 +64,7 @@ export function AdTitlePriceCard({
                 )}
 
                 {isActiveSpotlight && (
-                    <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-amber-500 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
+                    <Badge className="flex-shrink-0 text-caption md:text-tiny font-bold px-2.5 py-0.5 bg-amber-500 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
                         ✨ Spotlight
                     </Badge>
                 )}
@@ -82,7 +82,7 @@ export function AdTitlePriceCard({
                     </div>
                     <div className="flex-1 text-left min-w-0">
                         <span className="font-bold block truncate">{ad.businessName}</span>
-                        <span className="text-2xs text-blue-500 font-medium flex items-center gap-1">
+                        <span className="text-tiny text-blue-500 font-medium flex items-center gap-1">
                             <CheckCircle className="h-2.5 w-2.5" />
                             {isService ? "Verified Service Center" : isSparePart ? "Verified Parts Supplier" : "Verified Business"}
                         </span>

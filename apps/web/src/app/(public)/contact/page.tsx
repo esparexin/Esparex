@@ -28,7 +28,7 @@ export default function ContactPage() {
                         <Mail className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Email Support</p>
+                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">Email Support</p>
                         <p className="text-caption font-semibold text-foreground mt-0.5">support@esparex.com</p>
                     </div>
                 </div>
@@ -37,7 +37,7 @@ export default function ContactPage() {
                         <Phone className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Phone</p>
+                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">Phone</p>
                         <p className="text-caption font-semibold text-foreground mt-0.5">+91 98765 43210</p>
                     </div>
                 </div>
@@ -46,7 +46,7 @@ export default function ContactPage() {
                         <MapPin className="h-5 w-5 text-violet-600" />
                     </div>
                     <div>
-                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Office</p>
+                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">Office</p>
                         <p className="text-caption font-semibold text-foreground mt-0.5">Hyderabad, Telangana</p>
                     </div>
                 </div>

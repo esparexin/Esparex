@@ -77,7 +77,7 @@ export function BusinessTab({
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h2 className="text-body-lg sm:text-h4 font-bold text-foreground truncate">{businessData.name}</h2>
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-emerald-700">
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-emerald-700">
                                             <CheckCircle2 className="h-3 w-3" />
                                             Verified
                                         </span>
@@ -167,19 +167,19 @@ export function BusinessTab({
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Total Services</p>
+                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Total Services</p>
                         <p className="mt-1 text-xl sm:text-2xl font-black text-foreground">{businessStats?.totalServices ?? 0}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Approved</p>
+                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Approved</p>
                         <p className="mt-1 text-xl sm:text-2xl font-black text-emerald-600">{businessStats?.approvedServices ?? 0}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Pending</p>
+                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Pending</p>
                         <p className="mt-1 text-xl sm:text-2xl font-black text-amber-600">{businessStats?.pendingServices ?? 0}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Profile Views</p>
+                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Profile Views</p>
                         <p className="mt-1 text-xl sm:text-2xl font-black text-primary">{businessStats?.views ?? 0}</p>
                     </div>
                 </div>
