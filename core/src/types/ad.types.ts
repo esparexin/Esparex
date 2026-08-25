@@ -15,6 +15,7 @@ export interface AdFilters {
     excludeIds?: string[];
     minPrice?: number;
     maxPrice?: number;
+    deviceCondition?: 'power_on' | 'power_off';
     brands?: string[];
     radiusKm?: number;
     coordinates?: {

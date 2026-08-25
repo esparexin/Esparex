@@ -18,16 +18,8 @@ import {
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
-import { useBrowseAdsData } from "@/components/user/useBrowseAdsData";
+import { useBrowseAdsData, type BrowsePageResult } from "@/components/user/useBrowseAdsData";
 import { useBrowseFilterPipeline } from "@/components/user/useBrowseFilterPipeline";
-
-type BrowsePageResult<T> = {
-  data: T[];
-  pagination: {
-    total?: number;
-    hasMore?: boolean;
-  };
-};
 
 interface BrowseListingsControllerConfig<TItem, TFilters> {
   browseType: PublicBrowseType;
@@ -49,6 +41,9 @@ interface BrowseListingsControllerConfig<TItem, TFilters> {
     urlLocationId?: string;
     urlLocationLabel?: string;
     radiusKm?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    deviceCondition?: string;
   }) => TFilters;
   fetchPage: (filters: TFilters) => Promise<BrowsePageResult<TItem>>;
 }
@@ -88,6 +83,14 @@ export function useBrowseListingsController<TItem, TFilters>({
   const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlRadiusKm = routeParams.radiusKm;
   const stableLocation = location;
+  const categoriesRef = useRef<Category[]>(initialCategories ?? []);
+  const minPriceParam = searchParams.get("minPrice");
+  const maxPriceParam = searchParams.get("maxPrice");
+  const urlDeviceCondition = searchParams.get("condition") || searchParams.get("deviceCondition") || "";
+  const urlBrandId = searchParams.get("brandId") || "";
+  const minPrice = minPriceParam ? Number.parseInt(minPriceParam, 10) : undefined;
+  const maxPrice = maxPriceParam ? Number.parseInt(maxPriceParam, 10) : undefined;
+  const deviceCondition = urlDeviceCondition === "power_on" || urlDeviceCondition === "power_off" ? urlDeviceCondition : undefined;
 
   const constructFilters = useCallback(
     (requestedPage: number) =>
@@ -96,14 +99,17 @@ export function useBrowseListingsController<TItem, TFilters>({
         pageSize,
         query,
         selectedCategory,
-        categories: [],
+        categories: categoriesRef.current,
         location: stableLocation,
         sort,
         urlLocationId: urlLocationId || undefined,
         urlLocationLabel: urlLocationLabel || undefined,
         radiusKm: urlRadiusKm,
+        minPrice,
+        maxPrice,
+        deviceCondition,
       }),
-    [buildFilters, pageSize, query, selectedCategory, sort, stableLocation, urlLocationId, urlLocationLabel, urlRadiusKm]
+    [buildFilters, deviceCondition, maxPrice, minPrice, pageSize, query, selectedCategory, sort, stableLocation, urlLocationId, urlLocationLabel, urlRadiusKm]
   );
 
   const {
@@ -125,6 +131,12 @@ export function useBrowseListingsController<TItem, TFilters>({
   });
 
   useEffect(() => {
+    if (categories && categories.length > 0) {
+      categoriesRef.current = categories;
+    }
+  }, [categories]);
+
+  useEffect(() => {
     return () => {
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
@@ -143,17 +155,11 @@ export function useBrowseListingsController<TItem, TFilters>({
       query.trim() === initialSearchQuery.trim() &&
       selectedCategory === (initialCategory ?? "") &&
       sort === "newest" &&
-      !hasLocationFilter,
-    [
-      hasLocationFilter,
-      initialCategory,
-      initialResults,
-      initialSearchQuery,
-      page,
-      query,
-      selectedCategory,
-      sort,
-    ]
+      !hasLocationFilter &&
+      minPrice === undefined &&
+      maxPrice === undefined &&
+      deviceCondition === undefined,
+    [deviceCondition, hasLocationFilter, initialCategory, initialResults, initialSearchQuery, maxPrice, minPrice, page, query, selectedCategory, sort]
   );
 
   const fetchItems = useCallback(
@@ -172,12 +178,9 @@ export function useBrowseListingsController<TItem, TFilters>({
     }
     setPage(1);
     void fetchItems(1);
-  }, [fetchItems, isLoaded, shouldUseInitialResults]);
+  }, [fetchItems, isLoaded, setLoading, shouldUseInitialResults]);
 
-  const {
-    activeFilterBadges,
-    activeFilterCount,
-  } = useBrowseFilterPipeline({
+  const { activeFilterBadges, activeFilterCount } = useBrowseFilterPipeline({
     query,
     selectedCategory,
     categories,
@@ -186,16 +189,14 @@ export function useBrowseListingsController<TItem, TFilters>({
     urlLocationId,
     urlLocationLabel,
     urlRadiusKm,
+    minPrice,
+    maxPrice,
+    deviceCondition: urlDeviceCondition,
+    brandId: urlBrandId,
   });
 
   const buildNextUrl = useCallback(
-    (
-      overrides: Partial<{
-        q: string;
-        category: string;
-        sort: SortOption;
-      }> = {}
-    ) => {
+    (overrides: Partial<{ q: string; category: string; sort: SortOption }> = {}) => {
       const hasOverride = (key: keyof typeof overrides) =>
         Object.prototype.hasOwnProperty.call(overrides, key);
 
@@ -212,13 +213,10 @@ export function useBrowseListingsController<TItem, TFilters>({
     [browseType, query, selectedCategory, sort, urlLocationId, urlLocationLabel, urlRadiusKm]
   );
 
-   
   const handleInputChange = useCallback(
     (value: string) => {
       setInputValue(value);
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         setQuery(value);
         void router.push(buildNextUrl({ q: value }), { scroll: false });
@@ -227,7 +225,6 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-   
   const handleCategoryChange = useCallback(
     (value: string) => {
       startTransition(() => {
@@ -239,7 +236,6 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-   
   const handleSortChange = useCallback(
     (value: SortOption) => {
       startTransition(() => {
@@ -251,7 +247,6 @@ export function useBrowseListingsController<TItem, TFilters>({
     [buildNextUrl, router]
   );
 
-   
   const handleReset = useCallback(() => {
     startTransition(() => {
       setQuery("");
@@ -263,7 +258,6 @@ export function useBrowseListingsController<TItem, TFilters>({
     });
   }, [browseType, router]);
 
-   
   const handleLoadMore = useCallback(() => {
     const nextPage = page + 1;
     startTransition(() => {

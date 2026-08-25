@@ -85,7 +85,7 @@ export const AdCardGrid = memo(function AdCardGrid({
       </AdCardCover>
 
       {/* Content section */}
-      <CardContent className="p-2 sm:p-2.5">
+      <CardContent className="p-3 sm:p-3.5">
         <AdCardMeta ad={ad} variant="default" />
       </CardContent>
     </AdCardShell>

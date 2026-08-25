@@ -43,6 +43,9 @@ const buildAdFilters = ({
   urlLocationId,
   urlLocationLabel,
   radiusKm,
+  minPrice,
+  maxPrice,
+  deviceCondition,
 }: BrowseBuildFiltersArgs): ListingFilters => {
   const filters = buildBaseBrowseFilters<ListingFilters>({
     page,
@@ -50,6 +53,9 @@ const buildAdFilters = ({
     query,
     selectedCategory,
     categories,
+    minPrice,
+    maxPrice,
+    deviceCondition,
   });
 
   filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];

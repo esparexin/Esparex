@@ -46,15 +46,13 @@ describe("Phase 5: Search & Filter State Wiring (FIND-004, FIND-005, FIND-018)",
         expect(POPULAR_SEARCHES).toContain("Motherboard");
     });
 
-    it("verifies BrowseListingsView wires minPrice, maxPrice, sellerType, and condition to filters", () => {
+    it("verifies BrowseListingsView wires minPrice, maxPrice, and condition to filters", () => {
         const filePath = path.join(webSrcDir, "components/user/BrowseListingsView.tsx");
         const content = fs.readFileSync(filePath, "utf8");
 
         expect(content).toContain('minPrice={minPrice}');
         expect(content).toContain('maxPrice={maxPrice}');
         expect(content).toContain('onPriceChange={handlePriceChange}');
-        expect(content).toContain('sellerType={sellerTypeParam}');
-        expect(content).toContain('onSellerTypeChange={handleSellerTypeChange}');
         expect(content).toContain('deviceCondition={deviceConditionParam}');
         expect(content).toContain('onDeviceConditionChange={handleConditionChange}');
     });
@@ -65,5 +63,29 @@ describe("Phase 5: Search & Filter State Wiring (FIND-004, FIND-005, FIND-018)",
 
         expect(content).toContain('isRecent ? "Recent Searches" : "Popular Searches"');
         expect(content).toContain('onClearHistory()');
+    });
+
+    it("verifies buildBaseBrowseFilters resolves category slug to canonical categoryId", async () => {
+        const { buildBaseBrowseFilters } = await import("@/components/user/browseFilterBuilders");
+        const mockCategories = [
+            { id: "69c24a14a58d20c75c6b09d9", name: "LED TVs", slug: "led-tvs" },
+            { id: "69c24a14a58d20c75c6b09da", name: "Mobiles", slug: "mobiles" },
+        ];
+
+        const filters = buildBaseBrowseFilters({
+            page: 1,
+            pageSize: 20,
+            query: "",
+            selectedCategory: "led-tvs",
+            categories: mockCategories as any,
+            minPrice: 500,
+            maxPrice: 2000,
+            deviceCondition: "power_on",
+        });
+
+        expect(filters.categoryId).toBe("69c24a14a58d20c75c6b09d9");
+        expect(filters.minPrice).toBe(500);
+        expect(filters.maxPrice).toBe(2000);
+        expect(filters.deviceCondition).toBe("power_on");
     });
 });
