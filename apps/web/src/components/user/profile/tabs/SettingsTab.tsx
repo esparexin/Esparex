@@ -32,24 +32,19 @@ interface SettingsTabProps {
 type SettingRowProps = {
     icon: React.ReactNode;
     title: string;
-    description: string;
     checked: boolean;
     onCheckedChange: (checked: boolean) => void;
 };
 
-function SettingRow({ icon, title, description, checked, onCheckedChange }: SettingRowProps) {
+function SettingRow({ icon, title, checked, onCheckedChange }: SettingRowProps) {
     const titleId = useId();
-    const descId = useId();
     return (
-        <div className="flex items-center justify-between gap-3 min-h-[44px]">
-            <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-muted-foreground">{icon}</div>
-                <div>
-                    <p id={titleId} className="font-medium text-body">{title}</p>
-                    <p id={descId} className="text-caption text-muted-foreground">{description}</p>
-                </div>
+        <div className="flex items-center justify-between gap-3 min-h-[40px]">
+            <div className="flex items-center gap-2.5">
+                <div className="text-muted-foreground shrink-0">{icon}</div>
+                <p id={titleId} className="font-medium text-caption sm:text-body text-foreground">{title}</p>
             </div>
-            <Switch aria-labelledby={titleId} aria-describedby={descId} checked={checked} onCheckedChange={onCheckedChange} />
+            <Switch aria-labelledby={titleId} checked={checked} onCheckedChange={onCheckedChange} />
         </div>
     );
 }
@@ -130,12 +125,7 @@ export function SettingsTab({
                 className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs p-0 sm:p-5"
             >
                 <div className="space-y-4">
-                    <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2.5 text-caption text-foreground-secondary leading-relaxed">
-                        These toggles control the notifications you actually receive. Smart alert delivery also respects
-                        the email, push, and instant-alert settings below.
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <Controller
                             name="adUpdates"
                             control={form.control}
@@ -143,7 +133,6 @@ export function SettingsTab({
                                 <SettingRow
                                     icon={<Tag className="h-4 w-4" />}
                                     title="Ad and business updates"
-                                    description="Status changes on your listings and business account."
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                 />
@@ -156,7 +145,6 @@ export function SettingsTab({
                                 <SettingRow
                                     icon={<Megaphone className="h-4 w-4" />}
                                     title="Promotions and announcements"
-                                    description="Admin broadcasts, offers, and platform announcements."
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                 />
@@ -169,7 +157,6 @@ export function SettingsTab({
                                 <SettingRow
                                     icon={<Mail className="h-4 w-4" />}
                                     title="Email delivery"
-                                    description="Allow notifications to be delivered by email."
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                 />
@@ -182,7 +169,6 @@ export function SettingsTab({
                                 <SettingRow
                                     icon={<Smartphone className="h-4 w-4" />}
                                     title="Push delivery"
-                                    description="Allow notifications to be delivered as browser or app push on supported devices."
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                 />
@@ -195,7 +181,6 @@ export function SettingsTab({
                                 <SettingRow
                                     icon={<BellRing className="h-4 w-4" />}
                                     title="Instant smart alerts"
-                                    description="Receive matching smart alerts immediately instead of suppressing them."
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                 />
