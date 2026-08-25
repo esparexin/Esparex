@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { sendSuccessResponse } from '../../../utils/respond';
-import { handlePaginatedContent } from '../../../utils/contentHandler';
+import { handlePaginatedContent } from '../../../utils/content-handler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
+import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
 import { invalidateItemCatalogCache } from './shared';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';

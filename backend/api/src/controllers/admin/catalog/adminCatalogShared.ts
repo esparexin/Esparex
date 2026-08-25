@@ -3,9 +3,9 @@ import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { toOptionalString } from './inputCoercion';
 import { setCache } from '@esparex/core/utils/redisCache';
-import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/services/catalog/CatalogBrandModelService';
-import { validateModelHierarchyMutation } from '@esparex/core/services/catalog/CatalogHierarchyService';
-import { detectDuplicateCandidates } from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
+import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
+import { validateModelHierarchyMutation } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
+import { detectDuplicateCandidates } from '@esparex/core/domains/catalog/application/services/CatalogSearchGovernanceService';
 
 export const CATALOG_CACHE_TTL = 300;
 

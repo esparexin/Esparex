@@ -1,5 +1,5 @@
 import { ICategory } from '../models/Category';
-import { CatalogImportService } from './catalog/CatalogImportService';
+import { CatalogImportService } from '../domains/catalog/application/services/CatalogImportService';
 import { LocationImportService, type LocationImportInput } from './location/LocationImportService';
 
 interface ImportResult {

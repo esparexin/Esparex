@@ -21,7 +21,7 @@ import {
     scoreSearchSatisfaction,
     scorePopularityConfidence,
     shouldSuppressAutocomplete,
-} from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
+} from '../../domains/catalog/application/services/CatalogSearchGovernanceService';
 
 describe('CatalogSearchGovernanceService', () => {
     it('prefers trusted canonical lineage over weak alias matches', () => {

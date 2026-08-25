@@ -1,5 +1,5 @@
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
-import { deriveApprovalStatus } from '../services/catalog/CatalogValidationService';
+import { deriveApprovalStatus } from '../domains/catalog/application/services/CatalogValidationService';
 
 // ─── marketplaceTrust Sub-Schema ──────────────────────────────────────────
 
