@@ -14,7 +14,11 @@ import {
     mutateGoogleAdPlacementStatus,
     deleteGoogleAdPlacement,
 } from "@esparex/core/services/GoogleAdsService";
-import { createGoogleAdPlacementSchema, updateGoogleAdPlacementSchema } from "@esparex/contracts";
+import {
+    createGoogleAdPlacementSchema,
+    updateGoogleAdPlacementSchema,
+    mutateGoogleAdStatusSchema,
+} from "@esparex/contracts";
 
 export const getGoogleAdPlacements = async (req: Request, res: Response) => {
     try {
@@ -84,10 +88,7 @@ export const mutateAdPlacementStatus = async (req: Request, res: Response) => {
         const id = getSingleParam(req, res, "id", { error: "Invalid placement ID" });
         if (!id) return;
 
-        const { status } = req.body as { status?: string };
-        if (!status) {
-            return sendAdminError(req, res, "Status is required", 400);
-        }
+        const { status } = mutateGoogleAdStatusSchema.parse(req.body);
 
         const placement = await mutateGoogleAdPlacementStatus(id, status);
         await logAdminAction(req, "MUTATE_GOOGLE_AD_STATUS", "GoogleAdPlacement", id, { status });

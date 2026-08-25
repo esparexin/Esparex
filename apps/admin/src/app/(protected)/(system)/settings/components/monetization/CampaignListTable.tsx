@@ -4,6 +4,23 @@ import { Plus, Eye, Edit2, Trash2, Layers } from "lucide-react";
 import type { AdCampaignItem, InContentPlacementId } from "@esparex/contracts";
 
 export const PLACEMENT_LABELS: Record<InContentPlacementId, string> = {
+  homepage_hero_top: "Homepage — Hero Top Leaderboard (728×90)",
+  homepage_feed_inline: "Homepage — Feed Inline Divider",
+  search_results_header: "Search / Browse — Header Banner (728×90)",
+  search_results_inline: "Search / Browse — In-Feed Card (Native)",
+  category_page_header: "Category Page — Header Leaderboard",
+  category_page_inline: "Category Page — In-Feed Card",
+  listing_details_sidebar: "Listing Detail — Sidebar Right Rail (300×250)",
+  listing_details_incontent: "Listing Detail — In-Content Below Description (728×90)",
+  services_page_header: "Services Page — Header Banner",
+  spare_parts_header: "Spare Parts — Header Banner",
+  business_profile_sidebar: "Business Directory — Sidebar (300×250)",
+  user_dashboard_top: "User Dashboard — Top Banner",
+  user_my_listings_inline: "My Listings — In-Feed Native",
+  business_dashboard_top: "Business Dashboard — Top Banner",
+  static_pages_footer: "Static Pages (FAQ/About) — Footer Banner",
+  footer_leaderboard: "Global Footer — Leaderboard Banner",
+  mobile_sticky_bottom: "Mobile Viewport — Sticky Bottom Banner (320×50)",
   listing_detail_sidebar_bottom: "Listing Detail — Sidebar Bottom (300×250)",
   listing_detail_below_description: "Listing Detail — Below Description (728×90)",
   home_below_hero: "Home — Below Search Hero (Leaderboard)",

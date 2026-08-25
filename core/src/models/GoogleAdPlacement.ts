@@ -5,6 +5,10 @@ import {
     AD_FORMAT,
     GOOGLE_AD_STATUS,
     AD_FALLBACK_STRATEGY,
+    type AdPlacementLocationValue,
+    type AdFormatValue,
+    type GoogleAdStatusValue,
+    type AdFallbackStrategyValue,
 } from "@esparex/contracts";
 
 export interface IGoogleAdPlacement extends Document {
@@ -12,12 +16,12 @@ export interface IGoogleAdPlacement extends Document {
     name: string;
     adSlotId: string;
     publisherClientId?: string;
-    location: string;
-    format: string;
-    status: string;
-    viewports: string[];
+    location: AdPlacementLocationValue;
+    format: AdFormatValue;
+    status: GoogleAdStatusValue;
+    viewports: ("desktop" | "tablet" | "mobile")[];
     priority: number;
-    fallbackStrategy: string;
+    fallbackStrategy: AdFallbackStrategyValue;
     fallbackImageUri?: string;
     fallbackTargetUrl?: string;
     startDate?: Date;

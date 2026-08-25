@@ -66,6 +66,7 @@ export const metadata: Metadata = {
 };
 
 import { HomeLocationAutoPrompt } from "@/components/home/HomeLocationAutoPrompt";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 export default async function Home() {
     const [categories, initialHomeAds] = await Promise.all([
@@ -105,7 +106,16 @@ export default async function Home() {
             <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />
 
+                <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
+                    <AdPlacementSlot placement="homepage_hero_top" />
+                </div>
+
                 <HomeFeed initialData={initialHomeAds} />
+
+                <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
+                    <AdPlacementSlot placement="homepage_feed_inline" />
+                </div>
+
                 <HomeBannerAd />
             </section>
         </div>
