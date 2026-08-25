@@ -65,7 +65,7 @@ export function BrowseBreadcrumb({
         <div>
           <h1 className="text-base sm:text-xl font-normal sm:font-semibold text-slate-800 tracking-normal leading-relaxed">
             {displayTitle}
-            {locationLabel && (
+            {locationLabel && locationLabel !== "Location unavailable" && (
               <span className="text-slate-500 font-normal text-xs md:text-sm ml-1.5">
                 in <span className="font-normal text-slate-700">{locationLabel}</span>
               </span>

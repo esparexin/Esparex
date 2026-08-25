@@ -160,7 +160,9 @@ export function BrowseListingsView<TItem, TFilters>({
       : c.id === selectedCategory || c.name === selectedCategory
   );
   const categoryName = selectedCategoryObj?.name || (selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined);
-  const locationLabel = resolveListingLocationLabel(location, "brief");
+  const isCountryLevel = location?.level === "country" || (!location?.city && !location?.district && !location?.state);
+  const rawLocationLabel = resolveListingLocationLabel(location, "brief");
+  const locationLabel = isCountryLevel || rawLocationLabel === "Location unavailable" ? null : rawLocationLabel;
 
   const sharedFilterProps = {
     inputId,
