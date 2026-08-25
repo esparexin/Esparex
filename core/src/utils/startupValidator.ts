@@ -9,7 +9,15 @@ import { env } from '../config/env';
 
 const STARTUP_COUNT_MAX_TIME_MS = 1200;
 
-const getFastCollectionCount = async (model: any): Promise<number> => {
+interface StartupValidatorModel {
+    collection: {
+        estimatedDocumentCount: (opts: { maxTimeMS: number }) => Promise<number>;
+        countDocuments: (query: Record<string, unknown>, opts: { maxTimeMS: number }) => Promise<number>;
+    };
+    modelName?: string;
+}
+
+const getFastCollectionCount = async (model: StartupValidatorModel): Promise<number> => {
     try {
         return await model.collection.estimatedDocumentCount({
             maxTimeMS: STARTUP_COUNT_MAX_TIME_MS

@@ -167,13 +167,24 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         hotZoneQuery,
     });
 
-    const hotZoneLocationIds = topHotZonesRaw.map((zone: any) => zone.locationId);
+    interface HotZoneRaw {
+        _id: unknown;
+        locationId: unknown;
+        popularityScore?: number;
+    }
+
+    interface MonthlyTrendAgg {
+        _id: { month: number; year: number };
+        count: number;
+    }
+
+    const hotZoneLocationIds = (topHotZonesRaw as HotZoneRaw[]).map((zone) => zone.locationId);
     const hotZoneLocations = await getHotZoneLocations(hotZoneLocationIds.map(String));
     const hotZoneHierarchyMap = await loadHierarchyMapForLocations(hotZoneLocations);
     const hotZoneLocationMap = new Map(
-        hotZoneLocations.map((location: any) => [String(location._id), location])
+        hotZoneLocations.map((location) => [String(location._id), location])
     );
-    const hotZones = topHotZonesRaw.map((zone: any) => {
+    const hotZones = (topHotZonesRaw as HotZoneRaw[]).map((zone) => {
         const location = hotZoneLocationMap.get(String(zone.locationId));
         const summary = location ? buildLocationSummary(location, hotZoneHierarchyMap) : undefined;
         return {
@@ -188,15 +199,19 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     // Format Monthly Trends
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const trends = [];
+    const typedMonthlyAds = monthlyAds as MonthlyTrendAgg[];
+    const typedMonthlyUsers = monthlyUsers as MonthlyTrendAgg[];
+    const typedMonthlyLocs = monthlyLocs as MonthlyTrendAgg[];
+
     for (let i = 0; i < 6; i++) {
         const d = new Date();
         d.setMonth(d.getMonth() - (5 - i));
         const m = d.getMonth() + 1;
         const y = d.getFullYear();
 
-        const ads = monthlyAds.find((a: any) => a._id.month === m && a._id.year === y)?.count || 0;
-        const users = monthlyUsers.find((u: any) => u._id.month === m && u._id.year === y)?.count || 0;
-        const locs = monthlyLocs.find((l: any) => l._id.month === m && l._id.year === y)?.count || 0;
+        const ads = typedMonthlyAds.find((a) => a._id.month === m && a._id.year === y)?.count || 0;
+        const users = typedMonthlyUsers.find((u) => u._id.month === m && u._id.year === y)?.count || 0;
+        const locs = typedMonthlyLocs.find((l) => l._id.month === m && l._id.year === y)?.count || 0;
 
         trends.push({
             month: monthNames[m - 1],
@@ -206,14 +221,14 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         });
     }
 
-    const adsByLocationIds = adsByLocationAgg
-        .map((entry: any) => entry?._id as string | undefined)
+    const adsByLocationIds = (adsByLocationAgg as Array<{ _id?: unknown }>)
+        .map((entry) => entry?._id as string | undefined)
         .filter((value: string | undefined): value is string => Boolean(value))
         .map((value: string) => String(value));
     const analyticsLocations = await getAnalyticsLocations(adsByLocationIds);
     const analyticsHierarchyMap = await loadHierarchyMapForLocations(analyticsLocations);
     const analyticsLocationMap = new Map(
-        analyticsLocations.map((location: any) => [String(location._id), location])
+        analyticsLocations.map((location) => [String(location._id), location])
     );
 
     const topCityMap = new Map<string, { _id: string; city: string; state: string; adsCount: number }>();
