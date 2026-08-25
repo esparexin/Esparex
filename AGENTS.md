@@ -556,6 +556,23 @@ Before creating any new `.ts` or `.tsx` file, complete the **Repository Discover
 If ANY answer is **YES**, you MUST reuse or extend that implementation.
 Only create a new file if the answer is **NO** across all applicable layers.
 
+#### Canonical Domain Concept & Entity Discovery Map (Phase 0 SSOT Dictionary)
+Before writing any code or searching by conversational user prompt terms, developers & AI agents MUST map requirements to the canonical SSOT entities below:
+
+| Conversational User / UI Term | Canonical Domain Entity / Package | Prohibited Parallel Anti-Pattern |
+| :--- | :--- | :--- |
+| **Classifieds / Posts / Ads / Services / Parts** | `ListingDTO` / `unified Ad Engine` (`@esparex/contracts`, `core/src/domains/listings/`) | Creating separate `ServiceListing`, `SparePartListing`, or `CustomAd` schemas |
+| **Sponsor Banner / Display Ads / Google Ads** | `InContentPlacementId` / `MonetizationService` / `AdPlacementSlot` (`@esparex/contracts`, `core/src/services/MonetizationService.ts`) | Creating `BannerCard`, `SponsorCard`, or local `<ins>` tags in components |
+| **Device / Model / Brand / Category Select** | `EntitySearchCombobox` (`apps/web/src/components/user/EntitySearchCombobox.tsx`) | Creating custom `<select>` or local search comboboxes in feature directories |
+| **Search Grid / Results View / Browse Feed** | `BrowseListingsView` / `BrowseResultsPanel` (`apps/web/src/components/user/`) | Creating parallel `BrowseServicesView`, `BrowseSparePartsView`, or local grids |
+| **Ad Card (Grid / List View)** | `AdCardGrid` / `AdCardList` (`apps/web/src/components/user/ad-card/`) | Creating `BrowseServicesCard`, `BrowseSparePartsCard`, or local card components |
+| **Popups / Alerts / Banners / Toasts** | `popupBus` / `notify` (`@/lib/feedback`) | Installing or importing `sonner`, `react-hot-toast`, `react-toastify`, or local alert divs |
+| **Modal Dialogs / Fullscreen Wizards** | `ListingModalLayout` / `Dialog` (`packages/ui`) | Creating raw `fixed inset-0` dialog overlays without focus trapping |
+| **Page Container / Width Bounding** | `<Container variant="lg">` / `max-w-7xl` (`packages/ui`) | Hardcoding `max-w-6xl`, `max-w-5xl`, `max-w-[1440px]`, or local nested containers |
+| **Typography & Font Sizes** | 10-level scale (`text-display` → `text-tiny`) with **Geist** (`@esparex/design-tokens`) | Using `text-[13px]`, `text-2xs`, `text-xl md:text-2xl`, or competing fonts |
+| **Colors & Palette** | Semantic tokens (`text-foreground`, `bg-card`, `border-border`) | Using raw palette literals (`text-slate-900`, `bg-blue-50/50`, `text-blue-900`) |
+| **API Mutation Client** | `apiClient` (`@/lib/api/client`) + `toApiResult` (`@/lib/api/result`) | Raw `fetch()` or `axios.create()` calls inside individual components |
+
 ---
 
 ### 6. Mandatory "New File Justification" Gate

@@ -1,1455 +1,917 @@
----
-id: agents-bootstrap
-owner: root
-type: bootstrap
-version: 3.1
-last_updated: 2026-07-21
-depends_on: []
-loads_when: ["*"]
-status: active
-confidence: stable
-reviewed_on: 2026-07-21
-review_frequency: quarterly
-replaces: []
-supersedes: []
-tags: []
-category: architecture
----
-# AGENTS.md — AI Monorepo Operating Governance
+# Esparex AGENTS.md — Architecture Governance
 
-This repository uses modular AI governance. `AGENTS.md` serves strictly as the bootstrap orchestrator for loading skills and operating rules.
+## Similarity Threshold Rule
+
+Components, hooks, or services must not be merged solely because they appear similar. Before consolidation, document:
+
+- Shared UI %
+- Shared business rules %
+- Shared validation %
+- Shared API contract %
+- Shared workflow %
+
+Consolidation is recommended only when overall similarity > 75% AND no single dimension is < 50%.
+
+If similarity is below the threshold, keep components separate even if they appear structurally similar. Different responsibilities, future trajectory, and domain-specific behavior must be preserved.
 
 ---
 
-## 1. Git Workflow
+## Mapper Ownership Rule
 
-1. **Pre-Change Verification Checklist**:
-   - `git fetch --all --prune`
-   - `git checkout develop && git pull origin develop`
-   - `git checkout -b <feature-branch>`
-   - Confirm current branch is **not** `develop`.
-2. **Mandatory Issue & Branch Coupling**:
-   - Search GitHub Issues before any branch or code is created.
-   - Branch naming format: `feat/issue-{N}-{description}`, `fix/issue-{N}-{description}`, `chore/issue-{N}-{description}`.
-3. **Draft PR Gate**:
-   - Open a draft PR targeting `develop` linked with `Closes #{N}` before implementation starts.
-4. **Push Remote First Rule**:
-   - Always push feature branch to origin and verify remote existence **before** touching `develop`.
-
----
-
-## 2. Branch Strategy
-
-- **`main`**: Production release branch. Merges strictly via approved release PRs.
-- **`develop`**: Primary integration branch. All feature and bugfix branches merge here via PR.
-- **`feat/*`**: New capabilities or domain migrations.
-- **`fix/*`**: Defect remediation.
-- **`chore/*`**: Governance, tooling, or documentation updates.
-- **`audit/*`**: Read-only repository & security inspections.
-
-### Branch Lifecycle Policy
-
-- Every feature/fix/docs/perf branch must be deleted after merge.
-- Branches superseded by architectural redesigns must be archived or retired with a documented rationale.
-- Archive branches are reserved only for work with potential historical or reusable value.
-- No long-lived development branches should remain without an active owner or roadmap.
-- Perform a Git hygiene audit before each major release to remove merged, stale, and obsolete branches.
----
-
-## 3. Architecture Rules
-
-### Zero-Leakage Architecture Rule
-1. **No direct infrastructure leakage**: Application services and orchestrators interact with database schemas strictly via domain-defined **Repository Ports**.
-2. **Abstract transaction boundaries**: Session orchestration goes through **UnitOfWork Ports** using `session: unknown`. Direct Mongoose `ClientSession` references in application services are forbidden.
-3. **Intent-focused caching**: Cache operations declared behind **Cache Ports**; no low-level Redis helper imports in core services.
-4. **Composition wiring**: All dependencies wired at package boundaries via factory functions inside **Composition Roots**.
-
-### Architecture Ownership Rule
-Every major component must document exact single-responsibility boundaries:
-| Component | Owns | Must NOT Own |
-| --- | --- | --- |
-| `ListingModalLayout` | Responsive shell, modal presentation, layout slots | Form state, validation, API calls |
-| `PostAdWizard` | Wizard step orchestration | Modal layout presentation |
-| `ListingFormBase` | Form component rendering & layout | Service/Spare upload logic |
-| `SearchFilters` | Filter UI controls | Search execution / API calls |
-| `PostAdProvider` | Shared form & wizard state | UI Layout styling |
-
-### Breaking Change Rule
-Before merging any architectural change, evaluate:
-- Does it change public behavior?
-- Does it change API contracts?
-- Does it change routes or URLs?
-- Does it change persisted state or DB schemas?
-
-If **YES**, explicit approval and a documented migration strategy are mandatory before implementation begins.
-
-### Similarity Threshold Governance Heuristic
-Consolidation is **recommended** when overall similarity > 75% AND no single dimension is < 50%. This is a governance heuristic—final approval requires an architecture review confirming readability, domain boundaries, and maintainability improve.
-
----
-
-## 4. UI/UX Rules
-
-- **Design Standard**: Rich aesthetics, dark modes, glassmorphism, dynamic micro-animations, curated color palettes, Google Fonts (Inter/Outfit).
-- **Responsive Layout**: Single-instance responsive component pattern; no duplicate DOM rendering across mobile/desktop viewports.
-- **No Placeholders**: Real demonstration assets via `generate_image` or SVG graphics.
-
----
-
-## 5. Security Rules
-
-- **CodeQL & Taint Barriers**: In-line validation using `mongoose.Types.ObjectId.isValid()`, enum sets, or primitive string sanitization.
-- **MongoDB Operator Protection**: Explicit `` operators for user input in queries; strip `$` and `.` from object keys in update payloads (`safeSpecs`).
-- **Input Sanitization**: Shared utilities (`assertValidObjectId`, `normalizeSlug`, `sanitizePlainText`, `escapeRegExp`).
-
----
-
-## 6. Performance Rules
-
-- **Profiler-Gated Optimization**: Performance optimizations run strictly after functional verification using React Profiler / CWV measurements.
-- **Unbounded Query Guard**: All list and search queries must be paginated (`limit`/`skip` or cursor).
-- **Scan vs Keys**: Redis key scans must use `SCAN` instead of `KEYS`.
-
----
-
-## 7. Accessibility Rules (WCAG 2.2 AA)
-
-- **Unique DOM IDs**: Every `id`, `aria-labelledby`, `aria-describedby`, and `htmlFor` attribute must be unique across the document.
-- **Focus Protection (`inert`)**: Hidden subtrees (mobile drawer / off-screen overlays) must use `inert` to prevent keyboard `Tab` focus leaks.
-- **Keyboard Navigation**: All interactive elements focusable with visible focus rings.
-
----
-
-## 8. Refactoring Rules
-
-### Refactoring Exit Criteria
-A refactoring task is complete ONLY when:
-1. Functionality is unchanged.
-2. Public APIs remain unchanged.
-3. TypeScript passes with `0` errors across all packages (`npm run type-check`).
-4. Automated test suites pass with 100% green status (`npm test`).
-5. No new WCAG 2.2 AA accessibility violations.
-6. Measurable duplication reduction or maintainability improvement.
-7. Resulting architecture is demonstrably simpler than before.
-8. **Architecture Decision Record (ADR)**: Documented rationale, alternatives considered, chosen option, risk analysis, and rollback strategy.
-9. **Rollback Plan Verified**: Clear instructions for reverting changes and validating post-rollback state.
-
----
-
-## 9. Review Checklist
-
-- [ ] Desktop verified
-- [ ] Tablet verified
-- [ ] Mobile verified
-- [ ] Keyboard navigation & screen reader verified
-- [ ] Existing workflow unchanged
-- [ ] API contract & Backend unchanged
-- [ ] Monorepo build & tests passed (`npm run type-check && npm test`)
-- [ ] No unrelated files modified (File count guardrails: 1–5 ideal, 6–10 acceptable)
-
----
-
-## 10. Contract Impact Review (Mandatory)
-
-Any PR that changes an **API contract dimension** must include a completed Contract Impact Checklist before it is considered mergeable.
-
-### What counts as a contract change
-
-| Dimension | Examples |
-|---|---|
-| HTTP method | `PUT` → `PATCH`, `POST` → `PUT` |
-| Route path | `/listings/:id` → `/listings/:id/edit` |
-| Request payload | Field renamed, added, removed, or type changed |
-| Response envelope | Shape, status code, or field names changed |
-| Validation | New required field, changed constraint |
-| DTO / Shared schema | Any change in `packages/contracts` |
-
-### Mandatory Contract Impact Checklist
-
-When any of the above dimensions change, the PR description must confirm:
-
-- [ ] **Frontend** — all API calls use the new contract
-- [ ] **Backend** — routes, controllers, and validators updated
-- [ ] **Playwright mocks** — all `page.route()` interceptors reflect the new method, path, and shape
-- [ ] **Integration / unit tests** — mocks and stubs updated
-- [ ] **Shared contracts** (`packages/contracts`) — schema and types updated if applicable
-- [ ] **API documentation** — OpenAPI / README updated if applicable
-
-### Enforcement
-
-A PR that changes an API contract dimension but does **not** include the above checklist must be blocked at review.
-
-Reviewers must verify each item independently — do not accept "tests pass" as a substitute for the checklist.
-
-### Rationale
-
-This rule was introduced after a `PUT → PATCH` migration landed in `listingMutationAPI.ts` without updating the Playwright route interceptors. The production code was correct, but the test suite diverged silently. Both failures (`capturedPayload.images undefined` and `Ad Updated not visible`) shared the same root cause and would have been caught by this checklist.
-
----
-
-## 11. Esparex Engineering Governance Standard (Mandatory)
-
-All human engineers and AI agents must adhere strictly to these processes when introducing modifications, additions, or deprecations in the monorepo.
-
-### 11.1 Scope & Applicability
-This standard applies to:
-- Feature development, bug/hotfixes, refactoring.
-- Infrastructure, deployment configurations, and security controls.
-- API and database additions, modifications, and deprecations.
-
-This standard does NOT apply to:
-- Documentation typos or content edits.
-- Markdown formatting adjustments.
-- Comment-only changes.
-
-### 11.2 Engineering Principles
-1. **Test Isolation:** Frontend components and tests must be decoupled from running database or backend dependencies. Mocks should be utilized for UI regression testing.
-2. **Explicit Dependency Inversion:** Components must rely on interface abstractions (e.g., `TelemetryProvider`) rather than direct implementation bindings.
-3. **No Test Logic in Production Code:** Production paths must remain free of E2E-specific conditionals.
-4. **Contract-First Development:** Shared types in `packages/contracts` serve as the SSOT. Backend validation and frontend E2E mocks must implement these types directly.
-
-### 11.3 Change Classifications
-Every change must be classified before implementation to trigger the relevant checklists:
-- **API Contract:** Payload schemas, query validations, route paths, HTTP methods, DTOs.
-- **Database & Cache:** Database schemas, validation rules, indexing, Redis key policies.
-- **Authentication & AuthZ:** Middleware, guards, session cookie flags, token validation.
-- **Environment & Build:** Env variables, configuration schemas, Docker setups, build variables.
-- **UI & UX Flow:** Dom structure, page selectors, form controls, styling, accessibility.
-- **Telemetry & Analytics:** Tracking providers, location loggers, event triggers.
-
-### 11.4 Risk Classification Matrix
-The classification of risk determines the required approval gate:
-- **Low:** Documentation edits, styling refinements, comments, or UI text adjustments. Approved by standard PR review.
-- **Medium:** New UI flows, internal refactoring, non-breaking performance optimizations. Approved by team review.
-- **High:** API contracts, authentication handlers, payment checkouts, database schema migrations. Approved by architecture review + evidence gates.
-- **Critical:** Core security config, production infrastructure, financial transactions, AuthZ guards. Approved by architecture + security + DevOps approval.
-
-### 11.5 Pre-Implementation Decision Gate
-Before starting implementation (excluding Low risk changes), the author must document answers to the following:
-- What problem are we solving? (Core motivation).
-- Is this the correct architectural solution? (Compare at least one alternative).
-- Does it affect backwards compatibility? (Will this break external clients or mobile app versions?).
-- What are the risks? (Analyze concurrency, performance, security, and integration vulnerabilities).
-- Is there a simpler way? (Enforce simplicity).
-
-#### Architectural Decision Records (ADRs)
-An ADR is **mandatory** before starting implementation for:
-- Introducing new infrastructure (e.g. database, queue, cache engines).
-- Redesigning API routing or authentication architectures.
-- Introducing a new framework, package, or third-party SDK.
-- Applying cross-cutting architectural patterns.
-
-### 11.6 Breaking Changes
-If a change breaks backwards compatibility, the following must be prepared before code implementation:
-- **Migration Guide:** A clear guide for downstream consumers describing how to transition.
-- **Versioning Strategy:** Incrementing major/minor versions or establishing deprecation headers.
-- **Rollout Plan:** Canary deployments or feature-flag-based migrations.
-- **Rollback Plan:** Immediate reversion strategy in the event of production failure.
-- **Consumer Communication:** Notification template to alert team members and dependent service owners.
-
-### 11.7 Dependency Checklists
-Apply the appropriate checklists based on the Change Classification:
-- **API Contract Checklist:**
-  - [ ] Shared types (`packages/contracts`) updated.
-  - [ ] Backend controller body/query validators updated.
-  - [ ] Frontend client API services and hooks updated.
-  - [ ] Playwright E2E mocks and interceptors (`tests/interceptors`) updated.
-  - [ ] OpenAPI documentation/schemas synchronized.
-- **Environment & Build Checklist:**
-  - [ ] Default values added to local config templates (`.env.local.example`).
-  - [ ] Build-time environment configs (`NEXT_PUBLIC_*`) verified.
-  - [ ] E2E variables configured in Playwright (`webServer.command`/`env`).
-  - [ ] Staging and production secrets updated.
-- **Database & Cache Checklist:**
-  - [ ] Database schema models updated.
-  - [ ] Up-migration script provided and verified locally.
-  - [ ] Down-migration script provided and verified for rollbacks.
-  - [ ] Redis caching keys and cache-invalidation logic updated.
-
-### 11.8 Telemetry & Endpoint Class Alignment
-- [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
-- [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
-- [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
-
-### 11.9 Test Run Proxy Isolation Rule
-Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
-
-### 11.10 Ownership Matrix
-To prevent the "someone else will update it" assumption, downstream dependencies must be assigned to owners:
-- **Shared Contracts:** Platform Architect / Core Backend Team
-- **API Endpoints & Controllers:** Backend Team / Security Reviewer
-- **Frontend Clients & Hooks:** Web Team / Frontend QA
-- **E2E Test Mocks & Specs:** Frontend QA / Web Team
-- **CI/CD Pipelines & DevOps:** DevOps Team / Platform Architect
-
-### 11.11 Evidence Gates
-For every pull request, the author must provide:
-1. What changed?
-2. Where was it updated?
-3. How was it verified? (Provide E2E test runs, local build status, or screenshots).
-
-### 11.12 Definition of Done (DoD)
-A feature is considered **complete** only when it satisfies the following DoD checklist:
-- [ ] Requirements fully implemented and verified.
-- [ ] No dead, unused, or orphaned code remaining.
-- [ ] No duplicate component or service implementations.
-- [ ] Build compiles cleanly and type-checks pass.
-- [ ] All automated tests (unit, integration, regression) pass according to repository quality standards.
-- [ ] Documentation and OpenAPI/Swagger specs updated.
-- [ ] Downstream dependency impact checklists completed.
-- [ ] Mandatory code reviews completed and approved.
-
----
-
-## 12. Enterprise Monorepo Engineering Governance Standard (Eliminating Core Fallacies)
-
-> **Single Source of Truth**: The complete Enterprise Monorepo Engineering Governance Standard and 6 Pillars of Core Fallacy Elimination are authoritatively maintained in [AGENTS.md (Root)](../AGENTS.md#🚨-enterprise-monorepo-engineering-governance-eliminating-core-fallacies). All developers and AI agents must follow the canonical standard documented in the root AGENTS.md.
-
----
-
-## 13. Native Popup Governance Standard (Strict Ban on External Toast & Sonner Packages)
-
-### 13.1 Mandatory Rules
-1. **Strict Ban on Third-Party Toast Libraries**: Introducing, importing, or installing external toast libraries (`sonner`, `react-hot-toast`, `react-toastify`, `toast`, etc.) is strictly forbidden across all packages and applications in the Esparex platform.
-2. **Single-Instance Native Popup SSOT**: All notifications, error alerts, info banners, warnings, and action confirmations MUST be dispatched exclusively through Esparex's canonical single-instance native popup architecture (`popupBus`, `notify`, `PopupProvider`, `AppPopup` / `PopupDialogView`).
-3. **Forbidden Toast Containers**: Developers and AI agents MUST NOT render `<Toaster />`, `<ToastContainer />`, or any ad-hoc toast provider elements in layouts or page components.
-4. **Queueing & Priority SSOT**: All user-facing popups must flow through `createUnifiedPopupBus` and `usePopupQueue` to preserve single-instance rendering, priority queueing (`error`/`confirm` = 3 > `warning` = 2 > `info` = 1), and 2000ms deduplication.
-
----
-
-## 14. UI/UX Audit Standard: Oversized Bottom Padding
-
-**Objective**
-
-Prevent unnecessary vertical whitespace that reduces information density, increases scrolling, or creates inconsistent layouts.
-
-**Audit Scope**
-
-* Page containers
-* Forms
-* Lists
-* Cards
-* Drawers
-* Modals
-* Sticky footer layouts
-* Mobile safe-area handling
-
-**Required Checks**
-
-1. **Single source of bottom spacing**
-
-   * Bottom spacing must originate from one layer only.
-   * Avoid cumulative spacing from:
-     * parent `padding-bottom`
-     * child `margin-bottom`
-     * `gap`
-     * spacer elements
-
-2. **Sticky footer compensation**
-
-   * Reserve only the space required for fixed/sticky controls.
-   * Do not duplicate footer height with additional page padding.
-
-3. **Safe-area compliance**
-
-   * Apply `env(safe-area-inset-bottom)` once.
-   * Never combine it with large arbitrary padding unless justified.
-
-4. **Responsive consistency**
-
-   * Every breakpoint-specific increase in bottom spacing must have a documented UX reason.
-
-5. **Design token compliance**
-
-   * Use spacing tokens instead of arbitrary values.
-   * Avoid large spacing values without justification.
-
-**Failure Conditions**
-
-* More than ~120px of empty scroll space after the final interactive element.
-* Stacked bottom spacing from multiple layout layers.
-* Duplicate safe-area compensation.
-* Empty spacer elements used solely to create visual space.
-* Legacy padding left after component removal.
-
-**Preferred Fix Order**
-
-1. Remove redundant spacing.
-2. Consolidate spacing into a single container.
-3. Use design-system spacing tokens.
-4. Apply safe-area padding only where required.
-5. Re-test on mobile devices.
-
----
-
-## 15. UI/UX Engineering Rule — Preserve Design System Primitives
-
-### Principle
-
-Never remove or bypass design system primitives solely to eliminate spacing issues.
-
-Design system components exist to provide standardized layout behavior, consistency, accessibility, and maintainability. If excessive whitespace exists, the root cause should be identified and corrected rather than replacing foundational components with ad hoc styling.
-
-### Root Cause First
-
-Before modifying any design system component, identify where the additional space is actually introduced.
-
-Audit the complete layout hierarchy:
-
-* Parent layout containers
-* Section wrappers
-* Card wrappers
-* Design system primitives (`Card`, `CardHeader`, `CardContent`, `CardFooter`)
-* Child component margins
-* Grid and flex gaps
-* Viewport-height behavior
-* Safe-area compensation
-* Sticky footer offsets
-
-The objective is to locate the first layer introducing unnecessary spacing.
-
-### Preserve Design System Integrity
-
-Components such as:
-
-* `Card`
-* `CardHeader`
-* `CardContent`
-* `CardFooter`
-
-should remain the default implementation unless there is a verified architectural reason to replace them.
-
-Do not replace them simply to:
-
-* remove padding
-* reduce margins
-* hide layout problems
-* compensate for duplicate spacing
-
-Doing so duplicates design-system behavior, reduces consistency, and increases long-term maintenance costs.
-
-### Fix the Responsible Layer
-
-Correct the layer that introduces redundant whitespace.
-
-Typical root causes include:
-
-* Duplicate wrapper components
-* Nested cards
-* Stacked margins
-* Multiple bottom paddings
-* Excessive grid or flex gaps
-* Incorrect viewport-height usage (`min-h-screen`, `h-screen`, `flex-1`)
-* Duplicate safe-area compensation
-* Legacy layout containers
-
-Removing the source preserves the integrity of reusable UI primitives.
-
-### Acceptable Reasons to Replace a Primitive
-
-Replacing or overriding a design system primitive is appropriate only when:
-
-* The primitive cannot support a documented product requirement.
-* An accessibility issue requires structural changes.
-* The design system itself is being intentionally evolved.
-* A verified performance concern justifies the change.
-* The change is approved as part of a design-system update.
-
-Spacing adjustments alone are not sufficient justification.
-
-### Engineering Decision Order
-
-When excessive whitespace is detected:
-
-1. Verify the issue through inspection.
-2. Identify the exact layer introducing the spacing.
-3. Remove duplicate or unnecessary layout wrappers.
-4. Eliminate cumulative spacing.
-5. Preserve design system primitives whenever possible.
-6. Override primitive styling only when the primitive itself is the verified root cause.
-
-### Expected Outcome
-
-Following this rule ensures:
-
-* Consistent UI across the application.
-* No duplicated layout logic.
-* Reduced technical debt.
-* Better long-term maintainability.
-* Predictable spacing behavior.
-* Strong adherence to the design system and SSOT architecture.
-
-**Engineering Principle:** Fix the layer responsible for the problem—not the reusable component that correctly implements the design system.
-
----
-
-## 16. UI/UX Engineering Rule: Layout Responsibility
-
-### Principle
-
-Every layout concern must have a single owner. Padding, spacing, sizing, scrolling, alignment, and viewport behavior should each be controlled by one layer only.
-
-#### Ownership Matrix
-
-| Concern                | Owner                         |
-| ---------------------- | ----------------------------- |
-| Page margins           | Page/Layout container         |
-| Section spacing        | Section wrapper               |
-| Card internal spacing  | Design system (`CardContent`) |
-| Component spacing      | Component itself              |
-| Grid/List spacing      | Grid/Flex `gap`               |
-| Sticky footer offset   | Sticky footer container       |
-| Safe-area compensation | Root mobile layout            |
-| Viewport height        | Page layout only              |
-
-No concern should have multiple owners.
-
-### Audit Questions
-
-For every spacing issue, verify:
-
-* Which component owns this spacing?
-* Is another layer also applying the same spacing?
-* Is this spacing duplicated?
-* Is this spacing compensating for another layout bug?
-* Can the spacing be removed without breaking the layout hierarchy?
-
-### Failure Conditions
-
-Reject implementations that:
-
-* Add padding to compensate for another component.
-* Add margins to hide layout problems.
-* Nest identical layout containers without purpose.
-* Duplicate safe-area spacing.
-* Stack multiple spacing utilities to achieve one visual result.
-* Override design-system primitives when the issue originates elsewhere.
-
-### Preferred Fix Order
-
-1. Remove redundant wrapper components.
-2. Eliminate duplicated spacing.
-3. Consolidate ownership into a single layer.
-4. Preserve design-system primitives.
-5. Validate on:
-   * Mobile
-   * Tablet
-   * Desktop
-   * Large desktop
-   * High viewport heights
-
-### Engineering Principle
-
-> **One layout concern → One owner.**
-
----
-
-## 17. UI/UX Engineering Rule: Eliminate Redundant Layout Wrappers
-
-### Principle
-
-Every layout wrapper must have a unique responsibility.
-
-A wrapper that does not introduce a distinct layout, accessibility, or behavioral concern should be removed.
-
-More wrappers do not improve architecture—they increase DOM complexity, spacing conflicts, rendering cost, and maintenance overhead.
-
-### Wrapper Audit
-
-For every layout container, ask:
-
-* Why does this wrapper exist?
-* What responsibility does it own?
-* Could its responsibility belong to its parent?
-* Could its responsibility belong to its child?
-* Does it exist only because another wrapper already exists?
-
-If no clear responsibility exists, remove it.
-
-### Valid Responsibilities
-
-A wrapper should exist only if it provides one or more of the following:
-
-* Page layout
-* Responsive breakpoint behavior
-* Grid or flex layout
-* Accessibility semantics
-* Scroll container
-* Sticky positioning
-* Animation boundary
-* Error boundary
-* Loading boundary
-* Portal target
-* Context provider
-* Theme boundary
-
-Anything else should be questioned.
-
-### Invalid Wrappers
-
-Remove wrappers that only:
-
-* Add one margin
-* Add one padding
-* Center a single child already capable of self-alignment
-* Wrap another identical layout
-* Contain only one child with no additional responsibility
-* Exist because of historical refactoring
-* Duplicate spacing already owned elsewhere
-
-### Nested Component Audit
-
-Avoid structures like:
+Mappers own boundary transformations between DTOs and Domain entities across all applications and packages.
 
 ```text
-Page
-└── Container
-    └── Section
-        └── Wrapper
-            └── Card
-                └── CardContent
-                    └── Wrapper
-                        └── Content
+Application Mapper
+Domain ──► Request DTO
+
+Infrastructure Mapper
+Response DTO ──► Domain
 ```
 
-Prefer:
-
-```text
-Page
-└── Section
-    └── Card
-        └── CardContent
-            └── Content
-```
-
-Every removed wrapper reduces complexity.
-
-### DOM Depth Audit
-
-For every screen:
-
-* Audit nesting depth.
-* Remove unnecessary intermediate containers.
-* Keep the component tree as shallow as practical.
-
-Large screens often suffer more from wrapper accumulation than from actual styling issues.
-
-### Design System Integration
-
-Never introduce wrappers to compensate for:
-
-* Card padding
-* Grid gaps
-* Stack spacing
-* Safe-area padding
-* Responsive layout
-
-Fix the owner instead.
-
-### Failure Conditions
-
-Reject implementations that:
-
-* Nest identical layout components
-* Wrap components without adding behavior
-* Add wrappers only to solve spacing
-* Introduce wrapper layers that duplicate existing layout responsibilities
-
-### Expected Outcome
-
-This rule results in:
-
-* Smaller DOM trees
-* Better rendering performance
-* Cleaner component hierarchy
-* Easier debugging
-* Fewer spacing conflicts
-* More predictable responsive behavior
-* Stronger adherence to the design system
-
-### Engineering Principle
-
-> **Every wrapper must justify its existence. If it has no unique responsibility, remove it.**
+### Governance Constraints:
+- Repositories never perform mapping logic.
+- Services never perform mapping logic.
+- Mapper-to-Mapper dependencies are strictly prohibited.
+- All API DTO models MUST be defined in `@esparex/contracts`.
 
 ---
 
-## 18. UI/UX Engineering Rule: Content-Driven Layouts (Never Viewport-Driven)
+# 🚨 GLOBAL ACCESSIBILITY & KEYBOARD NAVIGATION GOVERNANCE RULE (MANDATORY)
 
-### Principle
+## Applies To
 
-Layouts should be driven by content, not by available screen height.
+This rule applies to **every user-facing interface** across the entire Esparex platform.
 
-Increasing the viewport height must never introduce additional empty space, stretch unrelated sections, or separate content that belongs together.
+- User Web App
+- Admin Dashboard
+- Mobile Web
+- Progressive Web App (PWA)
+- Authentication
+- Forms
+- Modals
+- Drawers
+- Dropdowns
+- Tables
+- Search
+- Filters
+- Wizards
+- Settings
+- Dashboards
+- Chat
+- Payments
+- Every future UI component
 
-A larger screen should reveal more content—not create more whitespace.
+No exceptions.
 
-### Core Rules
+---
 
-#### 1. Content Determines Height
+## 🚨 ACCESSIBILITY FIRST
 
-Components should size themselves to their content by default.
+Before creating, modifying, or fixing any UI component, perform a complete accessibility and keyboard audit.
 
-Avoid using viewport height (`vh`, `dvh`, `min-h-screen`, `h-screen`) unless the page genuinely requires a full-screen experience.
+Never implement or modify a component without verifying accessibility.
 
-#### 2. Group Related Content
+Accessibility is a **mandatory engineering requirement**, not a post-development enhancement.
 
-Elements that belong together should remain visually grouped regardless of screen size.
+---
 
-Examples:
+## 1. Keyboard Navigation (Mandatory)
 
-* Title + description
-* Form fields
-* Card header + content
-* Profile information
-* Dashboard widgets
-* CTA + supporting text
+Every interactive element must be fully usable without a mouse.
 
-Large monitors should never pull these apart.
+Verify support for:
 
-#### 3. Viewport Height Is Not Spacing
+- Tab
+- Shift + Tab
+- Enter
+- Space
+- Escape
+- Arrow Keys
+- Home
+- End
 
-Never use viewport height to simulate spacing.
+Every component must have:
 
-Avoid patterns such as:
+- Logical tab order
+- Visible focus indicator
+- No skipped elements
+- No keyboard traps
+- Predictable navigation
 
-* `min-h-screen`
-* `h-screen`
-* `100vh`
-* `100dvh`
-* `justify-between`
-* `space-between`
+---
 
-when their only purpose is distributing content vertically.
+## 2. Focus Management
 
-#### 4. Desktop Should Increase Visibility, Not Distance
-
-On larger displays:
-
-✔ Show more content.
-
-✔ Increase usable width where appropriate.
-
-✔ Improve readability.
-
-Do **not**:
-
-* stretch cards vertically
-* stretch forms
-* increase empty regions
-* push actions toward the bottom
-
-#### 5. Scroll Should Be Natural
-
-Pages should scroll because there is more content—not because empty layout space was created.
-
-### Audit Checklist
+Every screen must maintain proper focus behavior.
 
 Verify:
 
-* No large empty region appears when browser height increases.
-* Cards remain content-sized.
-* Forms remain compact.
-* CTA buttons stay close to related fields.
-* Lists don't end with excessive whitespace.
-* Dashboards maintain information density.
-* Empty state components don't stretch vertically.
+- Initial focus
+- Focus order
+- Focus restoration
+- Focus trapping in dialogs
+- Focus after validation errors
+- Focus after dynamic content updates
 
-### Common Root Causes
-
-* `min-h-screen`
-* `h-screen`
-* `100vh`
-* `flex-1`
-* `justify-between`
-* `place-content-between`
-* nested `flex-grow`
-* unnecessary wrapper layers
-* duplicated bottom spacing
-
-### Preferred Fix Order
-
-1. Remove unnecessary viewport-height constraints.
-2. Replace `justify-between` with explicit spacing (`gap` or margins) where appropriate.
-3. Keep cards and forms content-sized.
-4. Group related content visually.
-5. Verify behavior across mobile, tablet, desktop, and tall displays.
-
-### Failure Conditions
-
-Reject implementations that:
-
-* Grow whitespace as the browser height increases.
-* Use viewport height to create visual balance.
-* Stretch cards or forms without functional benefit.
-* Separate related UI elements simply because more vertical space is available.
-
-### Engineering Principle
-
-> **Screen size should reveal more interface—not create more emptiness.**
+Users must never lose keyboard focus.
 
 ---
 
-## 19. UI/UX Engineering Rule: Layout Review Gate
+## 3. ARIA Compliance
 
-### Principle
+Every interactive component must use appropriate ARIA attributes where required.
 
-No UI change may be merged until it passes the Layout Review Gate.
+Audit:
 
-Layout correctness is a quality requirement, not a visual preference.
+- `aria-label`
+- `aria-labelledby`
+- `aria-describedby`
+- `aria-invalid`
+- `aria-required`
+- `aria-expanded`
+- `aria-controls`
+- `aria-selected`
+- `aria-checked`
+- `aria-current`
+- `aria-live`
+- `aria-modal`
 
-### Mandatory Review Checklist
-
-Every UI-related PR must verify the following.
-
-#### Layout
-
-* [ ] No oversized bottom padding.
-* [ ] No unnecessary empty vertical space.
-* [ ] No viewport-height driven whitespace.
-* [ ] No duplicated spacing ownership.
-* [ ] No redundant layout wrappers.
-
-#### Design System
-
-* [ ] Core primitives are preserved.
-* [ ] No duplicated component styling.
-* [ ] Spacing follows design tokens.
-* [ ] No arbitrary padding or margin values without justification.
-
-#### Responsive Behavior
-
-Validate on:
-
-* [ ] Mobile
-* [ ] Tablet
-* [ ] Desktop
-* [ ] Large desktop
-* [ ] Tall viewport
-
-The layout should remain content-driven across all viewport sizes.
-
-#### Component Hierarchy
-
-* [ ] Every wrapper has a defined responsibility.
-* [ ] DOM nesting is minimized.
-* [ ] Layout ownership is clear.
-* [ ] No duplicated containers.
-
-#### Accessibility
-
-* [ ] Logical focus order preserved.
-* [ ] Keyboard navigation unaffected.
-* [ ] No clipping or hidden interactive elements.
-* [ ] Zoom (200%) remains usable.
-* [ ] Safe-area behavior verified.
-
-#### Performance
-
-* [ ] No unnecessary DOM nodes introduced.
-* [ ] No unnecessary re-renders caused by layout changes.
-* [ ] No layout shifts introduced.
-* [ ] No scroll performance regressions.
-
-#### Verification Evidence
-
-Every layout PR should include:
-
-* Before screenshots (mobile + desktop)
-* After screenshots (mobile + desktop)
-* Tall viewport verification
-* Responsive verification
-* Root cause summary
-* Files modified
-* Confirmation that Rules 14–18 remain satisfied
-
-### Automatic Rejection Criteria
-
-Reject the PR if it:
-
-* Removes design system primitives to solve spacing.
-* Introduces wrapper components without a clear responsibility.
-* Uses viewport height to create visual balance.
-* Adds spacing to compensate for another spacing issue.
-* Creates duplicate ownership of layout concerns.
-* Increases empty scroll space.
-* Introduces arbitrary spacing values outside the design system.
-
-### Engineering Principle
-
-> **A layout change is complete only when it is architecturally correct, visually consistent, responsive, accessible, and verified.**
----
-
-## 18. Code Change Justification Protocol (Mandatory)
-
-Before adding, modifying, or deleting any code, the AI must answer the following questions with evidence.
-
-### 18.1 Why Are You Adding This Code?
-
-For every new line of code, explain:
-
-* What problem does this solve?
-* Which requirement, bug, or issue requires this code?
-* Why can't the existing implementation be reused?
-* Which existing file or function was evaluated before deciding to add new code?
-* What evidence proves a new implementation is necessary?
-
-If these questions cannot be answered, **do not add the code**.
+Do not add ARIA attributes unnecessarily. Prefer semantic HTML first, then use ARIA only where needed.
 
 ---
 
-### 18.2 Why Are You Deleting This Code?
+## 4. Semantic HTML First
 
-For every deleted line, explain:
+Always prefer native HTML elements.
 
-* Why is this code no longer needed?
-* Is it unused, dead, duplicate, obsolete, or replaced?
-* How was this verified?
-* Which files reference this code?
-* Will deleting it affect any functionality?
+Examples:
 
-If deletion cannot be justified with evidence, **do not delete the code**.
+- `<button>` instead of clickable `<div>`
+- `<input>`
+- `<label>`
+- `<select>`
+- `<fieldset>`
+- `<legend>`
 
----
-
-### 18.3 Why Are You Modifying This Code?
-
-Before changing existing code, explain:
-
-* What is wrong with the current implementation?
-* What evidence proves it needs modification?
-* Why is this the smallest safe change?
-* Could the issue be solved without modifying this code?
+Never replace semantic elements with custom components unless there is a clear functional requirement.
 
 ---
 
-### 18.4 What Engineering Basis Are You Using?
+## 5. Forms
 
-Every change must explicitly identify its basis from the following list:
+Every form must support:
 
-* Existing repository architecture
-* SSOT (Single Source of Truth)
-* DRY (Don't Repeat Yourself)
-* SOLID principles
-* Performance optimization
-* Security improvement
-* Bug fix
-* Accessibility
-* Code simplification
-* Dead code removal
-* Duplicate elimination
-* Approved design document
-* Existing coding standard
+- Keyboard-only navigation
+- Proper label association
+- Required field indication
+- Error announcements
+- Helper text association
+- Correct validation feedback
 
-**"No reason" or "seems better" is not acceptable.**
+Every input must remain accessible.
 
 ---
 
-### 18.5 Why Not Reuse Existing Code?
+## 6. Custom Components
 
-Before writing new code, answer:
+Custom UI components must behave like native controls.
 
-* Did you search for an existing implementation?
-* Which files were inspected?
-* Why can't the existing implementation be reused?
-* Why is extraction or refactoring not sufficient?
+Examples:
 
-If reusable code exists, **reuse it instead of creating new code**.
+- Cards
+- Chips
+- Tabs
+- Toggles
+- Dropdowns
+- Comboboxes
+- Multi-selects
+- Date Pickers
+- Image Uploaders
 
----
+Verify:
 
-### 18.6 Change Impact Analysis
-
-Before making changes, describe:
-
-* Files affected
-* Components affected
-* APIs affected
-* Database impact
-* UI impact
-* Performance impact
-* Security impact
-* Breaking changes (if any)
+- Keyboard navigation
+- Selection via keyboard
+- Focus visibility
+- Correct state announcements
 
 ---
 
-### 18.7 Line Change Accountability
+## 7. Modal & Dialog Rules
 
-For every commit, report:
+Every modal must:
+
+- Use `role="dialog"` (or `alertdialog` where appropriate)
+- Use `aria-modal="true"`
+- Associate a title correctly
+- Trap keyboard focus
+- Close with Escape (unless intentionally prevented)
+- Restore focus to the triggering element when closed
+
+Background content must not be keyboard-accessible while the dialog is open.
+
+---
+
+## 8. Validation & Error Handling
+
+Validation must be accessible.
+
+Verify:
+
+- Errors are linked to the relevant fields
+- Errors are announced appropriately
+- Focus moves to the first invalid field when submission fails
+- Success and status messages are communicated accessibly
+
+---
+
+## 9. Screen Reader Compatibility
+
+Every UI must be usable with common screen readers.
+
+Verify compatibility with:
+
+- VoiceOver
+- NVDA
+- TalkBack
+- JAWS (where applicable)
+
+Ensure:
+
+- Correct reading order
+- Meaningful control names
+- Accurate state announcements
+- Proper dialog and navigation announcements
+
+---
+
+## 10. Mobile Accessibility
+
+Verify:
+
+- Touch targets meet minimum size recommendations
+- Virtual keyboard does not obscure active inputs
+- Sticky headers/footers do not hide focused controls
+- Portrait and landscape layouts remain accessible
+
+---
+
+## 11. WCAG 2.2 AA Compliance
+
+All interfaces must meet WCAG 2.2 AA requirements where applicable.
+
+Audit:
+
+- Keyboard Accessibility
+- Focus Visible
+- Focus Order
+- Labels and Instructions
+- Error Identification
+- Name, Role, Value
+- Reflow
+- Target Size
+- Status Messages
+- Color Contrast
+
+---
+
+## 12. Accessibility Audit Before Every UI Change
+
+Before implementing any UI change, complete:
+
+- Accessibility Audit
+- Keyboard Navigation Audit
+- Focus Management Audit
+- ARIA Audit
+- Screen Reader Audit
+- Mobile Accessibility Audit
+
+Fix the root cause before adding new functionality.
+
+---
+
+## 13. Testing Requirements
+
+Every UI feature must be manually verified using:
+
+- Keyboard only
+- Mouse only
+- Touch only (where applicable)
+- Screen reader
+- Desktop
+- Tablet
+- Mobile
+
+Accessibility testing is required before considering a feature complete.
+
+---
+
+## Required Deliverables
+
+For every UI implementation or modification, provide:
+
+1. Accessibility Audit Summary
+2. Keyboard Navigation Report
+3. Focus Management Report
+4. ARIA Compliance Report
+5. Screen Reader Compatibility Report
+6. WCAG 2.2 AA Compliance Summary
+7. Accessibility Issues Found
+8. Root Cause Analysis (if issues exist)
+9. Minimal Fix Plan
+10. Final Verification Confirmation
+
+---
+
+## Success Criteria
+
+A UI change is considered complete only if:
+
+- ✅ Fully operable using keyboard only
+- ✅ Proper focus management
+- ✅ Uses semantic HTML where possible
+- ✅ ARIA implemented correctly where required
+- ✅ Screen reader compatible
+- ✅ Mobile accessible
+- ✅ WCAG 2.2 AA compliant
+- ✅ No keyboard traps
+- ✅ No inaccessible interactive elements
+- ✅ Existing functionality and workflow remain unchanged
+
+**Accessibility is a mandatory quality gate for every user interface across the Esparex platform and must be validated before implementation, modification, or release.**
+
+---
+
+## 🚫 Accessibility Enforcement Gate (Mandatory)
+
+No UI task may be marked complete, merged, or deployed unless the following gates pass.
+
+The implementation **must not**:
+
+- Introduce keyboard traps.
+- Break existing keyboard navigation.
+- Remove visible focus indicators.
+- Replace semantic HTML with non-semantic elements without a justified reason.
+- Introduce inaccessible custom controls.
+- Break screen reader compatibility.
+- Reduce WCAG 2.2 AA compliance.
+
+If any of the above occur:
+
+- Stop implementation.
+- Identify the root cause.
+- Fix the accessibility issue before continuing.
+- Do not add workarounds that bypass accessibility.
+
+Accessibility regressions are treated as functional regressions.
+
+---
+
+## Accessibility Regression Rule
+
+Every UI modification must preserve or improve accessibility.
+
+If an existing accessible behavior is degraded, the change is considered a failed implementation, even if the feature works visually.
+
+---
+
+## Pull Request Requirement
+
+Every UI-related pull request must include confirmation that:
+
+- Keyboard navigation was tested.
+- Focus order was verified.
+- Screen reader compatibility was checked where applicable.
+- ARIA attributes were reviewed.
+- WCAG 2.2 AA compliance was considered.
+- No accessibility regressions were introduced.
+
+---
+
+## Definition of Done (Mandatory PR Checklist)
+
+Every pull request merged into Esparex MUST satisfy the non-negotiable Feature Definition of Done:
+
+- [ ] **Feature Implementation**: Functional requirements fully satisfied according to SSOT contracts.
+- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, contract compatibility checks, and Playwright E2E suites (`tests/plans-purchase.spec.ts`) pass with 100% green status.
+- [ ] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [ ] **Multi-Platform Verification**: Verified on Web (Desktop & Mobile viewports) and Mobile (Expo iOS & Android exports).
+- [ ] **Accessibility Audit**: WCAG 2.2 AA compliant, visible focus rings, keyboard navigable, screen reader compatible (`accessibilityRole`/`accessibilityLabel`).
+- [ ] **Performance Review**: Zero frame drops on list viewports, LCP < 2.5s, CLS < 0.1, unbounded queries paginated.
+- [ ] **Security Review**: Input sanitized, CORS origin restricted, authentication & authorization guards enforced, 0 secret exposures.
+- [ ] **Zero Suppression Policy**: 0 `no-color-literals` and 0 `no-inline-styles` suppressions added.
+- [ ] **Contract Stability**: No breaking changes to public contracts in `@esparex/contracts` unless approved by ADR.
+- [ ] **Feature Flags & Telemetry**: Feature flags documented/retired and telemetry events wired for new user flows.
+- [ ] **Release Gate 16 (Operational Resilience & Disaster Recovery)**: Verified backend timeout recovery, MongoDB reconnect resilience, payment queue idempotency, and clean fallback error handling.
+- [ ] **Release Notes & EA Ledger**: `engineering-action-register.md` updated and `release-notes.md` updated for user-facing changes.
+
+---
+
+## 🚨 SINGLE-INSTANCE RESPONSIVE ARCHITECTURE GOVERNANCE (MANDATORY)
+
+Every user-facing screen, layout, header, footer, form, modal, and control across the platform MUST be rendered from a **single responsive component instance**.
+
+### Mandatory Rules:
+1. **No Duplicate Top-Level Components**: Never create separate component files or trees for different viewports (e.g. forbid `DesktopHeader` vs `MobileHeader`, `DesktopFooter` vs `MobileFooter`). Use a single component with CSS breakpoint utilities (`hidden md:flex`, `flex md:hidden`).
+2. **CSS-Driven Responsiveness First**: Responsive behavior (grid columns, flex direction, padding, margins, visibility) MUST be driven by CSS media query utilities (`sm:`, `md:`, `lg:`, `xl:`).
+3. **JS Viewport Check Restrictions**: JavaScript window checks (`useIsMobile`, `window.innerWidth`) are forbidden for static layout branching. JS checks are permitted ONLY for dynamic canvas calculations (e.g., virtualized list lane count) or event backdrop dismissal.
+4. **Accessible Overlays & Focus Trapping**: Hidden subtrees (mobile drawers, navigation sheets) MUST use the `inert` attribute and trap focus properly to prevent keyboard navigation leaks (`Tab` focus traversal).
+
+---
+
+## 🚨 ENTERPRISE MONOREPO ENGINEERING GOVERNANCE (ELIMINATING CORE FALLACIES)
+
+### 1. Scope & Applicability
+This standard applies to all domain modules (Location, Listings, Payments, Auth, Chat, Search, and User Profiles) across the entire Esparex platform.
+
+### 2. The 6 Pillars of Core Fallacy Elimination
+
+#### Pillar 1: Contract-First SSOT Architecture (`packages/contracts`)
+* **Shared Contracts as the Single Source of Truth:** All entity models must have their authoritative schema defined only in `packages/contracts`.
+* **Pre-computed Canonical Fields:** Any field used for user presentation (e.g., `location.display`, `ad.formattedPrice`, `user.displayName`) must be computed **once** at the domain boundary and attached to the DTO response.
+* **Frontend Contract Immutability:** UI apps (`apps/web`) must consume response DTO properties directly. Frontend code is prohibited from re-formatting or re-calculating canonical domain properties.
+
+#### Pillar 2: Zero Primitive Obsession
+* **Whole-Object Parameter Passing:** Function signatures, custom hooks, and context actions must take complete, typed DTOs (e.g. `(location: Location)`, `(ad: ListingDTO)`), rather than loose primitive parameters (e.g. `(city, state, name, id)`).
+* **Immutable Boundary Crossing:** When data moves between layers (Controller → Core Service → Repository or Context → Hook → UI Component), the entity must cross the boundary as a single immutable object.
+
+#### Pillar 3: Single-Instance Domain Formatters (One Domain, One Formatter)
+* **Ban on Use-Case Formatters:** Creating UI-specific domain formatters (e.g., `getHeaderLocationLabel`, `getSearchPriceLabel`, `getMobileCardDate`) is strictly forbidden across all features.
+* **Centralized Domain Formatter Standard:** Every domain concept has **exactly one canonical formatter** in `core/src/services` or `@esparex/shared`. All UI and state code must use this centralized formatter.
+
+#### Pillar 4: 100% Spec Matrix Coverage for Domain Hierarchies
+* **Variant Sufficiency:** Before implementing or refactoring any domain entity, developers must document a 100% Hierarchy & Variant Matrix in the design specification (e.g., Location levels: `Country` → `State` → `City` → `Area/Locality` → `Village`).
+* **Complete Formatter Logic:** Every domain formatter must explicitly cover every row of its entity matrix. Partial fallbacks that truncate hierarchy levels are rejected.
+
+#### Pillar 5: Zero-Leakage Layered Architecture Governance
+* **UI Components (`apps/web`):** Own layout rendering, user gestures, and displaying pre-computed fields. Must **not** own string formatting, business logic, or raw calculation.
+* **State Context (`apps/web`):** Owns UI state synchronization. Must **not** own custom string builders or domain transformations.
+* **Controllers (`backend/api`):** Own request validation, HTTP status codes, and session auth. Must **not** perform direct database queries or business calculations.
+* **Domain Services (`core`):** Own business logic, invariants, and canonical SSOT formatters.
+
+#### Pillar 6: Automated CI/CD & Governance Gates
+* **Pre-Implementation Gate (ADR):** Any change touching shared DTOs or domain formatters requires an Architectural Decision Record evaluating backwards compatibility.
+* **Contract Impact Checklist:** Any PR changing an API contract dimension must complete the mandatory checklist verifying that Backend, Frontend, and Playwright E2E mocks are synchronized.
+
+---
+
+## 🚨 ARCHITECTURAL OWNERSHIP & ANTI-DUPLICATION GOVERNANCE STANDARD (MANDATORY)
+
+> **THE CORE REPOSITORY PRINCIPLE**  
+> **The repository is the product. New code is the last resort. Before creating anything, discover what already exists, determine the canonical owner, and extend the Single Source of Truth whenever possible. Only create a new file when repository discovery proves that no suitable implementation exists.**
+
+---
+
+### 1. Mandatory Development Lifecycle (Phase 0 to Phase 5)
+
+Development MUST follow these 6 sequential phases. Implementation (`Phase 2`) is prohibited until `Phase 0` and `Phase 1` are complete.
 
 ```text
-Lines Added:    +XX
-Lines Deleted:  -YY
-Net Change:     ±ZZ
-
-Reason for Additions:   ...
-Reason for Deletions:   ...
-Reason for Modifications: ...
-Evidence:               ...
+Phase 0 — Repository Discovery (Mandatory: search existing SSOT, packages, & contracts)
+Phase 1 — Architecture Audit & Ownership Check (Determine canonical owner)
+Phase 2 — Implementation (Reuse/extend existing; create new ONLY with justification)
+Phase 3 — Verification (Run type-check, tests, and repo:gate)
+Phase 4 — Cleanup (Zero dead wrappers, zero orphans)
+Phase 5 — Merge & PR Approval
 ```
 
 ---
 
-### 18.8 Anti-Code-Bloat Rule
+### 2. Ownership Matrix (Canonical Owners vs. Prohibited Locations)
 
-The AI must not add code simply to satisfy a request.
+Every artifact across the Esparex platform must have exactly one canonical owner:
 
-Before writing code, it must ask itself:
+| Artifact | Canonical Owner | Prohibited In |
+| --- | --- | --- |
+| **UI Primitives** | `@esparex/ui` (`packages/ui`) | `apps/*/src/components/ui` |
+| **DTOs & Contracts** | `@esparex/contracts` (`packages/contracts`) | `apps/*/types`, `apps/*/schemas` |
+| **Shared Utilities & Formatters**| `packages/shared`, `core/src/services` | Feature sub-folders, inline helpers |
+| **Business Logic & Services** | `@esparex/core` | React components, hooks |
+| **API Client Methods** | Shared API layer (`listingMutationAPI`, `client`) | Individual pages or components |
+| **Validation Schemas** | `@esparex/contracts` | Duplicate feature schemas |
+| **Layout Shell & Bounds** | `PageContainer` / `PageShell` | Feature sub-tabs, internal components |
+| **Design Tokens** | `packages/ui/src/tokens` | Local inline magic values |
 
-* Can this be solved by deleting code?
-* Can this be solved by refactoring?
-* Can this be solved by reusing existing code?
-* Can this be solved by extracting shared logic?
-* Can this be solved by configuration instead of new code?
-
-**Preferred order of operations:**
-
-1. Delete unnecessary code.
-2. Reuse existing code.
-3. Refactor existing code.
-4. Extract shared code.
-5. Add new code only as a last resort.
+**Rule:** Every file must have exactly one canonical owner. If ownership is unclear, stop implementation until ownership is resolved.
 
 ---
 
-### 18.9 Evidence-Based Change Rule
+### 3. "Do Not Duplicate" Component Rule
 
-Every code change must include evidence such as:
-
-* Repository search results
-* Call hierarchy
-* Dependency analysis
-* Duplicate analysis
-* Usage analysis
-* Type references
-* Import graph
-* Runtime verification (when applicable)
-
-**Never make changes based on assumptions.**
-
----
-
-### 18.10 Block Condition
-
-The AI must stop and refuse to proceed if it cannot answer:
-
-> **On what engineering basis am I adding, modifying, or deleting this code?**
-
-If the answer is not supported by repository evidence, the change must not be made.
-
----
-
-### Summary
-
-This protocol shifts every code change from speculative editing to evidence-based engineering decisions, ensuring that every `+1` or `-1` line in a diff has a documented technical justification rooted in repository evidence.
-
----
-
-## 19. Engineering Decision Challenge (Mandatory)
-
-> **The AI is not a code generator. It is an engineering reviewer that writes code only after proving, with repository evidence, that the change is necessary, correct, minimal, and preferable to all simpler alternatives.**
-
-Before writing, modifying, or deleting any code, the AI must pause and answer every question below using repository evidence. If any question cannot be answered with evidence, the change must not proceed.
-
----
-
-### 19.1 Why Am I Changing This Code?
-
-* What exact problem am I solving?
-* Who requested this change?
-* What evidence proves this problem exists?
-* Can I reproduce or verify the problem?
-
-**If there is no evidence, stop.**
-
----
-
-### 19.2 On What Engineering Basis Am I Making This Change?
-
-Every change must explicitly identify one or more of the following:
-
-* Bug fix
-* SSOT (Single Source of Truth)
-* DRY (Don't Repeat Yourself)
-* SOLID principles
-* Performance optimization
-* Security improvement
-* Accessibility
-* Architecture consistency
-* Duplicate elimination
-* Dead code removal
-* Technical debt reduction
-* Compliance with repository standards
-
-**If none apply, stop.**
-
----
-
-### 19.3 Why This Solution?
-
-Before implementing, answer:
-
-* Why is this the best solution?
-* What alternatives were considered?
-* Why were they rejected?
-* Why is this the smallest safe change?
-
----
-
-### 19.4 Why Not Delete Code Instead?
-
-Before adding any code, verify:
-
-* Can deleting obsolete code solve the issue?
-* Can simplifying existing logic solve it?
-* Can removing duplication solve it?
-
-**If yes, prefer deletion over addition.**
-
----
-
-### 19.5 Why Not Reuse Existing Code?
-
-Repository-first policy. Before creating anything new, answer:
-
-* Which files were searched?
-* Which existing implementations were evaluated?
-* Why can't they be reused?
-* Why can't shared logic be extracted?
-
-**Creating new code is the last option.**
-
----
-
-### 19.6 Explain Every `+1` and `-1`
-
-Every added, modified, or deleted line must have an explicit reason:
+The following foundational primitives must **NEVER** have multiple implementations across any package or app:
 
 ```text
-+ Added because...
-
-- Removed because...
-
-~ Modified because...
+PROHIBITED FROM DUPLICATION:
+- Button          - Input           - Select          - Checkbox
+- RadioGroup      - Switch          - Dialog          - Drawer
+- Sheet           - Card            - Table           - Spinner
+- Badge           - StatusChip      - Toast / Popup   - Modal
 ```
 
-**"No reason" is not acceptable.**
-
 ---
 
-### 19.7 What Happens If I Do Nothing?
+### 4. Mandatory Repository Impact Statement (Before Coding)
 
-Before making any change, answer:
-
-* What breaks if this code remains unchanged?
-* Is the change necessary or merely desirable?
-* Is the benefit measurable?
-
-**If nothing important changes, reconsider making the edit.**
-
----
-
-### 19.8 Could This Introduce New Problems?
-
-Assess the risk of:
-
-* Duplicate code
-* Dead code
-* Regression
-* Performance degradation
-* Security issues
-* API breakage
-* UI inconsistencies
-
-Explain how each identified risk is mitigated.
-
----
-
-### 19.9 What Evidence Supports This Decision?
-
-Every change must cite repository evidence such as:
-
-* Search results
-* Call hierarchy
-* Type references
-* Import graph
-* Dependency analysis
-* Duplicate report
-* Runtime verification
-* Test results
-
-**Assumptions are prohibited.**
-
----
-
-### 19.10 Final Engineering Gate
-
-Before proceeding with any change, the AI must be able to answer:
-
-> **If a senior engineer reviewed this change tomorrow, could I defend every added, modified, and deleted line with repository evidence?**
-
-**If the answer is No, the change must not proceed.**
-
----
-
-### Enforcement Summary
-
-This section operates as a pre-flight checklist. No code change — regardless of request urgency or apparent simplicity — may bypass this challenge. Every gate must pass before a single line is written, modified, or deleted.
-
----
-
-## 20. Change Classification (Mandatory Risk Gate)
-
-Before any modification, classify the change into one of the four levels below. The level determines which protocol gates apply. Misclassifying a higher-risk change as a lower level is a governance violation.
-
----
-
-### Level 0 — No Code Change
-
-**Examples:** Documentation, code comments, formatting, whitespace, README edits.
-
-**Required:**
-* One-sentence justification explaining what was corrected and why.
-
----
-
-### Level 1 — Low Risk
-
-**Examples:** Variable rename, typo fix, UI label text, log message, small CSS adjustment, minor copy change.
-
-**Required:**
-* Problem — what is being fixed and why.
-* Engineering basis — which principle applies (§19.2).
-* Evidence — repository proof the problem exists.
-* Impact — confirm no functional, API, or accessibility change.
-
----
-
-### Level 2 — Medium Risk
-
-**Examples:** New component, refactor, hook extraction, utility changes, API modifications, business logic changes, shared package updates.
-
-**Required:**
-* Full Section 19 Engineering Decision Challenge.
-* All §18 Code Change Justification questions.
-
----
-
-### Level 3 — High Risk
-
-**Examples:** Authentication, payments, database schema, RBAC, security controls, core architecture, shared packages (`packages/contracts`, `packages/ui`, `packages/core`).
-
-**Required:**
-* Full Section 19 Engineering Decision Challenge.
-* Full §18 Code Change Justification.
-* Duplicate audit — proof no parallel implementation exists or will be created.
-* Dead code audit — proof no orphaned references remain after the change.
-* Impact analysis — all affected files, components, APIs, and consumers documented.
-* Test plan — how the change will be verified (unit, integration, E2E).
-* Rollback plan — explicit steps to revert if the change causes a regression.
-* Senior engineer gate (§19.10) — all lines defensible with repository evidence.
-
----
-
-### Classification Integrity Rule
-
-The AI must classify the change **before** searching the repository or writing any code. If mid-implementation the change grows in scope, the classification must be upgraded and the corresponding additional gates applied before continuing.
-
----
-
-## 21. Burden of Proof Rule
-
-The burden of proof belongs to the change, not to the reviewer.
-
-Before any code is written, modified, or deleted, the AI must prove — with repository evidence — all five of the following:
-
-1. **The problem exists.** Evidence: reproduction steps, error logs, failing tests, or an explicit user report.
-2. **The proposed solution is correct.** Evidence: architecture review, analogous patterns in the codebase, or documented design decision.
-3. **Simpler alternatives were rejected.** Evidence: alternatives listed, evaluated, and dismissed with reasoning.
-4. **Repository evidence supports the decision.** Evidence: search results, call hierarchy, import graph, or type references.
-5. **The change is the minimum necessary.** Evidence: no additional lines were added beyond what is required to solve the stated problem.
-
-**If the AI cannot prove all five points, the repository must remain unchanged.**
-
-This rule is not a suggestion. It is a hard gate applied before any edit — regardless of how obvious the change appears.
-
----
-
-## 22. Stability Principle
-
-Existing, correct, maintainable code has higher value than newly written code.
-
-The AI must not modify code solely because:
-
-* it prefers a different style or naming convention;
-* another implementation looks cleaner or more elegant;
-* it wants architectural symmetry across files;
-* it wants to increase abstraction without a concrete requirement;
-* it anticipates future requirements without current evidence.
-
-### What "correct" and "maintainable" mean
-
-Code is considered correct and maintainable if:
-
-* It passes existing tests.
-* It meets current accessibility and performance standards.
-* It has no known bugs related to the task at hand.
-* It does not violate an active governance rule.
-
-If all four conditions are true, the code must not be modified unless a specific, measurable defect requires it.
-
-### Stability Violation Examples
-
-The following are prohibited without a filed, evidence-backed justification:
-
-* Renaming a working function because the new name "reads better."
-* Splitting a working component because it "feels too large."
-* Adding an abstraction layer because the code "might grow."
-* Restructuring a file because the layout "seems inconsistent."
-* Replacing a working pattern because a newer pattern "is preferred."
-
-### Engineering Principle
-
-> **Code changes require demonstrable value — not preference, aesthetic judgment, or speculative future benefit.**
-
-A change that makes code look different without making it measurably more correct, more performant, more accessible, or more secure is net-negative: it adds review cost, regression risk, and diff noise with no verified return.
-
----
-
-## 🚨 Mobile Presentation Layer Dependency Rule (Mandatory)
-
-### Applies To
-
-All mobile application code in `apps/mobile`.
-
-### Layering Rule
+Every non-trivial task or PR MUST document a **Repository Impact Statement** before writing code:
 
 ```text
-Presentation (screens, components)
-        ↓
-Hooks (useSubmitAd, useListingDetails, useSearch, …)
-        ↓
-Application Services (PostAdService, ListingService, …)
-        ↓
-Repository Interfaces (IListingRepository, IImageUploadService, …)
-        ↓
-Infrastructure (ApiListingRepository, ApiImageUploadService, apiClient, …)
+Repository Impact Statement
+---------------------------
+Problem: <What problem is being solved?>
+Existing SSOT: <Component / service / hook / DTO being reused>
+New Files: 0 (or N with justification)
+Existing Files Modified: <Count>
+Duplicate Risk: None
+Reason: Extending existing implementation.
 ```
 
-### Explicit Constraint
-
-> A **presentation hook** may depend on application services, but **must never** import or instantiate a repository, infrastructure class, or `apiClient` directly.
-
-Presentation hooks are defined as any hook living in `features/*/presentation/hooks/`.
-
-### Prohibited Patterns
-
-```ts
-// ❌ PROHIBITED — hook reaching into infrastructure directly
-import { apiClient } from '../../../infrastructure/api/apiClient';
-const useSubmitAd = () => {
-  const result = await apiClient.post('/v1/listings', ...);
-};
-
-// ❌ PROHIBITED — hook instantiating a repository
-import { ApiListingRepository } from '../../application/ApiListingRepository';
-const useSearch = () => {
-  const repo = new ApiListingRepository();
-};
-```
-
-### Required Pattern
-
-```ts
-// ✅ CORRECT — hook delegates to a service from the composition root
-import { services } from '../../../../bootstrap';
-const useSubmitAd = () => {
-  const result = await services.postAdService.submit(draft, onPhaseChange);
-};
-```
-
-### Control Flow Rule
-
-> Application services must **not throw exceptions for expected failure conditions** (validation errors, upload failures, API errors). They must return a typed discriminated union (`SubmitResult`, etc.) instead.
-
-Exceptions are reserved for truly unexpected conditions (programmer errors, missing required constructor arguments).
-
-### State Machine Rule
-
-> Hooks that orchestrate multi-stage async operations must expose a typed **status** string union rather than a single `isLoading` boolean.
-
-This enables richer UI labels, retry logic, and analytics without architectural changes:
-
-```ts
-// ❌ Limited — binary state
-isLoading: boolean
-
-// ✅ Required — typed lifecycle
-status: 'idle' | 'uploading' | 'creating' | 'success' | 'error'
-```
-
-### Navigation Ownership
-
-> Navigation decisions (which screen to go to after a mutation) belong in **screen components**, not in hooks.
-
-Hooks return typed results. Screens pattern-match on those results and call `navigationRef` or `useNavigation`.
-
-```ts
-// ❌ PROHIBITED — hook navigates
-const submit = async () => {
-  await service.submit(draft);
-  navigationRef.current?.navigate(...); // belongs in PostAdScreen
-};
-
-// ✅ CORRECT — screen navigates based on typed result
-const result = await submit();
-if (result.success) {
-  navigationRef.current?.reset({ ... });
-}
-```
-
-### Validation Result Rule
-
-> Validators must return **structured `ValidationResult` discriminated unions**, not raw booleans or thrown errors.
-
-This enables field-level error highlighting without changing validators or services.
-
-```ts
-// ❌ Limited — boolean only
-static canAdvanceFrom(step, draft): boolean
-
-// ✅ Required — structured result
-static validate(step, draft): ValidationResult
-// Convenience wrapper (allowed)
-static canAdvanceFrom(step, draft): boolean = validate(step, draft).valid
-```
+If `New Files > 0`, the **New File Justification Gate** is required.
 
 ---
-### Layer-by-Layer Dependency Direction Rule (Mandatory)
 
-A layer may depend ONLY on the layer directly beneath it. Skipping layers is strictly prohibited.
+### 5. Mandatory Workflow: Repository Discovery First
+
+Every implementation task MUST begin with Phase 0 discovery before any code is written.
 
 ```text
-Presentation (Screens, Views, Presentation Components)
-        ↓
-Presentation Hooks
-        ↓
-Application Services
-        ↓
-Repository Interfaces
-        ↓
-Infrastructure (API clients, Database adapters, Storage drivers)
+PROHIBITED WORKFLOW:
+  Task Assigned ──► Open Target Directory ──► Write Code ──► Discover Duplicate Later ❌
+
+REQUIRED WORKFLOW:
+  Phase 0 Discovery ──► Architecture Audit ──► Find Existing SSOT ──► Reuse / Extend ──► Create New (Only if zero SSOT matches) ✅
 ```
 
-**Prohibited Layer Bypasses:**
-- Screens/Views importing Repositories or Infrastructure directly.
-- Presentation Hooks importing `apiClient`, Axios, or Infrastructure classes directly.
-- Application Services importing React or UI components.
-- Domain models importing Infrastructure/Network dependencies.
-- Contracts importing Application or Infrastructure code.
+Before creating any new `.ts` or `.tsx` file, complete the **Repository Discovery Checklist**:
+- [ ] What existing component already solves part of this problem?
+- [ ] Which package owns this responsibility?
+- [ ] Is there already an API client method?
+- [ ] Is there already a custom hook?
+- [ ] Is there already a domain service?
+- [ ] Is there already a DTO model in `@esparex/contracts`?
+- [ ] Is there already a validation schema?
+- [ ] Is there already a design-system component in `@esparex/ui`?
+- [ ] Is there already a feature flag or utility?
+- [ ] Is there already an existing test fixture?
+
+If ANY answer is **YES**, you MUST reuse or extend that implementation.
+Only create a new file if the answer is **NO** across all applicable layers.
+
+#### Canonical Domain Concept & Entity Discovery Map (Phase 0 SSOT Dictionary)
+Before writing any code or searching by conversational user prompt terms, developers & AI agents MUST map requirements to the canonical SSOT entities below:
+
+| Conversational User / UI Term | Canonical Domain Entity / Package | Prohibited Parallel Anti-Pattern |
+| :--- | :--- | :--- |
+| **Classifieds / Posts / Ads / Services / Parts** | `ListingDTO` / `unified Ad Engine` (`@esparex/contracts`, `core/src/domains/listings/`) | Creating separate `ServiceListing`, `SparePartListing`, or `CustomAd` schemas |
+| **Sponsor Banner / Display Ads / Google Ads** | `InContentPlacementId` / `MonetizationService` / `AdPlacementSlot` (`@esparex/contracts`, `core/src/services/MonetizationService.ts`) | Creating `BannerCard`, `SponsorCard`, or local `<ins>` tags in components |
+| **Device / Model / Brand / Category Select** | `EntitySearchCombobox` (`apps/web/src/components/user/EntitySearchCombobox.tsx`) | Creating custom `<select>` or local search comboboxes in feature directories |
+| **Search Grid / Results View / Browse Feed** | `BrowseListingsView` / `BrowseResultsPanel` (`apps/web/src/components/user/`) | Creating parallel `BrowseServicesView`, `BrowseSparePartsView`, or local grids |
+| **Ad Card (Grid / List View)** | `AdCardGrid` / `AdCardList` (`apps/web/src/components/user/ad-card/`) | Creating `BrowseServicesCard`, `BrowseSparePartsCard`, or local card components |
+| **Popups / Alerts / Banners / Toasts** | `popupBus` / `notify` (`@/lib/feedback`) | Installing or importing `sonner`, `react-hot-toast`, `react-toastify`, or local alert divs |
+| **Modal Dialogs / Fullscreen Wizards** | `ListingModalLayout` / `Dialog` (`packages/ui`) | Creating raw `fixed inset-0` dialog overlays without focus trapping |
+| **Page Container / Width Bounding** | `<Container variant="lg">` / `max-w-7xl` (`packages/ui`) | Hardcoding `max-w-6xl`, `max-w-5xl`, `max-w-[1440px]`, or local nested containers |
+| **Typography & Font Sizes** | 10-level scale (`text-display` → `text-tiny`) with **Geist** (`@esparex/design-tokens`) | Using `text-[13px]`, `text-2xs`, `text-xl md:text-2xl`, or competing fonts |
+| **Colors & Palette** | Semantic tokens (`text-foreground`, `bg-card`, `border-border`) | Using raw palette literals (`text-slate-900`, `bg-blue-50/50`, `text-blue-900`) |
+| **API Mutation Client** | `apiClient` (`@/lib/api/client`) + `toApiResult` (`@/lib/api/result`) | Raw `fetch()` or `axios.create()` calls inside individual components |
 
 ---
 
-## 18. MANDATORY PRE-COMMIT CODE QUALITY & CLEAN CODE GOVERNANCE STANDARD (SSOT & SOP)
+### 6. Mandatory "New File Justification" Gate
+
+Creating a new file requires documented evidence of repository discovery. Any PR introducing a new `.ts` or `.tsx` file must include a **New File Justification** block in the PR description:
+
+```text
+NEW FILE JUSTIFICATION
+----------------------
+Repository Search Completed:
+  ✓ packages/ui
+  ✓ apps/web/src/components/user/shared
+  ✓ hooks / services / core
+  ✓ packages/contracts
+
+Reason: No existing component, primitive, or service supports the required behavior after audit.
+Decision: New file approved.
+```
+
+PRs or automated changes adding new files without this justification are automatically rejected.
+
+---
+
+### 7. Component Creation Decision Tree
+
+Before creating or adding any UI component, follow this exact decision tree:
+
+```text
+Need a UI component?
+ │
+ ├── Already exists in @esparex/ui or components/user/shared?
+ │    ├── YES ──► CONSUME OR EXTEND IT (Do NOT create a local duplicate).
+ │    └── NO
+ │         │
+ │         ├── Reusable across multiple apps or features?
+ │         │    ├── YES ──► CREATE INSIDE @esparex/ui (with ADR approval).
+ │         │    └── NO  ──► CREATE INSIDE FEATURE MODULE (with New File Justification).
+```
+
+---
+
+### 8. Repository Health KPI Matrix
+
+Continuous quality enforcement requires maintaining zero duplication across all architectural dimensions:
+
+| Metric | Target | Verification Command |
+| --- | :---: | --- |
+| **Duplicate Components** | `0` | `npm run guard:duplicate-code` |
+| **Duplicate APIs** | `0` | `npm run guard:api-surface` |
+| **Duplicate DTOs** | `0` | `npm run repo:contracts` |
+| **Duplicate Hooks** | `0` | `npm run repo:ssot` |
+| **Duplicate Services** | `0` | `npm run repo:architecture` |
+| **Duplicate Routes** | `0` | `npm run repo:routes` |
+| **Duplicate Validation Schemas** | `0` | `npm run repo:contracts` |
+| **Pass-through Wrappers** | `0` | `npm run guard:dead-code` |
+| **Orphan Files** | `0` | `npm run guard:dead-code` |
+| **Local UI Primitives** | `0` | `npm run guard:shared-ssot` |
+| **Dead Code** | `0` | `npm run guard:dead-code` |
+| **SSOT Violations** | `0` | `npm run repo:gate` |
+
+---
+
+### 9. Cultural Engineering Mindset Shift
+
+All developers and AI agents must operate under the core governance mindset:
+
+> ❌ **Prohibited Approach:** "How do I build this feature?"
+> 
+> ✅ **Mandatory Approach:** "What already exists in the repository that I can reuse or extend?"
+
+---
+
+### 9. PR Anti-Duplication Audit Checklist
+
+Every UI-related Pull Request must verify:
+
+- [ ] **Repository Discovery**: Completed repository search across `@esparex/ui`, `shared/`, `core`, and `contracts`.
+- [ ] **New File Justification**: Included mandatory justification block for any newly created `.ts`/`.tsx` files.
+- [ ] **Primitive Check**: Confirmed component is not available in `@esparex/ui` or local UI primitives folder.
+- [ ] **Single Implementation**: Verified no parallel implementations or pass-through wrappers are introduced.
+- [ ] **Package Location**: Reusable primitives placed inside `packages/ui`.
+- [ ] **Single Container**: Verified no duplicate or nested layout containers (`PageContainer`).
+- [ ] **Responsive Unity**: Single-instance responsive pattern enforced (no `Desktop*` vs `Mobile*` duplication).
+- [ ] **Design Tokens**: Canonical design tokens used (`--color-surface`, `--size-*`).
+- [ ] **SSOT Governance**: Single-instance architectural ownership preserved.
+
+---
+
+### 10. Architecture Decision Record (ADR) Requirement
+
+Any new reusable primitive, layout container, design token, or cross-feature component requires a documented **Architecture Decision Record (ADR)** evaluating:
+1. Rationale and intended consumers.
+2. Why existing `@esparex/ui` implementations cannot be extended.
+3. Backwards compatibility & migration strategy.
+
+---
+
+### 8. SSOT Violation Reference Matrix
+
+```text
+❌ PROHIBITED: Local primitive duplicate
+   apps/web/src/components/ui/Input.tsx (Local implementation)
+   packages/ui/src/atoms/Input.tsx      (Shared SSOT)
+   👉 CORRECT: export { Input } from "@esparex/ui";
+
+---------------------------------------------------------
+
+❌ PROHIBITED: Nested layout containers
+   <PageContainer variant="wide">
+      <main>
+         <PageContainer variant="default">  <-- DUPLICATE CONTAINER
+         </PageContainer>
+      </main>
+   </PageContainer>
+   👉 CORRECT: Sub-tabs use <div className="space-y-4 max-w-3xl"> inside <main>.
+
+---------------------------------------------------------
+
+❌ PROHIBITED: Viewport component duplication
+   DesktopHeader.tsx
+   MobileHeader.tsx
+   👉 CORRECT: Header.tsx using CSS media query utilities (hidden md:flex, flex md:hidden).
+```
+
+---
+
+### 9. Migration Before Creation Rule
+
+> If a new feature requires modifying an existing shared primitive, developer/agent MUST migrate or extend the shared primitive rather than introducing a parallel implementation. Creating a second implementation to avoid modifying the shared component is strictly prohibited.
+
+---
+
+### 10. Repository Health Goals
+
+- **Zero** duplicated UI primitives across all applications.
+- **Zero** duplicated layout containers (`<PageContainer>` nesting).
+- **Zero** duplicate responsive components (`Desktop*` vs `Mobile*`).
+- **Zero** local implementations of shared foundation controls.
+- **One** owner for every reusable component.
+- **One** owner for every design token.
+- **One** owner for every layout responsibility.
+- **Zero** architectural drift.
+
+---
+
+# 🚨 ENTERPRISE PLATFORM STATE MATRIX GOVERNANCE RULE (MANDATORY)
+
+## Applies To
+
+This rule applies to **every feature, page, view, form, modal, drawer, search, wizard, or workflow** implemented across the Esparex platform.
+
+---
+
+## Pre-Implementation Requirement
+
+Before implementing or modifying any user-facing feature, developers and AI agents MUST complete and document an **Enterprise State Coverage Matrix**.
+
+For each state, the developer/agent must declare:
+1. Whether the state applies to the feature.
+2. The Single Source of Truth (SSOT) component used.
+3. Confirmation that no duplicate state primitive or local fallback is introduced.
+
+---
+
+## Enterprise Platform State Matrix Standard
+
+| Category | System State | Required | Mandatory SSOT Implementation |
+| :--- | :--- | :---: | :--- |
+| **Data** | Loading | ✅ | `Skeleton` (`@/components/ui/skeleton`) |
+| **Data** | Empty | ✅ | `EmptyStateShell` (`@/components/ui/EmptyStateShell`) |
+| **Data** | Error | ✅ | `ErrorBoundary` & `app/error.tsx` |
+| **Network** | Offline | ✅ | `app/offline/page.tsx` & `ConnectivityBanner` |
+| **Network** | Slow Network / Timeout | ✅ | `apiClient` Exponential Backoff Retry |
+| **Network** | Rate Limited (429) | ✅ | `popupBus` / `notify.error()` |
+| **Network** | Maintenance (503) | ✅ | `ClientChromeLoader` (`apiUnavailable={true}`) |
+| **Search** | No Search Results | ✅ | `BrowseEmptyState` |
+| **Search** | End of Results | ✅ | Standardized Pagination / Infinite Scroll Sentinel |
+| **Auth** | Login Required | ✅ | `AuthContext` Drawer / Modal Trigger |
+| **Auth** | Session Expired (401) | ✅ | `apiClient` 401 Interceptor + Auth Context Cleanup |
+| **Auth** | Permission Denied (403)| ✅ | `app/(public)/unauthorized/page.tsx` or `notFound()` Anti-Enumeration |
+| **Forms** | Input Validation | ✅ | Form Controls (`packages/ui`) + Zod Schemas |
+| **Forms** | Unsaved Changes | ✅ | Browser `beforeunload` Guard |
+| **Forms** | Upload Progress | ✅ | `ImageUploader` Progress Bar |
+| **Forms** | Upload Failure | ✅ | `ImageUploader` Inline Failure Retry |
+| **Forms** | Duplicate Submission | ✅ | Submit Control Disable + `X-Idempotency-Key` |
+| **Marketplace**| Pending Approval | ✅ | `ListingStatusBadge` (`pending`) |
+| **Marketplace**| Sold Listing | ✅ | `SoldOutDialog` & Read-Only Chat Guard |
+| **Marketplace**| Expired Listing | ✅ | `UserListingsTemplate` Repost CTA |
+| **Marketplace**| Rejected Listing | ✅ | Rejection Reason Banner + Edit Action |
+| **Marketplace**| Listing 404 / Missing | ✅ | `listingUnavailable.ts` & `app/not-found.tsx` |
+| **Permissions**| GPS / Location | ✅ | `useLocationSearch` Dropdown Fallback |
+| **Permissions**| Camera / Gallery | ✅ | `ImageUploader` Browser Input Fallback |
+| **Notifications**| Success Action | ✅ | `popupBus` / `notify.success()` |
+| **Notifications**| Error Action | ✅ | `popupBus` / `notify.error()` |
+
+---
+
+## 🚫 Pull Request Quality Gate Checklist
+
+No pull request containing UI or workflow changes may be merged unless all applicable items are confirmed:
+
+- [ ] **Loading State**: Implemented via SSOT `Skeleton` / `loading.tsx`.
+- [ ] **Empty State**: Implemented via SSOT `EmptyStateShell`.
+- [ ] **Error State**: Handled via `ErrorBoundary` / `app/error.tsx`.
+- [ ] **Success State**: Dispatched via `popupBus` / `notify.success()`.
+- [ ] **Offline Behavior**: Verified with Service Worker & Connectivity Banner.
+- [ ] **Permission Denied**: Verified (403 redirect or zero-leakage 404).
+- [ ] **Session Expired**: Verified (401 interceptor + auth drawer trigger).
+- [ ] **Form Validation**: Accessible inline validation errors (`aria-invalid`).
+- [ ] **Marketplace Lifecycles**: Verified status badges & action guards.
+- [ ] **Network Failure**: Timeout retries and rate limit alerts verified.
+- [ ] **Anti-Duplication**: Zero local duplicate state components introduced.
+- [ ] **SSOT Reuse**: Reuses existing `@esparex/ui` primitives.
+- [ ] **Accessibility**: WCAG 2.2 AA compliant (keyboard, focus ring, screen reader).
+- [ ] **Responsiveness**: Single-instance responsive component pattern verified across Mobile, Tablet, and Desktop.
+
+---
+
+## 🚨 LAYOUT GOVERNANCE STANDARD (MANDATORY)
+
+1. **Layout Ownership Principle**:
+   Every spacing concern (top, bottom, horizontal gutters, sticky footer offsets, safe-area compensation) MUST have a single owner. Parent and child containers MUST NOT compensate for the same viewport constraint independently.
+2. **Single Owner for Bottom Spacing**:
+   Sticky footer spacing and bottom action bar offsets MUST be owned by a single layout layer.
+3. **No Duplicate Offset Compensation**:
+   Content containers (`<form>`, `<main>`, `<section>`) MUST NOT independently apply arbitrary bottom padding (`pb-20`, `pb-32`) to compensate for fixed action bars if the action bar container already provides its own spacing/padding.
+4. **Single Layout Responsibility**:
+   Only one component or layout wrapper is responsible for managing vertical spacing between the form content and fixed/sticky bottom bars.
+5. **Viewport Compensation Audit**:
+   Before introducing any new fixed or sticky element (headers, footers, floating actions, bottom bars, drawers):
+   - Audit existing viewport compensation.
+   - Verify a single owner already exists.
+   - Do not introduce additional spacing until ownership has been verified.
+
+---
+
+# 🚨 ESPAREX PLATFORM ARCHITECTURE OPERATING MODEL (MANDATORY)
+
+## Core Architectural Axiom
+
+> **Business rules must never depend on platform. Platform only changes how users interact with the system—not what the system does.**
+
+This standard applies to **every feature, hook, application, component, capability, integration, and workflow** across the Esparex multi-platform monorepo (`apps/web`, `apps/mobile`, `apps/admin`, `@esparex/ui`, `@esparex/core`, `@esparex/contracts`).
+
+---
+
+## 1. Day-to-Day Development Decision Tree
+
+Before writing any code, engineers and AI agents MUST process every feature through the architectural decision tree:
+
+```text
+Is this business logic, domain calculation, or validation?
+    │
+    ├── YES ──► Write in @esparex/core or @esparex/contracts
+    │
+    └── NO
+         │
+         ├── Is it a reusable presentation control, token, or layout primitive?
+         │    │
+         │    ├── YES ──► Write inside @esparex/ui
+         │    │
+         │    └── NO
+         │         │
+         │         ├── Is it a device hardware or browser OS capability?
+         │         │    │
+         │         │    ├── YES ──► Extend/Implement Platform Capability Catalog (Contract + Adapters)
+         │         │    │
+         │         │    └── NO
+         │         │         │
+         │         │         ├── Is it an external cloud service, payment gateway, or SDK integration?
+         │         │         │    │
+         │         │         │    ├── YES ──► Extend/Implement Platform Integration Catalog (Contract + Adapters)
+         │         │         │    │
+         │         │         │    └── NO ──► Feature Module Orchestration Layer
+```
+
+---
+
+## 2. Platform Architecture Specifications & Checklists
+
+For full platform governance specifications, decision records (PADR), capability/integration catalogs, and debt definitions, refer to the authoritative architecture documentation:
+
+- 📘 **Operating Model Specification:** [PLATFORM_ARCHITECTURE.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_ARCHITECTURE.md)
+- 📙 **Capability & Integration Catalog:** [PLATFORM_CAPABILITY_CATALOG.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_CAPABILITY_CATALOG.md)
+- 📋 **Architectural Review Checklist:** [ARCHITECTURE_CHECKLIST.md](file:///Users/admin/Desktop/Esparex/docs/architecture/ARCHITECTURE_CHECKLIST.md)
+
+
+---
+
+## 3. Platform Verification Quality Gate Summary
+
+No pull request containing platform capabilities or integrations may be merged unless all items pass verification:
+
+- [ ] **Web Desktop Verified:** Verified on Desktop Chrome/Safari. Hardware/media capabilities use browser-native patterns (e.g., native OS File Picker). Zero mobile hardware dialogs rendered.
+- [ ] **Web Mobile Verified:** Verified responsive behavior and web capability fallbacks on mobile browsers.
+- [ ] **Tablet Web Verified:** Verified touch & pointer interaction parity on tablet viewports.
+- [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with native permission handling.
+- [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
+- [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
+
+---
+
+## 4. Mongoose Dual-Connection Model Binding Governance Rule (Mandatory)
+
+Every Mongoose schema & model defined inside `core/src/models/` MUST be bound via Esparex's multi-tenant connection helpers (`getUserConnection()` or `getAdminConnection()`). 
+
+Direct exports using default `mongoose.model()` are strictly forbidden:
+
+```ts
+// ❌ PROHIBITED: Bypasses connection pool and queries disconnected default Mongoose instance
+export default mongoose.models.Entitlement || mongoose.model<IEntitlement>('Entitlement', EntitlementSchema);
+
+// ✅ MANDATORY: Binds model to tenant user connection pool
+const connection = getUserConnection();
+const Entitlement: Model<IEntitlement> = (connection.models.Entitlement as Model<IEntitlement>) ||
+    connection.model<IEntitlement>('Entitlement', EntitlementSchema);
+export default Entitlement;
+```
+
+---
+
+## 5. Payment Gateway & Checkout Governance Rule (Mandatory)
+
+1. **Strict Mock Payment Gating**: Silent auto-fulfillment of mock orders (`order_mock_*`) is strictly prohibited unless `MOCK_PAYMENTS=true` (backend) and `NEXT_PUBLIC_MOCK_PAYMENTS=true` (frontend) are explicitly configured in `.env`.
+2. **No Silent Error Swallowing**: Controller catch blocks MUST extract human-readable error descriptions from third-party SDK error objects (e.g. Razorpay SDK exceptions) and surface diagnostic details when `NODE_ENV === 'development'`.
+3. **Key Resolution Precedence**: `.env` variables (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) MUST take strict priority over seed values stored in database `SystemConfig`.
+4. **Client Signature Verification Obligation**: All client-side checkout hooks (`usePlanCheckout.ts`) MUST submit third-party gateway response signatures (`razorpay_payment_id`, `razorpay_order_id`, `razorpay_signature`) to `POST /api/v1/payments/verify` immediately upon checkout completion to guarantee atomic transaction state transitions (`INITIATED` -> `SUCCESS`) regardless of webhook latency or local dev environments.
+
+---
+
+## 6. Documentation Hygiene & Anti-Sprawl Governance Rule (Mandatory)
+
+1. **5 Master SSOT Pillars Only**: All architecture standards, API contracts, domain logic rules, and action registers MUST be maintained exclusively within the 5 Authoritative SSOT Pillars (`AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`).
+2. **Strict Ban on Ad-hoc Documentation Files**: Creating ad-hoc, temporary, volume-based, or timestamped `.md` files in feature sub-folders, `audit-reports/`, or `docs/reports/` is strictly forbidden.
+3. **Continuous Documentation Auditing**: Periodic repository hygiene audits must remove unreferenced, zombie, orphan, or duplicate markdown files after confirming zero code dependencies.
+
+---
+
+## 7. MANDATORY PRE-COMMIT CODE QUALITY & CLEAN CODE GOVERNANCE STANDARD (SSOT & SOP)
 
 > **CORE OPERATING PRINCIPLE**:  
 > Code quality, modularity, and repository hygiene audits MUST be performed BEFORE committing. Every code change must satisfy the `clean-code` and `code-quality` skills, pass pre-commit quality gates (`npm run guard:pr-quality`), and leave the repository cleaner than it was before.
@@ -1546,6 +1008,8 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 
 ---
 
+## 18. ESPAREX FRONTEND LAYOUT & SURFACE ARCHITECTURE GOVERNANCE (EFAS v1.0.0)
+
 ## 19. ESPAREX UI/UX SKILL PRECEDENCE & PERMANENT TYPOGRAPHY PREVENTION STANDARD
 
 ### 19.1 Four-Tier Skill & Governance Precedence Hierarchy
@@ -1574,4 +1038,7 @@ All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/m
 4. **Native Popup SSOT**: Alerts and notifications MUST use `popupBus` / `notify`. External toast packages (`sonner`, `react-hot-toast`) are banned.
 
 
----
+
+
+
+
