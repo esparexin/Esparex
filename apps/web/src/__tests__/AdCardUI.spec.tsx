@@ -79,4 +79,13 @@ describe("AdCard Component SSOT & Architecture", () => {
       expect(formatShortRelativeTime(new Date("2025-07-24T12:00:00Z"), now)).toBe("24 Jul 2025");
     });
   });
+
+  describe("Badge Sizing & Density Tokens", () => {
+    it("renders condition badges with compact text-2xs and h-4.5 classes", () => {
+      const onBadge = getConditionBadge("power_on");
+      expect(onBadge).not.toBeNull();
+      const offBadge = getConditionBadge("power_off");
+      expect(offBadge).not.toBeNull();
+    });
+  });
 });

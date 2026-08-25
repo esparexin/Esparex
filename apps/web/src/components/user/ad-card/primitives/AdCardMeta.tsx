@@ -95,7 +95,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Location + Date Metadata Row */}
       <div
         className={cn(
-          "flex items-center justify-between text-tiny text-foreground-tertiary pt-1.5 mt-1 border-t border-border/40 gap-2 min-w-0",
+          "flex items-center justify-between text-tiny text-foreground-tertiary pt-1 mt-0.5 border-t border-border/40 gap-1.5 min-w-0",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}

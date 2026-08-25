@@ -30,7 +30,7 @@ export const AdCardActions = memo(function AdCardActions({
       size="icon"
       variant="secondary"
       className={cn(
-        "h-7.5 w-7.5 sm:h-8 sm:w-8 rounded-full shadow-xs z-20 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm p-0 cursor-pointer",
+        "h-7.5 w-7.5 sm:h-8 sm:w-8 rounded-full shadow-xs z-20 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm",
         className
       )}
       onClick={(e) => {

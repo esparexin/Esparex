@@ -87,11 +87,11 @@ export const AdCardCover = memo(function AdCardCover({
 
       {/* Top-Left Overlay Badges (Spotlight / Top Ad / Verified / Custom Status) */}
       {(planBadge || showVerifiedBadge || customStatus) && (
-        <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-10 flex flex-wrap items-center gap-1.5 pointer-events-none">
+        <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
           {planBadge}
           {showVerifiedBadge && (
             <Badge
-              className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-tiny font-bold px-1.5 h-5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-sm"
+              className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-2xs font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center gap-1 shadow-2xs"
               aria-label="Verified Business"
             >
               <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
