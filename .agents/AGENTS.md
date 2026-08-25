@@ -1016,7 +1016,7 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
 2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
 3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
-4. **Tier 4 (Auxiliary Design Guides)**: `ui-styling`, `ui-ux-pro-max`, `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants.
+4. **Tier 4 (Auxiliary Design Guides)**: `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants. Non-compliant generic templates (`ui-styling`, `ui-ux-pro-max`) are prohibited.
 
 ### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
 All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
