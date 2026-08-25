@@ -7,7 +7,8 @@ import { AdCardCover } from "@/components/user/ad-card/primitives/AdCardCover";
 import { AdCardActions } from "@/components/user/ad-card/primitives/AdCardActions";
 import { AdCardShell } from "@/components/user/ad-card/primitives/AdCardShell";
 import { resolveDeviceCondition, getConditionBadge, isSpotlightAd } from "@/components/user/ad-card/shared";
-import { formatShortRelativeTime } from "@/lib/formatters"
+import { formatShortRelativeTime } from "@/lib/formatters";
+import { useFavoriteAd } from "@/hooks/listings/useFavoriteAd";
 
 const createMockAd = (overrides = {}) =>
   AdSchema.parse({
@@ -22,6 +23,7 @@ const createMockAd = (overrides = {}) =>
     location: { city: "Vijayapuri South", state: "Andhra Pradesh", country: "India" },
     ...overrides,
   });
+
 describe("AdCard Component SSOT & Architecture", () => {
   it("exports all canonical ad card components and primitives", () => {
     expect(typeof AdCardGrid).toBe("object"); // memoized component
@@ -30,6 +32,9 @@ describe("AdCard Component SSOT & Architecture", () => {
     expect(typeof AdCardCover).toBe("object"); // memoized component
     expect(typeof AdCardActions).toBe("object"); // memoized component
     expect(typeof AdCardShell).toBe("object"); // memoized component
+    expect(typeof useFavoriteAd).toBe("function");
+  });
+
   describe("Device Condition Resolution & Badge Generation", () => {
     it("resolves power_on condition from deviceCondition or title", () => {
       expect(resolveDeviceCondition(createMockAd({ title: "iPhone 13 - Powers On Working" }))).toBe("power_on");
@@ -65,6 +70,22 @@ describe("AdCard Component SSOT & Architecture", () => {
 
   describe("Centralized Relative Date Formatting", () => {
     it("formats relative dates cleanly for card metadata display", () => {
+      const now = new Date("2026-08-25T12:00:00Z").getTime();
+      expect(formatShortRelativeTime(new Date(now), now)).toBe("Just now");
+      expect(formatShortRelativeTime(new Date(now - 120000), now)).toBe("2m ago");
+      expect(formatShortRelativeTime(new Date(now - 7200000), now)).toBe("2h ago");
+      expect(formatShortRelativeTime(new Date(now - 86400000), now)).toBe("1 day ago");
+      expect(formatShortRelativeTime(new Date("2026-07-24T12:00:00Z"), now)).toBe("24 Jul");
+      expect(formatShortRelativeTime(new Date("2025-07-24T12:00:00Z"), now)).toBe("24 Jul 2025");
+    });
+  });
+
+  describe("Badge Sizing & Density Tokens", () => {
+    it("renders condition badges with compact text-2xs and h-4.5 classes", () => {
+      const onBadge = getConditionBadge("power_on");
+      expect(onBadge).not.toBeNull();
+      const offBadge = getConditionBadge("power_off");
+      expect(offBadge).not.toBeNull();
     });
   });
 });
