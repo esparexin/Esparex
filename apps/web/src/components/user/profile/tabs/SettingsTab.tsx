@@ -216,29 +216,27 @@ export function SettingsTab({
                 </div>
             </PageSection>
 
-            <PageSection
-                variant="bordered"
-                className="rounded-none sm:rounded-2xl border-0 sm:border border-destructive/20 bg-destructive/5 sm:bg-destructive/10 p-0 sm:p-5"
-                title={
-                    <span className="text-body sm:text-body-lg font-semibold flex items-center gap-2 text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                        Delete Account
-                    </span>
-                }
-                subtitle="Permanently delete your account. Secure confirmation required."
-            >
-                <div className="pt-1">
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => setShowDeleteDialog(true)}
-                        className="h-9 gap-2 text-caption font-semibold px-4 rounded-xl"
-                    >
-                        <AlertTriangle className="h-4 w-4" />
-                        Delete My Account
-                    </Button>
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="space-y-0.5">
+                    <div className="text-caption sm:text-body font-bold text-destructive flex items-center gap-1.5">
+                        <Trash2 className="h-4 w-4 shrink-0" />
+                        <span>Delete Account</span>
+                    </div>
+                    <p className="text-tiny sm:text-caption text-muted-foreground">
+                        Permanently delete your account. Secure confirmation required.
+                    </p>
                 </div>
-            </PageSection>
+
+                <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="h-8 gap-1.5 text-tiny font-semibold px-3 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-colors shrink-0 self-start sm:self-auto"
+                >
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <span>Delete My Account</span>
+                </Button>
+            </div>
         </form>
     );
 }
