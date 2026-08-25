@@ -126,7 +126,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
         <>
         <div className="w-full space-y-2.5">
             <div
-                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[420px] bg-slate-50 rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-slate-200/80 shadow-2xs"
+                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[420px] bg-card rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-border/80 shadow-2xs"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onClick={openLightbox}
@@ -141,7 +141,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                     fill
                     sizes={MARKETPLACE_CARD_FILL_SIZES}
                     priority
-                    className="w-full h-full object-contain transition-transform duration-500 group-hover/main:scale-[1.02]"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover/main:scale-[1.02]"
                 />
 
                 {/* Share and Favorite Buttons */}
@@ -218,8 +218,8 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                             aria-label={`View photo ${index + 1} of ${safeImages.length}`}
                             className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative ${
                                 index === currentImageIndex
-                                    ? "border-blue-600 ring-2 ring-blue-600/20 scale-95"
-                                    : "border-transparent hover:border-slate-300 opacity-70 hover:opacity-100"
+                                    ? "border-primary ring-2 ring-primary/20 scale-95"
+                                    : "border-transparent hover:border-border opacity-70 hover:opacity-100"
                             }`}
                         >
                             <SafeImage
@@ -230,7 +230,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 className="object-cover"
                             />
                             {index === currentImageIndex && (
-                                <div className="absolute inset-0 bg-blue-600/5" />
+                                <div className="absolute inset-0 bg-primary/5" />
                             )}
                         </button>
                     ))}
