@@ -339,7 +339,17 @@ const nextConfig = {
             // Exact /services match only — /services/[slug] continues to work
             {
                 source: '/services',
-                destination: '/browse-services',
+                destination: '/search?type=service',
+                permanent: true,
+            },
+            {
+                source: '/browse-services',
+                destination: '/search?type=service',
+                permanent: true,
+            },
+            {
+                source: '/browse-spare-parts',
+                destination: '/search?type=spare_part',
                 permanent: true,
             },
             // ── Pre-existing redirects ────────────────────────────────────────

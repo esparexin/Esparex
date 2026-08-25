@@ -1,12 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
 import {
   BrowseListingsView,
   type BrowseBuildFiltersArgs,
 } from "@/components/user/BrowseListingsView";
-import { BrowseServicesCard } from "@/components/user/BrowseServicesCard";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import {
   applyRequestedLocationFilters,
   applyServiceLocationFilters,
@@ -17,8 +15,7 @@ import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/lib/api/user/categories";
 import { resolveBrowseCategoryParam } from "@/lib/publicBrowseRoutes";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
-
-const BrowseServicesVirtualizedList = dynamic(() => import("./BrowseServicesVirtualizedList"));
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 const DEFAULT_SERVICE_RADIUS_KM = 50;
 
@@ -92,12 +89,20 @@ export function BrowseServices({
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No services matching "${searchQuery}".` : "No services available in this area yet."
       }
-      renderCard={(service, view, index) => (
-        <BrowseServicesCard service={service} view={view} priority={index < 4} />
-      )}
+      renderCard={(service, view, index) => {
+        const href = buildPublicListingDetailRoute({
+          id: service.id,
+          listingType: "service",
+          seoSlug: service.seoSlug,
+          title: service.title,
+        });
+        return view === "list" ? (
+          <AdCardList key={service.id} ad={service} href={href} priority={index < 4} />
+        ) : (
+          <AdCardGrid key={service.id} ad={service} href={href} priority={index < 4} />
+        );
+      }}
       getItemKey={(service) => service.id}
-      VirtualizedListComponent={BrowseServicesVirtualizedList}
-      virtualizationThreshold={24}
     />
   );
 }
