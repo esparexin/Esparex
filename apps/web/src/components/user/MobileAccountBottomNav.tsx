@@ -44,13 +44,13 @@ export function MobileAccountBottomNav({
             onClick={() => onTabChange(item.value)}
             aria-current={isActive ? "page" : undefined}
             className={`flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-all rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              isActive ? "text-blue-600 font-medium" : "text-slate-500 hover:text-slate-700 font-normal"
+              isActive ? "text-primary font-semibold" : "text-foreground-subtle hover:text-foreground-secondary font-normal"
             }`}
           >
             <div className="relative">
-              <Icon className={`h-5 w-5 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
+              <Icon className={`h-5 w-5 ${isActive ? "text-primary" : "text-foreground-subtle"}`} />
               {!!item.badge && item.badge > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-tiny font-bold text-white shadow-sm">
+                <span className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-tiny font-bold text-destructive-foreground shadow-2xs">
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
               )}

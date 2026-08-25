@@ -25,7 +25,7 @@ export function PersonalProfileEmailSection({
                 type="email"
                 placeholder="name@company.com"
                 {...register("email")}
-                className={`h-10 sm:h-10.5 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium ${emailError ? "border-destructive" : ""}`}
+                className={`h-10 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium ${emailError ? "border-destructive" : ""}`}
                 aria-invalid={!!emailError}
                 aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
                 autoComplete="email"
