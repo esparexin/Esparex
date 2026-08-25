@@ -6,7 +6,7 @@
 
 import { Request, Response } from 'express';
 import slugify from 'slugify';
-import { handlePaginatedContent } from "../../../utils/contentHandler";
+import { handlePaginatedContent } from "../../../utils/content-handler";
 import {
     CategoryModel,
     getCatalogEntityCounts,

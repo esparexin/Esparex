@@ -6,7 +6,7 @@
 
 import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
-import { handlePaginatedContent } from "../../../utils/contentHandler";
+import { handlePaginatedContent } from "../../../utils/content-handler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { sendSuccessResponse } from "../../../utils/respond";

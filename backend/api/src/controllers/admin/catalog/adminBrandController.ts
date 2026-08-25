@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { sendSuccessResponse } from '../../../utils/respond';
-import { handlePaginatedContent } from '../../../utils/contentHandler';
+import { handlePaginatedContent } from '../../../utils/content-handler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';

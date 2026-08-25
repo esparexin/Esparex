@@ -27,7 +27,7 @@ import {
 } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
 
 import { logAdminAction } from '../../../utils/adminLogger';
-import { handlePaginatedContent } from "../../../utils/contentHandler";
+import { handlePaginatedContent } from "../../../utils/content-handler";
 
 export {
     sendCatalogError,
