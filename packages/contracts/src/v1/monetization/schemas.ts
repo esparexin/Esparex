@@ -2,6 +2,24 @@ import { z } from 'zod';
 import { optionalTrimmedStringSchema } from '../common/schema/common.schemas';
 
 export const inContentPlacementIdSchema = z.enum([
+  'homepage_hero_top',
+  'homepage_feed_inline',
+  'search_results_header',
+  'search_results_inline',
+  'category_page_header',
+  'category_page_inline',
+  'listing_details_sidebar',
+  'listing_details_incontent',
+  'services_page_header',
+  'spare_parts_header',
+  'business_profile_sidebar',
+  'user_dashboard_top',
+  'user_my_listings_inline',
+  'business_dashboard_top',
+  'static_pages_footer',
+  'footer_leaderboard',
+  'mobile_sticky_bottom',
+  // Legacy aliases
   'listing_detail_sidebar_bottom',
   'listing_detail_below_description',
   'home_below_hero',
@@ -24,11 +42,18 @@ export const adCampaignStatusSchema = z.enum([
   'expired',
 ]);
 
+export const adFallbackStrategySchema = z.enum([
+  'collapse',
+  'house_ad',
+  'internal_promo',
+]);
+
 export const adTargetingCriteriaSchema = z.object({
   states: z.array(z.string()).optional(),
   cities: z.array(z.string()).optional(),
   categories: z.array(z.string()).optional(),
   device: z.enum(['all', 'desktop', 'mobile', 'tablet']).optional(),
+  viewports: z.array(z.enum(['desktop', 'tablet', 'mobile'])).optional(),
   userType: z.enum(['all', 'authenticated', 'guest', 'business']).optional(),
 });
 
@@ -48,7 +73,7 @@ export const adRenderingRulesSchema = z.object({
 export const adProviderConfigSchema = z.object({
   googleSlotId: optionalTrimmedStringSchema,
   googlePublisherId: optionalTrimmedStringSchema,
-  googleFormat: z.enum(['auto', 'rectangle', 'horizontal']).optional(),
+  googleFormat: z.enum(['auto', 'rectangle', 'horizontal', 'vertical', 'fluid']).optional(),
   bannerImageUrl: optionalTrimmedStringSchema,
   bannerTargetUrl: optionalTrimmedStringSchema,
   bannerAltText: optionalTrimmedStringSchema,
@@ -70,6 +95,7 @@ export const adCampaignItemSchema = z.object({
   providerType: adProviderTypeSchema,
   priority: z.number().int().positive().default(1),
   status: adCampaignStatusSchema.default('active'),
+  fallbackStrategy: adFallbackStrategySchema.optional().default('collapse'),
   startAt: z.string().optional(),
   endAt: z.string().optional(),
   targeting: adTargetingCriteriaSchema.default({}),
@@ -87,6 +113,7 @@ export const createAdCampaignSchema = z.object({
   providerType: adProviderTypeSchema,
   priority: z.number().int().positive().default(1),
   status: adCampaignStatusSchema.default('active'),
+  fallbackStrategy: adFallbackStrategySchema.optional().default('collapse'),
   startAt: z.string().optional(),
   endAt: z.string().optional(),
   targeting: adTargetingCriteriaSchema.optional().default({}),

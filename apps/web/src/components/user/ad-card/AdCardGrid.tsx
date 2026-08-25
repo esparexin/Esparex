@@ -68,26 +68,26 @@ export const AdCardGrid = memo(function AdCardGrid({
       )}
     >
       {/* Image section — AdCardCover handles promotion + verified badges internally */}
-          <AdCardCover
-            ad={ad}
-            imageUrl={imageUrl}
-            priority={priority}
-            showBusinessBadge={showBusinessBadge && isBusiness}
-            className="aspect-[4/3] w-full"
-          >
-            {/* Favorite button — top-right overlay */}
-            <AdCardActions
-              adId={adId}
-              isSaved={isSaved}
-              onToggleSave={onToggleSave}
-              className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-20"
-            />
-          </AdCardCover>
+      <AdCardCover
+        ad={ad}
+        imageUrl={imageUrl}
+        priority={priority}
+        showBusinessBadge={showBusinessBadge && isBusiness}
+        className="aspect-[4/3] w-full"
+      >
+        {/* Favorite button — top-right overlay */}
+        <AdCardActions
+          adId={adId}
+          isSaved={isSaved}
+          onToggleSave={onToggleSave}
+          className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-20"
+        />
+      </AdCardCover>
 
-          {/* Content section */}
-          <CardContent className="p-2 sm:p-2.5">
-            <AdCardMeta ad={ad} variant="default" />
-          </CardContent>
+      {/* Content section */}
+      <CardContent className="p-2 sm:p-2.5">
+        <AdCardMeta ad={ad} variant="default" />
+      </CardContent>
     </AdCardShell>
   );
 }, areAdCardGridPropsEqual);

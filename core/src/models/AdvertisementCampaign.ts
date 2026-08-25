@@ -15,6 +15,24 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
             type: String,
             required: true,
             enum: [
+                'homepage_hero_top',
+                'homepage_feed_inline',
+                'search_results_header',
+                'search_results_inline',
+                'category_page_header',
+                'category_page_inline',
+                'listing_details_sidebar',
+                'listing_details_incontent',
+                'services_page_header',
+                'spare_parts_header',
+                'business_profile_sidebar',
+                'user_dashboard_top',
+                'user_my_listings_inline',
+                'business_dashboard_top',
+                'static_pages_footer',
+                'footer_leaderboard',
+                'mobile_sticky_bottom',
+                // Legacy aliases
                 'listing_detail_sidebar_bottom',
                 'listing_detail_below_description',
                 'home_below_hero',
@@ -38,6 +56,11 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
             default: 'active',
             index: true,
         },
+        fallbackStrategy: {
+            type: String,
+            enum: ['collapse', 'house_ad', 'internal_promo'],
+            default: 'collapse',
+        },
         startAt: { type: Date, default: null },
         endAt: { type: Date, default: null },
         targeting: {
@@ -48,6 +71,10 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
                 type: String,
                 enum: ['all', 'desktop', 'mobile', 'tablet'],
                 default: 'all',
+            },
+            viewports: {
+                type: [String],
+                default: ['desktop', 'tablet', 'mobile'],
             },
             userType: {
                 type: String,
@@ -77,7 +104,7 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
             googlePublisherId: { type: String, trim: true },
             googleFormat: {
                 type: String,
-                enum: ['auto', 'rectangle', 'horizontal'],
+                enum: ['auto', 'rectangle', 'horizontal', 'vertical', 'fluid'],
                 default: 'auto',
             },
             bannerImageUrl: { type: String, trim: true },
