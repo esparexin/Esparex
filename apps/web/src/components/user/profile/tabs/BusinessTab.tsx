@@ -21,7 +21,6 @@ import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation"
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 import { BusinessRegistrationPromo } from "./BusinessRegistrationPromo";
-import { BusinessStatsGrid } from "./BusinessStatsGrid";
 
 interface BusinessTabProps {
     businessData: Business | null;
@@ -37,7 +36,7 @@ interface BusinessTabProps {
 
 export function BusinessTab({
     businessData,
-    businessStats,
+    businessStats: _businessStats,
     isLoading,
     isFetched,
     navigateTo,
@@ -169,9 +168,6 @@ export function BusinessTab({
                         )}
                     </CardContent>
                 </Card>
-
-                {/* Compact Half-Height Stat Cards Sub-Module */}
-                <BusinessStatsGrid businessStats={businessStats} />
 
                 {/* Streamlined Business Services Section */}
                 <PageSection
