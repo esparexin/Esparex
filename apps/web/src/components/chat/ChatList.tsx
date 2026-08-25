@@ -325,7 +325,7 @@ export function ChatList({
           )}
         </div>
       ) : (
-        <div className="chat-list">
+        <div className="chat-list max-h-[460px] overflow-y-auto">
           {filteredConversations.map((conv) => (
             <ConversationCard
               key={conv.id}
