@@ -46,6 +46,11 @@ export function DashboardCard({
                         {description && (
                             <span className="text-tiny text-foreground-subtle font-medium italic truncate">{description}</span>
                         )}
+                        {trend && (
+                            <span className={`text-tiny font-semibold ${trend.isUp ? "text-emerald-600" : "text-rose-600"}`}>
+                                {trend.isUp ? "↑" : "↓"} {trend.value}%
+                            </span>
+                        )}
                     </div>
                 </div>
                 <div className={`p-1.5 rounded-lg shrink-0 ${iconStyle}`}>

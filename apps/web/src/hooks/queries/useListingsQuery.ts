@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
+import { useAuthStatus } from '@/context/AuthContext';
 import { 
     getListingById, 
     getMyListings, 
@@ -92,10 +93,11 @@ export const useHomeAdsQuery = (
  * Hook to fetch listings saved (bookmarked) by current user
  */
 export const useSavedAdsQuery = (options?: { enabled?: boolean }) => {
+    const { status } = useAuthStatus();
     return useQuery<SavedAd[]>({
         queryKey: queryKeys.ads.saved(),
         queryFn: () => getSavedAds(),
         staleTime: 5 * 60 * 1000,
-        enabled: options?.enabled ?? true,
+        enabled: (options?.enabled ?? true) && status === "authenticated",
     });
 };

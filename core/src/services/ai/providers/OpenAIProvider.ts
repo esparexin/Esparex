@@ -111,7 +111,7 @@ export class OpenAIProvider implements AIProvider {
                 latency: res.latency,
                 cached: res.cached,
             };
-        } catch (err) {
+        } catch {
             throw new OpenAIProviderError('Failed to parse OpenAI JSON output', 'Validation');
         }
     }

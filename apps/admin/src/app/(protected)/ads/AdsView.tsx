@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
-import { AlertCircle, RefreshCcw, EyeOff, ChevronDown, Loader2 } from "@esparex/ui";
+import { useEffect, useMemo, useState } from "react";
+import { AlertCircle, RefreshCcw, Loader2 } from "@esparex/ui";
 import { AdsTable } from "@/components/moderation/AdsTable";
 import { RejectAdModal } from "@/components/moderation/RejectAdModal";
 import { ViewAdModal } from "@/components/moderation/ViewAdModal";

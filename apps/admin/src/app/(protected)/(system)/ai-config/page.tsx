@@ -125,6 +125,20 @@ export default function AIConfigPage() {
         }
     };
 
+    if (loading) {
+        return (
+            <AdminPageShell
+                title="AI Capability & Multi-Provider Settings"
+                description="Manage AI providers, capability routing rules, API key encryption, and run live latency benchmarks."
+                showGlobalSearch={false}
+            >
+                <div className="flex items-center justify-center p-12">
+                    <span className="text-muted-foreground font-medium">Loading AI configuration...</span>
+                </div>
+            </AdminPageShell>
+        );
+    }
+
     return (
         <AdminPageShell
             title="AI Capability & Multi-Provider Settings"

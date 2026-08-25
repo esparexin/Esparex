@@ -112,7 +112,7 @@ export class ClaudeProvider implements AIProvider {
                 latency: res.latency,
                 cached: res.cached,
             };
-        } catch (err) {
+        } catch {
             throw new ClaudeProviderError('Failed to parse Claude JSON output', 'Validation');
         }
     }
