@@ -22,25 +22,25 @@ export function BrowseBreadcrumb({
   return (
     <div className={cn("space-y-1 py-1 md:py-2", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-xs md:text-sm text-slate-500 font-normal overflow-x-auto no-scrollbar">
+      <nav aria-label="Breadcrumb" className="flex items-center text-caption md:text-small text-muted-foreground font-normal overflow-x-auto no-scrollbar">
         <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
           <li>
             <Link
               href="/"
-              className="hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-sm"
+              className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm"
             >
               Home
             </Link>
           </li>
-          <li aria-hidden="true" className="text-slate-300">
+          <li aria-hidden="true" className="text-muted-foreground/40">
             <ChevronRight className="size-3" />
           </li>
           <li>
             <Link
               href="/browse"
               className={cn(
-                "hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-sm",
-                !categoryName && "text-slate-800 font-normal"
+                "hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm",
+                !categoryName && "text-foreground font-medium"
               )}
               aria-current={!categoryName ? "page" : undefined}
             >
@@ -49,10 +49,10 @@ export function BrowseBreadcrumb({
           </li>
           {categoryName && (
             <>
-              <li aria-hidden="true" className="text-slate-300">
+              <li aria-hidden="true" className="text-muted-foreground/40">
                 <ChevronRight className="size-3" />
               </li>
-              <li className="text-slate-700 font-normal truncate max-w-[160px] md:max-w-[300px]" aria-current="page">
+              <li className="text-foreground/90 font-normal truncate max-w-[160px] md:max-w-[300px]" aria-current="page">
                 {categoryName}
               </li>
             </>
@@ -61,13 +61,13 @@ export function BrowseBreadcrumb({
       </nav>
 
       {/* Main Page Title + Location Context Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-slate-100/80 pb-2 pt-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-border/60 pb-2 pt-0.5">
         <div>
-          <h1 className="text-base sm:text-xl font-normal sm:font-semibold text-slate-800 tracking-normal leading-relaxed">
+          <h1 className="text-body-lg sm:text-h4 font-medium sm:font-semibold text-foreground tracking-tight leading-relaxed">
             {displayTitle}
             {locationLabel && locationLabel !== "Location unavailable" && (
-              <span className="text-slate-500 font-normal text-xs md:text-sm ml-1.5">
-                in <span className="font-normal text-slate-700">{locationLabel}</span>
+              <span className="text-muted-foreground font-normal text-caption md:text-small ml-1.5">
+                in <span className="font-medium text-foreground">{locationLabel}</span>
               </span>
             )}
           </h1>
