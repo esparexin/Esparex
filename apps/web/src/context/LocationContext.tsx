@@ -24,6 +24,7 @@ import { useUnifiedLocationDetection } from "@/hooks/useUnifiedLocationDetection
 import { useLocationActionHandlers } from "./hooks/useLocationActionHandlers";
 import { useLocationInit } from "./hooks/useLocationInit";
 import { useMultiTabLocationSync } from "./hooks/useMultiTabLocationSync";
+import { popupBus } from "@/lib/popup/popupBus";
 
 /* -------------------------------------------------------------------------- */
 /* TYPES */
@@ -119,14 +120,7 @@ export function LocationProvider({
         if (dismissed && typeof window !== "undefined") {
             const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
             localStorage.setItem(LOCATION_PROMPT_DISMISSED_KEY + "_expiry", expiry.toString());
-            
-            logAnalytics?.({
-                source: 'default',
-                city: 'Unknown',
-                state: 'Unknown',
-                reason: 'prompt_dismissed',
-                eventType: 'location_prompt_dismissed'
-            });
+            logAnalytics?.({ source: 'default', city: 'Unknown', state: 'Unknown', reason: 'prompt_dismissed', eventType: 'location_prompt_dismissed' });
         }
     }, [setPromptDismissedFlag, logAnalytics]);
 
@@ -149,14 +143,7 @@ export function LocationProvider({
         autoDetectedRef.current = true;
         setPermissionBlockedFlag(false);
         applyResolvedLocation(loc, persist);
-        
-        logAnalytics?.({
-            source: 'auto',
-            city: loc.city || 'Unknown',
-            state: loc.state || 'Unknown',
-            reason: 'permission_granted',
-            eventType: 'location_permission_granted'
-        });
+        logAnalytics?.({ source: 'auto', city: loc.city || 'Unknown', state: loc.state || 'Unknown', reason: 'permission_granted', eventType: 'location_permission_granted' });
     }, [applyResolvedLocation, setPermissionBlockedFlag, logAnalytics]);
 
     const handleError = useCallback((msg: string) => {
@@ -166,16 +153,11 @@ export function LocationProvider({
 
     const handlePermissionBlocked = useCallback(() => {
         setStatus("denied");
-        setDetectError("Location access is disabled for this site. Enable it in your browser's site settings.");
+        const blockedMessage = "Looks like your geolocation permissions are blocked. Please, provide geolocation access in your browser settings.";
+        setDetectError(blockedMessage);
         setPermissionBlockedFlag(true);
-        
-        logAnalytics?.({
-            source: 'default',
-            city: 'Unknown',
-            state: 'Unknown',
-            reason: 'permission_denied',
-            eventType: 'location_permission_denied'
-        });
+        popupBus.show({ type: "warning", title: "Geolocation is blocked", message: blockedMessage });
+        logAnalytics?.({ source: 'default', city: 'Unknown', state: 'Unknown', reason: 'permission_denied', eventType: 'location_permission_denied' });
     }, [setPermissionBlockedFlag, logAnalytics]);
 
     const { detect: unifiedDetect, isDetecting, feedback: detectFeedback } = useUnifiedLocationDetection({
