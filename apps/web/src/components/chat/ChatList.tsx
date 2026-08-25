@@ -183,7 +183,7 @@ export function ChatList({
   };
 
   return (
-    <div className="chat-list-shell">
+    <div className="chat-list-shell h-full min-h-0 max-h-[480px] flex flex-col overflow-hidden">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
         <svg
@@ -321,7 +321,7 @@ export function ChatList({
           )}
         </div>
       ) : (
-        <div className="chat-list">
+        <div className="chat-list flex-1 min-h-0 overflow-y-auto">
           {filteredConversations.map((conv) => (
             <ConversationCard
               key={conv.id}

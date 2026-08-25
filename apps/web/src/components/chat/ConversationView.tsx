@@ -136,7 +136,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   };
 
   return (
-    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''} h-full min-h-0 flex flex-col overflow-hidden bg-white`}>
+    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''} h-full min-h-0 max-h-[480px] flex flex-col overflow-hidden bg-white`}>
       <ConversationHeader
         embedded={embedded}
         inboxView={inboxView}
@@ -164,7 +164,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
       )}
 
       {/* ── Message List ────────────────────────────────────────── */}
-      <div className="conv-messages" ref={messagesContainerRef} role="log" aria-live="polite">
+      <div className="conv-messages flex-1 min-h-0 overflow-y-auto" ref={messagesContainerRef} role="log" aria-live="polite">
         {hasMore && (
           <div className="conv-messages__load-more">
             <button
