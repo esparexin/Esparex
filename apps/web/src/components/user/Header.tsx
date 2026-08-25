@@ -5,10 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Menu,
-  MapPin,
   Search,
   LogIn,
-  ChevronDown,
   TrendingUp,
 } from "@/icons/IconRegistry";
 
@@ -37,11 +35,11 @@ import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
-import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { HeaderAccountMenu } from "./header/HeaderAccountMenu";
 import { HeaderBusinessButton } from "./header/HeaderBusinessButton";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
+import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
 
 export interface HeaderProps {
   currentPage?: string;
@@ -246,19 +244,12 @@ export function Header({
       </div>
 
       <div className="flex md:hidden flex-col">
-        <div className="flex items-center px-3.5 h-10 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary">
-          <button type="button" onClick={() => setShowLocationSelector(true)} className="flex items-center justify-between w-full h-full text-left hover:text-primary transition-colors cursor-pointer group" aria-label={`Current location: ${resolvedHeaderLocation || DEFAULT_APP_LOCATION.display}. Tap to change location.`}>
-            <div className="flex items-center min-w-0 flex-1 gap-1.5">
-              <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />
-              <span className="truncate text-caption font-medium text-foreground">
-                <span className={`transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
-                  {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
-                </span>
-              </span>
-            </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-1" />
-          </button>
-        </div>
+        <MobileHeaderTopBar
+          isMounted={isMounted}
+          resolvedHeaderLocation={resolvedHeaderLocation}
+          onNavigateHome={() => navigateTo("home")}
+          onOpenLocationSelector={() => setShowLocationSelector(true)}
+        />
         <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
           <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer" onClick={() => setIsMobileDrawerOpen(true)}>
             <Menu className="h-5 w-5" />
