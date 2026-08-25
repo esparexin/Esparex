@@ -118,7 +118,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             aria-labelledby="home-feed-heading"
             className="pt-2 pb-8 md:pt-3 md:pb-12"
         >
-            <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-2.5 md:mb-3.5">
                     <h2
                         id="home-feed-heading"

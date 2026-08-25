@@ -41,31 +41,30 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
     };
 
     return (
-        <div className="bg-slate-50 pb-4">
-            <Container variant="lg" className="py-6 md:py-8 space-y-5">
+        <div className="bg-background pb-4">
+            <Container variant="lg" className="py-4 md:py-6 space-y-5">
                 <BackButton
                     label="Back"
-                    className="text-muted-foreground hover:text-foreground border border-transparent hover:border-slate-200 text-sm"
+                    className="text-muted-foreground hover:text-foreground border border-transparent hover:border-border text-caption"
                 />
 
                 {/* Hero Profile Card */}
-                <Card className="border-none shadow-sm md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-2xl md:rounded-[2rem]">
+                <Card className="border border-border shadow-xs overflow-hidden rounded-2xl bg-card">
                     <div className="h-28 md:h-36 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900" />
 
                     <CardContent className="pt-0 px-4 md:px-6 pb-6">
-                        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-[-44px] relative">
+                        <div className="flex flex-col sm:flex-row gap-4 md:gap-6 -mt-10 sm:-mt-12 relative">
                             {/* Avatar */}
-                            <div className="flex-shrink-0">
-                                <div className="bg-white p-1.5 rounded-2xl shadow-md w-fit mx-auto md:mx-0">
+                            <div className="shrink-0">
+                                <div className="bg-card p-1.5 rounded-2xl shadow-xs border border-border w-fit mx-auto sm:mx-0">
                                     {profile.user.profilePhoto ? (
-                                         
                                         <img
                                             src={profile.user.profilePhoto}
                                             alt={sellerName}
                                             className="h-20 w-20 md:h-24 md:w-24 rounded-xl object-cover"
                                         />
                                     ) : (
-                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl bg-slate-100 text-foreground-secondary flex items-center justify-center text-2xl md:text-3xl font-bold">
+                                        <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl bg-muted text-foreground-secondary flex items-center justify-center text-2xl md:text-3xl font-bold">
                                             {initials}
                                         </div>
                                     )}
@@ -73,37 +72,37 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             </div>
 
                             {/* Info */}
-                            <div className="flex-1 pt-2 md:pt-14 space-y-4 text-center md:text-left">
+                            <div className="flex-1 pt-2 sm:pt-4 space-y-4 text-center sm:text-left">
                                 <div>
-                                    <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{sellerName}</h1>
+                                    <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                        <h1 className="text-h2 font-bold text-foreground tracking-tight">{sellerName}</h1>
                                         {profile.user.isVerified && (
-                                            <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none px-2 rounded-lg text-xs">
+                                            <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none px-2 rounded-lg text-tiny">
                                                 Verified
                                             </Badge>
                                         )}
                                     </div>
-                                    <p className="text-xs md:text-sm font-medium text-foreground-subtle">
+                                    <p className="text-caption text-foreground-subtle font-medium">
                                         Active since {joinDate} {locationLabel && <span className="mx-1 opacity-50">·</span>} {locationLabel}
                                     </p>
                                 </div>
 
                                 {/* Stats Grid */}
-                                <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-100 rounded-2xl p-3 text-left mx-auto md:mx-0 w-full max-w-sm md:max-w-xl">
+                                <div className="grid grid-cols-2 gap-2 bg-muted/40 border border-border rounded-2xl p-3 text-left mx-auto sm:mx-0 w-full max-w-sm sm:max-w-xl">
                                     <div className="space-y-0.5">
                                         <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <Megaphone className="w-3 h-3" /> Live Listings
                                         </p>
-                                        <p className="text-xl font-bold text-foreground">{listingSummary.totalActive}</p>
+                                        <p className="text-h3 font-bold text-foreground">{listingSummary.totalActive}</p>
                                     </div>
-                                    <div className="space-y-0.5 border-l border-slate-200 pl-3">
+                                    <div className="space-y-0.5 border-l border-border pl-3">
                                         <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1">
                                             <LayoutGrid className="w-3 h-3" /> Showing Here
                                         </p>
-                                        <p className="text-xl font-bold text-foreground">{listingSummary.visibleCount}</p>
+                                        <p className="text-h3 font-bold text-foreground">{listingSummary.visibleCount}</p>
                                     </div>
                                 </div>
-                                <p className="text-xs text-foreground-subtle">
+                                <p className="text-caption text-foreground-subtle">
                                     {listingSummary.hasMore
                                         ? `Showing the latest ${listingSummary.visibleCount} public listings from this seller.`
                                         : "All active listings from this seller are shown below."}
@@ -115,18 +114,18 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
                 {/* Listings Section */}
                 <section id="seller-active-listings" className="space-y-3 pt-2 scroll-mt-24">
-                    <div className="flex items-center gap-2 border-b border-slate-200 pb-2.5">
-                        <h2 className="text-base font-bold text-foreground">Active Listings</h2>
-                        <Badge variant="secondary" className="bg-slate-100 text-muted-foreground font-bold px-2 rounded-full text-xs">
+                    <div className="flex items-center gap-2 border-b border-border pb-2.5">
+                        <h2 className="text-body-lg font-bold text-foreground">Active Listings</h2>
+                        <Badge variant="secondary" className="bg-muted text-foreground-secondary font-bold px-2 rounded-full text-tiny">
                             {profile.ads.length}
                         </Badge>
                     </div>
 
                     {profile.ads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 py-14 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-white">
+                        <div className="flex flex-col items-center justify-center gap-3 py-14 text-center border-2 border-dashed border-border rounded-2xl bg-card">
                             <LayoutGrid className="h-8 w-8 text-foreground-subtle" />
-                            <p className="font-semibold text-foreground-subtle text-sm">No active listings</p>
-                            <p className="text-xs text-foreground-subtle max-w-xs">
+                            <p className="font-semibold text-foreground-subtle text-body">No active listings</p>
+                            <p className="text-caption text-foreground-subtle max-w-xs">
                                 {sellerName} does not have any active listings right now.
                             </p>
                         </div>

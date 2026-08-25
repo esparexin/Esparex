@@ -1,9 +1,8 @@
-import { PlusCircle, LayoutGrid } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserListingsTemplateProps<TStatus extends string, TItem> {
-    title: string;
+    title?: string;
     icon?: React.ReactNode;
     // Sub-tabs (Ads, Services, etc)
     subTabs?: {
@@ -39,9 +38,9 @@ interface UserListingsTemplateProps<TStatus extends string, TItem> {
 }
 
 export function UserListingsTemplate<TStatus extends string, TItem>({
-    title, icon, subTabs, activeSubTab, onSubTabChange,
+    title: _title, icon: _icon, subTabs, activeSubTab, onSubTabChange,
     statusTabs, selectedStatus, onStatusChange, getStatusCount,
-    onPost, postLabel,
+    onPost: _onPost, postLabel: _postLabel,
     items, loading, error, errorMessage = "Failed to load listings.", onRetry,
     getItemKey, renderItem, emptyState
 }: UserListingsTemplateProps<TStatus, TItem>) {
@@ -53,40 +52,12 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
         teal: "border-teal-600 text-teal-700",
     }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-primary text-primary";
 
-    const postBtnClass = {
-        blue: "bg-primary hover:bg-primary/90 text-primary-foreground",
-        violet: "bg-violet-600 hover:bg-violet-700 text-white",
-        teal: "bg-teal-600 hover:bg-teal-700 text-white",
-    }[activeSubTabColor as "blue" | "violet" | "teal"] || "bg-primary hover:bg-primary/90 text-primary-foreground";
-
     const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
 
     return (
         <div className="w-full">
-            {/* ── Header (sticky on mobile, static on desktop) ── */}
-            <div className={[
-                "px-3 md:px-6 pb-2 md:pt-3 md:pb-2.5",
-                "sticky top-14 z-10 bg-background/95 backdrop-blur-xs border-b border-border",
-                "md:static md:bg-transparent md:backdrop-blur-none md:border-b-0",
-            ].join(" ")}>
-                {/* Title row */}
-                <div className="hidden md:flex items-center justify-between mb-2.5">
-                    <h1 className="flex items-center gap-2 text-body-lg md:text-h4 font-bold text-foreground tracking-tight">
-                        {icon || <LayoutGrid className="h-5 w-5 text-primary" />}
-                        {title}
-                    </h1>
-                    {onPost && (
-                        <Button
-                            onClick={onPost}
-                            size="sm"
-                            className={`${postBtnClass} text-caption h-9 px-3 font-semibold rounded-lg shadow-xs cursor-pointer`}
-                        >
-                            <PlusCircle className="h-3.5 w-3.5 mr-1" />
-                            {postLabel || "Post Ad"}
-                        </Button>
-                    )}
-                </div>
-
+            {/* ── Header (Sub-tabs and status filters) ── */}
+            <div className="pb-2 md:pt-1 md:pb-2.5">
                 {/* Sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
                     <div className="flex gap-0 border-b border-border overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
@@ -136,7 +107,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                 </div>
             </div>
 
-            <div className="px-3 md:px-6 pb-3">
+            <div className="pb-3">
                 {/* Content */}
                 {loading ? (
                     <LoadingSkeleton />

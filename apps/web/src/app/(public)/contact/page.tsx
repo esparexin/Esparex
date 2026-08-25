@@ -17,45 +17,45 @@ export const metadata: Metadata = {
 export default function ContactPage() {
     return (
         <InfoPage title="Contact Us">
-            <p className="lead">
+            <p className="text-body text-foreground-secondary leading-relaxed mb-4">
                 We&apos;re here to help! Whether you have questions about a product, need support with an order,
                 or want to partner with us, reach out.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 my-6 not-prose">
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50 border border-blue-100">
-                    <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-5 w-5 text-link" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4 not-prose">
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Mail className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-blue-400 uppercase tracking-wide">Email Support</p>
-                        <p className="text-sm font-semibold text-blue-800 mt-0.5">support@esparex.com</p>
+                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Email Support</p>
+                        <p className="text-caption font-semibold text-foreground mt-0.5">support@esparex.com</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-100">
-                    <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <Phone className="h-5 w-5 text-green-600" />
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                        <Phone className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-green-400 uppercase tracking-wide">Phone</p>
-                        <p className="text-sm font-semibold text-green-800 mt-0.5">+91 98765 43210</p>
+                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Phone</p>
+                        <p className="text-caption font-semibold text-foreground mt-0.5">+91 98765 43210</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-violet-50 border border-violet-100">
-                    <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
                         <MapPin className="h-5 w-5 text-violet-600" />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-violet-400 uppercase tracking-wide">Office</p>
-                        <p className="text-sm font-semibold text-violet-800 mt-0.5">Hyderabad, Telangana</p>
+                        <p className="text-2xs font-bold text-foreground-subtle uppercase tracking-wider">Office</p>
+                        <p className="text-caption font-semibold text-foreground mt-0.5">Hyderabad, Telangana</p>
                     </div>
                 </div>
             </div>
 
-            <h2>Business Inquiries</h2>
-            <p>
+            <h2 className="text-h3 font-bold text-foreground mt-6 mb-2">Business Inquiries</h2>
+            <p className="text-body text-foreground-secondary leading-relaxed">
                 For partnership opportunities or bulk sales, please contact our business team at
-                <a href="mailto:business@esparex.com"> business@esparex.com</a>.
+                <a href="mailto:business@esparex.com" className="text-primary hover:underline ml-1">business@esparex.com</a>.
             </p>
         </InfoPage>
     );

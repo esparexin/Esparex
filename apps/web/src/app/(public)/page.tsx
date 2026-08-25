@@ -7,6 +7,8 @@ import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { Container } from "@esparex/ui";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
@@ -66,7 +68,6 @@ export const metadata: Metadata = {
 };
 
 import { HomeLocationAutoPrompt } from "@/components/home/HomeLocationAutoPrompt";
-import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 export default async function Home() {
     const [categories, initialHomeAds] = await Promise.all([
@@ -106,15 +107,15 @@ export default async function Home() {
             <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />
 
-                <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
+                <Container variant="lg">
                     <AdPlacementSlot placement="homepage_hero_top" />
-                </div>
+                </Container>
 
                 <HomeFeed initialData={initialHomeAds} />
 
-                <div className="max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8">
+                <Container variant="lg">
                     <AdPlacementSlot placement="homepage_feed_inline" />
-                </div>
+                </Container>
 
                 <HomeBannerAd />
             </section>

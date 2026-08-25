@@ -95,6 +95,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Location + Date Metadata Row */}
       <div
         className={cn(
+          "flex items-center justify-between text-tiny text-foreground-tertiary gap-1.5 min-w-0 pt-0.5 mt-0.5",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
@@ -134,7 +135,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
             {/* Posted Date */}
             {!isList && (
-              <span className="shrink-0 text-tiny text-foreground-tertiary font-normal">
+              <span className="shrink-0 text-tiny text-foreground-tertiary font-normal whitespace-nowrap">
                 {"createdAt" in ad && ad.createdAt
                   ? formatShortRelativeTime(ad.createdAt as string)
                   : "Just now"}

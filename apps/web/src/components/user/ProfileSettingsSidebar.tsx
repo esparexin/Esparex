@@ -288,7 +288,7 @@ export function ProfileSettingsSidebar({
   };
 
   return (
-    <div className={`bg-gray-50 ${isViewingActiveChat ? "pb-0 overflow-hidden h-[calc(100dvh-6.25rem)]" : "pb-[calc(4rem+env(safe-area-inset-bottom))]"} md:pb-0 md:h-auto md:overflow-visible`}>
+    <div className={`bg-background ${isViewingActiveChat ? "pb-0 overflow-hidden h-[calc(100dvh-6.25rem)]" : "pb-[calc(4rem+env(safe-area-inset-bottom))]"} md:pb-0 md:h-auto md:overflow-visible`}>
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       {!isViewingActiveChat && (
         <AccountHeader
@@ -312,7 +312,7 @@ export function ProfileSettingsSidebar({
         />
       )}
 
-      <div className={`w-full max-w-6xl mx-auto ${isViewingActiveChat || activeTab === "more" ? "p-0" : "px-3.5 sm:px-6 pt-1"} ${isViewingActiveChat ? "h-full flex flex-col" : ""} md:px-6 md:py-6 md:h-auto`}>
+      <div className={`w-full max-w-7xl mx-auto ${isViewingActiveChat || activeTab === "more" ? "p-0" : "px-4 sm:px-6 lg:px-8 pt-1"} ${isViewingActiveChat ? "h-full flex flex-col" : ""} md:py-6 md:h-auto`}>
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6 flex-1 min-h-0">
           {/* LEFT SIDEBAR (Desktop Only) */}

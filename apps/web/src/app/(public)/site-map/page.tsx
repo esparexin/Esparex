@@ -17,30 +17,30 @@ export const metadata: Metadata = {
 export default function SiteMapPage() {
     return (
         <InfoPage title="Sitemap">
-            <div className="grid md:grid-cols-2 gap-8 not-prose">
-                <div>
-                    <h3 className="font-bold mb-4 text-lg">Main</h3>
-                    <ul className="space-y-2">
-                        <li><Link href="/" className="text-link hover:underline">Home</Link></li>
-                        <li><Link href="/search" className="text-link hover:underline">Browse Ads</Link></li>
-                        <li><Link href="/search" className="text-link hover:underline">All Categories</Link></li>
+            <div className="grid sm:grid-cols-3 gap-6 not-prose">
+                <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <h2 className="font-bold mb-3 text-body-lg text-foreground">Main</h2>
+                    <ul className="space-y-2 text-caption">
+                        <li><Link href="/" className="text-foreground-secondary hover:text-primary transition-colors">Home</Link></li>
+                        <li><Link href="/search" className="text-foreground-secondary hover:text-primary transition-colors">Browse Ads</Link></li>
+                        <li><Link href="/search" className="text-foreground-secondary hover:text-primary transition-colors">All Categories</Link></li>
                     </ul>
                 </div>
 
-                <div>
-                    <h3 className="font-bold mb-4 text-lg">Support</h3>
-                    <ul className="space-y-2">
-                        <li><Link href="/faq" className="text-link hover:underline">Help Center</Link></li>
-                        <li><Link href="/contact" className="text-link hover:underline">Contact Us</Link></li>
-                        <li><Link href="/safety-tips" className="text-link hover:underline">Safety Tips</Link></li>
+                <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <h2 className="font-bold mb-3 text-body-lg text-foreground">Support</h2>
+                    <ul className="space-y-2 text-caption">
+                        <li><Link href="/faq" className="text-foreground-secondary hover:text-primary transition-colors">Help Center</Link></li>
+                        <li><Link href="/contact" className="text-foreground-secondary hover:text-primary transition-colors">Contact Us</Link></li>
+                        <li><Link href="/safety-tips" className="text-foreground-secondary hover:text-primary transition-colors">Safety Tips</Link></li>
                     </ul>
                 </div>
 
-                <div>
-                    <h3 className="font-bold mb-4 text-lg">Legal</h3>
-                    <ul className="space-y-2">
-                        <li><Link href="/terms" className="text-link hover:underline">Terms of Service</Link></li>
-                        <li><Link href="/privacy" className="text-link hover:underline">Privacy Policy</Link></li>
+                <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <h2 className="font-bold mb-3 text-body-lg text-foreground">Legal</h2>
+                    <ul className="space-y-2 text-caption">
+                        <li><Link href="/terms" className="text-foreground-secondary hover:text-primary transition-colors">Terms of Service</Link></li>
+                        <li><Link href="/privacy" className="text-foreground-secondary hover:text-primary transition-colors">Privacy Policy</Link></li>
                     </ul>
                 </div>
             </div>

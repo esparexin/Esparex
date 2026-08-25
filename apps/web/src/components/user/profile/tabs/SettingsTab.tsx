@@ -3,9 +3,8 @@
 import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
+import { AlertTriangle, BellRing, Mail, Megaphone, Save, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
 
-import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@esparex/ui";
 import { PageSection } from "@/components/layout";
 import { FormError } from "@/components/ui/FormError";
@@ -125,25 +124,18 @@ export function SettingsTab({
     };
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
             <PageSection
                 variant="bordered"
                 className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs p-0 sm:p-5"
-                title={
-                    <span className="hidden md:flex items-center gap-2 text-h4 font-semibold text-foreground">
-                        <SettingsIcon className="h-5 w-5 text-primary" />
-                        Notification Settings
-                    </span>
-                }
-                subtitle={<span className="hidden md:block">{ACCOUNT_COPY.notificationsDescription}</span>}
             >
-                <div className="space-y-4 pt-1">
-                    <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-3.5 py-2.5 text-caption text-link-dark leading-relaxed">
+                <div className="space-y-4">
+                    <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2.5 text-caption text-foreground-secondary leading-relaxed">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-6 pt-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
                         <Controller
                             name="adUpdates"
                             control={form.control}

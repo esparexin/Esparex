@@ -64,35 +64,35 @@ export default function FaqPage() {
                 }}
             />
             
-            <p className="mb-8 text-muted-foreground text-lg">
+            <p className="mb-5 text-foreground-secondary text-body leading-relaxed">
                 Find answers to common questions about navigating India&apos;s top electronics marketplace.
             </p>
 
             <div className="not-prose max-w-3xl">
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="item-1">
-                        <AccordionTrigger className="text-left text-base font-semibold">How do I post an ad?</AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground leading-relaxed">
+                        <AccordionTrigger className="text-left text-body font-semibold">How do I post an ad?</AccordionTrigger>
+                        <AccordionContent className="text-foreground-secondary leading-relaxed">
                             To post an ad, click on the <span className="font-semibold text-foreground">Post Ad</span> button in the top navigation bar. You&apos;ll need to log in or create an account via OTP first. Then, simply follow the step-by-step wizard to upload photos, select the category, and set your price.
                         </AccordionContent>
                     </AccordionItem>
                     
                     {faqData.map((faq, index) => (
                         <AccordionItem value={`faq-${index}`} key={index}>
-                            <AccordionTrigger className="text-left text-base font-semibold">
+                            <AccordionTrigger className="text-left text-body font-semibold">
                                 {faq.question}
                             </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground leading-relaxed">
+                            <AccordionContent className="text-foreground-secondary leading-relaxed">
                                 {faq.answer}
                             </AccordionContent>
                         </AccordionItem>
                     ))}
                 </Accordion>
                 
-                <div className="mt-12 p-6 bg-slate-50 border border-slate-100 rounded-2xl text-center">
-                    <h3 className="text-lg font-bold text-foreground mb-2">Still need help?</h3>
-                    <p className="text-sm text-muted-foreground mb-4">Our support team is always here to assist you with any platform issues.</p>
-                    <Link href="/contact" className="inline-flex items-center justify-center h-10 px-6 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors">
+                <div className="mt-8 p-5 bg-card border border-border rounded-2xl text-center shadow-xs">
+                    <h3 className="text-body-lg font-bold text-foreground mb-1.5">Still need help?</h3>
+                    <p className="text-caption text-foreground-secondary mb-3">Our support team is always here to assist you with any platform issues.</p>
+                    <Link href="/contact" className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-primary text-primary-foreground font-semibold text-caption hover:bg-primary/90 transition-colors">
                         Contact Support
                     </Link>
                 </div>

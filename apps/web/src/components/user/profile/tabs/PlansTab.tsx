@@ -66,8 +66,8 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header Navigation: 3-Tab Navigation for Wallet view, Standalone Title for Buy Plans view */}
-      {initialTab !== 'BUY_PLANS' ? (
+      {/* Header Navigation: 3-Tab Navigation for Wallet view */}
+      {initialTab !== 'BUY_PLANS' && (
         <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2">
           <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
@@ -115,15 +115,6 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               Invoices
             </button>
           </nav>
-        </div>
-      ) : (
-        <div className="hidden md:flex border-b border-border pb-3 items-center justify-between">
-          <div>
-            <h3 className="text-h4 font-bold text-foreground tracking-tight">Buy Plans & Packages</h3>
-            <p className="text-caption text-foreground-subtle mt-0.5">
-              Select an ad posting pack, spotlight promotion, or alert slot package for your account.
-            </p>
-          </div>
         </div>
       )}
 
