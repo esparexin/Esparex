@@ -116,6 +116,10 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             role="region"
             aria-label="Explore Ads"
             aria-labelledby="home-feed-heading"
+            className="pt-2 pb-8 md:pt-3 md:pb-12"
+        >
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mb-2.5 md:mb-3.5">
                     <h2
                         id="home-feed-heading"
                         className="text-body sm:text-body-lg md:text-h4 font-bold text-foreground tracking-tight"
@@ -144,6 +148,9 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                 )}
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
+                    <div className="rounded-xl border border-border bg-card p-8 text-center">
+                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-subtle" />
+                        <p className="mt-2 text-caption text-foreground-subtle">
                             No ads available right now.
                         </p>
                     </div>
