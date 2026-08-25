@@ -255,6 +255,7 @@ export function ProfileSettingsSidebar({
         <SmartAlertsTab
           smartAlerts={smartAlertItems}
           savedSearches={savedSearches}
+          userPlan={user?.plan || "Free"}
           smartAlertForm={smartAlertForm}
           updateSmartAlertForm={updateSmartAlertForm}
           handleCreateAlert={handleCreateAlert}

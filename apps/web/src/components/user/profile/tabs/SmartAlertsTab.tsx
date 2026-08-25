@@ -12,6 +12,7 @@ import type {
     SmartAlertListItem,
 } from "../types";
 import { CreateSmartAlertDialog } from "../dialogs/CreateSmartAlertDialog";
+import { SavedSearchesListSection } from "./SavedSearchesListSection";
 import type { Location } from "@/lib/api/user/locations";
 
 type SmartAlertSelection = Pick<Location, "id" | "locationId" | "name" | "display" | "city" | "coordinates">;
@@ -30,6 +31,7 @@ interface SmartAlertsTabProps {
     editingAlertId: string | null;
     resetAlertForm: () => void;
     setActiveTab: (tab: string) => void;
+    userPlan?: string;
     loading?: boolean;
     smartAlertErrors?: SmartAlertFieldErrors;
     smartAlertGlobalError?: string | null;
@@ -50,6 +52,7 @@ export function SmartAlertsTab({
     editingAlertId,
     resetAlertForm,
     setActiveTab,
+    userPlan = "Free",
     loading,
     smartAlertErrors,
     smartAlertGlobalError,
@@ -59,6 +62,9 @@ export function SmartAlertsTab({
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
     const isEditing = Boolean(editingAlertId);
+    const isPremium = userPlan.toLowerCase() !== "free";
+    const freeSlotsLimit = 5;
+    const remainingFreeSlots = Math.max(0, freeSlotsLimit - smartAlerts.length);
 
     const handleOpenCreateModal = () => {
         resetAlertForm();
@@ -81,7 +87,7 @@ export function SmartAlertsTab({
         <div className="space-y-4 w-full">
             <Card className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
                 <CardContent className="p-4 sm:p-5 space-y-4">
-                    {/* Header & Create Action with Clear Top Left Balance Badges */}
+                    {/* Header & Create Action with Explicit Alert Balance (Free vs Purchased & Active vs Saved) */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
                         <div className="flex items-start gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
@@ -94,10 +100,18 @@ export function SmartAlertsTab({
                                 <p className="text-caption text-foreground-subtle truncate mt-0.5">
                                     Get instant notifications when new listings match your criteria.
                                 </p>
+                                {/* Balance & Status Badges */}
                                 <div className="flex flex-wrap items-center gap-2 mt-2">
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
                                         {activeAlerts} Active Alert{activeAlerts === 1 ? "" : "s"}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-primary/10 text-primary border border-primary/20">
+                                        <Crown className="h-3 w-3 text-primary" />
+                                        {isPremium
+                                            ? "Purchased Plan: Unlimited Alert Slots"
+                                            : `Free Balance: ${remainingFreeSlots} Free Slots (${smartAlerts.length}/${freeSlotsLimit} Used)`
+                                        }
                                     </span>
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-muted text-foreground-secondary border border-border">
                                         <Eye className="h-3 w-3 text-foreground-subtle" />
@@ -205,36 +219,11 @@ export function SmartAlertsTab({
 
                     <Separator className="my-1" />
 
-                    {/* Saved Searches Section */}
-                    <div className="space-y-2.5">
-                        <div className="flex items-center justify-between">
-                            <h4 className="text-body font-bold text-foreground">Saved Searches</h4>
-                            <span className="text-caption font-medium text-foreground-subtle">{savedSearches.length} saved</span>
-                        </div>
-                        {savedSearches.length === 0 ? (
-                            <p className="text-caption text-foreground-subtle">No saved searches yet.</p>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {savedSearches.map((search) => (
-                                    <div key={search.id} className="border border-border rounded-xl p-2.5 flex items-center justify-between gap-2 bg-muted/30">
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-caption font-bold text-foreground truncate">
-                                                {search.query?.trim() || "Saved search"}
-                                            </p>
-                                            <p className="text-tiny text-foreground-subtle truncate mt-0.5">
-                                                {typeof search.priceMin === "number" || typeof search.priceMax === "number"
-                                                    ? `Price: ${typeof search.priceMin === "number" ? `₹${search.priceMin}` : "Any"} - ${typeof search.priceMax === "number" ? `₹${search.priceMax}` : "Any"}`
-                                                    : "Price: Any"}
-                                            </p>
-                                        </div>
-                                        <Button variant="ghost" size="sm" className="h-7 px-2 text-destructive hover:bg-destructive/10 rounded-lg text-caption" onClick={() => handleDeleteSavedSearch(search.id)}>
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    {/* Saved Searches Sub-Module */}
+                    <SavedSearchesListSection
+                        savedSearches={savedSearches}
+                        handleDeleteSavedSearch={handleDeleteSavedSearch}
+                    />
                 </CardContent>
             </Card>
 
