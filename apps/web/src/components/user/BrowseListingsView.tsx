@@ -34,6 +34,9 @@ export interface BrowseBuildFiltersArgs {
   urlLocationId?: string;
   urlLocationLabel?: string;
   radiusKm?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  deviceCondition?: string;
 }
 
 interface BrowseListingsViewProps<TItem, TFilters>

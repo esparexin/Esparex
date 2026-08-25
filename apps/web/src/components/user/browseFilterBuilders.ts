@@ -8,6 +8,9 @@ interface BaseBrowseFilterShape {
   limit?: number;
   search?: string;
   categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  deviceCondition?: string;
 }
 
 interface ProximityFilterShape {
@@ -29,6 +32,9 @@ interface BuildBaseBrowseFilterArgs {
   query: string;
   selectedCategory: string;
   categories?: Category[];
+  minPrice?: number;
+  maxPrice?: number;
+  deviceCondition?: string;
 }
 
 export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
@@ -37,6 +43,9 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
   query,
   selectedCategory,
   categories = [],
+  minPrice,
+  maxPrice,
+  deviceCondition,
 }: BuildBaseBrowseFilterArgs): TFilter {
   const filters = {
     page,
@@ -52,6 +61,15 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
     if (categoryId) {
       filters.categoryId = categoryId;
     }
+  }
+  if (typeof minPrice === "number" && Number.isFinite(minPrice) && minPrice >= 0) {
+    filters.minPrice = minPrice;
+  }
+  if (typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice >= 0) {
+    filters.maxPrice = maxPrice;
+  }
+  if (deviceCondition === "power_on" || deviceCondition === "power_off") {
+    filters.deviceCondition = deviceCondition;
   }
 
   return filters;

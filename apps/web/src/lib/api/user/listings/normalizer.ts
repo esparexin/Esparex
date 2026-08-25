@@ -38,6 +38,7 @@ export interface ListingFilters {
     level?: LocationLevel;
     minPrice?: number;
     maxPrice?: number;
+    deviceCondition?: string;
     status?: string;
     search?: string;
     page?: number;

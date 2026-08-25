@@ -78,8 +78,14 @@ describe("Phase 5: Search & Filter State Wiring (FIND-004, FIND-005, FIND-018)",
             query: "",
             selectedCategory: "led-tvs",
             categories: mockCategories as any,
+            minPrice: 500,
+            maxPrice: 2000,
+            deviceCondition: "power_on",
         });
 
         expect(filters.categoryId).toBe("69c24a14a58d20c75c6b09d9");
+        expect(filters.minPrice).toBe(500);
+        expect(filters.maxPrice).toBe(2000);
+        expect(filters.deviceCondition).toBe("power_on");
     });
 });
