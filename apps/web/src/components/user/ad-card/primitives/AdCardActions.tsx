@@ -30,7 +30,7 @@ export const AdCardActions = memo(function AdCardActions({
       size="icon"
       variant="secondary"
       className={cn(
-        "h-9 w-9 sm:h-10 sm:w-10 rounded-full shadow-md z-20 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm",
+        "h-7.5 w-7.5 sm:h-8 sm:w-8 rounded-full shadow-xs z-20 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm p-0 cursor-pointer",
         className
       )}
       onClick={(e) => {
@@ -41,7 +41,7 @@ export const AdCardActions = memo(function AdCardActions({
       }}
       aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
     >
-      <Heart className={cn("h-4 w-4 sm:h-4.5 sm:w-4.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+      <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
     </Button>
   );
 });

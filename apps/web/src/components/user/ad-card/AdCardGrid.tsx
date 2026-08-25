@@ -80,12 +80,12 @@ export const AdCardGrid = memo(function AdCardGrid({
               adId={adId}
               isSaved={isSaved}
               onToggleSave={onToggleSave}
-              className="absolute top-1.5 right-1.5 md:top-2 md:right-2 z-20"
+              className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-20"
             />
           </AdCardCover>
 
           {/* Content section */}
-          <CardContent className="p-2.5 sm:p-3">
+          <CardContent className="p-2 sm:p-2.5">
             <AdCardMeta ad={ad} variant="default" />
           </CardContent>
     </AdCardShell>
