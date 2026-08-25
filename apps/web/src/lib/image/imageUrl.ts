@@ -58,7 +58,8 @@ export const isRenderableImageUrl = (value: unknown): value is string => {
             return false;
         }
 
-        if (hostname.includes('amazonaws.com')) {
+        const isAwsHost = hostname === 'amazonaws.com' || hostname.endsWith('.amazonaws.com');
+        if (isAwsHost) {
             return isValidS3Host(hostname);
         }
 
