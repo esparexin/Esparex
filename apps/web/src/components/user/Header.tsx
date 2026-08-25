@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
-  Menu,
   Search,
   LogIn,
   TrendingUp,
@@ -249,11 +248,9 @@ export function Header({
           resolvedHeaderLocation={resolvedHeaderLocation}
           onNavigateHome={() => navigateTo("home")}
           onOpenLocationSelector={() => setShowLocationSelector(true)}
+          onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
-          <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer" onClick={() => setIsMobileDrawerOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </Button>
           {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
             <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
