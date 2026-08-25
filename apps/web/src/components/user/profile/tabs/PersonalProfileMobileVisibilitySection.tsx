@@ -19,14 +19,14 @@ export function PersonalProfileMobileVisibilitySection({
 }: PersonalProfileMobileVisibilitySectionProps) {
     return (
         <div className="flex flex-col gap-2">
-            <Label className="text-caption font-semibold text-foreground-secondary">
+            <Label className="text-caption font-bold text-foreground-secondary">
                 Phone Number Privacy
             </Label>
             <Controller
                 name="mobileVisibility"
                 control={control}
                 render={({ field }) => (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" role="radiogroup" aria-label="Phone Number Privacy">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Phone Number Privacy">
                         {VISIBILITY_OPTIONS.map((opt) => {
                             const isSelected = field.value === opt.value;
                             return (
@@ -36,13 +36,13 @@ export function PersonalProfileMobileVisibilitySection({
                                     role="radio"
                                     aria-checked={isSelected}
                                     onClick={() => field.onChange(opt.value)}
-                                    className={`flex flex-col p-2.5 rounded-xl border text-left transition-all ${
+                                    className={`flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer ${
                                         isSelected
-                                            ? "border-primary bg-primary/10 ring-1 ring-primary/20"
-                                            : "border-border bg-card hover:bg-muted/50"
+                                            ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-2xs"
+                                            : "border-border/80 bg-card hover:bg-muted/40"
                                     }`}
                                 >
-                                    <span className={`text-caption font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                    <span className={`text-caption font-bold ${isSelected ? "text-primary" : "text-foreground"}`}>
                                         {opt.label}
                                     </span>
                                     <span className="text-tiny text-muted-foreground mt-0.5">

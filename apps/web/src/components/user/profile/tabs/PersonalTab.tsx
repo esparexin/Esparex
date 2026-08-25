@@ -243,7 +243,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                 type="submit"
                                 size="sm"
                                 disabled={isSaving}
-                                className="w-full sm:w-auto h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
+                                className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-caption px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
                             >
                                 {isSaving ? "Saving..." : "Save changes"}
                             </Button>
