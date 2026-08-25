@@ -22,6 +22,11 @@ export const personalProfileSchema = z.object({
     .toLowerCase()
     .optional()
     .or(z.literal('')),
+  businessName: z
+    .string()
+    .max(120, "Business name cannot exceed 120 characters")
+    .optional()
+    .or(z.literal('')),
   gstin: z
     .string()
     .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please enter a valid 15-character GSTIN")

@@ -9,16 +9,16 @@ interface PersonalProfileMobileVisibilitySectionProps {
 }
 
 const VISIBILITY_OPTIONS = [
-    { value: 'show', label: 'Show Number' },
+    { value: 'show', label: 'Show' },
     { value: 'on_request', label: 'On Request' },
-    { value: 'hide', label: 'Hide Number' },
+    { value: 'hide', label: 'Hide' },
 ] as const;
 
 export function PersonalProfileMobileVisibilitySection({
     control,
 }: PersonalProfileMobileVisibilitySectionProps) {
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="space-y-1">
             <Label className="text-caption font-semibold text-foreground-secondary">
                 Phone Number Privacy
             </Label>
@@ -26,7 +26,7 @@ export function PersonalProfileMobileVisibilitySection({
                 name="mobileVisibility"
                 control={control}
                 render={({ field }) => (
-                    <div className="grid grid-cols-3 gap-1 p-1 rounded-xl border border-border bg-muted/40" role="radiogroup" aria-label="Phone Number Privacy">
+                    <div className="grid grid-cols-3 gap-1 p-1 h-10 rounded-xl border border-border bg-card items-center" role="radiogroup" aria-label="Phone Number Privacy">
                         {VISIBILITY_OPTIONS.map((opt) => {
                             const isSelected = field.value === opt.value;
                             return (
@@ -36,10 +36,10 @@ export function PersonalProfileMobileVisibilitySection({
                                     role="radio"
                                     aria-checked={isSelected}
                                     onClick={() => field.onChange(opt.value)}
-                                    className={`h-8 px-2.5 text-tiny sm:text-caption font-semibold rounded-lg transition-all flex items-center justify-center text-center ${
+                                    className={`h-8 px-1.5 text-tiny font-semibold rounded-lg transition-all flex items-center justify-center text-center truncate ${
                                         isSelected
                                             ? "bg-primary text-primary-foreground shadow-2xs"
-                                            : "text-foreground-secondary hover:bg-card hover:text-foreground"
+                                            : "text-foreground-secondary hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
                                     <span>{opt.label}</span>

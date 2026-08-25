@@ -30,9 +30,6 @@ export function PersonalProfileGstSection({
                 aria-invalid={!!gstinError}
                 aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
             />
-            <p id="profile-gstin-helper" className="text-tiny text-muted-foreground">
-                Enter your 15-character GSTIN to claim 18% Input Tax Credit (ITC) on B2B invoices.
-            </p>
             <FormError id="profile-gstin-error" message={gstinError} />
         </div>
     );
