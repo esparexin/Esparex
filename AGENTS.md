@@ -556,6 +556,23 @@ Before creating any new `.ts` or `.tsx` file, complete the **Repository Discover
 If ANY answer is **YES**, you MUST reuse or extend that implementation.
 Only create a new file if the answer is **NO** across all applicable layers.
 
+#### Canonical Domain Concept & Entity Discovery Map (Phase 0 SSOT Dictionary)
+Before writing any code or searching by conversational user prompt terms, developers & AI agents MUST map requirements to the canonical SSOT entities below:
+
+| Conversational User / UI Term | Canonical Domain Entity / Package | Prohibited Parallel Anti-Pattern |
+| :--- | :--- | :--- |
+| **Classifieds / Posts / Ads / Services / Parts** | `ListingDTO` / `unified Ad Engine` (`@esparex/contracts`, `core/src/domains/listings/`) | Creating separate `ServiceListing`, `SparePartListing`, or `CustomAd` schemas |
+| **Sponsor Banner / Display Ads / Google Ads** | `InContentPlacementId` / `MonetizationService` / `AdPlacementSlot` (`@esparex/contracts`, `core/src/services/MonetizationService.ts`) | Creating `BannerCard`, `SponsorCard`, or local `<ins>` tags in components |
+| **Device / Model / Brand / Category Select** | `EntitySearchCombobox` (`apps/web/src/components/user/EntitySearchCombobox.tsx`) | Creating custom `<select>` or local search comboboxes in feature directories |
+| **Search Grid / Results View / Browse Feed** | `BrowseListingsView` / `BrowseResultsPanel` (`apps/web/src/components/user/`) | Creating parallel `BrowseServicesView`, `BrowseSparePartsView`, or local grids |
+| **Ad Card (Grid / List View)** | `AdCardGrid` / `AdCardList` (`apps/web/src/components/user/ad-card/`) | Creating `BrowseServicesCard`, `BrowseSparePartsCard`, or local card components |
+| **Popups / Alerts / Banners / Toasts** | `popupBus` / `notify` (`@/lib/feedback`) | Installing or importing `sonner`, `react-hot-toast`, `react-toastify`, or local alert divs |
+| **Modal Dialogs / Fullscreen Wizards** | `ListingModalLayout` / `Dialog` (`packages/ui`) | Creating raw `fixed inset-0` dialog overlays without focus trapping |
+| **Page Container / Width Bounding** | `<Container variant="lg">` / `max-w-7xl` (`packages/ui`) | Hardcoding `max-w-6xl`, `max-w-5xl`, `max-w-[1440px]`, or local nested containers |
+| **Typography & Font Sizes** | 10-level scale (`text-display` → `text-tiny`) with **Geist** (`@esparex/design-tokens`) | Using `text-[13px]`, `text-2xs`, `text-xl md:text-2xl`, or competing fonts |
+| **Colors & Palette** | Semantic tokens (`text-foreground`, `bg-card`, `border-border`) | Using raw palette literals (`text-slate-900`, `bg-blue-50/50`, `text-blue-900`) |
+| **API Mutation Client** | `apiClient` (`@/lib/api/client`) + `toApiResult` (`@/lib/api/result`) | Raw `fetch()` or `axios.create()` calls inside individual components |
+
 ---
 
 ### 6. Mandatory "New File Justification" Gate
@@ -999,7 +1016,7 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
 2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
 3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
-4. **Tier 4 (Auxiliary Design Guides)**: `ui-styling`, `ui-ux-pro-max`, `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants.
+4. **Tier 4 (Auxiliary Design Guides)**: `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants. Non-compliant generic templates (`ui-styling`, `ui-ux-pro-max`) are prohibited.
 
 ### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
 All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:

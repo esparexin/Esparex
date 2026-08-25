@@ -4,7 +4,7 @@ import {
   BrowseListingsView,
   type BrowseBuildFiltersArgs,
 } from "@/components/user/BrowseListingsView";
-import { BrowseSparePartsCard } from "@/components/user/BrowseSparePartsCard";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import {
   applyRequestedLocationFilters,
   applyProximityLocationFilters,
@@ -14,6 +14,7 @@ import type { Category } from "@/lib/api/user/categories";
 import { getAdsPage, type Listing as SparePartListing, type ListingFilters as SparePartListingFilters, type ListingPageResult as SparePartListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 const DEFAULT_RADIUS_KM = 50;
 
@@ -86,9 +87,19 @@ export function BrowseSpareParts({
       getEmptyDescription={(searchQuery) =>
         searchQuery ? `No spare parts matching "${searchQuery}".` : "No spare parts available in this area yet."
       }
-      renderCard={(listing, view, index) => (
-        <BrowseSparePartsCard listing={listing} view={view} priority={index < 4} />
-      )}
+      renderCard={(listing, view, index) => {
+        const href = buildPublicListingDetailRoute({
+          id: listing.id,
+          listingType: "spare_part",
+          seoSlug: listing.seoSlug,
+          title: listing.title,
+        });
+        return view === "list" ? (
+          <AdCardList key={listing.id} ad={listing} href={href} priority={index < 4} />
+        ) : (
+          <AdCardGrid key={listing.id} ad={listing} href={href} priority={index < 4} />
+        );
+      }}
       getItemKey={(listing) => listing.id}
     />
   );

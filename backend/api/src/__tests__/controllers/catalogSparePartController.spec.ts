@@ -1,5 +1,5 @@
 import { getSpareParts } from "../../controllers/admin/catalog/catalogSparePartController";
-import { SparePartModel } from "@esparex/core/services/catalog/CatalogSparePartService";
+import { SparePartModel } from "@esparex/core/domains/catalog/application/services/CatalogSparePartService";
 import { getCache, setCache } from "@esparex/core/utils/redisCache";
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
@@ -12,8 +12,8 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
 }));
 
 // Mock CatalogSparePartService functions
-jest.mock("@esparex/core/services/catalog/CatalogSparePartService", () => {
-    const original = jest.requireActual("@esparex/core/services/catalog/CatalogSparePartService");
+jest.mock("@esparex/core/domains/catalog/application/services/CatalogSparePartService", () => {
+    const original = jest.requireActual("@esparex/core/domains/catalog/application/services/CatalogSparePartService");
     return {
         ...original,
         getActiveBrandIdsForCategories: jest.fn().mockResolvedValue(["brand-1"]),
@@ -22,7 +22,7 @@ jest.mock("@esparex/core/services/catalog/CatalogSparePartService", () => {
 });
 
 // Mock category canonical equivalent resolver
-jest.mock('@esparex/core/services/catalog/CatalogCategoryService', () => ({
+jest.mock('@esparex/core/domains/catalog/application/services/CatalogCategoryService', () => ({
     resolveEquivalentActiveCategoryIds: jest.fn().mockImplementation(async (id) => [id])
 }));
 

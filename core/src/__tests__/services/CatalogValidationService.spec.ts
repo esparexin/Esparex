@@ -1,4 +1,4 @@
-import { CatalogValidationService } from '../../services/catalog/CatalogValidationService';
+import { CatalogValidationService } from '../../domains/catalog/application/services/CatalogValidationService';
 import { CategoryRepositoryPort, BrandRepositoryPort, ModelRepositoryPort, SparePartRepositoryPort } from '../../domains/catalog';
 
 describe('CatalogValidationService Mock-Based Testing', () => {

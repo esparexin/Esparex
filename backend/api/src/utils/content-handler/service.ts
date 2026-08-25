@@ -5,7 +5,7 @@ import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
+import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/domains/catalog/application/services/CatalogSearchGovernanceService';
 import { runCatalogShadowRead } from '@esparex/core/utils/catalogShadowRead';
 import type { ContentOptions } from './types';
 import { CATALOG_MODELS, parseSortQuery, tryAdminCatalogReadSwitch } from './helpers';

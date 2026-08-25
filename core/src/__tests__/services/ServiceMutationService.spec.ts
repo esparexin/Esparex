@@ -14,7 +14,7 @@ jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/catalog/CatalogValidationService', () => ({
+jest.mock('@esparex/core/domains/catalog/application/services/CatalogValidationService', () => ({
     getCategorySelectionMode: jest.fn(),
     validateBrandBelongsToCategory: jest.fn(),
     validateServiceCategoryCapability: jest.fn(),
@@ -51,7 +51,7 @@ import * as AdOrchestrator from '../../services/AdOrchestrator';
 import {
     getCategorySelectionMode,
     validateServiceCategoryCapability,
-} from '../../services/catalog/CatalogValidationService';
+} from '../../domains/catalog/application/services/CatalogValidationService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { resolveServiceTypes } from '../../utils/serviceTypeResolver';
 import { BUSINESS_STATUS } from '@esparex/contracts';

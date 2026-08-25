@@ -1,5 +1,5 @@
 import express from 'express';
-import * as catalogController from '../controllers/catalog';
+import * as catalogController from '../controllers/admin/catalog';
 import { searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 

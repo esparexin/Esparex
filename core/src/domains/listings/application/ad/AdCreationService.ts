@@ -6,7 +6,7 @@ import SparePart from '../../../../models/SparePart';
 import Brand from '../../../../models/Brand';
 import { normalizeLocation } from '../../../../services/location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
-import { resolveEquivalentActiveCategoryIds } from '../../../../services/catalog/CatalogCategoryService';
+import { resolveEquivalentActiveCategoryIds } from '../../../catalog/application/services/CatalogCategoryService';
 import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { resolveLocationPathIds } from '../../../../utils/locationHierarchy';
@@ -21,7 +21,7 @@ import {
     validateBrandBelongsToCategory, 
     validateModelBelongsToBrand,
     validateListingCategoryCapability
-} from '../../../../services/catalog/CatalogValidationService';
+} from '../../../catalog/application/services/CatalogValidationService';
 import { isBusinessPublishedStatus } from '../../../../utils/businessStatus';
 
 export interface PreparedPayload {
@@ -285,7 +285,7 @@ export class AdCreationService {
                 }
 
                 const { resolveServiceTypes } = await import('../../../../utils/serviceTypeResolver');
-                const { getCategorySelectionMode } = await import('../../../../services/catalog/CatalogValidationService');
+                const { getCategorySelectionMode } = await import('../../../catalog/application/services/CatalogValidationService');
 
                 const resolvedServiceTypes = await resolveServiceTypes(rawServiceTypes, catId);
                 const selectionMode = await getCategorySelectionMode(catId);
