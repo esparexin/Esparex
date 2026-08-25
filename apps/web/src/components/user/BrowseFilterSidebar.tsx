@@ -18,20 +18,12 @@ export interface BrowseFilterSidebarProps {
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
-  sellerType?: "all" | "user" | "business";
-  onSellerTypeChange?: (sellerType: "all" | "user" | "business") => void;
   deviceCondition?: string;
   onDeviceConditionChange?: (condition: string) => void;
   onReset: () => void;
   activeFilterCount?: number;
   className?: string;
 }
-
-const SELLER_OPTIONS = [
-  { id: "all", label: "All Sellers" },
-  { id: "user", label: "Individual Users" },
-  { id: "business", label: "Verified Businesses" },
-] as const;
 
 const CONDITION_OPTIONS = [
   { id: "power_on", label: "Powers On (Working)" },
@@ -42,8 +34,6 @@ export function BrowseFilterSidebar({
   categories,
   selectedCategory,
   onCategoryChange,
-  sellerType = "all",
-  onSellerTypeChange,
   deviceCondition,
   onDeviceConditionChange,
   minPrice,
@@ -56,7 +46,6 @@ export function BrowseFilterSidebar({
   const [minInput, setMinInput] = useState<string>(minPrice ? String(minPrice) : "");
   const [maxInput, setMaxInput] = useState<string>(maxPrice ? String(maxPrice) : "");
   const [categoryExpanded, setCategoryExpanded] = useState(true);
-  const [sellerTypeExpanded, setSellerTypeExpanded] = useState(true);
   const [conditionExpanded, setConditionExpanded] = useState(true);
   const [priceExpanded, setPriceExpanded] = useState(true);
 
@@ -188,39 +177,7 @@ export function BrowseFilterSidebar({
         )}
       </div>
 
-      {/* 3. Seller Type Section */}
-      <div className="space-y-3 border-b border-border/60 pb-4">
-        <button
-          type="button"
-          aria-expanded={sellerTypeExpanded}
-          aria-controls="filter-seller-section"
-          onClick={() => setSellerTypeExpanded(!sellerTypeExpanded)}
-          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground-subtle hover:text-foreground transition-colors"
-        >
-          <span>Seller Type</span>
-          <ChevronDown className={cn("size-4 transition-transform", !sellerTypeExpanded && "-rotate-90")} />
-        </button>
-
-        {sellerTypeExpanded && (
-          <div id="filter-seller-section" className="space-y-2 pt-1">
-            {SELLER_OPTIONS.map((option) => (
-              <label key={option.id} className="flex items-center gap-2.5 text-small text-foreground-secondary font-medium cursor-pointer hover:text-foreground min-h-[36px]">
-                <input
-                  type="radio"
-                  name="sellerType"
-                  value={option.id}
-                  checked={sellerType === option.id}
-                  onChange={() => onSellerTypeChange?.(option.id as "all" | "user" | "business")}
-                  className="size-4 text-primary border-border focus:ring-ring"
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 4. Condition Section */}
+      {/* 3. Condition Section */}
       <div className="space-y-3">
         <button
           type="button"

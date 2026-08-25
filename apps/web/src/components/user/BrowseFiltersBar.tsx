@@ -24,13 +24,11 @@ export interface BrowseFiltersHeaderTriggerProps {
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
-  sellerType?: "all" | "user" | "business";
-  onSellerTypeChange?: (sellerType: "all" | "user" | "business") => void;
   deviceCondition?: string;
   onDeviceConditionChange?: (condition: string) => void;
 }
 
-type FilterTab = "category" | "budget" | "seller" | "condition";
+type FilterTab = "category" | "budget" | "condition";
 
 export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigger({
   inputId,
@@ -47,8 +45,6 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
   minPrice,
   maxPrice,
   onPriceChange,
-  sellerType = "all",
-  onSellerTypeChange,
   deviceCondition,
   onDeviceConditionChange,
 }: BrowseFiltersHeaderTriggerProps) {
@@ -141,19 +137,6 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               )}
             >
               By Budget
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("seller")}
-              className={cn(
-                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
-                activeTab === "seller"
-                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
-              )}
-            >
-              By Seller
             </button>
 
             <button
@@ -258,36 +241,6 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "seller" && (
-              <div className="space-y-3">
-                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Seller Type
-                </Label>
-                <div className="space-y-2">
-                  {[
-                    { id: "all", label: "All Sellers" },
-                    { id: "user", label: "Individual Users" },
-                    { id: "business", label: "Verified Businesses" },
-                  ].map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex items-center gap-3 p-2.5 rounded-lg border border-border hover:bg-muted cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name="mobileSellerType"
-                        value={item.id}
-                        checked={sellerType === item.id}
-                        onChange={() => onSellerTypeChange?.(item.id as "all" | "user" | "business")}
-                        className="size-4 text-primary border-input focus:ring-primary/20"
-                      />
-                      <span className="text-xs font-medium text-foreground-secondary">{item.label}</span>
-                    </label>
-                  ))}
                 </div>
               </div>
             )}

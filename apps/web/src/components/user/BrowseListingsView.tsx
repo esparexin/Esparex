@@ -118,7 +118,6 @@ export function BrowseListingsView<TItem, TFilters>({
   const searchParams = useSearchParams();
   const minPriceParam = searchParams.get("minPrice");
   const maxPriceParam = searchParams.get("maxPrice");
-  const sellerTypeParam = (searchParams.get("sellerType") as "all" | "user" | "business") || "all";
   const deviceConditionParam = searchParams.get("condition") || searchParams.get("deviceCondition") || "";
 
   const minPrice = minPriceParam ? Number.parseInt(minPriceParam, 10) : undefined;
@@ -144,13 +143,6 @@ export function BrowseListingsView<TItem, TFilters>({
   const handlePriceChange = useCallback(
     (min?: number, max?: number) => {
       updateFiltersInUrl({ minPrice: min, maxPrice: max });
-    },
-    [updateFiltersInUrl]
-  );
-
-  const handleSellerTypeChange = useCallback(
-    (seller: "all" | "user" | "business") => {
-      updateFiltersInUrl({ sellerType: seller });
     },
     [updateFiltersInUrl]
   );
@@ -186,8 +178,6 @@ export function BrowseListingsView<TItem, TFilters>({
     minPrice,
     maxPrice,
     onPriceChange: handlePriceChange,
-    sellerType: sellerTypeParam,
-    onSellerTypeChange: handleSellerTypeChange,
     deviceCondition: deviceConditionParam,
     onDeviceConditionChange: handleConditionChange,
   };
@@ -213,8 +203,6 @@ export function BrowseListingsView<TItem, TFilters>({
             minPrice={minPrice}
             maxPrice={maxPrice}
             onPriceChange={handlePriceChange}
-            sellerType={sellerTypeParam}
-            onSellerTypeChange={handleSellerTypeChange}
             deviceCondition={deviceConditionParam}
             onDeviceConditionChange={handleConditionChange}
             onReset={handleReset}

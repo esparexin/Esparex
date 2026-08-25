@@ -14,10 +14,6 @@ import {
     coordinatesSchema
 } from "@esparex/contracts";
 
-/**
- * Seller type enum
- */
-const sellerTypeEnum = z.enum(['user', 'business']);
 const LEGACY_AD_USER_ID_ALIAS = 'userId';
 const LEGACY_AD_USER_ID_ALIAS_MESSAGE = '`userId` is no longer accepted in ad query filters. Use `sellerId` instead.';
 const LEGACY_AD_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in ad query filters. Use `q` instead.';
@@ -107,8 +103,6 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     
     // Canonical ownership filter
     sellerId: commonSchemas.objectId.optional(),
-    
-    sellerType: sellerTypeEnum.optional(),
 
     minPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
     maxPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
