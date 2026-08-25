@@ -7,6 +7,8 @@ import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { Container } from "@esparex/ui";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
@@ -105,7 +107,16 @@ export default async function Home() {
             <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />
 
+                <Container variant="lg">
+                    <AdPlacementSlot placement="homepage_hero_top" />
+                </Container>
+
                 <HomeFeed initialData={initialHomeAds} />
+
+                <Container variant="lg">
+                    <AdPlacementSlot placement="homepage_feed_inline" />
+                </Container>
+
                 <HomeBannerAd />
             </section>
         </div>

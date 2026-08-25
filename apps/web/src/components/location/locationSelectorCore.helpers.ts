@@ -10,7 +10,7 @@ export interface LocationError {
     retryable: boolean;
 }
 
-export const MAX_DROPDOWN_RESULTS = 10;
+export const MAX_DROPDOWN_RESULTS = 6;
 export const SEARCH_DEBOUNCE_MS = 200;
 
 export const ERROR_MESSAGES: Record<ErrorType, string> = {

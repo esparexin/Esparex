@@ -1,7 +1,7 @@
 // HomeFeedClient.tsx - client component handling feed logic
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "@/icons/IconRegistry";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
@@ -36,6 +36,25 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
     const hasUserLocation = isUserSelectedLocation(location);
     const shouldUseGeoSearch = hasUserLocation && shouldUseGeoRadiusLocation(location);
+
+    const locationIdentity = useMemo(() => {
+        if (!hasUserLocation) return "default";
+        const rawLocationId = location.locationId || location.id || "";
+        const validLocationId = sanitizeMongoObjectId(rawLocationId) || "";
+        const latStr = typeof latitude === "number" ? latitude.toFixed(3) : "";
+        const lngStr = typeof longitude === "number" ? longitude.toFixed(3) : "";
+        return [validLocationId, location.city || "", location.level || "", latStr, lngStr].join(":");
+    }, [hasUserLocation, latitude, location.city, location.id, location.level, location.locationId, longitude]);
+
+    // Soft-reset pagination cursor when location changes without unmounting tree
+    const prevLocationIdentityRef = useRef(locationIdentity);
+    useEffect(() => {
+        if (prevLocationIdentityRef.current !== locationIdentity) {
+            prevLocationIdentityRef.current = locationIdentity;
+            setCursor(undefined);
+            setNextCursor(null);
+        }
+    }, [locationIdentity]);
     
     const requestParams = useMemo(() => {
         const rawLocationId = hasUserLocation ? (location.locationId || location.id) : undefined;
@@ -95,25 +114,22 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     return (
         <section
             role="region"
-            aria-label="Recommended Ads"
+            aria-label="Explore Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-slate-50 py-4 md:py-8 border-t border-slate-100"
+            className="pt-2 pb-8 md:pt-3 md:pb-12"
         >
-            <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
-                <div className="mb-4 md:mb-8">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mb-2.5 md:mb-3.5">
                     <h2
                         id="home-feed-heading"
-                        className="text-base font-bold md:text-2xl text-foreground tracking-tight"
+                        className="text-body sm:text-body-lg md:text-h4 font-bold text-foreground tracking-tight"
                     >
-                        Recommended for You
+                        Explore Ads
                     </h2>
-                    <p className="mt-1 text-xs md:text-sm text-foreground-subtle max-w-2xl hidden md:block">
-                        Spotlight, boosted, and latest listings curated for your location.
-                    </p>
                 </div>
 
                 {isLoading && recommendedAds.length === 0 && (
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                         {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
                             <AdCardSkeleton key={index} />
                         ))}
@@ -122,7 +138,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {isError && recommendedAds.length === 0 && (
                     <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
-                        <p className="text-sm text-destructive mb-3">
+                        <p className="text-caption text-destructive mb-3">
                             Failed to load recommended ads. Please try again.
                         </p>
                         <Button variant="outline" onClick={() => refetch()}>
@@ -132,9 +148,9 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                 )}
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-10 text-center">
-                        <PackageOpen className="mx-auto h-10 w-10 text-foreground-subtle" />
-                        <p className="mt-3 text-sm text-muted-foreground">
+                    <div className="rounded-xl border border-border bg-card p-8 text-center">
+                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-subtle" />
+                        <p className="mt-2 text-caption text-foreground-subtle">
                             No ads available right now.
                         </p>
                     </div>
@@ -142,7 +158,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {recommendedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                             {recommendedAds.map((ad, index) => (
                                 <AdCardGrid
                                     key={ad.id}
@@ -154,7 +170,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         </div>
 
                         {canLoadMore && (
-                            <div className="mt-6 md:mt-10 flex justify-center">
+                            <div className="mt-5 md:mt-8 flex justify-center">
                                 <Button
                                     onClick={() => {
                                         if (!nextCursor?.createdAt) return;
@@ -163,7 +179,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-8 h-11 font-semibold shadow-sm transition-all active:scale-95"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 h-10 text-caption font-semibold shadow-2xs transition-all active:scale-95"
                                 >
                                     {isFetching ? (
                                         <>

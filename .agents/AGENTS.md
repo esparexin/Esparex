@@ -1505,9 +1505,73 @@ Every developer and AI agent MUST execute these 8 steps sequentially before stag
 
 Before any commit command is executed, run and confirm:
 - [ ] `npm run guard:pr-quality` → **PASS** (Zero file size or ratchet violations)
+- [ ] `npm run guard:duplicate-code` → **PASS** (Fresh JSCPD report, 0 new clones)
+- [ ] `npm run guard:design-token-adoption` → **PASS** (0 raw palette/inline style violations)
 - [ ] `npm run type-check` → **PASS** (Zero TypeScript errors)
 - [ ] `npm test -w <target-package>` → **PASS** (100% green tests)
-- [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed)
+- [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed, 100% Health Score)
+
+---
+
+### 4. Extract-Before-Split Modularity Standard (Anti-Clone Protocol)
+
+> **CORE ANTI-DUPLICATION RULE**:  
+> When modularizing or splitting files exceeding line length thresholds (Component ≤ 250, Hook ≤ 200, Service ≤ 300, Utility ≤ 150), developers and AI agents **MUST extract shared types, validation schemas, error handlers, and helper utilities into a single canonical module (`@esparex/contracts` or `@esparex/shared`) BEFORE splitting into sub-files**.  
+> Never replicate identical schema boilerplate, dialog scaffolding, or handler functions across split sub-files.
+
+---
+
+### 5. Explicit Prohibition of Top-Level Symbol Shadowing (SSOT-001)
+
+App-level (`apps/web`, `apps/admin`) types, classes, functions, and interfaces **MUST NOT** declare top-level symbols that shadow canonical package exports in `@esparex/core`, `@esparex/contracts`, or `@esparex/ui` (e.g. declaring local `interface ValidationResult` when `@esparex/core` already exports `ValidationResult`).
+
+**Rules**:
+1. App-level helper types must use domain-scoped prefixes (e.g., `FieldValidationResult`, `WebFormState`).
+2. If consuming domain contracts, directly import from `@esparex/contracts` or `@esparex/shared` rather than re-declaring types locally.
+
+---
+
+### 6. Dynamic JSCPD Token Duplication Ratchet Governance (`DUP-001`)
+
+The monorepo enforces an automatic dynamic duplication ratchet in `.jscpd-baseline.json` (currently **0.08%**).
+- The validator enforces `currentRate <= previousBaseline + 0.01%`.
+- Across ~1.8 million tokens in the monorepo, a `0.01%` increase is only **~180 tokens (~15–20 lines of code)**.
+- Every refactoring and modularization task MUST run `npm run guard:duplicate-code` to verify token clone counts before executing `repo:gate`.
+
+---
+
+### 7. Safe-Area & Dynamic Layout Design Token Invariant
+
+Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary bracket classes (e.g., `pt-[max(0.75rem,env(safe-area-inset-top))]`, `pb-[max(0.5rem,env(safe-area-inset-bottom))]`) instead of inline `style={{ ... }}` blocks to ensure strict compliance with `guard:design-token-adoption` without requiring ignore comments.
+
+---
+
+## 19. ESPAREX UI/UX SKILL PRECEDENCE & PERMANENT TYPOGRAPHY PREVENTION STANDARD
+
+### 19.1 Four-Tier Skill & Governance Precedence Hierarchy
+1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
+2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
+3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
+4. **Tier 4 (Auxiliary Design Guides)**: `ui-styling`, `ui-ux-pro-max`, `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants.
+
+### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
+All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
+- `text-display`: `2.25rem` (36px), line-height `1.2`, tracking `-0.02em` (Hero titles)
+- `text-h1`: `1.875rem` (30px), line-height `1.25`, tracking `-0.02em` (Page headers `<h1>`)
+- `text-h2`: `1.5rem` (24px), line-height `1.3`, tracking `-0.01em` (Section headers `<h2>`)
+- `text-h3`: `1.25rem` (20px), line-height `1.35`, tracking `-0.01em` (Card group titles `<h3>`)
+- `text-h4`: `1.125rem` (18px), line-height `1.4`, tracking `0` (Subsection headers, prominent desktop prices)
+- `text-body-lg`: `1.0rem` (16px), line-height `1.5`, tracking `0` (Lead text, desktop card prices)
+- `text-body`: `0.875rem` (14px), line-height `1.55`, tracking `0` (Standard body text, desktop card titles)
+- `text-small`: `0.8125rem` (13px), line-height `1.5`, tracking `0` (Compact listings, helper text)
+- `text-caption`: `0.75rem` (12px), line-height `1.4`, tracking `0` (Mobile card titles, footer links, form labels)
+- `text-tiny`: `0.6875rem` (11px), line-height `1.4`, tracking `0` (Badges, chips, timestamps)
+
+### 19.3 Non-Negotiable UI/UX Invariants
+1. **Zero Arbitrary Font Size Rule**: `text-[13px]`, `text-[1.2rem]`, etc., are strictly prohibited.
+2. **Font Family Invariant**: **Geist** (`var(--font-primary)`) is the single font family SSOT. Competing fonts (Inter, Roboto, Poppins) are forbidden.
+3. **Single-Instance Responsive Invariant**: No duplicate `Desktop*` vs `Mobile*` component trees.
+4. **Native Popup SSOT**: Alerts and notifications MUST use `popupBus` / `notify`. External toast packages (`sonner`, `react-hot-toast`) are banned.
 
 
 ---

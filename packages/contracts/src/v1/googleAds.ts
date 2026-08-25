@@ -125,3 +125,13 @@ export const createGoogleAdPlacementSchema = z.object({
 });
 
 export const updateGoogleAdPlacementSchema = createGoogleAdPlacementSchema.partial();
+
+export const mutateGoogleAdStatusSchema = z.object({
+    status: z.enum([
+        GOOGLE_AD_STATUS.ACTIVE,
+        GOOGLE_AD_STATUS.PAUSED,
+        GOOGLE_AD_STATUS.SCHEDULED,
+        GOOGLE_AD_STATUS.DRAFT,
+        GOOGLE_AD_STATUS.ARCHIVED,
+    ]),
+});

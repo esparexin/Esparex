@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card, AppButton, AppText } from '@esparex/mobile-ui';
+import { View, ScrollView, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Screen, Container, Card, AppButton, AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { Plan } from '@esparex/contracts';
 import { usePaymentPlans } from '../hooks/usePaymentPlans';
 import { useWalletSummary } from '../hooks/useWalletSummary';
@@ -47,7 +48,17 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
 
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <View className="px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <View className="flex-row items-center px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            accessibilityLabel="Back to profile"
+            accessibilityRole="button"
+            className="mr-3 p-1"
+          >
+            <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+          </TouchableOpacity>
+        )}
         <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
           Ad Credits & Wallet Plans
         </AppText>

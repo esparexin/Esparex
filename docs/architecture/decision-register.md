@@ -255,3 +255,38 @@ How will we know this was implemented correctly?
 ## Rollback
 How do we revert this decision?
 ```
+
+---
+
+## ADR-N+1: Ad Duplicate Fingerprint Logic
+
+*Previously documented as `docs/architecture/duplicate-fingerprint-logic.md`. Consolidated here per DOCUMENTATION-GOVERNANCE §7 anti-sprawl policy.*
+
+**Status**: Implemented and in production.
+
+### Context
+The duplicate fingerprint prevents malicious or accidental submission of identical listings by the same seller. By detecting duplicates early in the orchestration layer, we prevent catalog pollution and short-circuit image processing and database writes.
+
+### Decision: SHA-256 Fingerprint on 8 Normalized Fields
+
+The fingerprint is constructed by concatenating the following normalized fields with `|` delimiters:
+
+1. **type** — Listing type (`ad`, `spare_part`). Defaults to `ad`.
+2. **sellerId** — ID of the seller.
+3. **category** — Primary category ID.
+4. **brand** — Brand ID, otherwise `na`.
+5. **model** — Model ID, otherwise `na`.
+6. **condition** — Physical condition (`deviceCondition` for mobiles/tablets, `screenSize` for TVs, standard `condition`, otherwise `na`).
+7. **priceRange** — 500-unit price bucket window (e.g., `1000-1499`).
+8. **locationRadius** — `city:state:lng:lat` (coordinates rounded to 2 decimal places).
+
+**Excluded Fields** (robust matching despite minor variations):
+- Title, Description, Exact Price (bucketed instead), Exact Coordinates (rounded instead), Image URLs/Hashes (handled by cross-user risk assessment).
+
+**Normalization**: All values pass through `normalizeToken()` — `.trim()`, `.toLowerCase()`, strip non-alphanumeric via `/[^\p{L}\p{N}]+/gu`.
+
+**Hash**: SHA-256, first 16 hex chars:
+```typescript
+createHash('sha256').update(fingerprintBase).digest('hex').substring(0, 16);
+```
+

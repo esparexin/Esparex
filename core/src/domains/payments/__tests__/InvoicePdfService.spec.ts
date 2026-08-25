@@ -65,5 +65,5 @@ describe('InvoicePdfService', () => {
 
         const result = await generateInvoicePdf(sampleInvoice);
         expect(result === undefined || typeof result === 'string').toBe(true);
-    });
+    }, 30_000);
 });

@@ -87,21 +87,35 @@ export const formatShortRelativeTime = (
     const diffHours = Math.floor(diffMinutes / 60);
     if (diffHours < 24) return `${diffHours}h ago`;
 
-    return `${Math.floor(diffHours / 24)}d ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "1 day ago";
+
+    const dateYear = date.getUTCFullYear();
+    const currentYear = new Date(now).getUTCFullYear();
+
+    if (dateYear !== currentYear) {
+        return formatStableDate(date, { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    return formatStableDate(date, { day: "numeric", month: "short", year: undefined });
+};
+
+const HTML_ENTITIES: Record<string, string> = {
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&#x27;": "'",
+    "&nbsp;": " ",
+    "&amp;": "&",
 };
 
 /**
- * Decodes standard HTML entities in strings for SSOT normalization.
+ * Decodes standard HTML entities in strings using a single-pass lookup to prevent double-unescaping vulnerabilities.
  */
 export function decodeHtmlEntities(str: string): string {
     if (!str || typeof str !== "string") return "";
-    return str
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&#x27;/g, "'")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&amp;/g, "&");
+    return str.replace(/&(?:lt|gt|quot|#39|#x27|nbsp|amp);/g, (entity) => HTML_ENTITIES[entity] ?? entity);
 }
+
 

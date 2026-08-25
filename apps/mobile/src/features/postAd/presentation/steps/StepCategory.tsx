@@ -1,33 +1,63 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { AppText, Center, AppIcon } from '@esparex/mobile-ui';
-import { usePostAdDraft } from '../../usePostAdDraft';
-import { useCategories } from '../../application/useCategories';
+import { View, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { AppText, Center } from '@esparex/mobile-ui';
 import type { IconName } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
+import { usePostAdDraft } from '../../usePostAdDraft';
+import { useCategories } from '../hooks/useCategories';
+import { useCategoryDependents } from '../hooks/useCategoryDependents';
 import { CategoryCard } from '../components/CategoryCard';
+import { BrandModelSection } from '../components/BrandModelSection';
+import { DeviceConditionSection } from '../components/DeviceConditionSection';
+import { SparePartsSection } from '../components/SparePartsSection';
 
 /**
- * StepCategory — Step 1 of the Post Ad wizard.
+ * StepCategory — Step 1 of the Post Ad wizard (Item & Device Information).
  *
  * Responsibilities:
- * - Fetch the category list via useCategories()
- * - Read the currently selected categoryId from the draft
- * - Dispatch setCategory() when the user taps a card
- *
- * Does NOT:
- * - Know about navigation or step advancement (PostAdScreen handles that)
- * - Know about validation (PostAdValidator handles that)
- * - Render the WizardProgress or WizardNavBar (PostAdScreen owns those)
+ * - 4-column compact category selector
+ * - Brand & Model selection with proposal fallback
+ * - Device Condition (Power On vs Power Off)
+ * - Working / Available Spare Parts multi-select chips
  */
 export const StepCategory = () => {
-  const { state, setCategory } = usePostAdDraft();
-  const { categories, isLoading } = useCategories();
-  const selectedCategoryId = state.draft.categoryId;
+  const {
+    state,
+    setCategory,
+    setBrand,
+    setModel,
+    setDeviceCondition,
+    setSpareParts,
+  } = usePostAdDraft();
 
-  if (isLoading) {
+  const { categories, isLoading: isLoadingCategories } = useCategories();
+  const { draft } = state;
+  const selectedCategoryId = draft.categoryId;
+  const selectedBrandId = draft.brandId;
+  const selectedModelId = draft.modelId;
+  const selectedCondition = draft.deviceCondition;
+  const selectedSpareParts = draft.spareParts || [];
+
+  const {
+    brands,
+    models,
+    spareParts,
+    isLoadingBrands,
+    isLoadingModels,
+  } = useCategoryDependents(selectedCategoryId, selectedBrandId);
+
+  const toggleSparePart = (partId: string) => {
+    if (selectedSpareParts.includes(partId)) {
+      setSpareParts(selectedSpareParts.filter((id) => id !== partId));
+    } else {
+      setSpareParts([...selectedSpareParts, partId]);
+    }
+  };
+
+  if (isLoadingCategories) {
     return (
       <Center className="flex-1">
-        <AppIcon name="Loader" size={32} color="#64748b" />
+        <ActivityIndicator size="large" color={base.brand[600]} />
       </Center>
     );
   }
@@ -37,23 +67,19 @@ export const StepCategory = () => {
       className="flex-1"
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
-      <AppText
-        variant="h3"
-        className="text-slate-800 dark:text-slate-100 mb-1"
-      >
-        What are you selling?
+      {/* 1. Category Selection */}
+      <AppText variant="h3" className="text-slate-900 dark:text-white font-bold mb-1">
+        Select Category
       </AppText>
-      <AppText
-        variant="body"
-        className="text-slate-500 dark:text-slate-400 mb-5"
-      >
-        Choose the category that best describes your item.
+      <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-4">
+        Choose the device category you want to post.
       </AppText>
 
-      {/* Category grid — two columns */}
+      {/* 4-column compact category icon grid */}
       <View
-        className="flex-row flex-wrap justify-between"
+        className="flex-row flex-wrap justify-between mb-5"
         accessibilityRole="radiogroup"
         accessibilityLabel="Category selection"
       >
@@ -67,10 +93,43 @@ export const StepCategory = () => {
           />
         ))}
       </View>
+
+      {selectedCategoryId && (
+        <>
+          {/* 2. Brand & Model Section */}
+          <BrandModelSection
+            brands={brands}
+            models={models}
+            selectedBrandId={selectedBrandId}
+            selectedBrandName={draft.brandName}
+            selectedModelId={selectedModelId}
+            selectedModelName={draft.modelName}
+            customBrandName={draft.customBrandName}
+            customModelName={draft.customModelName}
+            isLoadingBrands={isLoadingBrands}
+            isLoadingModels={isLoadingModels}
+            onSelectBrand={setBrand}
+            onSelectModel={setModel}
+          />
+
+          {/* 3. Device Condition */}
+          <DeviceConditionSection
+            selectedCondition={selectedCondition}
+            onSelectCondition={setDeviceCondition}
+          />
+
+          {/* 4. Working / Available Spare Parts */}
+          <SparePartsSection
+            spareParts={spareParts}
+            selectedSpareParts={selectedSpareParts}
+            onToggleSparePart={toggleSparePart}
+          />
+        </>
+      )}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: { padding: 16 },
+  scrollContent: { padding: 16, paddingBottom: 40 },
 });

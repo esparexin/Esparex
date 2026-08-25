@@ -15,7 +15,7 @@ interface AccountNavItemListProps {
   onTabChange: (tab: ProfileTabValue) => void;
   /** Render an optional badge node next to the label */
   renderTabBadge?: (tab: ProfileTabValue) => React.ReactNode;
-  /** Visual variant: sidebar uses compact styling, menu uses full-row styling */
+  /** Visual variant: sidebar for desktop sidebar, menu for mobile full menu */
   variant?: "sidebar" | "menu";
 }
 

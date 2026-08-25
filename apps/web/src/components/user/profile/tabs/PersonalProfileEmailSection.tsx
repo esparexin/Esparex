@@ -16,8 +16,8 @@ export function PersonalProfileEmailSection({
     return (
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-                <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
-                    Notification & Invoice Email <span className="text-slate-400 font-normal">(Optional)</span>
+                <Label htmlFor="profile-email" className="text-caption font-semibold text-foreground-secondary">
+                    Notification & Invoice Email <span className="text-muted-foreground font-normal">(Optional)</span>
                 </Label>
             </div>
             <Input
@@ -25,12 +25,12 @@ export function PersonalProfileEmailSection({
                 type="email"
                 placeholder="name@company.com"
                 {...register("email")}
-                className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${emailError ? "border-red-500" : ""}`}
+                className={`h-10 sm:h-10.5 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium ${emailError ? "border-destructive" : ""}`}
                 aria-invalid={!!emailError}
                 aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
                 autoComplete="email"
             />
-            <p id="profile-email-helper" className="text-tiny text-slate-500">
+            <p id="profile-email-helper" className="text-tiny text-muted-foreground">
                 Used strictly to send PDF invoices and ad status updates.
             </p>
             <FormError id="profile-email-error" message={emailError} />

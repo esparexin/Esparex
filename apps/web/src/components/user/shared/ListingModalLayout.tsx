@@ -35,16 +35,16 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 size="icon"
                                 onClick={onClose}
                                 aria-label="Close modal"
-                                className="h-9 w-9 -ml-1 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0"
+                                className="h-9 w-9 -ml-1 rounded-full text-foreground-subtle hover:bg-muted hover:text-foreground shrink-0 cursor-pointer"
                             >
                                 <X className="w-4 h-4" />
                             </Button>
                             <div className="flex-1 flex items-center gap-2.5 ml-2">
-                                <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
+                                <DialogTitle className="font-bold text-foreground text-body-lg sm:text-h4 tracking-tight">
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
-                                    <span aria-current="step" className="text-tiny sm:text-xs font-bold text-blue-700 bg-blue-50/90 px-2.5 py-0.5 rounded-full border border-blue-200/60 uppercase tracking-wide">
+                                    <span aria-current="step" className="text-tiny sm:text-caption font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 uppercase tracking-wide">
                                         {subtitle}
                                     </span>
                                 )}
@@ -66,23 +66,23 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                 variant="bottomSheet"
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
-                <header className="shrink-0 bg-white border-b border-slate-100 flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
+                <header className="shrink-0 bg-card border-b border-border flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={onClose}
                         aria-label="Close modal"
-                        className="h-9 w-9 rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 shrink-0"
+                        className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-foreground-secondary hover:bg-muted hover:text-foreground shrink-0 cursor-pointer"
                     >
-                        <X className="w-4.5 h-4.5" />
+                        <X className="w-4 h-4" />
                     </Button>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2.5 min-w-0">
-                        <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight truncate">
+                        <DialogTitle className="font-bold text-foreground text-body-lg sm:text-h4 tracking-tight truncate">
                             {title}
                         </DialogTitle>
                         {subtitle && (
-                            <span aria-current="step" className="self-start sm:self-auto text-tiny sm:text-xs font-semibold text-blue-700 bg-blue-50/90 px-2 py-0.5 sm:px-2.5 rounded-full border border-blue-200/60 uppercase tracking-wide truncate max-w-full">
+                            <span aria-current="step" className="self-start sm:self-auto text-tiny sm:text-caption font-semibold text-primary bg-primary/10 px-2 py-0.5 sm:px-2.5 rounded-full border border-primary/20 uppercase tracking-wide truncate max-w-full">
                                 {subtitle}
                             </span>
                         )}
@@ -113,7 +113,7 @@ export function ListingModalBody({
 
 export function ListingModalFooter({ children, className }: { children: React.ReactNode; className?: string }) {
     return (
-        <footer className={cn("shrink-0 bg-white border-t border-slate-100 px-4 py-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:px-6 sm:py-4 sticky bottom-0 z-20 shadow-lg shadow-slate-900/5", className)}>
+        <footer className={cn("shrink-0 bg-card border-t border-border px-4 py-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:px-6 sm:py-4 sticky bottom-0 z-20 shadow-lg shadow-black/5", className)}>
             {children}
         </footer>
     );
@@ -124,11 +124,11 @@ export function ListingModalLoading() {
         <Dialog open={true}>
             <DialogContent
                 hideClose
-                className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-full max-h-none border-none p-0 bg-white flex flex-col overflow-hidden sm:fixed sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[85dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-200/80"
+                className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-full max-h-none border-none p-0 bg-card flex flex-col overflow-hidden sm:fixed sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[85dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-border"
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <DialogTitle className="sr-only">Loading modal</DialogTitle>
-                <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm gap-2 min-h-[200px]">
+                <div className="flex-1 flex items-center justify-center text-muted-foreground text-body gap-2 min-h-[200px]">
                     <Spinner size="md" />
                 </div>
             </DialogContent>

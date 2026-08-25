@@ -117,45 +117,54 @@ export function EntitySearchCombobox<T>({
         };
     }, [isListOpen, isMobile]);
 
+    const renderOptionsList = (isMobileView: boolean) => {
+        if (loading) {
+            return (
+                <div className="p-4 text-center text-body text-foreground-subtle flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>Loading...</span>
+                </div>
+            );
+        }
+        if (filteredItems.length === 0) {
+            return (
+                <div className="p-4 text-center text-body font-medium text-foreground-secondary">
+                    {emptyMessage}
+                </div>
+            );
+        }
+        return filteredItems.map((item, idx) => {
+            const label = getLabel(item);
+            const id = getId(item);
+            const isSelected = activeIndex === idx;
+            return (
+                <button
+                    key={id || label}
+                    id={`select-option-${idx}`}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onMouseDown={isMobileView ? undefined : (e) => e.preventDefault()}
+                    onClick={() => handleItemSelect(item)}
+                    className={cn(
+                        "w-full px-4 py-2.5 text-left text-body font-medium text-foreground-secondary transition-colors hover:bg-muted active:bg-muted cursor-pointer select-none",
+                        isMobileView ? "min-h-[44px] rounded-xl flex items-center" : "",
+                        isSelected && (isMobileView ? "bg-muted text-link-dark font-semibold" : "bg-muted text-link-dark font-bold")
+                    )}
+                >
+                    {renderItem ? renderItem(item, isSelected) : label}
+                </button>
+            );
+        });
+    };
+
     const desktopDropdownContent = (
         <div
             id="select-options-list"
             role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-white border border-slate-200/90 rounded-xl shadow-xl overflow-y-auto z-50"
+            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-surface border border-border rounded-xl shadow-xl overflow-y-auto z-50"
         >
-            {loading ? (
-                <div className="p-4 text-center text-sm text-slate-400 flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span>Loading...</span>
-                </div>
-            ) : filteredItems.length === 0 ? (
-                <div className="p-4 text-center text-sm font-medium text-slate-500">
-                    {emptyMessage}
-                </div>
-            ) : (
-                filteredItems.map((item, idx) => {
-                    const label = getLabel(item);
-                    const id = getId(item);
-                    const isSelected = activeIndex === idx;
-                    return (
-                        <button
-                            key={id || label}
-                            id={`select-option-${idx}`}
-                            type="button"
-                            role="option"
-                            aria-selected={isSelected}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => handleItemSelect(item)}
-                            className={cn(
-                                "w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 cursor-pointer select-none",
-                                isSelected && "bg-blue-50 text-link-dark font-bold"
-                            )}
-                        >
-                            {renderItem ? renderItem(item, isSelected) : label}
-                        </button>
-                    );
-                })
-            )}
+            {renderOptionsList(false)}
         </div>
     );
 
@@ -182,7 +191,7 @@ export function EntitySearchCombobox<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-3 pr-9 h-11 text-base md:text-sm font-medium border-slate-200/90 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 cursor-pointer"
+                    className="pl-3 pr-9 h-11 text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body"
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
@@ -202,7 +211,7 @@ export function EntitySearchCombobox<T>({
                                 onClear?.();
                             }}
                             title="Remove selection"
-                            className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-slate-100 transition-colors"
+                            className="p-1 rounded-md text-foreground-subtle hover:text-destructive hover:bg-muted transition-colors"
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -214,12 +223,12 @@ export function EntitySearchCombobox<T>({
                                 handleProposeCustom(search);
                             }}
                             title={`Add "${search.trim()}" as custom ${proposeType}`}
-                            className="p-1 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="p-1 rounded-md text-destructive hover:text-destructive hover:bg-destructive-subtle transition-colors"
                         >
                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                         </button>
                     ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none" />
+                        <ChevronDown className="w-4 h-4 text-foreground-subtle pointer-events-none" />
                     )}
                 </div>
             </div>
@@ -235,26 +244,26 @@ export function EntitySearchCombobox<T>({
                         }}
                     >
                         <div className="flex flex-col max-h-[70vh] px-2 pb-4">
-                            <div className="sticky top-0 bg-white pt-1 pb-3 px-1 z-10 border-b border-slate-100 mb-2">
+                            <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle" />
                                     <Input
                                         autoFocus
                                         value={search}
                                         onChange={(e) => {
-                                            const val = e.target.value;
-                                            setSearch(val);
-                                            onSearchChange?.(val);
+                                             const val = e.target.value;
+                                             setSearch(val);
+                                             onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-base md:text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
+                                        className="pl-9 pr-10 h-10 text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs placeholder:text-caption sm:placeholder:text-body"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button
                                             type="button"
                                             onClick={() => handleProposeCustom(search)}
                                             title={`Add "${search.trim()}" as custom ${proposeType}`}
-                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
                                         >
                                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                                         </button>
@@ -262,40 +271,7 @@ export function EntitySearchCombobox<T>({
                                 </div>
                             </div>
                             <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                {loading ? (
-                                    <div className="p-4 text-center text-sm text-slate-400 flex items-center justify-center gap-2">
-                                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                                        <span>Loading...</span>
-                                    </div>
-                                ) : filteredItems.length === 0 ? (
-                                    <div className="p-4 text-center text-sm font-medium text-slate-500">
-                                        {emptyMessage}
-                                    </div>
-                                ) : (
-                                    filteredItems.map((item, idx) => {
-                                        const label = getLabel(item);
-                                        const id = getId(item);
-                                        const isSelected = activeIndex === idx;
-                                        return (
-                                            <button
-                                                key={id || label}
-                                                id={`select-option-${idx}`}
-                                                type="button"
-                                                role="option"
-                                                aria-selected={isSelected}
-                                                onClick={() => {
-                                                    handleItemSelect(item);
-                                                }}
-                                                className={cn(
-                                                    "w-full px-4 py-2.5 min-h-[44px] text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl cursor-pointer select-none flex items-center",
-                                                    isSelected && "bg-blue-50 text-blue-900 font-semibold"
-                                                )}
-                                            >
-                                                {renderItem ? renderItem(item, isSelected) : label}
-                                            </button>
-                                        );
-                                    })
-                                )}
+                                {renderOptionsList(true)}
                             </div>
                         </div>
                     </Drawer>

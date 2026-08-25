@@ -57,7 +57,7 @@ export function AccountHeader({
             </Button>
           )}
           {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
-          <h1 className="account-page-title text-sm font-semibold text-slate-800 truncate">
+          <h1 className="account-page-title truncate">
             {mobileTitle}
           </h1>
         </div>
@@ -70,9 +70,9 @@ export function AccountHeader({
       </header>
 
       {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
-      <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 ${className}`}>
+      <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2 ${className}`}>
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">
+          <div className="p-2.5 bg-blue-600 rounded-2xl shadow-sm">
             <SettingsIcon className="h-6 w-6 text-white" />
           </div>
           <div>

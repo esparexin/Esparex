@@ -246,6 +246,7 @@ export default function LocationSelector({
             locations={searchApi.locations}
             isSearching={searchApi.isSearching}
             selectedIndex={selectedIndex}
+            selectedCityName={location?.city || location?.name}
             onRetry={searchApi.handleRetry}
             onSelect={(loc) => void handleSelect(loc)}
             getLocationPrimaryLabel={getLocationPrimaryLabel}

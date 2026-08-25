@@ -67,7 +67,7 @@ export const AdCardDashboard = memo(function AdCardDashboard({
         </AdCardCover>
 
         <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
-          <Badge variant="secondary" className="mb-1 text-xs font-normal">
+          <Badge variant="secondary" className="mb-1 text-tiny font-normal">
             {categoryLabel}
           </Badge>
 

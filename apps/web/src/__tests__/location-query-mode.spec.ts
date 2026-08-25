@@ -33,6 +33,19 @@ describe("location query mode", () => {
         expect(shouldUseGeoRadiusLocation(location)).toBe(true);
     });
 
+    it("treats manual slug selections (non-ObjectId) as geo radius queries", () => {
+        const location = {
+            source: "manual" as const,
+            locationId: "hyderabad",
+            level: "city" as const,
+            coordinates: { type: "Point" as const, coordinates: [78.4867, 17.3850] as [number, number] },
+        };
+
+        expect(hasCanonicalLocationId(location)).toBe(false);
+        expect(shouldUseExactLocationHierarchy(location)).toBe(false);
+        expect(shouldUseGeoRadiusLocation(location)).toBe(true);
+    });
+
     it("never uses geo radius mode for state or country levels", () => {
         expect(isRegionLocationLevel("state")).toBe(true);
         expect(isRegionLocationLevel("country")).toBe(true);

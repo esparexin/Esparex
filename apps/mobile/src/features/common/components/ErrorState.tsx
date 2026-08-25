@@ -16,10 +16,10 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     <Center className="w-16 h-16 rounded-full bg-red-500/10 mb-4">
       <AppIcon name="AlertCircle" size={32} color="#ef4444" />
     </Center>
-    <AppText variant="h3" className="text-slate-200 text-center mb-2">
+    <AppText variant="h3" className="text-slate-900 dark:text-slate-100 text-center mb-2">
       {title}
     </AppText>
-    <AppText variant="body" className="text-slate-400 text-center mb-6">
+    <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
       {message}
     </AppText>
     {onRetry && (

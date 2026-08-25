@@ -3,11 +3,8 @@
 import { memo } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { CardContent } from "@/components/ui/card";
-import { Button } from "@esparex/ui";
-import { Heart } from "@/icons/IconRegistry";
-import { haptics } from "@/lib/haptics";
 import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
-import { AdCardShell, AdCardMeta } from "./primitives";
+import { AdCardShell, AdCardMeta, AdCardActions } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
   type AdCardData,
@@ -76,82 +73,61 @@ export const AdCardList = memo(function AdCardList({
       useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
       className={cn(
-        "hover:shadow-md hover:-translate-y-0.5 border border-border rounded-xl bg-white",
+        "hover:shadow-md hover:-translate-y-0.5 border border-border rounded-xl bg-card text-card-foreground",
         isSpotlightAd(ad) ? "ring-2 ring-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.2)]" : "",
         className
       )}
     >
       <CardContent className="p-3 sm:p-4">
-            <div className="flex min-w-0 items-start gap-3 sm:gap-5">
-              {/* List View Image */}
-              <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
-                {imageUrl ? (
-                  <SafeImage
-                    src={imageUrl}
-                    alt={ad.title}
-                    fill
-                    priority={priority}
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 112px, 144px"
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center bg-muted/20 text-foreground-subtle"
-                    aria-hidden="true"
-                  >
-                    <span className="text-tiny text-foreground-tertiary">No Image</span>
-                  </div>
-                )}
-                {planBadge && (
-                  <div className="absolute top-1.5 left-1.5 z-10">
-                    {planBadge}
-                  </div>
-                )}
+        <div className="flex min-w-0 items-start gap-3 sm:gap-5">
+          {/* List View Image */}
+          <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
+            {imageUrl ? (
+              <SafeImage
+                src={imageUrl}
+                alt={ad.title}
+                fill
+                priority={priority}
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 112px, 144px"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center bg-muted/20 text-foreground-subtle"
+                aria-hidden="true"
+              >
+                <span className="text-tiny text-foreground-tertiary">No Image</span>
               </div>
-
-              {/* List View Content */}
-              <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[7rem] sm:min-h-[8rem]">
-                <div className="flex min-w-0 items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <AdCardMeta ad={ad} variant="list" />
-                  </div>
-                  {onToggleSave && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-9 w-9 rounded-full hover:bg-muted/40 shrink-0 -mt-1 -mr-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        haptics.toggle();
-                        onToggleSave(adId, e);
-                      }}
-                      aria-label={
-                        isSaved
-                          ? "Remove from favorites"
-                          : "Add to favorites"
-                      }
-                    >
-                      <Heart
-                        className={cn(
-                          "h-4 w-4 sm:h-5 sm:w-5",
-                          isSaved
-                            ? "fill-red-500 text-red-500"
-                            : "text-foreground-subtle"
-                        )}
-                      />
-                    </Button>
-                  )}
-                </div>
-
-                <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-normal text-foreground-tertiary uppercase tracking-wide">
-                    {categoryLabel}
-                  </span>
-                  {conditionBadge}
-                </div>
+            )}
+            {planBadge && (
+              <div className="absolute top-1.5 left-1.5 z-10">
+                {planBadge}
               </div>
+            )}
+          </div>
+
+          {/* List View Content */}
+          <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[7rem] sm:min-h-[8rem]">
+            <div className="flex min-w-0 items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <AdCardMeta ad={ad} variant="list" />
+              </div>
+              <AdCardActions
+                adId={adId}
+                isSaved={isSaved}
+                onToggleSave={onToggleSave}
+                className="relative static shrink-0 -mt-1 -mr-1 shadow-none bg-transparent hover:bg-muted/40"
+              />
             </div>
+
+            <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-tiny font-normal text-muted-foreground uppercase tracking-wide">
+                {categoryLabel}
+              </span>
+              {conditionBadge}
+            </div>
+          </div>
+        </div>
       </CardContent>
     </AdCardShell>
   );

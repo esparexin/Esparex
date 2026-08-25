@@ -8,8 +8,7 @@ export const linking: LinkingOptions<RootStackParamList> = {
       [ROUTES.AUTH_STACK]: {
         screens: {
           [ROUTES.LOGIN]: 'login',
-          [ROUTES.SIGNUP]: 'signup',
-          [ROUTES.FORGOT_PASSWORD]: 'forgot-password',
+          [ROUTES.OTP]: 'otp',
         },
       },
       [ROUTES.MAIN_STACK]: {

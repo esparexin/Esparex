@@ -41,7 +41,7 @@ export function ListingPriceField<
         <Stack gap="sm" className={className}>
           <div className="flex justify-between items-center">
             {label && (
-              <FieldLabel required={required} className="text-sm font-semibold text-foreground">
+              <FieldLabel required={required} className="text-caption sm:text-body font-semibold text-foreground-secondary">
                 {label}
               </FieldLabel>
             )}
@@ -51,7 +51,7 @@ export function ListingPriceField<
             <div className="flex flex-row gap-3">
               <div className="relative flex-1 min-w-0">
                 {showCurrencySymbol && (
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-body pointer-events-none">₹</span>
                 )}
                 <Input
                   {...field}
@@ -61,7 +61,7 @@ export function ListingPriceField<
                   disabled={disabled || isFree}
                   placeholder={placeholder}
                   className={cn(
-                    "h-11 text-sm font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
+                    "h-11 text-body font-normal sm:font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all placeholder:text-caption sm:placeholder:text-body",
                     showCurrencySymbol && "pl-8",
                     isFree && "bg-muted border-transparent text-muted-foreground"
                   )}
@@ -103,7 +103,7 @@ export function ListingPriceField<
                       </svg>
                     )}
                   </div>
-                  <span className="text-xs font-bold whitespace-nowrap">{isFree ? "Free" : "Make Free"}</span>
+                  <span className="text-caption font-bold whitespace-nowrap">{isFree ? "Free" : "Make Free"}</span>
                 </button>
               )}
             </div>

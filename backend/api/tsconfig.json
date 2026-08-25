@@ -15,15 +15,23 @@
     "resolveJsonModule": true,
     "noEmitOnError": true,
     "lib": ["ES2023", "DOM"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
       "@/*": ["src/*"],
       "@esparex/shared": ["../../shared/dist/index"],
       "@esparex/contracts": ["../../packages/contracts/dist/index"],
       "@esparex/contracts/*": ["../../packages/contracts/dist/*"],
-      "@esparex/core": ["./../../core/dist/index.d.ts"],
+      "@esparex/core": ["./../../core/dist/index"],
       "@esparex/core/*": ["./../../core/dist/*"]
     }
   },
   "include": ["src/index.ts", "src/server.ts", "src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/__tests__",
+    "src/tests",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

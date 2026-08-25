@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { render, screen, act, waitFor, fireEvent } from '@testing-library/react-native';
 import { AuthProvider, useAuth } from '../AuthProvider';
 import { SessionRestoration } from '../../infrastructure/auth/SessionRestoration';
 import { IAuthService } from '../../infrastructure/auth/AuthService';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 // Mock the SessionRestoration module
 jest.mock('../../infrastructure/auth/SessionRestoration', () => ({
@@ -12,20 +13,14 @@ jest.mock('../../infrastructure/auth/SessionRestoration', () => ({
   },
 }));
 
-
-
-// Instead of <button onClick={...}>, in React Native Testing Library we use fireEvent.press.
-// However, standard HTML tags are easier for quick testing with RNTL if using web presets,
-// but better to use proper React Native Text/TouchableOpacity, or just call hooks directly.
-// Let's create a custom hook test or simple consumer.
-import { View, Text, TouchableOpacity } from 'react-native';
-
 const MobileTestConsumer = () => {
-  const { status, login, logout } = useAuth();
+  const { status, sendOtp, verifyOtp, cancelOtp, logout } = useAuth();
   return (
     <View>
       <Text testID="status">{status}</Text>
-      <TouchableOpacity testID="login-btn" onPress={() => login({ user: 'test' })} />
+      <TouchableOpacity testID="send-otp-btn" onPress={() => sendOtp('9876543210')} />
+      <TouchableOpacity testID="verify-otp-btn" onPress={() => verifyOtp('9876543210', '123456')} />
+      <TouchableOpacity testID="cancel-otp-btn" onPress={() => cancelOtp('9876543210')} />
       <TouchableOpacity testID="logout-btn" onPress={() => logout()} />
     </View>
   );
@@ -38,7 +33,9 @@ describe('AuthProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAuthService = {
-      login: jest.fn().mockResolvedValue({ userId: 'user-1' }),
+      sendOtp: jest.fn().mockResolvedValue({ success: true, isNewUser: false, otpExpiresIn: 300 }),
+      verifyOtp: jest.fn().mockResolvedValue({ userId: 'user-1', accessToken: 'token-123' }),
+      cancelOtp: jest.fn().mockResolvedValue(undefined),
       logout: jest.fn().mockResolvedValue(undefined),
     };
     queryClient = new QueryClient({
@@ -51,7 +48,6 @@ describe('AuthProvider', () => {
   });
 
   it('should initialize to loading status initially', async () => {
-    // We delay the mock so we can see the loading state
     let resolveSession: (value: { status: 'anonymous' | 'authenticated' }) => void;
     (SessionRestoration.restoreSession as jest.Mock).mockReturnValue(
       new Promise((resolve) => {
@@ -80,8 +76,7 @@ describe('AuthProvider', () => {
   it('should transition to authenticated if SessionRestoration returns authenticated', async () => {
     (SessionRestoration.restoreSession as jest.Mock).mockResolvedValue({
       status: 'authenticated',
-      accessToken: 'token',
-      refreshToken: 'token'
+      accessToken: 'token-123',
     });
 
     render(
@@ -113,7 +108,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  it('should call authService.login and update status when login is invoked', async () => {
+  it('should call authService.verifyOtp and update status when verifyOtp is invoked', async () => {
     (SessionRestoration.restoreSession as jest.Mock).mockResolvedValue({ status: 'anonymous' });
 
     render(
@@ -128,21 +123,34 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('status').props.children).toBe('anonymous');
     });
 
-    // Simulate login
-    const consumer = render(
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('verify-otp-btn'));
+    });
+
+    expect(mockAuthService.verifyOtp).toHaveBeenCalledWith('9876543210', '123456', undefined);
+    expect(screen.getByTestId('status').props.children).toBe('authenticated');
+  });
+
+  it('should call authService.cancelOtp when cancelOtp is invoked', async () => {
+    (SessionRestoration.restoreSession as jest.Mock).mockResolvedValue({ status: 'anonymous' });
+
+    render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider authService={mockAuthService}>
           <MobileTestConsumer />
         </AuthProvider>
       </QueryClientProvider>
     );
-    
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('login-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status').props.children).toBe('anonymous');
     });
 
-    expect(mockAuthService.login).toHaveBeenCalledWith({ user: 'test' });
-    expect(screen.getByTestId('status').props.children).toBe('authenticated');
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('cancel-otp-btn'));
+    });
+
+    expect(mockAuthService.cancelOtp).toHaveBeenCalledWith('9876543210');
   });
 
   it('should call authService.logout and update status when logout is invoked', async () => {
@@ -169,7 +177,6 @@ describe('AuthProvider', () => {
   });
 
   it('should throw an error if useAuth is used outside of AuthProvider', () => {
-    // Suppress console.error for expected React boundary error
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     
     expect(() => render(<MobileTestConsumer />)).toThrow(

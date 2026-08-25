@@ -34,7 +34,7 @@ export function SellerIdentityPanel({
             {avatar}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className="font-bold truncate">{name}</h3>
+                    <h3 className="text-sm sm:text-base font-bold text-foreground truncate">{name}</h3>
                     {badge}
                 </div>
                 {subtitle}

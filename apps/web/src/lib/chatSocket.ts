@@ -29,6 +29,7 @@ export function getChatSocket(): Socket | null {
       transports: ['polling', 'websocket'],
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10_000,
+      randomizationFactor: 0.5,
       reconnectionAttempts: Infinity,
       autoConnect: false,
     });

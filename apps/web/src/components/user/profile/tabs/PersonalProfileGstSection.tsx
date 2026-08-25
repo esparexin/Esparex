@@ -16,8 +16,8 @@ export function PersonalProfileGstSection({
     return (
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-                <Label htmlFor="profile-gstin" className="text-xs font-semibold text-slate-700">
-                    GSTIN Number <span className="text-slate-400 font-normal">(Optional)</span>
+                <Label htmlFor="profile-gstin" className="text-caption font-semibold text-foreground-secondary">
+                    GSTIN Number <span className="text-muted-foreground font-normal">(Optional)</span>
                 </Label>
             </div>
             <Input
@@ -26,11 +26,11 @@ export function PersonalProfileGstSection({
                 placeholder="e.g. 27AAAAA0000A1Z5"
                 maxLength={15}
                 {...register("gstin")}
-                className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium uppercase ${gstinError ? "border-red-500" : ""}`}
+                className={`h-10 sm:h-10.5 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium uppercase ${gstinError ? "border-destructive" : ""}`}
                 aria-invalid={!!gstinError}
                 aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
             />
-            <p id="profile-gstin-helper" className="text-tiny text-slate-500">
+            <p id="profile-gstin-helper" className="text-tiny text-muted-foreground">
                 Enter your 15-character GSTIN to claim 18% Input Tax Credit (ITC) on B2B invoices.
             </p>
             <FormError id="profile-gstin-error" message={gstinError} />

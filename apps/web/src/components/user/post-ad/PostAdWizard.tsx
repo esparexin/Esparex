@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./context";
 import { StepOne } from "./steps/listing-information";
 import { StepTwo } from "./steps/listing-details";
@@ -7,10 +7,20 @@ import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/comp
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { EditAdWrapper } from "./EditAdWrapper";
 import { cn } from "@/components/ui/utils";
-import { Button, Spinner } from "@esparex/ui";
+import {
+  Button,
+  Spinner,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
-import { FormProvider } from "react-hook-form";
-// useNavigation removed
+import { FormProvider, useFormContext } from "react-hook-form";
 import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
 import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
 import type { PostAdWizardProps } from "./types";
@@ -19,17 +29,30 @@ const STEP_LABELS = ["Listing Information", "Listing Details"];
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
   const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
-  const { isUploadingImages } = usePostAdImages();
+  const { isUploadingImages, listingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
-  // Navigation handled without confirmation due to Draft Recovery
   const { entitlement, isAllowed, isLoading: isLoadingEntitlement } = usePostingEntitlement("ads");
+  const { formState } = useFormContext();
+  const [showCancelConfirmDialog, setShowCancelConfirmDialog] = useState(false);
+
+  const isFormDirty = formState.isDirty || (listingImages && listingImages.length > 0);
 
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
   const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
   const handleGoPlans = useCallback(() => {
-    window.location.href = "/account/plans";
-  }, []);
+    navigateTo("plans-payments");
+  }, [navigateTo]);
+
   const handleClose = useCallback(() => {
+    if (isFormDirty && !submittedAd) {
+      setShowCancelConfirmDialog(true);
+    } else {
+      handleGoHome();
+    }
+  }, [isFormDirty, submittedAd, handleGoHome]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowCancelConfirmDialog(false);
     handleGoHome();
   }, [handleGoHome]);
 
@@ -98,7 +121,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={prevStep}
-                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 ← Back
               </Button>
@@ -108,7 +131,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={handleClose}
-                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Cancel
               </Button>
@@ -120,7 +143,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               disabled={isButtonDisabled}
               className={cn(
                 "flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                "h-11 text-sm sm:text-base",
+                "h-11 text-sm font-semibold",
                 "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-md shadow-blue-600/20 disabled:opacity-50"
               )}
             >
@@ -136,6 +159,30 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           </div>
         </ListingModalFooter>
       </ListingModalLayout>
+
+      <AlertDialog open={showCancelConfirmDialog} onOpenChange={setShowCancelConfirmDialog}>
+        <AlertDialogContent className="max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
+              Discard Unsaved Changes?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground mt-2">
+              You have unsaved changes in your ad. If you leave now, your progress will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
+            <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+              Keep Editing
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDiscard}
+              className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Discard & Leave
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PostAdShell>
   );
 }

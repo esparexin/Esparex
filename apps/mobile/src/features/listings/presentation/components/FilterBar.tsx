@@ -29,6 +29,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollContent}
       >
         {/* Main Filter Action Button */}

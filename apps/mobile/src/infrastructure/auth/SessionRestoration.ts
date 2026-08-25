@@ -1,7 +1,7 @@
 import { SecureStoreAdapter } from './SecureStoreAdapter';
 
 export type SessionState =
-  | { status: 'authenticated'; accessToken: string; refreshToken: string }
+  | { status: 'authenticated'; accessToken: string; refreshToken?: string }
   | { status: 'anonymous' };
 
 /**
@@ -15,13 +15,12 @@ export const SessionRestoration = {
    */
   async restoreSession(): Promise<SessionState> {
     try {
-      const { accessToken, refreshToken } = await SecureStoreAdapter.getTokens();
+      const accessToken = await SecureStoreAdapter.getAccessToken();
 
-      if (accessToken && refreshToken) {
+      if (accessToken) {
         return {
           status: 'authenticated',
           accessToken,
-          refreshToken,
         };
       }
 

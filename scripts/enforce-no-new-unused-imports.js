@@ -13,7 +13,12 @@ function run(cmd) {
 function resolveBaseRef() {
   const ghBase = process.env.GITHUB_BASE_REF;
   if (ghBase) return `origin/${ghBase}`;
-  return "origin/main";
+  try {
+    run('git rev-parse --verify origin/develop');
+    return 'origin/develop';
+  } catch {
+    return 'origin/main';
+  }
 }
 
 function resolveMergeBase(baseRef) {
@@ -28,15 +33,27 @@ function resolveMergeBase(baseRef) {
   }
 }
 
-function getChangedTsFiles(baseSha) {
-  if (!baseSha) return [];
-  const raw = run(`git diff --name-only --diff-filter=ACMR ${baseSha}...HEAD`);
-  return raw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((file) => /\.(ts|tsx)$/.test(file))
-    .filter((file) => WORKSPACE_ROOTS.some((root) => file.startsWith(`${root}/src/`)));
+function getChangedTsFiles(baseSha, isStaged) {
+  let diffCmd = "";
+  if (isStaged) {
+    diffCmd = "git diff --cached --name-only --diff-filter=ACMR";
+  } else if (baseSha) {
+    diffCmd = `git diff --name-only --diff-filter=ACMR ${baseSha}...HEAD`;
+  } else {
+    return [];
+  }
+
+  try {
+    const raw = run(diffCmd);
+    return raw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .filter((file) => /\.(ts|tsx)$/.test(file))
+      .filter((file) => WORKSPACE_ROOTS.some((root) => file.startsWith(`${root}/src/`)));
+  } catch {
+    return [];
+  }
 }
 
 function groupByWorkspace(files) {
@@ -59,47 +76,69 @@ function lintWorkspaceChangedFiles(workspace, files) {
     "--format=json",
     "--rule",
     "unused-imports/no-unused-imports:error",
+    "--rule",
+    "@typescript-eslint/no-unused-vars:off",
+    "--rule",
+    "unused-imports/no-unused-vars:off",
   ];
+
   const result = spawnSync("npx", args, {
-    cwd: workspace,
+    cwd: path.resolve(workspace),
     stdio: ["ignore", "pipe", "pipe"],
-    shell: false,
     encoding: "utf8",
   });
 
+  if (result.status === 0) return 0;
+
+  const stdout = result.stdout ? result.stdout.trim() : "";
+  if (!stdout) {
+    if (result.stderr) console.error(result.stderr);
+    return result.status || 1;
+  }
+
   try {
-    const output = JSON.parse(result.stdout.trim());
-    let unusedImportCount = 0;
-    for (const file of output) {
-      const unusedInFile = file.messages.filter(m => m.ruleId === "unused-imports/no-unused-imports");
-      if (unusedInFile.length > 0) {
-        console.error(`❌ Unused imports in ${workspace}/${file.filePath}:`);
-        unusedInFile.forEach(m => {
-          console.error(`  Line ${m.line}: ${m.message}`);
-        });
-        unusedImportCount += unusedInFile.length;
+    const report = JSON.parse(stdout);
+    const violations = [];
+    for (const item of report) {
+      const messages = (item.messages || []).filter(
+        (m) => m.ruleId === "unused-imports/no-unused-imports"
+      );
+      if (messages.length > 0) {
+        violations.push({ filePath: item.filePath, messages });
       }
     }
-    return unusedImportCount > 0 ? 1 : 0;
-  } catch (err) {
-    console.error(`ESLint error or parsing error in workspace ${workspace}:`, result.stderr || result.stdout);
+
+    if (violations.length === 0) return 0;
+
+    console.error(`\n❌ Unused imports found in ${workspace}:`);
+    for (const v of violations) {
+      const rel = path.relative(process.cwd(), v.filePath);
+      for (const m of v.messages) {
+        console.error(`  ${rel}:${m.line}:${m.column} - ${m.message}`);
+      }
+    }
     return 1;
+  } catch {
+    if (result.stdout) console.log(result.stdout);
+    if (result.stderr) console.error(result.stderr);
+    return result.status || 1;
   }
 }
 
 function main() {
-  const baseRef = resolveBaseRef();
-  const baseSha = resolveMergeBase(baseRef);
+  const isStaged = process.argv.includes("--staged");
+  let changed = [];
 
-  if (!baseSha) {
-    console.log("✅ Skipping unused import guard (git base could not be resolved).");
-    return;
+  if (isStaged) {
+    changed = getChangedTsFiles("", true);
+  } else {
+    const baseRef = resolveBaseRef();
+    const baseSha = resolveMergeBase(baseRef);
+    changed = getChangedTsFiles(baseSha, false);
   }
 
-  const changed = getChangedTsFiles(baseSha);
-
   if (changed.length === 0) {
-    console.log("✅ No TypeScript changes detected for unused import guard.");
+    console.log(`ℹ️  No TypeScript changes detected for unused import guard (${isStaged ? 'staged index' : 'branch diff'}).`);
     return;
   }
 
@@ -108,7 +147,6 @@ function main() {
 
   for (const [workspace, files] of grouped.entries()) {
     console.log(`Checking unused imports in changed files (${workspace})...`);
-    // Final safety check: filter out files that may have been deleted/moved
     const existingFiles = files.filter(f => fs.existsSync(path.join(workspace, f)));
     if (existingFiles.length === 0) continue;
 

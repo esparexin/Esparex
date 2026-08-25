@@ -7,7 +7,7 @@ import { CreateBusinessRequestMapper } from './mappers/CreateBusinessRequestMapp
 export class ApiBusinessRepository implements IBusinessRepository {
   async getMyBusiness(): Promise<Business | null> {
     try {
-      const response = await apiClient.get<{ data: Business }>('/v1/businesses/me');
+      const response = await apiClient.get<{ data: Business }>('/businesses/me');
       return response.data?.data ?? null;
     } catch (error: any) {
       if (error?.response?.status === 404) {
@@ -19,7 +19,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
 
   async registerBusiness(state: BusinessFormState): Promise<Business> {
     const payload = CreateBusinessRequestMapper.toPayload(state);
-    const response = await apiClient.post<{ data: Business }>('/v1/businesses', payload);
+    const response = await apiClient.post<{ data: Business }>('/businesses', payload);
     return response.data.data;
   }
 
@@ -35,7 +35,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
     });
 
     const response = await apiClient.post<{ data: { url: string } | string }>(
-      '/v1/businesses/upload',
+      '/businesses/upload',
       formData,
       {
         headers: {
@@ -51,5 +51,24 @@ export class ApiBusinessRepository implements IBusinessRepository {
     }
     const rawResData: unknown = resData;
     return rawResData as string;
+  }
+
+  async getNearbyBusinesses(params?: { category?: string; city?: string; limit?: number }): Promise<readonly Business[]> {
+    try {
+      const response = await apiClient.get<any>('/businesses', { params });
+      const resData = response.data;
+      const items: Business[] = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData?.data?.items)
+        ? resData.data.items
+        : Array.isArray(resData?.items)
+        ? resData.items
+        : Array.isArray(resData)
+        ? resData
+        : [];
+      return items;
+    } catch {
+      return [];
+    }
   }
 }

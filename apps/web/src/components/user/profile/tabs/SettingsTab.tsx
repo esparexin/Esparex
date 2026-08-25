@@ -3,9 +3,8 @@
 import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
+import { AlertTriangle, BellRing, Mail, Megaphone, Save, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
 
-import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@esparex/ui";
 import { PageSection } from "@/components/layout";
 import { FormError } from "@/components/ui/FormError";
@@ -46,8 +45,8 @@ function SettingRow({ icon, title, description, checked, onCheckedChange }: Sett
             <div className="flex items-start gap-3">
                 <div className="mt-0.5 text-muted-foreground">{icon}</div>
                 <div>
-                    <p id={titleId} className="font-medium text-sm">{title}</p>
-                    <p id={descId} className="text-xs text-muted-foreground">{description}</p>
+                    <p id={titleId} className="font-medium text-body">{title}</p>
+                    <p id={descId} className="text-caption text-muted-foreground">{description}</p>
                 </div>
             </div>
             <Switch aria-labelledby={titleId} aria-describedby={descId} checked={checked} onCheckedChange={onCheckedChange} />
@@ -125,24 +124,18 @@ export function SettingsTab({
     };
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
             <PageSection
                 variant="bordered"
-                title={
-                    <span className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-                        <SettingsIcon className="h-5 w-5 text-blue-600" />
-                        Notification Settings
-                    </span>
-                }
-                subtitle={ACCOUNT_COPY.notificationsDescription}
+                className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs p-0 sm:p-5"
             >
-                <div className="space-y-4 pt-1">
-                    <div className="rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-3 text-xs text-link-dark leading-relaxed">
+                <div className="space-y-4">
+                    <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2.5 text-caption text-foreground-secondary leading-relaxed">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-6 pt-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
                         <Controller
                             name="adUpdates"
                             control={form.control}
@@ -214,8 +207,7 @@ export function SettingsTab({
                     <FormError message={globalError} />
                     <Button
                         type="submit"
-                        className="w-full md:w-auto h-10 gap-2 text-xs font-semibold px-6"
-                        variant="outline"
+                        className="w-full md:w-auto h-9 gap-2 text-caption font-semibold px-5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
                         disabled={isSaving}
                     >
                         <Save className="h-4 w-4" />
@@ -226,21 +218,21 @@ export function SettingsTab({
 
             <PageSection
                 variant="bordered"
-                className="border-red-200 bg-red-50/30"
+                className="rounded-none sm:rounded-2xl border-0 sm:border border-destructive/20 bg-destructive/5 sm:bg-destructive/10 p-0 sm:p-5"
                 title={
-                    <span className="text-base font-semibold flex items-center gap-2 text-red-600">
+                    <span className="text-body sm:text-body-lg font-semibold flex items-center gap-2 text-destructive">
                         <Trash2 className="h-4 w-4" />
                         Delete Account
                     </span>
                 }
                 subtitle="Permanently delete your account. Secure confirmation required."
             >
-                <div className="pt-2">
+                <div className="pt-1">
                     <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-10 gap-2 text-xs font-semibold px-5"
+                        className="h-9 gap-2 text-caption font-semibold px-4 rounded-xl"
                     >
                         <AlertTriangle className="h-4 w-4" />
                         Delete My Account

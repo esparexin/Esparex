@@ -209,7 +209,7 @@ export function BusinessPublicProfile({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">{business.name}</h1>
+                    <h1 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">{business.name}</h1>
                     {business.status === "live" && (
                       <Badge className="bg-blue-600 text-white text-2xs sm:text-tiny font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
                         <CheckCircle className="size-2.5 sm:size-3" />
@@ -217,21 +217,21 @@ export function BusinessPublicProfile({
                       </Badge>
                     )}
                   </div>
-                  {business.tagline && <p className="text-xs text-slate-500 mt-0.5 font-normal">{business.tagline}</p>}
+                  {business.tagline && <p className="text-caption text-foreground-subtle mt-0.5 font-normal">{business.tagline}</p>}
 
-                  <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500 font-normal">
-                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-tiny">
-                      <Store className="size-3 text-blue-600" />
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5 text-caption text-foreground-subtle font-normal">
+                    <span className="inline-flex items-center gap-1 text-foreground-secondary font-medium bg-muted px-2 py-0.5 rounded-md text-tiny">
+                      <Store className="size-3 text-primary" />
                       {primaryBusinessType}
                     </span>
                     {mapData.locationLabel && (
-                      <span className="inline-flex items-center gap-1 text-slate-500 text-tiny">
-                        <MapPin className="size-3 text-slate-400" />
+                      <span className="inline-flex items-center gap-1 text-foreground-subtle text-tiny">
+                        <MapPin className="size-3 text-foreground-subtle" />
                         {mapData.locationLabel}
                       </span>
                     )}
                     {business.rating ? (
-                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold text-tiny">
+                      <span className="inline-flex items-center gap-1 text-foreground-secondary font-semibold text-tiny">
                         <Star className="size-3 fill-amber-400 text-amber-400" />
                         {business.rating.toFixed(1)}
                       </span>
@@ -311,14 +311,14 @@ export function BusinessPublicProfile({
           {business.description ? (
             <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
               <CardHeader className="pb-1.5 pt-3.5 px-3.5 sm:px-5">
-                <CardTitle className="text-tiny font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
+                <CardTitle className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">About Business</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2.5 px-3.5 sm:px-5 pb-3.5">
-                <p className="leading-relaxed text-xs sm:text-sm text-slate-700 font-normal whitespace-pre-wrap">{business.description}</p>
+                <p className="leading-relaxed text-caption sm:text-body text-foreground-secondary font-normal whitespace-pre-wrap">{business.description}</p>
                 {business.website ? (
-                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-100">
-                    <Globe className="size-3.5 text-slate-400 shrink-0" />
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate font-medium">
+                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-border/60">
+                    <Globe className="size-3.5 text-foreground-subtle shrink-0" />
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-caption text-primary hover:underline truncate font-medium">
                       {business.website}
                     </a>
                   </div>

@@ -14,5 +14,6 @@ export const useNotifications = () => {
 
 export const useUnreadNotificationsCount = () => {
   const { data: notifications = [] } = useNotifications();
+  if (!Array.isArray(notifications)) return 0;
   return notifications.filter((n) => !n.isRead).length;
 };

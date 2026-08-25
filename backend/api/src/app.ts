@@ -16,7 +16,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
+import cookieParser from './middleware/cookieParser';
 import '@esparex/core/models/registry';
 import { env } from '@esparex/core/config/env';
 import { validateOtpConfiguration } from './middleware/otpGuard';
@@ -62,6 +62,7 @@ import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 import editorialRoutes from './routes/editorialRoutes';
 import contactRoutes from './routes/contactRoutes';
 import rootRoutes from './routes/rootRoutes';
+import fallbackRoutes from './routes/fallbackRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
@@ -188,7 +189,12 @@ registerDeprecationRoutes(app);
 /* -------------------------------------------------------------------------- */
 // TLS 1.2+ and Secure Cipher Suites must be enforced at the Load Balancer / Ingress layer.
 app.use(helmet({
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'none'"],
+            frameAncestors: ["'none'"],
+        }
+    },
     crossOriginEmbedderPolicy: false,
     hsts: {
         maxAge: 31536000, // 1 year
@@ -208,11 +214,14 @@ app.use(helmet({
 app.use(compression());
 
 /* -------------------------------------------------------------------------- */
-/* CORE MIDDLEWARE                                                             */
+/* CORE MIDDLEWARE & CSRF PROTECTION                                           */
 /* -------------------------------------------------------------------------- */
+import { verifyCsrfToken } from './middleware/csrfProtection';
+
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
-app.use(cookieParser());
+app.use(cookieParser);
+app.use(verifyCsrfToken);
 
 // Request ID MUST be registered first — it establishes the TraceContext
 // (AsyncLocalStorage) used by every subsequent middleware and all log lines.
@@ -224,6 +233,12 @@ import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummar
 import { requireMetricsAuth } from './middleware/metricsAuth';
 
 app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
+app.use((req, res, next) => {
+    logger.info(`[INCOMING_REQUEST] ${req.method} ${req.url}`, {
+        headers: req.headers,
+    });
+    next();
+});
 app.use(sentryRequestHandler); // Sentry request context
 app.use(sentryTracingHandler); // Sentry performance monitoring
 app.use(apiLatencyMiddleware);
@@ -368,25 +383,18 @@ app.get('/metrics', requireMetricsAuth, async (_req, res) => {
         res.set('Content-Type', register.contentType);
         res.end(await register.metrics());
     } catch (err) {
-        res.status(500).end(err instanceof Error ? err.message : String(err));
+        logger.error('Failed to collect Prometheus metrics', { error: err });
+        res.status(500).end('Internal Server Error');
     }
 });
-
-/* -------------------------------------------------------------------------- */
-/* CSRF PROTECTION                                                             */
-/* -------------------------------------------------------------------------- */
-import { verifyCsrfToken } from './middleware/csrfProtection';
-
-// CSRF token endpoint (public, no auth required)
-// Handled by rootRoutes and adminRoutes
 
 /* -------------------------------------------------------------------------- */
 /* FAIL-FAST DB GATE (DATA ROUTES ONLY)                                         */
 /* -------------------------------------------------------------------------- */
 app.use('/api/v1', requireDb, maintenanceMiddleware);
 
-// Apply CSRF protection to all state-changing requests
-app.use('/api/v1', verifyCsrfToken);
+// Fallback routing for un-prefixed requests (Must be applied before /api 404 handler)
+app.use('/api', fallbackRoutes);
 
 /* -------------------------------------------------------------------------- */
 /* ROUTES                                                                      */

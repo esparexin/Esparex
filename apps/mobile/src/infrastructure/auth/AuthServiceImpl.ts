@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import { IAuthService, AuthResult } from './AuthService';
+import { IAuthService, AuthResult, SendOtpResult } from './AuthService';
 import { ITokenStorage } from './ITokenStorage';
 import { IPushTokenRegistrationService } from '../../features/notifications/application/IPushTokenRegistrationService';
 
@@ -8,102 +8,81 @@ export class AuthServiceImpl implements IAuthService {
     private readonly apiClient: AxiosInstance,
     private readonly tokenStorage: ITokenStorage,
     private readonly pushTokenRegistrationService?: IPushTokenRegistrationService
-  ) {
-    // Bind the executeTokenRefresh context so it can be passed freely
-    this.executeTokenRefresh = this.executeTokenRefresh.bind(this);
-  }
+  ) {}
 
-  async login(payload: unknown): Promise<AuthResult> {
-    const response = await this.apiClient.post('/v1/auth/login', payload);
+  async sendOtp(mobile: string): Promise<SendOtpResult> {
+    const response = await this.apiClient.post('/auth/send-otp', { mobile: mobile.trim() });
     const data = response.data?.data || response.data;
-    const accessToken = data?.accessToken || response.data?.accessToken;
-    const refreshToken = data?.refreshToken || response.data?.refreshToken;
-    const userId = data?.userId || data?.user?._id || 'unknown-user';
-
-    if (accessToken && refreshToken) {
-      await this.tokenStorage.setTokens(accessToken, refreshToken);
-    }
-
-    if (this.pushTokenRegistrationService) {
-      await this.pushTokenRegistrationService.registerPushToken();
-    }
-
-    return {
-      userId,
-    };
-  }
-
-  async sendOtp(mobile: string): Promise<{ success: boolean; message?: string }> {
-    const response = await this.apiClient.post('/v1/auth/send-otp', { mobile });
     return {
       success: response.data?.success ?? true,
-      message: response.data?.message || 'OTP sent successfully'
+      isNewUser: Boolean(data?.isNewUser),
+      otpExpiresIn: typeof data?.otpExpiresIn === 'number' ? data.otpExpiresIn : 300,
+      name: data?.name,
+      message: response.data?.message || 'OTP sent successfully',
     };
   }
 
-  async verifyOtp(mobile: string, otp: string): Promise<AuthResult> {
-    const response = await this.apiClient.post('/v1/auth/verify-otp', { mobile, otp });
-    const data = response.data?.data || response.data;
-    const accessToken = data?.accessToken || response.data?.accessToken;
-    const refreshToken = data?.refreshToken || response.data?.refreshToken;
-    const userId = data?.userId || data?.user?._id || 'unknown-user';
+  async verifyOtp(mobile: string, otp: string, name?: string): Promise<AuthResult> {
+    const payload: { mobile: string; otp: string; name?: string } = {
+      mobile: mobile.trim(),
+      otp: otp.trim(),
+    };
+    if (name && name.trim()) {
+      payload.name = name.trim();
+    }
 
-    if (accessToken && refreshToken) {
-      await this.tokenStorage.setTokens(accessToken, refreshToken);
+    const response = await this.apiClient.post('/auth/verify-otp', payload);
+    const data = response.data?.data || response.data;
+    const accessToken =
+      data?.token ||
+      data?.accessToken ||
+      data?.user?.accessToken ||
+      response.data?.token ||
+      response.data?.accessToken;
+    const userId =
+      data?.user?._id ||
+      data?.user?.id ||
+      data?.userId ||
+      'unknown-user';
+
+    if (accessToken) {
+      await this.tokenStorage.setAccessToken(accessToken);
     }
 
     if (this.pushTokenRegistrationService) {
-      await this.pushTokenRegistrationService.registerPushToken();
+      try {
+        await this.pushTokenRegistrationService.registerPushToken();
+      } catch {
+        // Non-blocking: push token registration failure does not fail auth
+      }
     }
 
     return {
       userId,
+      accessToken: accessToken || '',
+      isNewUser: data?.isNewUser,
+      user: data?.user,
     };
+  }
+
+  async cancelOtp(mobile: string): Promise<void> {
+    try {
+      await this.apiClient.post('/auth/cancel-otp', { mobile: mobile.trim() });
+    } catch {
+      // Non-blocking: best-effort OTP invalidation
+    }
   }
 
   async logout(): Promise<void> {
     try {
       if (this.pushTokenRegistrationService) {
-        await this.pushTokenRegistrationService.unregisterPushToken();
-      } else {
-        await this.apiClient.post('/v1/auth/logout');
+        await this.pushTokenRegistrationService.unregisterPushToken().catch(() => {});
       }
+      await this.apiClient.post('/auth/logout');
     } catch {
       // Ignore network errors on logout, we still want to clear the local session
     } finally {
       await this.tokenStorage.clearTokens();
-    }
-  }
-
-  async executeTokenRefresh(): Promise<string> {
-    const tokens = await this.tokenStorage.getTokens();
-    
-    if (!tokens.refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    try {
-      const response = await this.apiClient.post('/v1/auth/refresh', {
-        refreshToken: tokens.refreshToken,
-      });
-
-      const newAccessToken = response.data?.accessToken;
-      const newRefreshToken = response.data?.refreshToken;
-
-      if (!newAccessToken) {
-        throw new Error('No access token returned from refresh endpoint');
-      }
-
-      await this.tokenStorage.setTokens(
-        newAccessToken, 
-        newRefreshToken || tokens.refreshToken // Fallback to existing refresh token if not rotated
-      );
-
-      return newAccessToken;
-    } catch (error) {
-      // If refresh fails, clear tokens so the user is forced to log in again
-      await this.tokenStorage.clearTokens();
-      throw error;
     }
   }
 }

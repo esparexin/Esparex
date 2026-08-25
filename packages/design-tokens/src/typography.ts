@@ -9,6 +9,7 @@ export const typography = {
     'h2': ['1.5rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],     // 24px
     'h3': ['1.25rem', { lineHeight: '1.35', letterSpacing: '-0.01em' }],    // 20px
     'h4': ['1.125rem', { lineHeight: '1.4', letterSpacing: '0' }],          // 18px
+    'body-lg': ['1rem', { lineHeight: '1.5', letterSpacing: '0' }],         // 16px
     'body': ['0.875rem', { lineHeight: '1.55', letterSpacing: '0' }],       // 14px
     'small': ['0.8125rem', { lineHeight: '1.5', letterSpacing: '0' }],      // 13px
     'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0' }],      // 12px

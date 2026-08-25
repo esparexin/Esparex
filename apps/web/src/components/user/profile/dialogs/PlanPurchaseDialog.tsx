@@ -118,20 +118,20 @@ export function PlanPurchaseDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                    <Card className="bg-gray-50 border-slate-200">
+                    <Card className="bg-muted/50 border-border">
                         <CardContent className="p-4 space-y-3">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="font-semibold text-slate-900">{plan.name}</p>
-                                    <p className="text-xs text-muted-foreground">{plan.type}</p>
+                                    <p className="font-semibold text-foreground">{plan.name}</p>
+                                    <p className="text-caption text-muted-foreground">{plan.type}</p>
                                 </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${taxResult.invoiceType === 'TAX_INVOICE' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+                                <span className={`text-tiny font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${taxResult.invoiceType === 'TAX_INVOICE' ? 'bg-emerald-100 text-emerald-800' : 'bg-muted text-foreground-secondary'}`}>
                                     {taxResult.invoiceType === 'TAX_INVOICE' ? 'B2B Tax Invoice' : 'Bill of Supply'}
                                 </span>
                             </div>
                             <Separator />
                             <div>
-                                <p className="text-xs text-muted-foreground mb-2">Features:</p>
+                                <p className="text-caption text-muted-foreground mb-2">Features:</p>
                                 <PlanFeatureList features={plan.features} className="space-y-1" />
                             </div>
 
@@ -142,7 +142,7 @@ export function PlanPurchaseDialog({
                                     checked={sendEmailReceipt}
                                     onCheckedChange={(checked) => setSendEmailReceipt(Boolean(checked))}
                                 />
-                                <Label htmlFor="checkout-send-email" className="text-xs font-medium text-slate-800 cursor-pointer">
+                                <Label htmlFor="checkout-send-email" className="text-caption font-medium text-foreground cursor-pointer">
                                     Send PDF Invoice receipt to my email (if configured)
                                 </Label>
                             </div>
@@ -161,19 +161,19 @@ export function PlanPurchaseDialog({
                             <Separator />
 
                             {/* Pricing & Tax Breakdown */}
-                            <div className="space-y-1 text-xs">
-                                <div className="flex items-center justify-between text-slate-600">
+                            <div className="space-y-1 text-caption">
+                                <div className="flex items-center justify-between text-foreground-secondary">
                                     <span>Subtotal:</span>
                                     <span>{formatCurrency(taxResult.subtotalAmount)}</span>
                                 </div>
 
                                 {taxResult.taxBreakup?.cgstAmount !== undefined && (
                                     <>
-                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                        <div className="flex items-center justify-between text-foreground-subtle text-caption">
                                             <span>CGST (9%):</span>
                                             <span>{formatCurrency(taxResult.taxBreakup.cgstAmount)}</span>
                                         </div>
-                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                        <div className="flex items-center justify-between text-foreground-subtle text-caption">
                                             <span>SGST (9%):</span>
                                             <span>{formatCurrency(taxResult.taxBreakup.sgstAmount!)}</span>
                                         </div>
@@ -181,14 +181,14 @@ export function PlanPurchaseDialog({
                                 )}
 
                                 {taxResult.taxBreakup?.igstAmount !== undefined && (
-                                    <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                    <div className="flex items-center justify-between text-foreground-subtle text-caption">
                                         <span>IGST (18%):</span>
                                         <span>{formatCurrency(taxResult.taxBreakup.igstAmount)}</span>
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                                    <span className="font-bold text-sm text-slate-900">Total Payable:</span>
+                                <div className="flex items-center justify-between pt-2 border-t border-border">
+                                    <span className="font-bold text-body text-foreground">Total Payable:</span>
                                     <span className="text-xl font-bold text-emerald-600">
                                         {formatCurrency(taxResult.totalAmount)}
                                     </span>
@@ -197,8 +197,8 @@ export function PlanPurchaseDialog({
                         </CardContent>
                     </Card>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2.5">
-                        <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-xs font-medium text-blue-900 leading-relaxed">
+                        <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <p className="text-caption font-medium text-link-dark leading-relaxed">
                             🔒 <strong>Instant Activation</strong> — Your plan credits will be activated immediately upon payment confirmation.
                         </p>
                     </div>
@@ -208,7 +208,7 @@ export function PlanPurchaseDialog({
                         Cancel
                     </Button>
                     <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11 font-bold px-8 shadow-lg shadow-blue-200 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl h-11 font-bold px-8 shadow-lg active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         onClick={handleConfirm}
                         disabled={isProcessing}
                     >

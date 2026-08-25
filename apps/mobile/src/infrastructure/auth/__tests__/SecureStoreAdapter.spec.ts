@@ -18,6 +18,22 @@ describe('SecureStoreAdapter', () => {
     jest.clearAllMocks();
   });
 
+  it('setAccessToken should save access token to SecureStore', async () => {
+    await SecureStoreAdapter.setAccessToken('access-123');
+
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith(ESPAREX_AUTH_ACCESS_TOKEN, 'access-123');
+    expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('getAccessToken should retrieve access token from SecureStore', async () => {
+    (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('access-123');
+
+    const token = await SecureStoreAdapter.getAccessToken();
+
+    expect(SecureStore.getItemAsync).toHaveBeenCalledWith(ESPAREX_AUTH_ACCESS_TOKEN);
+    expect(token).toBe('access-123');
+  });
+
   it('setTokens should save both tokens to SecureStore', async () => {
     await SecureStoreAdapter.setTokens('access-123', 'refresh-456');
 

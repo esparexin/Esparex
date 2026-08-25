@@ -206,3 +206,31 @@ A sprint is complete only when:
 - [ ] ADR updated (if required)
 - [ ] Rollback documented
 - [ ] PR approved
+
+---
+
+## Appendix B — UI Modernization Sprint Roadmap
+
+*Previously maintained as `docs/roadmaps/ui-modernization-roadmap.md`. Consolidated here per DOCUMENTATION-GOVERNANCE §7 anti-sprawl policy.*
+
+This roadmap governs the execution sprints for the Esparex UI Modernization Program. All sprints operate under the architectural authority of this UI Foundation Blueprint (SSOT).
+
+### Foundation Sprints
+
+- **Sprint 1 — Audit** ✅ Completed
+- **Sprint 2 — Design Tokens**
+  - PR 1: Initialize `packages/design-tokens`
+  - PR 2: Canonical token API (primitive → semantic → component)
+  - Architecture Review gate
+  - PR 3: Connect Web (`apps/web`, `apps/admin`)
+  - Visual Regression Check
+  - PR 4: Connect React Native (`apps/mobile`, `packages/mobile-ui`)
+- **Sprint 3 — Responsive Foundation**
+- **Sprint 4 — Shared Components**
+
+### Experience Sprints
+
+- **Sprint 5 — Navigation**
+- **Sprint 6 — Forms**
+- **Sprint 7 — Accessibility**
+- **Sprint 8 — React Native Alignment**

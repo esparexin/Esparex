@@ -23,18 +23,31 @@ export function AdPreviewSimulatorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="w-full max-w-3xl bg-white rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="w-full max-w-3xl bg-card rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-blue-600" />
-            <h3 className="text-sm font-bold text-slate-800">Multi-Device In-Content Ad Simulator</h3>
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h3 className="text-body font-bold text-foreground">Multi-Device In-Content Ad Simulator</h3>
           </div>
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center gap-2">
+            <select
+              value={previewPlacement}
+              onChange={(e) => setPreviewPlacement(e.target.value as InContentPlacementId)}
+              className="h-8 px-2 rounded-xl border border-border bg-card text-caption text-foreground focus:outline-none"
+              aria-label="Select placement slot for simulation"
+            >
+              {Object.entries(PLACEMENT_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-xl">
             <button
               type="button"
               onClick={() => setPreviewDevice("desktop")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                previewDevice === "desktop" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
+              className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+                previewDevice === "desktop" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Desktop view"
             >
@@ -43,8 +56,8 @@ export function AdPreviewSimulatorModal({
             <button
               type="button"
               onClick={() => setPreviewDevice("tablet")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                previewDevice === "tablet" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
+              className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+                previewDevice === "tablet" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Tablet view"
             >
@@ -53,19 +66,20 @@ export function AdPreviewSimulatorModal({
             <button
               type="button"
               onClick={() => setPreviewDevice("mobile")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                previewDevice === "mobile" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
+              className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+                previewDevice === "mobile" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Mobile view"
             >
               <Smartphone className="h-4 w-4" />
             </button>
           </div>
+          </div>
         </div>
 
-        <div className="p-4 bg-slate-50 rounded-2xl flex items-center justify-center min-h-[300px]">
+        <div className="p-4 bg-muted/30 rounded-2xl flex items-center justify-center min-h-[300px]">
           <div
-            className={`bg-white border border-slate-200 rounded-2xl p-4 shadow-xs transition-all text-center flex flex-col items-center justify-center gap-2 ${
+            className={`bg-card border border-border rounded-2xl p-4 shadow-xs transition-all text-center flex flex-col items-center justify-center gap-2 ${
               previewDevice === "desktop"
                 ? "w-[480px] h-[260px]"
                 : previewDevice === "tablet"
@@ -73,13 +87,13 @@ export function AdPreviewSimulatorModal({
                 : "w-[280px] h-[200px]"
             }`}
           >
-            <span className="text-2xs font-bold uppercase tracking-widest text-slate-400">
+            <span className="text-tiny font-bold uppercase tracking-widest text-foreground-subtle">
               {publishingEnabled ? "Live Ad Slot Preview" : "Ad Slot Inactive (Simulated)"}
             </span>
-            <p className="text-xs font-bold text-slate-700">
+            <p className="text-caption font-bold text-foreground">
               {PLACEMENT_LABELS[previewPlacement]}
             </p>
-            <span className="text-2xs font-mono text-blue-600">
+            <span className="text-tiny font-mono text-primary">
               Device: {previewDevice.toUpperCase()} · Clean In-Content Container
             </span>
           </div>
@@ -89,7 +103,7 @@ export function AdPreviewSimulatorModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-xl text-caption font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
           >
             Close Simulator
           </button>

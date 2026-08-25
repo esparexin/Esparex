@@ -60,38 +60,34 @@ export const AdCardGrid = memo(function AdCardGrid({
       useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
       className={cn(
-        "duration-200 border border-slate-200/60 bg-white shadow-2xs rounded-2xl",
-        "hover:shadow-xs hover:border-slate-300 hover:-translate-y-0.5 transition-all",
+        "duration-200 border border-border bg-card text-card-foreground shadow-2xs rounded-2xl",
+        "hover:shadow-xs hover:border-border-hover hover:-translate-y-0.5 transition-all",
         isSpotlightAd(ad) &&
           "ring-2 ring-amber-400/50 shadow-xs",
         className
       )}
     >
       {/* Image section — AdCardCover handles promotion + verified badges internally */}
-          <AdCardCover
-            ad={ad}
-            imageUrl={imageUrl}
-            priority={priority}
-            showBusinessBadge={showBusinessBadge && isBusiness}
-            className="aspect-[4/3] w-full"
-          >
-            {/* Favorite button — bottom-right overlay */}
-            {onToggleSave && (
-              <AdCardActions
-                adId={adId}
-                isSaved={isSaved}
-                onToggleSave={onToggleSave}
-                isBusiness={isBusiness}
-                showBusinessBadge={showBusinessBadge}
-                className="absolute bottom-1.5 right-1.5 md:bottom-2 md:right-2"
-              />
-            )}
-          </AdCardCover>
+      <AdCardCover
+        ad={ad}
+        imageUrl={imageUrl}
+        priority={priority}
+        showBusinessBadge={showBusinessBadge && isBusiness}
+        className="aspect-[4/3] w-full"
+      >
+        {/* Favorite button — top-right overlay */}
+        <AdCardActions
+          adId={adId}
+          isSaved={isSaved}
+          onToggleSave={onToggleSave}
+          className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-20"
+        />
+      </AdCardCover>
 
-          {/* Content section */}
-          <CardContent className="p-3">
-            <AdCardMeta ad={ad} variant="default" />
-          </CardContent>
+      {/* Content section */}
+      <CardContent className="p-2 sm:p-2.5">
+        <AdCardMeta ad={ad} variant="default" />
+      </CardContent>
     </AdCardShell>
   );
 }, areAdCardGridPropsEqual);

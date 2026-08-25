@@ -2,7 +2,7 @@
   "name": "@esparex/backend-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "clean": "node ../../scripts/kill-port.js 5001 && node ../../scripts/clean.js --backend",
     "predev": "npm run clean",
@@ -134,7 +134,7 @@
     "eslint-plugin-unused-imports": "^4.3.0",
     "jest": "^30.2.0",
     "light-my-request": "^6.6.0",
-    "nodemon": "^3.1.11",
+    "nodemon": "^3.1.14",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^3.15.0",

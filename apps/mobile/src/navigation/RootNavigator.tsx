@@ -13,14 +13,19 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const RootNavigator = () => {
   const { status } = useAuth();
 
+  if (status === 'loading') {
+    return null;
+  }
+
   return (
     <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {status === 'authenticated' ? (
-          <Stack.Screen name={ROUTES.MAIN_STACK} component={MainNavigator} />
-        ) : (
-          <Stack.Screen name={ROUTES.AUTH_STACK} component={AuthNavigator} />
-        )}
+        <Stack.Screen name={ROUTES.MAIN_STACK} component={MainNavigator} />
+        <Stack.Screen
+          name={ROUTES.AUTH_STACK}
+          component={AuthNavigator}
+          options={{ presentation: 'modal' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -29,6 +29,7 @@ describe('ChatService Unit Tests', () => {
 
   beforeEach(() => {
     mockRepo = {
+      startChat: jest.fn(),
       getConversations: jest.fn(),
       getConversationById: jest.fn(),
       getMessages: jest.fn(),
@@ -36,6 +37,14 @@ describe('ChatService Unit Tests', () => {
       markRead: jest.fn(),
     };
     chatService = new ChatService(mockRepo);
+  });
+
+  it('delegates startChat call to repository', async () => {
+    mockRepo.startChat.mockResolvedValueOnce('conv-10');
+
+    const result = await chatService.startChat('ad-1');
+    expect(result).toEqual('conv-10');
+    expect(mockRepo.startChat).toHaveBeenCalledWith('ad-1');
   });
 
   it('delegates getConversations call to repository', async () => {

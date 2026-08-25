@@ -50,4 +50,45 @@ export class ExpoImagePicker implements IImagePicker {
       return { success: false, reason: 'error', message };
     }
   }
+
+  public async captureFromCamera(): Promise<PickImagesResult> {
+    try {
+      // 1. Request camera permissions
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permissionResult.granted) {
+        return {
+          success: false,
+          reason: 'permission-denied',
+          message: 'Permission to access camera was denied.',
+        };
+      }
+
+      // 2. Launch camera capture
+      const pickerResult = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.8,
+      });
+
+      // 3. Handle cancellation
+      if (pickerResult.canceled) {
+        return { success: false, reason: 'cancelled' };
+      }
+
+      // 4. Map camera asset to PickedImage value objects
+      const images: PickedImage[] = (pickerResult.assets || [])
+        .filter((asset) => Boolean(asset.uri))
+        .map((asset: ImagePicker.ImagePickerAsset) => ({
+          uri: asset.uri,
+          width: asset.width,
+          height: asset.height,
+          fileName: asset.fileName ?? undefined,
+          mimeType: asset.mimeType ?? 'image/jpeg',
+        }));
+
+      return { success: true, images };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown camera error';
+      return { success: false, reason: 'error', message };
+    }
+  }
 }

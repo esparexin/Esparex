@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../AuthProvider';
 import { useTheme } from '../ThemeProvider';
 import { IServices } from '../../bootstrap/services';
-import { AuthResult, IAuthService } from '../../infrastructure/auth/AuthService';
+import { AuthResult, IAuthService, SendOtpResult } from '../../infrastructure/auth/AuthService';
 import { ListingService } from '../../features/listings/application/ListingService';
 import { ApiListingRepository } from '../../features/listings/application/ApiListingRepository';
 import { PostAdService } from '../../features/postAd/application/PostAdService';
@@ -104,8 +104,10 @@ describe('AppProvider', () => {
 
 
   const mockAuthService: IAuthService = {
-    login: jest.fn<Promise<AuthResult>, [unknown]>(),
     logout: jest.fn<Promise<void>, []>(),
+    sendOtp: jest.fn<Promise<SendOtpResult>, [string]>().mockResolvedValue({ success: true, isNewUser: false, otpExpiresIn: 300 }),
+    verifyOtp: jest.fn<Promise<AuthResult>, [string, string, (string | undefined)?]>().mockResolvedValue({ userId: 'user-1', accessToken: 'token-123' }),
+    cancelOtp: jest.fn<Promise<void>, [string]>().mockResolvedValue(undefined),
   };
 
   const mockListingService = new ListingService(new ApiListingRepository());
@@ -136,10 +138,11 @@ describe('AppProvider', () => {
       registerPushToken: jest.fn().mockResolvedValue(true),
       unregisterPushToken: jest.fn().mockResolvedValue(true),
     } as any,
-    imagePicker: { pick: jest.fn() },
+    imagePicker: { pick: jest.fn(), captureFromCamera: jest.fn() },
     businessService: { getMyBusiness: jest.fn() } as any,
     paymentService: { getPlans: jest.fn() } as any,
     smartAlertService: { getSmartAlerts: jest.fn() } as any,
+    locationService: { searchLocations: jest.fn(), detectLocation: jest.fn() } as any,
   };
 
 

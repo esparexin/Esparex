@@ -1,111 +1,168 @@
+"use client";
+
+import { useState } from "react";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import { Wrench, CheckCircle2, XCircle, ShieldCheck, CircuitBoard, Briefcase } from "@/icons/IconRegistry";
+import {
+    Wrench,
+    CircuitBoard,
+    FileText,
+} from "@/icons/IconRegistry";
+import { cn } from "@/components/ui/utils";
+import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSection";
+import { ListingDescriptionTab } from "./ListingDescriptionTab";
+import { ListingWorkingSparePartsTab, extractSparePartItems } from "./ListingWorkingSparePartsTab";
+import type { UserPage } from "@/lib/routeUtils";
 
 interface ListingDescriptionCardProps {
     ad: Ad;
     variant?: "mobile" | "desktop";
+    navigateTo?: (
+        page: UserPage,
+        adId?: string | number,
+        category?: string,
+        sellerIdOrBusinessId?: string,
+        serviceId?: string,
+        sellerId?: string,
+        sellerType?: "business" | "individual"
+    ) => void;
 }
 
-export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
-    const description = cleanupListingDescription(String(ad.description || ""));
-    const isService = ad.listingType === 'service';
-    const isSparePart = ad.listingType === 'spare_part';
-    const hasAttributes = isService || isSparePart || !!ad.warranty;
+const TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
+type TabKey = typeof TAB_KEYS[number];
 
-    const titleText = isService
-        ? "Service Overview & Specifications"
-        : isSparePart
-        ? "Spare Part Specifications & Details"
-        : "Description & Details";
+export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCardProps) {
+    const [activeTab, setActiveTab] = useState<TabKey>("repair-shops");
+    const description = cleanupListingDescription(String(ad.description || ""));
+    const sparePartItems = extractSparePartItems(ad);
+
+    const handleTabKeyDown = (e: React.KeyboardEvent, currentTab: TabKey) => {
+        const currentIndex = TAB_KEYS.indexOf(currentTab);
+        let nextIndex = currentIndex;
+
+        if (e.key === "ArrowRight") {
+            nextIndex = (currentIndex + 1) % TAB_KEYS.length;
+        } else if (e.key === "ArrowLeft") {
+            nextIndex = (currentIndex - 1 + TAB_KEYS.length) % TAB_KEYS.length;
+        } else if (e.key === "Home") {
+            nextIndex = 0;
+        } else if (e.key === "End") {
+            nextIndex = TAB_KEYS.length - 1;
+        } else {
+            return;
+        }
+
+        e.preventDefault();
+        const nextTab = TAB_KEYS[nextIndex];
+        if (nextTab) {
+            setActiveTab(nextTab);
+            document.getElementById(`tab-${nextTab}`)?.focus();
+        }
+    };
 
     return (
-        <section className="space-y-4 pt-2 pb-6 border-b border-slate-200/80">
-            <h2 className="font-bold text-foreground text-base md:text-lg flex items-center gap-2">
-                {isService ? (
-                    <Briefcase className="size-5 text-emerald-600" />
-                ) : isSparePart ? (
-                    <CircuitBoard className="size-5 text-indigo-600" />
-                ) : null}
-                {titleText}
-            </h2>
-
-            <div className="space-y-4">
-                {/* Specifications & Highlights Grid */}
-                {hasAttributes && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-4 border-b border-slate-200/60">
-                        {!!ad.warranty && (
-                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
-                                <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Warranty</p>
-                                    <p className="text-xs font-bold text-foreground mt-0.5">{String(ad.warranty)}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {isService && ad.onsiteService !== undefined && (
-                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
-                                <Wrench className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Service Type</p>
-                                    <p className="text-xs font-bold text-foreground mt-0.5">{ad.onsiteService ? 'Doorstep Service' : 'In-Shop Only'}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {isSparePart && ad.deviceCondition && (
-                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
-                                <CircuitBoard className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Condition</p>
-                                    <p className="text-xs font-bold text-foreground mt-0.5">{ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* What's Included Card for Services */}
-                {!!ad.included && (
-                    <div className="space-y-2">
-                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-emerald-700 uppercase tracking-wider">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                            What&apos;s Included in Service
-                        </h3>
-                        <div className="text-xs sm:text-sm text-foreground-secondary leading-relaxed bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 whitespace-pre-wrap">
-                            {String(ad.included)}
-                        </div>
-                    </div>
-                )}
-
-                {/* What's Excluded Card for Services */}
-                {!!ad.excluded && (
-                    <div className="space-y-2">
-                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wider">
-                            <XCircle className="h-4 w-4 text-muted-foreground/70" />
-                            What&apos;s Excluded
-                        </h3>
-                        <div className="text-xs sm:text-sm text-muted-foreground leading-relaxed bg-slate-100/60 p-3.5 rounded-xl border border-slate-200/60 whitespace-pre-wrap">
-                            {String(ad.excluded)}
-                        </div>
-                    </div>
-                )}
-
-                {/* Main Description */}
-                <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Full Details</h3>
-                    {description ? (
-                        <div className="text-foreground-secondary whitespace-pre-wrap leading-relaxed text-sm font-normal break-words">
-                            {description}
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground italic text-xs sm:text-sm">
-                            No description provided.
-                        </p>
+        <section className="space-y-4 pt-2 pb-6 border-b border-border/80">
+            {/* Accessible 3-Tab Controls: Repair Shops | Description | Spare Parts */}
+            <div
+                role="tablist"
+                aria-label="Listing content sections"
+                className="flex items-center gap-1.5 border-b border-border pb-px overflow-x-auto scrollbar-hide"
+            >
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-repair-shops"
+                    aria-controls="tabpanel-repair-shops"
+                    aria-selected={activeTab === "repair-shops"}
+                    tabIndex={activeTab === "repair-shops" ? 0 : -1}
+                    onClick={() => setActiveTab("repair-shops")}
+                    onKeyDown={(e) => handleTabKeyDown(e, "repair-shops")}
+                    className={cn(
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        activeTab === "repair-shops"
+                            ? "border-primary text-primary font-bold bg-primary/5"
+                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
-                </div>
+                >
+                    <Wrench className="size-4 shrink-0 text-current" />
+                    <span>Repair Shops</span>
+                </button>
+
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-description"
+                    aria-controls="tabpanel-description"
+                    aria-selected={activeTab === "description"}
+                    tabIndex={activeTab === "description" ? 0 : -1}
+                    onClick={() => setActiveTab("description")}
+                    onKeyDown={(e) => handleTabKeyDown(e, "description")}
+                    className={cn(
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        activeTab === "description"
+                            ? "border-primary text-primary font-bold bg-primary/5"
+                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                >
+                    <FileText className="size-4 shrink-0 text-current" />
+                    <span>Description</span>
+                </button>
+
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-spare-parts"
+                    aria-controls="tabpanel-spare-parts"
+                    aria-selected={activeTab === "spare-parts"}
+                    tabIndex={activeTab === "spare-parts" ? 0 : -1}
+                    onClick={() => setActiveTab("spare-parts")}
+                    onKeyDown={(e) => handleTabKeyDown(e, "spare-parts")}
+                    className={cn(
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        activeTab === "spare-parts"
+                            ? "border-primary text-primary font-bold bg-primary/5"
+                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                >
+                    <CircuitBoard className="size-4 shrink-0 text-current" />
+                    <span>Spare Parts</span>
+                    {sparePartItems.length > 0 && (
+                        <span className={cn(
+                            "rounded-full px-1.5 py-0.2 text-2xs font-bold",
+                            activeTab === "spare-parts" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        )}>
+                            {sparePartItems.length}
+                        </span>
+                    )}
+                </button>
             </div>
+
+            {/* Tab 1 Panel: Repair Shops */}
+            {activeTab === "repair-shops" && (
+                <div
+                    role="tabpanel"
+                    id="tabpanel-repair-shops"
+                    aria-labelledby="tab-repair-shops"
+                    tabIndex={0}
+                    className="focus-visible:outline-none"
+                >
+                    <ListingRelatedBusinessesSection
+                        ad={ad}
+                        navigateTo={navigateTo || (() => {})}
+                        variant="default"
+                    />
+                </div>
+            )}
+
+            {/* Tab 2 Panel: Description */}
+            {activeTab === "description" && (
+                <ListingDescriptionTab ad={ad} description={description} />
+            )}
+
+            {/* Tab 3 Panel: Spare Parts */}
+            {activeTab === "spare-parts" && (
+                <ListingWorkingSparePartsTab ad={ad} sparePartItems={sparePartItems} />
+            )}
         </section>
     );
 }

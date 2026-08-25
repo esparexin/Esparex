@@ -1,4 +1,4 @@
-import { PostAdDraft } from '@esparex/contracts';
+import { PostAdDraft } from './PostAdDraft';
 import { WizardStep } from './WizardStep';
 
 /**

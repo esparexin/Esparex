@@ -1,9 +1,4 @@
-import axios from 'axios';
-import { getActiveFreeDefaultPlan } from '../../../payments/application/PlanService';
-import UserPlan from '../../../../models/UserPlan';
-import UserWallet from '../../../../models/UserWallet';
 import Otp from '../../../../models/Otp';
-import User from '../../../../models/User';
 import Business from '../../../../models/Business';
 import { generateToken } from './auth';
 import { serializeDoc } from '../../../../utils/serialize';
@@ -11,230 +6,29 @@ import logger from '../../../../utils/logger';
 import { generateSecureOtp } from '../../../../utils/otpGenerator';
 import { normalizeBusinessStatus } from '../../../../utils/businessStatus';
 import { hashOtp, verifyOtpHash } from '../../../../utils/otpSecurity';
-import { env } from '../../../../config/env';
-import { 
-    USER_STATUS,
-    OtpProvider,
-    Role
-} from '@esparex/contracts';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
     normalizeTo10Digits 
 } from '../../../../utils/phoneUtils';
 import { recordOtpAbuseSignal } from '../../../../utils/securityMonitoring';
+import {
+    type SendOtpResult,
+    type VerifyOtpResult,
+    OTP_EXPIRY_SECONDS,
+    OTP_MAX_ATTEMPTS,
+    isLocalOtpLockBypass,
+    isStaticOtpBypassMatch,
+    createFailure,
+    findUserByMobile,
+    lockUserForOtpAbuse,
+    getUserAuthFailure,
+    handleOtpAttemptFailure,
+} from './authOtpHelpers';
+import { dispatchOtpSms } from './authSmsDispatcher';
+import { provisionNewUser } from './authRegistrationHelper';
 
-type AuthFailure = {
-    success: false;
-    status: number;
-    error: string;
-    code?: string;
-    attemptsLeft?: number;
-    lockUntil?: string;
-};
-
-type SendOtpSuccess = {
-    success: true;
-    isNewUser: boolean;
-    otpExpiresIn: number;
-    name?: string;
-};
-
-type VerifyOtpSuccess = {
-    success: true;
-    user: Record<string, unknown>;
-    token: string;
-};
-
-export type SendOtpResult = SendOtpSuccess | AuthFailure;
-export type VerifyOtpResult = VerifyOtpSuccess | AuthFailure;
-
-const OTP_EXPIRY_SECONDS = 300;
-const OTP_MAX_ATTEMPTS = 5;
-// 2 minutes in dev, 30 minutes in production
-const LOCK_DURATION_MS =
-    env.NODE_ENV === 'production'
-        ? 30 * 60 * 1000
-        : 2 * 60 * 1000;
-const isLocalOtpLockBypass =
-    env.NODE_ENV === 'development' &&
-    !env.CI &&
-    env.AUTH_BYPASS_OTP_LOCK === 'true';
-const isStaticOtpBypassEnabled = (): boolean =>
-    env.OTP_PROVIDER === OtpProvider.TEST || env.USE_DEFAULT_OTP === true;
-
-const isStaticOtpBypassMatch = (otp: string): boolean =>
-    isStaticOtpBypassEnabled() && otp === env.DEV_STATIC_OTP;
-
-const createFailure = (
-    status: number,
-    error: string,
-    extras: Omit<AuthFailure, 'success' | 'status' | 'error'> = {}
-): AuthFailure => ({
-    success: false,
-    status,
-    error,
-    ...extras
-});
-
-// toCanonicalMobile and toMobileVariants removed in favor of phoneUtils
-
-const findUserByMobile = async (digits10: string) => {
-    const variants = getMobileVariants(digits10);
-    return User.findOne({ mobile: { $in: variants } });
-};
-
-
-
-const lockUserForOtpAbuse = async (
-    user: Awaited<ReturnType<typeof findUserByMobile>>,
-    now: Date
-): Promise<Date> => {
-    const lockUntil =
-        user?.lockUntil && user.lockUntil > now
-            ? user.lockUntil
-            : new Date(now.getTime() + LOCK_DURATION_MS);
-
-    if (user) {
-        user.failedLoginAttempts = Math.max(user.failedLoginAttempts || 0, OTP_MAX_ATTEMPTS);
-        user.lockUntil = lockUntil;
-        await user.save();
-    }
-
-    return lockUntil;
-};
-
-const getUserAuthFailure = (
-    user: { status?: string; lockUntil?: Date | null; role?: string; mobile?: string } | null,
-    now: Date
-): AuthFailure | null => {
-    if (!user) return null;
-
-    // Admin roles cannot use the user OTP login endpoint
-    if (typeof user.role === 'string' && [Role.ADMIN, Role.MODERATOR, Role.SUPER_ADMIN].includes(user.role as Role)) {
-        return createFailure(401, 'Invalid credentials', { code: 'AUTH_FAILED' });
-    }
-
-    // Banned / suspended / deleted accounts → 403 (not an auth failure, an account restriction)
-    if (user.status === 'banned') {
-        return createFailure(403, 'Your account has been permanently banned. Contact support if you think this is a mistake.', {
-            code: 'USER_BANNED'
-        });
-    }
-    if (user.status === 'suspended') {
-        return createFailure(403, 'Your account is suspended. Please contact support.', {
-            code: 'USER_SUSPENDED'
-        });
-    }
-    // Deleted accounts are treated as new users — handled in verifyLoginOtp
-    // so they can re-register with the same number with a clean slate.
-
-    if (!isLocalOtpLockBypass && user.lockUntil && user.lockUntil > now) {
-        logger.warn('Account temporarily locked', {
-            phone: typeof user.mobile === 'string' ? user.mobile.slice(-4) : 'unknown',
-            lockUntil: user.lockUntil,
-            now
-        });
-        const mobileSuffix = typeof user.mobile === 'string'
-            ? user.mobile.replace(/\D/g, '').slice(-4).padStart(4, '*')
-            : '****';
-        recordOtpAbuseSignal({
-            mobileSuffix,
-            reason: 'locked',
-        });
-        return createFailure(423, 'Account temporarily locked. Try again later.', {
-            code: 'OTP_LOCKED',
-            lockUntil: user.lockUntil.toISOString()
-        });
-    }
-
-    return null;
-};
-
-const handleOtpAttemptFailure = async (
-    mobileDigits: string,
-    user: Awaited<ReturnType<typeof findUserByMobile>>,
-    now: Date
-): Promise<AuthFailure> => {
-    const mobileVariants = getMobileVariants(mobileDigits);
-    const mobileSuffix = mobileDigits.slice(-4).padStart(4, '*');
-    
-    if (user) {
-        const lockUntil = await lockUserForOtpAbuse(user, now);
-        recordOtpAbuseSignal({
-            mobileSuffix,
-            reason: 'locked',
-            userId: user._id ? String(user._id) : undefined,
-        });
-        await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-        return createFailure(423, 'Too many invalid OTP attempts. Account locked temporarily.', {
-            code: 'OTP_LOCKED',
-            lockUntil: lockUntil.toISOString()
-        });
-    }
-
-    recordOtpAbuseSignal({
-        mobileSuffix,
-        reason: 'invalid_otp',
-    });
-    await Otp.deleteMany({ mobile: { $in: mobileVariants } });
-    return createFailure(400, 'Invalid OTP', {
-        code: 'OTP_INVALID',
-        attemptsLeft: 0
-    });
-};
-
-const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
-    if (env.NODE_ENV === 'test') return;
-
-    // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
-    if (isStaticOtpBypassEnabled()) {
-        if (env.NODE_ENV === 'production') {
-            // Pre-launch testing mode: static OTP (DEV_STATIC_OTP) is active and SMS is not sent.
-            // Real users cannot log in without knowing the static OTP.
-            // ACTION REQUIRED: remove USE_DEFAULT_OTP from Render and configure MSG91 before going live.
-            logger.warn('[OTP] STATIC OTP BYPASS ACTIVE (DLT PENDING) — static OTP 123456 active, SMS dispatch skipped.');
-        } else {
-            logger.info('Static OTP fallback active — skipping SMS dispatch', { phone: mobile.slice(-4) });
-        }
-        return; // ← skip SMS dispatch regardless of environment
-    }
-
-    if (!env.MSG91_AUTH_KEY || !env.MSG91_SENDER_ID) {
-        logger.warn('OTP SMS provider not configured; OTP dispatch skipped', { phone: mobile.slice(-4) });
-        return;
-    }
-
-    try {
-        const response = await axios.post(
-            'https://api.msg91.com/api/v5/otp',
-            {
-                template_id: env.MSG91_TEMPLATE_ID,
-                mobile: mobile.startsWith('+91') ? mobile.slice(1) : `91${mobile.replace(/\D/g, '').slice(-10)}`,
-                authkey: env.MSG91_AUTH_KEY,
-                otp
-            },
-            {
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 8000
-            }
-        );
-
-        const responseData = response.data as { type?: string } | undefined;
-        if (responseData?.type === 'success') {
-            logger.info('OTP SMS dispatched successfully', { phone: mobile.slice(-4) });
-        } else {
-            logger.warn('OTP SMS dispatch returned non-success', {
-                phone: mobile.slice(-4),
-                type: responseData?.type
-            });
-        }
-    } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        logger.error('OTP SMS dispatch failed', { phone: mobile.slice(-4), error: message });
-        // Do NOT throw — login flow continues; OTP is stored and verifiable
-    }
-};
+export type { SendOtpResult, VerifyOtpResult };
 
 /**
  * Centralized Authentication Service
@@ -263,7 +57,6 @@ export class AuthService {
             Otp.findOne({ mobile: { $in: mobileVariants } }).sort({ createdAt: -1 })
         ]);
 
-        // Treat deleted accounts as new users — they may re-register with the same number
         const effectiveUser = user?.status === 'deleted' ? null : user;
         const userFailure = getUserAuthFailure(effectiveUser, now);
         if (userFailure) {
@@ -274,7 +67,6 @@ export class AuthService {
         const otpHash = hashOtp(otpValue);
         const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
 
-        // Reset lock state on user if lock has expired (so next verify cycle starts clean)
         if (effectiveUser && (effectiveUser.failedLoginAttempts || effectiveUser.lockUntil)) {
             effectiveUser.failedLoginAttempts = 0;
             effectiveUser.lockUntil = undefined;
@@ -324,7 +116,7 @@ export class AuthService {
         }
 
         if (staticOtpAccepted) {
-            // Continue to the normal user resolution, token issuance, and response path below.
+            // Bypass validation and proceed
         } else if (!otpRecord) {
             recordOtpAbuseSignal({
                 mobileSuffix: mobileDigits.slice(-4).padStart(4, '*'),
@@ -333,11 +125,7 @@ export class AuthService {
             });
             return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
         } else {
-            // otpRecord is guaranteed non-null here (the if(!otpRecord) above handles null).
-            // Non-null assertions silence TS18047 which cannot narrow across the
-            // USE_DEFAULT_OTP early-return branch inside the if-block.
             if (otpRecord.expiresAt < now) {
-                // DEV GRACE: If using default OTP, allow expired records to persist for manual testing
                 const isDefaultOtp = isStaticOtpBypassMatch(otp);
 
                 if (!isDefaultOtp) {
@@ -399,9 +187,6 @@ export class AuthService {
             await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         }
 
-
-        // A previously deleted account re-registering with the same number
-        // gets a clean slate — treat them as a brand new user.
         let user = (userFromMobile?.status === 'deleted') ? null : userFromMobile;
 
         if (!user) {
@@ -411,41 +196,7 @@ export class AuthService {
                 });
             }
 
-            user = await User.create({
-                mobile: canonicalizeToIndian(mobile),
-                name: normalizedName,
-                role: Role.USER,
-                status: USER_STATUS.LIVE,
-                isPhoneVerified: true,
-                isVerified: true,
-                lastLoginAt: now
-            });
-
-
-            // Assign Default Plan & Initialize Wallet
-            try {
-                const freePlan = await getActiveFreeDefaultPlan();
-
-                if (freePlan) {
-                    const validityDays = freePlan.durationDays && freePlan.durationDays >= 30 ? freePlan.durationDays : 30;
-                    const expiryDate = new Date(now.getTime() + validityDays * 86400000);
-                    await UserPlan.findOneAndUpdate(
-                        { userId: user._id, planId: freePlan._id },
-                        { $set: { startDate: now, endDate: expiryDate, status: 'active' } },
-                        { upsert: true, new: true, setDefaultsOnInsert: true }
-                    );
-                }
-
-                await UserWallet.findOneAndUpdate(
-                    { userId: user._id },
-                    { $setOnInsert: { adCredits: 0, boostCredits: 0, monthlyFreeAdsUsed: 0, spotlightCredits: 0, smartAlertSlots: 2, lastMonthlyReset: now } },
-                    { upsert: true, new: true, setDefaultsOnInsert: true }
-                );
-            } catch (err) {
-                logger.error('Default plan assignment & wallet initialization failed', {
-                    error: err instanceof Error ? err.message : String(err)
-                });
-            }
+            user = await provisionNewUser(mobile, normalizedName, now);
         } else {
             if (!user.isPhoneVerified) user.isPhoneVerified = true;
             if (!user.isVerified) user.isVerified = true;

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { FlatList, RefreshControl, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Screen, Container, AppText } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useMyListings } from '../hooks/useMyListings';
 import { ListingCard } from '../components/ListingCard';
@@ -20,7 +20,11 @@ const STATUS_TABS = [
   { label: 'Draft', value: 'draft' },
 ];
 
-export const MyListingsScreen = () => {
+interface MyListingsScreenProps {
+  onBack?: () => void;
+}
+
+export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
 
   const {
@@ -68,7 +72,24 @@ export const MyListingsScreen = () => {
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <Container className="flex-1">
+      {/* Top Header */}
+      <View className="flex-row items-center px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            accessibilityLabel="Back to profile"
+            accessibilityRole="button"
+            className="mr-3 p-1"
+          >
+            <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+          </TouchableOpacity>
+        )}
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
+          My Ads & Listings
+        </AppText>
+      </View>
+
+      <Container padded={false} className="flex-1">
         {/* Status Filter Tabs */}
         <View className="py-2 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContent}>

@@ -25,6 +25,12 @@ export interface ListingLocation {
   display?: string;
 }
 
+export interface ListingSparePart {
+  id: string;
+  name: string;
+  brand?: string;
+}
+
 export interface Listing {
   id: string;
   title: string;
@@ -37,6 +43,9 @@ export interface Listing {
   createdAt: Date;
   updatedAt?: Date;
   category?: string;
+  condition?: 'power_on' | 'power_off';
+  spareParts?: ListingSparePart[];
   isFeatured: boolean;
+  isSpotlight?: boolean;
   isPremium: boolean;
 }

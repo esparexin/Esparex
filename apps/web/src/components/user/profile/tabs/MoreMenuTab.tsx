@@ -19,25 +19,22 @@ export function MoreMenuTab({
   renderTabBadge,
 }: MoreMenuTabProps) {
   return (
-    <div className="space-y-4 block md:hidden w-full">
-      {/* Navigation List */}
-      <div className="p-2 rounded-2xl border border-slate-200/80 bg-white shadow-2xs">
-        <div className="space-y-1" role="list">
-          <AccountNavItemList
-            items={PROFILE_TAB_ITEMS}
-            activeTab="more"
-            onTabChange={onTabChange}
-            renderTabBadge={renderTabBadge}
-            variant="menu"
-          />
-        </div>
+    <div className="block md:hidden w-full bg-card divide-y divide-border">
+      <div className="py-1" role="list">
+        <AccountNavItemList
+          items={PROFILE_TAB_ITEMS}
+          activeTab="more"
+          onTabChange={onTabChange}
+          renderTabBadge={renderTabBadge}
+          variant="menu"
+        />
+      </div>
 
-        <div className="my-2 border-t border-slate-100" />
-
+      <div className="p-1">
         <button
           type="button"
           onClick={() => { void onLogout(); }}
-          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-semibold text-sm text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          className="w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           <span>Logout</span>

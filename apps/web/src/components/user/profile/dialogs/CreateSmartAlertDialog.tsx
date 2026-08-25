@@ -142,14 +142,14 @@ export function CreateSmartAlertDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-sm sm:max-w-[400px] w-[94vw] h-[92dvh] sm:h-[88dvh] max-h-[680px] flex flex-col rounded-3xl p-4 sm:p-5 gap-0 shadow-2xl max-sm:rounded-b-3xl">
-                <DialogHeader className="space-y-1 text-left pb-2.5 border-b border-slate-100 shrink-0">
-                    <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100/80 text-blue-600">
+                <DialogHeader className="space-y-1 text-left pb-2.5 border-b border-border shrink-0">
+                    <DialogTitle className="flex items-center gap-2 text-body-lg font-bold">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <Bell className="h-4 w-4" />
                         </div>
                         <span>{isEditing ? "Edit Smart Alert" : "Create Smart Alert"}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-xs text-slate-500">
+                    <DialogDescription className="text-caption text-foreground-subtle">
                         {isEditing
                             ? "Update criteria to refine instant alert matching."
                             : "Set criteria to get instant notifications when matching items are posted."}
@@ -167,14 +167,14 @@ export function CreateSmartAlertDialog({
                     <div className="flex-1 overflow-y-auto space-y-3 px-1 py-0.5">
                         {/* Category (SSOT) */}
                         <div>
-                            <Label htmlFor="alert-category" className="text-xs font-semibold text-slate-900">
-                                Category <span className="text-red-500">*</span>
+                            <Label htmlFor="alert-category" className="text-caption font-semibold text-foreground">
+                                Category <span className="text-destructive">*</span>
                             </Label>
                             <select
                                 id="alert-category"
                                 value={formData.category}
                                 onChange={(e) => updateFormData({ category: e.target.value, brand: "", model: "" })}
-                                className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 truncate"
+                                className="mt-1 w-full h-10 rounded-xl border border-border bg-card px-3 pr-8 text-caption font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary truncate"
                                 disabled={isLoadingCategories}
                             >
                                 <option value="">Select Category...</option>
@@ -189,14 +189,14 @@ export function CreateSmartAlertDialog({
 
                         {/* Brand (Optional SSOT) */}
                         <div>
-                            <Label htmlFor="alert-brand" className="text-xs font-semibold text-slate-900">
-                                Brand <span className="text-slate-400 font-normal">(Optional)</span>
+                            <Label htmlFor="alert-brand" className="text-caption font-semibold text-foreground">
+                                Brand <span className="text-foreground-subtle font-normal">(Optional)</span>
                             </Label>
                             <select
                                 id="alert-brand"
                                 value={formData.brand || ""}
                                 onChange={(e) => updateFormData({ brand: e.target.value, model: "" })}
-                                className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 truncate"
+                                className="mt-1 w-full h-10 rounded-xl border border-border bg-card px-3 pr-8 text-caption font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary truncate"
                                 disabled={!formData.category || isLoadingBrands}
                             >
                                 <option value="">All Brands (Optional)</option>
@@ -210,14 +210,14 @@ export function CreateSmartAlertDialog({
 
                         {/* Model (Optional SSOT) */}
                         <div>
-                            <Label htmlFor="alert-model" className="text-xs font-semibold text-slate-900">
-                                Model <span className="text-slate-400 font-normal">(Optional)</span>
+                            <Label htmlFor="alert-model" className="text-caption font-semibold text-foreground">
+                                Model <span className="text-foreground-subtle font-normal">(Optional)</span>
                             </Label>
                             <select
                                 id="alert-model"
                                 value={formData.model || ""}
                                 onChange={(e) => updateFormData({ model: e.target.value })}
-                                className="mt-1 w-full h-10 rounded-xl border border-slate-200 bg-white px-3 pr-8 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 truncate"
+                                className="mt-1 w-full h-10 rounded-xl border border-border bg-card px-3 pr-8 text-caption font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary truncate"
                                 disabled={!formData.brand || isLoadingModels}
                             >
                                 <option value="">All Models (Optional)</option>
@@ -232,17 +232,17 @@ export function CreateSmartAlertDialog({
                         {/* Search Keywords (Optional Fallback) */}
                         <div>
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="alert-keywords" className="text-xs font-semibold text-slate-900">
-                                    Search Keywords <span className="text-slate-400 font-normal">(Optional Fallback)</span>
+                                <Label htmlFor="alert-keywords" className="text-caption font-semibold text-foreground">
+                                    Search Keywords <span className="text-foreground-subtle font-normal">(Optional Fallback)</span>
                                 </Label>
-                                <span className="text-2xs text-slate-400">
+                                <span className="text-2xs text-foreground-subtle">
                                     {(formData.keywords || "").length}/150
                                 </span>
                             </div>
                             <Input
                                 id="alert-keywords"
                                 placeholder="e.g., iPhone 16 Air, Galaxy S26, A3298"
-                                className="mt-1 h-10 rounded-xl text-xs"
+                                className="mt-1 h-10 rounded-xl text-caption"
                                 value={formData.keywords || ""}
                                 maxLength={150}
                                 onChange={(e) => updateFormData({ keywords: e.target.value })}
@@ -252,8 +252,8 @@ export function CreateSmartAlertDialog({
 
                         {/* Location (LocationSelector SSOT) */}
                         <div ref={locationWrapperRef} onFocusCapture={handleLocationFocus}>
-                            <Label htmlFor="alert-location" className="text-xs font-semibold text-slate-900">
-                                Location <span className="text-red-500">*</span>
+                            <Label htmlFor="alert-location" className="text-caption font-semibold text-foreground">
+                                Location <span className="text-destructive">*</span>
                             </Label>
                             <div className="mt-1">
                                 <LocationSelector
@@ -268,8 +268,8 @@ export function CreateSmartAlertDialog({
                         {/* Location Radius Scroller */}
                         <div ref={radiusRef} className="pt-0.5">
                             <div className="flex items-center justify-between mb-1">
-                                <Label htmlFor="alert-radius" className="text-tiny font-semibold text-slate-900">Location Radius</Label>
-                                <span className="text-xs font-bold text-blue-600">{formData.radiusKm} km</span>
+                                <Label htmlFor="alert-radius" className="text-tiny font-semibold text-foreground">Location Radius</Label>
+                                <span className="text-caption font-bold text-primary">{formData.radiusKm} km</span>
                             </div>
                             <input
                                 id="alert-radius"
@@ -279,9 +279,9 @@ export function CreateSmartAlertDialog({
                                 max="500"
                                 value={formData.radiusKm}
                                 onChange={(e) => updateFormData({ radiusKm: parseInt(e.target.value, 10) || 5 })}
-                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                             />
-                            <div className="flex items-center justify-between text-2xs font-medium text-slate-500 mt-0.5">
+                            <div className="flex items-center justify-between text-2xs font-medium text-foreground-subtle mt-0.5">
                                 <span>5 km</span>
                                 <span>500 km</span>
                             </div>
@@ -292,20 +292,20 @@ export function CreateSmartAlertDialog({
                     </div>
 
                     {/* PINNED STICKY CTA FOOTER (Always visible without scrolling) */}
-                    <div className="sticky bottom-0 bg-white pt-3 pb-0 border-t border-slate-100 mt-2 flex items-center gap-2 shrink-0 z-10">
+                    <div className="sticky bottom-0 bg-card pt-3 pb-0 border-t border-border mt-2 flex items-center gap-2 shrink-0 z-10">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={onCancel}
                             disabled={isMutating}
-                            className="flex-1 h-11 rounded-xl text-xs font-semibold"
+                            className="flex-1 h-11 rounded-xl text-caption font-semibold"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             disabled={isMutating}
-                            className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md"
+                            className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold rounded-xl shadow-md"
                         >
                             {isMutating ? (
                                 "Saving..."

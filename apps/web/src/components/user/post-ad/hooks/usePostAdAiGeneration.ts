@@ -109,22 +109,25 @@ export function usePostAdAiGeneration(
                 throw error;
             }
 
-            if (output && output.title && output.description) {
+            if (output && (output.title || output.description)) {
+                const newTitle = output.title || aiCache?.title || "";
+                const newDescription = output.description || aiCache?.description || "";
+
                 setAiCache({
                     contextSignature,
                     generatedAt: Date.now(),
-                    title: output.title,
-                    description: output.description
+                    title: newTitle,
+                    description: newDescription
                 });
 
-                if (targetField === 'title') {
+                if (targetField === 'title' && output.title) {
                     const truncated = output.title.slice(0, MAX_AD_TITLE_CHARS);
                     form.setValue("title", truncated, { shouldValidate: true });
                     form.trigger("title");
                     notify.success("Title generated successfully!");
                     trackPostAdEvent({ event: "ai_title_generated" });
                 }
-                if (targetField === 'description') {
+                if (targetField === 'description' && output.description) {
                     const truncated = output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
                     form.setValue("description", truncated, { shouldValidate: true });
                     form.trigger("description");
@@ -133,8 +136,28 @@ export function usePostAdAiGeneration(
                 }
             }
         } catch {
-            setFormError(`AI generation failed. Please enter ${targetField} manually.`);
-            trackPostAdEvent({ event: "ai_generation_failure", field: targetField });
+            // Client-side instant fallback when network or API fails
+            const condLabel = context.condition === 'power_on' ? 'Working Condition' : context.condition === 'power_off' ? 'Power Off' : context.condition !== 'device' ? context.condition : '';
+            if (targetField === 'title') {
+                const titleParts = [context.brand, context.model, condLabel].filter(Boolean);
+                const fallbackTitle = (titleParts.length > 0 ? titleParts.join(' - ') : `${context.category} for Sale`).slice(0, MAX_AD_TITLE_CHARS);
+                form.setValue("title", fallbackTitle, { shouldValidate: true });
+                form.trigger("title");
+                notify.success("Title generated successfully!");
+            } else {
+                const descLines = [
+                    `${context.brand} ${context.model} (${context.category}) for sale.`,
+                    condLabel ? `Condition: ${condLabel}.` : '',
+                    context.workingParts ? `Working parts: ${context.workingParts}.` : '',
+                    'Genuine item listed for sale on Esparex marketplace.'
+                ].filter(Boolean);
+                const fallbackDesc = descLines.join(' ').slice(0, MAX_AD_DESCRIPTION_CHARS);
+                form.setValue("description", fallbackDesc, { shouldValidate: true });
+                form.trigger("description");
+                notify.success("Description generated successfully!");
+            }
+            setFormError(null);
+            trackPostAdEvent({ event: "ai_generation_failure", field: targetField, metadata: { fallback: true } });
         } finally {
             setIsGeneratingAI(null);
         }

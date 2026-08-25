@@ -1,11 +1,21 @@
 export interface AuthResult {
   userId: string;
-  // Intentionally minimal until backend contract is finalized
+  accessToken: string;
+  isNewUser?: boolean;
+  user?: Record<string, unknown>;
+}
+
+export interface SendOtpResult {
+  success: boolean;
+  isNewUser: boolean;
+  otpExpiresIn: number;
+  name?: string;
+  message?: string;
 }
 
 export interface IAuthService {
-  login(payload: unknown): Promise<AuthResult>;
-  sendOtp?(mobile: string): Promise<{ success: boolean; message?: string }>;
-  verifyOtp?(mobile: string, otp: string): Promise<AuthResult>;
+  sendOtp(mobile: string): Promise<SendOtpResult>;
+  verifyOtp(mobile: string, otp: string, name?: string): Promise<AuthResult>;
+  cancelOtp(mobile: string): Promise<void>;
   logout(): Promise<void>;
 }

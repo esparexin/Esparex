@@ -56,9 +56,9 @@ function StatusCard({
             }
             subtitle={description}
         >
-            <div className="bg-white rounded-xl p-4 border border-slate-100 mb-4">
-                <p className="font-medium text-xs text-slate-500 uppercase tracking-wider mb-1">Business Name:</p>
-                <p className={`text-base font-bold text-slate-900 ${businessNameAppended ? 'mb-3' : ''}`}>
+            <div className="bg-card rounded-xl p-4 border border-border mb-4">
+                <p className="font-medium text-caption text-foreground-subtle uppercase tracking-wider mb-1">Business Name:</p>
+                <p className={`text-body-lg font-bold text-foreground ${businessNameAppended ? 'mb-3' : ''}`}>
                     {businessName}
                 </p>
                 {businessNameAppended}
@@ -239,7 +239,7 @@ export function BusinessApplicationStatus({
                 businessName={businessLabel}
                 actions={
                     <Button
-                        onClick={() => window.location.href = '/support'}
+                        onClick={() => window.location.href = '/contact'}
                         className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                     >
                         Contact Support
@@ -255,7 +255,7 @@ export function BusinessApplicationStatus({
     } else if (businessData && businessDataStatus === "deleted") {
         cardContent = (
             <StatusCard
-                cardClass="from-gray-50 to-slate-100 border border-gray-300"
+                cardClass="from-muted/40 to-muted border border-border"
                 iconBgClass="bg-gray-600"
                 Icon={Clock}
                 titleClass="text-foreground"
@@ -268,14 +268,14 @@ export function BusinessApplicationStatus({
                             <Button
                                 onClick={navigateToBusinessTab}
                                 variant="outline"
-                                className="w-full text-foreground-secondary border-gray-300 hover:bg-gray-100"
+                                className="w-full text-foreground-secondary border-border hover:bg-muted"
                             >
                                 Manage Profile
                             </Button>
                         )}
                         <Button
                             onClick={onEditApplication}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                             disabled={!onEditApplication}
                         >
                             Renew Registration
@@ -283,9 +283,9 @@ export function BusinessApplicationStatus({
                     </>
                 }
             >
-                <div className="bg-gray-100 border border-gray-200 rounded-lg p-3 text-sm text-foreground-secondary mb-4">
+                <div className="bg-muted border border-border rounded-lg p-3 text-body text-foreground-secondary mb-4">
                     <p className="font-medium mb-1">Action Required:</p>
-                    <p className="text-xs">Your business registration has reached its expiry date. Your profile and services are currently offline. You must renew or re-verify your registration to continue operations.</p>
+                    <p className="text-caption">Your business registration has reached its expiry date. Your profile and services are currently offline. You must renew or re-verify your registration to continue operations.</p>
                 </div>
             </StatusCard>
         );
@@ -298,22 +298,22 @@ export function BusinessApplicationStatus({
     return (
         <>
             <AlertDialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
-                <AlertDialogContent className="max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                <AlertDialogContent className="max-w-md rounded-2xl bg-card p-6 shadow-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-lg font-bold text-foreground">
+                        <AlertDialogTitle className="text-h4 font-bold text-foreground">
                             Withdraw Business Application?
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-sm text-muted-foreground mt-2">
+                        <AlertDialogDescription className="text-body text-muted-foreground mt-2">
                             Are you sure you want to withdraw your business application? This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
-                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={confirmWithdraw}
-                            className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            className="h-10 rounded-xl bg-destructive text-destructive-foreground font-medium hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                             Withdraw
                         </AlertDialogAction>

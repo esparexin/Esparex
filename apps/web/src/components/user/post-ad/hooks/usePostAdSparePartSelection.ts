@@ -3,6 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import type { SparePart } from "@/lib/api/user/masterData";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
+import { clearStep2GeneratedDetails } from "./useCategoryDependents";
 
 export function usePostAdSparePartSelection(
     form: UseFormReturn<PostAdFormData>,
@@ -19,6 +20,7 @@ export function usePostAdSparePartSelection(
                 shouldDirty: true,
                 shouldTouch: true,
             });
+            clearStep2GeneratedDetails(form);
             return;
         }
 
@@ -27,6 +29,7 @@ export function usePostAdSparePartSelection(
             shouldDirty: true,
             shouldTouch: true,
         });
+        clearStep2GeneratedDetails(form);
     }, [availableSpareParts, form]);
 
     const toggleSparePart = useCallback((partId: string) => {
@@ -43,6 +46,7 @@ export function usePostAdSparePartSelection(
             shouldDirty: true,
             shouldTouch: true,
         });
+        clearStep2GeneratedDetails(form);
     }, [form]);
 
     return {

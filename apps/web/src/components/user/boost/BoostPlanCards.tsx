@@ -24,48 +24,77 @@ export function WalletCreditCard({
   isSelected: boolean;
   onSelect: () => void;
 }) {
+  const isSpotlight = activeCategory === "SPOTLIGHT";
+  const creditType = isSpotlight ? "Spotlight" : "Top Ad";
+  const duration = selectedPlan?.durationDays || boostPlans[0]?.durationDays || 30;
+
   return (
     <div
       onClick={onSelect}
       className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
         isSelected
-          ? "border-emerald-500 bg-emerald-50/70 ring-2 ring-emerald-400/40 shadow-xs"
-          : "border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50/50"
+          ? isSpotlight
+            ? "border-amber-400 bg-amber-50/70 ring-2 ring-amber-300/40 shadow-xs"
+            : "border-blue-400 bg-blue-50/70 ring-2 ring-blue-300/40 shadow-xs"
+          : isSpotlight
+          ? "border-amber-200/80 bg-amber-50/30 hover:bg-amber-50/50"
+          : "border-blue-200/80 bg-blue-50/30 hover:bg-blue-50/50"
       }`}
     >
       <div className="flex items-center gap-3">
         <div
-          className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-            isSelected ? "bg-emerald-600 text-white" : "bg-emerald-100 text-emerald-700"
+          className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+            isSelected
+              ? isSpotlight
+                ? "bg-amber-500 text-white"
+                : "bg-blue-600 text-white"
+              : isSpotlight
+              ? "bg-amber-100 text-amber-700"
+              : "bg-blue-100 text-blue-700"
           }`}
         >
-          {activeCategory === "SPOTLIGHT" ? (
-            <Sparkles className="h-4 w-4" />
+          {isSpotlight ? (
+            <Sparkles className="h-4.5 w-4.5" />
           ) : (
-            <Zap className="h-4 w-4" />
+            <Zap className="h-4.5 w-4.5" />
           )}
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-emerald-950">
-              {availableCredits}{" "}
-              {activeCategory === "SPOTLIGHT" ? "Spotlight" : "Top Ad"}{" "}
-              {availableCredits === 1 ? "Credit" : "Credits"} Available
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+              Use {creditType} Credit
             </h4>
-            <Badge className="bg-emerald-600 text-white text-2xs px-1.5 py-0 font-bold border-0">
-              Wallet Balance
-            </Badge>
+            <span
+              className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${
+                isSpotlight
+                  ? "bg-amber-100/90 text-amber-900 border-amber-200"
+                  : "bg-blue-100/90 text-blue-900 border-blue-200"
+              }`}
+            >
+              {availableCredits} available in wallet
+            </span>
           </div>
-          <p className="text-tiny text-emerald-800 mt-0.5 font-medium">
-            Apply 1 credit to promote this listing for{" "}
-            {selectedPlan?.durationDays || boostPlans[0]?.durationDays || 30} Days
+          <p className="text-tiny text-slate-600 mt-0.5 font-medium">
+            Deducts 1 credit to promote this listing for {duration} days
           </p>
         </div>
       </div>
-      <div className="text-right shrink-0">
-        <p className="text-xs font-black text-emerald-700">FREE</p>
-        <p className="text-tiny text-emerald-600 font-semibold">1 Credit</p>
-        {isSelected && <CheckCircle2 className="h-4 w-4 text-emerald-600 ml-auto mt-0.5" />}
+      <div className="text-right shrink-0 pl-3">
+        <p
+          className={`text-xs font-bold ${
+            isSpotlight ? "text-amber-600" : "text-blue-600"
+          }`}
+        >
+          1 Credit
+        </p>
+        <p className="text-2xs text-slate-500 font-medium">₹0 to pay</p>
+        {isSelected && (
+          <CheckCircle2
+            className={`h-4 w-4 ml-auto mt-0.5 ${
+              isSpotlight ? "text-amber-600" : "text-blue-600"
+            }`}
+          />
+        )}
       </div>
     </div>
   );
