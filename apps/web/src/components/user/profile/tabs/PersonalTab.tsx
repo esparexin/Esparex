@@ -138,7 +138,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     return (
         <>
-            <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs max-w-2xl overflow-hidden">
+            <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs w-full overflow-hidden">
                 <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
                     <CardContent className="p-0 sm:p-5 space-y-4">
                         {/* Profile Photo Section */}
