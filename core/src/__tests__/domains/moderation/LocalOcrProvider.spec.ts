@@ -73,4 +73,15 @@ describe('LocalOcrProvider (PR 6 — Stage 3 Intelligence)', () => {
             { type: 'UPI', match: 'seller@okaxis' },
         ]);
     });
+
+    it('is immune to ReDoS catastrophic backtracking on adversarial input strings', () => {
+        // Adversarial string with repeating hyphens and subdomains designed to trigger backtracking in unanchored regexes
+        const adversarialString = 'http://' + 'a-'.repeat(2500) + 'xyz';
+        const startTime = Date.now();
+        const result = ocrProvider.extractContactsFromText(adversarialString);
+        const durationMs = Date.now() - startTime;
+
+        expect(durationMs).toBeLessThan(100); // Must complete quickly without event loop hang
+        expect(result).toBeDefined();
+    });
 });
