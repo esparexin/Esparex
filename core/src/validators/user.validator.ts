@@ -117,6 +117,7 @@ export const registerUserSchema = z.object({
 const updateUserProfileSchemaBase = z.object({
     name: nameSchema.optional(),
     email: commonSchemas.email.optional(),
+    gstin: commonSchemas.gstin.optional(),
 
     // Profile photo (controller maps profilePhoto to avatar)
     profilePhoto: z.string().url("Invalid profile photo URL").optional(),

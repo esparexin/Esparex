@@ -102,6 +102,7 @@ export const toSharedUser = (
     isPhoneVerified: Boolean(safeUser.isPhoneVerified),
     name: typeof safeUser.name === 'string' ? safeUser.name : undefined,
     email: typeof safeUser.email === 'string' ? safeUser.email : undefined,
+    gstin: typeof safeUser.gstin === 'string' ? safeUser.gstin : undefined,
     profilePhoto: typeof safeUser.avatar === 'string' ? safeUser.avatar : undefined,
     businessId,
     isEmailVerified: typeof safeUser.isEmailVerified === 'boolean' ? safeUser.isEmailVerified : undefined,
