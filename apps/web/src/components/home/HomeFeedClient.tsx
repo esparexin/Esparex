@@ -114,25 +114,18 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     return (
         <section
             role="region"
-            aria-label="Recommended Ads"
+            aria-label="Explore Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-muted/30 py-4 md:py-8 border-t border-border"
-        >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-4 md:mb-8">
                     <h2
                         id="home-feed-heading"
-                        className="text-base font-bold md:text-2xl text-foreground tracking-tight"
+                        className="text-body sm:text-body-lg md:text-h4 font-bold text-foreground tracking-tight"
                     >
-                        Recommended for You
+                        Explore Ads
                     </h2>
-                    <p className="mt-1 text-xs md:text-sm text-foreground-subtle max-w-2xl hidden md:block">
-                        Spotlight, boosted, and latest listings curated for your location.
-                    </p>
                 </div>
 
                 {isLoading && recommendedAds.length === 0 && (
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                         {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
                             <AdCardSkeleton key={index} />
                         ))}
@@ -141,7 +134,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {isError && recommendedAds.length === 0 && (
                     <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
-                        <p className="text-sm text-destructive mb-3">
+                        <p className="text-caption text-destructive mb-3">
                             Failed to load recommended ads. Please try again.
                         </p>
                         <Button variant="outline" onClick={() => refetch()}>
@@ -151,9 +144,6 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                 )}
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-border bg-card p-10 text-center">
-                        <PackageOpen className="mx-auto h-10 w-10 text-foreground-subtle" />
-                        <p className="mt-3 text-sm text-muted-foreground">
                             No ads available right now.
                         </p>
                     </div>
@@ -161,7 +151,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {recommendedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                             {recommendedAds.map((ad, index) => (
                                 <AdCardGrid
                                     key={ad.id}
@@ -173,7 +163,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         </div>
 
                         {canLoadMore && (
-                            <div className="mt-6 md:mt-10 flex justify-center">
+                            <div className="mt-5 md:mt-8 flex justify-center">
                                 <Button
                                     onClick={() => {
                                         if (!nextCursor?.createdAt) return;
@@ -182,7 +172,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-8 h-11 font-semibold shadow-sm transition-all active:scale-95"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 h-10 text-caption font-semibold shadow-2xs transition-all active:scale-95"
                                 >
                                     {isFetching ? (
                                         <>

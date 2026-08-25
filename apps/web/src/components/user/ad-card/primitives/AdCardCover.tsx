@@ -85,24 +85,20 @@ export const AdCardCover = memo(function AdCardCover({
         </div>
       )}
 
-      {/* Top-Left Overlay Badges (Spotlight / Top Ad / Custom Status) */}
-      {(planBadge || customStatus) && (
-        <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-20 flex flex-wrap items-center gap-1.5 pointer-events-none">
+      {/* Top-Left Overlay Badges (Spotlight / Top Ad / Verified / Custom Status) */}
+      {(planBadge || showVerifiedBadge || customStatus) && (
+        <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
           {planBadge}
+          {showVerifiedBadge && (
+            <Badge
+              className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-2xs font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center gap-1 shadow-2xs"
+              aria-label="Verified Business"
+            >
+              <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
+              Verified
+            </Badge>
+          )}
           {customStatus}
-        </div>
-      )}
-
-      {/* Verified Business badge — top-right */}
-      {showVerifiedBadge && (
-        <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 z-10">
-          <Badge
-            className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-tiny font-bold px-1.5 h-5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-sm"
-            aria-label="Verified Business"
-          >
-            <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
-            Verified
-          </Badge>
         </div>
       )}
 

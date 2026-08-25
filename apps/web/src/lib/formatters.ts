@@ -87,7 +87,17 @@ export const formatShortRelativeTime = (
     const diffHours = Math.floor(diffMinutes / 60);
     if (diffHours < 24) return `${diffHours}h ago`;
 
-    return `${Math.floor(diffHours / 24)}d ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "1 day ago";
+
+    const dateYear = date.getUTCFullYear();
+    const currentYear = new Date(now).getUTCFullYear();
+
+    if (dateYear !== currentYear) {
+        return formatStableDate(date, { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    return formatStableDate(date, { day: "numeric", month: "short", year: undefined });
 };
 
 const HTML_ENTITIES: Record<string, string> = {
