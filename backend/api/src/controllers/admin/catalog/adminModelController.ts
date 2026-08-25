@@ -12,7 +12,8 @@ import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCat
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { MAX_MODEL_TREE_DEPTH, updateModelHierarchyTransactionally } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
+import { MAX_MODEL_TREE_DEPTH } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
+import { updateModelHierarchyTransactionally } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
 import { getCache } from '@esparex/core/utils/redisCache';
 import { catalogCacheKey, applyCacheWriteThrough, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogShared';
 
