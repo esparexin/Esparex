@@ -154,7 +154,7 @@ export function Header({
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
-      className="sticky top-0 z-50 w-full bg-background border-b border-border/60 transition-all duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
+      className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border/80 shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
