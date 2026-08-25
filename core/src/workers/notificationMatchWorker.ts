@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
 import { processAdForAlerts } from '../domains/notifications/application/SmartAlertService';
-import { enqueueSavedSearchAlertDispatch, processSavedSearchAlertDispatch } from '../services/SavedSearchService';
+import { enqueueSavedSearchAlertDispatch, processSavedSearchAlertDispatch } from '../domains/discovery/application/services/SavedSearchService';
 import logger from '../utils/logger';
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { queueWorkerBackoffStrategy } from '../queues/queueDefaults';

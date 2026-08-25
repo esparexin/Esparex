@@ -68,7 +68,7 @@ jest.mock('@esparex/shared', () => {
     };
 });
 
-jest.mock('@esparex/core/services/catalog/CatalogCategoryService', () => ({
+jest.mock('../../domains/catalog/application/services/CatalogCategoryService', () => ({
     resolveEquivalentActiveCategoryIds: jest.fn().mockResolvedValue([]),
 }));
 
@@ -102,7 +102,7 @@ jest.mock('../../utils/adQualityScorer', () => ({
     computeListingQualityScore: jest.fn().mockReturnValue(90),
 }));
 
-jest.mock('../../services/catalog/CatalogValidationService', () => ({
+jest.mock('../../domains/catalog/application/services/CatalogValidationService', () => ({
     validateBrandBelongsToCategory: jest.fn().mockResolvedValue({ ok: true }),
     validateModelBelongsToBrand: jest.fn().mockResolvedValue({ ok: true }),
     validateListingCategoryCapability: jest.fn().mockResolvedValue({ ok: true }),
@@ -122,7 +122,7 @@ import { AdCreationService } from '../../domains/listings/application/ad/AdCreat
 import { normalizeLocation } from '../../services/location/LocationNormalizer';
 import { generateUniqueSlug, generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { processImages } from '../../utils/imageProcessor';
-import { validateListingCategoryCapability } from '../../services/catalog/CatalogValidationService';
+import { validateListingCategoryCapability } from '../../domains/catalog/application/services/CatalogValidationService';
 import { AdContext } from '../../types/ad.types';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { LISTING_TYPE } from '@esparex/contracts';

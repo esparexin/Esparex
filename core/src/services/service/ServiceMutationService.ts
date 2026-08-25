@@ -16,7 +16,7 @@ import {
     getCategorySelectionMode,
     validateBrandBelongsToCategory,
     validateServiceCategoryCapability,
-} from '../catalog/CatalogValidationService';
+} from '../../domains/catalog/application/services/CatalogValidationService';
 
 const SERVICE_ALLOWED_FIELDS = [
     'title',

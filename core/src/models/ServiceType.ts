@@ -7,7 +7,7 @@ import {
 } from '@esparex/contracts';
 import {
     applyCatalogNamingDefaults,
-} from '../services/catalog/CatalogValidationService';
+} from '../domains/catalog/application/services/CatalogValidationService';
 import {
     IMarketplaceTrustBase,
     marketplaceTrustBaseDefinition,

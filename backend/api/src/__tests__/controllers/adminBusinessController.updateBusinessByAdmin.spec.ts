@@ -69,7 +69,7 @@ jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
     mutateStatuses: jest.fn(),
 }));
 
-jest.mock("../../utils/contentHandler", () => ({
+jest.mock("../../utils/content-handler", () => ({
     __esModule: true,
     handlePaginatedContent: jest.fn(),
 }));

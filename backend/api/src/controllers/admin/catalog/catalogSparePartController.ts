@@ -6,7 +6,7 @@
 
 import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
-import { handlePaginatedContent } from "../../../utils/contentHandler";
+import { handlePaginatedContent } from "../../../utils/content-handler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { sendSuccessResponse } from "../../../utils/respond";
@@ -17,8 +17,8 @@ import {
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
-} from '@esparex/core/services/catalog/CatalogSparePartService';
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/services/catalog/CatalogCategoryService';
+} from '@esparex/core/domains/catalog/application/services/CatalogSparePartService';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 import {
     sendCatalogError,
     QueryRecord,
@@ -36,7 +36,7 @@ import {
     deriveApprovalStatus
 } from './shared';
 import { invalidateItemCatalogCache } from './shared';
-import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
+import { validateSparePartRelations } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema
