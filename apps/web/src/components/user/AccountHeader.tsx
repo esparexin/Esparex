@@ -70,7 +70,7 @@ export function AccountHeader({
       </header>
 
       {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
-      <div className={`hidden md:block max-w-6xl mx-auto px-4 sm:px-6 pt-5 pb-2 ${className}`}>
+      <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2 ${className}`}>
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-600 rounded-2xl shadow-sm">
             <SettingsIcon className="h-6 w-6 text-white" />

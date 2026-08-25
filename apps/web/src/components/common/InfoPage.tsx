@@ -12,19 +12,17 @@ interface InfoPageProps {
  */
 export function InfoPage({ title, lastUpdated, children }: InfoPageProps) {
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
-            <article className="flex-1 w-full py-6 md:py-10">
-                <Container variant="sm" className="space-y-6">
-                    <div className="border-b border-slate-200 pb-4">
-                        <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
-                        {lastUpdated && (
-                            <p className="mt-1 text-xs text-slate-500 font-medium">Last updated: {lastUpdated}</p>
-                        )}
-                    </div>
-                    {children}
-                </Container>
-            </article>
-        </div>
+        <article className="w-full py-4 md:py-6">
+            <Container variant="sm" className="space-y-6">
+                <div className="border-b border-border pb-4">
+                    <h1 className="text-h2 font-bold tracking-tight text-foreground">{title}</h1>
+                    {lastUpdated && (
+                        <p className="mt-1 text-caption text-foreground-subtle font-medium">Last updated: {lastUpdated}</p>
+                    )}
+                </div>
+                {children}
+            </Container>
+        </article>
     );
 }
 
