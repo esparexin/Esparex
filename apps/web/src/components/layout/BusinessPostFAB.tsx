@@ -12,7 +12,7 @@ const ACTIONS = [
     {
         id: "spare-part",
         label: "Post Spare Part",
-        href: "/post-spare-part-listing",
+        href: "/post-ad",
         icon: CircuitBoard,
         bg: "bg-violet-600 hover:bg-violet-700",
     },
@@ -32,8 +32,8 @@ const ACTIONS = [
  * Mounted globally in CommonLayout so it persists across all pages.
  *
  * Visibility rules:
- *  - Only renders for authenticated users with businessStatus === "live"
- *  - Hidden on the post pages themselves (no need to FAB from within the form)
+ *  - Only renders for authenticated users with businessStatus === "live" or "active"
+ *  - Hidden on the form pages themselves (no need to FAB from within the wizard)
  *  - Collapses automatically on route change
  *  - Sits at z-40, below modals/drawers (z-50) but above page content
  *  - bottom offset tracks the mobile footer nav height on small screens
@@ -52,15 +52,14 @@ export function BusinessPostFAB() {
     // Only for authenticated live-business users
     if (status !== "authenticated" || !user || !isApprovedBusiness(user)) return null;
 
-    // Hide while the user is on posting pages or account workspace
+    // Hide while the user is actively on form creation / editing pages
     if (
         pathname?.startsWith("/post-service") ||
         pathname?.startsWith("/post-spare-part") ||
         pathname?.startsWith("/post-ad") ||
         pathname?.startsWith("/edit-service") ||
         pathname?.startsWith("/edit-spare-part") ||
-        pathname?.startsWith("/edit-ad") ||
-        pathname?.startsWith("/account")
+        pathname?.startsWith("/edit-ad")
     ) {
         return null;
     }
