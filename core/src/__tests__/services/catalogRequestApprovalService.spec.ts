@@ -76,7 +76,7 @@ import {
     approveCatalogRequest,
     markCatalogRequestDuplicate,
     rejectCatalogRequest,
-} from '@esparex/core/services/catalogRequestApprovalService';
+} from '../../domains/catalog/application/requests/catalogRequestApprovalService';
 
 const buildSession = () => {
     const session = {

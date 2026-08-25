@@ -8,7 +8,7 @@ import {
     approveCatalogRequest,
     markCatalogRequestDuplicate,
     rejectCatalogRequest,
-} from '@esparex/core/services/catalogRequestApprovalService';
+} from '@esparex/core/domains/catalog/application/requests/catalogRequestApprovalService';
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
