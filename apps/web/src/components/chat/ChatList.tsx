@@ -183,7 +183,7 @@ export function ChatList({
   };
 
   return (
-    <div className="chat-list-shell h-full min-h-0 max-h-[480px] flex flex-col overflow-hidden">
+    <div className="chat-list-shell h-full min-h-0 md:max-h-[480px] flex flex-col overflow-hidden">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
         <svg

@@ -136,7 +136,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   };
 
   return (
-    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''} h-full min-h-0 max-h-[480px] flex flex-col overflow-hidden bg-white`}>
+    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''} h-full min-h-0 md:max-h-[480px] flex flex-col overflow-hidden bg-white`}>
       <ConversationHeader
         embedded={embedded}
         inboxView={inboxView}
@@ -236,18 +236,17 @@ export function ConversationView({ conversation, currentUserId, embedded = false
           </div>
         )}
 
+        <div ref={bottomRef} aria-hidden />
+      </div>
+
+      {/* ── Bottom Zone ─────────────────────────────────────────── */}
+      <div className="conv-bottom shrink-0">
         {!isReadOnly && messages.length === 0 && (
           <QuickReplies
             onSelect={handleQuickReply}
             disabled={isSending}
           />
         )}
-
-        <div ref={bottomRef} aria-hidden />
-      </div>
-
-      {/* ── Bottom Zone ─────────────────────────────────────────── */}
-      <div className="conv-bottom">
         {isReadOnly ? (
           <ChatReadOnly reason={readOnlyReason} />
         ) : (
