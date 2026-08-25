@@ -185,8 +185,8 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                             </div>
                         </div>
 
-                        {/* 2-Column Side-by-Side Form Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                        {/* 3-Column Responsive Form Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                             {/* Column 1: Full Name */}
                             <div className="space-y-1">
                                 <Label htmlFor="profile-name" className="text-caption font-semibold text-foreground-secondary">
@@ -243,7 +243,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                 type="submit"
                                 size="sm"
                                 disabled={isSaving}
-                                className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-caption px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
+                                className="w-full sm:w-auto h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
                             >
                                 {isSaving ? "Saving..." : "Save changes"}
                             </Button>
