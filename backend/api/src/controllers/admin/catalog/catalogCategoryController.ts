@@ -13,13 +13,13 @@ import {
     findCategoryById,
     validateCategoryParentHierarchy,
     updateCategorySchemaById,
-} from '@esparex/core/services/catalog/CatalogCategoryService';
+    clearCategoryCanonicalCache,
+} from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
 import type { ICategory } from '@esparex/core/models/Category';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/services/catalog/CatalogCategoryService';
+import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {
     categoryCreateSchema,

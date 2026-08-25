@@ -1,5 +1,5 @@
-import { CatalogResolutionPolicy, CatalogResolutionDecision } from '../../services/catalog/CatalogResolutionPolicy';
-import { CatalogValidationService } from '../../services/catalog/CatalogValidationService';
+import { CatalogResolutionPolicy, CatalogResolutionDecision } from '../../domains/catalog';
+import { CatalogValidationService } from '../../domains/catalog/application/services/CatalogValidationService';
 
 describe('CatalogResolutionPolicy & CatalogValidationService Pipeline', () => {
     describe('validateCatalogInput (Pipeline)', () => {

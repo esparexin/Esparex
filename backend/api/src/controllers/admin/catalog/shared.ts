@@ -24,7 +24,7 @@ import {
     getActiveCategoryIds,
     validateActiveCategories,
     deriveApprovalStatus,
-} from '@esparex/core/services/catalog/CatalogValidationService';
+} from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
 
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
@@ -436,7 +436,7 @@ export async function handleCatalogReview<T extends Document>(
     }
 }
 
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
 
 export const invalidateItemCatalogCache = (item: any) => void CatalogOrchestrator.invalidateCatalogCache({
     categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []),

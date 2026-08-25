@@ -44,7 +44,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // Controller Orchestration: Resolve custom brand/model proposal requests prior to Ad creation
         if (body.customBrandName || body.customModelName) {
-            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/services/catalog/CatalogRequestService');
+            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/domains/catalog/application/services/CatalogRequestService');
             const resolved = await resolveCatalogRequestsForSubmission({
                 categoryId: String(body.categoryId || ''),
                 brandId: body.brandId ? String(body.brandId) : undefined,

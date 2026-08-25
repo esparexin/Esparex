@@ -24,7 +24,7 @@ jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
 }));
 
-jest.mock('@esparex/core/services/catalog/CatalogRequestService', () => ({
+jest.mock('@esparex/core/domains/catalog/application/services/CatalogRequestService', () => ({
     resolveCatalogRequestsForSubmission: (...args: unknown[]) => mockResolveCatalogRequestsForSubmission(...args),
 }));
 
