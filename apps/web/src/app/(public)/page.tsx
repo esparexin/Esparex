@@ -113,6 +113,7 @@ export default async function Home() {
 
                 <HomeFeed initialData={initialHomeAds} />
 
+                {/* ui-guard-ignore: nested-container Sibling container wrappers for separate ad placement slots */}
                 <Container variant="lg">
                     <AdPlacementSlot placement="homepage_feed_inline" />
                 </Container>
