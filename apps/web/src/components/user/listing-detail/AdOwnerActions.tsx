@@ -24,7 +24,7 @@ export function AdOwnerActions({
     onPromote,
 }: AdOwnerActionsProps) {
     const isPending = status === "pending";
-    const isActive = status === "live";
+    const isActive = status === "live" || status === "active" || status === "approved" || status === "published";
     const showViewOnlyState = !isPending && !isActive && !isSold;
 
     return (
