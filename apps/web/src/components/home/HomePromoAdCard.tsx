@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, PlusCircle, ArrowRight } from "@/icons/IconRegistry";
+import { PlusCircle, ArrowRight } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 export function HomePromoAdCard({ className }: { className?: string }) {
@@ -19,9 +19,8 @@ export function HomePromoAdCard({ className }: { className?: string }) {
                 <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-primary/20 blur-xl" aria-hidden="true" />
                 <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-emerald-500/15 blur-lg" aria-hidden="true" />
 
-                {/* Badge */}
-                <div className="relative z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold bg-primary text-primary-foreground shadow-xs mb-2">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {/* Badge without sparkle symbol */}
+                <div className="relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary text-primary-foreground shadow-xs mb-2">
                     <span>Sell on Esparex</span>
                 </div>
 

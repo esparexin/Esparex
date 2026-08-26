@@ -65,7 +65,7 @@ export function AdTitlePriceCard({
 
                 {isActiveSpotlight && (
                     <Badge className="flex-shrink-0 text-caption md:text-tiny font-bold px-2.5 py-0.5 bg-amber-500 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
-                        ✨ Spotlight
+                        Spotlight
                     </Badge>
                 )}
                 {ad.isFeatured && !ad.isSpotlight && !ad.isBoosted && (
@@ -90,9 +90,16 @@ export function AdTitlePriceCard({
                 </div>
             )}
 
-            <h1 className="text-base sm:text-lg md:text-xl font-bold text-foreground leading-snug tracking-tight">
-                {ad.title || "Ad Title"}
-            </h1>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h1 className="text-body-lg sm:text-h4 md:text-h3 font-bold text-foreground leading-snug tracking-tight">
+                    {ad.title || "Ad Title"}
+                </h1>
+                {ad.id ? (
+                    <span className="text-tiny font-mono font-medium text-foreground-subtle shrink-0">
+                        Ad ID: #{String(ad.id).slice(-8)}
+                    </span>
+                ) : null}
+            </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
                 <div className="flex items-baseline gap-1">
@@ -101,7 +108,7 @@ export function AdTitlePriceCard({
                             {isService ? "Contact for Quote" : "Free"}
                         </span>
                     ) : (
-                        <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                        <span className="text-h3 md:text-h2 font-bold text-foreground tracking-tight">
                             {formatPrice(ad.price)}
                         </span>
                     )}
