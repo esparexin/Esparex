@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CONTACT_LIMITS } from "@esparex/contracts";
+import { CONTACT_LIMITS, BUSINESS_LIMITS } from "@esparex/contracts";
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 
 export const BUSINESS_IMAGE_MIME_TYPES = [
@@ -100,7 +100,7 @@ const requiredBusinessFields = {
             "Contact number must be a valid 10-digit Indian mobile starting with 6-9",
         ),
 
-    email: z.string().email("Please enter a valid email address").max(100, "Email must be less than 100 characters"),
+    email: z.string().email("Please enter a valid email address").max(CONTACT_LIMITS.EMAIL.MAX, "Email must be less than 255 characters"),
 
     address: z
         .string()
@@ -168,7 +168,7 @@ const registrationOnlyFields = {
     images: z
         .array(businessImageFileValidator)
         .min(1, "Upload at least one shop image")
-        .max(5, "Maximum 5 shop images allowed")
+        .max(BUSINESS_LIMITS.IMAGES.MAX, `Maximum ${BUSINESS_LIMITS.IMAGES.MAX} shop images allowed`)
         .refine(
             (images) =>
                 images.every((img) => {

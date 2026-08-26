@@ -1,7 +1,5 @@
-/**
- * Centralized Text Field Schemas
- */
 import { z } from 'zod';
+import { TEXT_LIMITS } from '../constants/fieldLimits';
 
 /**
  * Creates a validated text schema with trim transform and optional length validation.
@@ -31,15 +29,52 @@ export const validatedTextSchema = (options: {
     });
 };
 
-export const titleSchema = validatedTextSchema({ fieldName: 'Title' });
-export const titleExtendedSchema = validatedTextSchema({ fieldName: 'Title' });
-export const descriptionSchema = validatedTextSchema({ fieldName: 'Description' });
-export const descriptionExtendedSchema = validatedTextSchema({ fieldName: 'Description' });
-export const shortTextSchema = validatedTextSchema({ fieldName: 'Text' });
-export const nameSchema = validatedTextSchema({ fieldName: 'Name' });
-export const businessNameSchema = validatedTextSchema({ fieldName: 'Business Name' });
-export const searchQuerySchema = validatedTextSchema({ fieldName: 'Search', allowEmpty: true });
-export const addressSchema = validatedTextSchema({ fieldName: 'Address' });
+export const titleSchema = validatedTextSchema({
+    fieldName: 'Title',
+    minLength: TEXT_LIMITS.TITLE.MIN,
+    maxLength: TEXT_LIMITS.TITLE.MAX,
+});
+export const titleExtendedSchema = validatedTextSchema({
+    fieldName: 'Title',
+    minLength: TEXT_LIMITS.TITLE_EXTENDED.MIN,
+    maxLength: TEXT_LIMITS.TITLE_EXTENDED.MAX,
+});
+export const descriptionSchema = validatedTextSchema({
+    fieldName: 'Description',
+    minLength: TEXT_LIMITS.DESCRIPTION.MIN,
+    maxLength: TEXT_LIMITS.DESCRIPTION.MAX,
+});
+export const descriptionExtendedSchema = validatedTextSchema({
+    fieldName: 'Description',
+    minLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MIN,
+    maxLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MAX,
+});
+export const shortTextSchema = validatedTextSchema({
+    fieldName: 'Text',
+    minLength: TEXT_LIMITS.SHORT_TEXT.MIN,
+    maxLength: TEXT_LIMITS.SHORT_TEXT.MAX,
+});
+export const nameSchema = validatedTextSchema({
+    fieldName: 'Name',
+    minLength: TEXT_LIMITS.NAME.MIN,
+    maxLength: TEXT_LIMITS.NAME.MAX,
+});
+export const businessNameSchema = validatedTextSchema({
+    fieldName: 'Business Name',
+    minLength: TEXT_LIMITS.BUSINESS_NAME.MIN,
+    maxLength: TEXT_LIMITS.BUSINESS_NAME.MAX,
+});
+export const searchQuerySchema = validatedTextSchema({
+    fieldName: 'Search',
+    minLength: TEXT_LIMITS.SEARCH_QUERY.MIN,
+    maxLength: TEXT_LIMITS.SEARCH_QUERY.MAX,
+    allowEmpty: true,
+});
+export const addressSchema = validatedTextSchema({
+    fieldName: 'Address',
+    minLength: TEXT_LIMITS.ADDRESS.MIN,
+    maxLength: TEXT_LIMITS.ADDRESS.MAX,
+});
 
 export const optionalTextSchema = (options: { fieldName?: string; minLength?: number; maxLength?: number } = {}) => {
     return validatedTextSchema({ ...options, allowEmpty: true }).optional();

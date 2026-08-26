@@ -59,17 +59,17 @@ export const TEXT_LIMITS = {
     // Names (user names, business names)
     NAME: {
         MIN: 2,
-        MAX: 50,
+        MAX: 100,
         ERROR_MIN: 'Name must be at least 2 characters',
-        ERROR_MAX: 'Name must be 50 characters or fewer',
+        ERROR_MAX: 'Name must be 100 characters or fewer',
     },
 
     // Business names
     BUSINESS_NAME: {
         MIN: 3,
-        MAX: 100,
+        MAX: 120,
         ERROR_MIN: 'Business name must be at least 3 characters',
-        ERROR_MAX: 'Business name must be 100 characters or fewer',
+        ERROR_MAX: 'Business name must be 120 characters or fewer',
     },
 
     // Search queries

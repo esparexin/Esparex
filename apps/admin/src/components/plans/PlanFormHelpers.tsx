@@ -98,7 +98,7 @@ export function planToForm(plan: Plan): PlanFormValues {
     maxParts: plan.limits?.maxParts ?? 0,
     spotlightCredits: plan.limits?.spotlightCredits ?? legacyCredits ?? 0,
     smartAlerts: plan.limits?.smartAlerts ?? plan.smartAlertConfig?.maxAlerts ?? legacyCredits ?? 0,
-    matchFrequency: (plan.smartAlertConfig?.matchFrequency === "instant" ? "realtime" : plan.smartAlertConfig?.matchFrequency) ?? "daily",
+    matchFrequency: plan.smartAlertConfig?.matchFrequency ?? "daily",
     radiusLimitKm: plan.smartAlertConfig?.radiusLimitKm ?? 50,
     notificationChannels: plan.smartAlertConfig?.notificationChannels ?? ["push"],
     priorityWeight: plan.features?.priorityWeight ?? 1,
