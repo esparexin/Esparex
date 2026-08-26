@@ -116,7 +116,7 @@ describe('stats.controller getMyTabListings', () => {
         expect(mockSendErrorResponse).toHaveBeenCalledWith(req, res, 401, 'Unauthorized');
     });
 
-    it('queries for live tab correctly with status: active and live', async () => {
+    it('queries for live tab correctly with status guard and expiresAt guard', async () => {
         mockGetOwnerListings.mockResolvedValue({ items: [], total: 0 });
 
         const req = {
@@ -127,16 +127,38 @@ describe('stats.controller getMyTabListings', () => {
 
         await getMyTabListings(req, res);
 
-        expect(mockGetOwnerListings).toHaveBeenCalledWith(
-            expect.objectContaining({
-                sellerId: '65f0a1b2c3d4e5f6a7b8c9d1',
-                status: { $in: ['active', 'live', 'deactivated'] },
-                isDeleted: { $ne: true },
-            }),
-            1,
-            10
+        const [receivedQuery, receivedPage, receivedLimit] = mockGetOwnerListings.mock.calls[0];
+
+        expect(receivedPage).toBe(1);
+        expect(receivedLimit).toBe(10);
+        expect(receivedQuery.sellerId).toEqual('65f0a1b2c3d4e5f6a7b8c9d1');
+        expect(receivedQuery.isDeleted).toEqual({ $ne: true });
+
+        // The live tab must use $and to combine status filter + expiresAt guard
+        expect(receivedQuery.$and).toBeDefined();
+        expect(receivedQuery.$and).toHaveLength(2);
+
+        // First clause: status includes active, live, deactivated
+        expect(receivedQuery.$and[0]).toEqual({
+            status: { $in: ['active', 'live', 'deactivated'] },
+        });
+
+        // Second clause: expiresAt guard — deactivated bypasses, live/active must not be past expiresAt
+        const expiryClause = receivedQuery.$and[1].$or;
+        expect(expiryClause).toBeDefined();
+        expect(expiryClause).toContainEqual({ status: 'deactivated' });
+        expect(expiryClause).toContainEqual({ expiresAt: { $exists: false } });
+        // The $gt value is a Date instance (exact value not asserted — runtime-evaluated)
+        const futureExpiryClause = expiryClause.find(
+            (c: Record<string, unknown>) => c.expiresAt && typeof c.expiresAt === 'object' && '$gt' in (c.expiresAt as object)
         );
+        expect(futureExpiryClause).toBeDefined();
+        expect((futureExpiryClause.expiresAt as { $gt: unknown }).$gt).toBeInstanceOf(Date);
+
+        // The top-level query must NOT have a bare status key (replaced by $and)
+        expect(receivedQuery.status).toBeUndefined();
     });
+
 
     it('queries for pending tab correctly', async () => {
         mockGetOwnerListings.mockResolvedValue({ items: [], total: 0 });
