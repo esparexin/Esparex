@@ -1,6 +1,5 @@
 import type { UserStatusValue } from '../enums/userStatus';
 import type { MobileVisibilityValue } from '../../common/constants/mobileVisibility';
-import type { BusinessStatusValue } from '../../businesses/enums/businessStatus';
 export type UserRole = string;
 
 export type UserBusinessStatus = 'pending' | 'approved' | 'rejected' | 'suspended' | 'active' | 'deleted' | 'closed' | 'live' | 'deactivated' | 'expired' | 'none' | (string & {});
