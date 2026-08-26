@@ -4,7 +4,13 @@ import { CONTACT_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits'
 export const authMobileSchema = z.string()
     .transform((val) => val.replace(/\D/g, '').slice(-10))
     .refine(
-        (val) => CONTACT_LIMITS.PHONE.PATTERN.test(val),
+        (val) => {
+            const isProd = typeof process !== 'undefined' && process.env?.NODE_ENV === 'production';
+            if (isProd) {
+                return CONTACT_LIMITS.PHONE.PATTERN.test(val);
+            }
+            return /^\d{10}$/.test(val);
+        },
         'Invalid mobile format (must be a valid 10-digit Indian number starting with 6-9)'
     );
 

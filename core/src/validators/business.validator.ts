@@ -1,10 +1,20 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
-import { normalizeTo10Digits } from '../utils/phoneUtils';
-import { BUSINESS_LIMITS } from "@esparex/contracts";
-import { validateText } from "@esparex/shared";
-import { ID_PROOF_TYPE_VALUES } from '@esparex/contracts';
-import { BUSINESS_STATUS } from '@esparex/contracts';
+import {
+    BUSINESS_LIMITS,
+    BUSINESS_STATUS,
+    CreateBusinessPayloadSchema,
+    UpdateBusinessPayloadSchema,
+    coordinatesSchema,
+    businessPhoneSchema,
+    businessNameSchema,
+} from '@esparex/contracts';
+
+const optionalTrimmedString = (max: number) =>
+    z
+        .string()
+        .max(max)
+        .transform((value) => value.trim());
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 const FULL_ADDRESS_PINCODE_PATTERN = /\b[1-9]\d{5}\b/;
@@ -32,148 +42,15 @@ const rejectLegacyBusinessQueryAliases = (
     throw new z.ZodError(issues);
 };
 
-// VALIDATION SSOT NOTE:
-// This schema mirrors shared/schemas/coordinates.schema.ts.
-// Direct import avoided due to Zod instance boundary across monorepo packages.
-// Behavior matches the canonical SSOT (lng-first, isFinite, bounds-checked).
-// --- v3-native schemas (avoid cross-package Zod version mixing) ---
-
-/**
- * Mobile number schema — normalizes any format (+91, 91, dashes) → 10-digit Indian mobile.
- * Aligns with auth.validator.ts SSOT (normalizeTo10Digits from phoneUtils).
- */
-const phoneSchema = z.string()
-    .transform(normalizeTo10Digits)
-    .refine(
-        (val) => /^[6-9]\d{9}$/.test(val),
-        'Invalid mobile number (must be a 10-digit Indian mobile starting with 6–9)'
-    );
-
-/**
- * Business name schema — v3 native with shared text content validation.
- */
-const businessNameSchema = z.string()
-    .min(3, 'Business name must be at least 3 characters')
-    .max(100, 'Business name must be 100 characters or fewer')
-    .transform((val) => val.trim())
-    .superRefine((val, ctx) => {
-        const result = validateText(val, { checkBannedWords: true, checkGibberish: true, strictMode: true });
-        if (result.action === 'reject') {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: result.issues[0]?.message || 'Business name contains prohibited content' });
-        }
-    });
-
-/**
- * Description schema — v3 native with shared text content validation.
- */
-const descriptionSchema = z.string()
-    .min(20, 'Description must be at least 20 characters')
-    .max(2000, 'Description must be 2000 characters or fewer')
-    .transform((val) => val.trim())
-    .superRefine((val, ctx) => {
-        const result = validateText(val, { checkBannedWords: true, checkGibberish: true, strictMode: false });
-        if (result.action === 'reject') {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: result.issues[0]?.message || 'Description contains prohibited content' });
-        }
-    });
-
-/**
- * GeoJSON Point coordinates schema — mirrors shared/schemas/coordinates.schema.ts.
- * Cannot import directly due to Zod singleton boundary across monorepo packages.
- * Behavior is canonical: lng-first, bounds-checked, Number.isFinite, null-island rejected.
- */
-const coordinatesSchema = z.object({
-    type: z.literal('Point'),
-    coordinates: z.tuple([
-        z.number().min(-180).max(180).refine(Number.isFinite, 'Longitude must be a finite number'),
-        z.number().min(-90).max(90).refine(Number.isFinite, 'Latitude must be a finite number')
-    ]).refine(([lng, lat]) => !(lng === 0 && lat === 0), 'Coordinates [0,0] are not allowed')
-});
-
-const optionalTrimmedString = (max: number) =>
-    z
-        .string()
-        .max(max)
-        .transform((value) => value.trim());
-
-const locationSchema = z.object({
-    locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
-    address: z.string()
-        .trim()
-        .min(15, 'Complete business address is required')
-        .max(300, 'Business address must be 300 characters or fewer')
-        .superRefine((val, ctx) => {
-            const hasSixDigitNumber = /\b\d{6}\b/.test(val);
-            const hasValidIndianPincode = FULL_ADDRESS_PINCODE_PATTERN.test(val);
-
-            if (!hasSixDigitNumber) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: 'Address must include a valid 6-digit pincode',
-                });
-            } else if (!hasValidIndianPincode) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: 'Please verify the pincode entered',
-                });
-            }
-        }),
-    display: optionalTrimmedString(150).optional(),
-    city: optionalTrimmedString(50).optional(),
-    state: optionalTrimmedString(50).optional(),
-    country: optionalTrimmedString(50).optional(),
-    pincode: z.union([
-        z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
-        z.literal(''),
-    ]).optional(),
-    coordinates: coordinatesSchema,
-});
-
-const documentsSchema = z.object({
-    idProofType: z.enum(ID_PROOF_TYPE_VALUES).optional().default('aadhaar'),
-    idProof: z.array(z.string()).min(1, 'ID proof is required'),
-    businessProof: z.array(z.string()).min(1, 'Business proof is required'),
-    certificates: z.array(z.string()).optional()
-});
-
-const businessBaseShape = {
-    // Uses centralized text validation (profanity, gibberish detection)
-    name: businessNameSchema,
-    description: descriptionSchema.optional(),
-    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
-    location: locationSchema,
-    // Canonical contact field for business mutations
-    mobile: phoneSchema.optional(),
-    email: commonSchemas.email,
-    website: z.string().url().optional(),
-    gstNumber: z.string().regex(BUSINESS_LIMITS.GST.PATTERN, BUSINESS_LIMITS.GST.ERROR_FORMAT).optional(),
-    registrationNumber: sanitizeString(
-        BUSINESS_LIMITS.REGISTRATION.MIN, 
-        BUSINESS_LIMITS.REGISTRATION.MAX
-    ).optional(),
-    workingHours: z.unknown().optional(),
-    images: z.array(z.string()).min(BUSINESS_LIMITS.IMAGES.MIN, BUSINESS_LIMITS.IMAGES.ERROR_MIN).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX),
-    documents: documentsSchema
-};
-
-export const createBusinessSchema = z.object(businessBaseShape).strict()
+export const createBusinessSchema = CreateBusinessPayloadSchema
     .transform((data) => {
         if (!Array.isArray(data.businessTypes) || data.businessTypes.length === 0) {
             data.businessTypes = [...DEFAULT_BUSINESS_TYPES];
         }
         return data;
-    })
-    .refine((data) => !!data.mobile, {
-        message: "Mobile number is required",
-        path: ["mobile"]
     });
 
-export const updateBusinessSchema = z.object(businessBaseShape).partial().extend({
-    location: locationSchema.partial().optional(),
-    documents: documentsSchema.partial().optional(),
-    images: z.array(z.string()).max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX).optional(),
-    businessTypes: z.array(sanitizeString(2, 50)).min(1, 'Select at least one business type').optional(),
-}).strict();
+export const updateBusinessSchema = UpdateBusinessPayloadSchema;
 
 const publicBusinessQuerySchemaBase = z.object({
     limit: z.coerce.number().int().min(1).max(50).optional(),
@@ -254,7 +131,7 @@ export const adminBusinessStatusSchema = z
 export const adminBusinessUpdateSchema = z.object({
     name: businessNameSchema.optional(),
     description: z.string().trim().max(2000).optional(),
-    mobile: phoneSchema.optional(),
+    mobile: businessPhoneSchema.optional(),
     email: z.union([commonSchemas.email, z.literal('')]).optional(),
     website: z.union([z.string().url('Invalid URL format'), z.literal('')]).optional(),
     gstNumber: z.union([
