@@ -152,7 +152,7 @@ export function SearchResultsHeader({
                         </h2>
                     ) : typeof total === "number" && total > 0 ? (
                         <p className="text-small font-medium text-foreground-secondary tracking-tight">
-                            Showing <span className="font-bold text-foreground">{total}</span> {total === 1 ? "ad" : "ads"}
+                            Showing <span className="font-bold text-foreground tabular-nums">{total}</span> {total === 1 ? "ad" : "ads"}
                         </p>
                     ) : null}
                 </div>
