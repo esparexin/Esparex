@@ -25,7 +25,7 @@ export function HeaderLocation({
     onClick,
 }: HeaderLocationProps) {
     const { location } = useLocationData();
-    const { detectLocation, clearLocation } = useLocationDispatch();
+    const { detectLocation } = useLocationDispatch();
     const { loading: isDetecting } = useLocationStatus();
     const mounted = useMounted();
     const inputRef = useRef<HTMLInputElement>(null);
@@ -34,22 +34,26 @@ export function HeaderLocation({
     const { headerText, tooltipText } = getHeaderLocationText(location);
     const resolvedHeaderText = mounted ? (headerText || DEFAULT_APP_LOCATION.display) : DEFAULT_APP_LOCATION.display;
     const isCustomLocation = mounted && location.source !== "default" && location.display !== DEFAULT_APP_LOCATION.display;
+    const shouldShowX = isCustomLocation && !isOpen && !isFocused;
 
-    // Handle 1-click GPS auto-detection or clearing active location
+    // Handle 1-click GPS auto-detection or opening dropdown on X click
     const handleActionClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
 
-        // 1. Immediately blur input and clear local search query
-        inputRef.current?.blur();
-        setIsFocused(false);
-        if (onQueryChange) onQueryChange("");
-        if (onOpenChange) onOpenChange(false);
-
-        // 2. Clear location if custom location active, otherwise trigger GPS auto-detection
-        if (isCustomLocation) {
-            clearLocation();
+        if (shouldShowX) {
+            // When X is clicked: focus input, clear local query, and open location dropdown
+            inputRef.current?.focus();
+            setIsFocused(true);
+            if (onQueryChange) onQueryChange("");
+            if (onOpenChange) onOpenChange(true);
+            if (onClick) onClick();
         } else {
+            // When Target (Auto-Detect) is clicked: trigger GPS auto-detection
+            inputRef.current?.blur();
+            setIsFocused(false);
+            if (onQueryChange) onQueryChange("");
+            if (onOpenChange) onOpenChange(false);
             void detectLocation(true);
         }
     };
@@ -116,13 +120,13 @@ export function HeaderLocation({
                 type="button"
                 onClick={handleActionClick}
                 disabled={isDetecting}
-                title={isCustomLocation ? "Clear selected location" : "Detect current location using GPS"}
-                aria-label={isCustomLocation ? "Clear selected location" : "Detect current location using GPS"}
+                title={shouldShowX ? "Change location" : "Detect current location using GPS"}
+                aria-label={shouldShowX ? "Change location" : "Detect current location using GPS"}
                 className="flex items-center justify-center h-7 w-7 rounded-lg hover:bg-muted text-muted-foreground hover:text-primary transition-colors shrink-0 cursor-pointer p-0.5"
             >
                 {isDetecting ? (
                     <Spinner size="sm" className="h-3.5 w-3.5 text-primary" />
-                ) : isCustomLocation ? (
+                ) : shouldShowX ? (
                     <X className="h-4 w-4 text-muted-foreground hover:text-foreground shrink-0" />
                 ) : (
                     <Target className="h-4 w-4 text-primary shrink-0" />
