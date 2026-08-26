@@ -68,7 +68,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       <div className="flex items-center justify-between min-h-[1.5rem] gap-1.5">
         <span
           className={cn(
-            "font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate",
+            "font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate tabular-nums",
             isList ? "text-body sm:text-h4" : isDashboard ? "text-body sm:text-body-lg" : "text-body-lg sm:text-h4"
           )}
           aria-label={`Price: ${priceDisplay}`}
@@ -133,12 +133,14 @@ export const AdCardMeta = memo(function AdCardMeta({
               )}
             </div>
 
-            {/* Posted Date */}
+            {/* Posted / Active Date */}
             {!isList && (
               <span className="shrink-0 text-caption text-foreground-tertiary font-normal whitespace-nowrap">
-                {"createdAt" in ad && ad.createdAt
-                  ? formatShortRelativeTime(ad.createdAt as string)
-                  : "Just now"}
+                {("publishedAt" in ad && typeof ad.publishedAt === "string" && ad.publishedAt)
+                  ? formatShortRelativeTime(ad.publishedAt)
+                  : ("createdAt" in ad && ad.createdAt)
+                    ? formatShortRelativeTime(ad.createdAt as string)
+                    : "Just now"}
               </span>
             )}
           </>

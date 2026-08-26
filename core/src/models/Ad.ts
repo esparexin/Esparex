@@ -6,6 +6,7 @@ import { type AdStatusValue } from '@esparex/contracts';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/contracts';
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/contracts';
 import { getUserConnection } from '../config/db';
+import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { syncConversationAvailabilityForListing } from '../services/ChatAvailabilityService';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 
@@ -494,6 +495,21 @@ AdSchema.pre('save', async function (this: IAd) {
         const locationContext = this.location?.city ? ` in ${this.location.city}` : '';
         const slugTitle = `${this.title}${locationContext}`;
         this.seoSlug = await generateUniqueSlug(Ad, slugTitle, undefined);
+    }
+
+    // 🛡️ Policy Guard: Enforce 30-day listing expiry invariant on live listings
+    if (this.status === LISTING_STATUS.LIVE && !this.isDeleted) {
+        const now = Date.now();
+        const maxDays = (this.listingType === LISTING_TYPE.SERVICE || this.listingType === LISTING_TYPE.SPARE_PART)
+            ? GOVERNANCE.CONTENT.EXPIRY_DAYS
+            : GOVERNANCE.AD.EXPIRY_DAYS;
+        const maxAllowedExpiryMs = now + (maxDays * MS_IN_DAY);
+
+        if (!this.expiresAt || this.expiresAt.getTime() <= now) {
+            this.expiresAt = new Date(maxAllowedExpiryMs);
+        } else if (this.expiresAt.getTime() > maxAllowedExpiryMs + MS_IN_DAY) {
+            this.expiresAt = new Date(maxAllowedExpiryMs);
+        }
     }
 });
 

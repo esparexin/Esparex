@@ -8,7 +8,7 @@ import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@esparex/ui";
-import { getListingHref } from "@/lib/listingUtils";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
@@ -163,7 +163,12 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                 <AdCardGrid
                                     key={ad.id}
                                     ad={ad}
-                                    href={getListingHref(ad)}
+                                    href={buildPublicListingDetailRoute({
+                                        id: ad.id,
+                                        listingType: ad.listingType,
+                                        title: ad.title,
+                                        seoSlug: ad.seoSlug,
+                                    })}
                                     priority={index < 4}
                                 />
                             ))}

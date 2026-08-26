@@ -5,7 +5,9 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ListingPageClient } from "@/app/(public)/ads/[slug]/ListingPageClient";
 import { getListingById, type Listing } from "@/lib/api/user/listings";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
-import { generateAdSlug } from "@/lib/slug";
+import { generateAdSlug, parseListingSlugParam } from "@/lib/slug";
+
+export { parseListingSlugParam };
 
 export type ListingSlugPageProps = {
     params: Promise<{ slug: string }>;
@@ -48,16 +50,6 @@ interface RenderListingPageOptions {
     buildStructuredData: (listing: ListingLike) => ListingStructuredData;
 }
 
-export function parseListingSlugParam(param: string) {
-    const match = param.match(/^(.*)-([0-9a-fA-F]{24})$/);
-    if (!match || !match[2]) {
-        return { id: param, slug: "" };
-    }
-    return {
-        id: match[2],
-        slug: match[1] || "",
-    };
-}
 
 export async function buildListingMetadata({
     params,

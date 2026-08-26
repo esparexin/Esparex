@@ -5,12 +5,10 @@ import { ListingDetail } from '@/components/user/ListingDetail';
 import type { Listing as Ad } from '@/lib/api/user/listings';
 import { useLoginCallback } from '@/hooks/useLoginCallback';
 
-const isValidAdIdentifier = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 import { getPageRoute, type SellerType, type UserPage } from '@/lib/routeUtils';
+import { parseListingSlugParam } from '@/lib/slug';
 
-// Note: Title management is now handled by Server Component Metadata, 
-// but we keep this hook if we want dynamic client-side updates during navigation?
-// Actually, Next.js handles title via Metadata, so we can remove useAdTitle.
+const isValidAdIdentifier = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
 export function ListingPageClient({ ad }: { ad?: Ad }) {
     const params = useParams();
@@ -18,9 +16,9 @@ export function ListingPageClient({ ad }: { ad?: Ad }) {
     const routeSlug = typeof params?.slug === 'string' ? params.slug : undefined;
 
     // Server payload `ad.id` is the exact DB identifier. 
-    // Fall back to safely parsing the slug's tail if ad payload is missing.
-    const rawIdFromSlug = routeSlug ? routeSlug.split('-').pop() : undefined;
-    const id = ad?.id || rawIdFromSlug || routeSlug;
+    // Fall back to SSOT slug parser if ad payload is missing.
+    const rawIdFromSlug = routeSlug ? parseListingSlugParam(routeSlug).id : undefined;
+    const id = ad?.id ? String(ad.id) : (rawIdFromSlug || routeSlug);
 
     // Validate ID
     if (!id || !isValidAdIdentifier(id)) {

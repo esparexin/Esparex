@@ -1037,6 +1037,27 @@ All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/m
 3. **Single-Instance Responsive Invariant**: No duplicate `Desktop*` vs `Mobile*` component trees.
 4. **Native Popup SSOT**: Alerts and notifications MUST use `popupBus` / `notify`. External toast packages (`sonner`, `react-hot-toast`) are banned.
 
+---
+
+## 20. ESPAREX LISTING LIFECYCLE & 30-DAY EXPIRY GOVERNANCE STANDARD (MANDATORY)
+
+### 20.1 30-Day Hard Expiry Ceiling
+- Classified ads (`LISTING_TYPE.AD`) have a strict 30-day lifecycle window (`GOVERNANCE.AD.EXPIRY_DAYS = 30`).
+- Extensions (`extendAdExpiry`) and renewals must NEVER extend beyond `Date.now() + 30 days` from the extension timestamp.
+- Live listings MUST NEVER be saved to MongoDB without a valid future `expiresAt` timestamp. The Mongoose model pre-save hook strictly clamps and assigns `expiresAt` on `status === 'live'`.
+
+### 20.2 Zero Unbounded Feed Queries
+- Raw database queries matching `{ status: 'live' }` without `expiresAt: { $gt: new Date() }` are STRICTLY PROHIBITED in all public endpoints.
+- All feed, search, category, nearby, trending, and homepage queries MUST use `buildPublicAdFilter()` from `@esparex/core/utils/FeedVisibilityGuard`.
+
+### 20.3 Deterministic Date Formatter SSOT
+- Formatting dates using raw JavaScript `toLocaleDateString()` or uncalibrated libraries is prohibited.
+- All dates rendered in UI must use `@/lib/formatters` (`formatAppDate`, `formatStableDate`, `formatShortRelativeTime`) or `@esparex/shared` (`formatDate`), adhering to the `en-IN` / `Asia/Kolkata` standard.
+
+### 20.4 Automated Expiry Sweeper
+- The distributed job `runExpireAdsJob` must run continuously via `SchedulerQueueEngine` to transition lapsed listings from `live` to `expired`.
+
+
 
 
 
