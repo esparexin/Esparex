@@ -1232,12 +1232,36 @@ N/A - Verification tasks.
 
 ### EA-037
 
+**Sprint**: Web Polish & Tech Debt  
+**PR**: PR #460 (`feat(web): refine ad detail typography scale, 3-tab layout, and mobile carousel navigation`)  
+**Category**: Governance / Quality Gate Remediation  
+**Status**: ✅ Completed  
 
+**Action**  
+Remediated `DUP-001` duplicate rate regression and `SSOT-001` canonical ownership collision on `feat/ad-detail-typography-and-tabs`.
+
+**Reason**  
+Gate failed on CI due to duplicate reverse geocoding blocks in `locationDetection.ts`, redundant dropdown/drawer options rendering in `EntitySearchCombobox.tsx`, and a symbol name collision between `apps/web`'s `ValidationResult` and `@esparex/core`'s catalog validation service.
+
+**Files Modified**:
+```
+apps/web/src/components/user/EntitySearchCombobox.tsx
+apps/web/src/lib/fieldValidators.ts
+apps/web/src/lib/formValidation.ts
+apps/web/src/lib/location/locationDetection.ts
+apps/web/src/lib/validation.ts
 docs/tracking/engineering-action-register.md
 ```
 
 **Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score: 100%, 18/18 checks pass)
+- ✅ `npm run guard:duplicate-code` ──► PASS (Clones reduced from 10 to 8, rate: 0.08%)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test` ──► PASS (100% green)
 
+**Rollback**:
+```bash
+git checkout HEAD~1
 ```
 
 ---
@@ -1345,5 +1369,88 @@ scripts/enforce-typography-ssot.js
 **Rollback**:
 ```bash
 git revert de6ef845 bfeed650
+```
+
+---
+
+### EA-040
+
+**Sprint**: Marketplace Typography & Brand Palette Harmonization  
+**PR**: PR #479, PR #480  
+**Category**: Design Token SSOT & Governance Standards  
+**Status**: ✅ Completed  
+
+**Action**  
+Harmonized brand green (`#16A34A`) and warm neutral (`#FAFAF8`, `#57534E`) color palettes across `@esparex/design-tokens` and web app, codified the 30-day listing lifecycle invariant into `AGENTS.md`, and modernized the cookie consent banner with `useSyncExternalStore`.
+
+**Reason**  
+Eliminated harsh cold slate/pure white contrast artifacts, replaced uncalibrated date formatters with deterministic SSOT formatters, and resolved React 19 hydration mismatch warnings in the cookie consent banner.
+
+**Files Modified**:
+```
+AGENTS.md
+.agents/AGENTS.md
+packages/design-tokens/src/colors.ts
+packages/design-tokens/scripts/generate-css.ts
+apps/web/src/components/cookie-consent/CookieConsentBanner.tsx
+apps/web/src/styles/globals.css
+```
+
+**Verification**:
+- ✅ `npm run guard:design-token-adoption` ──► PASS
+- ✅ `npm run type-check` ──► PASS
+- ✅ `npm test` ──► PASS
+
+---
+
+### EA-041
+
+**Sprint**: UI/UX Token Refinement & Webhook Integrity  
+**PR**: PR on `feat/ui-ux-design-token-refinements`  
+**Category**: Architecture / Quality / Security  
+**Status**: ✅ Completed  
+
+**Action**  
+1. **Webhook Integrity**: Populated `req.rawBody` Buffer in `express.json({ verify })` to guarantee Razorpay HMAC signature verification and eliminate silent 400 webhook drop.
+2. **Form & Zod SSOT**: Hardened optional string schemas across contracts and web forms using `z.union([schema, z.literal("")])` to safely handle HTML empty-string inputs; added CI guard in `scripts/enforce-validation-ssot.js`.
+3. **Modal & Feedback SSOT**: Refactored `popupDialogView.tsx` into centered accessible modal dialogs with backdrop overlay; unified admin feedback under `popupBus` SSOT (`apps/admin/src/lib/feedback.ts`).
+4. **Marketplace UI Polish**: Integrated `HomePromoAdCard` into the Explore Ads grid, refined listing detail tabs contrast and auto-scrolling, removed sparkle emojis, and surfaced Ad ID beside listing titles.
+5. **A11y Hardening**: Added ARIA `role="tablist"`, `role="tab"`, `aria-selected` in `BusinessCatalogTabs`, and explicit `type="button"` and focus rings on carousel thumbnails (WCAG 2.2 AA).
+6. **Code Duplication Remediation**: Delegated `apps/web/src/lib/image/imageUrl.ts` to canonical `@esparex/shared` image utilities, reducing duplicate lines to 0.09% and preserving 100% test coverage.
+
+**Files Modified**:
+```
+backend/api/src/app.ts
+backend/api/src/middleware/verifyPaymentWebhook.ts
+backend/api/src/types/express.d.ts
+packages/contracts/src/v1/authentication/schema/auth.schema.ts
+packages/contracts/src/v1/businesses/schema/business.schema.ts
+packages/contracts/src/v1/common/schema/location.schema.ts
+packages/ui/src/feedback/popup/popupDialog.ts
+packages/ui/src/feedback/popup/popupDialogView.tsx
+apps/web/src/components/business/BusinessCatalogTabs.tsx
+apps/web/src/components/business/BusinessPublicProfile.tsx
+apps/web/src/components/home/HomePromoAdCard.tsx
+apps/web/src/components/home/HomeFeedClient.tsx
+apps/web/src/components/user/listing-detail/AdImageCarousel.tsx
+apps/web/src/components/user/listing-detail/AdTitlePriceCard.tsx
+apps/web/src/components/user/ListingDetail.tsx
+apps/web/src/lib/image/imageUrl.ts
+scripts/enforce-validation-ssot.js
+scripts/enforce-notification-governance.js
+```
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (Health Score: 100%, 18/18 checks pass)
+- ✅ `npm run guard:duplicate-code` ──► PASS (Clones reduced to 9, rate: 0.09%)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 violations)
+- ✅ `npm run guard:unused-imports` ──► PASS (0 unused imports)
+- ✅ `npm run guard:pr-quality` ──► PASS (All files within limits and ratchet)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test` ──► PASS (All 5 test suites green)
+
+**Rollback**:
+```bash
+git revert be7cce72 903e53c0 d61b525f 9bb46472 e6996329 9c4c7294 553205fc 4bf24ce6 252685d2 b268eb55 246cb914
 ```
 

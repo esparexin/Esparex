@@ -1,4 +1,8 @@
-import { DEFAULT_IMAGE_PLACEHOLDER, isLocalHttpHost, isAllowedRemoteHost, isValidS3Host } from "@esparex/shared";
+import {
+    DEFAULT_IMAGE_PLACEHOLDER,
+    isRenderableImageUrl as sharedIsRenderableImageUrl,
+    toSafeImageSrc as sharedToSafeImageSrc,
+} from "@esparex/shared";
 export { DEFAULT_IMAGE_PLACEHOLDER };
 
 const resolveApiOrigin = (): string => {
@@ -22,66 +26,27 @@ const resolveApiOrigin = (): string => {
     return '';
 };
 
-const normalizePotentialUploadPath = (value: string): string => {
-    if (!value.startsWith('/uploads/')) return value;
-    const origin = resolveApiOrigin();
-    return origin ? `${origin}${value}` : value;
-};
-
-const normalizeImageUrlCandidate = (value: unknown): string => {
-    if (typeof value !== 'string') return '';
-    const trimmed = value.trim();
-    if (!trimmed) return '';
-    return normalizePotentialUploadPath(trimmed);
-};
-
 export const isRenderableImageUrl = (value: unknown): value is string => {
-    const trimmed = normalizeImageUrlCandidate(value);
-    if (!trimmed) return false;
-
-    // Relative upload paths are invalid for next/image and must be absolute.
-    if (trimmed.startsWith('/uploads/')) return false;
-    if (trimmed.startsWith('/')) return true;
-    if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) return false;
-
-    try {
-        const parsed = new URL(trimmed);
-        if (parsed.protocol === 'http:') {
-            return isLocalHttpHost(parsed.hostname);
-        }
-        if (parsed.protocol !== 'https:') {
-            return false;
-        }
-
-        const hostname = parsed.hostname.toLowerCase();
-        if (!isAllowedRemoteHost(hostname)) {
-            return false;
-        }
-
-        const isAwsHost = hostname === 'amazonaws.com' || hostname.endsWith('.amazonaws.com');
-        if (isAwsHost) {
-            return isValidS3Host(hostname);
-        }
-
-        return true;
-    } catch {
+    if (typeof value === 'string' && (value.startsWith('blob:') || value.startsWith('data:'))) {
         return false;
     }
+    return sharedIsRenderableImageUrl(value, resolveApiOrigin());
 };
 
-export const toSafeImageSrc = (value: unknown, fallback: string = DEFAULT_IMAGE_PLACEHOLDER): string =>
-    (() => {
-        const normalized = normalizeImageUrlCandidate(value);
-        return isRenderableImageUrl(normalized) ? normalized : fallback;
-    })();
+export const toSafeImageSrc = (value: unknown, fallback: string = DEFAULT_IMAGE_PLACEHOLDER): string => {
+    const origin = resolveApiOrigin();
+    if (typeof value === 'string' && (value.startsWith('blob:') || value.startsWith('data:'))) {
+        return fallback;
+    }
+    return sharedToSafeImageSrc(value, origin, fallback);
+};
 
 export const toSafeImageArray = (values: unknown): string[] => {
     if (!Array.isArray(values)) return [DEFAULT_IMAGE_PLACEHOLDER];
+    const origin = resolveApiOrigin();
     const normalized = values
-        .map((value) => {
-            const candidate = normalizeImageUrlCandidate(value);
-            return isRenderableImageUrl(candidate) ? candidate : '';
-        })
+        .filter((val): val is string => typeof val === 'string' && !val.startsWith('blob:') && !val.startsWith('data:'))
+        .map((value) => (sharedIsRenderableImageUrl(value, origin) ? (value.startsWith('/uploads/') ? `${origin}${value}` : value) : ''))
         .filter((value) => value.length > 0);
     return normalized.length > 0 ? normalized : [DEFAULT_IMAGE_PLACEHOLDER];
 };
