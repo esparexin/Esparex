@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@esparex/ui";
-import { ShieldCheck } from "@/icons/IconRegistry";
+import { ShieldCheck, X } from "@/icons/IconRegistry";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { cn } from "@/lib/utils";
 
@@ -17,69 +17,100 @@ export function CookieConsentBanner() {
 
     useEffect(() => {
         const stored = localStorage.getItem(CONSENT_KEY);
-        if (!stored) void (async () => { setVisible(true); })();
+        if (!stored) {
+            setVisible(true);
+        }
     }, []);
+
+    const handleAccept = useCallback(() => {
+        localStorage.setItem(CONSENT_KEY, "accepted");
+        setVisible(false);
+    }, []);
+
+    const handleDecline = useCallback(() => {
+        localStorage.setItem(CONSENT_KEY, "declined");
+        setVisible(false);
+    }, []);
+
+    const handleDismiss = useCallback(() => {
+        localStorage.setItem(CONSENT_KEY, "dismissed");
+        setVisible(false);
+    }, []);
+
+    // Keyboard navigation: Escape key to dismiss
+    useEffect(() => {
+        if (!visible) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                handleDismiss();
+            }
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [visible, handleDismiss]);
 
     if (!visible) return null;
 
-    const handleAccept = () => {
-        localStorage.setItem(CONSENT_KEY, "accepted");
-        setVisible(false);
-    };
-
-    const handleDecline = () => {
-        localStorage.setItem(CONSENT_KEY, "declined");
-        setVisible(false);
-    };
-
     return (
-        <div
+        <aside
+            role="region"
+            aria-label="Cookie consent preferences"
             className={cn(
-                "pointer-events-none fixed left-0 right-0 z-40 px-4 md:bottom-0 md:pb-6",
+                "pointer-events-none fixed left-0 right-0 z-40 px-3 sm:px-4 md:left-6 md:right-auto md:max-w-md",
                 hasMobileBottomNav
-                    ? "bottom-[calc(5.5rem+env(safe-area-inset-bottom))] pb-2"
-                    : "bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+                    ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] pb-1"
+                    : "bottom-0 pb-[max(1rem,env(safe-area-inset-bottom))]"
             )}
         >
-            <div className="max-w-3xl mx-auto pointer-events-auto">
-                <div className="bg-card border border-border rounded-2xl shadow-2xl shadow-black/10 px-4 py-4 md:px-6 md:py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    {/* Icon + Text */}
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="h-4 w-4 text-green-600" />
+            <div className="pointer-events-auto bg-card/95 backdrop-blur-md border border-border/80 rounded-2xl shadow-xl shadow-black/10 p-4 sm:p-4.5 animate-in fade-in slide-in-from-bottom-3 duration-200">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
                         </div>
-                        <p className="text-body text-foreground-tertiary leading-relaxed">
-                            We use essential cookies to keep you logged in and secure your account. Optional cookies help track ad view counts.{" "}
-                            <Link
-                                href="/privacy"
-                                prefetch={false}
-                                className="text-green-600 underline underline-offset-2 hover:text-green-700 font-medium whitespace-nowrap"
-                            >
-                                Cookie Policy
-                            </Link>
-                        </p>
+                        <span className="text-small font-semibold text-foreground tracking-tight">
+                            Cookie Preferences
+                        </span>
                     </div>
+                    <button
+                        type="button"
+                        onClick={handleDismiss}
+                        className="text-foreground-tertiary hover:text-foreground rounded-lg p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label="Dismiss cookie banner"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleDecline}
-                            className="flex-1 sm:flex-none h-11 text-foreground-tertiary border-border hover:bg-muted cursor-pointer"
-                        >
-                            Decline Optional
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={handleAccept}
-                            className="flex-1 sm:flex-none h-11 bg-green-600 hover:bg-green-700 text-white cursor-pointer"
-                        >
-                            Accept All
-                        </Button>
-                    </div>
+                <p className="text-caption text-foreground-secondary leading-relaxed mb-3.5">
+                    We use essential cookies to keep your account secure and remember your preferences. Optional cookies help track ad view counts.{" "}
+                    <Link
+                        href="/privacy"
+                        prefetch={false}
+                        className="text-link hover:underline font-medium inline-block whitespace-nowrap"
+                    >
+                        Privacy Policy
+                    </Link>
+                </p>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDecline}
+                        className="flex-1 h-9 text-caption text-foreground-secondary border-border hover:bg-muted"
+                    >
+                        Essential Only
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleAccept}
+                        className="flex-1 h-9 text-caption font-semibold"
+                    >
+                        Accept All
+                    </Button>
                 </div>
             </div>
-        </div>
+        </aside>
     );
 }
