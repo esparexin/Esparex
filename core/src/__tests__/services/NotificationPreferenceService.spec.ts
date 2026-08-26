@@ -1,22 +1,21 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import User from "../../models/User";
 import { resolveNotificationDeliveryPlan } from "../../domains/notifications/application/NotificationPreferenceService";
 
-vi.mock("../../models/User", () => ({
+jest.mock("../../models/User", () => ({
     default: {
-        findById: vi.fn(),
+        findById: jest.fn(),
     },
 }));
 
 describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        jest.clearAllMocks();
     });
 
     it("suppresses general notifications when enabled is false", async () => {
-        const select = vi.fn().mockReturnValue({
-            lean: vi.fn().mockResolvedValue({
+        const select = jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
                 notificationSettings: { enabled: false }
             })
         });
@@ -33,8 +32,8 @@ describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
     });
 
     it("allows general notifications when enabled is true", async () => {
-        const select = vi.fn().mockReturnValue({
-            lean: vi.fn().mockResolvedValue({
+        const select = jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
                 notificationSettings: { enabled: true }
             })
         });
@@ -51,8 +50,8 @@ describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
     });
 
     it("suppresses Smart Alerts when general enabled setting is false", async () => {
-        const select = vi.fn().mockReturnValue({
-            lean: vi.fn().mockResolvedValue({
+        const select = jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
                 notificationSettings: { enabled: false }
             })
         });
