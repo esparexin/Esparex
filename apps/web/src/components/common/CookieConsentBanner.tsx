@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useSyncExternalStore, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@esparex/ui";
@@ -10,32 +10,60 @@ import { cn } from "@/lib/utils";
 
 const CONSENT_KEY = "esparex_cookie_consent";
 
+const listeners = new Set<() => void>();
+
+function emitConsentChange() {
+    listeners.forEach((listener) => listener());
+}
+
+function subscribe(callback: () => void) {
+    listeners.add(callback);
+    window.addEventListener("storage", callback);
+    return () => {
+        listeners.delete(callback);
+        window.removeEventListener("storage", callback);
+    };
+}
+
+function getSnapshot(): string | null {
+    try {
+        return localStorage.getItem(CONSENT_KEY);
+    } catch {
+        return null;
+    }
+}
+
+function getServerSnapshot(): string | null {
+    return "server_hydrating";
+}
+
 export function CookieConsentBanner() {
     const pathname = usePathname();
-    const [visible, setVisible] = useState(false);
+    const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
     const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
 
-    useEffect(() => {
-        const stored = localStorage.getItem(CONSENT_KEY);
-        if (!stored) {
-            setVisible(true);
+    const visible = consent === null;
+
+    const setConsent = useCallback((value: string) => {
+        try {
+            localStorage.setItem(CONSENT_KEY, value);
+            emitConsentChange();
+        } catch {
+            // ignore localStorage quota errors
         }
     }, []);
 
     const handleAccept = useCallback(() => {
-        localStorage.setItem(CONSENT_KEY, "accepted");
-        setVisible(false);
-    }, []);
+        setConsent("accepted");
+    }, [setConsent]);
 
     const handleDecline = useCallback(() => {
-        localStorage.setItem(CONSENT_KEY, "declined");
-        setVisible(false);
-    }, []);
+        setConsent("declined");
+    }, [setConsent]);
 
     const handleDismiss = useCallback(() => {
-        localStorage.setItem(CONSENT_KEY, "dismissed");
-        setVisible(false);
-    }, []);
+        setConsent("dismissed");
+    }, [setConsent]);
 
     // Keyboard navigation: Escape key to dismiss
     useEffect(() => {
