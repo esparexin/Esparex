@@ -120,12 +120,19 @@ function resolveRevealFixture(raw: RawListingSmokeFixtures): RevealSmokeFixture 
 export function resolveListingSmokeFixtures(): ListingSmokeFixtures {
   let rawJson = process.env.SMOKE_LISTING_FIXTURES || "";
 
-  if (!rawJson) {
-    const fixturePath = process.env.SMOKE_FIXTURE_PATH || path.join(process.cwd(), "smoke-fixtures.json");
-    if (fs.existsSync(fixturePath)) {
-      rawJson = fs.readFileSync(fixturePath, "utf-8");
+    const candidatePaths = [
+      process.env.SMOKE_FIXTURE_PATH,
+      path.join(process.cwd(), "smoke-fixtures.json"),
+      path.resolve(process.cwd(), "../../smoke-fixtures.json"),
+      path.resolve(__dirname, "../../../../smoke-fixtures.json"),
+    ].filter(Boolean) as string[];
+
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) {
+        rawJson = fs.readFileSync(p, "utf-8");
+        break;
+      }
     }
-  }
 
   const raw = parseFixtureContract(rawJson);
 
