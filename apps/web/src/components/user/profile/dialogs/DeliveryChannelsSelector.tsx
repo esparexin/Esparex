@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/ui/FormError";
 import { cn } from "@/components/ui/utils";
 
+type ChannelType = "push" | "email" | "sms" | "whatsapp" | "in-app";
+
 interface DeliveryChannelsSelectorProps {
-    value?: string[];
-    onChange: (channels: string[]) => void;
+    value?: ChannelType[];
+    onChange: (channels: ChannelType[]) => void;
     error?: string;
 }
 
@@ -34,7 +36,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
                                 if (!ch.active) return;
                                 const next = isSelected
                                     ? value.filter((item) => item !== ch.id)
-                                    : [...value, ch.id];
+                                    : [...value, ch.id as ChannelType];
                                 onChange(next);
                             }}
                             className={cn(

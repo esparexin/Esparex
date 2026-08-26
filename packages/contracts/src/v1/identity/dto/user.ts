@@ -1,5 +1,6 @@
 import type { UserStatusValue } from '../enums/userStatus';
 import type { MobileVisibilityValue } from '../../common/constants/mobileVisibility';
+import type { BusinessStatusValue } from '../../businesses/enums/businessStatus';
 export type UserRole = string;
 
 export interface UserNotificationSettings {
