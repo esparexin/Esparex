@@ -61,10 +61,20 @@ export const validateBusinessImageSelection = (file: File): string | null =>
 export const validateBusinessDocumentSelection = (file: File): string | null =>
     validateBusinessUploadSelection(file, BUSINESS_DOCUMENT_MIME_TYPES, "document");
 
-export const sanitizedBusinessText = (text: string) => {
-    const excessiveSpecialChars = /[!@#$%^&*()_+=[\]{};:'"<>,.?/\\|`~]{3,}/.test(text);
-    const suspiciousPatterns = /xss|sql|script|select|drop|insert|exec/i.test(text);
-    return !excessiveSpecialChars && !suspiciousPatterns;
+export const sanitizedBusinessText = (text: string): boolean => {
+    if (!text || typeof text !== "string") return false;
+    const trimmed = text.trim();
+    if (trimmed.length === 0) return false;
+
+    // Disallow excessive consecutive special punctuation (e.g. $$$$, ???? except standard formatting)
+    const excessiveRepeatedSpecialChars = /[!@#$%^&*+=[\]{};:"<>/\\|`~]{4,}/.test(trimmed);
+    if (excessiveRepeatedSpecialChars) return false;
+
+    // Reject raw script or HTML tag injection payloads
+    const containsHtmlOrScriptTag = /<\s*script\b[^>]*>|<\s*\/\s*script\s*>|<\s*iframe\b[^>]*>|javascript:/i.test(trimmed);
+    if (containsHtmlOrScriptTag) return false;
+
+    return true;
 };
 
 const requiredBusinessFields = {
