@@ -1057,6 +1057,32 @@ All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/m
 ### 20.4 Automated Expiry Sweeper
 - The distributed job `runExpireAdsJob` must run continuously via `SchedulerQueueEngine` to transition lapsed listings from `live` to `expired`.
 
+---
+
+## 21. ESPAREX BRAND COLOR PALETTE & DESIGN TOKEN SSOT GOVERNANCE STANDARD (MANDATORY)
+
+### 21.1 Canonical Brand Palette Matrix
+The platform strictly standardizes on the **Green + Warm Neutral** design system:
+
+| Token Domain | Canonical Value | Design System Intent |
+| :--- | :---: | :--- |
+| **Primary Brand** | `#16A34A` (`bg-primary`, `text-primary`) | Primary interactive CTAs, verified badges, active tabs |
+| **Deep Brand** | `#087A3E` (`--primary-hover`) | Hover, focus ring, and pressed button states |
+| **Soft Brand** | `#DCFCE7` (`--primary-subtle`, `bg-primary/10`) | Selected filter chips, success badge pill backgrounds |
+| **App Background** | `#FAFAF8` (`bg-background`) | Warm neutral page canvas (replaces harsh cold slate/pure white) |
+| **Card Surface** | `#FFFFFF` (`bg-card`) | Listing cards, modal dialogs, drawers, dropdowns, inputs |
+| **Text Primary** | `#171717` (`text-foreground`) | H1-H4 headings, bold listing titles, high-emphasis text |
+| **Text Secondary**| `#57534E` (`text-foreground-secondary`)| Captions, location metadata, relative dates, placeholder text |
+| **Border / Divider**| `#E7E5E4` (`border-border`)| Card outlines, hairline section dividers, input borders |
+| **Warning State** | `#D97706` (`text-warning`, `bg-warning`) | "Low Stock" indicators, moderation caution alerts |
+| **Error State** | `#DC2626` (`text-destructive`, `bg-destructive`) | "Out of Stock" chips, form validation errors |
+
+### 21.2 Zero Raw Palette Invariant
+- Hardcoding raw hex values (e.g. `#16a34a`, `#087a3e`, `text-slate-700`, `bg-blue-50`) in UI components is STRICTLY FORBIDDEN.
+- All styling MUST consume semantic design token utilities (`bg-primary`, `bg-card`, `border-border`, `text-foreground`, `text-foreground-secondary`, `bg-primary/10`).
+- Any updates to the palette MUST be executed in `packages/design-tokens/src/colors.ts` and compiled via `generate-css.ts`.
+
+
 
 
 
