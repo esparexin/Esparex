@@ -25,10 +25,13 @@ const router = Router();
  */
 
 // Discovery feed alias mapped to home feed
-router.get("/feed", searchLimiter, publicCacheControl(300, 3600), getListingsController.getHomeFeed);
+// stale-while-revalidate capped at 60s: feed content is real-time (active listings, expiry-driven).
+// A longer stale window lets browsers/CDNs serve expired ads after Redis cache is invalidated.
+router.get("/feed", searchLimiter, publicCacheControl(300, 60), getListingsController.getHomeFeed);
 
 // GET /api/v1/listings/home
-router.get("/home", searchLimiter, publicCacheControl(300, 3600), getListingsController.getHomeFeed);
+// stale-while-revalidate capped at 60s: see /feed comment above.
+router.get("/home", searchLimiter, publicCacheControl(300, 60), getListingsController.getHomeFeed);
 
 // GET /api/v1/listings/trending
 router.get("/trending", searchLimiter, publicCacheControl(300, 3600), getListingsController.getTrending);
