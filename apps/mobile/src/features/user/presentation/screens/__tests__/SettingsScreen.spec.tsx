@@ -84,7 +84,7 @@ describe('SettingsScreen Component', () => {
     expect(getByText('Account Information')).toBeTruthy();
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('jane@example.com')).toBeTruthy();
-    expect(getByText('Push Notifications')).toBeTruthy();
+    expect(getByText('Notification Settings')).toBeTruthy();
   });
 
   it('opens edit modal when Edit button is pressed', () => {
