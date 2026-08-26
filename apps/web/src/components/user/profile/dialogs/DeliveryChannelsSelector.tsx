@@ -26,7 +26,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
             </Label>
             <div className="flex flex-wrap items-center gap-2">
                 {DELIVERY_CHANNELS.map((ch) => {
-                    const isSelected = value.includes(ch.id);
+                    const isSelected = (value || []).includes(ch.id as ChannelType);
                     return (
                         <button
                             key={ch.id}

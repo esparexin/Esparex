@@ -1,6 +1,9 @@
 import type { UserStatusValue } from '../enums/userStatus';
 import type { MobileVisibilityValue } from '../../common/constants/mobileVisibility';
+import type { BusinessStatusValue } from '../../businesses/enums/businessStatus';
 export type UserRole = string;
+
+export type UserBusinessStatus = 'pending' | 'approved' | 'rejected' | 'suspended' | 'active' | 'deleted' | 'closed' | 'live' | 'deactivated' | 'expired' | 'none' | (string & {});
 
 export interface UserNotificationSettings {
     enabled?: boolean;
@@ -17,7 +20,7 @@ export interface User {
     role: UserRole;
     mobile: string;
     mobileVisibility?: MobileVisibilityValue;
-    businessStatus?: string;
+    businessStatus?: UserBusinessStatus;
     businessName?: string;
     isPhoneVerified: boolean;
     isVerified?: boolean;
