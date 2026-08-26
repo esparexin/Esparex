@@ -80,11 +80,11 @@ describe('SettingsScreen Component', () => {
       refetch: jest.fn(),
     } as any);
 
-    const { getByText } = renderScreen();
+    const { getByText, getAllByText } = renderScreen();
     expect(getByText('Account Information')).toBeTruthy();
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('jane@example.com')).toBeTruthy();
-    expect(getByText('Notification Settings')).toBeTruthy();
+    expect(getAllByText('Notification Settings').length).toBeGreaterThan(0);
   });
 
   it('opens edit modal when Edit button is pressed', () => {
