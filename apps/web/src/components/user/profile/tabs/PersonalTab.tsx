@@ -53,7 +53,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         defaultValues: {
             name: user?.name || "",
             email: user?.email || "",
-            businessName: (user as any)?.businessName || "",
+            businessName: user?.businessName || "",
             gstin: user?.gstin || "",
             mobileVisibility: (user?.mobileVisibility as 'show' | 'hide' | 'on_request') || MOBILE_VISIBILITY.SHOW,
         },

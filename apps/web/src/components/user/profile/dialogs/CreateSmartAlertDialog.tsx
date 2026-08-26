@@ -19,7 +19,8 @@ import type { Category } from "@/lib/api/user/categories";
 import { getCategories } from "@/lib/api/user/categories";
 import { Bell, Check } from "@/icons/IconRegistry";
 import { DeliveryChannelsSelector } from "./DeliveryChannelsSelector";
-import { EntitySearchCombobox } from "@/components/user/EntitySearchCombobox";
+import { LocationRadiusSlider } from "./LocationRadiusSlider";
+import { SmartAlertCategoryBrandModelFields } from "./SmartAlertCategoryBrandModelFields";
 import type { SmartAlertFieldErrors, SmartAlertFormData } from "../types";
 
 type SmartAlertLocationSelection = Pick<
@@ -67,26 +68,68 @@ export function CreateSmartAlertDialog({
     // Fetch categories on mount
     useEffect(() => {
         if (!open) return;
-        setIsLoadingCategories(true);
-        getCategories().then(setCategories).catch(() => setCategories([])).finally(() => setIsLoadingCategories(false));
+        let active = true;
+        const load = async () => {
+            if (active) setIsLoadingCategories(true);
+            try {
+                const res = await getCategories();
+                if (active) setCategories(res);
+            } catch {
+                if (active) setCategories([]);
+            } finally {
+                if (active) setIsLoadingCategories(false);
+            }
+        };
+        void load();
+        return () => { active = false; };
     }, [open]);
 
     // Fetch brands when category changes
     useEffect(() => {
         const catObj = categories.find((c) => c.name === formData.category || c.slug === formData.category || c.id === formData.category);
         const catId = catObj?.id;
-        if (!catId) { setBrands([]); setModels([]); return; }
-        setIsLoadingBrands(true);
-        getBrands(catId).then(setBrands).catch(() => setBrands([])).finally(() => setIsLoadingBrands(false));
+        let active = true;
+        const load = async () => {
+            if (!catId) {
+                if (active) { setBrands([]); setModels([]); }
+                return;
+            }
+            if (active) setIsLoadingBrands(true);
+            try {
+                const res = await getBrands(catId);
+                if (active) setBrands(res);
+            } catch {
+                if (active) setBrands([]);
+            } finally {
+                if (active) setIsLoadingBrands(false);
+            }
+        };
+        void load();
+        return () => { active = false; };
     }, [formData.category, categories]);
 
     // Fetch models when brand changes
     useEffect(() => {
         const brandObj = brands.find((b) => b.name === formData.brand || b.id === formData.brand);
         const brandId = brandObj?.id || brandObj?._id;
-        if (!brandId) { setModels([]); return; }
-        setIsLoadingModels(true);
-        getModels(brandId).then(setModels).catch(() => setModels([])).finally(() => setIsLoadingModels(false));
+        let active = true;
+        const load = async () => {
+            if (!brandId) {
+                if (active) setModels([]);
+                return;
+            }
+            if (active) setIsLoadingModels(true);
+            try {
+                const res = await getModels(brandId);
+                if (active) setModels(res);
+            } catch {
+                if (active) setModels([]);
+            } finally {
+                if (active) setIsLoadingModels(false);
+            }
+        };
+        void load();
+        return () => { active = false; };
     }, [formData.brand, brands]);
 
     const handleLocationSelect = (loc: Location | null) => {
@@ -145,66 +188,18 @@ export function CreateSmartAlertDialog({
                     className="flex flex-col flex-1 min-h-0"
                 >
                     <div className="flex-1 overflow-y-auto min-h-0 space-y-4 py-4 pr-4 sm:pr-5 overscroll-contain">
-                        {/* Category (SSOT) */}
-                        <div>
-                            <Label htmlFor="alert-category" className="text-caption font-semibold text-foreground mb-1.5 block">
-                                Category <span className="text-destructive">*</span>
-                            </Label>
-                            <EntitySearchCombobox<Category>
-                                items={categories}
-                                loading={isLoadingCategories}
-                                value={formData.category}
-                                placeholder="Select Category..."
-                                title="Select Category"
-                                emptyMessage="No categories found"
-                                onSelect={(cat) => updateFormData({ category: cat.name, brand: "", model: "" })}
-                                onClear={() => updateFormData({ category: "", brand: "", model: "" })}
-                                getLabel={(cat) => cat.name}
-                                getId={(cat) => cat.id || cat.slug || cat.name}
-                            />
-                            <FormError message={errors?.category} />
-                        </div>
-
-                        {/* Brand (Mandatory SSOT) */}
-                        <div>
-                            <Label htmlFor="alert-brand" className="text-caption font-semibold text-foreground mb-1.5 block">
-                                Brand <span className="text-destructive">*</span>
-                            </Label>
-                            <EntitySearchCombobox<Brand>
-                                items={brands}
-                                loading={isLoadingBrands}
-                                disabled={!formData.category}
-                                value={formData.brand || ""}
-                                placeholder="Select Brand..."
-                                title="Select Brand"
-                                emptyMessage="No brands found"
-                                onSelect={(b) => updateFormData({ brand: b.name, model: "" })}
-                                onClear={() => updateFormData({ brand: "", model: "" })}
-                                getLabel={(b) => b.name}
-                                getId={(b) => b.id || b._id || b.name}
-                            />
-                            <FormError message={errors?.brand} />
-                        </div>
-
-                        {/* Model (Optional SSOT) */}
-                        <div>
-                            <Label htmlFor="alert-model" className="text-caption font-semibold text-foreground mb-1.5 block">
-                                Model
-                            </Label>
-                            <EntitySearchCombobox<DeviceModel>
-                                items={models}
-                                loading={isLoadingModels}
-                                disabled={!formData.brand}
-                                value={formData.model || ""}
-                                placeholder="Select Model..."
-                                title="Select Model"
-                                emptyMessage="No models found"
-                                onSelect={(m) => updateFormData({ model: m.name, keywords: "" })}
-                                onClear={() => updateFormData({ model: "" })}
-                                getLabel={(m) => m.name}
-                                getId={(m) => m.id || m._id || m.name}
-                            />
-                        </div>
+                        {/* Category, Brand, Model Sub-Module */}
+                        <SmartAlertCategoryBrandModelFields
+                            categories={categories}
+                            brands={brands}
+                            models={models}
+                            isLoadingCategories={isLoadingCategories}
+                            isLoadingBrands={isLoadingBrands}
+                            isLoadingModels={isLoadingModels}
+                            formData={formData}
+                            updateFormData={updateFormData}
+                            errors={errors}
+                        />
 
                         {/* Search Keywords */}
                         <div>
@@ -247,25 +242,11 @@ export function CreateSmartAlertDialog({
 
                         {/* Location Radius */}
                         <div ref={radiusRef}>
-                            <div className="flex items-center justify-between mb-1.5">
-                                <Label htmlFor="alert-radius" className="text-caption font-semibold text-foreground">Location Radius</Label>
-                                <span className="text-caption font-bold text-primary">{formData.radiusKm} km</span>
-                            </div>
-                            <input
-                                id="alert-radius"
-                                name="alert-radius"
-                                type="range"
-                                min="5"
-                                max="500"
+                            <LocationRadiusSlider
                                 value={formData.radiusKm}
-                                onChange={(e) => updateFormData({ radiusKm: parseInt(e.target.value, 10) || 5 })}
-                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary my-1"
+                                onChange={(km) => updateFormData({ radiusKm: km })}
+                                error={errors?.radiusKm}
                             />
-                            <div className="flex items-center justify-between text-tiny font-medium text-foreground-subtle">
-                                <span>5 km</span>
-                                <span>500 km</span>
-                            </div>
-                            <FormError message={errors?.radiusKm} />
                         </div>
 
                         {/* Delivery Channels Sub-Module */}

@@ -17,7 +17,8 @@ export interface User {
     role: UserRole;
     mobile: string;
     mobileVisibility?: MobileVisibilityValue;
-    businessStatus?: any;
+    businessStatus?: unknown;
+    businessName?: string;
     isPhoneVerified: boolean;
     isVerified?: boolean;
 
