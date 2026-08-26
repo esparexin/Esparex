@@ -50,8 +50,14 @@ export const adminLocationSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
     level: z.enum(['state', 'city', 'area']),
     parentId: ObjectIdSchema.optional().nullable(),
-    longitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid longitude'),
-    latitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid latitude'),
+    longitude: z.string().refine(v => {
+        const n = parseFloat(v);
+        return !isNaN(n) && Number.isFinite(n) && n >= -180 && n <= 180;
+    }, 'Longitude must be between -180 and 180'),
+    latitude: z.string().refine(v => {
+        const n = parseFloat(v);
+        return !isNaN(n) && Number.isFinite(n) && n >= -90 && n <= 90;
+    }, 'Latitude must be between -90 and 90'),
 });
 
 import { Role } from '@esparex/contracts';
