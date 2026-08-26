@@ -17,7 +17,6 @@ const optionalTrimmedString = (max: number) =>
         .transform((value) => value.trim());
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
-const FULL_ADDRESS_PINCODE_PATTERN = /\b[1-9]\d{5}\b/;
 const LEGACY_BUSINESS_CITY_ALIAS_MESSAGE = '`city` is no longer accepted in business query filters. Use `locationId` or coordinates instead.';
 const LEGACY_BUSINESS_CATEGORY_ALIAS_MESSAGE = '`category` is no longer accepted in business query filters. Use `listingCategoryId` instead.';
 const LEGACY_BUSINESS_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin business filters. Use `q` instead.';
