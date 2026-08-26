@@ -7,7 +7,10 @@ const bodyShape = smartAlertBodyBaseSchema.shape;
 
 export const smartAlertFormSchema = z
   .object({
-    name: z.string().min(3, "Alert name must be at least 3 characters.").max(100).optional(),
+    name: z.union([
+      z.string().min(3, "Alert name must be at least 3 characters.").max(100),
+      z.literal(""),
+    ]).optional(),
     keywords: z
       .string()
       .max(150, "Search keywords must be 150 characters or fewer.")
@@ -59,4 +62,3 @@ export const smartAlertFormSchema = z
   });
 
 export type SmartAlertFormValues = z.infer<typeof smartAlertFormSchema>;
-
