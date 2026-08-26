@@ -218,7 +218,14 @@ app.use(compression());
 /* -------------------------------------------------------------------------- */
 import { verifyCsrfToken } from './middleware/csrfProtection';
 
-app.use(express.json({ limit: "15mb" }));
+app.use(express.json({
+    limit: "15mb",
+    // Capture raw body Buffer before JSON parsing.
+    // Required by verifyPaymentWebhook (HMAC sha256 timingSafeEqual).
+    verify: (req: express.Request, _res: express.Response, buf: Buffer) => {
+        req.rawBody = buf;
+    },
+}));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser);
 app.use(verifyCsrfToken);

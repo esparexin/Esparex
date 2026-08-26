@@ -84,14 +84,11 @@ export function verifyPaymentWebhook(secret: string) {
             return next();
         }
 
-        // 🔑 IMPORTANT: Use rawBody if available (from app.ts), else check req.body
-        const request = req as Request & { rawBody?: Buffer };
-        const body: Buffer | unknown = request.rawBody || (req.body as Buffer | undefined);
+        // 🔑 Use rawBody populated by the express.json() verify hook in app.ts.
+        const body: Buffer | unknown = req.rawBody;
 
         if (!Buffer.isBuffer(body)) {
-            logger.error("[Webhook] Invalid body type. Raw body (Buffer) required.");
-            // Log what we received (debug)
-            logger.error("Received Type:", typeof body);
+            logger.error("[Webhook] rawBody missing — express.json() verify hook not active.");
             return sendErrorResponse(req, res, 400, "Invalid webhook configuration", {
                 details: {
                     message: "Raw body parser is required for webhook verification",

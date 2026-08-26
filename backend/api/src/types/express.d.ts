@@ -14,6 +14,8 @@ declare global {
             idempotencyKey?: string;
             requestId?: string;
             listing?: any;
+            /** Raw request body Buffer, captured by the express.json() verify hook for HMAC webhook signature verification. */
+            rawBody?: Buffer;
         }
     }
 }
