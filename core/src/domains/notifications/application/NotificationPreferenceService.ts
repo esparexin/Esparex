@@ -5,11 +5,11 @@ import User from "../../../models/User";
 type NotificationChannel = "push" | "email" | "sms" | "in-app";
 
 type NotificationPreferenceSnapshot = {
+    enabled?: boolean;
     adUpdates?: boolean;
     promotions?: boolean;
     emailNotifications?: boolean;
     pushNotifications?: boolean;
-    dailyDigest?: boolean;
     instantAlerts?: boolean;
     email?: boolean;
     push?: boolean;
@@ -35,11 +35,11 @@ const normalizeSnapshot = (raw: unknown): NotificationPreferenceSnapshot => {
     const source = raw as Record<string, unknown>;
 
     return {
+        enabled: typeof source.enabled === "boolean" ? source.enabled : undefined,
         adUpdates: typeof source.adUpdates === "boolean" ? source.adUpdates : undefined,
         promotions: typeof source.promotions === "boolean" ? source.promotions : undefined,
         emailNotifications: typeof source.emailNotifications === "boolean" ? source.emailNotifications : undefined,
         pushNotifications: typeof source.pushNotifications === "boolean" ? source.pushNotifications : undefined,
-        dailyDigest: typeof source.dailyDigest === "boolean" ? source.dailyDigest : undefined,
         instantAlerts: typeof source.instantAlerts === "boolean" ? source.instantAlerts : undefined,
         email: typeof source.email === "boolean" ? source.email : undefined,
         push: typeof source.push === "boolean" ? source.push : undefined,
@@ -55,14 +55,23 @@ export async function resolveNotificationDeliveryPlan({
     const user = await User.findById(userId).select("notificationSettings").lean();
     const settings = normalizeSnapshot(user?.notificationSettings);
 
+    const generalEnabled = settings.enabled ?? (
+        settings.adUpdates !== false &&
+        settings.promotions !== false &&
+        settings.emailNotifications !== false &&
+        settings.pushNotifications !== false &&
+        settings.push !== false &&
+        settings.email !== false
+    );
+
+    if (!generalEnabled) {
+        return { suppress: true, channels: [] };
+    }
+
     if (
         (type === NOTIFICATION_TYPE.AD_STATUS || type === NOTIFICATION_TYPE.BUSINESS_STATUS) &&
         settings.adUpdates === false
     ) {
-        return { suppress: true, channels: [] };
-    }
-
-    if (type === NOTIFICATION_TYPE.SMART_ALERT && settings.instantAlerts === false) {
         return { suppress: true, channels: [] };
     }
 

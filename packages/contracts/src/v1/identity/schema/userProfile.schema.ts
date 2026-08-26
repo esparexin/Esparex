@@ -39,11 +39,8 @@ export const personalProfileSchema = z.object({
 export type PersonalProfileValues = z.infer<typeof personalProfileSchema>;
 
 export const notificationSettingsSchema = z.object({
-  instantAlerts: z.boolean(),
-  adUpdates: z.boolean(),
-  promotions: z.boolean(),
-  emailNotifications: z.boolean(),
-  pushNotifications: z.boolean(),
+  enabled: z.boolean(),
+  instantAlerts: z.boolean().optional(),
 });
 
 export type NotificationSettingsValues = z.infer<typeof notificationSettingsSchema>;

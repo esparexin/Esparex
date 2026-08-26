@@ -37,7 +37,7 @@ export const updateSmartAlert = async (
   id: string,
   payload: Partial<SmartAlertCreatePayload>
 ): Promise<SmartAlert | null> => {
-  const response = await apiClient.put<unknown>(API_ROUTES.USER.SMART_ALERT_DETAIL(id), payload);
+  const response = await apiClient.patch<unknown>(API_ROUTES.USER.SMART_ALERT_DETAIL(id), payload);
   const data = (response as Record<string, unknown>)?.data ?? response;
   return normalizeSmartAlert(data);
 };

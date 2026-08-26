@@ -5,7 +5,6 @@ import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { SmartAlertCreateSchema, SmartAlertUpdateSchema, SavedSearchCreateSchema } from "@esparex/contracts";
-import { deprecateMethod } from '../middleware/deprecations';
 import type { ZodTypeAny } from 'zod';
 
 const router = express.Router();
@@ -47,18 +46,6 @@ router.delete(
 // NEW: Update existing smart alert (Standardized)
 router.patch(
     '/:id',
-    protect,
-    mutationLimiter,
-    validateObjectId,
-    validateRequest(SmartAlertUpdateSchema as ZodTypeAny),
-    smartAlertController.updateSmartAlert
-);
-
-// PUT /api/v1/smart-alerts/:id
-// DEPRECATED: Use PATCH instead. Update existing smart alert
-router.put(
-    '/:id',
-    deprecateMethod('PATCH'),
     protect,
     mutationLimiter,
     validateObjectId,

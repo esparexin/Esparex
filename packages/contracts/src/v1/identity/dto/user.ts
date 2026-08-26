@@ -3,17 +3,13 @@ import type { MobileVisibilityValue } from '../../common/constants/mobileVisibil
 export type UserRole = string;
 
 export interface UserNotificationSettings {
-    newMessages?: boolean;
+    enabled?: boolean;
+    instantAlerts?: boolean;
+    // Legacy fallbacks supported during transition
     adUpdates?: boolean;
     promotions?: boolean;
     emailNotifications?: boolean;
     pushNotifications?: boolean;
-    dailyDigest?: boolean;
-    instantAlerts?: boolean;
-    email?: boolean;
-    sms?: boolean;
-    push?: boolean;
-    marketing?: boolean;
 }
 
 export interface User {

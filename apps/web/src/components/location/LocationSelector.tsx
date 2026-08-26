@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Button } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, Loader2 } from "@/icons/IconRegistry";
@@ -320,48 +319,38 @@ export default function LocationSelector({
                     )}
                     onClick={handleSelectedFieldActivate}
                 />
-                <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5">
                     {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                    {hasSelection && !disabled && (
-                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-8 px-2.5 rounded-lg bg-muted/60 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Change location">
+                    {hasSelection && !disabled ? (
+                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-7 px-2 rounded-lg bg-muted/60 hover:bg-muted text-tiny font-semibold text-muted-foreground hover:text-foreground transition-colors" title="Change location">
                             Change
                         </button>
-                    )}
+                    ) : !disabled ? (
+                        <button
+                            type="button"
+                            disabled={searchApi.isDetecting}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                void searchApi.handleDetect(() => setIsOpen(false));
+                            }}
+                            className="flex items-center gap-1 h-7 px-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-tiny font-semibold transition-colors"
+                            title="Use Current Location"
+                            aria-label="Use Current Location"
+                        >
+                            <Target className={cn("w-3.5 h-3.5 shrink-0", searchApi.isDetecting && "animate-spin")} />
+                            <span className="hidden xs:inline sm:inline text-tiny font-semibold">Auto Detect</span>
+                        </button>
+                    ) : null}
                 </div>
             </div>
 
             {isOpen && !hasSelection && !disabled && (
                 <div ref={dropdownRef} className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-[280px] bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                    <div className="px-2 py-1 border-b">
-                        <Button variant="ghost" className="h-auto min-h-[44px] py-2 w-full justify-between text-muted-foreground px-2 text-xs font-normal hover:bg-primary/5 group" disabled={searchApi.isDetecting || !!searchApi.successFeedback} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
-                            <div className="flex min-w-0 flex-1 items-center gap-2">
-                                {searchApi.successFeedback ? (
-                                    <Target className="h-4 w-4 shrink-0 text-green-600" />
-                                ) : (
-                                    <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting ? "animate-spin text-primary" : "group-hover:text-primary transition-colors")} />
-                                )}
-                                <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
-                                    {searchApi.successFeedback ? (
-                                        <span className="text-green-600 font-semibold truncate w-full">{searchApi.successFeedback}</span>
-                                    ) : searchApi.isDetecting ? (
-                                        <span className="truncate w-full">{searchApi.detectFeedback || "Detecting location..."}</span>
-                                    ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
-                                        <>
-                                            <span className="truncate w-full font-semibold text-foreground">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                            <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
-                                        </>
-                                    ) : (
-                                        <span className="truncate w-full font-medium">Use Current Location</span>
-                                    )}
-                                </div>
-                            </div>
-                        </Button>
-                        {searchApi.detectFeedback && !searchApi.isDetecting && (
-                            <div className="px-2 py-1 bg-destructive/5 rounded-lg border border-destructive/10 mt-1">
-                                <p className="text-tiny font-medium text-destructive">{searchApi.detectFeedback}</p>
-                            </div>
-                        )}
-                    </div>
+                    {searchApi.detectFeedback && !searchApi.isDetecting && (
+                        <div className="px-3 py-1.5 bg-destructive/5 border-b border-destructive/10">
+                            <p className="text-tiny font-medium text-destructive">{searchApi.detectFeedback}</p>
+                        </div>
+                    )}
                     {renderResults()}
                 </div>
             )}

@@ -116,7 +116,7 @@ const createInitialSmartAlertForm = (): SmartAlertFormData => ({
   location: "",
   locationId: null,
   radiusKm: 25,
-  notificationChannels: ["email"],
+  notificationChannels: ["push", "email"],
 });
 
 const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
@@ -223,7 +223,7 @@ export function useSmartAlerts(enabled = true) {
             location: alert.location,
             locationId: alert.locationId || null,
             radiusKm: alert.radiusKm ?? 25,
-            notificationChannels: (alert.notificationChannels as ("email" | "sms" | "push")[]) || ["email"],
+            notificationChannels: (alert.notificationChannels as ("email" | "sms" | "push" | "whatsapp" | "in-app")[]) || ["push", "email"],
         });
         setSmartAlertErrors(emptySmartAlertFieldErrors());
         setSmartAlertGlobalError(null);
@@ -281,7 +281,7 @@ export function useSmartAlerts(enabled = true) {
             ...(canonicalCoordinates ? { coordinates: canonicalCoordinates } : {}),
             radiusKm,
             frequency: "instant" as const,
-            notificationChannels,
+            notificationChannels: Array.from(new Set(["push", ...(notificationChannels || [])])),
         };
 
         if (!editingAlertId && (!canonicalCoordinates || !canonicalLocationId || !locationDisplay)) {

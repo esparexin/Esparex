@@ -255,7 +255,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             price: ad.price,
             minPrice: ad.price,
             maxPrice: ad.price,
-            keywords: ad.title
+            keywords: `${ad.title || ''} ${ad.description || ''}`.trim()
         });
 
         if (matches.length > 0) {

@@ -131,17 +131,12 @@ const updateUserProfileSchemaBase = z.object({
         }
         return val;
     }, z.object({
-        newMessages: z.boolean().optional(),
+        enabled: z.boolean().optional(),
+        instantAlerts: z.boolean().optional(),
         adUpdates: z.boolean().optional(),
         promotions: z.boolean().optional(),
         emailNotifications: z.boolean().optional(),
         pushNotifications: z.boolean().optional(),
-        dailyDigest: z.boolean().optional(),
-        instantAlerts: z.boolean().optional(),
-        email: z.boolean().optional(),
-        sms: z.boolean().optional(),
-        push: z.boolean().optional(),
-        marketing: z.boolean().optional()
     })).optional(),
 
     // Location
