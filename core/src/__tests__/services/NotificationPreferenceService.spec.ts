@@ -3,6 +3,7 @@ import User from "../../models/User";
 import { resolveNotificationDeliveryPlan } from "../../domains/notifications/application/NotificationPreferenceService";
 
 jest.mock("../../models/User", () => ({
+    __esModule: true,
     default: {
         findById: jest.fn(),
     },
@@ -19,7 +20,7 @@ describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
                 notificationSettings: { enabled: false }
             })
         });
-        (User.findById as any).mockReturnValue({ select });
+        (User.findById as jest.Mock).mockReturnValue({ select });
 
         const plan = await resolveNotificationDeliveryPlan({
             userId: "user-1",
@@ -37,7 +38,7 @@ describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
                 notificationSettings: { enabled: true }
             })
         });
-        (User.findById as any).mockReturnValue({ select });
+        (User.findById as jest.Mock).mockReturnValue({ select });
 
         const plan = await resolveNotificationDeliveryPlan({
             userId: "user-1",
@@ -55,7 +56,7 @@ describe("NotificationPreferenceService (Single Toggle Consolidation)", () => {
                 notificationSettings: { enabled: false }
             })
         });
-        (User.findById as any).mockReturnValue({ select });
+        (User.findById as jest.Mock).mockReturnValue({ select });
 
         const plan = await resolveNotificationDeliveryPlan({
             userId: "user-1",
