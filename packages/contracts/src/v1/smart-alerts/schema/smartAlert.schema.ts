@@ -76,11 +76,11 @@ export const SmartAlertCreateSchema = smartAlertBodySchema
             });
             return;
         }
-        if (candidateName.length < 3 || candidateName.length > 50) {
+        if (candidateName.length < 3 || candidateName.length > 100) {
             ctx.addIssue({
                 path: ['name'],
                 code: z.ZodIssueCode.custom,
-                message: 'Alert name must be between 3 and 50 characters',
+                message: 'Alert name must be between 3 and 100 characters',
             });
         }
 
@@ -106,11 +106,11 @@ export const SmartAlertUpdateSchema = smartAlertBodySchema
         }
 
         const candidateName = data.name ?? data.alertName;
-        if (candidateName && (candidateName.length < 3 || candidateName.length > 50)) {
+        if (candidateName && (candidateName.length < 3 || candidateName.length > 100)) {
             ctx.addIssue({
                 path: ['name'],
                 code: z.ZodIssueCode.custom,
-                message: 'Alert name must be between 3 and 50 characters',
+                message: 'Alert name must be between 3 and 100 characters',
             });
         }
     })

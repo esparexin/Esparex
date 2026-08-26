@@ -30,6 +30,9 @@ export const personalProfileSchema = z.object({
   ]).optional(),
   mobileVisibility: z.enum(['show', 'hide', 'on_request']),
   photo: z.string().optional(),
+  profilePhoto: z.string().optional(),
+  avatar: z.string().optional(),
+  removePhoto: z.union([z.string(), z.boolean()]).optional(),
 });
 
 export type PersonalProfileValues = z.infer<typeof personalProfileSchema>;
