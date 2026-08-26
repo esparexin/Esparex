@@ -26,13 +26,13 @@ export const authOtpSchema = z.union([z.string(), z.number()])
 
 export const LoginPayloadSchema = z.object({
     mobile: authMobileSchema,
-    name: authNameSchema.optional(),
+    name: z.union([authNameSchema, z.literal('')]).optional(),
 });
 
 export const VerifyOtpPayloadSchema = z.object({
     mobile: authMobileSchema,
     otp: authOtpSchema,
-    name: authNameSchema.optional(),
+    name: z.union([authNameSchema, z.literal('')]).optional(),
 });
 
 export type LoginPayload = z.infer<typeof LoginPayloadSchema>;

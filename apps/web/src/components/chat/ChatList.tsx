@@ -9,6 +9,7 @@ import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { formatStableNumber } from '@/lib/formatters';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MessageCircle } from '@/icons/IconRegistry';
 
 import type { IConversationDTO } from "@esparex/contracts";
 
@@ -287,12 +288,10 @@ export function ChatList({
       ) : filteredConversations.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-background min-h-[360px]">
           {/* Sparkle Chat Bubble Graphic */}
-          <div className="relative mb-3 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-3xl">
-              💬
+          <div className="mb-3 flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted border border-border text-foreground-subtle">
+              <MessageCircle className="h-8 w-8" />
             </div>
-            <span className="absolute -top-1 -right-1 text-primary text-sm">✨</span>
-            <span className="absolute -bottom-1 -left-1 text-primary/70 text-xs">✨</span>
           </div>
 
           <h3 className="text-lg font-bold text-foreground">

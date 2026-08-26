@@ -1,7 +1,7 @@
 // HomeFeedClient.tsx - client component handling feed logic
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "@/icons/IconRegistry";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
@@ -12,6 +12,7 @@ import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
+import { HomePromoAdCard } from "./HomePromoAdCard";
 
 const HOME_FEED_PAGE_SIZE = 12;
 
@@ -160,18 +161,21 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     <>
                         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                             {recommendedAds.map((ad, index) => (
-                                <AdCardGrid
-                                    key={ad.id}
-                                    ad={ad}
-                                    href={buildPublicListingDetailRoute({
-                                        id: ad.id,
-                                        listingType: ad.listingType,
-                                        title: ad.title,
-                                        seoSlug: ad.seoSlug,
-                                    })}
-                                    priority={index < 4}
-                                />
+                                <Fragment key={ad.id}>
+                                    <AdCardGrid
+                                        ad={ad}
+                                        href={buildPublicListingDetailRoute({
+                                            id: ad.id,
+                                            listingType: ad.listingType,
+                                            title: ad.title,
+                                            seoSlug: ad.seoSlug,
+                                        })}
+                                        priority={index < 4}
+                                    />
+                                    {index === 2 && <HomePromoAdCard key="home-promo-card" />}
+                                </Fragment>
                             ))}
+                            {recommendedAds.length < 3 && <HomePromoAdCard key="home-promo-card" />}
                         </div>
 
                         {canLoadMore && (

@@ -11,7 +11,7 @@ export const useUserQuery = () => {
 
     return useQuery({
         queryKey: queryKeys.user.me(),
-        queryFn: () => getMe({ silent: true }), // Prevent error toasts on 401s if not logged in
+        queryFn: () => getMe({ silent: true }), // Prevent error popups on 401s if not logged in
         staleTime: 5 * 60 * 1000,
         retry: 0, // No need to retry if 401
         enabled: status === 'authenticated',

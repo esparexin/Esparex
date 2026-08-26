@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Zap } from "@/icons/IconRegistry";
+import { Zap } from "@/icons/IconRegistry";
 import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
@@ -244,7 +244,7 @@ export function getPlanBadge(
       className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
       aria-label="Spotlight listing"
     >
-      <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+      <Zap className="h-2.5 w-2.5" aria-hidden="true" />
       Spotlight
     </Badge>
   );

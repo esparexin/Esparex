@@ -106,7 +106,7 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
 
   return (
     <div className="relative flex-shrink-0 ml-1">
-      {/* Feedback toast */}
+      {/* Action feedback popup */}
       {feedback && (
         <div className="chat-actions__feedback" role="status">
           {feedback}

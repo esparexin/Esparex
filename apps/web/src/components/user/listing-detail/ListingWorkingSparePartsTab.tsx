@@ -111,11 +111,11 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
             id="tabpanel-spare-parts"
             aria-labelledby="tab-spare-parts"
             tabIndex={0}
-            className="space-y-3 focus-visible:outline-none"
+            className="space-y-4 pt-3.5 sm:pt-4 focus-visible:outline-none"
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm md:text-base font-bold text-foreground">Working Spare Parts</h3>
+                    <h3 className="text-body sm:text-body-lg font-bold text-foreground">Working Spare Parts</h3>
                 </div>
                 {resolvedSpareParts.length > 0 && (
                     <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">

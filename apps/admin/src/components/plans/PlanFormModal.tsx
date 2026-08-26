@@ -189,7 +189,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                     <option value="FREE_DEFAULT">🆓 Free Plan (Default)</option>
                     <option value="AD_PACK">📦 Ad Pack</option>
                     <option value="BOOST_AD">⚡ Boost Ad</option>
-                    <option value="SPOTLIGHT">✨ Spotlight</option>
+                    <option value="SPOTLIGHT">Spotlight</option>
                     <option value="SMART_ALERT">🔔 Smart Alert</option>
                   </select>
                 )}

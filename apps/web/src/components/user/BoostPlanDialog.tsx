@@ -90,7 +90,7 @@ export function BoostPlanDialog({
             </div>
             <div className="space-y-1">
               <Badge className="bg-amber-500 text-white font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wide">
-                ✨ Spotlight Active
+                Spotlight Active
               </Badge>
               <h3 className="text-base font-bold text-slate-900 pt-2">
                 This listing is in Spotlight!
@@ -241,7 +241,7 @@ export function BoostPlanDialog({
                     <span>Applying Promotion...</span>
                   </>
                 ) : isSpotlight ? (
-                  <span>✨ Spotlight Active (Highest Tier)</span>
+                  <span>Spotlight Active (Highest Tier)</span>
                 ) : isBoosted && activeCategory === "BOOST_AD" ? (
                   <span>⚡ Top Ad Active (Upgrade to Spotlight Above)</span>
                 ) : (

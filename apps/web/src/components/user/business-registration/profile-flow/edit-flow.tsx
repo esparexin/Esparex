@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { notify } from "@/lib/feedback";
-import { TOAST_MESSAGES } from "@/config/toastMessages";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { injectApiErrors } from "@/lib/injectApiErrors";
 import logger from "@/lib/logger";
@@ -57,7 +56,7 @@ export function BusinessEditProfileFlow({ user, initialBusiness, onRefreshUser, 
                 const b = await getMyBusiness({ silent: true });
                 if (!b) { setFormError("No business profile found."); void router.push("/account/business/apply"); return; }
                 hydrate(b);
-            } catch (error) { logger.error("Failed to load business details", error); setFormError(TOAST_MESSAGES.LOAD_FAILED); } finally { setIsLoading(false); }
+            } catch (error) { logger.error("Failed to load business details", error); setFormError("Unable to load business details. Please try again."); } finally { setIsLoading(false); }
         }
         void load();
     }, [businessId, form, initialBusiness, loadedBusiness, router, setFormError]);
@@ -77,7 +76,7 @@ export function BusinessEditProfileFlow({ user, initialBusiness, onRefreshUser, 
             if (!updated) throw new Error("Update failed");
             setLoadedBusiness(updated); setSubmissionStatus(null);
             if (normalizeBusinessStatus(updated.status, "pending") === "pending") notify.success(variant === "live-edit" ? "Changes saved. Sensitive updates sent for review." : "Application updated.");
-            else notify.success(TOAST_MESSAGES.UPDATE_SUCCESS);
+            else notify.success("Business profile updated successfully");
             await onRefreshUser?.();
             window.dispatchEvent(new CustomEvent("esparex_auth_update"));
             if (onComplete) { onComplete(); return; }
@@ -85,7 +84,7 @@ export function BusinessEditProfileFlow({ user, initialBusiness, onRefreshUser, 
         } catch (error: unknown) {
             setSubmissionStatus(null); logger.error(error);
             const injected = injectApiErrors(form, error);
-            if (!injected) wizard.setFormError(mapErrorToMessage(error, TOAST_MESSAGES.LOAD_FAILED));
+            if (!injected) wizard.setFormError(mapErrorToMessage(error, "Unable to load business details. Please try again."));
         }
     };
 
