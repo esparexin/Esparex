@@ -19,7 +19,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
             id="tabpanel-description"
             aria-labelledby="tab-description"
             tabIndex={0}
-            className="space-y-4 focus-visible:outline-none"
+            className="space-y-5 pt-3.5 sm:pt-4 focus-visible:outline-none"
         >
             {/* Specifications & Highlights Grid */}
             {hasAttributes && (

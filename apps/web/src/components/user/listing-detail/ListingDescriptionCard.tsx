@@ -33,10 +33,11 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
     const sparePartItems = extractSparePartItems(ad);
 
     const scrollToSection = () => {
-        if (sectionRef.current) {
-            const yOffset = -80; // Offset for sticky header
-            const y = sectionRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: "smooth" });
+        if (sectionRef.current && typeof window !== "undefined") {
+            const headerEl = typeof document !== "undefined" ? document.querySelector("header") : null;
+            const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : (window.innerWidth >= 768 ? 70 : 120);
+            const targetY = sectionRef.current.getBoundingClientRect().top + window.pageYOffset - headerHeight - 16;
+            window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
         }
     };
 
@@ -71,7 +72,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
     };
 
     return (
-        <section ref={sectionRef} className="space-y-4 pt-2 pb-6 border-b border-border/80 scroll-mt-20">
+        <section ref={sectionRef} className="space-y-4 pt-3 sm:pt-4 pb-3 sm:pb-4 border-b border-border/80">
             {/* Accessible 3-Tab Controls: Repair Shops | Description | Spare Parts */}
             <div
                 role="tablist"
@@ -151,7 +152,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     id="tabpanel-repair-shops"
                     aria-labelledby="tab-repair-shops"
                     tabIndex={0}
-                    className="focus-visible:outline-none"
+                    className="pt-3.5 sm:pt-4 focus-visible:outline-none"
                 >
                     <ListingRelatedBusinessesSection
                         ad={ad}
