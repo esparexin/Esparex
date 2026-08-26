@@ -214,9 +214,10 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                     {safeImages.map((image: string, index: number) => (
                         <button
                             key={index}
+                            type="button"
                             onClick={() => setCurrentImageIndex(index)}
                             aria-label={`View photo ${index + 1} of ${safeImages.length}`}
-                            className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative ${
+                            className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                                 index === currentImageIndex
                                     ? "border-primary ring-2 ring-primary/20 scale-95"
                                     : "border-transparent hover:border-border opacity-70 hover:opacity-100"
@@ -258,7 +259,8 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                 {/* Close button */}
                 <button
-                    className="absolute top-4 right-4 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    type="button"
+                    className="absolute top-4 right-4 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     onClick={closeLightbox}
                     aria-label="Close image viewer"
                     autoFocus
@@ -270,7 +272,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                 {/* Counter */}
                 {safeImages.length > 1 && (
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-caption font-semibold px-3 py-1 rounded-full">
                         {currentImageIndex + 1} / {safeImages.length}
                     </div>
                 )}
@@ -291,14 +293,16 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                 {safeImages.length > 1 && (
                     <>
                         <button
-                            className="absolute left-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                            type="button"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                             onClick={(e) => { e.stopPropagation(); prevImage(); }}
                             aria-label="Previous image"
                         >
                             <ChevronLeft className="h-6 w-6" />
                         </button>
                         <button
-                            className="absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                            type="button"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                             onClick={(e) => { e.stopPropagation(); nextImage(); }}
                             aria-label="Next image"
                         >
