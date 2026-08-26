@@ -62,13 +62,13 @@ export function BusinessProfileWizard({
             title: "Business information",
             description: "Add the business name, contact email, current location proof, and full address reviewers need first.",
             content: (
-                <div className="space-y-6">
+                <div className="flex flex-col gap-6">
                     <StepBasicDetails
                         formData={formData}
                         setFormData={setFormData}
                         user={user}
                     />
-                    <div className="border-t border-slate-100 pt-6">
+                    <div className="border-t border-border pt-6">
                         <StepAddress
                             formData={formData}
                             setFormData={setFormData}
@@ -151,9 +151,9 @@ export function BusinessProfileWizard({
                 noValidate
             >
                 {/* Header & Step progress */}
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                        <span className="text-caption font-bold uppercase tracking-wider text-primary">
                             Step {safeCurrentStep + 1} of {steps.length} • {activeStep.label}
                         </span>
                         <div className="flex gap-1.5" aria-hidden="true">
@@ -162,10 +162,10 @@ export function BusinessProfileWizard({
                                     key={idx}
                                     className={`h-1.5 rounded-full transition-all ${
                                         idx === safeCurrentStep
-                                            ? "w-8 bg-blue-600"
+                                            ? "w-8 bg-primary"
                                             : idx < safeCurrentStep
                                                 ? "w-4 bg-emerald-500"
-                                                : "w-4 bg-slate-200"
+                                                : "w-4 bg-border"
                                     }`}
                                 />
                             ))}
@@ -174,32 +174,32 @@ export function BusinessProfileWizard({
                     <h1
                         ref={headingRef}
                         tabIndex={-1}
-                        className="text-xl font-bold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+                        className="text-xl font-bold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
                     >
                         {title}
                     </h1>
                 </div>
 
                 <div role="alert" aria-live="polite">
-                    <FormError message={formError} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700" />
+                    <FormError message={formError} className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-2.5 text-caption text-destructive" />
                 </div>
                 {submissionStatus ? (
-                    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-900" role="status" aria-live="polite">
+                    <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-caption text-foreground" role="status" aria-live="polite">
                         <div className="flex items-start gap-3">
-                            <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" />
-                            <div className="space-y-0.5">
-                                <p className="font-semibold text-sm">{submissionStatus.title}</p>
-                                <p className="text-xs leading-5 text-blue-800">{submissionStatus.detail}</p>
+                            <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary" />
+                            <div className="flex flex-col gap-0.5">
+                                <p className="font-semibold text-caption">{submissionStatus.title}</p>
+                                <p className="text-tiny leading-5 text-foreground-secondary">{submissionStatus.detail}</p>
                             </div>
                         </div>
                     </div>
                 ) : null}
 
-                <div className="rounded-2xl border-0 bg-transparent p-0 shadow-none sm:border sm:border-slate-200 sm:bg-white sm:p-5 md:p-6 sm:shadow-sm">
+                <div className="rounded-2xl border-0 bg-transparent p-0 shadow-none sm:border sm:border-border sm:bg-card sm:p-5 md:p-6 sm:shadow-sm">
                     {activeStep.content}
                 </div>
 
-                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                     <div className="mx-auto flex max-w-3xl flex-row items-center justify-between gap-3">
                         {safeCurrentStep > 0 ? (
                             <Button
@@ -207,7 +207,7 @@ export function BusinessProfileWizard({
                                 variant="outline"
                                 onClick={() => onStepChange(safeCurrentStep - 1)}
                                 disabled={isSubmitting}
-                                className="h-11 flex-1 sm:flex-initial rounded-xl border-slate-200 px-5 font-semibold text-foreground-secondary hover:bg-slate-50 sm:w-auto"
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto"
                             >
                                 Back
                             </Button>
@@ -223,7 +223,7 @@ export function BusinessProfileWizard({
                                     }
                                 }}
                                 disabled={isSubmitting}
-                                className="h-11 flex-1 sm:flex-initial rounded-xl border-slate-200 px-5 font-semibold text-foreground-secondary hover:bg-slate-50 sm:w-auto"
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto"
                             >
                                 Cancel
                             </Button>
@@ -233,7 +233,7 @@ export function BusinessProfileWizard({
                             type={isFinalStep ? "submit" : "button"}
                             onClick={isFinalStep ? undefined : onNext}
                             disabled={isSubmitting}
-                            className="h-11 flex-1 sm:flex-initial rounded-xl bg-blue-600 px-5 font-semibold text-white hover:bg-blue-700 sm:w-auto"
+                            className="h-11 flex-1 sm:flex-initial rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto"
                         >
                             {isSubmitting && isFinalStep
                                 ? (wizardVariant === "registration" ? "Submitting..." : "Saving...")
