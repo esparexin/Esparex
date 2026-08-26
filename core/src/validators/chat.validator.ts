@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { Types } from 'mongoose';
-import { CHAT_REPORT_REASON_VALUES } from '@esparex/contracts';
+import {
+  CHAT_REPORT_REASON_VALUES,
+  ALLOWED_CHAT_MIME_TYPES,
+  type AllowedChatMimeType,
+} from '@esparex/contracts';
+
+export { ALLOWED_CHAT_MIME_TYPES, type AllowedChatMimeType };
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                     */
@@ -33,7 +39,9 @@ export const sendMessageSchema = z.object({
     .array(
       z.object({
         url: z.string().url('Attachment URL must be valid'),
-        mimeType: z.string().min(1),
+        mimeType: z.enum(ALLOWED_CHAT_MIME_TYPES, {
+          errorMap: () => ({ message: 'Unsupported attachment MIME type' }),
+        }),
         size: z.number().positive().max(8 * 1024 * 1024, 'Attachment too large (max 8 MB)'),
         name: z.string().trim().max(160).optional(),
       })
@@ -82,7 +90,16 @@ export const messagesQuerySchema = z
 
 export const chatUploadUrlSchema = z.object({
   conversationId: objectId(),
-  contentType: z.string().min(1, 'contentType is required'),
+  contentType: z
+    .string()
+    .min(1, 'contentType is required')
+    .refine(
+      (val) => {
+        const normalized = val.split(';')[0]?.trim().toLowerCase();
+        return ALLOWED_CHAT_MIME_TYPES.includes(normalized as AllowedChatMimeType);
+      },
+      { message: 'Unsupported attachment content type' }
+    ),
   filename: z.string().trim().max(160).optional(),
 });
 

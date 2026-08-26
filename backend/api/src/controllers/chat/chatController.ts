@@ -15,10 +15,11 @@ import {
   conversationListQuerySchema,
   messagesQuerySchema,
   chatUploadUrlSchema,
+  type AllowedChatMimeType,
 } from '@esparex/core/validators/chat.validator';
 import { generatePresignedUploadUrl } from '@esparex/core/utils/s3';
 
-const MIME_TO_EXT: Record<string, string> = {
+const MIME_TO_EXT: Record<AllowedChatMimeType, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
