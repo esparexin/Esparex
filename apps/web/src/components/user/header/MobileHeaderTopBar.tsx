@@ -56,11 +56,11 @@ export function MobileHeaderTopBar({
       <button
         type="button"
         onClick={onOpenLocationSelector}
-        className="ml-auto flex items-center gap-1.5 min-w-0 max-w-[170px] sm:max-w-[220px] h-full text-right hover:text-primary transition-colors cursor-pointer group"
+        className="ml-auto flex items-center justify-end gap-1.5 flex-1 min-w-0 max-w-[180px] xs:max-w-[220px] sm:max-w-[260px] h-full text-right hover:text-primary transition-colors cursor-pointer group"
         aria-label={`Current location: ${displayLocation}. Tap to change location.`}
       >
         <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />
-        <span className="truncate text-caption font-medium text-foreground">
+        <span className="truncate block min-w-0 text-caption font-medium text-foreground">
           <span className={`transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
             {displayLocation}
           </span>

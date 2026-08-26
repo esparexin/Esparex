@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ChevronDown, MapPin, Target } from "@/icons/IconRegistry";
+import { ChevronDown, MapPin, Target, X } from "@/icons/IconRegistry";
 import { Spinner } from "@esparex/ui";
 import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
@@ -25,7 +25,7 @@ export function HeaderLocation({
     onClick,
 }: HeaderLocationProps) {
     const { location } = useLocationData();
-    const { detectLocation } = useLocationDispatch();
+    const { detectLocation, clearLocation } = useLocationDispatch();
     const { loading: isDetecting } = useLocationStatus();
     const mounted = useMounted();
     const inputRef = useRef<HTMLInputElement>(null);
@@ -33,9 +33,10 @@ export function HeaderLocation({
 
     const { headerText, tooltipText } = getHeaderLocationText(location);
     const resolvedHeaderText = mounted ? (headerText || DEFAULT_APP_LOCATION.display) : DEFAULT_APP_LOCATION.display;
+    const isCustomLocation = mounted && location.source !== "default" && location.display !== DEFAULT_APP_LOCATION.display;
 
-    // Handle 1-click GPS auto-detection with immediate UI state sync
-    const handleGpsClick = (e: React.MouseEvent) => {
+    // Handle 1-click GPS auto-detection or clearing active location
+    const handleActionClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
 
@@ -45,8 +46,12 @@ export function HeaderLocation({
         if (onQueryChange) onQueryChange("");
         if (onOpenChange) onOpenChange(false);
 
-        // 2. Trigger auto-detection
-        void detectLocation(true);
+        // 2. Clear location if custom location active, otherwise trigger GPS auto-detection
+        if (isCustomLocation) {
+            clearLocation();
+        } else {
+            void detectLocation(true);
+        }
     };
 
     const handleFocus = () => {
@@ -106,17 +111,19 @@ export function HeaderLocation({
                 aria-expanded={isOpen}
             />
 
-            {/* GPS Auto-Detect Button inside the Header Field */}
+            {/* GPS Auto-Detect / Clear Button inside the Header Field */}
             <button
                 type="button"
-                onClick={handleGpsClick}
+                onClick={handleActionClick}
                 disabled={isDetecting}
-                title="Detect current location using GPS"
-                aria-label="Detect current location using GPS"
+                title={isCustomLocation ? "Clear selected location" : "Detect current location using GPS"}
+                aria-label={isCustomLocation ? "Clear selected location" : "Detect current location using GPS"}
                 className="flex items-center justify-center h-7 w-7 rounded-lg hover:bg-muted text-muted-foreground hover:text-primary transition-colors shrink-0 cursor-pointer p-0.5"
             >
                 {isDetecting ? (
                     <Spinner size="sm" className="h-3.5 w-3.5 text-primary" />
+                ) : isCustomLocation ? (
+                    <X className="h-4 w-4 text-muted-foreground hover:text-foreground shrink-0" />
                 ) : (
                     <Target className="h-4 w-4 text-primary shrink-0" />
                 )}
