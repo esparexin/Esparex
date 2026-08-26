@@ -153,7 +153,7 @@ export const getMyTabListings = async (req: Request, res: Response) => {
 
                 // Live/active ads must not have passed expiresAt.
                 // Deactivated ads are explicitly exempt — they carry no expiry semantics.
-                // The $exists: false clause covers legacy records pre-dating the expiresAt field;
+                // The $exists: false clause covers earlier documents pre-dating the expiresAt field;
                 // it does not generalise expiry bypass beyond this context.
                 query.$and = [
                     { status: { $in: [...liveStatuses, 'deactivated'] } },

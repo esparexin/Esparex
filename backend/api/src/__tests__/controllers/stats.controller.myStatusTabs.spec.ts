@@ -138,7 +138,7 @@ describe('stats.controller getMyTabListings', () => {
         expect(receivedQuery.$and).toBeDefined();
         expect(receivedQuery.$and).toHaveLength(2);
 
-        // First clause: status includes canonical/legacy live aliases + deactivated
+        // First clause: status includes all mapped live aliases + deactivated
         expect(receivedQuery.$and[0]).toEqual({
             status: { $in: ['live', 'approved', 'active', 'published', 'deactivated'] },
         });

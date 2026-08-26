@@ -50,7 +50,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
                         >
                             <span>{ch.label}</span>
                             {ch.badge && (
-                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/80 text-foreground-subtle">
+                                <span className="text-tiny font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/80 text-foreground-subtle">
                                     {ch.badge}
                                 </span>
                             )}
