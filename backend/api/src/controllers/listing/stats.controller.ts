@@ -145,12 +145,18 @@ export const getMyTabListings = async (req: Request, res: Response) => {
         if (tab) {
             const tabStr = String(tab).trim().toLowerCase();
             if (tabStr === 'live' || tabStr === 'active') {
+                const { getStatusMatchCriteria } = await import('@esparex/core/utils/statusQueryMapper');
+                const liveCriteria = getStatusMatchCriteria('live');
+                const liveStatuses = typeof liveCriteria === 'object' && '$in' in liveCriteria && Array.isArray(liveCriteria.$in)
+                    ? liveCriteria.$in
+                    : ['live', 'approved', 'active', 'published'];
+
                 // Live/active ads must not have passed expiresAt.
                 // Deactivated ads are explicitly exempt — they carry no expiry semantics.
                 // The $exists: false clause covers legacy records pre-dating the expiresAt field;
                 // it does not generalise expiry bypass beyond this context.
                 query.$and = [
-                    { status: { $in: ['active', 'live', 'deactivated'] } },
+                    { status: { $in: [...liveStatuses, 'deactivated'] } },
                     {
                         $or: [
                             { status: 'deactivated' },
