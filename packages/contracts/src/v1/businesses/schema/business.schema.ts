@@ -13,7 +13,7 @@ export const businessPhoneSchema = z.string()
     );
 
 export const businessLocationSchema = z.object({
-    locationId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID').optional(),
+    locationId: z.union([z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID'), z.literal('')]).optional(),
     address: z.string()
         .trim()
         .min(15, 'Complete business address is required')
