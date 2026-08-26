@@ -10,7 +10,7 @@ export const MODERATION_STATUSES = [
     LISTING_STATUS.PENDING,
     LISTING_STATUS.LIVE,
     LISTING_STATUS.ACTIVE,
-    'approved',
+    LISTING_STATUS.APPROVED,   // deprecated alias — kept for backward compat with old DB records
     LISTING_STATUS.REJECTED,
     LISTING_STATUS.EXPIRED,
     LISTING_STATUS.SOLD,

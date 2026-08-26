@@ -209,7 +209,7 @@ export const getListingStatusCountsForSeller = async (sellerId: string, listingT
     results.forEach((bucket) => {
         const status = bucket._id;
         const count = bucket.count;
-        if (status === 'active' || status === 'live' || status === 'deactivated') {
+        if (status === 'active' || status === 'live' || status === 'approved' || status === 'published' || status === 'deactivated') {
             live += count;
         } else if (status === 'pending') {
             pending += count;
