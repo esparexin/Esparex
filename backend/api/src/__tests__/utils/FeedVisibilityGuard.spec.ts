@@ -122,8 +122,6 @@ describe('FeedVisibilityGuard', () => {
                 })
             ).toBe(false);
         });
-
-        it('supports canonical active, approved, published aliases with future expiry', () => {
             const future = new Date(Date.now() + 3600_000);
             expect(isPublicAdVisible({ status: 'active', isDeleted: false, expiresAt: future })).toBe(true);
             expect(isPublicAdVisible({ status: 'approved', isDeleted: false, expiresAt: future })).toBe(true);
