@@ -36,6 +36,32 @@ Response DTO ──► Domain
 
 ---
 
+# 🚨 FORM & ZOD EMPTY-STRING SCHEMA GOVERNANCE RULE (MANDATORY)
+
+## Core Architectural Principle
+In web browsers, HTML input elements and React Hook Form `defaultValues` yield **`""` (empty string)** when empty, **never `undefined`**.
+In Zod, `.optional()` permits `undefined`, but evaluates `""` as an active string of length 0.
+
+### Mandatory Rules:
+1. **Empty-String Union on Constrained Optional Fields**:
+   Any optional string field schema that includes constraints (`.min()`, `.max()`, `.email()`, `.regex()`, or pre-built schemas like `authNameSchema`) MUST explicitly accept empty string literals:
+   ```typescript
+   // ✅ REQUIRED:
+   name: z.union([authNameSchema, z.literal("")]).optional(),
+   email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
+   locationId: z.union([z.string().regex(/^[0-9a-fA-F]{24}$/), z.literal("")]).optional(),
+
+   // ❌ FORBIDDEN (Throws silent validation errors on empty inputs):
+   name: authNameSchema.optional(),
+   email: z.string().email().optional(),
+   ```
+2. **Multi-Step Form Step Isolation**:
+   In multi-step forms / wizards, intermediate step navigation MUST validate **only the current step's fields** using `form.trigger(['field1', 'field2'])`. Submitting full forms on partial steps without step-isolated validation is prohibited.
+3. **No Hidden Field Blocking**:
+   Unrendered / unmounted fields in the current step must never block user submission or cause invisible validation failures.
+
+---
+
 # 🚨 GLOBAL ACCESSIBILITY & KEYBOARD NAVIGATION GOVERNANCE RULE (MANDATORY)
 
 ## Applies To
