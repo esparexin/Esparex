@@ -16,22 +16,18 @@ export const personalProfileSchema = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name cannot exceed 100 characters")
     .refine((val) => /^[\p{L}\p{N}\s.\-'_,]+$/u.test(val.trim()), "Name contains invalid characters"),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .toLowerCase()
-    .optional()
-    .or(z.literal('')),
-  businessName: z
-    .string()
-    .max(120, "Business name cannot exceed 120 characters")
-    .optional()
-    .or(z.literal('')),
-  gstin: z
-    .string()
-    .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please enter a valid 15-character GSTIN")
-    .optional()
-    .or(z.literal('')),
+  email: z.union([
+    z.string().email("Please enter a valid email address").toLowerCase(),
+    z.literal(""),
+  ]).optional(),
+  businessName: z.union([
+    z.string().max(120, "Business name cannot exceed 120 characters"),
+    z.literal(""),
+  ]).optional(),
+  gstin: z.union([
+    z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please enter a valid 15-character GSTIN"),
+    z.literal(""),
+  ]).optional(),
   mobileVisibility: z.enum(['show', 'hide', 'on_request']),
   photo: z.string().optional(),
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { isAllowedProfilePhotoType, PROFILE_PHOTO_ALLOWED_LABEL, PROFILE_PHOTO_MAX_BYTES, PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import type { User as UserType } from "@/types/User";
 import type { ProfileUser } from "../types";
 import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
@@ -26,9 +27,10 @@ import { PersonalProfileMobileVisibilitySection } from "./PersonalProfileMobileV
 interface PersonalTabProps {
     user: ProfileUser | null;
     onUpdateUser: (userData: UserType) => void;
+    onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
+export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabProps) {
     const safeProfilePhoto = toSafeImageSrc(user?.profilePhoto || null, "");
 
     const [isSaving, setIsSaving] = useState(false);
@@ -59,6 +61,17 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         },
     });
 
+    const isFormDirty = form.formState.isDirty || selectedPhotoFile !== null || isPhotoRemoved;
+
+    useUnsavedChangesGuard({
+        isDirty: isFormDirty,
+        message: "You have unsaved profile changes. Are you sure you want to leave?",
+    });
+
+    useEffect(() => {
+        onDirtyChange?.(isFormDirty);
+    }, [isFormDirty, onDirtyChange]);
+
     const onSubmit = async (data: PersonalProfileValues) => {
         setIsSaving(true);
         setGlobalError(null);
@@ -82,6 +95,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
             if (updated) {
                 onUpdateUser(updated);
             }
+            setSelectedPhotoFile(null);
+            setIsPhotoRemoved(false);
+            form.reset(data);
+            onDirtyChange?.(false);
             notify.success("Profile updated successfully");
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : "Failed to update profile";
