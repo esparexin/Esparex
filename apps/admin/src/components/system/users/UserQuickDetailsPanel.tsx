@@ -92,7 +92,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                     <div>
                         <div className="mb-1 text-xs text-foreground-tertiary">Business Status</div>
                         <div className="font-semibold capitalize text-foreground">
-                            {user.businessStatus || "None"}
+                            {(user.businessStatus as string) || "None"}
                         </div>
                     </div>
                     <div>

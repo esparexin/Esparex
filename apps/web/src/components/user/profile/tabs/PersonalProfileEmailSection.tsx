@@ -30,9 +30,6 @@ export function PersonalProfileEmailSection({
                 aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
                 autoComplete="email"
             />
-            <p id="profile-email-helper" className="text-tiny text-muted-foreground">
-                Used strictly to send PDF invoices and ad status updates.
-            </p>
             <FormError id="profile-email-error" message={emailError} />
         </div>
     );

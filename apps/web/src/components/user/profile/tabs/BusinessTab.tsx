@@ -13,6 +13,7 @@ import {
     PowerOff,
     LogOut,
     RefreshCw,
+    Plus,
 } from "@/icons/IconRegistry";
 
 import { type Business } from "@/lib/api/user/businesses";
@@ -33,10 +34,9 @@ interface BusinessTabProps {
     onRenew?: (id: string) => Promise<unknown>;
 }
 
-
 export function BusinessTab({
     businessData,
-    businessStats,
+    businessStats: _businessStats,
     isLoading,
     isFetched,
     navigateTo,
@@ -45,14 +45,13 @@ export function BusinessTab({
     onClose,
     onRenew,
 }: BusinessTabProps) {
-
     if (isLoading && !isFetched) {
         return (
             <div className="space-y-4 animate-pulse">
                 <div className="h-48 rounded-3xl bg-muted" />
                 <div className="grid grid-cols-2 gap-3">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-24 rounded-2xl bg-muted" />
+                        <div key={i} className="h-20 rounded-2xl bg-muted" />
                     ))}
                 </div>
             </div>
@@ -68,7 +67,7 @@ export function BusinessTab({
         return (
             <div className="space-y-4 sm:space-y-5">
                 <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs">
-                    <CardContent className="p-0 sm:p-6 space-y-4 sm:space-y-5">
+                    <CardContent className="p-0 sm:p-5 space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3.5">
                                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
@@ -107,83 +106,70 @@ export function BusinessTab({
                             </div>
                         </div>
 
-                        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4 pt-3 border-t border-border">
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                                <MapPin className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                                <span className="text-caption text-foreground-secondary truncate">
-                                    {locationLabel || "Location not available"}
-                                </span>
+                        {/* Normal Inline Info Metadata Row (Replacing Pill-Style Boxes) */}
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-3 border-t border-border text-caption text-foreground-secondary font-medium">
+                            <div className="flex items-center gap-1.5">
+                                <MapPin className="h-4 w-4 text-foreground-subtle shrink-0" />
+                                <span>{locationLabel || "Location not available"}</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                                <Phone className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                                <span className="text-caption text-foreground-secondary truncate">
-                                    +91 {businessData.mobile}
-                                </span>
+                            <span className="text-foreground-subtle hidden sm:inline">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <Phone className="h-4 w-4 text-foreground-subtle shrink-0" />
+                                <span>+91 {businessData.mobile}</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                                <Mail className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                                <span className="text-caption text-foreground-secondary truncate">{businessData.email}</span>
+                            <span className="text-foreground-subtle hidden sm:inline">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <Mail className="h-4 w-4 text-foreground-subtle shrink-0" />
+                                <span>{businessData.email}</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border">
-                                <Globe className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                                <span className="text-caption text-foreground-secondary truncate">{businessData.website || "Website not added"}</span>
+                            <span className="text-foreground-subtle hidden sm:inline">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <Globe className="h-4 w-4 text-foreground-subtle shrink-0" />
+                                <span>{businessData.website || "Website not added"}</span>
                             </div>
                         </div>
 
+                        {/* Styled Action Buttons for Deactivate & Close Business */}
                         {(onDeactivate || onClose) && (
-                            <div className="flex items-center justify-between pt-2 border-t border-border text-caption">
+                            <div className="flex items-center justify-between pt-3 border-t border-border">
                                 {onDeactivate && (
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="outline"
+                                        size="sm"
                                         onClick={async () => {
                                             if (confirm("Are you sure you want to deactivate your business? Your listings will be hidden.")) {
                                                 await onDeactivate();
                                             }
                                         }}
-                                        className="text-foreground-subtle hover:text-amber-600 transition-colors inline-flex items-center gap-1 font-medium"
+                                        className="h-8 border-amber-300 text-amber-700 bg-amber-50/50 hover:bg-amber-100 font-semibold text-caption rounded-xl gap-1.5"
                                     >
                                         <PowerOff className="h-3.5 w-3.5" />
                                         Deactivate
-                                    </button>
+                                    </Button>
                                 )}
                                 {onClose && (
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="outline"
+                                        size="sm"
                                         onClick={async () => {
                                             if (confirm("Are you sure you want to PERMANENTLY CLOSE your business? This action cannot be undone and your role will be reverted.")) {
                                                 await onClose();
                                             }
                                         }}
-                                        className="text-foreground-subtle hover:text-destructive transition-colors inline-flex items-center gap-1 font-medium ml-auto"
+                                        className="h-8 border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold text-caption rounded-xl gap-1.5 ml-auto"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         Close Business
-                                    </button>
+                                    </Button>
                                 )}
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Total Services</p>
-                        <p className="mt-1 text-xl sm:text-2xl font-black text-foreground">{businessStats?.totalServices ?? 0}</p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Approved</p>
-                        <p className="mt-1 text-xl sm:text-2xl font-black text-emerald-600">{businessStats?.approvedServices ?? 0}</p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Pending</p>
-                        <p className="mt-1 text-xl sm:text-2xl font-black text-amber-600">{businessStats?.pendingServices ?? 0}</p>
-                    </div>
-                    <div className="rounded-xl border border-border bg-card p-3.5 shadow-xs">
-                        <p className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Profile Views</p>
-                        <p className="mt-1 text-xl sm:text-2xl font-black text-primary">{businessStats?.views ?? 0}</p>
-                    </div>
-                </div>
-
+                {/* Streamlined Business Services Section */}
                 <PageSection
                     variant="bordered"
                     title={
@@ -192,23 +178,32 @@ export function BusinessTab({
                             <span>Business services</span>
                         </div>
                     }
-                    subtitle="Post new service listings or manage the ones already attached to your business."
                 >
-                    <div className="flex items-center gap-2.5 sm:gap-3 pt-1">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
                         <Button
                             onClick={() => navigateTo("post-service")}
                             size="sm"
-                            className="flex-1 sm:flex-initial h-9 rounded-xl bg-primary px-4 font-semibold text-caption hover:bg-primary/90 text-primary-foreground shadow-xs"
+                            className="h-9 rounded-xl bg-primary px-4 font-semibold text-caption hover:bg-primary/90 text-primary-foreground shadow-xs gap-1.5"
                         >
+                            <Plus className="h-4 w-4" />
                             Post Service
+                        </Button>
+                        <Button
+                            onClick={() => navigateTo("post-ad")}
+                            size="sm"
+                            variant="outline"
+                            className="h-9 rounded-xl px-4 font-semibold text-caption border-border text-foreground-secondary hover:bg-muted gap-1.5"
+                        >
+                            <Plus className="h-4 w-4 text-foreground-subtle" />
+                            Post Spare Part
                         </Button>
                         <Button
                             onClick={() => navigateTo("my-services")}
                             size="sm"
                             variant="outline"
-                            className="flex-1 sm:flex-initial h-9 rounded-xl px-4 font-semibold text-caption border-border text-foreground-secondary hover:bg-muted"
+                            className="h-9 rounded-xl px-4 font-semibold text-caption border-border text-foreground-secondary hover:bg-muted"
                         >
-                            Manage Services & Parts
+                            Edit Services, Listings, Spare Parts
                         </Button>
                     </div>
                 </PageSection>
@@ -255,7 +250,6 @@ export function BusinessTab({
             </div>
         );
     }
-
 
     return (
         <BusinessRegistrationPromo onRegister={() => navigateTo("business-register")} />

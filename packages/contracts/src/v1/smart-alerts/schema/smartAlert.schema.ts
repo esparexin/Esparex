@@ -3,7 +3,7 @@ import { objectIdSchema, optionalTrimmedStringSchema as optionalTrimmedString } 
 import { coordinatesSchema } from '../../common/schema/coordinates.schema';
 
 const frequencySchema = z.enum(['daily', 'instant']);
-const notificationChannelSchema = z.enum(['email', 'sms', 'push']);
+const notificationChannelSchema = z.enum(['email', 'sms', 'push', 'whatsapp', 'in-app']);
 
 export const smartAlertCriteriaBaseSchema = z.object({
     keywords: optionalTrimmedString,

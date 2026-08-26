@@ -13,6 +13,7 @@ export const BUSINESS_STATUS = {
     EXPIRED: LIFECYCLE_STATUS.EXPIRED,
     DEACTIVATED: LIFECYCLE_STATUS.DEACTIVATED,
     CLOSED: LIFECYCLE_STATUS.CLOSED,
+    NONE: 'none',
     /** @deprecated Use BUSINESS_STATUS.ACTIVE instead. Retained for legacy migration compatibility. */
     LIVE: LIFECYCLE_STATUS.LIVE,
     /** @deprecated Use BUSINESS_STATUS.ACTIVE instead. Retained for legacy migration compatibility. */

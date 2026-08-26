@@ -18,8 +18,22 @@ export const SettingsScreen = ({ navigation }: Props) => {
   const { logout } = useAuth();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [pushEnabled, setPushEnabled] = useState(profile?.notificationSettings?.push ?? true);
-  const [emailEnabled, setEmailEnabled] = useState(profile?.notificationSettings?.email ?? true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    profile?.notificationSettings?.enabled ??
+      (profile?.notificationSettings?.pushNotifications !== false)
+  );
+
+  const handleToggleNotifications = useCallback(
+    (value: boolean) => {
+      setNotificationsEnabled(value);
+      updateProfileMutation.mutate({
+        notificationSettings: {
+          enabled: value,
+        },
+      });
+    },
+    [updateProfileMutation]
+  );
 
   const handleUpdateProfile = useCallback(
     (payload: { name?: string; email?: string }) => {
@@ -113,34 +127,18 @@ export const SettingsScreen = ({ navigation }: Props) => {
               Notification Settings
             </AppText>
 
-            <View className="flex-row items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800">
-              <View className="flex-1 mr-4">
-                <AppText variant="body" className="font-medium text-slate-800 dark:text-slate-200">
-                  Push Notifications
-                </AppText>
-                <AppText variant="caption" className="text-slate-500">
-                  Receive instant chat & listing updates
-                </AppText>
-              </View>
-              <Switch
-                value={pushEnabled}
-                onValueChange={setPushEnabled}
-                trackColor={{ false: base.slate[300], true: base.brand[400] }}
-              />
-            </View>
-
             <View className="flex-row items-center justify-between py-3">
               <View className="flex-1 mr-4">
                 <AppText variant="body" className="font-medium text-slate-800 dark:text-slate-200">
-                  Email Notifications
+                  Notification Settings
                 </AppText>
                 <AppText variant="caption" className="text-slate-500">
-                  Receive account digests & promotion alerts
+                  Receive instant chat, listing updates & account alerts
                 </AppText>
               </View>
               <Switch
-                value={emailEnabled}
-                onValueChange={setEmailEnabled}
+                value={notificationsEnabled}
+                onValueChange={handleToggleNotifications}
                 trackColor={{ false: base.slate[300], true: base.brand[400] }}
               />
             </View>

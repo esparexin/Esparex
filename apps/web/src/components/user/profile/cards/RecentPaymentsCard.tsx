@@ -51,9 +51,9 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="max-h-[340px] overflow-y-auto overflow-x-auto relative rounded-lg border border-border/40">
           <table className="w-full text-left text-caption">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
                 <th className="py-2 px-3">Date</th>
                 <th className="py-2 px-3">Order Description</th>

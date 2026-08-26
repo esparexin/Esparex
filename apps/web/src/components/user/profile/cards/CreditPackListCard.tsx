@@ -12,14 +12,14 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
 
   if (!creditPacks || creditPacks.length === 0) {
     return (
-      <div className="bg-surface rounded-xl p-4 sm:p-5 border border-border/60 shadow-2xs text-center flex flex-col gap-1.5">
-        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground mb-1">
-          <Package className="w-4 h-4" />
+      <div className="bg-surface rounded-lg px-3 py-2.5 border border-border/40 text-left flex items-center gap-3 text-tiny">
+        <div className="w-6 h-6 rounded-md bg-muted/60 flex items-center justify-center text-muted-foreground shrink-0">
+          <Package className="w-3.5 h-3.5" />
         </div>
-        <h4 className="text-caption sm:text-body font-bold text-foreground">No Credit Packs Purchased Yet</h4>
-        <p className="text-tiny sm:text-caption text-muted-foreground max-w-sm mx-auto">
-          When you buy extra ad posting packs or alert slots, your itemized packs and usage progress will display here.
-        </p>
+        <div>
+          <span className="font-semibold text-foreground mr-1.5">No Credit Packs Purchased Yet</span>
+          <span className="text-muted-foreground hidden sm:inline">— Extra ad posting packs or alert slots will display here when purchased.</span>
+        </div>
       </div>
     );
   }

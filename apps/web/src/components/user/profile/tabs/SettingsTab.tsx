@@ -3,12 +3,10 @@
 import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, BellRing, Mail, Megaphone, Save, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
+import { AlertTriangle, BellRing, Trash2 } from "@/icons/IconRegistry";
 
 import { Button } from "@esparex/ui";
-import { PageSection } from "@/components/layout";
 import { FormError } from "@/components/ui/FormError";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
@@ -32,24 +30,27 @@ interface SettingsTabProps {
 type SettingRowProps = {
     icon: React.ReactNode;
     title: string;
-    description: string;
+    description?: string;
     checked: boolean;
     onCheckedChange: (checked: boolean) => void;
 };
 
 function SettingRow({ icon, title, description, checked, onCheckedChange }: SettingRowProps) {
     const titleId = useId();
-    const descId = useId();
     return (
-        <div className="flex items-center justify-between gap-3 min-h-[44px]">
-            <div className="flex items-start gap-3">
-                <div className="mt-0.5 text-muted-foreground">{icon}</div>
-                <div>
-                    <p id={titleId} className="font-medium text-body">{title}</p>
-                    <p id={descId} className="text-caption text-muted-foreground">{description}</p>
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-5">
+            <div className="flex items-start gap-3.5 min-w-0">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0 mt-0.5">
+                    {icon}
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                    <p id={titleId} className="font-bold text-caption sm:text-body text-foreground">{title}</p>
+                    {description && (
+                        <p className="text-tiny text-muted-foreground leading-relaxed">{description}</p>
+                    )}
                 </div>
             </div>
-            <Switch aria-labelledby={titleId} aria-describedby={descId} checked={checked} onCheckedChange={onCheckedChange} />
+            <Switch aria-labelledby={titleId} checked={checked} onCheckedChange={onCheckedChange} className="shrink-0" />
         </div>
     );
 }
@@ -64,22 +65,28 @@ export function SettingsTab({
     const form = useForm<NotificationSettingsValues>({
         resolver: zodResolver(notificationSettingsSchema),
         defaultValues: {
-            adUpdates: user?.notificationSettings?.adUpdates ?? true,
-            promotions: user?.notificationSettings?.promotions ?? false,
-            emailNotifications: user?.notificationSettings?.emailNotifications ?? true,
-            pushNotifications: user?.notificationSettings?.pushNotifications ?? true,
+            enabled:
+                user?.notificationSettings?.enabled ??
+                (user?.notificationSettings?.pushNotifications !== false &&
+                 user?.notificationSettings?.adUpdates !== false),
             instantAlerts: user?.notificationSettings?.instantAlerts ?? true,
         },
     });
 
-    const isSaving = form.formState.isSubmitting;
-
-    const onSubmit = async (data: NotificationSettingsValues) => {
+    const handleToggle = async (key: keyof NotificationSettingsValues, value: boolean) => {
         setGlobalError(null);
+        const currentValues = form.getValues();
+        const newValues: NotificationSettingsValues = {
+            ...currentValues,
+            [key]: value,
+        };
+
+        form.setValue(key, value);
 
         try {
             if (
-                data.pushNotifications &&
+                key === "enabled" &&
+                value &&
                 isBrowserPushSupported() &&
                 isBrowserPushConfigured() &&
                 window.Notification.permission === "default"
@@ -87,158 +94,91 @@ export function SettingsTab({
                 try {
                     await window.Notification.requestPermission();
                 } catch {
-                    // Handled through the sync status message later
+                    // Handled gracefully
                 }
             }
 
-            const updatedUser = await updateProfile({ notificationSettings: data });
+            const updatedUser = await updateProfile({ notificationSettings: newValues });
             if (!updatedUser) {
-                setGlobalError("Failed to save notification settings");
+                setGlobalError("Failed to update notification settings");
+                form.setValue(key, !value);
                 return;
             }
-            
+
             onUpdateUser(updatedUser);
 
-            if (data.pushNotifications) {
+            if (key === "enabled" && value) {
                 const pushSync = await syncBrowserPushRegistration({
-                    user: updatedUser as UserType & { notificationSettings?: { pushNotifications?: boolean } },
+                    user: updatedUser as UserType & { notificationSettings?: { enabled?: boolean; pushNotifications?: boolean } },
                     interactive: false,
                 });
 
                 if (pushSync.status === "connected") {
-                    notify.success("Notification settings saved. Browser push is enabled.");
+                    notify.success("Notification settings enabled with browser push.");
                 } else {
-                    notify.success("Notification settings saved.");
+                    notify.success("Notification settings updated.");
                     const pushMessage = pushSync.reason ?? describeWebPushStatus(pushSync.status);
                     if (pushMessage) {
                         notify.info(pushMessage);
                     }
                 }
             } else {
-                notify.success("Notification settings saved!");
+                notify.success("Notification setting updated.");
             }
         } catch (err: unknown) {
             logger.error("Update notification settings failed", err);
-            setGlobalError(err instanceof Error ? err.message : "Failed to save notification settings");
+            form.setValue(key, !value);
+            setGlobalError(err instanceof Error ? err.message : "Failed to update notification settings");
         }
     };
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
-            <PageSection
-                variant="bordered"
-                className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs p-0 sm:p-5"
-            >
-                <div className="space-y-4">
-                    <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2.5 text-caption text-foreground-secondary leading-relaxed">
-                        These toggles control the notifications you actually receive. Smart alert delivery also respects
-                        the email, push, and instant-alert settings below.
+        <div className="space-y-4">
+            <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border/60 overflow-hidden">
+                <Controller
+                    name="enabled"
+                    control={form.control}
+                    render={({ field }) => (
+                        <SettingRow
+                            icon={<BellRing className="h-4.5 w-4.5" />}
+                            title="Notification Settings"
+                            description="Receive real-time push & email notifications for buyer messages, ad status updates, and smart alert matches."
+                            checked={field.value}
+                            onCheckedChange={(checked) => handleToggle("enabled", checked)}
+                        />
+                    )}
+                />
+
+                <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-destructive/[0.02]">
+                    <div className="flex items-start gap-3.5 min-w-0">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10 text-destructive shrink-0 mt-0.5">
+                            <Trash2 className="h-4.5 w-4.5" />
+                        </div>
+                        <div className="space-y-0.5 min-w-0">
+                            <p className="font-bold text-caption sm:text-body text-destructive">Delete Account</p>
+                            <p className="text-tiny text-muted-foreground leading-relaxed">
+                                Permanently delete your account, listings, and saved preferences. Secure confirmation required.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
-                        <Controller
-                            name="adUpdates"
-                            control={form.control}
-                            render={({ field }) => (
-                                <SettingRow
-                                    icon={<Tag className="h-4 w-4" />}
-                                    title="Ad and business updates"
-                                    description="Status changes on your listings and business account."
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="promotions"
-                            control={form.control}
-                            render={({ field }) => (
-                                <SettingRow
-                                    icon={<Megaphone className="h-4 w-4" />}
-                                    title="Promotions and announcements"
-                                    description="Admin broadcasts, offers, and platform announcements."
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="emailNotifications"
-                            control={form.control}
-                            render={({ field }) => (
-                                <SettingRow
-                                    icon={<Mail className="h-4 w-4" />}
-                                    title="Email delivery"
-                                    description="Allow notifications to be delivered by email."
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="pushNotifications"
-                            control={form.control}
-                            render={({ field }) => (
-                                <SettingRow
-                                    icon={<Smartphone className="h-4 w-4" />}
-                                    title="Push delivery"
-                                    description="Allow notifications to be delivered as browser or app push on supported devices."
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="instantAlerts"
-                            control={form.control}
-                            render={({ field }) => (
-                                <SettingRow
-                                    icon={<BellRing className="h-4 w-4" />}
-                                    title="Instant smart alerts"
-                                    description="Receive matching smart alerts immediately instead of suppressing them."
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            )}
-                        />
-                    </div>
-                    
-                    <Separator className="my-3" />
-                    <FormError message={globalError} />
-                    <Button
-                        type="submit"
-                        className="w-full md:w-auto h-9 gap-2 text-caption font-semibold px-5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
-                        disabled={isSaving}
-                    >
-                        <Save className="h-4 w-4" />
-                        {isSaving ? "Saving..." : "Save Notification Settings"}
-                    </Button>
-                </div>
-            </PageSection>
-
-            <PageSection
-                variant="bordered"
-                className="rounded-none sm:rounded-2xl border-0 sm:border border-destructive/20 bg-destructive/5 sm:bg-destructive/10 p-0 sm:p-5"
-                title={
-                    <span className="text-body sm:text-body-lg font-semibold flex items-center gap-2 text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                        Delete Account
-                    </span>
-                }
-                subtitle="Permanently delete your account. Secure confirmation required."
-            >
-                <div className="pt-1">
                     <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-9 gap-2 text-caption font-semibold px-4 rounded-xl"
+                        className="h-9 gap-1.5 text-tiny font-semibold px-4 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-colors shrink-0 self-start sm:self-auto cursor-pointer"
                     >
-                        <AlertTriangle className="h-4 w-4" />
-                        Delete My Account
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        <span>Delete Account</span>
                     </Button>
                 </div>
-            </PageSection>
-        </form>
+            </div>
+
+            {globalError && (
+                <div className="pt-1">
+                    <FormError message={globalError} />
+                </div>
+            )}
+        </div>
     );
 }

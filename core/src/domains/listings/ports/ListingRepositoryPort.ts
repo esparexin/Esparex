@@ -95,7 +95,9 @@ export interface ListingFilter {
     spotlightActiveOnly?: boolean;
     spotlightExpiresAt?: { $lt?: Date; $gt?: Date; $lte?: Date; $exists?: boolean } | null;
     spotlightExpiredBefore?: Date;
-    expiresAt?: { $lte?: Date; $lt?: Date };
+    // $gt/$gte: used by buildPublicAdFilter() (FeedVisibilityGuard) to exclude expired ads from public queries.
+    // $lt/$lte: used by ListingExpiryService.runSweep() to find ads that have passed their expiry date.
+    expiresAt?: { $gt?: Date; $gte?: Date; $lt?: Date; $lte?: Date };
     expiredBefore?: Date;
     sparePartIds?: string;
     favoritesGreaterThan?: number;

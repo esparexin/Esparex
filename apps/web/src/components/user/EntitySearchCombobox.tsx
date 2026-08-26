@@ -162,7 +162,7 @@ export function EntitySearchCombobox<T>({
         <div
             id="select-options-list"
             role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-surface border border-border rounded-xl shadow-xl overflow-y-auto z-50"
+            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 py-1.5 overscroll-contain touch-pan-y"
         >
             {renderOptionsList(false)}
         </div>

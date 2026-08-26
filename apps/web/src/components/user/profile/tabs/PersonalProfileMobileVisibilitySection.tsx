@@ -9,16 +9,16 @@ interface PersonalProfileMobileVisibilitySectionProps {
 }
 
 const VISIBILITY_OPTIONS = [
-    { value: 'show', label: 'Show Number', desc: 'Direct calls allowed' },
-    { value: 'on_request', label: 'On Request', desc: 'Permission required' },
-    { value: 'hide', label: 'Hide Number', desc: 'In-app chat only' },
+    { value: 'show', label: 'Show' },
+    { value: 'on_request', label: 'On Request' },
+    { value: 'hide', label: 'Hide' },
 ] as const;
 
 export function PersonalProfileMobileVisibilitySection({
     control,
 }: PersonalProfileMobileVisibilitySectionProps) {
     return (
-        <div className="flex flex-col gap-2">
+        <div className="space-y-1">
             <Label className="text-caption font-semibold text-foreground-secondary">
                 Phone Number Privacy
             </Label>
@@ -26,7 +26,7 @@ export function PersonalProfileMobileVisibilitySection({
                 name="mobileVisibility"
                 control={control}
                 render={({ field }) => (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" role="radiogroup" aria-label="Phone Number Privacy">
+                    <div className="grid grid-cols-3 gap-1 p-1 h-10 rounded-xl border border-border bg-card items-center" role="radiogroup" aria-label="Phone Number Privacy">
                         {VISIBILITY_OPTIONS.map((opt) => {
                             const isSelected = field.value === opt.value;
                             return (
@@ -36,18 +36,13 @@ export function PersonalProfileMobileVisibilitySection({
                                     role="radio"
                                     aria-checked={isSelected}
                                     onClick={() => field.onChange(opt.value)}
-                                    className={`flex flex-col p-2.5 rounded-xl border text-left transition-all ${
+                                    className={`h-8 px-1.5 text-tiny font-semibold rounded-lg transition-all flex items-center justify-center text-center truncate ${
                                         isSelected
-                                            ? "border-primary bg-primary/10 ring-1 ring-primary/20"
-                                            : "border-border bg-card hover:bg-muted/50"
+                                            ? "bg-primary text-primary-foreground shadow-2xs"
+                                            : "text-foreground-secondary hover:bg-muted hover:text-foreground"
                                     }`}
                                 >
-                                    <span className={`text-caption font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
-                                        {opt.label}
-                                    </span>
-                                    <span className="text-tiny text-muted-foreground mt-0.5">
-                                        {opt.desc}
-                                    </span>
+                                    <span>{opt.label}</span>
                                 </button>
                             );
                         })}

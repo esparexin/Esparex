@@ -56,11 +56,18 @@ function ConversationCard({
         <div className="conv-card__body">
           <div className="conv-card__top">
             <span className="conv-card__name">{other.name}</span>
-            {conv.lastMessageAt && (
-              <span className="conv-card__time">
-                <RelativeTimeText value={conv.lastMessageAt} variant="short" />
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {unread > 0 && (
+                <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
+                  {unread > 99 ? '99+' : unread}
+                </span>
+              )}
+              {conv.lastMessageAt && (
+                <span className="conv-card__time">
+                  <RelativeTimeText value={conv.lastMessageAt} variant="short" />
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="conv-card__ad-row">
@@ -75,17 +82,6 @@ function ConversationCard({
               {state.label}
             </p>
           )}
-
-          <div className="conv-card__bottom">
-            <p className="conv-card__last-msg">
-              {conv.lastMessage ?? 'No messages yet'}
-            </p>
-            {unread > 0 && (
-              <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
-                {unread > 99 ? '99+' : unread}
-              </span>
-            )}
-          </div>
         </div>
       </Link>
 
@@ -187,7 +183,7 @@ export function ChatList({
   };
 
   return (
-    <div className="chat-list-shell">
+    <div className="chat-list-shell h-full min-h-0 md:max-h-[480px] flex flex-col overflow-hidden">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
         <svg
@@ -325,7 +321,7 @@ export function ChatList({
           )}
         </div>
       ) : (
-        <div className="chat-list">
+        <div className="chat-list flex-1 min-h-0 overflow-y-auto">
           {filteredConversations.map((conv) => (
             <ConversationCard
               key={conv.id}
