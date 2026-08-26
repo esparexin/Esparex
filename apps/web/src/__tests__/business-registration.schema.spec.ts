@@ -60,9 +60,48 @@ describe("businessRegistrationSchema", () => {
         );
     });
 
+    it("accepts valid business names containing common English words (Select, Drop, Script, Insert, Exec)", () => {
+        const names = [
+            "Select Auto Spares & Garage",
+            "Drop Shipping & Delivery Hub",
+            "Script Solutions Pvt Ltd",
+            "Insert Tooling & Repair",
+            "Executive Auto Spares",
+        ];
+
+        for (const name of names) {
+            const result = businessRegistrationSchema.safeParse({
+                ...validRegistrationPayload,
+                name,
+            });
+            expect(result.success).toBe(true);
+        }
+    });
+
+    it("rejects malicious script payloads and excessive symbol spam in business names", () => {
+        const invalidNames = [
+            "<script>alert('xss')</script>",
+            "$$$$$$ Auto Repair $$$$$$",
+            "<iframe>hack</iframe>",
+            "javascript:void(0)",
+        ];
+
+        for (const name of invalidNames) {
+            const result = businessRegistrationSchema.safeParse({
+                ...validRegistrationPayload,
+                name,
+            });
+            expect(result.success).toBe(false);
+            expect(result.error?.flatten().fieldErrors.name).toContain(
+                "Business name contains invalid characters",
+            );
+        }
+    });
+
     it("accepts the payload without a canonical locationId", () => {
         const result = businessRegistrationSchema.safeParse(validRegistrationPayload);
 
         expect(result.success).toBe(true);
     });
 });
+
