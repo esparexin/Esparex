@@ -18,42 +18,38 @@ export type PopupStyleConfig = {
 export const popupTypeConfig: Record<PopupType, PopupStyleConfig> = {
   error: {
     icon: AlertTriangle,
-    titleClass: "text-rose-950",
-    cardClass:
-      "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-rose-500 border-rose-200/80 bg-white/95 text-slate-800 backdrop-blur-sm",
-    iconWrapClass: "bg-rose-50 text-rose-600 ring-1 ring-rose-100",
-    buttonClass: "bg-red-600 hover:bg-red-700 text-white",
+    titleClass: "text-foreground font-bold",
+    cardClass: "border-border bg-card text-foreground",
+    iconWrapClass: "bg-destructive/10 text-destructive border border-destructive/20",
+    buttonClass: "bg-destructive hover:bg-destructive/90 text-destructive-foreground",
   },
   warning: {
     icon: TriangleAlert,
-    titleClass: "text-amber-950",
-    cardClass:
-      "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-amber-500 border-amber-200/80 bg-white/95 text-slate-800 backdrop-blur-sm",
-    iconWrapClass: "bg-amber-50 text-amber-600 ring-1 ring-amber-100",
+    titleClass: "text-foreground font-bold",
+    cardClass: "border-border bg-card text-foreground",
+    iconWrapClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
     buttonClass: "bg-amber-600 hover:bg-amber-700 text-white",
   },
   info: {
     icon: Info,
-    titleClass: "text-sky-950",
-    cardClass:
-      "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-sky-500 border-sky-200/80 bg-white/95 text-slate-800 backdrop-blur-sm",
-    iconWrapClass: "bg-sky-50 text-sky-600 ring-1 ring-sky-100",
-    buttonClass: "bg-blue-600 hover:bg-blue-700 text-white",
+    titleClass: "text-foreground font-bold",
+    cardClass: "border-border bg-card text-foreground",
+    iconWrapClass: "bg-primary/10 text-primary border border-primary/20",
+    buttonClass: "bg-primary hover:bg-primary/90 text-primary-foreground",
   },
   success: {
     icon: CheckCircle2,
-    titleClass: "text-emerald-950",
-    cardClass:
-      "before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-emerald-500 border-emerald-200/80 bg-white/95 text-slate-800 backdrop-blur-sm",
-    iconWrapClass: "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100",
+    titleClass: "text-foreground font-bold",
+    cardClass: "border-border bg-card text-foreground",
+    iconWrapClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
     buttonClass: "bg-emerald-600 hover:bg-emerald-700 text-white",
   },
   confirm: {
     icon: AlertTriangle,
-    titleClass: "text-slate-900",
-    cardClass: "border-slate-200 bg-white text-slate-900",
-    iconWrapClass: "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
-    buttonClass: "bg-slate-900 hover:bg-slate-800 text-white",
+    titleClass: "text-foreground font-bold",
+    cardClass: "border-border bg-card text-foreground",
+    iconWrapClass: "bg-muted text-foreground-secondary border border-border",
+    buttonClass: "bg-primary hover:bg-primary/90 text-primary-foreground",
   },
 };
 
