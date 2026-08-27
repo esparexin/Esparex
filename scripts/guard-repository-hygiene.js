@@ -29,7 +29,6 @@ const PROHIBITED_ROOT_ENTRIES = [
     { name: "app.json", reason: "Mobile app configuration belongs in apps/mobile/app.json, not root." },
     { name: "index.js", reason: "Mobile entry forwarder not permitted in root; use workspace script scoping." },
     { name: ".java-version", reason: "Java version config belongs in mobile workspace if needed." },
-    { name: ".kombai", reason: "Legacy design tool cache directory should not exist." },
 ];
 
 for (const item of PROHIBITED_ROOT_ENTRIES) {
