@@ -335,7 +335,7 @@ export function StepAddress({
                         placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                         maxLength={300}
                         rows={2}
-                        className="min-h-[64px] text-sm"
+                        className="min-h-[64px] text-body-lg md:text-body"
                         aria-invalid={Boolean(formData.errors?.address)}
                     />
                 </Field>

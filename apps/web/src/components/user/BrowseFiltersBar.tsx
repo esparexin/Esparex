@@ -102,7 +102,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               id={inputId}
               aria-label={searchAriaLabel}
               placeholder={searchPlaceholder}
-              className="pl-9 h-9 text-small rounded-xl bg-background border-input"
+              className="pl-9 h-9 text-body-lg md:text-body rounded-xl bg-background border-input"
               value={inputValue}
               onChange={(event) => onInputChange(event.target.value)}
             />
@@ -207,7 +207,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                     placeholder="Min Price"
                     value={localMin}
                     onChange={(e) => setLocalMin(e.target.value)}
-                    className="h-9 text-small rounded-xl border-input"
+                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
                   />
                   <span className="text-muted-foreground">-</span>
                   <Input
@@ -215,7 +215,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                     placeholder="Max Price"
                     value={localMax}
                     onChange={(e) => setLocalMax(e.target.value)}
-                    className="h-9 text-small rounded-xl border-input"
+                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
                   />
                 </div>
 

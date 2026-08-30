@@ -66,7 +66,7 @@ export function LocationSelectorPanel({
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Search city, area, district..."
-                        className="h-11 sm:h-10 rounded-xl pl-9 pr-9 text-caption sm:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+                        className="h-11 sm:h-10 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={onKeyDown}

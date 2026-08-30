@@ -118,7 +118,7 @@ export function LoginOtpStep({
               <FieldControl animateOnError>
                 <Input
                   placeholder="Enter your name"
-                  className="h-10 text-caption font-medium border-border rounded-xl"
+                  className="h-10 text-body-lg md:text-body font-medium border-border rounded-xl"
                   disabled={isBlocked || isLocked}
                   autoComplete="name"
                   {...field}

@@ -35,12 +35,12 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
     const fieldType = getFilterType(filter);
     if (fieldType === "textarea") {
         return <Field key={filter.id} label={filter.name} labelClassName="text-xs sm:text-sm font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
-            <Textarea value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="min-h-24 rounded-xl border border-slate-200 focus:border-primary text-sm font-normal sm:font-medium placeholder:text-xs sm:placeholder:text-sm" />
+            <Textarea value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="min-h-24 rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal sm:font-medium placeholder:text-caption sm:placeholder:text-body" />
         </Field>;
     }
     if (fieldType === "number") {
         return <Field key={filter.id} label={filter.name} labelClassName="text-xs sm:text-sm font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
-            <Input type="number" min={filter.min} max={filter.max} value={typeof value === "number" || typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value === "" ? "" : Number(e.target.value))} className="h-11 rounded-xl border border-slate-200 focus:border-primary text-sm font-normal sm:font-medium placeholder:text-xs sm:placeholder:text-sm" />
+            <Input type="number" min={filter.min} max={filter.max} value={typeof value === "number" || typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value === "" ? "" : Number(e.target.value))} className="h-11 rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal sm:font-medium placeholder:text-caption sm:placeholder:text-body" />
         </Field>;
     }
     if (fieldType === "radio" && filter.options?.length) {
@@ -57,7 +57,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
     if (fieldType === "select" && filter.options?.length) {
         return <Field key={filter.id} label={filter.name} labelClassName="text-xs sm:text-sm font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <Select value={typeof value === "string" ? value : undefined} onValueChange={(nv) => updateAttribute(filter.id, nv)}>
-                <SelectTrigger className="h-11 rounded-xl border border-slate-200 bg-white font-normal sm:font-medium text-sm"><SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} /></SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl border border-border bg-white font-normal sm:font-medium text-body-lg md:text-body"><SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} /></SelectTrigger>
                 <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border border-slate-200 shadow-xl">
                     {filter.options.map((opt) => <SelectItem key={opt.value} value={opt.value} className="text-sm font-medium">{opt.label}</SelectItem>)}
                 </SelectContent>
@@ -85,6 +85,6 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
         </Field>;
     }
     return <Field key={filter.id} label={filter.name} labelClassName="text-xs sm:text-sm font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
-        <Input value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="h-11 rounded-xl border border-slate-200 focus:border-primary text-sm font-normal sm:font-medium placeholder:text-xs sm:placeholder:text-sm" />
+        <Input value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="h-11 rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal sm:font-medium placeholder:text-caption sm:placeholder:text-body" />
     </Field>;
 }

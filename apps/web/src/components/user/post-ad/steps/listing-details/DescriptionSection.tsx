@@ -41,7 +41,7 @@ export function DescriptionSection() {
                                 rows={3}
                                 placeholder="Describe the condition, issues, and what's included..."
                                 maxLength={MAX_AD_DESCRIPTION_CHARS}
-                                className="min-h-[88px] text-body font-normal border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 py-2.5 px-3 placeholder:text-caption sm:placeholder:text-body leading-relaxed"
+                                className="min-h-[88px] text-body-lg md:text-body font-normal border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary py-2.5 px-3 placeholder:text-caption sm:placeholder:text-body leading-relaxed"
                             />
                         </FieldControl>
                         <div className="flex justify-between items-start mt-1">

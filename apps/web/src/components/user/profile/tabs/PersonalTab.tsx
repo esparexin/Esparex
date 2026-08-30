@@ -201,7 +201,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                             <Label htmlFor="profile-name" className="text-caption font-semibold text-foreground-secondary">
                                 Full name <span className="text-destructive">*</span>
                             </Label>
-                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-10 text-caption sm:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary" {...form.register("name")} />
+                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-10 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary" {...form.register("name")} />
                             <FormError message={nameError} />
                         </div>
 
@@ -209,7 +209,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                             <Label htmlFor="profile-mobile" className="text-caption font-semibold text-foreground-secondary">Mobile number</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground-subtle" />
-                                <Input id="profile-mobile" type="tel" value={formattedMobile} readOnly disabled className="h-10 text-caption sm:text-body pl-10 pr-3.5 rounded-xl border-border bg-muted text-foreground font-medium cursor-not-allowed" />
+                                <Input id="profile-mobile" type="tel" value={formattedMobile} readOnly disabled className="h-10 text-body-lg md:text-body pl-10 pr-3.5 rounded-xl border-border bg-muted text-foreground font-medium cursor-not-allowed" />
                             </div>
                         </div>
 

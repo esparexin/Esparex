@@ -110,7 +110,7 @@ export function HeaderLocation({
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                className="min-w-0 flex-1 bg-transparent border-0 p-0 text-body font-medium text-foreground placeholder:text-foreground-subtle focus:outline-none truncate cursor-text"
+                className="min-w-0 flex-1 bg-transparent border-0 p-0 text-body-lg md:text-body font-medium text-foreground placeholder:text-foreground-subtle focus:outline-none truncate cursor-text"
                 aria-label="Location search and selection"
                 aria-expanded={isOpen}
             />
