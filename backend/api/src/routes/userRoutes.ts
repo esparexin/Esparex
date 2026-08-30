@@ -67,21 +67,21 @@ const upload = createUploadMiddleware({
 });
 
 router.get('/me', searchLimiter, protect, userController.getMe);
-router.get('/:id/profile', validateObjectId, searchLimiter, userController.getUserProfileById);
-router.post('/:id/block', protect, validateObjectId, mutationLimiter, userController.blockUser);
-router.delete('/:id/block', protect, validateObjectId, mutationLimiter, userController.unblockUser);
+router.get('/:id/profile', searchLimiter, validateObjectId, userController.getUserProfileById);
+router.post('/:id/block', mutationLimiter, protect, validateObjectId, userController.blockUser);
+router.delete('/:id/block', mutationLimiter, protect, validateObjectId, userController.unblockUser);
 router.get('/me/wallet', searchLimiter, protect, walletController.getWalletSummary);
 router.get('/me/posting-balance', searchLimiter, protect, walletController.getPostingBalance);
 router.get('/me/benefits', searchLimiter, protect, userController.resolveUserBenefits);
 router.get('/benefits/resolve', searchLimiter, protect, userController.resolveUserBenefits);
 router.get('/me/transactions', searchLimiter, protect, walletController.getTransactionHistory);
 router.get('/me/boosts', searchLimiter, protect, boostController.getMyBoosts);
-router.patch('/me', protect, mutationLimiter, upload.single('profilePhoto'), validateRequest(updateUserProfileSchema), userController.updateMe);
-router.delete('/me', protect, mutationLimiter, validateRequest(deleteAccountSchema), userController.deleteMe);
+router.patch('/me', mutationLimiter, protect, upload.single('profilePhoto'), validateRequest(updateUserProfileSchema), userController.updateMe);
+router.delete('/me', mutationLimiter, protect, validateRequest(deleteAccountSchema), userController.deleteMe);
 
 // --- Saved Ads ---
-router.post('/saved-ads', protect, mutationLimiter, validateRequest(saveAdSchema), savedAdController.saveAd);
-router.delete('/saved-ads/:adId', protect, mutationLimiter, validateRequest({ params: savedAdParamSchema }), savedAdController.unsaveAd);
+router.post('/saved-ads', mutationLimiter, protect, validateRequest(saveAdSchema), savedAdController.saveAd);
+router.delete('/saved-ads/:adId', mutationLimiter, protect, validateRequest({ params: savedAdParamSchema }), savedAdController.unsaveAd);
 router.get('/saved-ads', searchLimiter, protect, validateRequest({ query: getSavedAdsQuerySchema }), savedAdController.getSavedAds);
 
 export default router;

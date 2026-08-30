@@ -1,7 +1,7 @@
 import express from 'express';
 import * as businessController from '../controllers/business';
 import { protect, extractUser } from '../middleware/authMiddleware';
-import { mutationLimiter } from '../middleware/rateLimiter';
+import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 import { validateRequest } from '../middleware/validateRequest';
@@ -39,7 +39,7 @@ const businessUpload = createUploadMiddleware({
 
 
 // GET /api/v1/businesses - List businesses (Public)
-router.get('/', validateRequest({ query: publicBusinessQuerySchema }), businessController.getBusinesses);
+router.get('/', searchLimiter, validateRequest({ query: publicBusinessQuerySchema }), businessController.getBusinesses);
 
 // POST /api/v1/businesses - Register a new business
 router.post('/', mutationLimiter, protect, validateRequest(createBusinessSchema), idempotencyMiddleware, businessController.registerBusiness);
@@ -51,13 +51,13 @@ router.post('/', mutationLimiter, protect, validateRequest(createBusinessSchema)
 router.post('/upload', mutationLimiter, protect, businessUpload.single('file'), uploadFile);
 
 // GET /api/v1/businesses/me - Get the current user's active business
-router.get('/me', protect, businessController.getMyBusiness);
+router.get('/me', searchLimiter, protect, businessController.getMyBusiness);
 
 // DELETE /api/v1/businesses/me - Withdraw pending business application
 router.delete('/me', mutationLimiter, protect, businessController.withdrawBusiness);
 
 // GET /api/v1/businesses/me/stats - Get my business stats
-router.get('/me/stats', protect, businessController.getMyBusinessStats);
+router.get('/me/stats', searchLimiter, protect, businessController.getMyBusinessStats);
 
 // Lifecycle Actions (User-owned)
 router.post('/me/deactivate', mutationLimiter, protect, businessController.deactivateBusiness);
@@ -67,24 +67,24 @@ router.post('/:id/renew', mutationLimiter, protect, businessController.renewBusi
 
 
 // GET /api/v1/businesses/:id/stats - Get public business stats by ID/slug
-router.get('/:id/stats', validateIdOrSlug('id'), businessController.getBusinessStatsById);
+router.get('/:id/stats', searchLimiter, validateIdOrSlug('id'), businessController.getBusinessStatsById);
 
 // GET /api/v1/businesses/:id - Get business by ID (Public)
-router.get('/:id', validateIdOrSlug('id'), extractUser, businessController.getBusinessById);
+router.get('/:id', searchLimiter, validateIdOrSlug('id'), extractUser, businessController.getBusinessById);
 
 // PATCH /api/v1/businesses/:id - Update business
 router.patch('/:id', mutationLimiter, validateObjectId, protect, validateRequest(updateBusinessSchema), idempotencyMiddleware, businessController.updateBusiness);
 
 // GET /api/v1/businesses/:id/services - Get business services (Public)
-router.get('/:id/services', validateIdOrSlug('id'), businessController.getBusinessServices);
+router.get('/:id/services', searchLimiter, validateIdOrSlug('id'), businessController.getBusinessServices);
 
 // GET /api/v1/businesses/:id/ads - Get business ads (Public)
-router.get('/:id/ads', validateIdOrSlug('id'), businessController.getBusinessAds);
+router.get('/:id/ads', searchLimiter, validateIdOrSlug('id'), businessController.getBusinessAds);
 
 // GET /api/v1/businesses/:id/spare-parts - Get business spare part listings (Public)
-router.get('/:id/spare-parts', validateIdOrSlug('id'), businessController.getBusinessSpareParts);
+router.get('/:id/spare-parts', searchLimiter, validateIdOrSlug('id'), businessController.getBusinessSpareParts);
 
 // GET /api/v1/businesses/:id/listings - Get business listings (Public/Unified)
-router.get('/:id/listings', validateIdOrSlug('id'), businessController.getBusinessListingsById);
+router.get('/:id/listings', searchLimiter, validateIdOrSlug('id'), businessController.getBusinessListingsById);
 
 export default router;

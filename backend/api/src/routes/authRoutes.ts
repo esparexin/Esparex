@@ -6,7 +6,7 @@
 import express from 'express';
 import { AuthController } from '../controllers/auth';
 import { protect } from '../middleware/authMiddleware';
-import { otpIpLimiter, otpSendLimiter, otpVerifyLimiter } from '../middleware/rateLimiter';
+import { otpIpLimiter, otpSendLimiter, otpVerifyLimiter, mutationLimiter } from '../middleware/rateLimiter';
 import { otpConfigurationCheck } from '../middleware/otpGuard';
 import { fraudMiddleware } from '../middleware/fraudMiddleware';
 import logger from '@esparex/core/utils/logger';
@@ -43,20 +43,20 @@ router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
         hasName: typeof otpBody.name === 'string' && otpBody.name.trim().length > 0
     });
     next();
-}, validateRequest(verifyOtpSchema), otpVerifyLimiter, fraudMiddleware, idempotencyMiddleware, (req, res, next) => AuthController.verify(req, res, next));
+}, otpVerifyLimiter, validateRequest(verifyOtpSchema), fraudMiddleware, idempotencyMiddleware, (req, res, next) => AuthController.verify(req, res, next));
 
 /**
  * @route   POST /api/v1/auth/cancel-otp
  * @desc    Invalidate current OTP session for a mobile number
  * @access  Public
  */
-router.post('/cancel-otp', otpConfigurationCheck, validateRequest(loginSchema), otpIpLimiter, otpSendLimiter, (req, res, next) => AuthController.cancelOtp(req, res, next));
+router.post('/cancel-otp', otpConfigurationCheck, otpIpLimiter, otpSendLimiter, validateRequest(loginSchema), (req, res, next) => AuthController.cancelOtp(req, res, next));
 
 /**
  * @route   POST /api/v1/auth/logout
  * @desc    Clear session cookie
  * @access  Private
  */
-router.post('/logout', protect, (req, res, next) => AuthController.logout(req, res, next));
+router.post('/logout', mutationLimiter, protect, (req, res, next) => AuthController.logout(req, res, next));
 
 export default router;
