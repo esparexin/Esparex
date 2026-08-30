@@ -55,29 +55,30 @@ const handleGone = (options: DeprecationOptions): RequestHandler => {
  */
 const handleRedirect = (fromPrefix: string, toPrefix: string, options: Partial<DeprecationOptions> = {}): RequestHandler => {
     return (req: Request, res: Response) => {
-        const originalPath = req.originalUrl || req.url || fromPrefix;
-        const successorPath = originalPath.replace(new RegExp(`^${fromPrefix}(?=/|$)`), toPrefix);
         const sunsetAt = options.sunsetAt || DEFAULT_SUNSET_DATE;
 
         res.setHeader('Deprecation', 'true');
         res.setHeader('Sunset', sunsetAt);
-        res.setHeader('Link', `<${successorPath}>; rel="successor-version"`);
+        res.setHeader('Link', `<${toPrefix}>; rel="successor-version"`);
+        res.setHeader('Location', toPrefix);
         res.setHeader('X-Deprecated-Endpoint', 'true');
 
-        logger.warn(`[DEPRECATION] 308 Redirected: ${req.originalUrl} -> ${successorPath}`, {
+        logger.warn(`[DEPRECATION] 308 Redirected: ${fromPrefix} -> ${toPrefix}`, {
             method: req.method,
-            originalUrl: req.originalUrl,
-            successorPath,
-            fromPrefix,
-            toPrefix
+            path: req.originalUrl,
+            toPrefix,
+            sunsetAt
         });
 
-        // Validate relative redirect target to prevent open redirect vulnerabilities
-        const safePath = successorPath.startsWith('/') && !successorPath.startsWith('//') && !successorPath.includes('://')
-            ? successorPath
-            : toPrefix;
-
-        res.redirect(308, safePath);
+        res.status(308).json({
+            success: false,
+            error: `This endpoint has moved permanently. Please use ${toPrefix} instead.`,
+            code: 'ENDPOINT_MOVED',
+            deprecated: true,
+            successor: toPrefix,
+            sunsetAt,
+            status: 308
+        });
     };
 };
 
