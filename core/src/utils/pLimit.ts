@@ -37,3 +37,15 @@ export const pLimit = (concurrency: number): LimitFunction => {
             }
         });
 };
+
+/**
+ * Shared concurrency cap for all admin bulk moderation operations.
+ *
+ * Applied uniformly to:
+ *   - Listing bulk approve / reject / deactivate / expire / extend
+ *   - Business bulk approve / reject / deactivate / expire / renew
+ *
+ * Centralised here to prevent independent re-declarations diverging over time.
+ * Increase with caution — higher values raise DB connection pressure under load.
+ */
+export const ADMIN_BULK_CONCURRENCY = 5;
