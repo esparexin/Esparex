@@ -72,7 +72,12 @@ const handleRedirect = (fromPrefix: string, toPrefix: string, options: Partial<D
             toPrefix
         });
 
-        res.redirect(308, successorPath);
+        // Validate relative redirect target to prevent open redirect vulnerabilities
+        const safePath = successorPath.startsWith('/') && !successorPath.startsWith('//') && !successorPath.includes('://')
+            ? successorPath
+            : toPrefix;
+
+        res.redirect(308, safePath);
     };
 };
 

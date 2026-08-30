@@ -9,11 +9,13 @@ const buildApp = () => {
     app.use(express.json());
     app.use(cookieParser());
 
-    app.post("/api/v1/admin/auth/login", (_req, res) => {
+    const testLimiter = (_req: any, _res: any, next: any) => next();
+    app.post("/api/v1/admin/auth/login", testLimiter, (_req, res) => {
         res.status(400).json({ success: false, error: "Invalid credentials" });
     });
 
     const protectedRouter = express.Router();
+    protectedRouter.use(testLimiter);
     protectedRouter.use(requireAdmin);
     protectedRouter.get("/dashboard/stats", (_req, res) => res.json({ success: true }));
     protectedRouter.get("/users", (_req, res) => res.json({ success: true }));

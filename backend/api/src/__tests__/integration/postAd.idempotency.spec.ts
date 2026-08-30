@@ -100,7 +100,8 @@ describe('POST /api/v1/ads idempotency integration', () => {
             req.user = { _id: userId } as Request['user'];
             next();
         });
-        app.post('/api/v1/ads', enforceCreateAdIdempotency, (req: Request, res: Response) => {
+        const testLimiter = (_req: any, _res: any, next: any) => next();
+        app.post('/api/v1/ads', testLimiter, enforceCreateAdIdempotency, (req: Request, res: Response) => {
             return res.status(201).json({
                 success: true,
                 data: { id: 'ad-123', title: req.body.title },
