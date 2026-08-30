@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 export default function SiteMapPage() {
     return (
         <InfoPage title="Sitemap" containerVariant="md">
-            <div className="space-y-6 not-prose">
+            <div className="flex flex-col gap-6 not-prose">
                 <p className="text-body text-foreground-secondary leading-relaxed">
                     Quick directory of all public sections, search categories, support documentation, and policy pages across the Esparex platform.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[200px]">
                     {/* Marketplace & Discovery */}
                     <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <h2 className="font-bold mb-3 text-body text-foreground">Marketplace</h2>
-                        <ul className="space-y-2 text-caption">
+                        <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/" className="text-foreground-secondary hover:text-primary transition-colors block">Home</Link></li>
                             <li><Link href="/search" className="text-foreground-secondary hover:text-primary transition-colors block">Browse All Ads</Link></li>
                             <li><Link href="/spare-parts" className="text-foreground-secondary hover:text-primary transition-colors block">Spare Parts Catalog</Link></li>
@@ -38,7 +38,7 @@ export default function SiteMapPage() {
                     {/* Electronics Categories */}
                     <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <h2 className="font-bold mb-3 text-body text-foreground">Categories</h2>
-                        <ul className="space-y-2 text-caption">
+                        <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/category/mobile-phones" className="text-foreground-secondary hover:text-primary transition-colors block">Mobile Phones</Link></li>
                             <li><Link href="/category/tablets" className="text-foreground-secondary hover:text-primary transition-colors block">Tablets</Link></li>
                             <li><Link href="/category/laptops" className="text-foreground-secondary hover:text-primary transition-colors block">Laptops &amp; Computers</Link></li>
@@ -50,7 +50,7 @@ export default function SiteMapPage() {
                     {/* Support & Guides */}
                     <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <h2 className="font-bold mb-3 text-body text-foreground">Support &amp; Company</h2>
-                        <ul className="space-y-2 text-caption">
+                        <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/about" className="text-foreground-secondary hover:text-primary transition-colors block">About Esparex</Link></li>
                             <li><Link href="/how-it-works" className="text-foreground-secondary hover:text-primary transition-colors block">How It Works</Link></li>
                             <li><Link href="/faq" className="text-foreground-secondary hover:text-primary transition-colors block">Help Center &amp; FAQ</Link></li>
@@ -62,7 +62,7 @@ export default function SiteMapPage() {
                     {/* Legal & Compliance */}
                     <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <h2 className="font-bold mb-3 text-body text-foreground">Legal &amp; Compliance</h2>
-                        <ul className="space-y-2 text-caption">
+                        <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/terms" className="text-foreground-secondary hover:text-primary transition-colors block">Terms of Service</Link></li>
                             <li><Link href="/privacy" className="text-foreground-secondary hover:text-primary transition-colors block">Privacy Policy</Link></li>
                             <li><Link href="/terms#prohibited-goods" className="text-foreground-secondary hover:text-primary transition-colors block">Prohibited Content Rules</Link></li>

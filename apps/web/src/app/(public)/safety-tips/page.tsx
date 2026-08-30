@@ -43,18 +43,18 @@ export default function SafetyTipsPage() {
                 </div>
             </div>
 
-            <div className="space-y-8 not-prose">
+            <div className="flex flex-col gap-8 not-prose">
                 {/* Golden Rules: Buyers vs Sellers */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col md:flex-row gap-6">
                     {/* Buyer Rules */}
-                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
                         <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                                 <ShieldCheck className="h-4.5 w-4.5 text-emerald-600" />
                             </div>
                             <h3 className="text-h3 font-bold text-foreground">Golden Rules for Buyers</h3>
                         </div>
-                        <ul className="space-y-3 text-caption text-foreground-secondary">
+                        <ul className="flex flex-col gap-3 text-caption text-foreground-secondary">
                             <li className="flex items-start gap-2">
                                 <span className="text-emerald-600 font-bold mt-0.5">1.</span>
                                 <div>
@@ -76,21 +76,21 @@ export default function SafetyTipsPage() {
                             <li className="flex items-start gap-2">
                                 <span className="text-emerald-600 font-bold mt-0.5">4.</span>
                                 <div>
-                                    <strong className="text-foreground">Verify Compatibility:</strong> Check exact device model numbers (e.g., SM-G991B vs SM-G991U) before purchasing displays, charging flexes, or batteries to ensure fitting.
+                                    <strong className="text-foreground">Verify Model Fitment:</strong> Check exact device model numbers (e.g., SM-G991B vs SM-G991U) before purchasing displays, charging flexes, or batteries to ensure fitting.
                                 </div>
                             </li>
                         </ul>
                     </div>
 
                     {/* Seller Rules */}
-                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
                         <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <Search className="h-4.5 w-4.5 text-primary" />
                             </div>
                             <h3 className="text-h3 font-bold text-foreground">Golden Rules for Sellers</h3>
                         </div>
-                        <ul className="space-y-3 text-caption text-foreground-secondary">
+                        <ul className="flex flex-col gap-3 text-caption text-foreground-secondary">
                             <li className="flex items-start gap-2">
                                 <span className="text-primary font-bold mt-0.5">1.</span>
                                 <div>
@@ -120,7 +120,7 @@ export default function SafetyTipsPage() {
                 </div>
 
                 {/* Common Scams to Watch Out For */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center">
                             <CreditCard className="h-4.5 w-4.5 text-destructive" />
@@ -128,29 +128,29 @@ export default function SafetyTipsPage() {
                         <h3 className="text-h3 font-bold text-foreground">Recognizing Common Fraud Patterns</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption space-y-1.5">
+                    <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[240px]">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption flex flex-col gap-1.5">
                             <p className="font-bold text-foreground">1. Fake UPI Screenshot Simulation</p>
                             <p className="text-foreground-secondary">
                                 Scammers use spoofed mobile apps that generate realistic fake &quot;Payment Successful&quot; screens. <strong>Defense:</strong> Check your own bank account balance or wait for your bank&apos;s confirmation SMS before releasing merchandise.
                             </p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption space-y-1.5">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption flex flex-col gap-1.5">
                             <p className="font-bold text-foreground">2. &quot;Scan QR Code to Receive Money&quot; Trap</p>
                             <p className="text-foreground-secondary">
                                 Fraudulent buyers send a QR code claiming it will transfer funds into your wallet once scanned. <strong>Defense:</strong> Entering a UPI PIN or scanning a code ONLY authorizes an outgoing payment from your bank.
                             </p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption space-y-1.5">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption flex flex-col gap-1.5">
                             <p className="font-bold text-foreground">3. Advance Courier / Booking Fee Demand</p>
                             <p className="text-foreground-secondary">
                                 An out-of-town seller offers an unrealistically cheap device and demands an advance courier fee via UPI. Once paid, the seller vanishes. <strong>Defense:</strong> Always transact locally in person.
                             </p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption space-y-1.5">
+                        <div className="p-4 rounded-xl bg-muted/40 border border-border text-caption flex flex-col gap-1.5">
                             <p className="font-bold text-foreground">4. Overpayment / Reversal Scam</p>
                             <p className="text-foreground-secondary">
                                 A scammer claims they accidentally sent extra money and asks you to immediately &quot;refund&quot; the difference before the original fraudulent transfer bounces. <strong>Defense:</strong> Verify all credits with your bank branch directly.
@@ -160,7 +160,7 @@ export default function SafetyTipsPage() {
                 </section>
 
                 {/* Safe Meetup & Physical Testing Checklist */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-4">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
                             <MapPin className="h-4.5 w-4.5 text-violet-600" />
@@ -168,7 +168,7 @@ export default function SafetyTipsPage() {
                         <h3 className="text-h3 font-bold text-foreground">Physical Meetup &amp; Testing Checklist</h3>
                     </div>
 
-                    <div className="space-y-3 text-caption text-foreground-secondary">
+                    <div className="flex flex-col gap-3 text-caption text-foreground-secondary">
                         <div className="flex items-start gap-2.5">
                             <CheckCircle className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
                             <div>
@@ -197,7 +197,7 @@ export default function SafetyTipsPage() {
                 </section>
 
                 {/* Reporting & Grievance Mechanism */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-3">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                             <Flag className="h-4.5 w-4.5 text-primary" />
@@ -207,7 +207,7 @@ export default function SafetyTipsPage() {
                     <p className="text-caption text-foreground-secondary leading-relaxed">
                         If you encounter a suspicious listing, counterfeit product, abusive chat message, or fraud attempt on Esparex, report it immediately:
                     </p>
-                    <ol className="list-decimal pl-5 space-y-1.5 text-caption text-foreground-secondary">
+                    <ol className="list-decimal pl-5 flex flex-col gap-1.5 text-caption text-foreground-secondary">
                         <li>Click the <strong>Report</strong> flag icon located on any listing page or in your active chat header.</li>
                         <li>Select the applicable violation reason: <em>Spam, Scam, Prohibited Item, Offensive Content, Misleading Info, or Sold Elsewhere</em>.</li>
                         <li>Provide details and submit. Our Trust &amp; Safety team investigates flagged reports and removes non-compliant listings.</li>

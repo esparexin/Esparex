@@ -32,7 +32,7 @@ export function TermsAndPrivacyScreen() {
           </AppText>
         </Container>
 
-        <Card className="p-4 mb-4 bg-card rounded-xl border border-border space-y-4">
+        <Card className="p-4 mb-4 bg-card rounded-xl border border-border gap-4">
           <View>
             <AppText variant="h3" className="text-foreground font-semibold mb-1">
               1. Platform Nature &amp; Intermediary Role

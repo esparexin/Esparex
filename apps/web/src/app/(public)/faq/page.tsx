@@ -68,7 +68,7 @@ const FAQ_CATEGORIES: FaqCategory[] = [
     {
         id: "buying-safety",
         title: "Buying & Finding Spare Parts",
-        description: "Searching inventory, checking compatibility, chatting with sellers, and safe meetups",
+        description: "Searching inventory, checking device fitment, chatting with sellers, and safe meetups",
         icon: ShoppingBag,
         items: [
             {
@@ -323,7 +323,7 @@ export default function FaqPage() {
                 }}
             />
 
-            <div className="space-y-8 not-prose">
+            <div className="flex flex-col gap-8 not-prose">
                 <p className="text-foreground-secondary text-body leading-relaxed">
                     Everything you need to know about buying electronics spare parts, listing inventory, booking verified technicians, and staying safe on Esparex.
                 </p>
@@ -344,7 +344,7 @@ export default function FaqPage() {
                 </div>
 
                 {/* FAQ Category Sections */}
-                <div className="space-y-8">
+                <div className="flex flex-col gap-8">
                     {FAQ_CATEGORIES.map(category => (
                         <section key={category.id} id={category.id} className="scroll-mt-20">
                             <div className="flex items-start gap-3 mb-3">
@@ -376,7 +376,7 @@ export default function FaqPage() {
                 </div>
 
                 {/* Support Contact Box */}
-                <div className="p-6 bg-card border border-border rounded-2xl text-center shadow-xs space-y-3">
+                <div className="p-6 bg-card border border-border rounded-2xl text-center shadow-xs flex flex-col gap-3">
                     <h3 className="text-body-lg font-bold text-foreground">Still have questions?</h3>
                     <p className="text-caption text-foreground-secondary max-w-md mx-auto leading-relaxed">
                         Our customer support and trust &amp; safety team are ready to assist you with any platform inquiries or technical assistance.

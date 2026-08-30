@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
     return (
         <InfoPage title="Terms of Service" lastUpdated={LEGAL_LAST_UPDATED} containerVariant="md">
-            <div className="space-y-8 text-foreground-secondary text-body leading-relaxed">
+            <div className="flex flex-col gap-8 text-foreground-secondary text-body leading-relaxed">
                 {/* Summary Notice */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border">
                     <p className="text-caption text-foreground-secondary leading-relaxed">
@@ -56,9 +56,9 @@ export default function TermsPage() {
                     <p className="mb-3">
                         Esparex functions strictly as an <strong>online marketplace intermediary</strong> as defined under Section 2(1)(w) and Section 79 of the Information Technology Act, 2000. Our platform provides discovery, catalog search, listing display, and real-time chat communication infrastructure to connect independent buyers, individual sellers, technicians, and verified wholesale suppliers of electronics, smartphone parts, and repair services.
                     </p>
-                    <div className="p-4 rounded-xl bg-card border border-border space-y-2 text-caption">
+                    <div className="p-4 rounded-xl bg-card border border-border flex flex-col gap-2 text-caption">
                         <p className="font-semibold text-foreground">Important Marketplace Disclaimers:</p>
-                        <ul className="list-disc pl-5 space-y-1 text-foreground-secondary">
+                        <ul className="list-disc pl-5 flex flex-col gap-1 text-foreground-secondary">
                             <li>Esparex is <strong>not an auctioneer, retailer, or manufacturer</strong> of the products or services listed on the Platform.</li>
                             <li>Esparex is <strong>not a party to any transaction</strong>, sales contract, delivery arrangement, or repair agreement negotiated between buyers and sellers.</li>
                             <li>We do not take physical custody or title of any listed item, nor do we guarantee the quality, safety, genuineness, legal ownership, or functionality of goods advertised by third-party users.</li>
@@ -69,11 +69,11 @@ export default function TermsPage() {
 
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">3. User Accounts &amp; Identity Verification</h2>
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <p>
                             To post listings, respond to ads, or communicate with other users, you must register for an Esparex account using a valid 10-digit Indian mobile number authenticated via One-Time Password (OTP).
                         </p>
-                        <ul className="list-disc pl-5 space-y-1.5 text-caption">
+                        <ul className="list-disc pl-5 flex flex-col gap-1.5 text-caption">
                             <li><strong>Account Security:</strong> You are solely responsible for maintaining the confidentiality of your mobile authentication codes and the security of devices used to access your account. You agree to notify us immediately of any unauthorized access.</li>
                             <li><strong>Single Account Policy:</strong> Each user is permitted one primary account. Creating duplicate, fraudulent, or automated bot accounts is strictly prohibited and will result in immediate termination of all associated profiles.</li>
                             <li><strong>Business Verification &amp; KYC:</strong> Users registering as a commercial business, wholesale supplier, or repair workshop must provide accurate, government-issued credentials (e.g., GSTIN, Shop &amp; Establishment Act license). Providing counterfeit, expired, or third-party business documents will result in an immediate permanent ban and referral to statutory authorities where appropriate.</li>
@@ -87,7 +87,7 @@ export default function TermsPage() {
                         All listings posted on Esparex must adhere to our standardized quality, safety, and transparency rules:
                     </p>
                     
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">A. Permitted Categories</h3>
                             <p className="text-caption text-foreground-secondary">
@@ -100,7 +100,7 @@ export default function TermsPage() {
                             <p className="text-caption text-foreground-secondary mb-2">
                                 Sellers must explicitly and accurately declare the true condition of every item:
                             </p>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li><strong>OEM / Original:</strong> Official parts produced by or for the original device manufacturer.</li>
                                 <li><strong>Refurbished:</strong> Previously used components restored to full working order with disclosed grade.</li>
                                 <li><strong>Compatible / Aftermarket:</strong> Third-party replacement components. Must NOT be falsely labeled as OEM.</li>
@@ -110,7 +110,7 @@ export default function TermsPage() {
 
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">C. Image &amp; Media Requirements</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li>Sellers must upload clear, original photographs of the <strong>actual item</strong> being sold. Minimum 1 photo, maximum 5 photos (up to 5MB per image).</li>
                                 <li>Stock photos, generic internet renders, or heavily edited images that conceal defects are prohibited.</li>
                                 <li>Images containing phone numbers, URL links, competitor watermarks, QR codes, or misleading text overlays are strictly forbidden and will be rejected by our automated moderation engine.</li>
@@ -119,9 +119,9 @@ export default function TermsPage() {
 
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">D. Content &amp; Pricing Rules</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li><strong>Title:</strong> Minimum 10 characters, maximum 80 characters. Must clearly state the brand, model, and item name. No phone numbers, links, or repetitive keyword spam.</li>
-                                <li><strong>Description:</strong> Minimum 20 characters, maximum 500 characters. Must describe condition, compatibility, included accessories, and faults.</li>
+                                <li><strong>Description:</strong> Minimum 20 characters, maximum 500 characters. Must describe condition, device fitment, included accessories, and faults.</li>
                                 <li><strong>Transparent Pricing:</strong> Prices must be quoted accurately in Indian Rupees (INR). Posting deceptive &quot;₹1&quot; or &quot;Free&quot; placeholder pricing for high-value items is prohibited.</li>
                             </ul>
                         </div>
@@ -134,7 +134,7 @@ export default function TermsPage() {
                         Esparex enforces a zero-tolerance policy against illegal, hazardous, or fraudulent listings. You agree NOT to post, offer, sell, or solicit any of the following on the Platform:
                     </p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-caption">
+                    <div className="flex flex-col md:flex-row gap-3 text-caption">
                         <div className="p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
                             <p className="font-bold text-destructive mb-1">🚫 Stolen &amp; Illicit Goods</p>
                             <p className="text-foreground-secondary">Stolen devices, lost property, blacklisted/blocked devices, or spare parts sourced from illegal salvage or theft.</p>
@@ -164,9 +164,9 @@ export default function TermsPage() {
 
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">6. User Responsibilities &amp; Code of Conduct</h2>
-                    <div className="space-y-3 text-caption">
+                    <div className="flex flex-col gap-3 text-caption">
                         <p className="text-body text-foreground-secondary">All users must conduct themselves with honesty, integrity, and safety:</p>
-                        <ul className="list-disc pl-5 space-y-1.5">
+                        <ul className="list-disc pl-5 flex flex-col gap-1.5">
                             <li><strong>Sellers:</strong> Must promptly update or mark listings as &quot;Sold&quot; when items are no longer available. Must accurately describe warranty coverage and honor agreed repair timelines.</li>
                             <li><strong>Buyers:</strong> Must physically inspect and test devices or replacement parts before completing payment. Do not send advance payments to unknown sellers without inspection.</li>
                             <li><strong>Communication:</strong> All negotiations should take place through the built-in Esparex chat system. Moving conversations to external unmonitored channels reduces our ability to assist in fraud investigations.</li>
@@ -177,7 +177,7 @@ export default function TermsPage() {
 
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">7. Paid Services, Spotlight Ads &amp; No-Refund Policy</h2>
-                    <div className="p-4 rounded-xl bg-card border border-border space-y-3">
+                    <div className="p-4 rounded-xl bg-card border border-border flex flex-col gap-3">
                         <p className="text-body font-semibold text-foreground">
                             Premium Marketplace Features:
                         </p>
@@ -201,7 +201,7 @@ export default function TermsPage() {
                     <p className="mb-2">
                         To maintain trust and safety, Esparex operates a hybrid automated AI and human moderation system:
                     </p>
-                    <ul className="list-disc pl-5 space-y-1.5 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-1.5 text-caption">
                         <li><strong>Automated Screening:</strong> Images and text are evaluated by AI classifiers to flag prohibited goods, nudity, violence, text in images, and duplicate listings.</li>
                         <li><strong>Moderation States:</strong> Listings may be marked as <em>Live</em>, <em>Held for Review</em>, <em>Rejected</em>, or <em>Community Hidden</em> based on moderation scores and user reports.</li>
                         <li><strong>Enforcement Rights:</strong> Esparex reserves the absolute right, without liability or prior notice, to edit, refuse, remove, or deactivate any listing, and to suspend or permanently ban any user account that violates these Terms, community safety, or Indian law.</li>
@@ -210,7 +210,7 @@ export default function TermsPage() {
 
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">9. Intellectual Property &amp; User Content License</h2>
-                    <div className="space-y-3 text-caption">
+                    <div className="flex flex-col gap-3 text-caption">
                         <p>
                             <strong>Esparex IP:</strong> All platform software, user interface design, logos, icons, trademarks, databases, and proprietary algorithms are the exclusive property of {LEGAL_COMPANY_NAME} and protected under Indian and international intellectual property laws.
                         </p>
@@ -225,14 +225,14 @@ export default function TermsPage() {
 
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">10. Disclaimer of Warranties &amp; Limitation of Liability</h2>
-                    <div className="p-4 rounded-xl bg-card border border-border space-y-3 text-caption text-foreground-secondary">
+                    <div className="p-4 rounded-xl bg-card border border-border flex flex-col gap-3 text-caption text-foreground-secondary">
                         <p>
                             <strong>&quot;AS IS&quot; Basis:</strong> The Esparex Platform is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind, whether express, implied, statutory, or otherwise, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, non-infringement, or uninterrupted availability.
                         </p>
                         <p>
                             <strong>Limitation of Liability:</strong> To the maximum extent permitted under applicable Indian law, neither Esparex nor its founders, directors, employees, or agents shall be liable for any direct, indirect, incidental, special, consequential, or punitive damages (including loss of profits, data loss, device damage, or personal injury) arising out of or in connection with:
                         </p>
-                        <ul className="list-disc pl-5 space-y-1">
+                        <ul className="list-disc pl-5 flex flex-col gap-1">
                             <li>Your access to or inability to use the Platform;</li>
                             <li>Any transaction, exchange, payment, or interaction conducted between users;</li>
                             <li>The conduct, statements, or listings of any third-party user or technician;</li>
@@ -261,14 +261,14 @@ export default function TermsPage() {
                         For any complaints, report of rule violations, legal notices, or consumer grievances regarding the Platform, please contact our designated Grievance Officer:
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-caption">
-                        <div className="space-y-1">
+                    <div className="flex flex-col md:flex-row gap-4 text-caption">
+                        <div className="flex flex-col gap-1">
                             <p className="font-bold text-foreground">{LEGAL_GRIEVANCE_OFFICER}</p>
                             <p className="text-foreground-secondary">{LEGAL_GRIEVANCE_DESIGNATION}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_NAME}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_LOCATION}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                             <p><strong>Grievance Email:</strong> <a href={`mailto:${LEGAL_GRIEVANCE_EMAIL}`} className="text-primary hover:underline">{LEGAL_GRIEVANCE_EMAIL}</a></p>
                             <p><strong>Support Email:</strong> <a href={`mailto:${LEGAL_SUPPORT_EMAIL}`} className="text-primary hover:underline">{LEGAL_SUPPORT_EMAIL}</a></p>
                             <p><strong>Phone Support:</strong> <a href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`} className="text-primary hover:underline">{LEGAL_SUPPORT_PHONE}</a></p>

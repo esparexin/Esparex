@@ -28,13 +28,13 @@ export const metadata: Metadata = {
 export default function ContactPage() {
     return (
         <InfoPage title="Contact Us &amp; Help Desk" containerVariant="md">
-            <div className="space-y-8 not-prose">
+            <div className="flex flex-col gap-8 not-prose">
                 <p className="text-body text-foreground-secondary leading-relaxed">
                     Have questions about an ad, need assistance with your account, or want to partner as a verified wholesale distributor or repair center? We are here to help.
                 </p>
 
                 {/* Contact Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[240px]">
                     <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                             <Mail className="h-5 w-5 text-primary" />
@@ -71,7 +71,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Business & Partnerships */}
-                <div className="p-6 rounded-2xl bg-card border border-border shadow-xs space-y-3">
+                <div className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3">
                     <h2 className="text-h3 font-bold text-foreground">B2B Wholesale &amp; Partnerships</h2>
                     <p className="text-caption text-foreground-secondary leading-relaxed">
                         Are you an electronic component importer, spare parts wholesaler, or multi-location repair chain? Partner with Esparex to list verified bulk inventory and access thousands of technicians across India.
@@ -85,7 +85,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Statutory Grievance Redressal Desk */}
-                <div className="p-6 rounded-2xl bg-muted/30 border border-border shadow-xs space-y-4">
+                <div className="p-6 rounded-2xl bg-muted/30 border border-border shadow-xs flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                             <ShieldCheck className="h-4.5 w-4.5 text-primary" />
@@ -97,14 +97,14 @@ export default function ContactPage() {
                         In accordance with the Information Technology Act, 2000 and Rule 3(2) of the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and the Digital Personal Data Protection Act, 2023, users may submit legal notices, copyright takedown requests, or consumer complaints to our designated Grievance Officer:
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-card border border-border text-caption">
-                        <div className="space-y-1">
+                    <div className="flex flex-col md:flex-row gap-4 p-4 rounded-xl bg-card border border-border text-caption">
+                        <div className="flex flex-col gap-1">
                             <p className="font-bold text-foreground">{LEGAL_GRIEVANCE_OFFICER}</p>
                             <p className="text-foreground-secondary">{LEGAL_GRIEVANCE_DESIGNATION}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_NAME}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_LOCATION}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                             <p><strong>Grievance Email:</strong> <a href={`mailto:${LEGAL_GRIEVANCE_EMAIL}`} className="text-primary hover:underline font-medium">{LEGAL_GRIEVANCE_EMAIL}</a></p>
                             <p><strong>Direct Helpline:</strong> <a href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`} className="text-primary hover:underline font-medium">{LEGAL_SUPPORT_PHONE}</a></p>
                             <p className="text-foreground-subtle text-tiny mt-2">

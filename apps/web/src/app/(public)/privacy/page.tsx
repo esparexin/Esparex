@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
     return (
         <InfoPage title="Privacy Policy" lastUpdated={LEGAL_LAST_UPDATED} containerVariant="md">
-            <div className="space-y-8 text-foreground-secondary text-body leading-relaxed">
+            <div className="flex flex-col gap-8 text-foreground-secondary text-body leading-relaxed">
                 {/* Notice Badge / Quick Intro */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border">
                     <p className="text-caption text-foreground-secondary leading-relaxed">
@@ -51,10 +51,10 @@ export default function PrivacyPage() {
                         We collect only the minimum necessary information required to provide, secure, and improve the Esparex marketplace:
                     </p>
                     
-                    <div className="space-y-4">
+                    <div className="flex flex-col gap-4">
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">A. Account &amp; Identity Information</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li><strong>Mobile Phone Number:</strong> Used as your primary unique identifier for secure, passwordless OTP (One-Time Password) authentication.</li>
                                 <li><strong>Profile Details:</strong> Your display name, optional email address, and profile photo or avatar.</li>
                                 <li><strong>Account Preferences:</strong> Notification choices, mobile number visibility settings (show, hide, or on-request), and search filter preferences.</li>
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
                             <p className="text-caption text-foreground-secondary mb-2">
                                 For sellers and technicians applying for a <strong>Verified Business Storefront</strong> badge, we collect statutory verification records:
                             </p>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li>Registered business name, trade name, and business category (Retailer, Wholesaler, Repair Center).</li>
                                 <li>Goods and Services Tax Identification Number (GSTIN).</li>
                                 <li>Shop &amp; Establishment Act license or equivalent local trade certificates.</li>
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
 
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">C. Listing &amp; Catalog Content</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li>Product titles, descriptions, condition disclosures (Brand New, Refurbished, OEM Pull, Compatible/Aftermarket, For Parts).</li>
                                 <li>Device brand, model hierarchy, spare part sub-types, pricing in INR, and warranty terms.</li>
                                 <li>Photographs and media uploaded to showcase items or repair workshops.</li>
@@ -86,7 +86,7 @@ export default function PrivacyPage() {
 
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">D. Communications &amp; Safety Metadata</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li>In-app chat messages, offer exchanges, and interaction timestamps sent between buyers and sellers.</li>
                                 <li>Community reports, dispute complaints, and feedback submitted regarding fraudulent listings or abusive behavior.</li>
                             </ul>
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
 
                         <div className="p-4 rounded-xl bg-card border border-border">
                             <h3 className="text-body font-bold text-foreground mb-1">E. Technical, Device &amp; Security Data</h3>
-                            <ul className="list-disc pl-5 space-y-1 text-caption text-foreground-secondary">
+                            <ul className="list-disc pl-5 flex flex-col gap-1 text-caption text-foreground-secondary">
                                 <li>IP addresses, browser type and version, device model, operating system, and network carrier.</li>
                                 <li>Access logs, API request telemetry, crash logs, and referral source URLs.</li>
                                 <li>Approximate geographic location derived from IP or device GPS (when explicitly permitted for hyper-local search).</li>
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
                     <p className="mb-3">
                         We process your personal information under the following lawful bases recognized by Indian law:
                     </p>
-                    <ul className="list-disc pl-5 space-y-2 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-2 text-caption">
                         <li><strong>Contractual Performance:</strong> To create your account, publish your listings, connect you with buyers/sellers, and facilitate communications.</li>
                         <li><strong>User Consent:</strong> For specific features such as precise geolocation, promotional notifications, and optional analytics cookies.</li>
                         <li><strong>Legal &amp; Statutory Compliance:</strong> To comply with mandatory requirements under the Information Technology Act 2000, Intermediary Guidelines 2021, GST laws, CERT-In cybersecurity directives, and lawful law-enforcement requests.</li>
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
                     <p className="mb-2">
                         We use the information we collect for specific, legitimate marketplace purposes:
                     </p>
-                    <ul className="list-disc pl-5 space-y-1.5 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-1.5 text-caption">
                         <li>To authenticate your identity and protect user accounts against unauthorized takeovers.</li>
                         <li>To display relevant spare parts, devices, and repair technicians based on your city or search radius.</li>
                         <li>To facilitate real-time chat communication and price negotiation between prospective buyers and sellers.</li>
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
                         </p>
                     </div>
                     <p className="mb-3">We share data strictly in the following limited circumstances:</p>
-                    <ul className="list-disc pl-5 space-y-2 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-2 text-caption">
                         <li><strong>With Other Platform Users:</strong> Your display name, city/state, member since date, and active public listings are visible to facilitate trades. Your phone number is ONLY shared if you select the &quot;Show&quot; or &quot;On-Request&quot; visibility setting in your profile.</li>
                         <li><strong>With Infrastructure &amp; Cloud Partners:</strong> We utilize secure enterprise cloud infrastructure (e.g., AWS Asia Pacific data centers in India) for data storage, media hosting, and verified SMS/OTP delivery services. All service providers operate under strict confidentiality and security agreements.</li>
                         <li><strong>Statutory Authorities &amp; Law Enforcement:</strong> We disclose information when legally required by a valid court order, warrant, summons, or statutory directive from recognized law enforcement agencies under Indian law.</li>
@@ -203,7 +203,7 @@ export default function PrivacyPage() {
                     <p className="mb-2">
                         Esparex uses cookies and local storage tokens to deliver a reliable, secure user experience:
                     </p>
-                    <ul className="list-disc pl-5 space-y-1.5 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-1.5 text-caption">
                         <li><strong>Essential Cookies:</strong> Required for account authentication, CSRF security, maintaining your active session, and managing cookie consent preferences. These cannot be disabled.</li>
                         <li><strong>Functional Storage:</strong> Stores your local UI preferences, such as Dark/Light theme mode and last-searched city, directly in your browser.</li>
                         <li><strong>Anonymous Analytics:</strong> Aggregated, non-personally identifiable metrics (such as page view counts and ad impression frequencies) to optimize search performance.</li>
@@ -218,7 +218,7 @@ export default function PrivacyPage() {
                     <p className="mb-3">
                         Under the Digital Personal Data Protection Act, 2023, you have clear rights regarding your personal data:
                     </p>
-                    <ul className="list-disc pl-5 space-y-2 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-2 text-caption">
                         <li><strong>Right to Access &amp; Summary:</strong> You may view your profile, active listings, and account metadata at any time in Account Settings.</li>
                         <li><strong>Right to Rectification:</strong> You can edit your name, contact details, shop address, and listing information directly from your dashboard.</li>
                         <li><strong>Right to Erasure (Account Deletion):</strong> You can permanently delete your Esparex account and associated personal data by visiting <em>Account Settings &rarr; Delete Account</em>. Upon confirmation, active listings are removed immediately, and identifiable data is wiped according to our retention schedule.</li>
@@ -232,7 +232,7 @@ export default function PrivacyPage() {
                     <p className="mb-2">
                         We implement multi-layered technical, administrative, and physical security measures to protect your data against unauthorized access, loss, or alteration:
                     </p>
-                    <ul className="list-disc pl-5 space-y-1 text-caption">
+                    <ul className="list-disc pl-5 flex flex-col gap-1 text-caption">
                         <li>All data in transit is encrypted using modern TLS (Transport Layer Security) 1.3 protocols with HTTPS enforcement.</li>
                         <li>Databases are hosted in secured VPC networks with strict role-based access control and principle of least privilege.</li>
                         <li>Automated visual and text classifiers continuously inspect uploads for malicious payloads, spam, and prohibited materials.</li>
@@ -260,14 +260,14 @@ export default function PrivacyPage() {
                         In accordance with the Information Technology Act, 2000 and Rule 3(2) of the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, the designated Grievance Officer for Esparex is:
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-caption">
-                        <div className="space-y-1">
+                    <div className="flex flex-col md:flex-row gap-4 text-caption">
+                        <div className="flex flex-col gap-1">
                             <p className="font-bold text-foreground">{LEGAL_GRIEVANCE_OFFICER}</p>
                             <p className="text-foreground-secondary">{LEGAL_GRIEVANCE_DESIGNATION}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_NAME}</p>
                             <p className="text-foreground-secondary">{LEGAL_COMPANY_LOCATION}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                             <p><strong>Grievance Email:</strong> <a href={`mailto:${LEGAL_GRIEVANCE_EMAIL}`} className="text-primary hover:underline">{LEGAL_GRIEVANCE_EMAIL}</a></p>
                             <p><strong>Support Email:</strong> <a href={`mailto:${LEGAL_SUPPORT_EMAIL}`} className="text-primary hover:underline">{LEGAL_SUPPORT_EMAIL}</a></p>
                             <p><strong>Phone Support:</strong> <a href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`} className="text-primary hover:underline">{LEGAL_SUPPORT_PHONE}</a></p>
