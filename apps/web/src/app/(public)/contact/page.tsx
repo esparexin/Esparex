@@ -2,15 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage } from "@/components/common/InfoPage";
 import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@/icons/IconRegistry";
+import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
-    LEGAL_COMPANY_NAME,
-    LEGAL_COMPANY_LOCATION,
     LEGAL_SUPPORT_EMAIL,
-    LEGAL_GRIEVANCE_EMAIL,
     LEGAL_BUSINESS_EMAIL,
-    LEGAL_SUPPORT_PHONE,
-    LEGAL_GRIEVANCE_OFFICER,
-    LEGAL_GRIEVANCE_DESIGNATION
+    LEGAL_SUPPORT_PHONE
 } from "@/lib/legal";
 
 export const metadata: Metadata = {
@@ -97,20 +93,8 @@ export default function ContactPage() {
                         In accordance with the Information Technology Act, 2000 and Rule 3(2) of the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, and the Digital Personal Data Protection Act, 2023, users may submit legal notices, copyright takedown requests, or consumer complaints to our designated Grievance Officer:
                     </p>
 
-                    <div className="flex flex-col md:flex-row gap-4 p-4 rounded-xl bg-card border border-border text-caption">
-                        <div className="flex flex-col gap-1">
-                            <p className="font-bold text-foreground">{LEGAL_GRIEVANCE_OFFICER}</p>
-                            <p className="text-foreground-secondary">{LEGAL_GRIEVANCE_DESIGNATION}</p>
-                            <p className="text-foreground-secondary">{LEGAL_COMPANY_NAME}</p>
-                            <p className="text-foreground-secondary">{LEGAL_COMPANY_LOCATION}</p>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <p><strong>Grievance Email:</strong> <a href={`mailto:${LEGAL_GRIEVANCE_EMAIL}`} className="text-primary hover:underline font-medium">{LEGAL_GRIEVANCE_EMAIL}</a></p>
-                            <p><strong>Direct Helpline:</strong> <a href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`} className="text-primary hover:underline font-medium">{LEGAL_SUPPORT_PHONE}</a></p>
-                            <p className="text-foreground-subtle text-tiny mt-2">
-                                ⏱️ <em>Grievances are acknowledged within 24 hours and resolved within 15 working days.</em>
-                            </p>
-                        </div>
+                    <div className="p-4 rounded-xl bg-card border border-border">
+                        <LegalGrievanceCard />
                     </div>
                 </div>
 
