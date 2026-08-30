@@ -4,6 +4,7 @@ import { InfoPage } from "@/components/common/InfoPage";
 import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@/icons/IconRegistry";
 import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
+    LEGAL_COMPANY_LOCATION,
     LEGAL_SUPPORT_EMAIL,
     LEGAL_BUSINESS_EMAIL,
     LEGAL_SUPPORT_PHONE

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
     LEGAL_LAST_UPDATED,
-    LEGAL_EFFECTIVE_DATE
+    LEGAL_EFFECTIVE_DATE,
+    LEGAL_COMPANY_NAME
 } from "@/lib/legal";
 
 export const metadata: Metadata = {

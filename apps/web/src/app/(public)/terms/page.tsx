@@ -5,7 +5,9 @@ import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
     LEGAL_LAST_UPDATED,
     LEGAL_EFFECTIVE_DATE,
-    LEGAL_COMPANY_NAME
+    LEGAL_COMPANY_NAME,
+    LEGAL_SUPPORT_EMAIL,
+    LEGAL_GRIEVANCE_EMAIL
 } from "@/lib/legal";
 
 export const metadata: Metadata = {
