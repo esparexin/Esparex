@@ -92,7 +92,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
         const status = normalizeBusinessStatus(rawStatus);
         const reason = typeof statusBody.reason === 'string' ? statusBody.reason.trim() : '';
 
-        if (status === BUSINESS_STATUS.LIVE) {
+        if (status === BUSINESS_STATUS.LIVE || status === BUSINESS_STATUS.ACTIVE) {
             return approveBusinessAccount(req, res);
         }
 
@@ -111,7 +111,7 @@ export const updateBusinessStatus = async (req: Request, res: Response) => {
             return sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business suspended successfully');
         }
 
-        return sendAdminError(req, res, `Invalid status. Allowed: ${BUSINESS_STATUS.LIVE}, ${BUSINESS_STATUS.REJECTED}, ${BUSINESS_STATUS.SUSPENDED}`, 400);
+        return sendAdminError(req, res, `Invalid status. Allowed: ${BUSINESS_STATUS.ACTIVE}, ${BUSINESS_STATUS.REJECTED}, ${BUSINESS_STATUS.SUSPENDED}`, 400);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

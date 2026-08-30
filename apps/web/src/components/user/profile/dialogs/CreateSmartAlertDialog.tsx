@@ -220,7 +220,7 @@ export function CreateSmartAlertDialog({
                                         ? "Derived from selected Model"
                                         : "Enter keywords (e.g., LED TV 55, OLED)"
                                 }
-                                className="h-10.5 rounded-xl text-body border-border shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-muted-foreground/60 disabled:cursor-not-allowed"
+                                className="h-10.5 rounded-xl text-body-lg md:text-body border-border shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-muted-foreground/60 disabled:cursor-not-allowed"
                                 value={formData.keywords || ""}
                                 maxLength={150}
                                 onChange={(e) => updateFormData({ keywords: e.target.value })}

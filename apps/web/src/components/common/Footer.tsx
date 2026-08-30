@@ -33,6 +33,7 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
         links: [
             { label: "About Us", href: "/about", pageKey: "about" },
             { label: "Contact", href: "/contact", pageKey: "contact" },
+            { label: "Sitemap", href: "/site-map", pageKey: "site-map" },
         ],
     },
     {

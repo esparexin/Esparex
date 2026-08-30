@@ -61,7 +61,7 @@ export function ListingPriceField<
                   disabled={disabled || isFree}
                   placeholder={placeholder}
                   className={cn(
-                    "h-11 text-body font-normal sm:font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all placeholder:text-caption sm:placeholder:text-body",
+                    "h-11 text-body-lg md:text-body font-normal sm:font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all placeholder:text-caption sm:placeholder:text-body",
                     showCurrencySymbol && "pl-8",
                     isFree && "bg-muted border-transparent text-muted-foreground"
                   )}

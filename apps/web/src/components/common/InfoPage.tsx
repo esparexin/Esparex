@@ -3,6 +3,7 @@ import { Container } from "@esparex/ui";
 interface InfoPageProps {
     title: string;
     lastUpdated?: string;
+    containerVariant?: "sm" | "md" | "lg" | "xl" | "full";
     children: React.ReactNode;
 }
 
@@ -10,10 +11,10 @@ interface InfoPageProps {
  * InfoPage wrapper for public content routes.
  * Uses a flat Container layout without heavy artificial card borders.
  */
-export function InfoPage({ title, lastUpdated, children }: InfoPageProps) {
+export function InfoPage({ title, lastUpdated, containerVariant = "sm", children }: InfoPageProps) {
     return (
         <article className="w-full py-4 md:py-6">
-            <Container variant="sm" className="space-y-6">
+            <Container variant={containerVariant} className="space-y-6">
                 <div className="border-b border-border pb-4">
                     <h1 className="text-h2 font-bold tracking-tight text-foreground">{title}</h1>
                     {lastUpdated && (

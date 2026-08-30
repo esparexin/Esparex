@@ -33,7 +33,7 @@ export function StepBasicDetails({
                         onChange={(e) => setFormData({ ...formData, name: e.target.value.slice(0, 100) })}
                         placeholder="e.g. Tech Repair Solutions"
                         maxLength={100}
-                        className="h-10 text-sm"
+                        className="h-10 text-body-lg md:text-body"
                         aria-invalid={Boolean(formData.errors?.name)}
                     />
                 </Field>
@@ -50,7 +50,7 @@ export function StepBasicDetails({
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="contact@yourbusiness.com"
-                        className="h-10 text-sm"
+                        className="h-10 text-body-lg md:text-body"
                         aria-invalid={Boolean(formData.errors?.email)}
                     />
                 </Field>
@@ -74,7 +74,7 @@ export function StepBasicDetails({
                     placeholder="Describe your business, specialties, and services..."
                     maxLength={2000}
                     rows={2}
-                    className="min-h-[64px] text-sm"
+                    className="min-h-[64px] text-body-lg md:text-body"
                     aria-invalid={Boolean(formData.errors?.description)}
                 />
             </Field>

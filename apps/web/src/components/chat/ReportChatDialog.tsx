@@ -55,7 +55,7 @@ export function ReportChatDialog({
           <label className="block text-body font-medium text-foreground-secondary">
             Reason
             <select
-              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
               value={reportReason}
               onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
             >
@@ -68,7 +68,7 @@ export function ReportChatDialog({
           <label className="block text-body font-medium text-foreground-secondary">
             Additional details (optional)
             <textarea
-              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
               placeholder="Describe the issue…"

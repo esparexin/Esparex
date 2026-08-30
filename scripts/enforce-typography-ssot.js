@@ -64,6 +64,7 @@ let bannedViolations = [];
 let sizeViolations = [];
 let weightViolations = [];
 let emptySuppressions = [];
+let inputZoomViolations = [];
 
 const checkLineForSuppression = (lines, lineIndex) => {
     // Check current line and preceding line for suppression comment
@@ -144,6 +145,33 @@ const walkDir = (dir) => {
                     }
                 }
             });
+
+            // Mobile Input Zoom Safety Gate (WCAG 2.2 AA / iOS Safari auto-zoom prevention)
+            // Inputs in user-facing applications (apps/web, apps/mobile, packages/ui, packages/mobile-ui)
+            // must render >= 16px (1rem / text-base / text-body-lg) on mobile viewports (< md:)
+            const relPath = path.relative(repoRoot, fullPath);
+            const isUserFacingApp = !fullPath.includes("apps/admin");
+            if (isUserFacingApp) {
+                const inputTagRegex = /<(?:input|textarea|select|Input|Textarea|ControlledInput|ControlledTextarea|SelectTrigger)\b[^>]*className=(?:\{cn\(|["`])([^"`}>]+)[^>]*>/gs;
+                let inputMatch;
+                while ((inputMatch = inputTagRegex.exec(content)) !== null) {
+                    const classStr = inputMatch[1];
+                    const sub16pxRegex = /\b(?<![a-z0-9_-]:)(?:text-xs|text-caption|text-small|text-tiny|text-sm|text-body)(?!-[a-z0-9])\b/;
+                    if (sub16pxRegex.test(classStr)) {
+                        const upToMatch = content.substring(0, inputMatch.index);
+                        const lineNo = upToMatch.split("\n").length;
+                        const suppression = checkLineForSuppression(lines, lineNo - 1);
+                        if (!suppression.suppressed) {
+                            inputZoomViolations.push({
+                                file: relPath,
+                                line: lineNo,
+                                classStr: classStr.trim(),
+                                code: inputMatch[0].replace(/\s+/g, " ").substring(0, 120),
+                            });
+                        }
+                    }
+                }
+            }
         }
     }
 };
@@ -212,8 +240,21 @@ if (weightViolations.length > 0) {
     }
 }
 
+if (inputZoomViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Mobile Input Zoom Vulnerability Detected!");
+    console.error("Form inputs (<input>, <textarea>, <select>) must render with font-size >= 16px on mobile viewports (< md:).");
+    console.error("Using sub-16px font sizes (text-caption, text-xs, text-small, text-tiny, or standalone text-sm/text-body) triggers automatic iOS Safari / WebKit viewport zoom.");
+    console.error("Remedy: Use responsive tokens `text-base md:text-sm` or `text-body-lg md:text-body`.\n");
+    for (const v of inputZoomViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Class:   ${v.classStr}`);
+        console.error(`    Code:    ${v.code}\n`);
+    }
+}
+
 if (hasErrors) {
     process.exit(1);
 } else {
-    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 unexempted arbitrary typography utilities found.");
+    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 unexempted arbitrary typography utilities, 0 mobile input zoom vulnerabilities found.");
 }

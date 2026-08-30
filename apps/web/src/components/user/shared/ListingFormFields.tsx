@@ -74,7 +74,7 @@ export function ListingTitleField({ label, error, required = true, registerProps
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="pr-16 h-11 text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                    className="pr-16 h-11 text-body-lg md:text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-caption font-medium tabular-nums",
@@ -104,7 +104,7 @@ export function ListingDescriptionField({ label = "Description", error, required
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="min-h-[120px] pb-6 text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
+                    className="min-h-[120px] pb-6 text-body-lg md:text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 bottom-2 text-caption font-medium tabular-nums",

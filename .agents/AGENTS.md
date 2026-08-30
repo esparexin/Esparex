@@ -62,6 +62,36 @@ In Zod, `.optional()` permits `undefined`, but evaluates `""` as an active strin
 
 ---
 
+# 🚨 MOBILE FORM INPUT FONT-SIZE & VIEWPORT ZOOM GOVERNANCE RULE (MANDATORY)
+
+## Core Architectural Principle
+Mobile WebKit / iOS Safari automatically zooms in on any form input (`<input>`, `<textarea>`, `<select>`) whose computed font size is below 16px (1rem). When focus leaves the input, Safari does NOT restore viewport scale, resulting in broken, cropped mobile page layouts.
+
+### Mandatory Rules:
+1. **Zero Sub-16px Inputs on Mobile Viewports**:
+   All editable form controls (`<input>`, `<textarea>`, `<select>`, `<SelectTrigger>`) MUST have a computed font-size of at least 16px (`text-base` / `text-body-lg`) on mobile viewports (`< md:` / `< 768px`).
+   
+   ```tsx
+   // ✅ REQUIRED:
+   className="text-base md:text-sm"
+   className="text-body-lg md:text-body"
+   
+   // ❌ FORBIDDEN on <input>, <textarea>, <select>:
+   className="text-caption"   /* 12px - triggers 33% zoom jump */
+   className="text-xs"        /* 12px - triggers 33% zoom jump */
+   className="text-small"     /* 13px - triggers 23% zoom jump */
+   className="text-sm"        /* 14px - triggers 14% zoom jump without md: */
+   className="text-body"      /* 14px - triggers 14% zoom jump without md: */
+   ```
+
+2. **No `maximum-scale=1` / `user-scalable=no` Workarounds**:
+   Viewport metadata MUST NOT disable pinch-to-zoom (a direct violation of WCAG 2.2 AA SC 1.4.4: Resize Text). Font-size normalization at the component/design-token level is the only permissible fix.
+
+3. **Shared Primitive Inheritance**:
+   All feature forms MUST consume `@esparex/ui` primitives (`Input`, `Textarea`, `Select`) and MUST NOT override base font sizes with smaller typography tokens on mobile.
+
+---
+
 # 🚨 GLOBAL ACCESSIBILITY & KEYBOARD NAVIGATION GOVERNANCE RULE (MANDATORY)
 
 ## Applies To

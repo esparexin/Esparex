@@ -1,4 +1,4 @@
-import { pLimit } from '../../../../../utils/pLimit';
+import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../../../../utils/pLimit';
 import { AppError } from '../../../../../utils/AppError';
 import { dispatchTemplatedNotification } from '../../../../notifications/application/NotificationService';
 import Ad from '../../../../../models/Ad';
@@ -8,8 +8,6 @@ import {
     adminApproveListing, adminRejectListing, adminDeactivateListing,
     adminExpireListing, adminExtendListing,
 } from './mutations';
-
-const ADMIN_BULK_CONCURRENCY = 5;
 
 const executeAdminListingsBulkOperation = async <T>(
     ids: string[],

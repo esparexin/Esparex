@@ -22,7 +22,7 @@ export function PersonalProfileBusinessSection({
                 id="profile-business-name"
                 type="text"
                 placeholder="e.g. Acme Spares Pvt Ltd"
-                className="h-10 text-caption sm:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary"
+                className="h-10 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary"
                 {...register("businessName")}
             />
             <FormError id="profile-business-name-error" message={businessNameError} />
