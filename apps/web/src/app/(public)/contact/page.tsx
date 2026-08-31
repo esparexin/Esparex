@@ -9,6 +9,8 @@ import {
     LEGAL_BUSINESS_EMAIL,
     LEGAL_SUPPORT_PHONE
 } from "@/lib/legal";
+import { buildContactPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: "Contact Us & Grievance Redressal | Esparex",
@@ -22,9 +24,15 @@ export const metadata: Metadata = {
     },
 };
 
+const contactPageSchema = buildContactPageSchema();
+
 export default function ContactPage() {
     return (
         <InfoPage title="Contact Us &amp; Help Desk" containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(contactPageSchema) }}
+            />
             <div className="flex flex-col gap-8 not-prose">
                 <p className="text-body text-foreground-secondary leading-relaxed">
                     Have questions about an ad, need assistance with your account, or want to partner as a verified wholesale distributor or repair center? We are here to help.
@@ -32,32 +40,40 @@ export default function ContactPage() {
 
                 {/* Contact Cards Grid */}
                 <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[240px]">
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <Mail className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                             <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">Customer Support</p>
-                            <a href={`mailto:${LEGAL_SUPPORT_EMAIL}`} className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5">
+                            <a
+                                href={`mailto:${LEGAL_SUPPORT_EMAIL}`}
+                                aria-label={`Email customer support at ${LEGAL_SUPPORT_EMAIL}`}
+                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                            >
                                 {LEGAL_SUPPORT_EMAIL}
                             </a>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs">
-                        <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                        <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <Phone className="h-5 w-5 text-emerald-600" />
                         </div>
                         <div>
                             <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">Phone Helpline</p>
-                            <a href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`} className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5">
+                            <a
+                                href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`}
+                                aria-label={`Call helpline at ${LEGAL_SUPPORT_PHONE}`}
+                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                            >
                                 {LEGAL_SUPPORT_PHONE}
                             </a>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs">
-                        <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                        <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <MapPin className="h-5 w-5 text-violet-600" />
                         </div>
                         <div>

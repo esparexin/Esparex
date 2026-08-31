@@ -9,6 +9,8 @@ import {
     LEGAL_SUPPORT_EMAIL,
     LEGAL_GRIEVANCE_EMAIL
 } from "@/lib/legal";
+import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: 'Terms of Service | Esparex',
@@ -22,9 +24,21 @@ export const metadata: Metadata = {
     },
 };
 
+const termsPageSchema = buildWebPageSchema({
+    name: "Terms of Service | Esparex",
+    description: "Review the official Terms of Service, Marketplace User Agreement, and Intermediary Guidelines for Esparex under the IT Act 2000.",
+    url: "https://esparex.in/terms",
+    datePublished: "2026-08-26",
+    dateModified: "2026-08-26",
+});
+
 export default function TermsPage() {
     return (
         <InfoPage title="Terms of Service" lastUpdated={LEGAL_LAST_UPDATED} containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(termsPageSchema) }}
+            />
             <div className="flex flex-col gap-8 text-foreground-secondary text-body leading-relaxed">
                 {/* Summary Notice */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border">
