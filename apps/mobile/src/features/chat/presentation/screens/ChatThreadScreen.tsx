@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { View, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, FlatList, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Screen, Container, AppText, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useChatThread } from '../hooks/useChatThread';
@@ -14,6 +14,13 @@ interface ChatThreadScreenProps {
   currentUserId?: string;
   onBack?: () => void;
 }
+
+const QUICK_REPLIES = [
+  'Is this still available?',
+  "What's your best price?",
+  'Where is the item located?',
+  'Can you share more photos?',
+];
 
 export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
   conversationId,
@@ -150,6 +157,30 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             initialNumToRender={15}
             removeClippedSubviews={true}
           />
+
+          {/* Quick Reply Chips */}
+          <View className="py-2 px-3 border-t border-border bg-card">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              {QUICK_REPLIES.map((reply) => (
+                <TouchableOpacity
+                  key={reply}
+                  onPress={() => setInputText(reply)}
+                  className="bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Quick reply: ${reply}`}
+                >
+                  <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium text-caption">
+                    {reply}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
           {/* Input Composer */}
           <View className="flex-row items-center p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">

@@ -37,6 +37,7 @@ export const useSearch = (initialFilters?: ListingQueryParams) => {
     if (filters.condition) count++;
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) count++;
     if (filters.categoryId) count++;
+    if (filters.verifiedOnly) count++;
     return count;
   }, [filters]);
 
@@ -95,6 +96,10 @@ export const useSearch = (initialFilters?: ListingQueryParams) => {
     setFilters((prev) => ({ ...prev, minPrice: undefined, maxPrice: undefined, page: 1 }));
   }, []);
 
+  const handleRemoveVerifiedOnly = useCallback(() => {
+    setFilters((prev) => ({ ...prev, verifiedOnly: undefined, page: 1 }));
+  }, []);
+
   return {
     query,
     debouncedQuery,
@@ -110,6 +115,7 @@ export const useSearch = (initialFilters?: ListingQueryParams) => {
     handleRemoveSort,
     handleRemoveCondition,
     handleRemovePrice,
+    handleRemoveVerifiedOnly,
     ...result,
   };
 };

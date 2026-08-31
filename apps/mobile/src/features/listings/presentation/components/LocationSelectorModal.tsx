@@ -4,6 +4,7 @@ import { AppText, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { LocationMeta } from '@esparex/contracts';
 import { services } from '../../../../bootstrap';
+import { PopularMetrosChips } from './PopularMetrosChips';
 
 interface LocationSelectorModalProps {
   visible: boolean;
@@ -135,7 +136,7 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
               className={`flex-row items-center p-3.5 rounded-xl mb-2 border ${
                 !selectedLocationId
                   ? 'bg-brand-50 dark:bg-brand-950/40 border-brand-300 dark:border-brand-700'
-                  : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700'
+                  : 'bg-muted border-border'
               }`}
               accessibilityRole="button"
               accessibilityLabel="Select All India"
@@ -144,23 +145,17 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
                 <AppIcon name="MapPin" size={18} color={base.brand[600]} />
               </View>
               <View className="flex-1">
-                <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100">
-                  All India
-                </AppText>
-                <AppText variant="caption" className="text-slate-500 dark:text-slate-400">
-                  Show listings from everywhere across India
-                </AppText>
+                <AppText variant="body" className="font-semibold text-foreground">All India</AppText>
+                <AppText variant="caption" className="text-foreground-secondary">Show listings from everywhere across India</AppText>
               </View>
-              {!selectedLocationId && (
-                <AppIcon name="CheckCircle2" size={18} color={base.brand[600]} />
-              )}
+              {!selectedLocationId && <AppIcon name="CheckCircle2" size={18} color={base.brand[600]} />}
             </TouchableOpacity>
 
             {/* Action 2: Detect My Location (Network/IP) */}
             <TouchableOpacity
               onPress={handleDetectLocation}
               disabled={isDetecting}
-              className="flex-row items-center p-3.5 rounded-xl mb-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700"
+              className="flex-row items-center p-3.5 rounded-xl mb-4 bg-muted border border-border"
               accessibilityRole="button"
               accessibilityLabel="Detect my location via network"
             >
@@ -172,14 +167,18 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
                 )}
               </View>
               <View className="flex-1">
-                <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100">
-                  Detect my location
-                </AppText>
-                <AppText variant="caption" className="text-slate-500 dark:text-slate-400">
-                  Detects your approximate city via network IP
-                </AppText>
+                <AppText variant="body" className="font-semibold text-foreground">Detect my location</AppText>
+                <AppText variant="caption" className="text-foreground-secondary">Detects your approximate city via network IP</AppText>
               </View>
             </TouchableOpacity>
+
+            {/* Popular Metro Cities (Default state when search is empty) */}
+            {searchQuery.trim().length === 0 && (
+              <PopularMetrosChips
+                selectedLocationId={selectedLocationId}
+                onSelect={handleSelectResult}
+              />
+            )}
 
             {/* Search Results List */}
             {isSearching && (

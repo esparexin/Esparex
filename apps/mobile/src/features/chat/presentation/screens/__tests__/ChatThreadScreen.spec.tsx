@@ -122,6 +122,27 @@ describe('ChatThreadScreen Component', () => {
         expect.any(Object)
       );
     });
+  });
 
+  it('fills composer when a quick reply chip is pressed', () => {
+    mockUseChatThread.mockReturnValue({
+      data: sampleMessages,
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    } as any);
+
+    mockUseSendMessage.mockReturnValue({
+      mutate: jest.fn(),
+      isPending: false,
+    } as any);
+
+    const { getByText, getByPlaceholderText } = renderScreen();
+
+    expect(getByText('Is this still available?')).toBeTruthy();
+    fireEvent.press(getByText('Is this still available?'));
+
+    const input = getByPlaceholderText('Type a message...');
+    expect(input.props.value).toBe('Is this still available?');
   });
 });

@@ -10,6 +10,7 @@ export const ROUTES = {
   // Main Stack Screens
   MAIN_TABS: 'MainTabs',
   LISTING_DETAILS: 'ListingDetails',
+  NOTIFICATIONS: 'Notifications',
 
   // Tab Screens
   HOME_TAB: 'HomeTab',
@@ -46,11 +47,13 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   [ROUTES.LOGIN]: undefined;
   [ROUTES.OTP]: { mobile: string; isNewUser?: boolean; name?: string } | undefined;
+  [ROUTES.TERMS_AND_PRIVACY]: undefined;
 };
 
 export type MainStackParamList = {
   [ROUTES.MAIN_TABS]: NavigatorScreenParams<MainTabParamList> | undefined;
   [ROUTES.LISTING_DETAILS]: { id: string };
+  [ROUTES.NOTIFICATIONS]: undefined;
 };
 
 export type MainTabParamList = {

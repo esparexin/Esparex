@@ -1,6 +1,7 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList, ROUTES } from './routes';
+import { navigate } from './navigationRef';
 import { ProfileScreen } from '../features/user/presentation/screens/ProfileScreen';
 import { SettingsScreen } from '../features/user/presentation/screens/SettingsScreen';
 import { MyListingsScreen } from '../features/listings/presentation/screens/MyListingsScreen';
@@ -13,7 +14,13 @@ import { TermsAndPrivacyScreen } from '../features/user/presentation/screens/Ter
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
-function MyListingsWrapper({ navigation }: any) {
+type ProfileNavProp = NativeStackNavigationProp<ProfileStackParamList>;
+
+interface WrapperProps {
+  navigation: ProfileNavProp;
+}
+
+function MyListingsWrapper({ navigation }: WrapperProps) {
   return (
     <MyListingsScreen
       onBack={() => navigation.goBack()}
@@ -21,7 +28,7 @@ function MyListingsWrapper({ navigation }: any) {
   );
 }
 
-function BusinessRegistrationWrapper({ navigation }: any) {
+function BusinessRegistrationWrapper({ navigation }: WrapperProps) {
   return (
     <BusinessRegistrationWizardScreen
       onSuccess={() => navigation.navigate(ROUTES.PROFILE_OVERVIEW)}
@@ -30,7 +37,7 @@ function BusinessRegistrationWrapper({ navigation }: any) {
   );
 }
 
-function BusinessStatusWrapper({ navigation }: any) {
+function BusinessStatusWrapper({ navigation }: WrapperProps) {
   const { data: business } = useBusinessProfile();
   if (!business) {
     return (
@@ -49,7 +56,7 @@ function BusinessStatusWrapper({ navigation }: any) {
   );
 }
 
-function PlanSelectionWrapper({ navigation }: any) {
+function PlanSelectionWrapper({ navigation }: WrapperProps) {
   return (
     <PlanSelectionScreen
       onSuccess={() => navigation.navigate(ROUTES.PROFILE_OVERVIEW)}
@@ -58,7 +65,7 @@ function PlanSelectionWrapper({ navigation }: any) {
   );
 }
 
-function TransactionHistoryWrapper({ navigation }: any) {
+function TransactionHistoryWrapper({ navigation }: WrapperProps) {
   return (
     <TransactionHistoryScreen
       onBack={() => navigation.goBack()}
@@ -66,7 +73,7 @@ function TransactionHistoryWrapper({ navigation }: any) {
   );
 }
 
-function SmartAlertsWrapper({ navigation }: any) {
+function SmartAlertsWrapper({ navigation }: WrapperProps) {
   return (
     <SmartAlertsScreen
       onUpgradePlan={() => navigation.navigate(ROUTES.PLAN_SELECTION)}
@@ -75,11 +82,21 @@ function SmartAlertsWrapper({ navigation }: any) {
   );
 }
 
-function SavedAdsWrapper({ navigation }: any) {
+function SavedAdsWrapper({ navigation }: WrapperProps) {
   return (
     <SavedAdsScreen
-      onPressListing={(id) => navigation.navigate(ROUTES.LISTING_DETAILS, { id })}
-      onExploreListings={() => navigation.navigate(ROUTES.SEARCH_TAB)}
+      onPressListing={(id) =>
+        navigate(ROUTES.MAIN_STACK, {
+          screen: ROUTES.LISTING_DETAILS,
+          params: { id },
+        })
+      }
+      onExploreListings={() =>
+        navigate(ROUTES.MAIN_STACK, {
+          screen: ROUTES.MAIN_TABS,
+          params: { screen: ROUTES.SEARCH_TAB },
+        })
+      }
       onBack={() => navigation.goBack()}
     />
   );

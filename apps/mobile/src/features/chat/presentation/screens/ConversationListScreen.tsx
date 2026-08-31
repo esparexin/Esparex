@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { Screen, Container, AppText, Card, AppButton, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, Card, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useAuth } from '../../../../providers/AuthProvider';
 import { navigate } from '../../../../navigation/navigationRef';
@@ -17,6 +17,7 @@ interface ConversationListScreenProps {
 export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
   onSelectConversation,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   let authStatus: string = 'authenticated';
   try {
     const auth = useAuth();
@@ -25,6 +26,18 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
     authStatus = 'authenticated';
   }
   const { data: conversations, isLoading, isError, refetch, isRefetching } = useConversations();
+
+  const filteredConversations = useMemo(() => {
+    if (!conversations) return [];
+    const trimmed = searchQuery.trim().toLowerCase();
+    if (!trimmed) return conversations;
+    return conversations.filter((item) => {
+      const otherName = (item.seller.name || item.buyer.name || '').toLowerCase();
+      const adTitle = (item.ad?.title || '').toLowerCase();
+      const lastMsg = (item.lastMessage || '').toLowerCase();
+      return otherName.includes(trimmed) || adTitle.includes(trimmed) || lastMsg.includes(trimmed);
+    });
+  }, [conversations, searchQuery]);
 
   const renderConversationItem = useCallback(
     ({ item }: { item: IConversationDTO }) => {
@@ -137,15 +150,40 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
     <Screen edges={['top', 'left', 'right']}>
       <Container className="flex-1 bg-slate-50 dark:bg-slate-950 p-4">
         {/* Header */}
-        <View className="mb-4">
+        <View className="mb-3">
           <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
             Messages & Chats
           </AppText>
         </View>
 
+        {/* Search Conversations Input */}
+        {(conversations && conversations.length > 0) || searchQuery ? (
+          <View className="mb-3">
+            <AppInput
+              placeholder="Search chats, sellers, or parts…"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              leftIcon={<AppIcon name="Search" size={16} color={base.slate[400]} />}
+              rightIcon={
+                searchQuery ? (
+                  <TouchableOpacity
+                    onPress={() => setSearchQuery('')}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear search query"
+                  >
+                    <AppIcon name="X" size={14} color={base.slate[400]} />
+                  </TouchableOpacity>
+                ) : undefined
+              }
+              accessibilityLabel="Search conversations input"
+            />
+          </View>
+        ) : null}
+
         {/* Conversation List */}
         <FlatList
-          data={conversations || []}
+          data={filteredConversations}
           keyExtractor={(item) => item.id}
           renderItem={renderConversationItem}
           showsVerticalScrollIndicator={false}
@@ -157,10 +195,12 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
                   <AppIcon name="MessageSquare" size={28} color={base.slate[400]} />
                 </View>
                 <AppText variant="h3" className="font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  No Messages Yet
+                  {searchQuery ? 'No Chats Found' : 'No Messages Yet'}
                 </AppText>
                 <AppText variant="caption" className="text-slate-500 text-center">
-                  Start inquiring about spare parts or listings to see your chats here.
+                  {searchQuery
+                    ? `No conversations match "${searchQuery}".`
+                    : 'Start inquiring about spare parts or listings to see your chats here.'}
                 </AppText>
               </View>
             ) : null

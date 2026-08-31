@@ -13,6 +13,7 @@ interface FilterBarProps {
   onRemoveCondition?: () => void;
   onRemovePrice?: () => void;
   onRemoveSort?: () => void;
+  onRemoveVerifiedOnly?: () => void;
 }
 
 export const FilterBar = React.memo<FilterBarProps>(({
@@ -23,6 +24,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
   onRemoveCondition,
   onRemovePrice,
   onRemoveSort,
+  onRemoveVerifiedOnly,
 }) => {
   return (
     <View className="py-2.5 px-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
@@ -92,6 +94,22 @@ export const FilterBar = React.memo<FilterBarProps>(({
           >
             <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mr-1">
               Price: ₹{filters.minPrice || 0} - ₹{filters.maxPrice || 'Any'}
+            </AppText>
+            <AppIcon name="X" size={12} color={base.brand[600]} />
+          </TouchableOpacity>
+        )}
+
+        {/* Verified Sellers Only Chip */}
+        {filters.verifiedOnly && (
+          <TouchableOpacity
+            onPress={onRemoveVerifiedOnly}
+            className="flex-row items-center bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
+            accessibilityRole="button"
+            accessibilityLabel="Remove verified businesses only filter"
+          >
+            <AppIcon name="CheckCircle2" size={12} color={base.brand[600]} />
+            <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mx-1">
+              Verified Businesses
             </AppText>
             <AppIcon name="X" size={12} color={base.brand[600]} />
           </TouchableOpacity>
