@@ -35,6 +35,14 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const hideLogin = useCallback(() => {
     setIsOpen(false);
+    if (typeof window !== "undefined" && window.location.search.includes("login=true")) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("login");
+      url.searchParams.delete("callbackUrl");
+      const cleanSearch = url.searchParams.toString();
+      const newUrl = `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`;
+      window.history.replaceState({}, "", newUrl);
+    }
   }, []);
 
   const handleOpenChange = useCallback(
