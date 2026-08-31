@@ -235,32 +235,6 @@ export const assessCrossUserDuplicateRisk = async (
     payloadImageHashes: string[],
     session?: ClientSession
 ): Promise<CrossUserDuplicateRisk> => {
-    const validImageHashes = (payloadImageHashes || []).filter(
-        (h) => typeof h === 'string' && h.trim().length > 0 && h !== 'existing-url' && h !== 'dev-hash' && h !== 'invalid'
-    );
-
-    // 1. Direct Image Hash Collision (Cross-Seller)
-    if (validImageHashes.length > 0) {
-        const imageCollisionQuery: Record<string, unknown> = {
-            imageHashes: { $in: validImageHashes },
-            status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
-            isDeleted: { $ne: true },
-            sellerId: { $ne: sellerId },
-        };
-        if (session) imageCollisionQuery.session = session;
-
-        const imageMatch = await getListingRepository().findOne(imageCollisionQuery as ListingFilter);
-        if (imageMatch) {
-            return {
-                score: 85,
-                matchedAdId: imageMatch.id,
-                reason: 'Identical photo detected from another listing',
-                details: { imageHashMatch: true, matchedAdId: imageMatch.id },
-            };
-        }
-    }
-
-    // 2. Parametric Similarity Check
     const categoryId = toObjectIdString(payload.categoryId);
     const locationId = toObjectIdString(payload.location?.locationId);
     const price = typeof payload.price === 'number' ? payload.price : undefined;
@@ -270,26 +244,36 @@ export const assessCrossUserDuplicateRisk = async (
     }
 
     const priceMargin = price * 0.1;
+    const priceRange = { $gte: price - priceMargin, $lte: price + priceMargin };
+
+    const validImageHashes = (payloadImageHashes || []).filter(
+        (h) => typeof h === 'string' && h.trim().length > 0 && h !== 'existing-url' && h !== 'dev-hash' && h !== 'invalid'
+    );
+
     const query: Record<string, unknown> = {
         categoryId,
         locationId,
-        price: { $gte: price - priceMargin, $lte: price + priceMargin },
+        price: priceRange,
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         sellerId: { $ne: sellerId },
+        ...(validImageHashes.length > 0 ? { imageHashes: { $in: validImageHashes } } : {}),
     };
     if (session) query.session = session;
 
     const potentialMatches = await getListingRepository().findWithLimit(query as ListingFilter, { createdAt: -1 }, 5);
+
     if (potentialMatches.length === 0) {
         return { score: 0, reason: 'No cross-user duplicates detected', details: {} };
     }
 
     const firstMatch = potentialMatches[0];
+    const matchScore = 40 + (validImageHashes.length > 0 ? 40 : 0);
+
     return {
-        score: 40,
+        score: Math.min(matchScore, 80),
         matchedAdId: firstMatch.id,
         reason: 'Similar listings found from other sellers',
-        details: { matchCount: potentialMatches.length, imageHashMatch: false },
+        details: { matchCount: potentialMatches.length, imageHashMatch: validImageHashes.length > 0, priceRange },
     };
 };
 
