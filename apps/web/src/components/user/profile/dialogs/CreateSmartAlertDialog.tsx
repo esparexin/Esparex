@@ -166,7 +166,7 @@ export function CreateSmartAlertDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md sm:max-w-[480px] w-[94vw] max-h-[min(720px,90vh)] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
+            <DialogContent className="max-w-md sm:max-w-[480px] w-[94vw] max-h-[min(720px,calc(var(--visual-viewport-height,100dvh)-2rem))] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
                 {/* Fixed Header */}
                 <DialogHeader className="space-y-1 text-left pb-3 border-b border-border shrink-0">
                     <DialogTitle className="flex items-center gap-2.5 text-body sm:text-headline font-bold">
