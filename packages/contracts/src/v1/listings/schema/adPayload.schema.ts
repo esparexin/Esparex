@@ -120,6 +120,18 @@ export const AdPayloadSchema = BaseAdPayloadSchema.superRefine((data, ctx) => {
         });
     }
 
+    // Reject duplicate images within the same ad
+    if (Array.isArray(data.images) && data.images.length > 0) {
+        const uniqueImages = new Set(data.images);
+        if (uniqueImages.size !== data.images.length) {
+            ctx.addIssue({
+                path: ['images'],
+                message: 'Duplicate photos detected. Please remove duplicate images.',
+                code: z.ZodIssueCode.custom,
+            });
+        }
+    }
+
     // 🔐 GOVERNANCE RULE 4: MODEL/SIZE SELECTION (RELAXED)
     // Model selection is now optional per upcoming UX requirements.
     // If brandId is present, modelId remains optional.
