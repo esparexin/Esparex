@@ -35,7 +35,7 @@ const handleUploadResponse = async (response: Response) => {
             { status: response.status || 500 }
         );
     }
-    return NextResponse.json({ success: true, url });
+    return NextResponse.json({ success: true, url, hash: payload?.data?.hash });
 };
 
 export async function POST(req: Request) {
