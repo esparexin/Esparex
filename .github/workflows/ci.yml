@@ -87,7 +87,7 @@ jobs:
 
       - name: Secret Scanning — Commit Diff Mode (TruffleHog)
         if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before != github.event.after) }}
-        uses: trufflesecurity/trufflehog@v3.97.0
+        uses: trufflesecurity/trufflehog@v3.97.1
         timeout-minutes: 2
         with:
           path: ./
@@ -97,7 +97,7 @@ jobs:
 
       - name: Secret Scanning — Filesystem Mode (TruffleHog)
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.event.before == '0000000000000000000000000000000000000000' || github.event.before == github.event.after)) }}
-        uses: trufflesecurity/trufflehog@v3.97.0
+        uses: trufflesecurity/trufflehog@v3.97.1
         timeout-minutes: 2
         with:
           path: ./
