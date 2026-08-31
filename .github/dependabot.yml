@@ -6,10 +6,20 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
-      dependencies:
+      non-breaking:
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
