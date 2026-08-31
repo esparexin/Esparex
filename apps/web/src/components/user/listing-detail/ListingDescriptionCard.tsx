@@ -91,7 +91,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     className={cn(
                         "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "repair-shops"
-                            ? "border-primary text-primary font-bold bg-primary/5"
+                            ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
@@ -110,7 +110,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     className={cn(
                         "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "description"
-                            ? "border-primary text-primary font-bold bg-primary/5"
+                            ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
@@ -129,7 +129,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                     className={cn(
                         "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                         activeTab === "spare-parts"
-                            ? "border-primary text-primary font-bold bg-primary/5"
+                            ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
                             : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                 >
