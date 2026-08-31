@@ -14,6 +14,8 @@ import {
     LEGAL_GRIEVANCE_EMAIL,
     LEGAL_SUPPORT_PHONE
 } from "@/lib/legal";
+import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: "Trust & Safety Guidelines | Esparex",
@@ -27,9 +29,21 @@ export const metadata: Metadata = {
     },
 };
 
+const safetyTipsSchema = buildWebPageSchema({
+    name: "Trust & Safety Guidelines | Esparex",
+    description: "Essential safety guidelines, scam prevention tips, meetup checklists, and reporting procedures for buying and selling electronics on Esparex.",
+    url: "https://esparex.in/safety-tips",
+    datePublished: "2026-08-26",
+    dateModified: "2026-08-26",
+});
+
 export default function SafetyTipsPage() {
     return (
         <InfoPage title="Trust &amp; Safety Guidelines" containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(safetyTipsSchema) }}
+            />
             {/* Safety Commitment Banner */}
             <div className="flex items-start gap-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 sm:p-5 not-prose shadow-xs">
                 <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">

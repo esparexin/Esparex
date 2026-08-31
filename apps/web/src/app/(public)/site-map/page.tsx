@@ -1,6 +1,8 @@
 import { InfoPage } from "@/components/common/InfoPage";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildCollectionPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: "Sitemap | Esparex",
@@ -14,9 +16,19 @@ export const metadata: Metadata = {
     },
 };
 
+const sitemapSchema = buildCollectionPageSchema(
+    "Sitemap | Esparex",
+    "Explore all marketplace categories, services, support guides, and legal policies on Esparex.",
+    "https://esparex.in/site-map"
+);
+
 export default function SiteMapPage() {
     return (
         <InfoPage title="Sitemap" containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(sitemapSchema) }}
+            />
             <div className="flex flex-col gap-6 not-prose">
                 <p className="text-body text-foreground-secondary leading-relaxed">
                     Quick directory of all public sections, search categories, support documentation, and policy pages across the Esparex platform.

@@ -1,5 +1,7 @@
 import { InfoPage } from "@/components/common/InfoPage";
 import { Metadata } from 'next';
+import { buildAboutPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: 'About Us | Esparex',
@@ -13,11 +15,15 @@ export const metadata: Metadata = {
     },
 };
 
-
+const aboutPageSchema = buildAboutPageSchema();
 
 export default function AboutPage() {
     return (
-        <InfoPage title="About Esparex">
+        <InfoPage title="About Esparex" containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(aboutPageSchema) }}
+            />
             <div className="space-y-6 not-prose">
                 <section>
                     <h2 className="text-h3 font-bold text-foreground mb-3">India&apos;s Trusted Electronics Ecosystem</h2>
