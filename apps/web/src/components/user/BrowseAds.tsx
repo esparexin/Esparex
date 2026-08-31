@@ -25,6 +25,7 @@ import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 const DEFAULT_RADIUS_KM = 50;
 
 interface BrowseAdsProps {
+  browseType?: "ad" | "service" | "spare_part";
   initialCategory?: string;
   initialSearchQuery?: string;
   initialResults?: ListingPageResult;
@@ -42,6 +43,9 @@ const buildAdFilters = ({
   urlLocationId,
   urlLocationLabel,
   radiusKm,
+  minPrice,
+  maxPrice,
+  deviceCondition,
 }: BrowseBuildFiltersArgs): ListingFilters => {
   const filters = buildBaseBrowseFilters<ListingFilters>({
     page,
@@ -49,6 +53,9 @@ const buildAdFilters = ({
     query,
     selectedCategory,
     categories,
+    minPrice,
+    maxPrice,
+    deviceCondition,
   });
 
   filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];
@@ -72,6 +79,7 @@ const buildAdFilters = ({
 };
 
 export function BrowseAds({
+  browseType = "ad",
   initialCategory,
   initialSearchQuery = "",
   initialResults,
@@ -80,18 +88,42 @@ export function BrowseAds({
   const handleFetchPage = useCallback(
     (filters: ListingFilters) =>
       getAdsPage(
-        { ...filters, type: "ad" },
+        { ...filters, type: browseType },
         { endpoint: API_ROUTES.USER.LISTINGS }
       ),
-    []
+    [browseType]
   );
+
+  const typeConfig = {
+    ad: {
+      plural: "ads",
+      placeholder: "Search for mobiles, parts, services...",
+      ariaLabel: "Search marketplace ads",
+      emptyTitle: "No ads found",
+      logScope: "BrowseAds",
+    },
+    service: {
+      plural: "services",
+      placeholder: "Search repair services...",
+      ariaLabel: "Search services",
+      emptyTitle: "No services found",
+      logScope: "BrowseServices",
+    },
+    spare_part: {
+      plural: "spare parts",
+      placeholder: "Search spare parts...",
+      ariaLabel: "Search spare parts",
+      emptyTitle: "No spare parts found",
+      logScope: "BrowseSpareParts",
+    },
+  }[browseType];
 
   const handleGetEmptyDescription = useCallback(
     (searchQuery: string) =>
       searchQuery
-        ? `No ads matching "${searchQuery}".`
-        : "No ads available in this area yet.",
-    []
+        ? `No ${typeConfig.plural} matching "${searchQuery}".`
+        : `No ${typeConfig.plural} available in this area yet.`,
+    [typeConfig.plural]
   );
 
   const handleRenderCard = useCallback(
@@ -115,20 +147,20 @@ export function BrowseAds({
 
   return (
     <BrowseListingsView<Listing, ListingFilters>
-      browseType="ad"
+      browseType={browseType}
       initialCategory={initialCategory}
       initialSearchQuery={initialSearchQuery}
       initialResults={initialResults}
       initialCategories={initialCategories}
-      logScope="BrowseAds"
-      loadErrorMessage="Failed to load ads. Please try again."
+      logScope={typeConfig.logScope}
+      loadErrorMessage={`Failed to load ${typeConfig.plural}. Please try again.`}
       buildFilters={buildAdFilters}
       fetchPage={handleFetchPage}
-      searchAriaLabel="Search marketplace ads"
-      searchPlaceholder="Search for mobiles, parts, services..."
+      searchAriaLabel={typeConfig.ariaLabel}
+      searchPlaceholder={typeConfig.placeholder}
       inputClassName="pl-9 h-11 rounded-xl"
       selectTriggerClassName="flex-1 sm:flex-none sm:w-[160px] h-11 rounded-xl"
-      emptyTitle="No ads found"
+      emptyTitle={typeConfig.emptyTitle}
       getEmptyDescription={handleGetEmptyDescription}
       renderCard={handleRenderCard}
       getItemKey={handleGetItemKey}

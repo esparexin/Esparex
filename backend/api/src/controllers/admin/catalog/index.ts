@@ -19,7 +19,7 @@ export {
     deleteCategory
 } from './catalogCategoryController';
 
-// Export all brand and model functions
+// Export all brand functions
 export {
     getBrands,
     getBrandById,
@@ -30,6 +30,10 @@ export {
     deleteBrand,
     approveBrand,
     rejectBrand,
+} from './adminBrandController';
+
+// Export all model functions
+export {
     getModels,
     getModelById,
     getModelBySlug,
@@ -39,7 +43,7 @@ export {
     approveModel,
     rejectModel,
     toggleModelStatus
-} from './catalogBrandModelController';
+} from './adminModelController';
 
 // Export all spare parts functions
 export {

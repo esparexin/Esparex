@@ -203,16 +203,16 @@ tech-debt-insights.md
 .commandcode/
 
 
-.agents/skills/
-.scratch/
-
 # Playwright
+playwright-report/
 /playwright-report/
+blob-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
 
 # Mobile build outputs (iOS simulator bundle, Android APK, NativeWind types)
+*.app
 *.app/
 *.apk
 *.ipa

@@ -73,13 +73,15 @@ export function ListingDetailSidebar({
     const isActiveSpotlight = Boolean(ad.isSpotlight);
 
     return (
-        <div className="space-y-4">
-            <AdTitlePriceCard
-                ad={ad}
-                categoryLabel={categoryLabel}
-                viewCount={viewCount}
-                variant="desktop"
-            />
+        <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="hidden lg:block">
+                <AdTitlePriceCard
+                    ad={ad}
+                    categoryLabel={categoryLabel}
+                    viewCount={viewCount}
+                    variant="desktop"
+                />
+            </div>
 
             <AdSellerCard
                 ad={ad}

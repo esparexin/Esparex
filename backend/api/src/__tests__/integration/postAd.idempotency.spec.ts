@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import inject from 'light-my-request';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
+import { mutationLimiter } from '../../middleware/rateLimiter';
 import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
 
 jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
@@ -100,7 +101,7 @@ describe('POST /api/v1/ads idempotency integration', () => {
             req.user = { _id: userId } as Request['user'];
             next();
         });
-        app.post('/api/v1/ads', enforceCreateAdIdempotency, (req: Request, res: Response) => {
+        app.post('/api/v1/ads', mutationLimiter, enforceCreateAdIdempotency, (req: Request, res: Response) => {
             return res.status(201).json({
                 success: true,
                 data: { id: 'ad-123', title: req.body.title },

@@ -5,7 +5,7 @@ import path from "path";
 describe("Accessibility Verification (FIND-008 & FIND-009)", () => {
     const webSrcDir = path.resolve(__dirname, "..");
 
-    it("verifies BrowseFilterSidebar has aria-expanded and aria-controls on all 4 accordion toggles", () => {
+    it("verifies BrowseFilterSidebar has aria-expanded and aria-controls on all 3 accordion toggles", () => {
         const filePath = path.join(webSrcDir, "components/user/BrowseFilterSidebar.tsx");
         const content = fs.readFileSync(filePath, "utf8");
 
@@ -16,10 +16,6 @@ describe("Accessibility Verification (FIND-008 & FIND-009)", () => {
         expect(content).toContain('aria-expanded={priceExpanded}');
         expect(content).toContain('aria-controls="filter-price-section"');
         expect(content).toContain('id="filter-price-section"');
-
-        expect(content).toContain('aria-expanded={sellerTypeExpanded}');
-        expect(content).toContain('aria-controls="filter-seller-section"');
-        expect(content).toContain('id="filter-seller-section"');
 
         expect(content).toContain('aria-expanded={conditionExpanded}');
         expect(content).toContain('aria-controls="filter-condition-section"');

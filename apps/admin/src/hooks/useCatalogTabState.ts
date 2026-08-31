@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
-import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
 interface UseCatalogTabStateOptions {
     defaultLimit?: number;

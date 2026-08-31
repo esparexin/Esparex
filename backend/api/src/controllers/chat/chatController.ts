@@ -15,10 +15,11 @@ import {
   conversationListQuerySchema,
   messagesQuerySchema,
   chatUploadUrlSchema,
+  type AllowedChatMimeType,
 } from '@esparex/core/validators/chat.validator';
 import { generatePresignedUploadUrl } from '@esparex/core/utils/s3';
 
-const MIME_TO_EXT: Record<string, string> = {
+const MIME_TO_EXT: Record<AllowedChatMimeType, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
@@ -285,7 +286,7 @@ export const getChatUploadUrl = async (req: Request, res: Response): Promise<voi
     await getConversationForUser(conversationId, userId);
 
     const normalizedMime = contentType.split(';')[0]?.trim().toLowerCase() ?? '';
-    const ext = MIME_TO_EXT[normalizedMime];
+    const ext = normalizedMime in MIME_TO_EXT ? MIME_TO_EXT[normalizedMime as AllowedChatMimeType] : undefined;
     if (!ext) {
       sendErrorResponse(req, res, 400, 'Unsupported attachment type');
       return;

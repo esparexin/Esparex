@@ -14,7 +14,6 @@ const config: Config = {
             fontFamily: TYPOGRAPHY_TOKENS.fontFamily,
             fontSize: {
                 ...TYPOGRAPHY_TOKENS.fontSize,
-                '2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
                 // Standard Tailwind scale harmonization mapped to canonical design tokens
                 xs: TYPOGRAPHY_TOKENS.fontSize['caption']!,
                 sm: TYPOGRAPHY_TOKENS.fontSize['body']!,

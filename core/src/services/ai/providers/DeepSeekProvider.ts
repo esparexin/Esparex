@@ -105,7 +105,7 @@ export class DeepSeekProvider implements AIProvider {
                 latency: res.latency,
                 cached: res.cached,
             };
-        } catch (err) {
+        } catch {
             throw new DeepSeekProviderError('Failed to parse DeepSeek JSON output', 'Validation');
         }
     }

@@ -129,7 +129,7 @@ export function PlanTypeLimitsSection({
           <div>
             <label className={labelCls}>Match Frequency</label>
             <select {...register("matchFrequency")} className={inputCls}>
-              <option value="realtime">Realtime (Instant)</option>
+              <option value="instant">Instant (Realtime)</option>
               <option value="hourly">Hourly</option>
               <option value="daily">Daily</option>
             </select>

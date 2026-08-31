@@ -103,7 +103,7 @@ describe('FeedVisibilityGuard', () => {
             ).toBe(false);
         });
 
-        it('returns false for expired listings', () => {
+        it('returns false for expired listings (status: live but past date)', () => {
             expect(
                 isPublicAdVisible({
                     status: 'live',
@@ -112,5 +112,34 @@ describe('FeedVisibilityGuard', () => {
                 })
             ).toBe(false);
         });
+
+        it('returns false when status is explicitly expired regardless of expiry date', () => {
+            expect(
+                isPublicAdVisible({
+                    status: 'expired',
+                    isDeleted: false,
+                    expiresAt: new Date(Date.now() + 60_000),
+                })
+            ).toBe(false);
+        });
+            const future = new Date(Date.now() + 3600_000);
+            expect(isPublicAdVisible({ status: 'active', isDeleted: false, expiresAt: future })).toBe(true);
+            expect(isPublicAdVisible({ status: 'approved', isDeleted: false, expiresAt: future })).toBe(true);
+            expect(isPublicAdVisible({ status: 'published', isDeleted: false, expiresAt: future })).toBe(true);
+        });
+
+        it('parses ISO string timestamps correctly for expiry checks', () => {
+            const futureIso = new Date(Date.now() + 86400_000).toISOString();
+            const pastIso = new Date(Date.now() - 86400_000).toISOString();
+
+            expect(isPublicAdVisible({ status: 'live', isDeleted: false, expiresAt: futureIso })).toBe(true);
+            expect(isPublicAdVisible({ status: 'live', isDeleted: false, expiresAt: pastIso })).toBe(false);
+        });
+
+        it('returns false for null or undefined input', () => {
+            expect(isPublicAdVisible(null)).toBe(false);
+            expect(isPublicAdVisible(undefined)).toBe(false);
+        });
     });
 });
+

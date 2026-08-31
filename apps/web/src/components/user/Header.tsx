@@ -4,11 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
-  Menu,
-  MapPin,
   Search,
   LogIn,
-  ChevronDown,
   TrendingUp,
 } from "@/icons/IconRegistry";
 
@@ -37,11 +34,11 @@ import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
-import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { HeaderAccountMenu } from "./header/HeaderAccountMenu";
 import { HeaderBusinessButton } from "./header/HeaderBusinessButton";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
+import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
 
 export interface HeaderProps {
   currentPage?: string;
@@ -157,7 +154,7 @@ export function Header({
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
-      className="sticky top-0 z-50 w-full border-b glass shadow-premium pt-[env(safe-area-inset-top)] md:pt-0 relative"
+      className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border/80 shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
@@ -181,7 +178,7 @@ export function Header({
             <Input
               id="header-desktop-search"
               aria-label="Search for mobiles, parts, services"
-              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-2xl shadow-xs text-body"
+              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-2xl shadow-xs text-body-lg md:text-body"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -246,23 +243,14 @@ export function Header({
       </div>
 
       <div className="flex md:hidden flex-col">
-        <div className="flex items-center px-3.5 h-10 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary">
-          <button type="button" onClick={() => setShowLocationSelector(true)} className="flex items-center justify-between w-full h-full text-left hover:text-primary transition-colors cursor-pointer group" aria-label={`Current location: ${resolvedHeaderLocation || DEFAULT_APP_LOCATION.display}. Tap to change location.`}>
-            <div className="flex items-center min-w-0 flex-1 gap-1.5">
-              <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />
-              <span className="truncate text-caption font-medium text-foreground">
-                <span className={`transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
-                  {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
-                </span>
-              </span>
-            </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-1" />
-          </button>
-        </div>
+        <MobileHeaderTopBar
+          isMounted={isMounted}
+          resolvedHeaderLocation={resolvedHeaderLocation}
+          onNavigateHome={() => navigateTo("home")}
+          onOpenLocationSelector={() => setShowLocationSelector(true)}
+          onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
+        />
         <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
-          <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer" onClick={() => setIsMobileDrawerOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </Button>
           {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
             <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
@@ -274,7 +262,7 @@ export function Header({
               <Input
                 id="header-mobile-search"
                 autoFocus={isMobileSearchEditing}
-                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-xl text-body placeholder:text-foreground-subtle"
+                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-xl text-body-lg md:text-body placeholder:text-foreground-subtle"
                 placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

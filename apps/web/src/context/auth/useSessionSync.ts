@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import type { User } from "@/types/User";
 import type { AuthStatus } from "./authTypes";
 
@@ -19,6 +19,8 @@ export function useSessionSync({
   setStatus,
   setError,
 }: UseSessionSyncParams) {
+  const syncedRef = useRef<boolean>(false);
+
   useEffect(() => {
     if (!backendReady) return;
 
@@ -43,10 +45,14 @@ export function useSessionSync({
       setUser(null);
       setStatus("unauthenticated");
       setError(null);
+      syncedRef.current = false;
       return;
     }
 
-    void fetchUser();
+    if (!syncedRef.current) {
+      syncedRef.current = true;
+      void fetchUser();
+    }
 
     window.addEventListener(
       "esparex_auth_update",

@@ -17,25 +17,6 @@ jest.mock('../../middleware/rateLimiter', () => ({
     adminMutationLimiter: (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 
-jest.mock('../../controllers/catalog', () => ({
-    getCategories: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getCategoryCounts: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getCategoryById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getCategorySchema: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getBrands: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getBrandBySlug: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getBrandById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getModels: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getModelBySlug: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getModelById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getSpareParts: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getSparePartById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getServiceTypes: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getServiceTypeById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getScreenSizes: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-    getScreenSizeById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-}));
-
 jest.mock('../../controllers/admin/catalog', () => {
     const handler = (_req: express.Request, res: express.Response) => {
         res.status(200).json({ ok: true });
@@ -51,6 +32,7 @@ jest.mock('../../controllers/admin/catalog', () => {
         updateCategorySchema: handler,
         toggleCategoryStatus: handler,
         getBrands: handler,
+        getBrandBySlug: handler,
         getBrandById: handler,
         createBrand: handler,
         updateBrand: handler,
@@ -59,6 +41,7 @@ jest.mock('../../controllers/admin/catalog', () => {
         approveBrand: handler,
         rejectBrand: handler,
         getModels: handler,
+        getModelBySlug: handler,
         getModelById: handler,
         createModel: handler,
         updateModel: handler,

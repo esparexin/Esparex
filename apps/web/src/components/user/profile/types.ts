@@ -24,11 +24,8 @@ export type DeleteAccountFieldErrors = {
 };
 
 export type NotificationPreferences = {
-  adUpdates: boolean;
-  promotions: boolean;
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  instantAlerts: boolean;
+  enabled: boolean;
+  instantAlerts?: boolean;
 };
 
 export type ProfileUser = User & {
@@ -68,13 +65,15 @@ export type SmartAlertFormData = {
   location: string;
   locationId?: string | null;
   radiusKm: number;
-  notificationChannels: ("email" | "sms" | "push")[];
+  notificationChannels: ("email" | "sms" | "push" | "whatsapp" | "in-app")[];
 };
 
 export type SmartAlertFieldErrors = {
   name?: string;
   keywords?: string;
   category?: string;
+  brand?: string;
+  model?: string;
   location?: string;
   radiusKm?: string;
   notificationChannels?: string;

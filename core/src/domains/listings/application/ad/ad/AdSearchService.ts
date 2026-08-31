@@ -1,7 +1,6 @@
 import { getStatusMatchCriteria } from '../../../../../utils/statusQueryMapper';
 import {
     mongoose,
-    Category,
     Report,
     buildAdFilterFromCriteria,
     getCache,

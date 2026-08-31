@@ -278,12 +278,13 @@ export const getBusinessListings = async (sellerId: string, listingType: string)
 };
 
 export const getBusinessStats = async (userId: string) => {
-    const [totalServices, approvedServices, pendingServices] = await Promise.all([
-        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' } }),
-        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' }, status: { $eq: LISTING_STATUS.LIVE } }),
-        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' }, status: { $eq: LISTING_STATUS.PENDING } }),
+    const [totalServices, totalSpareParts, approvedServices, pendingServices] = await Promise.all([
+        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' }, isDeleted: { $ne: true } }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'spare_part' }, isDeleted: { $ne: true } }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, status: { $eq: LISTING_STATUS.LIVE }, isDeleted: { $ne: true } }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, status: { $eq: LISTING_STATUS.PENDING }, isDeleted: { $ne: true } }),
     ]);
-    return { totalServices, approvedServices, pendingServices, views: 0 };
+    return { totalServices, totalSpareParts, approvedServices, pendingServices, views: 0 };
 };
 
 const NOT_DELETED = { isDeleted: { $ne: true } } as const;

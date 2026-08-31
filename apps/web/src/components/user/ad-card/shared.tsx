@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Zap } from "@/icons/IconRegistry";
+import { Zap } from "@/icons/IconRegistry";
 import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
@@ -208,7 +208,7 @@ export function formatCompactCardDate(dateStr: string | undefined): string {
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-2xs font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
+  "border-0 text-tiny font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -244,7 +244,7 @@ export function getPlanBadge(
       className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
       aria-label="Spotlight listing"
     >
-      <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+      <Zap className="h-2.5 w-2.5" aria-hidden="true" />
       Spotlight
     </Badge>
   );
@@ -339,7 +339,7 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
+        "inline-flex items-center gap-1 text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-red-50 text-red-700 border-red-200",

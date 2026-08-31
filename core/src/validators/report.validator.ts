@@ -1,10 +1,14 @@
 import { z } from 'zod';
+import sanitizeHtml from 'sanitize-html';
 import { commonSchemas, sanitizeString } from './common';
 import { REPORT_REASON_VALUES } from '@esparex/contracts';
 import { REPORT_TARGET_TYPE_VALUES } from '../models/Report';
 
 const optionalTrimmed = (max: number) =>
-    z.string().max(max).transform((val) => val.replace(/<[^>]*>/g, '').trim()).optional();
+    z.string().max(max).transform((val) => sanitizeHtml(val, {
+        allowedTags: [],
+        allowedAttributes: {},
+    }).trim()).optional();
 
 export const createReportSchema = z.object({
     targetType: z.enum(REPORT_TARGET_TYPE_VALUES).optional(),

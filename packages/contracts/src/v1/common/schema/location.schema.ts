@@ -26,7 +26,7 @@ export const LogLocationEventSchema = z.object({
     coordinates: coordinatesSchema.optional(),
     reason: LocationEventReasonSchema,
     eventType: LocationEventTypeSchema.optional(),
-    locationId: z.string().trim().min(1).optional(),
+    locationId: z.union([z.string().trim().min(1), z.literal("")]).optional(),
 }).strict();
 
 export const AppLocationSchema = z.object({
@@ -35,12 +35,12 @@ export const AppLocationSchema = z.object({
     state: z.string().trim().min(1),
     country: z.string().trim().min(1),
     source: LocationEventSourceSchema,
-    locationId: z.string().trim().min(1).optional(),
+    locationId: z.union([z.string().trim().min(1), z.literal("")]).optional(),
     coordinates: coordinatesSchema.optional(),
-    pincode: z.string().trim().min(1).optional(),
+    pincode: z.union([z.string().trim().min(1), z.literal("")]).optional(),
     level: LocationLevelSchema.optional(),
-    name: z.string().trim().min(1).optional(),
-    display: z.string().trim().min(1).optional(),
+    name: z.union([z.string().trim().min(1), z.literal("")]).optional(),
+    display: z.union([z.string().trim().min(1), z.literal("")]).optional(),
     detectedAt: z.number().finite().optional(),
     isAuto: z.boolean().optional(),
     isSnapped: z.boolean().optional(),

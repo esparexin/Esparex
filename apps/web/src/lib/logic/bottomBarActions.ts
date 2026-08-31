@@ -21,7 +21,7 @@ export const getActionBarVariant = (isOwner: boolean, isSold: boolean, status?: 
             // Owner viewing their own sold ad -> Show "Marked as Sold" status bar
             return 'sold-owner'; // Logic maps to existing UI variant which handles sold state
         }
-        if (status === "live") {
+        if (status === "live" || status === "active" || status === "approved" || status === "published") {
             return 'owner';
         }
         return 'hidden';
@@ -34,4 +34,5 @@ export const getActionBarVariant = (isOwner: boolean, isSold: boolean, status?: 
 // Also export specific feature flags if needed
 export const canCall = (isOwner: boolean) => !isOwner;
 export const canEdit = (isOwner: boolean, isSold: boolean) => isOwner && !isSold;
-export const canPromote = (isOwner: boolean, isSold: boolean, status?: string) => isOwner && !isSold && status === "live";
+export const canPromote = (isOwner: boolean, isSold: boolean, status?: string) =>
+    isOwner && !isSold && (status === "live" || status === "active" || status === "approved" || status === "published");

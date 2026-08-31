@@ -44,7 +44,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // Controller Orchestration: Resolve custom brand/model proposal requests prior to Ad creation
         if (body.customBrandName || body.customModelName) {
-            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/services/catalog/CatalogRequestService');
+            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/domains/catalog/application/services/CatalogRequestService');
             const resolved = await resolveCatalogRequestsForSubmission({
                 categoryId: String(body.categoryId || ''),
                 brandId: body.brandId ? String(body.brandId) : undefined,
@@ -79,19 +79,20 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
  */
 export const getPresignedUploadUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { fileType, folder } = req.body as { fileType?: string; folder?: string };
-        if (!fileType) {
+        const body = req.body as { fileType?: string; contentType?: string; folder?: string; adId?: string };
+        const requestedType = body.contentType || body.fileType;
+        if (!requestedType) {
             const { sendErrorResponse } = await import("../../utils/errorResponse");
-            return sendErrorResponse(req, res, 400, 'fileType is required for upload presign.');
+            return sendErrorResponse(req, res, 400, 'contentType (or fileType) is required for upload presign.');
         }
 
         const { generatePresignedUploadUrl } = await import('@esparex/core/utils/s3');
         const user = req.user as AuthUser;
-        const uploadFolder = folder || 'listings';
-        const fileExtension = fileType.split('/')[1] || 'jpg';
+        const uploadFolder = body.folder || 'listings';
+        const fileExtension = requestedType.split('/')[1] || 'jpg';
         const key = `${uploadFolder}/${user._id.toString()}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExtension}`;
 
-        const result = await generatePresignedUploadUrl(key, fileType);
+        const result = await generatePresignedUploadUrl(key, requestedType);
         return sendSuccessResponse(res, result);
     } catch (error) {
         next(error);

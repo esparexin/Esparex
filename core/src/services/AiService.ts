@@ -93,7 +93,7 @@ export const getStatus = async (): Promise<{ available: boolean; reason: string 
 
 export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AIServiceResult> => {
     const t0 = Date.now();
-    const { type, context, image, contextText } = input;
+    const { type, context, contextText } = input;
 
     if (type === 'generate' && !context.brand && !context.model) {
         return toServiceFailure({ ok: false, status: 400, error: 'Brand and Model context are required for generation' });

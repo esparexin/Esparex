@@ -27,7 +27,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
           Credit History
         </h4>
         {pagination && (
-          <span className="text-2xs text-muted-foreground">
+          <span className="text-tiny text-muted-foreground">
             Total Activities: {pagination.total}
           </span>
         )}
@@ -41,7 +41,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
       )}
 
       {isError && (
-        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-2xs flex justify-between items-center">
+        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-tiny flex justify-between items-center">
           <span>Failed to load transaction history.</span>
           <button onClick={() => void refetch()} className="font-bold underline cursor-pointer">
             Retry
@@ -50,15 +50,15 @@ export const CreditLedgerHistoryCard: React.FC = () => {
       )}
 
       {!isLoading && items.length === 0 && (
-        <div className="text-center py-5 text-2xs text-muted-foreground">
+        <div className="text-center py-5 text-tiny text-muted-foreground">
           No credit transactions recorded yet.
         </div>
       )}
 
       {!isLoading && items.length > 0 && (
-        <div className="overflow-x-auto">
+        <div className="max-h-[320px] overflow-y-auto overflow-x-auto relative rounded-lg border border-border/40">
           <table className="w-full text-left text-caption">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
                 <th className="py-2 px-3">Date</th>
                 <th className="py-2 px-3">Type</th>
@@ -106,7 +106,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
 
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-2xs">
+        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-tiny">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}

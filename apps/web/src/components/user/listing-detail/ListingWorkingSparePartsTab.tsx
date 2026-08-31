@@ -111,11 +111,11 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
             id="tabpanel-spare-parts"
             aria-labelledby="tab-spare-parts"
             tabIndex={0}
-            className="space-y-3 focus-visible:outline-none"
+            className="space-y-4 pt-3.5 sm:pt-4 focus-visible:outline-none"
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm md:text-base font-bold text-foreground">Working Spare Parts</h3>
+                    <h3 className="text-body sm:text-body-lg font-bold text-foreground">Working Spare Parts</h3>
                 </div>
                 {resolvedSpareParts.length > 0 && (
                     <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
@@ -137,12 +137,12 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                                 </div>
                                 <div className="min-w-0">
                                     <h4 className="text-xs sm:text-small font-bold text-foreground truncate">{part.name}</h4>
-                                    <p className="text-2xs text-foreground-subtle mt-0.5 truncate">
+                                    <p className="text-tiny text-foreground-subtle mt-0.5 truncate">
                                         {part.brand ? `Brand: ${part.brand}` : (ad.brandName ? `Compatible with ${ad.brandName}` : "Component")}
                                     </p>
                                 </div>
                             </div>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shrink-0">
                                 <Check className="size-3" />
                                 Available
                             </span>
@@ -155,7 +155,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                         <CircuitBoard className="size-5" />
                     </div>
                     <h4 className="text-xs sm:text-small font-bold text-foreground">No individual spare parts tagged</h4>
-                    <p className="text-2xs sm:text-xs text-foreground-subtle max-w-md mx-auto">
+                    <p className="text-tiny sm:text-caption text-foreground-subtle max-w-md mx-auto">
                         No specific working components have been tagged individually. Check the full description or contact the seller to verify available parts.
                     </p>
                 </div>

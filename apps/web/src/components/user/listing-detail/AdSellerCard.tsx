@@ -69,7 +69,7 @@ export function AdSellerCard({
     };
 
     return (
-        <div className="space-y-3 pb-4 border-b border-border">
+        <div className="space-y-2 sm:space-y-3 pb-3 sm:pb-4 border-b border-border">
             <SellerIdentityPanel
                 href={sellerProfileHref}
                 className={panelClassName}

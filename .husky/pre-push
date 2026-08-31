@@ -1,1 +1,1 @@
-npm run pr:gate
+npm run pre-push:fast

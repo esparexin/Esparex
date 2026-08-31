@@ -70,8 +70,6 @@ async function run() {
 
   printStep('bucket', bucket);
   printStep('region', region);
-  printStep('accessKeyPrefix', accessKeyId.slice(0, 4));
-  printStep('secretLength', secretAccessKey.length);
 
   try {
     const dnsRes = await dns.lookup(s3Host);

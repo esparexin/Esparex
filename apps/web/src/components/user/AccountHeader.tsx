@@ -51,7 +51,7 @@ export function AccountHeader({
               size="icon"
               onClick={onBackToMenu}
               aria-label="Back to Account Menu"
-              className="rounded-xl text-slate-700 hover:bg-slate-100 shrink-0"
+              className="rounded-xl text-foreground-secondary hover:bg-muted/60 shrink-0"
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>

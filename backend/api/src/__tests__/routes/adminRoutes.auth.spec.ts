@@ -1,19 +1,22 @@
 import express from "express";
 import inject, { InjectOptions, Response as InjectResponse } from "light-my-request";
-import cookieParser from "cookie-parser";
-
 import { requireAdmin } from "../../middleware/adminAuth";
+import { mutationLimiter } from "../../middleware/rateLimiter";
 
 const buildApp = () => {
     const app = express();
     app.use(express.json());
-    app.use(cookieParser());
+    app.use((req: any, _res: any, next: any) => {
+        req.cookies = req.cookies || {};
+        next();
+    });
 
-    app.post("/api/v1/admin/auth/login", (_req, res) => {
+    app.post("/api/v1/admin/auth/login", mutationLimiter, (_req, res) => {
         res.status(400).json({ success: false, error: "Invalid credentials" });
     });
 
     const protectedRouter = express.Router();
+    protectedRouter.use(mutationLimiter);
     protectedRouter.use(requireAdmin);
     protectedRouter.get("/dashboard/stats", (_req, res) => res.json({ success: true }));
     protectedRouter.get("/users", (_req, res) => res.json({ success: true }));

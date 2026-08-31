@@ -15,8 +15,8 @@ import { LocationSelectorModal } from '../../../listings/presentation/components
  * StepDetails — Step 2 of the Post Ad wizard (Listing Details & Pricing).
  *
  * Responsibilities:
- * - Title input (10–80 chars) with ✨ AI Auto-fill
- * - Description input (20–500 chars) with ✨ AI Auto-fill
+ * - Title input (10–80 chars) with AI Auto-fill
+ * - Description input (20–500 chars) with AI Auto-fill
  * - Side-by-side Price input and Mark as Free toggle
  * - Location selector with 🎯 Auto-Detect GPS/network button
  */

@@ -16,6 +16,7 @@ export * from "./atoms/icons";
 export * from "./atoms/Heading";
 export * from "./atoms/Text";
 export * from "./feedback/AlertDialog";
+export * from "./feedback/UnsavedChangesDialog";
 export * from "./atoms/Button";
 export * from "./atoms/Separator";
 export * from "./forms/Checkbox";

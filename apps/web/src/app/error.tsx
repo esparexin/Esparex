@@ -60,7 +60,7 @@ export default function Error({
                                 {safeMessage}
                             </p>
                             {error.digest && (
-                                <p className="mt-1 text-2xs text-rose-600">
+                                <p className="mt-1 text-tiny text-rose-600">
                                     Digest: {error.digest}
                                 </p>
                             )}

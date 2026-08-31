@@ -19,7 +19,7 @@ export const planFormSchema = z.object({
     maxParts: z.number({ invalid_type_error: "Max Parts must be a number" }).int().min(0),
     spotlightCredits: z.number({ invalid_type_error: "Spotlight Credits must be a number" }).int().min(0),
     smartAlerts: z.number({ invalid_type_error: "Alert Slots must be a number" }).int().min(0),
-    matchFrequency: z.enum(['realtime', 'hourly', 'daily']),
+    matchFrequency: z.enum(['instant', 'hourly', 'daily']),
     radiusLimitKm: z.number({ invalid_type_error: "Radius must be a number" }).int().min(0),
     notificationChannels: z.array(z.string()),
     priorityWeight: z.number({ invalid_type_error: "Priority Weight must be a number" }).int().min(1).max(10),

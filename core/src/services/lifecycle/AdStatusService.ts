@@ -130,12 +130,15 @@ export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTIN
 };
 
 export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'admin'): Promise<Record<string, unknown> | null> => {
-    // E2: Use typed lean generic instead of 'as any' cast
     const ad = await getListingRepository().findById(id);
     if (!ad) return null;
-    const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : Date.now();
-    const newExpiresAt = new Date(currentExpiry + daysToAdd * MS_IN_DAY);
-    const toStatus = (ad.status === LIFECYCLE_STATUS.EXPIRED ? LIFECYCLE_STATUS.LIVE : ad.status) ?? LIFECYCLE_STATUS.LIVE;
+    const now = Date.now();
+    const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : now;
+    // Always compute extension from the later of currentExpiry or now to ensure a strictly future expiry timestamp
+    const baseTime = currentExpiry < now ? now : currentExpiry;
+    const newExpiresAt = new Date(baseTime + daysToAdd * MS_IN_DAY);
+    const isExpired = ad.status === LIFECYCLE_STATUS.EXPIRED;
+    const toStatus = isExpired ? LIFECYCLE_STATUS.LIVE : (ad.status ?? LIFECYCLE_STATUS.LIVE);
     
     return mutateStatus({
         domain: 'ad',
@@ -143,9 +146,13 @@ export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: st
         toStatus,
         actor: { type: actorType, id: actorId, ip: '', userAgent: '' },
         reason: `Extended by ${daysToAdd} days`,
-        patch: { expiresAt: newExpiresAt }
+        patch: {
+            expiresAt: newExpiresAt,
+            ...(isExpired ? { isChatLocked: false, expiryWarningSentAt: null, expiryWarningCount: 0 } : {})
+        }
     });
 };
+
 
 
 export const expireOutdatedAds = async (): Promise<number> => {

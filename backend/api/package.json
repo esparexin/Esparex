@@ -86,7 +86,6 @@
     "firebase-admin": "^13.8.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.9.3",
-    "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.3",
     "migrate-mongo": "^14.0.7",
     "mongodb": "^7.0.0",

@@ -14,10 +14,6 @@ import {
     coordinatesSchema
 } from "@esparex/contracts";
 
-/**
- * Seller type enum
- */
-const sellerTypeEnum = z.enum(['user', 'business']);
 const LEGACY_AD_USER_ID_ALIAS = 'userId';
 const LEGACY_AD_USER_ID_ALIAS_MESSAGE = '`userId` is no longer accepted in ad query filters. Use `sellerId` instead.';
 const LEGACY_AD_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in ad query filters. Use `q` instead.';
@@ -102,17 +98,16 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     category: z.string().optional(),
     brandId: commonSchemas.objectId.optional(),
     modelId: commonSchemas.objectId.optional(),
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     
     // Canonical ownership filter
     sellerId: commonSchemas.objectId.optional(),
-    
-    sellerType: sellerTypeEnum.optional(),
 
     minPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
     maxPrice: z.string().transform(Number).pipe(z.number().min(0)).optional(),
 
+    deviceCondition: z.enum(['power_on', 'power_off']).optional(),
     isSpotlight: z.boolean().or(z.string().transform(val => val === 'true')).optional(),
     listingType: z.string().optional(),
 
@@ -135,7 +130,7 @@ export const getAdsQuerySchema = z.preprocess((raw) => {
 }, getAdsQuerySchemaBase);
 
 const feedLocationSchema = z.object({
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     level: z.enum(['country', 'state', 'district', 'city', 'area', 'village']).optional(),
     radiusKm: z.string().transform(Number).pipe(z.number().min(0).max(500)).optional(),
     lat: z.string().transform(Number).pipe(z.number().min(-90).max(90)).optional(),
@@ -161,7 +156,7 @@ export const homeFeedQuerySchema = z.preprocess((raw) => {
 
 const trendingAdsQuerySchemaBase = z.object({
     limit: z.string().transform(Number).pipe(z.number().int().min(1).max(20)).optional(),
-    locationId: commonSchemas.objectId.optional(),
+    locationId: z.string().trim().min(1).optional(),
     categoryId: commonSchemas.objectId.optional(),
 });
 

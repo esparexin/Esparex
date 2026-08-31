@@ -253,7 +253,7 @@ export function StepAddress({
                     value={formData.mobile}
                     error={formData.errors?.mobile}
                     badge={(
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-tiny font-medium text-emerald-600">
                             Verified
                         </span>
                     )}
@@ -267,11 +267,11 @@ export function StepAddress({
                     error={currentLocationError}
                     badge={
                         hasCurrentLocation ? (
-                            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-tiny font-medium text-primary">
                                 {sourceLabel || "GPS"} Recorded
                             </span>
                         ) : (
-                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-tiny font-medium text-foreground-subtle">
                                 Required
                             </span>
                         )
@@ -285,7 +285,7 @@ export function StepAddress({
                             size="icon"
                             aria-label={isDetectingLocation ? "Detecting current location" : "Use current location"}
                             title={isDetectingLocation ? "Detecting current location" : "Use current location"}
-                            className="h-11 w-11 rounded-xl border-slate-300 bg-white text-foreground hover:bg-slate-100"
+                            className="h-11 w-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
                         >
                             {isDetectingLocation ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -296,7 +296,7 @@ export function StepAddress({
                     )}
                 >
                     {detectFeedback ? (
-                        <p className="text-xs font-medium text-red-600">{detectFeedback}</p>
+                        <p className="text-tiny font-medium text-destructive">{detectFeedback}</p>
                     ) : null}
                 </CompactReadonlyField>
 
@@ -335,7 +335,7 @@ export function StepAddress({
                         placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                         maxLength={300}
                         rows={2}
-                        className="min-h-[64px] text-sm"
+                        className="min-h-[64px] text-body-lg md:text-body"
                         aria-invalid={Boolean(formData.errors?.address)}
                     />
                 </Field>

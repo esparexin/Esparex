@@ -34,6 +34,9 @@ export interface BrowseBuildFiltersArgs {
   urlLocationId?: string;
   urlLocationLabel?: string;
   radiusKm?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  deviceCondition?: string;
 }
 
 interface BrowseListingsViewProps<TItem, TFilters>
@@ -118,7 +121,6 @@ export function BrowseListingsView<TItem, TFilters>({
   const searchParams = useSearchParams();
   const minPriceParam = searchParams.get("minPrice");
   const maxPriceParam = searchParams.get("maxPrice");
-  const sellerTypeParam = (searchParams.get("sellerType") as "all" | "user" | "business") || "all";
   const deviceConditionParam = searchParams.get("condition") || searchParams.get("deviceCondition") || "";
 
   const minPrice = minPriceParam ? Number.parseInt(minPriceParam, 10) : undefined;
@@ -148,13 +150,6 @@ export function BrowseListingsView<TItem, TFilters>({
     [updateFiltersInUrl]
   );
 
-  const handleSellerTypeChange = useCallback(
-    (seller: "all" | "user" | "business") => {
-      updateFiltersInUrl({ sellerType: seller });
-    },
-    [updateFiltersInUrl]
-  );
-
   const handleConditionChange = useCallback(
     (cond: string) => {
       updateFiltersInUrl({ condition: cond });
@@ -168,7 +163,9 @@ export function BrowseListingsView<TItem, TFilters>({
       : c.id === selectedCategory || c.name === selectedCategory
   );
   const categoryName = selectedCategoryObj?.name || (selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined);
-  const locationLabel = resolveListingLocationLabel(location, "brief");
+  const isCountryLevel = location?.level === "country" || (!location?.city && !location?.state);
+  const rawLocationLabel = resolveListingLocationLabel(location, "brief");
+  const locationLabel = isCountryLevel || rawLocationLabel === "Location unavailable" ? null : rawLocationLabel;
 
   const sharedFilterProps = {
     inputId,
@@ -186,8 +183,6 @@ export function BrowseListingsView<TItem, TFilters>({
     minPrice,
     maxPrice,
     onPriceChange: handlePriceChange,
-    sellerType: sellerTypeParam,
-    onSellerTypeChange: handleSellerTypeChange,
     deviceCondition: deviceConditionParam,
     onDeviceConditionChange: handleConditionChange,
   };
@@ -213,8 +208,6 @@ export function BrowseListingsView<TItem, TFilters>({
             minPrice={minPrice}
             maxPrice={maxPrice}
             onPriceChange={handlePriceChange}
-            sellerType={sellerTypeParam}
-            onSellerTypeChange={handleSellerTypeChange}
             deviceCondition={deviceConditionParam}
             onDeviceConditionChange={handleConditionChange}
             onReset={handleReset}

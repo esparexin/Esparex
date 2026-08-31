@@ -26,13 +26,10 @@ export function PersonalProfileGstSection({
                 placeholder="e.g. 27AAAAA0000A1Z5"
                 maxLength={15}
                 {...register("gstin")}
-                className={`h-10 sm:h-10.5 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium uppercase ${gstinError ? "border-destructive" : ""}`}
+                className={`h-10 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium uppercase ${gstinError ? "border-destructive" : ""}`}
                 aria-invalid={!!gstinError}
                 aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
             />
-            <p id="profile-gstin-helper" className="text-tiny text-muted-foreground">
-                Enter your 15-character GSTIN to claim 18% Input Tax Credit (ITC) on B2B invoices.
-            </p>
             <FormError id="profile-gstin-error" message={gstinError} />
         </div>
     );

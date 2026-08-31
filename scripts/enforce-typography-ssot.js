@@ -34,9 +34,37 @@ const ARBITRARY_FONT_SIZE_PATTERN = /\btext-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g;
 const ARBITRARY_FONT_WEIGHT_PATTERN = /\bfont-\[\d+\]/g;
 const SUPPRESSION_PATTERN = /typography-ssot-ignore(?::\s*(.+))?/;
 
+/**
+ * Banned tokens: retired or non-canonical typography utilities that must
+ * never reappear in source code after the typography SSOT remediation.
+ *
+ * text-2xs  — 10px legacy scale, retired in favour of text-tiny (11px)
+ * --text-h5 — non-canonical CSS variable removed from design-token emit
+ * --text-h6 — non-canonical CSS variable removed from design-token emit
+ */
+const BANNED_TOKEN_PATTERNS = [
+    {
+        pattern: /\btext-2xs\b/,
+        token: "text-2xs",
+        remedy: "Use text-tiny (11px) — the smallest canonical SSOT token.",
+    },
+    {
+        pattern: /var\(--text-h5\)/,
+        token: "var(--text-h5)",
+        remedy: "Use var(--text-body-lg) — --text-h5 was removed from the design-token emit.",
+    },
+    {
+        pattern: /var\(--text-h6\)/,
+        token: "var(--text-h6)",
+        remedy: "Use var(--text-body) — --text-h6 was removed from the design-token emit.",
+    },
+];
+
+let bannedViolations = [];
 let sizeViolations = [];
 let weightViolations = [];
 let emptySuppressions = [];
+let inputZoomViolations = [];
 
 const checkLineForSuppression = (lines, lineIndex) => {
     // Check current line and preceding line for suppression comment
@@ -70,12 +98,26 @@ const walkDir = (dir) => {
             const lines = content.split("\n");
 
             lines.forEach((line, index) => {
+                const relPath = path.relative(repoRoot, fullPath);
+
+                // Check for explicitly banned (retired) typography tokens — no suppressions allowed.
+                for (const { pattern, token, remedy } of BANNED_TOKEN_PATTERNS) {
+                    if (pattern.test(line)) {
+                        bannedViolations.push({
+                            file: relPath,
+                            line: index + 1,
+                            token,
+                            remedy,
+                            code: line.trim(),
+                        });
+                    }
+                }
+
                 const sizeMatches = line.match(ARBITRARY_FONT_SIZE_PATTERN);
                 const weightMatches = line.match(ARBITRARY_FONT_WEIGHT_PATTERN);
 
                 if (sizeMatches || weightMatches) {
                     const suppression = checkLineForSuppression(lines, index);
-                    const relPath = path.relative(repoRoot, fullPath);
 
                     if (suppression.emptySuppression) {
                         emptySuppressions.push({
@@ -103,6 +145,33 @@ const walkDir = (dir) => {
                     }
                 }
             });
+
+            // Mobile Input Zoom Safety Gate (WCAG 2.2 AA / iOS Safari auto-zoom prevention)
+            // Inputs in user-facing applications (apps/web, apps/mobile, packages/ui, packages/mobile-ui)
+            // must render >= 16px (1rem / text-base / text-body-lg) on mobile viewports (< md:)
+            const relPath = path.relative(repoRoot, fullPath);
+            const isUserFacingApp = !fullPath.includes("apps/admin");
+            if (isUserFacingApp) {
+                const inputTagRegex = /<(?:input|textarea|select|Input|Textarea|ControlledInput|ControlledTextarea|SelectTrigger)\b[^>]*className=(?:\{cn\(|["`])([^"`}>]+)[^>]*>/gs;
+                let inputMatch;
+                while ((inputMatch = inputTagRegex.exec(content)) !== null) {
+                    const classStr = inputMatch[1];
+                    const sub16pxRegex = /\b(?<![a-z0-9_-]:)(?:text-xs|text-caption|text-small|text-tiny|text-sm|text-body)(?!-[a-z0-9])\b/;
+                    if (sub16pxRegex.test(classStr)) {
+                        const upToMatch = content.substring(0, inputMatch.index);
+                        const lineNo = upToMatch.split("\n").length;
+                        const suppression = checkLineForSuppression(lines, lineNo - 1);
+                        if (!suppression.suppressed) {
+                            inputZoomViolations.push({
+                                file: relPath,
+                                line: lineNo,
+                                classStr: classStr.trim(),
+                                code: inputMatch[0].replace(/\s+/g, " ").substring(0, 120),
+                            });
+                        }
+                    }
+                }
+            }
         }
     }
 };
@@ -112,6 +181,19 @@ for (const dir of TARGET_DIRECTORIES) {
 }
 
 let hasErrors = false;
+
+if (bannedViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Banned (Retired) Token Detected!");
+    console.error("The following typography tokens have been permanently retired from the Esparex SSOT.");
+    console.error("They are absolutely prohibited. No suppression is allowed for banned tokens.\n");
+    for (const v of bannedViolations) {
+        console.error(`  ✗ ${v.file}:${v.line}`);
+        console.error(`    Token:   ${v.token}`);
+        console.error(`    Remedy:  ${v.remedy}`);
+        console.error(`    Code:    ${v.code}\n`);
+    }
+}
 
 if (emptySuppressions.length > 0) {
     hasErrors = true;
@@ -158,8 +240,21 @@ if (weightViolations.length > 0) {
     }
 }
 
+if (inputZoomViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Mobile Input Zoom Vulnerability Detected!");
+    console.error("Form inputs (<input>, <textarea>, <select>) must render with font-size >= 16px on mobile viewports (< md:).");
+    console.error("Using sub-16px font sizes (text-caption, text-xs, text-small, text-tiny, or standalone text-sm/text-body) triggers automatic iOS Safari / WebKit viewport zoom.");
+    console.error("Remedy: Use responsive tokens `text-base md:text-sm` or `text-body-lg md:text-body`.\n");
+    for (const v of inputZoomViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Class:   ${v.classStr}`);
+        console.error(`    Code:    ${v.code}\n`);
+    }
+}
+
 if (hasErrors) {
     process.exit(1);
 } else {
-    console.log("✅ Typography SSOT Governance Gate Passed — 0 unexempted arbitrary typography utilities found.");
+    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 unexempted arbitrary typography utilities, 0 mobile input zoom vulnerabilities found.");
 }

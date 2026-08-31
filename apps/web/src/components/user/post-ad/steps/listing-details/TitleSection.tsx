@@ -40,7 +40,7 @@ export function TitleSection() {
                                 {...field}
                                 placeholder="e.g. iPhone 13 Pro - Screen issue"
                                 maxLength={MAX_AD_TITLE_CHARS}
-                                className="h-11 text-body font-normal sm:font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 placeholder:text-caption sm:placeholder:text-body"
+                                className="h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary placeholder:text-caption sm:placeholder:text-body"
                             />
                         </FieldControl>
                         <div className="flex justify-between items-start mt-1">

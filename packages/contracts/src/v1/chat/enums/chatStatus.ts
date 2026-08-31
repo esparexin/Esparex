@@ -58,3 +58,19 @@ export const CHAT_REPORT_REASON = {
 
 export type ChatReportReasonValue = (typeof CHAT_REPORT_REASON)[keyof typeof CHAT_REPORT_REASON];
 export const CHAT_REPORT_REASON_VALUES = Object.values(CHAT_REPORT_REASON) as [ChatReportReasonValue, ...ChatReportReasonValue[]];
+
+/* -------------------------------------------------------------------------- */
+/* Chat Attachment MIME Types (SSOT)                                          */
+/* -------------------------------------------------------------------------- */
+
+export const ALLOWED_CHAT_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+  'video/mp4',
+  'application/pdf',
+] as const;
+
+export type AllowedChatMimeType = (typeof ALLOWED_CHAT_MIME_TYPES)[number];

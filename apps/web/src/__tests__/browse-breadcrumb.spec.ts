@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { BrowseBreadcrumb } from "../components/user/BrowseBreadcrumb";
 
 describe("BrowseBreadcrumb component logic", () => {

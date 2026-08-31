@@ -24,13 +24,11 @@ export interface BrowseFiltersHeaderTriggerProps {
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
-  sellerType?: "all" | "user" | "business";
-  onSellerTypeChange?: (sellerType: "all" | "user" | "business") => void;
   deviceCondition?: string;
   onDeviceConditionChange?: (condition: string) => void;
 }
 
-type FilterTab = "category" | "budget" | "seller" | "condition";
+type FilterTab = "category" | "budget" | "condition";
 
 export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigger({
   inputId,
@@ -47,8 +45,6 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
   minPrice,
   maxPrice,
   onPriceChange,
-  sellerType = "all",
-  onSellerTypeChange,
   deviceCondition,
   onDeviceConditionChange,
 }: BrowseFiltersHeaderTriggerProps) {
@@ -85,12 +81,12 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           variant="outline"
           onClick={(e) => e.currentTarget.blur()}
           aria-label="Open search filters"
-          className="lg:hidden h-10 px-3.5 gap-1.5 text-foreground-secondary border-border hover:bg-muted font-normal text-xs rounded-full shadow-none"
+          className="lg:hidden h-9 px-3 gap-1.5 text-foreground-secondary border-border hover:bg-muted font-normal text-caption rounded-full shadow-none"
         >
           <SlidersHorizontal className="size-4 text-foreground-tertiary" />
           <span className="hidden sm:inline font-normal">Filters</span>
           {activeFilterCount > 0 ? (
-            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-xs font-bold leading-none text-primary-foreground">
+            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-caption font-bold leading-none text-primary-foreground">
               {activeFilterCount}
             </span>
           ) : null}
@@ -106,7 +102,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               id={inputId}
               aria-label={searchAriaLabel}
               placeholder={searchPlaceholder}
-              className="pl-9 h-10 text-xs rounded-xl bg-background border-input"
+              className="pl-9 h-9 text-body-lg md:text-body rounded-xl bg-background border-input"
               value={inputValue}
               onChange={(event) => onInputChange(event.target.value)}
             />
@@ -121,9 +117,9 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               type="button"
               onClick={() => setActiveTab("category")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
                 activeTab === "category"
-                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
+                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
             >
@@ -134,9 +130,9 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               type="button"
               onClick={() => setActiveTab("budget")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
                 activeTab === "budget"
-                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
+                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
             >
@@ -145,24 +141,11 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
 
             <button
               type="button"
-              onClick={() => setActiveTab("seller")}
-              className={cn(
-                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
-                activeTab === "seller"
-                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
-              )}
-            >
-              By Seller
-            </button>
-
-            <button
-              type="button"
               onClick={() => setActiveTab("condition")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
                 activeTab === "condition"
-                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
+                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
             >
@@ -178,7 +161,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                   type="button"
                   onClick={() => onCategoryChange("all")}
                   className={cn(
-                    "flex w-full items-center justify-between p-2.5 rounded-lg text-xs font-medium transition-colors",
+                    "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
                     !selectedCategory || selectedCategory === "all"
                       ? "bg-primary text-primary-foreground font-semibold"
                       : "text-foreground-secondary hover:bg-muted"
@@ -199,7 +182,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                       type="button"
                       onClick={() => onCategoryChange(val)}
                       className={cn(
-                        "flex w-full items-center justify-between p-2.5 rounded-lg text-xs font-medium transition-colors",
+                        "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
                         isSelected
                           ? "bg-primary text-primary-foreground font-semibold"
                           : "text-foreground-secondary hover:bg-muted"
@@ -215,7 +198,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
 
             {activeTab === "budget" && (
               <div className="space-y-4">
-                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                <Label className="text-caption font-bold text-foreground-subtle uppercase tracking-wider">
                   Price Range (₹)
                 </Label>
                 <div className="flex items-center gap-2">
@@ -224,7 +207,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                     placeholder="Min Price"
                     value={localMin}
                     onChange={(e) => setLocalMin(e.target.value)}
-                    className="h-10 text-xs rounded-xl border-input"
+                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
                   />
                   <span className="text-muted-foreground">-</span>
                   <Input
@@ -232,7 +215,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                     placeholder="Max Price"
                     value={localMax}
                     onChange={(e) => setLocalMax(e.target.value)}
-                    className="h-10 text-xs rounded-xl border-input"
+                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
                   />
                 </div>
 
@@ -262,39 +245,9 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               </div>
             )}
 
-            {activeTab === "seller" && (
-              <div className="space-y-3">
-                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Seller Type
-                </Label>
-                <div className="space-y-2">
-                  {[
-                    { id: "all", label: "All Sellers" },
-                    { id: "user", label: "Individual Users" },
-                    { id: "business", label: "Verified Businesses" },
-                  ].map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex items-center gap-3 p-2.5 rounded-lg border border-border hover:bg-muted cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name="mobileSellerType"
-                        value={item.id}
-                        checked={sellerType === item.id}
-                        onChange={() => onSellerTypeChange?.(item.id as "all" | "user" | "business")}
-                        className="size-4 text-primary border-input focus:ring-primary/20"
-                      />
-                      <span className="text-xs font-medium text-foreground-secondary">{item.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {activeTab === "condition" && (
               <div className="space-y-3">
-                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                <Label className="text-caption font-bold text-foreground-subtle uppercase tracking-wider">
                   Device Condition
                 </Label>
                 <div className="space-y-2">
@@ -314,7 +267,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                         />
                         <Label
                           htmlFor={`drawer-cond-${item.id}`}
-                          className="text-xs font-medium text-foreground-secondary cursor-pointer flex-1"
+                          className="text-small font-medium text-foreground-secondary cursor-pointer flex-1"
                         >
                           {item.label}
                         </Label>
@@ -332,13 +285,13 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           <Button
             variant="outline"
             onClick={handleClearAll}
-            className="flex-1 h-11 text-xs font-semibold rounded-xl border-border text-foreground-secondary"
+            className="flex-1 h-10 text-small font-semibold rounded-xl border-border text-foreground-secondary"
           >
             Clear all
           </Button>
           <Button
             onClick={handleApply}
-            className="flex-1 h-11 text-xs font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+            className="flex-1 h-10 text-small font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
           >
             Apply Filters
           </Button>

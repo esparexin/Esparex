@@ -15,6 +15,7 @@ const ListingDetailDialogs = dynamic(
 );
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
+import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
 import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
@@ -76,60 +77,29 @@ export function ListingDetail({
   const error = queryError instanceof Error ? queryError.message : null;
 
   const [uiState, dispatchUi] = useReducer(adDetailUiReducer, initialAdDetailUiState);
-  const showReportDialog = uiState.showReportDialog;
-  const showBoostDialog = uiState.showBoostDialog;
-  const showSoldDialog = uiState.showSoldDialog;
+  const { showReportDialog, showBoostDialog, showSoldDialog } = uiState;
 
-  const setShowReportDialog = useCallback((value: boolean) =>
-    dispatchUi({ type: "setShowReportDialog", payload: value }), []);
-  const setShowBoostDialog = useCallback((value: boolean) =>
-    dispatchUi({ type: "setShowBoostDialog", payload: value }), []);
-  const setShowSoldDialog = useCallback((value: boolean) =>
-    dispatchUi({ type: "setShowSoldDialog", payload: value }), []);
+  const setShowReportDialog = useCallback((payload: boolean) => dispatchUi({ type: "setShowReportDialog", payload }), []);
+  const setShowBoostDialog = useCallback((payload: boolean) => dispatchUi({ type: "setShowBoostDialog", payload }), []);
+  const setShowSoldDialog = useCallback((payload: boolean) => dispatchUi({ type: "setShowSoldDialog", payload }), []);
 
-  const { data: savedAds = [] } = useSavedAdsQuery({
-    enabled: !!user,
-  });
-
+  const { data: savedAds = [] } = useSavedAdsQuery({ enabled: !!user });
   const categoryLabel = resolveListingCategoryLabel(ad, "Category");
   const categoryRoute = resolveListingCategoryBrowseValue(ad);
   const locationLabel = resolveListingLocationLabel(ad?.location, "full");
 
-  let viewCount = 0;
-  if (typeof ad?.views === "number") {
-    viewCount = ad.views;
-  } else if (ad?.views && typeof ad.views === "object") {
-    viewCount = (ad.views as { total: number }).total || 0;
-  }
-
+  const viewCount = typeof ad?.views === "number" ? ad.views : (ad?.views && typeof ad.views === "object" ? (ad.views as { total: number }).total || 0 : 0);
   const { adStatus, setSoldOverride } = useAdStatus(ad);
   const { revealedPhone, phoneMessage, isPhoneLoading, handleRevealPhone } = usePhoneReveal(ad, user, router);
   const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary, handleViewAnalytics } = useAnalyticsDialog(ad, viewCount);
 
-  const isFavorited = useMemo(
-    () =>
-      !!user &&
-      !!adId &&
-      savedAds.some((saved) => String(saved.id) === String(adId)),
-    [adId, savedAds, user]
-  );
-
-  const isOwner = canUserPerformAction(
-    ad ? { sellerId: ad.sellerId } : null,
-    user || null
-  );
-
+  const isFavorited = useMemo(() => Boolean(user && adId && savedAds.some((saved) => String(saved.id) === String(adId))), [adId, savedAds, user]);
+  const isOwner = canUserPerformAction(ad ? { sellerId: ad.sellerId } : null, user || null);
   useViewTracking(ad?.id, isOwner, queryClient);
+
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
   const isActiveSpotlight = Boolean(ad?.isSpotlight);
-
-  const getSellerDisplayName = () => {
-    if (!ad) return "Seller";
-    if (ad.isBusiness && ad.businessName) return ad.businessName;
-    return ad.sellerName || "Seller";
-  };
-
-  const sellerDisplayName = getSellerDisplayName();
+  const sellerDisplayName = ad?.isBusiness && ad.businessName ? ad.businessName : (ad?.sellerName || "Seller");
 
   const {
     showDeleteDialog,
@@ -194,9 +164,9 @@ export function ListingDetail({
 
           <div className="w-full bg-card">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 md:py-6">
-              <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-start">
                 {/* Left Column: Gallery, Description & Ad Placement stacked */}
-                <div className="lg:col-span-7 xl:col-span-8 w-full flex flex-col gap-6">
+                <div className="lg:col-span-7 xl:col-span-8 w-full flex flex-col gap-4 sm:gap-6">
                   <AdImageCarousel
                     images={images}
                     title={ad.title}
@@ -207,6 +177,16 @@ export function ListingDetail({
                   />
 
                   {isPendingOwner && <AdPendingStatusCard />}
+
+                  {/* Mobile-first Title & Price placement (rendered right below images on mobile) */}
+                  <div className="block lg:hidden">
+                    <AdTitlePriceCard
+                      ad={ad}
+                      categoryLabel={categoryLabel}
+                      viewCount={viewCount}
+                      variant="mobile"
+                    />
+                  </div>
 
                   <ListingDescriptionCard ad={ad} navigateTo={navigateTo} />
 

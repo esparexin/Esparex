@@ -162,7 +162,7 @@ export function EntitySearchCombobox<T>({
         <div
             id="select-options-list"
             role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-surface border border-border rounded-xl shadow-xl overflow-y-auto z-50"
+            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 py-1.5 overscroll-contain touch-pan-y"
         >
             {renderOptionsList(false)}
         </div>
@@ -191,7 +191,7 @@ export function EntitySearchCombobox<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-3 pr-9 h-11 text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body"
+                    className="pl-3 pr-9 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body"
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
@@ -256,7 +256,7 @@ export function EntitySearchCombobox<T>({
                                              onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs placeholder:text-caption sm:placeholder:text-body"
+                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs placeholder:text-caption sm:placeholder:text-body"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button

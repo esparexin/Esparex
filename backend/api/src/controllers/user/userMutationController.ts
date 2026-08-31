@@ -102,6 +102,10 @@ export const updateMe = async (
     delete updateRecord.salt;
     delete updateRecord.mobile;
 
+    if (req.body.removePhoto === 'true' || req.body.profilePhoto === '') {
+      updates.avatar = '';
+    }
+
     const file = getUploadedFile(req);
     if (file) {
       if (!isS3UploadConfigured()) {

@@ -146,7 +146,7 @@ export function LocationSection() {
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-11 font-normal text-body rounded-xl border border-slate-200"
+                        className="h-11 font-normal text-body-lg md:text-body rounded-xl border border-border"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (

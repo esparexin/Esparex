@@ -10,14 +10,7 @@ import { cn } from "@/components/ui/utils";
 import {
   Button,
   Spinner,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
+  UnsavedChangesDialog,
 } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider, useFormContext } from "react-hook-form";
@@ -160,29 +153,13 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         </ListingModalFooter>
       </ListingModalLayout>
 
-      <AlertDialog open={showCancelConfirmDialog} onOpenChange={setShowCancelConfirmDialog}>
-        <AlertDialogContent className="max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg font-bold text-foreground">
-              Discard Unsaved Changes?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-muted-foreground mt-2">
-              You have unsaved changes in your ad. If you leave now, your progress will be lost.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
-            <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-              Keep Editing
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDiscard}
-              className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            >
-              Discard & Leave
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <UnsavedChangesDialog
+        open={showCancelConfirmDialog}
+        onOpenChange={setShowCancelConfirmDialog}
+        onConfirm={handleConfirmDiscard}
+        title="Discard Unsaved Changes?"
+        description="You have unsaved changes in your ad. If you leave now, your progress will be lost."
+      />
     </PostAdShell>
   );
 }

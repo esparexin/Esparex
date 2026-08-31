@@ -12,7 +12,7 @@ import { logAdminActionDirect, AdminLogTargetType } from '@esparex/core/utils/ad
  * @param metadata - Optional extra data (before/after states, reasons)
  */
 export const logAdminAction = async (
-    req: any,
+    req: Request,
     action: string,
     targetType: AdminLogTargetType,
     targetId?: string | { toString: () => string },

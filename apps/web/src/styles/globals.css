@@ -24,23 +24,23 @@
   --text-caption: 0.75rem;   /* 12px */
   --text-tiny: 0.6875rem;    /* 11px */
 
-  /* Extended foreground text tokens — fills gap between foreground and muted-foreground */
-  --foreground-secondary: 215.4 25% 26.7%;   /* ≈ slate-700 — secondary body text */
-  --foreground-tertiary: 215.3 19.3% 34.5%;  /* ≈ slate-600 — captions, labels */
-  --foreground-subtle: 215.4 16.3% 40%;    /* ≈ slate-500 — placeholder, disabled, secondary metadata (WCAG 4.5:1 ratio) */
+  /* Extended foreground text tokens — warm neutral stone scale */
+  --foreground-secondary: 33.3 5.5% 32.4%;   /* ≈ #57534E (stone-600) — secondary body text */
+  --foreground-tertiary: 24 5.4% 44.3%;    /* ≈ #78716C (stone-500) — captions, labels */
+  --foreground-subtle: 24 5.7% 58.2%;      /* ≈ #A8A29E (stone-400) — placeholder, disabled, secondary metadata (WCAG 4.5:1 ratio) */
 
   /* Sidebar Tokens */
-  --sidebar: 210 40% 98%;
-  --sidebar-foreground: 0 0% 10.2%;
-  --sidebar-primary: 142.1 76.2% 45.3%;
+  --sidebar: 60 16.7% 97.6%;
+  --sidebar-foreground: 0 0% 9%;
+  --sidebar-primary: 142.1 76.2% 36.3%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 210 40% 96.1%;
-  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-  --sidebar-border: 214.3 31.8% 91.4%;
-  --sidebar-ring: 142.1 76.2% 45.3%;
+  --sidebar-accent: 60 4.8% 95.9%;
+  --sidebar-accent-foreground: 0 0% 9%;
+  --sidebar-border: 20 5.9% 90%;
+  --sidebar-ring: 142.1 76.2% 36.3%;
 
   /* Chart Colors */
-  --chart-1: 142.1 76.2% 45.3%;
+  --chart-1: 142.1 76.2% 36.3%;
   /* Green */
   --chart-2: 188.7 94.5% 42.7%;
   /* Cyan */
@@ -48,13 +48,13 @@
   /* Purple #8b5cf6 */
   --chart-4: 158.1 84.4% 39.4%;
   /* Emerald */
-  --chart-5: 37.7 92.1% 50.2%;
+  --chart-5: 32.1 94.6% 43.7%;
   /* Amber */
 
-  /* Mesh Gradients (Updated to Green/Blue/Amber) */
-  --mesh-1: #22c55e;
+  /* Mesh Gradients (Updated to Green/Cyan/Amber) */
+  --mesh-1: #16a34a;
   --mesh-2: #06b6d4;
-  --mesh-3: #f59e0b;
+  --mesh-3: #d97706;
 
   /* =========================================
      CANONICAL DESIGN SYSTEM TOKENS (v1.0 Architecture)
@@ -64,22 +64,25 @@
   --size-2: 8px;
   --size-3: 12px;
   --size-4: 16px;
+  --size-5: 20px;
   --size-6: 24px;
   --size-8: 32px;
+  --size-10: 40px;
   --size-12: 48px;
   --size-16: 64px;
 
-  /* Primitive Color Tokens (Layer 1) */
+  /* Primitive Color Tokens (Layer 1) - Warm Neutral & Brand SSOT */
   --raw-color-white: #ffffff;
-  --raw-color-slate-50: #f8fafc;
-  --raw-color-slate-100: #f1f5f9;
-  --raw-color-slate-200: #e2e8f0;
-  --raw-color-slate-300: #cbd5e1;
-  --raw-color-slate-500: #64748b;
-  --raw-color-slate-700: #334155;
-  --raw-color-slate-800: #1e293b;
-  --raw-color-slate-900: #0f172a;
-  --raw-color-blue-600: #2563eb;
+  --raw-color-stone-50: #fafaf8;
+  --raw-color-stone-100: #f5f5f4;
+  --raw-color-stone-200: #e7e5e4;
+  --raw-color-stone-300: #d6d3d1;
+  --raw-color-stone-500: #78716c;
+  --raw-color-stone-600: #57534e;
+  --raw-color-stone-700: #44403c;
+  --raw-color-stone-900: #1c1917;
+  --raw-color-stone-950: #171717;
+  --raw-color-green-600: #16a34a;
 
   /* Semantic Spacing Scale Mapping */
   --space-1: var(--size-1);
@@ -93,27 +96,27 @@
 
   /* Categorized Semantic Tokens (Layer 2) */
   --color-surface: var(--raw-color-white);
-  --color-surface-muted: var(--raw-color-slate-50);
-  --color-border-subtle: rgba(241, 245, 249, 0.9);
-  --color-border-default: rgba(226, 232, 240, 0.7);
-  --color-border-strong: rgba(203, 213, 225, 0.8);
+  --color-surface-muted: var(--raw-color-stone-50);
+  --color-border-subtle: rgba(231, 229, 228, 0.6);
+  --color-border-default: rgba(231, 229, 228, 0.9);
+  --color-border-strong: rgba(214, 211, 209, 0.8);
 
-  --color-text-primary: var(--raw-color-slate-900);
-  --color-text-secondary: var(--raw-color-slate-700);
-  --color-text-muted: var(--raw-color-slate-500);
+  --color-text-primary: var(--raw-color-stone-950);
+  --color-text-secondary: var(--raw-color-stone-600);
+  --color-text-muted: var(--raw-color-stone-500);
 
-  --color-interactive: var(--raw-color-blue-600);
-  --color-interactive-hover: #1d4ed8;
-  --color-interactive-active: #1e40af;
+  --color-interactive: var(--raw-color-green-600);
+  --color-interactive-hover: #087a3e;
+  --color-interactive-active: #14532d;
 
-  --color-success: #10b981;
-  --color-success-surface: #ecfdf5;
-  --color-warning: #f59e0b;
-  --color-warning-surface: #fffbeb;
-  --color-danger: #ef4444;
-  --color-danger-surface: #fef2f2;
-  --color-info: #06b6d4;
-  --color-info-surface: #ecfeff;
+  --color-success: #16a34a;
+  --color-success-surface: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-surface: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-surface: #fee2e2;
+  --color-info: #2563eb;
+  --color-info-surface: #eff6ff;
 
   /* Interaction Tokens */
   --interaction-hover: rgba(0, 0, 0, 0.05);
@@ -273,7 +276,7 @@ html {
 
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   min-height: 100dvh;
   position: relative;
 }
@@ -356,24 +359,24 @@ header {
 
 /* Default state (at top) */
 header.sticky {
-  background-color: transparent !important;
+  background-color: hsl(var(--background)) !important;
   backdrop-filter: none !important;
-  border-color: transparent !important;
+  border-color: hsl(var(--border) / 0.6) !important;
   box-shadow: none !important;
 }
 
-/* Scrolled state */
+/* Scrolled state (Solid opaque background + crisp elevation shadow) */
 [data-scrolled="true"] header.sticky {
-  background-color: hsl(var(--background) / 0.8) !important;
-  backdrop-filter: blur(12px) !important;
+  background-color: hsl(var(--background)) !important;
   border-color: hsl(var(--border)) !important;
-  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05)) !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08) !important;
 }
 
 /* Mobile Header Safety */
 @media (max-width: 767px) {
   [data-scrolled="true"] header.sticky {
     background-color: hsl(var(--background)) !important;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06) !important;
   }
 }
 

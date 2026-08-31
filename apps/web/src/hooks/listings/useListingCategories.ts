@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import logger from "@/lib/logger";
-import { TOAST_MESSAGES } from "@/config/toastMessages";
 import { ListingTypeValue } from "@esparex/contracts";
 import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQuery";
 import { buildDynamicCategories } from "./catalogShared";
@@ -28,7 +27,7 @@ export function useListingCategories({ listingType, onError }: UseListingCategor
     useEffect(() => {
         if (!categoriesError) return;
         logger.error(`[Catalog] Failed to load categories for ${listingType}`, categoriesError);
-        onError?.(TOAST_MESSAGES.LOAD_FAILED);
+        onError?.("Unable to load categories. Please refresh or try again.");
     }, [categoriesError, listingType, onError]);
 
     return {

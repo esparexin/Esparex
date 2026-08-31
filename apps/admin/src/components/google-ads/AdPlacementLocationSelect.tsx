@@ -6,7 +6,7 @@ interface AdPlacementLocationSelectProps {
     onChange: (nextLoc: AdPlacementLocationValue) => void;
 }
 
-export function AdPlacementLocationSelect({ value, isCreating, onChange }: AdPlacementLocationSelectProps) {
+export function AdPlacementLocationSelect({ value, isCreating: _isCreating, onChange }: AdPlacementLocationSelectProps) {
     return (
         <select
             value={value}

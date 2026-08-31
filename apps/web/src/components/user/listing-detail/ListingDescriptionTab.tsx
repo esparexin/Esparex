@@ -19,7 +19,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
             id="tabpanel-description"
             aria-labelledby="tab-description"
             tabIndex={0}
-            className="space-y-4 focus-visible:outline-none"
+            className="space-y-5 pt-3.5 sm:pt-4 focus-visible:outline-none"
         >
             {/* Specifications & Highlights Grid */}
             {hasAttributes && (
@@ -28,7 +28,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
                         <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border/60">
                             <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Warranty</p>
+                                <p className="text-tiny uppercase font-bold text-muted-foreground tracking-wider">Warranty</p>
                                 <p className="text-xs font-bold text-foreground mt-0.5">{String(ad.warranty)}</p>
                             </div>
                         </div>
@@ -38,7 +38,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
                         <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border/60">
                             <Wrench className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Service Type</p>
+                                <p className="text-tiny uppercase font-bold text-muted-foreground tracking-wider">Service Type</p>
                                 <p className="text-xs font-bold text-foreground mt-0.5">{ad.onsiteService ? 'Doorstep Service' : 'In-Shop Only'}</p>
                             </div>
                         </div>
@@ -48,7 +48,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
                         <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border/60">
                             <CircuitBoard className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
                             <div>
-                                <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Condition</p>
+                                <p className="text-tiny uppercase font-bold text-muted-foreground tracking-wider">Condition</p>
                                 <p className="text-xs font-bold text-foreground mt-0.5">{ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}</p>
                             </div>
                         </div>

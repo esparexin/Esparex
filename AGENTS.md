@@ -36,6 +36,62 @@ Response DTO ──► Domain
 
 ---
 
+# 🚨 FORM & ZOD EMPTY-STRING SCHEMA GOVERNANCE RULE (MANDATORY)
+
+## Core Architectural Principle
+In web browsers, HTML input elements and React Hook Form `defaultValues` yield **`""` (empty string)** when empty, **never `undefined`**.
+In Zod, `.optional()` permits `undefined`, but evaluates `""` as an active string of length 0.
+
+### Mandatory Rules:
+1. **Empty-String Union on Constrained Optional Fields**:
+   Any optional string field schema that includes constraints (`.min()`, `.max()`, `.email()`, `.regex()`, or pre-built schemas like `authNameSchema`) MUST explicitly accept empty string literals:
+   ```typescript
+   // ✅ REQUIRED:
+   name: z.union([authNameSchema, z.literal("")]).optional(),
+   email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
+   locationId: z.union([z.string().regex(/^[0-9a-fA-F]{24}$/), z.literal("")]).optional(),
+
+   // ❌ FORBIDDEN (Throws silent validation errors on empty inputs):
+   name: authNameSchema.optional(),
+   email: z.string().email().optional(),
+   ```
+2. **Multi-Step Form Step Isolation**:
+   In multi-step forms / wizards, intermediate step navigation MUST validate **only the current step's fields** using `form.trigger(['field1', 'field2'])`. Submitting full forms on partial steps without step-isolated validation is prohibited.
+3. **No Hidden Field Blocking**:
+   Unrendered / unmounted fields in the current step must never block user submission or cause invisible validation failures.
+
+---
+
+# 🚨 MOBILE FORM INPUT FONT-SIZE & VIEWPORT ZOOM GOVERNANCE RULE (MANDATORY)
+
+## Core Architectural Principle
+Mobile WebKit / iOS Safari automatically zooms in on any form input (`<input>`, `<textarea>`, `<select>`) whose computed font size is below 16px (1rem). When focus leaves the input, Safari does NOT restore viewport scale, resulting in broken, cropped mobile page layouts.
+
+### Mandatory Rules:
+1. **Zero Sub-16px Inputs on Mobile Viewports**:
+   All editable form controls (`<input>`, `<textarea>`, `<select>`, `<SelectTrigger>`) MUST have a computed font-size of at least 16px (`text-base` / `text-body-lg`) on mobile viewports (`< md:` / `< 768px`).
+   
+   ```tsx
+   // ✅ REQUIRED:
+   className="text-base md:text-sm"
+   className="text-body-lg md:text-body"
+   
+   // ❌ FORBIDDEN on <input>, <textarea>, <select>:
+   className="text-caption"   /* 12px - triggers 33% zoom jump */
+   className="text-xs"        /* 12px - triggers 33% zoom jump */
+   className="text-small"     /* 13px - triggers 23% zoom jump */
+   className="text-sm"        /* 14px - triggers 14% zoom jump without md: */
+   className="text-body"      /* 14px - triggers 14% zoom jump without md: */
+   ```
+
+2. **No `maximum-scale=1` / `user-scalable=no` Workarounds**:
+   Viewport metadata MUST NOT disable pinch-to-zoom (a direct violation of WCAG 2.2 AA SC 1.4.4: Resize Text). Font-size normalization at the component/design-token level is the only permissible fix.
+
+3. **Shared Primitive Inheritance**:
+   All feature forms MUST consume `@esparex/ui` primitives (`Input`, `Textarea`, `Select`) and MUST NOT override base font sizes with smaller typography tokens on mobile.
+
+---
+
 # 🚨 GLOBAL ACCESSIBILITY & KEYBOARD NAVIGATION GOVERNANCE RULE (MANDATORY)
 
 ## Applies To
@@ -556,6 +612,23 @@ Before creating any new `.ts` or `.tsx` file, complete the **Repository Discover
 If ANY answer is **YES**, you MUST reuse or extend that implementation.
 Only create a new file if the answer is **NO** across all applicable layers.
 
+#### Canonical Domain Concept & Entity Discovery Map (Phase 0 SSOT Dictionary)
+Before writing any code or searching by conversational user prompt terms, developers & AI agents MUST map requirements to the canonical SSOT entities below:
+
+| Conversational User / UI Term | Canonical Domain Entity / Package | Prohibited Parallel Anti-Pattern |
+| :--- | :--- | :--- |
+| **Classifieds / Posts / Ads / Services / Parts** | `ListingDTO` / `unified Ad Engine` (`@esparex/contracts`, `core/src/domains/listings/`) | Creating separate `ServiceListing`, `SparePartListing`, or `CustomAd` schemas |
+| **Sponsor Banner / Display Ads / Google Ads** | `InContentPlacementId` / `MonetizationService` / `AdPlacementSlot` (`@esparex/contracts`, `core/src/services/MonetizationService.ts`) | Creating `BannerCard`, `SponsorCard`, or local `<ins>` tags in components |
+| **Device / Model / Brand / Category Select** | `EntitySearchCombobox` (`apps/web/src/components/user/EntitySearchCombobox.tsx`) | Creating custom `<select>` or local search comboboxes in feature directories |
+| **Search Grid / Results View / Browse Feed** | `BrowseListingsView` / `BrowseResultsPanel` (`apps/web/src/components/user/`) | Creating parallel `BrowseServicesView`, `BrowseSparePartsView`, or local grids |
+| **Ad Card (Grid / List View)** | `AdCardGrid` / `AdCardList` (`apps/web/src/components/user/ad-card/`) | Creating `BrowseServicesCard`, `BrowseSparePartsCard`, or local card components |
+| **Popups / Alerts / Banners / Toasts** | `popupBus` / `notify` (`@/lib/feedback`) | Installing or importing `sonner`, `react-hot-toast`, `react-toastify`, or local alert divs |
+| **Modal Dialogs / Fullscreen Wizards** | `ListingModalLayout` / `Dialog` (`packages/ui`) | Creating raw `fixed inset-0` dialog overlays without focus trapping |
+| **Page Container / Width Bounding** | `<Container variant="lg">` / `max-w-7xl` (`packages/ui`) | Hardcoding `max-w-6xl`, `max-w-5xl`, `max-w-[1440px]`, or local nested containers |
+| **Typography & Font Sizes** | 10-level scale (`text-display` → `text-tiny`) with **Geist** (`@esparex/design-tokens`) | Using `text-[13px]`, `text-2xs`, `text-xl md:text-2xl`, or competing fonts |
+| **Colors & Palette** | Semantic tokens (`text-foreground`, `bg-card`, `border-border`) | Using raw palette literals (`text-slate-900`, `bg-blue-50/50`, `text-blue-900`) |
+| **API Mutation Client** | `apiClient` (`@/lib/api/client`) + `toApiResult` (`@/lib/api/result`) | Raw `fetch()` or `axios.create()` calls inside individual components |
+
 ---
 
 ### 6. Mandatory "New File Justification" Gate
@@ -999,7 +1072,7 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
 2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
 3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
-4. **Tier 4 (Auxiliary Design Guides)**: `ui-styling`, `ui-ux-pro-max`, `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants.
+4. **Tier 4 (Auxiliary Design Guides)**: `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants. Non-compliant generic templates (`ui-styling`, `ui-ux-pro-max`) are prohibited.
 
 ### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
 All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
@@ -1019,6 +1092,53 @@ All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/m
 2. **Font Family Invariant**: **Geist** (`var(--font-primary)`) is the single font family SSOT. Competing fonts (Inter, Roboto, Poppins) are forbidden.
 3. **Single-Instance Responsive Invariant**: No duplicate `Desktop*` vs `Mobile*` component trees.
 4. **Native Popup SSOT**: Alerts and notifications MUST use `popupBus` / `notify`. External toast packages (`sonner`, `react-hot-toast`) are banned.
+
+---
+
+## 20. ESPAREX LISTING LIFECYCLE & 30-DAY EXPIRY GOVERNANCE STANDARD (MANDATORY)
+
+### 20.1 30-Day Hard Expiry Ceiling
+- Classified ads (`LISTING_TYPE.AD`) have a strict 30-day lifecycle window (`GOVERNANCE.AD.EXPIRY_DAYS = 30`).
+- Extensions (`extendAdExpiry`) and renewals must NEVER extend beyond `Date.now() + 30 days` from the extension timestamp.
+- Live listings MUST NEVER be saved to MongoDB without a valid future `expiresAt` timestamp. The Mongoose model pre-save hook strictly clamps and assigns `expiresAt` on `status === 'live'`.
+
+### 20.2 Zero Unbounded Feed Queries
+- Raw database queries matching `{ status: 'live' }` without `expiresAt: { $gt: new Date() }` are STRICTLY PROHIBITED in all public endpoints.
+- All feed, search, category, nearby, trending, and homepage queries MUST use `buildPublicAdFilter()` from `@esparex/core/utils/FeedVisibilityGuard`.
+
+### 20.3 Deterministic Date Formatter SSOT
+- Formatting dates using raw JavaScript `toLocaleDateString()` or uncalibrated libraries is prohibited.
+- All dates rendered in UI must use `@/lib/formatters` (`formatAppDate`, `formatStableDate`, `formatShortRelativeTime`) or `@esparex/shared` (`formatDate`), adhering to the `en-IN` / `Asia/Kolkata` standard.
+
+### 20.4 Automated Expiry Sweeper
+- The distributed job `runExpireAdsJob` must run continuously via `SchedulerQueueEngine` to transition lapsed listings from `live` to `expired`.
+
+---
+
+## 21. ESPAREX BRAND COLOR PALETTE & DESIGN TOKEN SSOT GOVERNANCE STANDARD (MANDATORY)
+
+### 21.1 Canonical Brand Palette Matrix
+The platform strictly standardizes on the **Green + Warm Neutral** design system:
+
+| Token Domain | Canonical Value | Design System Intent |
+| :--- | :---: | :--- |
+| **Primary Brand** | `#16A34A` (`bg-primary`, `text-primary`) | Primary interactive CTAs, verified badges, active tabs |
+| **Deep Brand** | `#087A3E` (`--primary-hover`) | Hover, focus ring, and pressed button states |
+| **Soft Brand** | `#DCFCE7` (`--primary-subtle`, `bg-primary/10`) | Selected filter chips, success badge pill backgrounds |
+| **App Background** | `#FAFAF8` (`bg-background`) | Warm neutral page canvas (replaces harsh cold slate/pure white) |
+| **Card Surface** | `#FFFFFF` (`bg-card`) | Listing cards, modal dialogs, drawers, dropdowns, inputs |
+| **Text Primary** | `#171717` (`text-foreground`) | H1-H4 headings, bold listing titles, high-emphasis text |
+| **Text Secondary**| `#57534E` (`text-foreground-secondary`)| Captions, location metadata, relative dates, placeholder text |
+| **Border / Divider**| `#E7E5E4` (`border-border`)| Card outlines, hairline section dividers, input borders |
+| **Warning State** | `#D97706` (`text-warning`, `bg-warning`) | "Low Stock" indicators, moderation caution alerts |
+| **Error State** | `#DC2626` (`text-destructive`, `bg-destructive`) | "Out of Stock" chips, form validation errors |
+
+### 21.2 Zero Raw Palette Invariant
+- Hardcoding raw hex values (e.g. `#16a34a`, `#087a3e`, `text-slate-700`, `bg-blue-50`) in UI components is STRICTLY FORBIDDEN.
+- All styling MUST consume semantic design token utilities (`bg-primary`, `bg-card`, `border-border`, `text-foreground`, `text-foreground-secondary`, `bg-primary/10`).
+- Any updates to the palette MUST be executed in `packages/design-tokens/src/colors.ts` and compiled via `generate-css.ts`.
+
+
 
 
 

@@ -215,7 +215,10 @@ export const syncBrowserPushRegistration = async ({
         return { status: "unsupported" };
     }
 
-    if (user.notificationSettings?.pushNotifications === false) {
+    if (
+        user.notificationSettings?.enabled === false ||
+        user.notificationSettings?.pushNotifications === false
+    ) {
         clearBrowserPushCache();
         return { status: "disabled" };
     }

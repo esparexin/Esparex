@@ -1,4 +1,4 @@
-import { pLimit } from '../../utils/pLimit';
+import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../utils/pLimit';
 import Business from '../../models/Business';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { AppError } from '../../utils/AppError';
@@ -65,8 +65,6 @@ export const deleteAdminBusiness = async (id: string, actorId: string, logFn: Ad
     await dispatchTemplatedNotification(userId, 'BUSINESS_STATUS', 'BUSINESS_REMOVED', { name: businessName }, { businessId: id, status: 'deleted' });
     return true;
 };
-
-const ADMIN_BULK_CONCURRENCY = 5;
 
 const execBulk = async (ids: string[], actionName: string, fn: (id: string) => Promise<unknown>): Promise<number> => {
     if (!Array.isArray(ids) || !ids.length) return 0;

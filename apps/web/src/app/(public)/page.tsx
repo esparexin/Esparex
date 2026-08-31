@@ -4,7 +4,6 @@ import type { Category } from "@/schemas";
 
 import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";
-import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { Container } from "@esparex/ui";
@@ -113,11 +112,10 @@ export default async function Home() {
 
                 <HomeFeed initialData={initialHomeAds} />
 
+                {/* ui-guard-ignore: nested-container Sibling container wrappers for separate ad placement slots */}
                 <Container variant="lg">
                     <AdPlacementSlot placement="homepage_feed_inline" />
                 </Container>
-
-                <HomeBannerAd />
             </section>
         </div>
     );

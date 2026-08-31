@@ -125,11 +125,35 @@ function lintWorkspaceChangedFiles(workspace, files) {
   }
 }
 
+function getAllTsFiles() {
+  const allFiles = [];
+  for (const root of WORKSPACE_ROOTS) {
+    const srcDir = path.join(process.cwd(), root, "src");
+    if (!fs.existsSync(srcDir)) continue;
+    function walk(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(full);
+        } else if (/\.(ts|tsx)$/.test(entry.name)) {
+          allFiles.push(path.relative(process.cwd(), full));
+        }
+      }
+    }
+    walk(srcDir);
+  }
+  return allFiles;
+}
+
 function main() {
   const isStaged = process.argv.includes("--staged");
+  const isAll = process.argv.includes("--all");
   let changed = [];
 
-  if (isStaged) {
+  if (isAll) {
+    changed = getAllTsFiles();
+  } else if (isStaged) {
     changed = getChangedTsFiles("", true);
   } else {
     const baseRef = resolveBaseRef();
@@ -138,7 +162,7 @@ function main() {
   }
 
   if (changed.length === 0) {
-    console.log(`ℹ️  No TypeScript changes detected for unused import guard (${isStaged ? 'staged index' : 'branch diff'}).`);
+    console.log(`ℹ️  No TypeScript changes detected for unused import guard (${isAll ? 'full workspace' : isStaged ? 'staged index' : 'branch diff'}).`);
     return;
   }
 
@@ -146,7 +170,7 @@ function main() {
   let hasFailures = false;
 
   for (const [workspace, files] of grouped.entries()) {
-    console.log(`Checking unused imports in changed files (${workspace})...`);
+    console.log(`Checking unused imports in ${isAll ? 'all workspace files' : 'changed files'} (${workspace})...`);
     const existingFiles = files.filter(f => fs.existsSync(path.join(workspace, f)));
     if (existingFiles.length === 0) continue;
 
@@ -157,7 +181,7 @@ function main() {
   }
 
   if (hasFailures) {
-    console.error("❌ New unused imports detected in changed files.");
+    console.error("❌ Unused imports detected in workspace files.");
     process.exit(1);
   }
 

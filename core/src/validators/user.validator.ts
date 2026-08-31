@@ -114,14 +114,15 @@ export const registerUserSchema = z.object({
 /**
  * Update User Profile Schema
  */
+const emptyStringToUndefined = (val: unknown) => typeof val === 'string' && (val.trim() === '' || val === '[object File]') ? undefined : val;
+
 const updateUserProfileSchemaBase = z.object({
     name: nameSchema.optional(),
-    email: commonSchemas.email.optional(),
-
-    // Profile photo (controller maps profilePhoto to avatar)
-    profilePhoto: z.string().url("Invalid profile photo URL").optional(),
-    avatar: z.string().url().optional(), // Support both just in case
-
+    email: z.preprocess(emptyStringToUndefined, commonSchemas.email.optional()),
+    gstin: z.preprocess(emptyStringToUndefined, z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please enter a valid 15-character GSTIN").optional()),
+    profilePhoto: z.preprocess(emptyStringToUndefined, z.string().url("Invalid profile photo URL").optional()),
+    avatar: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+    removePhoto: z.preprocess(emptyStringToUndefined, z.string().optional()),
     mobileVisibility: mobileVisibilityEnum.optional(),
 
     notificationSettings: z.preprocess((val) => {
@@ -130,17 +131,12 @@ const updateUserProfileSchemaBase = z.object({
         }
         return val;
     }, z.object({
-        newMessages: z.boolean().optional(),
+        enabled: z.boolean().optional(),
+        instantAlerts: z.boolean().optional(),
         adUpdates: z.boolean().optional(),
         promotions: z.boolean().optional(),
         emailNotifications: z.boolean().optional(),
         pushNotifications: z.boolean().optional(),
-        dailyDigest: z.boolean().optional(),
-        instantAlerts: z.boolean().optional(),
-        email: z.boolean().optional(),
-        sms: z.boolean().optional(),
-        push: z.boolean().optional(),
-        marketing: z.boolean().optional()
     })).optional(),
 
     // Location

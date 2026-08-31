@@ -9,6 +9,7 @@ import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { formatStableNumber } from '@/lib/formatters';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MessageCircle } from '@/icons/IconRegistry';
 
 import type { IConversationDTO } from "@esparex/contracts";
 
@@ -56,11 +57,18 @@ function ConversationCard({
         <div className="conv-card__body">
           <div className="conv-card__top">
             <span className="conv-card__name">{other.name}</span>
-            {conv.lastMessageAt && (
-              <span className="conv-card__time">
-                <RelativeTimeText value={conv.lastMessageAt} variant="short" />
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {unread > 0 && (
+                <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
+                  {unread > 99 ? '99+' : unread}
+                </span>
+              )}
+              {conv.lastMessageAt && (
+                <span className="conv-card__time">
+                  <RelativeTimeText value={conv.lastMessageAt} variant="short" />
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="conv-card__ad-row">
@@ -75,17 +83,6 @@ function ConversationCard({
               {state.label}
             </p>
           )}
-
-          <div className="conv-card__bottom">
-            <p className="conv-card__last-msg">
-              {conv.lastMessage ?? 'No messages yet'}
-            </p>
-            {unread > 0 && (
-              <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
-                {unread > 99 ? '99+' : unread}
-              </span>
-            )}
-          </div>
         </div>
       </Link>
 
@@ -187,7 +184,7 @@ export function ChatList({
   };
 
   return (
-    <div className="chat-list-shell">
+    <div className="chat-list-shell h-full min-h-0 md:max-h-[480px] flex flex-col overflow-hidden">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
         <svg
@@ -291,12 +288,10 @@ export function ChatList({
       ) : filteredConversations.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-background min-h-[360px]">
           {/* Sparkle Chat Bubble Graphic */}
-          <div className="relative mb-3 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-3xl">
-              💬
+          <div className="mb-3 flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted border border-border text-foreground-subtle">
+              <MessageCircle className="h-8 w-8" />
             </div>
-            <span className="absolute -top-1 -right-1 text-primary text-sm">✨</span>
-            <span className="absolute -bottom-1 -left-1 text-primary/70 text-xs">✨</span>
           </div>
 
           <h3 className="text-lg font-bold text-foreground">
@@ -325,7 +320,7 @@ export function ChatList({
           )}
         </div>
       ) : (
-        <div className="chat-list">
+        <div className="chat-list flex-1 min-h-0 overflow-y-auto">
           {filteredConversations.map((conv) => (
             <ConversationCard
               key={conv.id}

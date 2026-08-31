@@ -3,41 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plus, Wrench, CircuitBoard } from "@/icons/IconRegistry";
+import { Plus, Wrench, CircuitBoard, Bell } from "@/icons/IconRegistry";
 import { useAuth } from "@/context/AuthContext";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 import { cn } from "@/components/ui/utils";
 
-const ACTIONS = [
-    {
-        id: "spare-part",
-        label: "Post Spare Part",
-        href: "/post-spare-part-listing",
-        icon: CircuitBoard,
-        bg: "bg-violet-600 hover:bg-violet-700",
-    },
-    {
-        id: "service",
-        label: "Post Service",
-        href: "/post-service",
-        icon: Wrench,
-        bg: "bg-emerald-600 hover:bg-emerald-700",
-    },
-] as const;
-
 /**
  * BusinessPostFAB
- * Floating action button (bottom-right) for verified business users.
- * Expands to reveal "Post Service" and "Post Spare Part" sub-actions.
+ * Floating action button (bottom-right) for authenticated users.
+ * Expands to reveal "Create Smart Alert" for all users, and
+ * "Post Service" / "Post Spare Part" for verified approved business users.
  * Mounted globally in CommonLayout so it persists across all pages.
- *
- * Visibility rules:
- *  - Only renders for authenticated users with businessStatus === "live"
- *  - Hidden on the post pages themselves (no need to FAB from within the form)
- *  - Collapses automatically on route change
- *  - Sits at z-40, below modals/drawers (z-50) but above page content
- *  - bottom offset tracks the mobile footer nav height on small screens
- *  - bottom-8 on desktop
  */
 export function BusinessPostFAB() {
     const { user, status } = useAuth();
@@ -49,18 +25,46 @@ export function BusinessPostFAB() {
         void (async () => { setIsOpen(false); })();
     }, [pathname]);
 
-    // Only for authenticated live-business users
-    if (status !== "authenticated" || !user || !isApprovedBusiness(user)) return null;
+    // Only for authenticated users
+    if (status !== "authenticated" || !user) return null;
 
-    // Hide while the user is on posting pages or account workspace
+    const isApproved = isApprovedBusiness(user);
+
+    // Dynamic actions based on role and business verification status
+    const actions = [
+        ...(isApproved ? [
+            {
+                id: "spare-part",
+                label: "Post Spare Part",
+                href: "/post-spare-part-listing",
+                icon: CircuitBoard,
+                bg: "bg-violet-600 hover:bg-violet-700",
+            },
+            {
+                id: "service",
+                label: "Post Service",
+                href: "/post-service",
+                icon: Wrench,
+                bg: "bg-emerald-600 hover:bg-emerald-700",
+            },
+        ] : []),
+        {
+            id: "smart-alert",
+            label: "Create Smart Alert",
+            href: "/account/alerts",
+            icon: Bell,
+            bg: "bg-amber-600 hover:bg-amber-700",
+        },
+    ];
+
+    // Hide while the user is actively on creation / editing pages
     if (
         pathname?.startsWith("/post-service") ||
-        pathname?.startsWith("/post-spare-part") ||
+        pathname?.startsWith("/post-spare-part-listing") ||
         pathname?.startsWith("/post-ad") ||
         pathname?.startsWith("/edit-service") ||
         pathname?.startsWith("/edit-spare-part") ||
-        pathname?.startsWith("/edit-ad") ||
-        pathname?.startsWith("/account")
+        pathname?.startsWith("/edit-ad")
     ) {
         return null;
     }
@@ -68,10 +72,10 @@ export function BusinessPostFAB() {
     return (
         <div
             className="fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3"
-            aria-label="Business posting actions"
+            aria-label="Action menu"
         >
             {/* Sub-actions — stagger in from bottom */}
-            {ACTIONS.map((action, i) => {
+            {actions.map((action, i) => {
                 const Icon = action.icon;
                 return (
                     <Link
@@ -97,7 +101,7 @@ export function BusinessPostFAB() {
             {/* Trigger button */}
             <button
                 onClick={() => setIsOpen(o => !o)}
-                aria-label={isOpen ? "Close posting menu" : "Post service or spare part"}
+                aria-label={isOpen ? "Close action menu" : "Open action menu"}
                 aria-expanded={isOpen}
                 className={cn(
                     "w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 active:scale-95",
