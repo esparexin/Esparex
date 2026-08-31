@@ -88,8 +88,8 @@ const toObjectIdString = (value: unknown): string | undefined => {
 const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined =>
     value instanceof mongoose.Types.ObjectId ? value : typeof value === 'string' && mongoose.Types.ObjectId.isValid(value) ? new mongoose.Types.ObjectId(value) : undefined;
 
-const extractBusinessLocationId = (business: any): mongoose.Types.ObjectId | undefined =>
-    normalizeObjectId(business?.locationId || (typeof business?.location === 'object' ? business?.location?.locationId : undefined));
+const extractBusinessLocationId = (business: Record<string, unknown> | null | undefined): mongoose.Types.ObjectId | undefined =>
+    normalizeObjectId(business?.locationId || (typeof business?.location === 'object' && business?.location !== null ? (business.location as { locationId?: unknown }).locationId : undefined));
 
 export const validateSparePartsForCategory = async (
     sparePartIds: string[],
@@ -296,7 +296,7 @@ export class AdCreationService {
                     );
                 }
 
-                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id: any) => id.toString());
+                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id: unknown) => String(id));
             }
         }
 
@@ -425,7 +425,7 @@ export class AdCreationService {
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
             const { calculateServiceQuality } = await import('../../../../utils/serviceQuality');
-            let merged: any = { ...payload };
+            let merged: Record<string, unknown> = { ...payload };
             if (partial && adId) {
                 const existing = await getListingRepository().findById(adId);
                 if (existing) {
