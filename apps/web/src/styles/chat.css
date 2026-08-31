@@ -884,6 +884,10 @@
   padding-bottom: var(--mobile-safe-bottom, max(16px, env(safe-area-inset-bottom)));
 }
 
+.conv-bottom:focus-within {
+  padding-bottom: 0.5rem;
+}
+
 /* ── Quick Replies (Stacked in Chat Body) ─────────────────────────────── */
 
 .quick-replies-body {
