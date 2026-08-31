@@ -7,6 +7,7 @@ import { PopupProvider } from "@/context/PopupProvider";
 import { LocationProvider } from "@/context/LocationContext";
 import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
 import { ThemeProvider } from "./ThemeProvider";
+import { useVisualViewport } from "@/hooks/useVisualViewport";
 
 export function RootClientShell({
     children,
@@ -15,6 +16,8 @@ export function RootClientShell({
     children: ReactNode;
     initialHasAuthCookie?: boolean;
 }) {
+    useVisualViewport();
+
     return (
         <ErrorBoundary>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
