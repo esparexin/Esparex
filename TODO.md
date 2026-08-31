@@ -378,3 +378,34 @@
   - [x] High-density table cells with compact padding and sticky headers
   - [x] Keyboard shortcuts (`Escape` for modals, arrow/tab navigation)
   - [x] Design token compliance with dark mode support
+
+---
+
+# ⚙️ Esparex Backend API & Core Engine (`backend/api` & `core`) Master Checklist
+
+> **Purpose**: Single dedicated task list for tracking backend domain services, API routes, database resilience, rate limiting, and contract safety across `backend/api` and `@esparex/core`.
+
+---
+
+## 🔒 1. Auth, Sessions & Security Middleware (`backend/api`) — ✅ **COMPLETED**
+- [x] **OTP Engine & Session Security**
+  - [x] SMS OTP dispatch with rate limiting & exponential lockout protection
+  - [x] JWT access token issuance, refresh token rotation, and single-session revocation
+  - [x] Strict CORS origin validation & cookie parser with RFC 6265 compliant parsing
+
+---
+
+## 💰 2. Payment Webhooks, Plans & Idempotency (`core` & `backend/api`) — ✅ **COMPLETED**
+- [x] **Payment Processing Engine**
+  - [x] Razorpay & Stripe webhook signature verification with replay protection
+  - [x] FEFO Entitlement consumption engine for paid listing credits
+  - [x] Automated GST tax calculation & PDF invoice generator (`InvoicePdfService`)
+
+---
+
+## 🗄️ 3. Domain Services, Spatial Queries & Lifecycle (`core`) — ✅ **COMPLETED**
+- [x] **Listing Engine & Spatial Location Search**
+  - [x] Listing lifecycle state machine (Draft → Pending → Live → Sold → Expired → Deleted)
+  - [x] MongoDB 2dsphere spatial indexing & GeoJSON point validation
+  - [x] Image moderation pipeline with local OCR, perceptual hashing & duplicate detection
+  - [x] Real-time WebSocket chat service with attachment MIME validation and read receipts
