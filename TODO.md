@@ -327,3 +327,54 @@
 - [x] **Performance & Core Web Vitals**
   - [x] Next.js optimized `<Image>` components with proper sizes & priority flags
   - [x] LCP < 2.5s and CLS < 0.1 verified
+
+---
+
+# 🛡️ Esparex Admin Dashboard (`apps/admin`) Master Checklist
+
+> **Purpose**: Single dedicated task list for tracking implementation, UI density, moderation workflows, and operational verification across the Admin operations portal in `apps/admin`.
+
+---
+
+## 📋 1. Listing Moderation & Content Safety (`app/ads/`) — ✅ **COMPLETED**
+- [x] **Moderation Queue & Table**
+  - [x] High-density moderation queue (Pending Review, Live, Rejected, Expired)
+  - [x] Bulk & single-action approval / rejection with preset rejection reasons
+  - [x] AI Auto-moderation review score & sensitive image flags
+  - [x] Full listing preview modal with image inspector & seller history
+
+---
+
+## 👥 2. User & Business Verification (`app/users/` & `app/businesses/`) — ✅ **COMPLETED**
+- [x] **User Management & KYC**
+  - [x] User directory with search, ban/unban toggle, and session revocation
+  - [x] Business KYC verification approval / rejection flow (`/business-requests`)
+  - [x] Verified Business badge grant & tier assignment (Free, Pro, Enterprise)
+
+---
+
+## 💳 3. Monetization, Plans & Finance (`app/plans/` & `app/finance/`) — ✅ **COMPLETED**
+- [x] **Plans & Revenue Ledger**
+  - [x] User listing plans & Business subscription plans configuration
+  - [x] Order history, payment gateway transaction status (Razorpay/Stripe), and refund actions
+  - [x] GST invoice download & tax breakdown reports
+  - [x] Ad placement slots & Google Ads / Banner inventory manager (`/google-ads`)
+
+---
+
+## 🚨 4. Disputes, Reports & Security Audit (`app/reports/` & `app/security/audit/`) — ✅ **COMPLETED**
+- [x] **Dispute Resolution Hub**
+  - [x] User report triage queue (Fraud, Prohibited Item, Spam, Duplicate)
+  - [x] Seller penalty & ad takedown actions with automated user notifications
+  - [x] Security audit logs (`/security/audit`) with IP, timestamp, and admin actor tracking
+
+---
+
+## 📊 5. Catalog, Locations & Admin Density UI Gate — ✅ **COMPLETED**
+- [x] **Catalog & Geo-Location Management**
+  - [x] Hierarchical catalog manager (Categories, Brands, Device Models, Spare Part Types)
+  - [x] Location hierarchy manager (State, City, Tier-1/2/3 metro tagging, Geofencing)
+- [x] **Admin UI Density & Keyboard Navigation**
+  - [x] High-density table cells with compact padding and sticky headers
+  - [x] Keyboard shortcuts (`Escape` for modals, arrow/tab navigation)
+  - [x] Design token compliance with dark mode support
