@@ -58,18 +58,14 @@ const toObjectIdString = (value: unknown): string | undefined => {
     if (typeof value === 'string') return value.trim() || undefined;
     if (typeof value === 'number') return String(value).trim() || undefined;
     if (value && typeof value === 'object' && (('_id' in value) || ('id' in value))) {
-        const objValue = value as Record<string, unknown>;
-        const candidate = objValue._id ?? objValue.id;
-        if (typeof candidate === 'string') return candidate.trim() || undefined;
-        if (typeof candidate === 'number') return String(candidate).trim() || undefined;
+        const candidate = (value as Record<string, unknown>)._id ?? (value as Record<string, unknown>).id;
+        return typeof candidate === 'string' ? candidate.trim() || undefined : typeof candidate === 'number' ? String(candidate).trim() || undefined : undefined;
     }
     return undefined;
 };
 
-const normalizeToken = (value: unknown): string => {
-    if (typeof value !== 'string') return '';
-    return value.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-};
+const normalizeToken = (value: unknown): string =>
+    typeof value !== 'string' ? '' : value.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 
 const normalizeNumericToken = (value: unknown): string => {
     const val = typeof value === 'number' ? value : Number(value);
@@ -81,23 +77,19 @@ const buildPriceRangeBucket = (value: unknown): string => {
     if (!Number.isFinite(numericPrice) || numericPrice < 0) return '';
     const bucketSize = 500;
     const lowerBound = Math.floor(numericPrice / bucketSize) * bucketSize;
-    const upperBound = lowerBound + bucketSize - 1;
-    return `${lowerBound}-${upperBound}`;
+    return `${lowerBound}-${lowerBound + bucketSize - 1}`;
 };
 
 const buildLocationRadiusToken = (payload: DuplicatePayload): string => {
     const locationId = toObjectIdString(payload.location?.locationId);
     if (locationId) return locationId.toLowerCase();
-
     const cityToken = normalizeToken(payload.location?.city);
     const stateToken = normalizeToken(payload.location?.state);
     const lng = payload.location?.coordinates?.coordinates?.[0];
     const lat = payload.location?.coordinates?.coordinates?.[1];
     const roundedLng = typeof lng === 'number' && Number.isFinite(lng) ? lng.toFixed(2) : '';
     const roundedLat = typeof lat === 'number' && Number.isFinite(lat) ? lat.toFixed(2) : '';
-
-    const locationParts = [cityToken, stateToken, roundedLng, roundedLat].filter(Boolean);
-    return locationParts.join(':');
+    return [cityToken, stateToken, roundedLng, roundedLat].filter(Boolean).join(':');
 };
 
 type DuplicateTelemetryEvent = {
@@ -109,12 +101,7 @@ type DuplicateTelemetryEvent = {
 
 const logDuplicateDetection = (telemetry: DuplicateTelemetryEvent) => {
     const msg = `AdDuplicateService: ${telemetry.event} ${telemetry.message ? '- ' + telemetry.message : ''}`;
-    switch (telemetry.level) {
-        case 'debug': logger.debug(msg, telemetry.context); break;
-        case 'info': logger.info(msg, telemetry.context); break;
-        case 'warn': logger.warn(msg, telemetry.context); break;
-        case 'error': logger.error(msg, telemetry.context); break;
-    }
+    logger[telemetry.level](msg, telemetry.context);
 };
 
 // ─────────────────────────────────────────────────
@@ -181,20 +168,7 @@ export const buildDuplicateFingerprint = (
     logDuplicateDetection({
         level: 'debug',
         event: 'fingerprint_generated',
-        context: {
-            fingerprint,
-            fingerprintBase,
-            rawPayload: {
-                categoryId: payload.categoryId,
-                brandId: payload.brandId,
-                modelId: payload.modelId,
-                price: payload.price,
-                resolvedCondition,
-                listingType: payload.listingType,
-                location: payload.location,
-            },
-            normalizedFields,
-        }
+        context: { fingerprint, fingerprintBase, normalizedFields }
     });
 
     return fingerprint;
@@ -261,6 +235,32 @@ export const assessCrossUserDuplicateRisk = async (
     payloadImageHashes: string[],
     session?: ClientSession
 ): Promise<CrossUserDuplicateRisk> => {
+    const validImageHashes = (payloadImageHashes || []).filter(
+        (h) => typeof h === 'string' && h.trim().length > 0 && h !== 'existing-url' && h !== 'dev-hash' && h !== 'invalid'
+    );
+
+    // 1. Direct Image Hash Collision (Cross-Seller)
+    if (validImageHashes.length > 0) {
+        const imageCollisionQuery: Record<string, unknown> = {
+            imageHashes: { $in: validImageHashes },
+            status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
+            isDeleted: { $ne: true },
+            sellerId: { $ne: sellerId },
+        };
+        if (session) imageCollisionQuery.session = session;
+
+        const imageMatch = await getListingRepository().findOne(imageCollisionQuery as ListingFilter);
+        if (imageMatch) {
+            return {
+                score: 85,
+                matchedAdId: imageMatch.id,
+                reason: 'Identical photo detected from another listing',
+                details: { imageHashMatch: true, matchedAdId: imageMatch.id },
+            };
+        }
+    }
+
+    // 2. Parametric Similarity Check
     const categoryId = toObjectIdString(payload.categoryId);
     const locationId = toObjectIdString(payload.location?.locationId);
     const price = typeof payload.price === 'number' ? payload.price : undefined;
@@ -270,32 +270,26 @@ export const assessCrossUserDuplicateRisk = async (
     }
 
     const priceMargin = price * 0.1;
-    const priceRange = { $gte: price - priceMargin, $lte: price + priceMargin };
-
     const query: Record<string, unknown> = {
         categoryId,
         locationId,
-        price: priceRange,
+        price: { $gte: price - priceMargin, $lte: price + priceMargin },
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         sellerId: { $ne: sellerId },
-        ...(payloadImageHashes.length > 0 ? { imageHashes: { $in: payloadImageHashes } } : {}),
     };
     if (session) query.session = session;
 
     const potentialMatches = await getListingRepository().findWithLimit(query as ListingFilter, { createdAt: -1 }, 5);
-
     if (potentialMatches.length === 0) {
         return { score: 0, reason: 'No cross-user duplicates detected', details: {} };
     }
 
     const firstMatch = potentialMatches[0];
-    const matchScore = 40 + (payloadImageHashes.length > 0 ? 40 : 0);
-
     return {
-        score: Math.min(matchScore, 80),
+        score: 40,
         matchedAdId: firstMatch.id,
         reason: 'Similar listings found from other sellers',
-        details: { matchCount: potentialMatches.length, imageHashMatch: payloadImageHashes.length > 0, priceRange },
+        details: { matchCount: potentialMatches.length, imageHashMatch: false },
     };
 };
 
@@ -325,8 +319,7 @@ export const logDuplicateEvent = async (
             details: event.details,
         });
         const sessionClient = (session as { client?: unknown })?.client;
-        const isSameClient = Boolean(sessionClient && sessionClient === DuplicateEvent.db.getClient());
-        await duplicateEvent.save(session && isSameClient ? { session } : undefined);
+        await duplicateEvent.save(session && sessionClient === DuplicateEvent.db.getClient() ? { session } : undefined);
     } catch (err) {
         logger.error('Failed to log duplicate event', { error: String(err), event });
     }
@@ -343,7 +336,25 @@ export class AdDuplicateService {
         imageHashes: string[] = [],
         session?: ClientSession
     ): Promise<DuplicateCheckResult> {
-        // 1. Precise Self-Duplicate Check
+        // 1. Direct Self Image Duplicate Check
+        const validHashes = (imageHashes || []).filter(
+            (h) => typeof h === 'string' && h.trim().length > 0 && h !== 'existing-url' && h !== 'dev-hash' && h !== 'invalid'
+        );
+        if (validHashes.length > 0) {
+            const selfImageQuery: Record<string, unknown> = {
+                sellerId,
+                imageHashes: { $in: validHashes },
+                status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] },
+                isDeleted: { $ne: true },
+            };
+            if (session) selfImageQuery.session = session;
+            const selfImageMatch = await getListingRepository().findOne(selfImageQuery as ListingFilter);
+            if (selfImageMatch) {
+                return { isDuplicate: true, riskScore: 100, matchedAdId: selfImageMatch.id, reason: 'Existing active listing detected with identical photo.' };
+            }
+        }
+
+        // 2. Precise Self-Duplicate Check
         const selfDuplicate = payload.categoryId
             ? await findExistingSelfDuplicate(
                 sellerId,
@@ -359,19 +370,11 @@ export class AdDuplicateService {
             : null;
 
         if (selfDuplicate) {
-            logDuplicateDetection({
-                level: 'info',
-                event: 'duplicate_detected',
-                message: 'self-duplicate collision',
-                context: {
-                    sellerId,
-                    matchedAdId: selfDuplicate.id,
-                }
-            });
+            logDuplicateDetection({ level: 'info', event: 'duplicate_detected', message: 'self-duplicate collision', context: { sellerId, matchedAdId: selfDuplicate.id } });
             return { isDuplicate: true, riskScore: 100, matchedAdId: selfDuplicate.id, reason: 'Existing active listing detected for this user.' };
         }
 
-        // 2. Fingerprint Check
+        // 3. Fingerprint Check
         const fingerprint = buildDuplicateFingerprint(payload, sellerId);
         if (fingerprint) {
             const query: Record<string, unknown> = {
@@ -382,23 +385,13 @@ export class AdDuplicateService {
             if (session) query.session = session;
 
             const fingerprintMatch = await getListingRepository().findOne(query as ListingFilter);
-            
             if (fingerprintMatch) {
-                logDuplicateDetection({
-                    level: 'info',
-                    event: 'duplicate_detected',
-                    message: 'fingerprint collision',
-                    context: {
-                        fingerprint,
-                        sellerId,
-                        matchedAdId: fingerprintMatch.id,
-                    }
-                });
+                logDuplicateDetection({ level: 'info', event: 'duplicate_detected', message: 'fingerprint collision', context: { fingerprint, sellerId, matchedAdId: fingerprintMatch.id } });
                 return { isDuplicate: true, riskScore: 90, matchedAdId: fingerprintMatch.id, reason: 'Duplicate fingerprint detected.' };
             }
         }
 
-        // 3. Cross-User Risk Assessment
+        // 4. Cross-User Risk Assessment
         const crossUserRisk = await assessCrossUserDuplicateRisk(payload, sellerId, imageHashes, session);
         return { isDuplicate: crossUserRisk.score > 70, riskScore: crossUserRisk.score, matchedAdId: crossUserRisk.matchedAdId, reason: crossUserRisk.reason };
     }
