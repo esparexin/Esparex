@@ -208,3 +208,122 @@
   - [x] `npm test` mobile test suites pass with 100% green (58/58 test suites, 210/210 tests)
 
 ---
+
+# 🌐 Esparex Web Marketplace (`apps/web`) Master Checklist
+
+> **Purpose**: Single dedicated task list for tracking implementation, UI refinement, and UX verification across the Web Marketplace application in `apps/web`.
+
+---
+
+## 🧭 1. Header & Global Navigation Shell (`components/layout/`) — ✅ **COMPLETED**
+- [x] **Global Header** (`apps/web/src/components/user/Header.tsx`)
+  - [x] Single-instance responsive component (CSS breakpoints `hidden md:flex`, `flex md:hidden`)
+  - [x] Location selector modal trigger & active city pill
+  - [x] Instant search bar with clear button & category selector
+  - [x] "Post Ad" primary action CTA with auth interception
+  - [x] User avatar / Auth menu dropdown (Account, My Ads, Messages, Wallet, Logout)
+  - [x] Notifications bell trigger with unread counter
+- [x] **Location Selector Modal** (`apps/web/src/components/location/LocationOverlayHost.tsx`)
+  - [x] City / Area search input with debounce
+  - [x] Browser Geolocation auto-detect trigger & IP fallback
+  - [x] Popular metro cities quick-select chips
+  - [x] All India selection & persistent localStorage synchronization
+- [x] **Mobile Navigation Drawer & Bottom Bar** (`apps/web/src/components/mobile/MobileBottomNav.tsx`)
+  - [x] Accessible focus-trapping drawer with `inert` attribute on backdrop
+  - [x] Bottom sticky action bar on mobile viewports (`BottomActionsBar.tsx`)
+
+---
+
+## 🏠 2. Home Feed & Discovery Experience (`app/page.tsx`) — ✅ **COMPLETED**
+- [x] **Hero & Banner Placement**
+  - [x] Monetization display slot & hero announcement
+  - [x] Dynamic location-aware greeting & stats
+- [x] **Category & Brand Carousels**
+  - [x] 1-click category navigators (Smartphones, Laptops, Tablets, Smartwatches, Spare Parts)
+  - [x] Top brand filter chips (Apple, Samsung, Xiaomi, OnePlus, Dell, HP, etc.)
+- [x] **Dynamic Feed & Recommendations**
+  - [x] Fresh Listings grid with responsive column layout
+  - [x] Verified Business spotlight cards
+  - [x] Skeleton loaders & empty state fallbacks
+
+---
+
+## 🔍 3. Search & Browse Results View (`app/search/page.tsx`) — ✅ **COMPLETED**
+- [x] **Search Engine & Filter Drawer**
+  - [x] URL search params synchronization (`q`, `categoryId`, `minPrice`, `maxPrice`, `condition`, `verifiedOnly`, `sort`)
+  - [x] Multi-faceted filter sidebar on Desktop / Bottom Sheet on Mobile
+  - [x] Verified Business filter toggle
+  - [x] Sort order dropdown (Newest, Price: Low to High, Price: High to Low)
+- [x] **Listing Card Grid & List View**
+  - [x] Unified `AdCardGrid` / `AdCardList` rendering
+  - [x] Price badge with pre-formatted currency SSOT
+  - [x] Favorite / bookmark optimistic toggle
+  - [x] Responsive pagination / infinite scroll trigger
+
+---
+
+## 📱 4. Listing Detail & Media Lightbox (`app/ads/[slug]/page.tsx`) — ✅ **COMPLETED**
+- [x] **Media Viewer & Lightbox** (`apps/web/src/components/user/listing-detail/AdImageLightbox.tsx`)
+  - [x] High-res image carousel with thumbnail navigation
+  - [x] Fullscreen zoomable lightbox modal with keyboard Escape / Arrow key support
+- [x] **Ad Content & Specifications**
+  - [x] Device metadata table (Brand, Model, Condition, Warranty, Included Accessories)
+  - [x] Verified seller badge, trust score, and member since date
+  - [x] In-person transaction safety tips card
+- [x] **Action Bar & Communication CTA**
+  - [x] "Chat with Seller" direct message button
+  - [x] Phone number reveal / call action with security mask
+  - [x] Report ad modal dialog with categorization
+
+---
+
+## 📝 5. Post Ad 3-Step Wizard (`app/post-ad/page.tsx`) — ✅ **COMPLETED**
+- [x] **Step Isolation & Schema Governance**
+  - [x] Step 1: Category & Device identification (Category, Brand, Model, Condition)
+  - [x] Step 2: Details & Pricing (Title, Description, Price, Location with Zod empty-string unions)
+  - [x] Step 3: Photos & Publishing (Drag-and-drop uploader, cover photo selector, HEIC/WebP auto-compression)
+- [x] **Mobile Input Standards**
+  - [x] All input font sizes `>= 16px` (`text-base` / `text-body-lg`) to prevent WebKit zoom distortion
+  - [x] Clear step-by-step validation via `form.trigger(['field'])` without hidden field blocking
+
+---
+
+## 💬 6. Chat & Real-Time Messaging (`app/chat/page.tsx`) — ✅ **COMPLETED**
+- [x] **Conversation Hub**
+  - [x] Thread list with search filter & unread counter badges
+  - [x] Active conversation pane with real-time WebSocket connection
+  - [x] Auto-reconnect with exponential backoff & offline banner
+- [x] **Message Stream & Composer**
+  - [x] Quick reply chips for fast negotiation
+  - [x] Image attachment preview and upload
+  - [x] Read receipts & timestamp indicators
+
+---
+
+## 👤 7. User Account & Management (`app/account/`) — ✅ **COMPLETED**
+- [x] **Account Dashboard**
+  - [x] My Ads management (Active, Pending, Sold, Expired) with edit / delete / mark sold actions
+  - [x] Saved Ads / Bookmarks list
+  - [x] Smart Alerts configuration (Keyword / category price alerts)
+  - [x] User Profile & Notification preferences
+
+---
+
+## 🏢 8. Business & Service Center Directory (`app/business/`) — ✅ **COMPLETED**
+- [x] **Business Directory**
+  - [x] Verified repair shops & spare part wholesaler profiles
+  - [x] Location-based service center locator
+  - [x] Business registration & verification onboarding flow
+
+---
+
+## ♿ 9. Accessibility, Design Tokens & CWV Quality Gate — ✅ **COMPLETED**
+- [x] **WCAG 2.2 AA Compliance**
+  - [x] 100% keyboard navigable with visible focus rings (`focus-visible:ring-2`)
+  - [x] Semantic HTML and descriptive `aria-label` / `role` attributes
+- [x] **Design Tokens & Theme SSOT**
+  - [x] Strict semantic token usage (`text-foreground`, `bg-muted`, `border-border`, etc.)
+  - [x] 0 hardcoded `#hex` color literals
+- [x] **Performance & Core Web Vitals**
+  - [x] Next.js optimized `<Image>` components with proper sizes & priority flags
+  - [x] LCP < 2.5s and CLS < 0.1 verified
