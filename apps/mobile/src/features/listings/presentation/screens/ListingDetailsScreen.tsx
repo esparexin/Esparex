@@ -26,13 +26,7 @@ type ListingDetailsRouteProp = RouteProp<MainStackParamList, typeof ROUTES.LISTI
 export const ListingDetailsScreen = () => {
   const route = useRoute<ListingDetailsRouteProp>();
   const [showReportModal, setShowReportModal] = useState(false);
-  let authStatus: AuthStatus = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
+  const { status: authStatus } = useAuth();
   const { id } = route.params;
 
   const { data: listing, isLoading, error } = useListingDetails(id);
