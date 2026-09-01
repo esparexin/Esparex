@@ -3,9 +3,10 @@ import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.
 import { getListingPhone, type Listing as Ad } from '@/lib/api/user/listings';
 import type { User } from '@/types/User';
 import { notify } from "@/lib/feedback";
-import { buildLoginUrl } from '@/lib/authHelpers';
+import { useAuthModal } from '@/context/AuthModalContext';
 
-export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined | null, router: AppRouterInstance) {
+export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined | null, _router?: AppRouterInstance) {
+  const { showLogin } = useAuthModal();
   const [revealedPhone, setRevealedPhone] = useState<string | null>(null);
   const [isPhoneMasked, setIsPhoneMasked] = useState(false);
   const [phoneMessage, setPhoneMessage] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined
 
     if (revealedPhone && isPhoneMasked && !user) {
       const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      void router.push(buildLoginUrl(returnTo));
+      showLogin(returnTo);
       return;
     }
 

@@ -3,6 +3,10 @@ export const typography = {
     sans: ['var(--font-primary)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
     mono: ['var(--font-mono)', 'monospace'],
   },
+  mobileFonts: {
+    sans: 'System',
+    mono: 'monospace',
+  },
   fontSizes: {
     'display': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }], // 36px
     'h1': ['1.875rem', { lineHeight: '1.25', letterSpacing: '-0.02em' }],  // 30px

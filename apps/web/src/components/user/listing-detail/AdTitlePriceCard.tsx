@@ -95,7 +95,7 @@ export function AdTitlePriceCard({
                     {ad.title || "Ad Title"}
                 </h1>
                 {ad.id ? (
-                    <span className="text-tiny font-mono font-medium text-foreground-subtle shrink-0">
+                    <span className="text-tiny font-mono font-semibold text-foreground-secondary shrink-0">
                         Ad ID: #{String(ad.id).slice(-8)}
                     </span>
                 ) : null}

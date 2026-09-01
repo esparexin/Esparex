@@ -9,7 +9,7 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      fontFamily: typography.fonts,
+      fontFamily: typography.mobileFonts,
       fontSize: typography.fontSizes,
       fontWeight: typography.fontWeights,
       colors: {

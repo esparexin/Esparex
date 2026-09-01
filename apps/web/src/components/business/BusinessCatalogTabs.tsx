@@ -19,7 +19,7 @@ interface CatalogTab {
 
 interface BusinessCatalogTabsProps {
   tabs: CatalogTab[];
-  activeTab: ListingTab;
+  activeTab?: ListingTab;
   effectiveActiveTab: ListingTab;
   onTabChange: (tab: ListingTab) => void;
   activeItems: (Ad | Service)[];

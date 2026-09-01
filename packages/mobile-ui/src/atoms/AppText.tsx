@@ -9,6 +9,15 @@ export interface AppTextProps extends RNTextProps {
   className?: string;
 }
 
+const normalizeTextChildren = (children: React.ReactNode): React.ReactNode => {
+  if (Array.isArray(children)) {
+    if (children.every((child) => typeof child === 'string' || typeof child === 'number' || child === null || child === undefined)) {
+      return children.filter((c) => c !== null && c !== undefined).join('');
+    }
+  }
+  return children;
+};
+
 export const AppText: React.FC<AppTextProps> = ({
   variant = 'body',
   color = 'default',
@@ -16,6 +25,7 @@ export const AppText: React.FC<AppTextProps> = ({
   align = 'left',
   className = '',
   style,
+  children,
   ...props
 }) => {
   const getVariantStyles = () => {
@@ -73,6 +83,8 @@ export const AppText: React.FC<AppTextProps> = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <RNText className={classes} style={style} {...props} />
+    <RNText className={classes} style={style} {...props}>
+      {normalizeTextChildren(children)}
+    </RNText>
   );
 };

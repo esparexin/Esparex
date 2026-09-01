@@ -60,4 +60,21 @@ describe('FilterBar Component', () => {
     fireEvent.press(getByText('Sort: price-low'));
     expect(mockRemoveSort).toHaveBeenCalledTimes(1);
   });
+
+  it('renders verified businesses chip and calls onRemoveVerifiedOnly when pressed', () => {
+    const mockRemoveVerifiedOnly = jest.fn();
+    const { getByText } = render(
+      <FilterBar
+        filters={{ verifiedOnly: true }}
+        activeFilterCount={1}
+        onOpenFilterModal={jest.fn()}
+        onClearFilters={jest.fn()}
+        onRemoveVerifiedOnly={mockRemoveVerifiedOnly}
+      />
+    );
+
+    expect(getByText('Verified Businesses')).toBeTruthy();
+    fireEvent.press(getByText('Verified Businesses'));
+    expect(mockRemoveVerifiedOnly).toHaveBeenCalledTimes(1);
+  });
 });

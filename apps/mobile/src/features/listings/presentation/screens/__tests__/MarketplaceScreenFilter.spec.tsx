@@ -42,6 +42,11 @@ jest.mock('../../hooks/useToggleSaveListing', () => ({
   }),
 }));
 
+jest.mock('../../../../notifications/presentation/hooks/useNotifications', () => ({
+  useNotifications: () => ({ data: [], isLoading: false }),
+  useUnreadNotificationsCount: () => 0,
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(

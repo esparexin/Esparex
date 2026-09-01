@@ -48,7 +48,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         </DialogClose>
         
         <div className="flex-1 flex flex-col justify-center my-auto min-h-0">
-          <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} />
+          <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} onBack={() => onOpenChange(false)} />
         </div>
       </DialogContent>
     </Dialog>

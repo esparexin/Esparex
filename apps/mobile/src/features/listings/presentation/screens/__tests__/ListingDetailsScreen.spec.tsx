@@ -37,6 +37,9 @@ import { useSavedListings } from '../../hooks/useSavedListings';
 import { useProfile } from '../../../../user/presentation/hooks/useProfile';
 import { Listing } from '../../../domain/Listing';
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
 jest.mock('../../hooks/useListingDetails');
 jest.mock('../../../../user/presentation/hooks/useProfile');
 jest.mock('../../hooks/useNearbyBusinesses', () => ({

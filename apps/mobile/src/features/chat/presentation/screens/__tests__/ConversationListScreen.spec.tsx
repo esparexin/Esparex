@@ -93,4 +93,24 @@ describe('ConversationListScreen Component', () => {
     const { getByText } = render(<ConversationListScreen />);
     expect(getByText('No Messages Yet')).toBeTruthy();
   });
+
+  it('filters conversations when user types into search input', () => {
+    mockUseConversations.mockReturnValue({
+      data: [sampleConversation],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      isRefetching: false,
+    } as any);
+
+    const { getByPlaceholderText, queryByText, getByText } = render(<ConversationListScreen />);
+    const searchInput = getByPlaceholderText('Search chats, sellers, or parts…');
+
+    fireEvent.changeText(searchInput, 'NonExistent');
+    expect(queryByText('Hyundai Creta Alloy Wheel 17 inch')).toBeNull();
+    expect(getByText('No Chats Found')).toBeTruthy();
+
+    fireEvent.changeText(searchInput, 'Creta');
+    expect(getByText('Hyundai Creta Alloy Wheel 17 inch')).toBeTruthy();
+  });
 });

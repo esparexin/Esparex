@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Container, AppText, Center, AppIcon } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { Screen, Container } from '@esparex/mobile-ui';
 import { useSearch } from '../hooks/useSearch';
 import { useSavedListings } from '../hooks/useSavedListings';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
@@ -13,6 +12,8 @@ import { FilterBar } from '../components/FilterBar';
 import { FilterModal } from '../components/FilterModal';
 import { ListingCard } from '../components/ListingCard';
 import { ListingSkeleton } from '../components/ListingSkeleton';
+import { RecentSearchesSection } from '../components/RecentSearchesSection';
+import { TrendingSearchesSection } from '../components/TrendingSearchesSection';
 import { EmptyState } from '../../../common/components/EmptyState';
 import { ErrorState } from '../../../common/components/ErrorState';
 import { navigate } from '../../../../navigation/navigationRef';
@@ -40,28 +41,42 @@ export const SearchScreen = () => {
   );
 
   const {
-    query,
-    debouncedQuery,
-    filters,
-    activeFilterCount,
-    hasSearchFilter,
-    setFilters,
-    handleQueryChange,
-    handleSubmit,
-    handleClear,
-    handleClearFilters,
-    handleSelectCategory,
-    handleRemoveSort,
-    handleRemoveCondition,
-    handleRemovePrice,
-    data,
-    isLoading,
-    isError,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    query, debouncedQuery, filters, activeFilterCount, hasSearchFilter,
+    setFilters, handleQueryChange, handleSubmit, handleClear, handleClearFilters,
+    handleSelectCategory, handleRemoveSort, handleRemoveCondition, handleRemovePrice,
+    handleRemoveVerifiedOnly, data, isLoading, isError, refetch, fetchNextPage,
+    hasNextPage, isFetchingNextPage,
   } = useSearch();
+
+  const [recentSearches, setRecentSearches] = useState<string[]>([
+    'iPhone Display',
+    'MacBook Battery',
+    'Charging IC',
+  ]);
+
+  const handleSearchSubmit = useCallback(() => {
+    const trimmed = query.trim();
+    if (trimmed) {
+      setRecentSearches((prev) => [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 6));
+    }
+    handleSubmit();
+  }, [query, handleSubmit]);
+
+  const handleSelectRecentOrTrending = useCallback(
+    (term: string) => {
+      handleQueryChange(term);
+      setRecentSearches((prev) => [term, ...prev.filter((item) => item !== term)].slice(0, 6));
+    },
+    [handleQueryChange],
+  );
+
+  const handleRemoveRecentSearch = useCallback((term: string) => {
+    setRecentSearches((prev) => prev.filter((item) => item !== term));
+  }, []);
+
+  const handleClearAllRecentSearches = useCallback(() => {
+    setRecentSearches([]);
+  }, []);
 
   const handlePress = useCallback((id: string) => {
     navigate(ROUTES.MAIN_STACK, {
@@ -101,17 +116,15 @@ export const SearchScreen = () => {
   const renderContent = () => {
     if (!hasSearchFilter) {
       return (
-        <Center className="flex-1 px-8 py-12">
-          <View className="w-16 h-16 rounded-full bg-brand-50 dark:bg-brand-950/50 items-center justify-center mb-4">
-            <AppIcon name="Search" size={32} color={base.brand[500]} />
-          </View>
-          <AppText variant="h3" className="text-slate-800 dark:text-slate-100 font-bold text-center">
-            Search Esparex
-          </AppText>
-          <AppText variant="body" className="text-slate-500 dark:text-slate-400 mt-2 text-center text-sm leading-5">
-            Search by keyword, select a category above, or apply filters to find parts, phones, and laptops.
-          </AppText>
-        </Center>
+        <View className="flex-1 px-4 py-4">
+          <RecentSearchesSection
+            recentSearches={recentSearches}
+            onSelect={handleSelectRecentOrTrending}
+            onRemove={handleRemoveRecentSearch}
+            onClearAll={handleClearAllRecentSearches}
+          />
+          <TrendingSearchesSection onSelect={handleSelectRecentOrTrending} />
+        </View>
       );
     }
 
@@ -178,7 +191,7 @@ export const SearchScreen = () => {
           <SearchBar
             value={query}
             onChangeText={handleQueryChange}
-            onSubmit={handleSubmit}
+            onSubmit={handleSearchSubmit}
             onClear={handleClear}
             placeholder="Search parts, models, brands…"
           />
@@ -199,6 +212,7 @@ export const SearchScreen = () => {
           onRemoveSort={handleRemoveSort}
           onRemoveCondition={handleRemoveCondition}
           onRemovePrice={handleRemovePrice}
+          onRemoveVerifiedOnly={handleRemoveVerifiedOnly}
         />
 
         {/* Filter Customization Bottom Sheet */}

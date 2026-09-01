@@ -63,9 +63,29 @@ export const LoginScreen = () => {
       title="Welcome to Esparex"
       description="Login or register with your 10-digit mobile number"
       footer={
-        <View className="px-4">
-          <AppText variant="caption" className="text-center text-slate-400 dark:text-slate-500">
-            By continuing, you agree to Esparex Terms of Service &amp; Privacy Policy.
+        <View className="px-4 flex-row flex-wrap justify-center items-center">
+          <AppText variant="caption" className="text-foreground-subtle">
+            By continuing, you agree to Esparex{' '}
+            <AppText
+              variant="caption"
+              className="text-brand-600 font-semibold underline"
+              onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
+              accessibilityRole="link"
+              accessibilityLabel="View terms of service"
+            >
+              Terms of Service
+            </AppText>
+            {' '}&amp;{' '}
+            <AppText
+              variant="caption"
+              className="text-brand-600 font-semibold underline"
+              onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
+              accessibilityRole="link"
+              accessibilityLabel="View privacy policy"
+            >
+              Privacy Policy
+            </AppText>
+            .
           </AppText>
         </View>
       }

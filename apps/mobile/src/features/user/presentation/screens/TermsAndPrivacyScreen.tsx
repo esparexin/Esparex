@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen, Container, Card, AppText } from '@esparex/mobile-ui';
+import { Screen, Container, Card, AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft } from 'lucide-react-native';
 
 export function TermsAndPrivacyScreen() {
   const navigation = useNavigation();
@@ -12,10 +12,11 @@ export function TermsAndPrivacyScreen() {
       <View className="px-4 py-3 bg-card border-b border-border flex-row items-center">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="p-2 mr-2 rounded-lg bg-muted"
+          className="p-1 mr-3"
           accessibilityLabel="Go back"
+          accessibilityRole="button"
         >
-          <ArrowLeft size={20} color="#0f172a" />
+          <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
         </TouchableOpacity>
         <AppText variant="h3" className="text-foreground font-bold">
           Terms &amp; Privacy Policy

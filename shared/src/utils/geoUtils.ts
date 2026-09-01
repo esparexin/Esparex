@@ -3,10 +3,8 @@
 export type { GeoJSONPoint } from '@esparex/contracts';
 import type { GeoJSONPoint } from '@esparex/contracts';
 
-
-
-
-/**
+/** Canonical centroid coordinates of India [longitude, latitude] */
+export const DEFAULT_INDIA_COORDINATES: [number, number] = [78.96, 20.59];/**
  * Calculates the Haversine distance between two points in kilometers.
  */
 export const haversineDistance = (

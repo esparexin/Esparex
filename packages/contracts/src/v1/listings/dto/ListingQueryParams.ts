@@ -10,4 +10,5 @@ export interface ListingQueryParams {
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'newest' | 'price-low' | 'price-high' | 'distance' | 'trending';
+  verifiedOnly?: boolean;
 }

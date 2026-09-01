@@ -4,7 +4,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
 import { navigate } from '../../../../navigation/navigationRef';
-import { useAuth, AuthStatus } from '../../../../providers/AuthProvider';
+import { useAuth } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { useSavedListings } from '../hooks/useSavedListings';
@@ -26,19 +26,13 @@ type ListingDetailsRouteProp = RouteProp<MainStackParamList, typeof ROUTES.LISTI
 export const ListingDetailsScreen = () => {
   const route = useRoute<ListingDetailsRouteProp>();
   const [showReportModal, setShowReportModal] = useState(false);
-  let authStatus: AuthStatus = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
+  const { status: authStatus } = useAuth();
   const { id } = route.params;
 
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
-  const { data: savedListings } = useSavedListings();
-  const { data: userProfile } = useProfile();
+  const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
+  const { data: userProfile } = useProfile(authStatus === 'authenticated');
 
   const isSaved = (savedListings || []).some((item) => String(item.id) === String(id));
   const isOwner =
@@ -106,8 +100,9 @@ export const ListingDetailsScreen = () => {
                   },
                 });
               }
-            } catch (err: any) {
-              Alert.alert('Unable to start chat', err?.message || 'Please try again later.');
+            } catch (err: unknown) {
+              const errorMessage = err instanceof Error ? err.message : 'Please try again later.';
+              Alert.alert('Unable to start chat', errorMessage);
             }
           },
         },

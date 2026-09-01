@@ -203,26 +203,9 @@ export function Header({
             </>
           ) : isLoggedIn ? (
             <>
-              <HeaderBusinessButton
-                isBusinessLive={isBusinessLive}
-                shouldShowPendingReview={shouldShowPendingReview}
-                canRegister={canRegister}
-                businessStatus={businessStatus}
-                onNavigate={navigateTo}
-              />
-              <NotificationBellDropdown
-                notificationsData={notificationsData}
-                unreadCount={notifUnreadCount}
-                onRefresh={refetchNotifications}
-                variant="desktop"
-              />
-              <HeaderAccountMenu
-                user={user}
-                safeProfilePhoto={safeProfilePhoto}
-                profileMenuItems={profileMenuItems}
-                onMenuItemClick={handleMenuItemClick}
-                onLogout={onLogout}
-              />
+              <HeaderBusinessButton isBusinessLive={isBusinessLive} shouldShowPendingReview={shouldShowPendingReview} canRegister={canRegister} businessStatus={businessStatus} onNavigate={navigateTo} />
+              <NotificationBellDropdown notificationsData={notificationsData} unreadCount={notifUnreadCount} onRefresh={refetchNotifications} variant="desktop" />
+              <HeaderAccountMenu user={user} safeProfilePhoto={safeProfilePhoto} profileMenuItems={profileMenuItems} onMenuItemClick={handleMenuItemClick} onLogout={onLogout} />
             </>
           ) : (
             <Button variant="ghost" size="sm" onClick={onShowLogin} className="cursor-pointer">
@@ -273,7 +256,13 @@ export function Header({
           )}
           <div className="flex items-center gap-1">
             {!isLoggedIn && !isAuthLoading && (
-              <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer" onClick={onShowLogin}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
+                onClick={onShowLogin}
+                aria-label="Log in to Esparex"
+              >
                 <LogIn className="h-5 w-5" />
               </Button>
             )}

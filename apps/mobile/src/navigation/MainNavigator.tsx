@@ -3,10 +3,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainStackParamList, ROUTES } from './routes';
 import { MainTabs } from './MainTabs';
 import { ListingDetailsScreen } from '../features/listings/presentation/screens/ListingDetailsScreen';
+import { NotificationScreen } from '../features/notifications/presentation/screens/NotificationScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
-
-
 
 export const MainNavigator = () => {
   return (
@@ -16,6 +15,11 @@ export const MainNavigator = () => {
         name={ROUTES.LISTING_DETAILS} 
         component={ListingDetailsScreen} 
         options={{ headerShown: true, title: '', headerBackTitle: '', headerShadowVisible: false }}
+      />
+      <Stack.Screen
+        name={ROUTES.NOTIFICATIONS}
+        component={NotificationScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
