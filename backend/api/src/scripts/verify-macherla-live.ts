@@ -123,7 +123,6 @@ async function runVerification() {
 
         // 5. Seed test ads: 0 local Macherla ads, 3 nearby ads (18km, 24km, 48km), 1 far ad (95km)
         console.log('\n5. Seeding test ads in nearby and far locations...');
-        const now = new Date();
         const futureExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         const testAdsToCreate = [

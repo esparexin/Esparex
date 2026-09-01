@@ -2,7 +2,6 @@ import React, { forwardRef, useRef, useImperativeHandle, useState } from 'react'
 import {
   View,
   TextInput,
-  TextInputProps,
   Pressable,
   StyleSheet,
 } from 'react-native';

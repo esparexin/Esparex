@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';

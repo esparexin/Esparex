@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Container, AppText, Center, AppIcon } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { Screen, Container } from '@esparex/mobile-ui';
 import { useSearch } from '../hooks/useSearch';
 import { useSavedListings } from '../hooks/useSavedListings';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';

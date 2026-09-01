@@ -4,7 +4,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
 import { navigate } from '../../../../navigation/navigationRef';
-import { useAuth, AuthStatus } from '../../../../providers/AuthProvider';
+import { useAuth } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { useSavedListings } from '../hooks/useSavedListings';
@@ -100,8 +100,9 @@ export const ListingDetailsScreen = () => {
                   },
                 });
               }
-            } catch (err: any) {
-              Alert.alert('Unable to start chat', err?.message || 'Please try again later.');
+            } catch (err: unknown) {
+              const errorMessage = err instanceof Error ? err.message : 'Please try again later.';
+              Alert.alert('Unable to start chat', errorMessage);
             }
           },
         },

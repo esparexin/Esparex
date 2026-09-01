@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TouchableOpacity, View, BackHandler, Animated, Vibration } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { AppInput, AppButton, AppText, SegmentedOtpInput } from '@esparex/mobile-ui';
@@ -20,8 +20,7 @@ export const OTPScreen = () => {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(60);
-
-  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const [shakeAnim] = useState(() => new Animated.Value(0));
 
   const triggerShake = useCallback(() => {
     try {

@@ -20,12 +20,6 @@ import {
     extractObjectIdHex 
 } from './FeedRankerService';
 
-interface FeedFacetResult {
-    spotlight: Record<string, unknown>[];
-    boosted: Record<string, unknown>[];
-    organic: Record<string, unknown>[];
-}
-
 export const buildHomeFeed = async (
     input: HomeFeedRequest,
     limit: number,

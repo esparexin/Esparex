@@ -237,7 +237,7 @@ export async function recordRankingTelemetry(data: Record<string, unknown>[]) {
                     components: { qualityScore: ad.listingQualityScore || 0, distanceScore: ad.distanceScore || 0, freshnessScore: ad.freshnessScore || 0, popularityScore: ad.popularityScore || 0, sellerTrust: ad.sellerTrustSnapshot || 50 }
                 }));
                 RankingTelemetry.insertMany(docs).catch((err: Error) => logger.warn('Failed to insert ranking telemetry', { error: err.message }));
-            } catch (error: any) { logger.warn('Ranking telemetry error', { error: error instanceof Error ? error.message : String(error) }); }
+            } catch (error: unknown) { logger.warn('Ranking telemetry error', { error: error instanceof Error ? error.message : String(error) }); }
         });
     }
 }
