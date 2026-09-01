@@ -37,8 +37,8 @@ export const ListingDetailsScreen = () => {
 
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
-  const { data: savedListings } = useSavedListings();
-  const { data: userProfile } = useProfile();
+  const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
+  const { data: userProfile } = useProfile(authStatus === 'authenticated');
 
   const isSaved = (savedListings || []).some((item) => String(item.id) === String(id));
   const isOwner =
