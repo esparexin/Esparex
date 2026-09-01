@@ -20,6 +20,7 @@
     "verify:job": "ts-node -r tsconfig-paths/register src/scripts/verify-job-trigger.ts",
     "verify:logs": "ts-node -r tsconfig-paths/register src/scripts/verify-audit-logs.ts",
     "verify:notifs": "ts-node -r tsconfig-paths/register src/scripts/verify-notifications.ts",
+    "verify:macherla": "ts-node -r tsconfig-paths/register src/scripts/verify-macherla-live.ts",
     "smoke": "node dist/smoke.js",
     "smoke:fixtures": "ts-node -r tsconfig-paths/register src/scripts/ensure-listing-smoke-fixtures.ts",
     "backup": "ts-node src/scripts/backup-database.ts",
