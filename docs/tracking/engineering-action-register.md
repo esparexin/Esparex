@@ -1446,11 +1446,44 @@ scripts/enforce-notification-governance.js
 - ✅ `npm run guard:design-token-adoption` ──► PASS (0 violations)
 - ✅ `npm run guard:unused-imports` ──► PASS (0 unused imports)
 - ✅ `npm run guard:pr-quality` ──► PASS (All files within limits and ratchet)
-- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
-- ✅ `npm test` ──► PASS (All 5 test suites green)
+---
 
-**Rollback**:
-```bash
-git revert be7cce72 903e53c0 d61b525f 9bb46472 e6996329 9c4c7294 553205fc 4bf24ce6 252685d2 b268eb55 246cb914
+### EA-042
+
+**Sprint**: Location Intelligence & Product Ranking  
+**PR**: PR on `feat/mobile-auth-p1-improvements`  
+**Category**: Core Engine / Ranking / Discovery  
+**Status**: ✅ Completed  
+
+**Action**  
+1. **Exact-Match Location Bonus (+30 pts)**: Implemented Option C (Hybrid Exact-Match Priority with Soft Local Preference) in `core/.../adAggregation/pipeline.ts`, adding a +30 exact-match bonus when `location.locationId` matches the selected `locationId` (or `locationPath`), elevating 0 km local listings to #1 while maintaining balanced discoverability for high-quality nearby listings.
+2. **Server-Side Canonical Location Enrichment**: Enhanced `FeedQueryService` to dynamically resolve canonical coordinates and state metadata via `resolveCanonicalLocationForQuery` for ID-based queries.
+3. **Geo Utilities SSOT**: Centralized `DEFAULT_INDIA_COORDINATES` in `@esparex/shared` and removed duplicate hardcoded coordinates in web and mobile apps.
+4. **Mobile Typography Token Normalization**: Added `mobileFonts` token to `@esparex/design-tokens` and normalized NativeWind / Mobile UI font family inheritance.
+5. **Live Verification & Testing**: Added unit tests in `LocationCoordinateEnrichment.spec.ts` and automated live MongoDB verification in `verify-macherla-live.ts`.
+
+**Files Modified**:
 ```
+apps/mobile/tailwind.config.js
+apps/web/src/__tests__/location-query-mode.spec.ts
+apps/web/src/lib/location/queryMode.ts
+apps/web/src/types/location.ts
+backend/api/src/routes/adminRoutes.ts
+backend/api/src/scripts/verify-macherla-live.ts
+core/src/__tests__/services/LocationCoordinateEnrichment.spec.ts
+core/src/domains/discovery/application/services/feed/FeedQueryService.ts
+core/src/domains/listings/application/aggregation/adAggregation/pipeline.ts
+core/src/services/location/LocationCacheService.ts
+core/src/services/location/LocationQueryService.ts
+packages/design-tokens/src/typography.ts
+packages/mobile-ui/src/tokens/typography.ts
+shared/src/index.ts
+shared/src/utils/geoUtils.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test` ──► PASS (All test suites green across backend-api, core, web, admin, mobile)
+- ✅ `npm run build` ──► PASS (Clean production builds across all packages)
 

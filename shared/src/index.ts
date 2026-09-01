@@ -25,6 +25,7 @@ export * from './utils/resolveCategoryId';
 // geoUtils — radius constants are now in @esparex/contracts; export only utility functions
 export type { GeoJSONPoint } from './utils/geoUtils';
 export {
+    DEFAULT_INDIA_COORDINATES,
     haversineDistance,
     isValidLongitude, isValidLatitude, isNonZeroLngLat, isValidLngLat,
     hasValidCoordinateArray, isValidGeoPoint, normalizeGeoPoint,

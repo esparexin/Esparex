@@ -6,7 +6,7 @@ import { typography as canonicalTypography } from '@esparex/design-tokens';
  */
 
 export const typography = {
-  fontFamily: canonicalTypography.fonts,
+  fontFamily: canonicalTypography.mobileFonts,
   fontSize: canonicalTypography.fontSizes,
   fontWeight: canonicalTypography.fontWeights,
   lineHeight: {

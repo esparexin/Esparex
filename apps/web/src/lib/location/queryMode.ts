@@ -10,15 +10,17 @@ export function hasCanonicalLocationId(location: QueryLocation): boolean {
     return Boolean(sanitizeMongoObjectId(location?.locationId));
 }
 
-export function shouldUseExactLocationHierarchy(location: QueryLocation): boolean {
-    return Boolean(location?.source === "manual" && hasCanonicalLocationId(location));
+/**
+ * Suppression helper. Canonical location coordinates are now enriched server-side.
+ */
+export function shouldUseExactLocationHierarchy(_location: QueryLocation): boolean {
+    return false;
 }
 
 export function shouldUseGeoRadiusLocation(location: QueryLocation): boolean {
     if (!location || isRegionLocationLevel(location.level)) return false;
-    if (shouldUseExactLocationHierarchy(location)) return false;
 
-    return getLatitude(location) != undefined && getLongitude(location) != undefined;
+    return getLatitude(location) !== undefined && getLongitude(location) !== undefined;
 }
 
 /**

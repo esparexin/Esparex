@@ -1,11 +1,12 @@
-import { type HydratedDocument } from 'mongoose';
+import mongoose, { type HydratedDocument } from 'mongoose';
 import { locationRepository } from '../../composition/location';
 import type { ILocation } from '../../models/Location';
 import { getListingRepository } from '../../composition/listings';
 import type { ListingFilter } from '../../domains/listings/ports/ListingRepositoryPort';
 import User from '../../models/User';
-import { LOCATION_STATUS } from '@esparex/contracts';
+import { LOCATION_STATUS, type LocationLevel } from '@esparex/contracts';
 import logger from '../../utils/logger';
+import { mapLocationDocsToResponses, type LocationInputObject, normalizeLocationLevel } from './_shared/locationServiceBase';
 
 const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;
@@ -15,6 +16,44 @@ let hasWarnedLocationListHintFailure = false;
  */
 
 import { LocationCacheService } from './LocationCacheService';
+
+export interface CanonicalLocationQueryResult {
+    lat?: number;
+    lng?: number;
+    state?: string;
+    level?: LocationLevel;
+    city?: string;
+}
+
+export const resolveCanonicalLocationForQuery = async (
+    locationId: string | undefined
+): Promise<CanonicalLocationQueryResult | null> => {
+    if (!locationId || typeof locationId !== 'string' || !mongoose.Types.ObjectId.isValid(locationId)) {
+        return null;
+    }
+
+    const loc = await findLocationByIdLean<LocationInputObject>(
+        locationId,
+        'name country level coordinates isPopular isActive verificationStatus parentId path'
+    );
+    if (!loc) return null;
+
+    const [response] = await mapLocationDocsToResponses([loc]);
+    if (!response) return null;
+
+    const normalizedLevel = normalizeLocationLevel(response.level);
+    const isRegion = normalizedLevel === 'state' || normalizedLevel === 'country';
+    const coords = response.coordinates?.coordinates;
+    const hasValidCoords = Array.isArray(coords) && Number.isFinite(coords[0]) && Number.isFinite(coords[1]);
+
+    return {
+        lat: !isRegion && hasValidCoords ? Number(coords[1]) : undefined,
+        lng: !isRegion && hasValidCoords ? Number(coords[0]) : undefined,
+        state: response.state || undefined,
+        level: normalizedLevel,
+        city: response.city || undefined,
+    };
+};
 
 export const findLocationById = async (id: string | undefined): Promise<HydratedDocument<ILocation> | null> => {
     if (!id) return null;

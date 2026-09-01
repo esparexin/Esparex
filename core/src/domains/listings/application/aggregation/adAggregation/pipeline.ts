@@ -3,6 +3,7 @@ import Ad from '../../../../../models/Ad';
 import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
 import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
 import { buildAdMatchStage, buildAdSortStage } from '../../../../../domains/listings/application/ad/ad/AdSearchService';
+import { resolveCanonicalLocationForQuery } from '../../../../../services/location/LocationQueryService';
 import type { HydratedAd, TelemetryAd } from './types';
 import { hydrateAdMetadata } from './metadata';
 
@@ -23,18 +24,42 @@ export const getAds = async (
     const isTrendingSort = filters.sortBy === 'trending';
     const skip = (page - 1) * limit;
     const shouldApplyLocationIntelligence = !options.disableLocationIntelligence && !isCursorMode;
+    const effectiveFilters: AdFilters = { ...filters };
+
+    if (effectiveFilters.locationId && !effectiveFilters.lat && !effectiveFilters.lng && !effectiveFilters.coordinates) {
+        try {
+            const canonicalLocation = await resolveCanonicalLocationForQuery(effectiveFilters.locationId);
+            if (canonicalLocation) {
+                if (canonicalLocation.lat !== undefined && canonicalLocation.lng !== undefined) {
+                    effectiveFilters.lat = canonicalLocation.lat;
+                    effectiveFilters.lng = canonicalLocation.lng;
+                }
+                if (!effectiveFilters.state && canonicalLocation.state) {
+                    effectiveFilters.state = canonicalLocation.state;
+                }
+                if (!effectiveFilters.level && canonicalLocation.level) {
+                    effectiveFilters.level = canonicalLocation.level as AdFilters['level'];
+                }
+            }
+        } catch (error) {
+            logger.warn('[AdAggregation] Failed to enrich canonical location coordinates', {
+                locationId: effectiveFilters.locationId,
+                error: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
     const { lat, lng, hasGeo } = normalizeGeoInput(
-        filters.coordinates ? filters.coordinates.coordinates[1] : filters.lat,
-        filters.coordinates ? filters.coordinates.coordinates[0] : filters.lng
+        effectiveFilters.coordinates ? effectiveFilters.coordinates.coordinates[1] : effectiveFilters.lat,
+        effectiveFilters.coordinates ? effectiveFilters.coordinates.coordinates[0] : effectiveFilters.lng
     );
-    const normalizedLevel = typeof filters.level === 'string' ? filters.level.toLowerCase() : undefined;
+    const normalizedLevel = typeof effectiveFilters.level === 'string' ? effectiveFilters.level.toLowerCase() : undefined;
     const isRegionLevel = normalizedLevel === 'country' || normalizedLevel === 'state';
     const shouldUseGeo = hasGeo && !isRegionLevel;
     const shouldSkipExactCount = shouldUseGeo && !isCursorMode && options.enforcePublicVisibility !== false;
-    const shouldUseRankScore = isTrendingSort || (shouldUseGeo && !filters.sortBy);
-    const safeRadius = shouldUseGeo ? Math.min(Math.max(Number(filters.radiusKm) || 50, 1), MAX_RADIUS_KM) : 0;
-    const effectiveFilters: AdFilters = { ...filters };
-    const locationLabel = typeof filters.location === 'string' ? filters.location.trim() : '';
+    const shouldUseRankScore = isTrendingSort || (shouldUseGeo && !effectiveFilters.sortBy);
+    const safeRadius = shouldUseGeo ? Math.min(Math.max(Number(effectiveFilters.radiusKm) || 50, 1), MAX_RADIUS_KM) : 0;
+    const locationLabel = typeof effectiveFilters.location === 'string' ? effectiveFilters.location.trim() : '';
     if (normalizedLevel === 'state' && !effectiveFilters.state && locationLabel.length > 0) effectiveFilters.state = locationLabel;
     if (normalizedLevel === 'country' && !effectiveFilters.country && locationLabel.length > 0) effectiveFilters.country = locationLabel;
     if (!shouldUseGeo) { delete effectiveFilters.lat; delete effectiveFilters.lng; delete effectiveFilters.radiusKm; delete effectiveFilters.coordinates; }
@@ -70,10 +95,10 @@ export const getAds = async (
     }
     if (shouldUseGeo) {
         if (textSearch) match.$text = { $search: textSearch };
-        delete match['location.city']; delete match['location.state']; delete match['location.country']; delete match['location.display']; delete match['location.district'];
+        delete match['location.city']; delete match['location.state']; delete match['location.country']; delete match['location.display']; delete match['location.district']; delete match['location.locationId']; delete match.locationId; delete match.locationPath;
         if (Array.isArray(match.$or)) {
             const currentOr = match.$or as UnknownRecord[];
-            const filteredOr = currentOr.filter((cond) => !Object.keys(cond).some(k => k.startsWith('location.')));
+            const filteredOr = currentOr.filter((cond) => !Object.keys(cond).some(k => k.startsWith('location.') || k === 'locationId' || k === 'locationPath'));
             if (filteredOr.length === 0) delete match.$or; else match.$or = filteredOr;
         }
         pipeline.push(buildGeoNearStage({ lng, lat, radiusKm: safeRadius, query: match }));
@@ -88,6 +113,23 @@ export const getAds = async (
     if (!isCursorMode && !shouldSkipExactCount) { countPipeline.push({ $count: 'total' }); pipeline.push({ $skip: skip }); pipeline.push({ $limit: limit }); }
     else { pipeline.push({ $skip: skip }); pipeline.push({ $limit: limit + 1 }); }
     if (shouldUseRankScore) {
+        const selectedLocationObjectId = effectiveFilters.locationId && mongoose.Types.ObjectId.isValid(effectiveFilters.locationId)
+            ? new mongoose.Types.ObjectId(effectiveFilters.locationId)
+            : null;
+        const selectedLocationStr = effectiveFilters.locationId ? String(effectiveFilters.locationId).trim() : null;
+
+        const exactMatchConditions: Record<string, unknown>[] = [];
+        if (selectedLocationObjectId) {
+            exactMatchConditions.push({ $eq: ['$location.locationId', selectedLocationObjectId] });
+            exactMatchConditions.push({ $in: [selectedLocationObjectId, { $ifNull: ['$locationPath', []] }] });
+        }
+        if (selectedLocationStr) {
+            exactMatchConditions.push({ $eq: ['$location.locationId', selectedLocationStr] });
+        }
+        const exactLocationBonusExpr = exactMatchConditions.length > 0
+            ? { $cond: [{ $or: exactMatchConditions }, 30, 0] }
+            : 0;
+
         pipeline.push({
             $lookup: { from: 'locationanalytics', let: { locationRef: '$location.locationId' }, pipeline: [{ $match: { $expr: { $eq: ['$locationId', '$$locationRef'] } } }, { $project: { popularityScore: 1, isHotZone: 1 } }, { $limit: 1 }], as: 'locationAnalytics' }
         });
@@ -96,14 +138,15 @@ export const getAds = async (
                 locationAnalytics: { $arrayElemAt: ['$locationAnalytics', 0] },
                 hoursSince: { $divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60] },
                 freshnessScore: { $max: [0, { $subtract: [100, { $divide: [{ $subtract: [new Date(), '$createdAt'] }, 1000 * 60 * 60] }] }] },
-                distanceScore: { $cond: [{ $ifNull: ['$distance', false] }, { $max: [0, { $subtract: [100, { $multiply: [{ $divide: ['$distance', 1000] }, 2] }] }] }, 0] },
+                distanceScore: { $cond: [{ $gte: ['$distance', 0] }, { $max: [0, { $subtract: [100, { $multiply: [{ $divide: ['$distance', 1000] }, 2] }] }] }, 0] },
+                exactLocationBonus: exactLocationBonusExpr,
                 popularityScore: { $min: [{ $ifNull: ['$locationAnalytics.popularityScore', 0] }, 100] },
                 spotlightScore: { $cond: [{ $and: [{ $eq: ['$isSpotlight', true] }, { $gt: ['$spotlightExpiresAt', new Date()] }] }, 100, 0] },
                 engagementScore: { $min: [{ $divide: [{ $ifNull: ['$views.total', 0] }, 10] }, 100] },
                 hotZoneBoost: { $cond: [{ $eq: ['$locationAnalytics.isHotZone', true] }, 10, 0] }
             }
         });
-        pipeline.push({ $addFields: { rankScore: { $add: [{ $multiply: ['$distanceScore', 0.4] }, { $multiply: ['$freshnessScore', 0.25] }, { $multiply: ['$popularityScore', 0.15] }, { $multiply: ['$spotlightScore', 0.1] }, { $multiply: ['$engagementScore', 0.1] }, '$hotZoneBoost', { $multiply: [{ $ifNull: ['$sellerTrustSnapshot', 50] }, 0.05] }, { $multiply: [{ $ifNull: ['$listingQualityScore', 0] }, 0.08] }, { $multiply: [{ $ifNull: ['$sellerPriorityScore', 1] }, 0.07] }, { $multiply: [{ $ifNull: ['$fraudScore', 0] }, -1] }] } } });
+        pipeline.push({ $addFields: { rankScore: { $add: [{ $multiply: ['$distanceScore', 0.4] }, '$exactLocationBonus', { $multiply: ['$freshnessScore', 0.25] }, { $multiply: ['$popularityScore', 0.15] }, { $multiply: ['$spotlightScore', 0.1] }, { $multiply: ['$engagementScore', 0.1] }, '$hotZoneBoost', { $multiply: [{ $ifNull: ['$sellerTrustSnapshot', 50] }, 0.05] }, { $multiply: [{ $ifNull: ['$listingQualityScore', 0] }, 0.08] }, { $multiply: [{ $ifNull: ['$sellerPriorityScore', 1] }, 0.07] }, { $multiply: [{ $ifNull: ['$fraudScore', 0] }, -1] }] } } });
         pipeline.push({ $sort: { rankScore: -1, createdAt: -1 } });
     }
     const isLightweightListing = await isEnabled(FeatureFlag.ENABLE_LIGHTWEIGHT_LISTING);
