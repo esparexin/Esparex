@@ -12,7 +12,7 @@
 import path from 'path';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { LISTING_LIFECYCLE_CONSTANTS, LISTING_STATUS } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
 
 dotenv.config({ path: path.resolve(__dirname, '../backend/api/.env') });
 dotenv.config({ path: path.resolve(__dirname, '../apps/web/.env.local') });
@@ -21,7 +21,8 @@ const isDryRun = process.argv.includes('--dry-run') || !process.argv.includes('-
 const userMongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
 const adminMongoUri = process.env.ADMIN_MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';
 const MS_IN_DAY = 24 * 60 * 60 * 1000;
-const THIRTY_DAYS_AGO = new Date(Date.now() - LISTING_LIFECYCLE_CONSTANTS.EXPIRY_DAYS * MS_IN_DAY);
+const EXPIRY_DAYS = 30;
+const THIRTY_DAYS_AGO = new Date(Date.now() - EXPIRY_DAYS * MS_IN_DAY);
 
 async function sweepDb(mongoUri: string, label: string): Promise<void> {
     console.log(`\n--- Inspecting Database: ${label} ---`);
@@ -38,6 +39,10 @@ async function sweepDb(mongoUri: string, label: string): Promise<void> {
         };
         const pastThirtyDaysCount = await adsCollection.countDocuments(pastThirtyDaysFilter);
         console.log(`[1] Live ads created > 30 days ago: ${pastThirtyDaysCount}`);
+        if (pastThirtyDaysCount > 0) {
+            const oldAds = await adsCollection.find(pastThirtyDaysFilter, { projection: { title: 1, listingType: 1, createdAt: 1, approvedAt: 1, expiresAt: 1, status: 1 } }).toArray();
+            console.log('    Details:', JSON.stringify(oldAds, null, 2));
+        }
 
         const expiredByDateFilter = {
             status: LISTING_STATUS.LIVE,

@@ -64,7 +64,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
              
              {/* Bottom padding for mobile navigation safe area */}
              {bottomNavigation && (
-                 <div className="md:hidden pb-[calc(4rem+env(safe-area-inset-bottom))]" />
+                 <div className="md:hidden pb-[calc(3.5rem+env(safe-area-inset-bottom))]" />
              )}
           </main>
         </div>

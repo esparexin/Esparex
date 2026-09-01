@@ -7,6 +7,7 @@ import { Plus, Wrench, CircuitBoard, Bell } from "@/icons/IconRegistry";
 import { useAuth } from "@/context/AuthContext";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 import { cn } from "@/components/ui/utils";
+import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 
 /**
  * BusinessPostFAB
@@ -18,6 +19,7 @@ import { cn } from "@/components/ui/utils";
 export function BusinessPostFAB() {
     const { user, status } = useAuth();
     const pathname = usePathname();
+    const policy = getMobileChromePolicy(pathname);
     const [isOpen, setIsOpen] = useState(false);
 
     // Collapse on every navigation
@@ -69,9 +71,18 @@ export function BusinessPostFAB() {
         return null;
     }
 
+    const mobileBottomOffset = policy.showMobileBottomNav
+        ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]"
+        : policy.showContextActionBar
+        ? "bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"
+        : "bottom-[calc(1.5rem+env(safe-area-inset-bottom))]";
+
     return (
         <div
-            className="fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3"
+            className={cn(
+                "fixed right-4 md:bottom-8 md:right-6 z-40 flex flex-col items-end gap-3",
+                mobileBottomOffset
+            )}
             aria-label="Action menu"
         >
             {/* Sub-actions — stagger in from bottom */}
