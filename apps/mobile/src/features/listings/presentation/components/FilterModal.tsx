@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, TouchableOpacity, ScrollView } from 'react-native';
+import { Modal, View, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { AppText, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { ListingQueryParams } from '@esparex/contracts';
@@ -41,6 +41,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   const [maxPrice, setMaxPrice] = useState<string>(
     initialFilters.maxPrice !== undefined ? String(initialFilters.maxPrice) : ''
   );
+  const [verifiedOnly, setVerifiedOnly] = useState<boolean | undefined>(initialFilters.verifiedOnly);
 
   const handleApply = () => {
     const minVal = minPrice ? Number(minPrice) : undefined;
@@ -52,6 +53,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
       condition,
       minPrice: minVal,
       maxPrice: maxVal,
+      verifiedOnly,
       page: 1, // Explicitly reset pagination to page 1 on filter change
     });
     onClose();
@@ -62,6 +64,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
     setCondition(undefined);
     setMinPrice('');
     setMaxPrice('');
+    setVerifiedOnly(undefined);
     onReset();
     onClose();
   };
@@ -176,6 +179,28 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                   />
                 </View>
               </View>
+            </View>
+
+            {/* Verified Sellers Toggle Section */}
+            <View className="mb-6 flex-row items-center justify-between p-3.5 rounded-2xl bg-muted border border-border">
+              <View className="flex-1 pr-3">
+                <View className="flex-row items-center">
+                  <AppIcon name="ShieldCheck" size={18} color={base.brand[600]} />
+                  <AppText variant="body" className="font-semibold text-foreground ml-2">
+                    Verified Businesses Only
+                  </AppText>
+                </View>
+                <AppText variant="caption" className="text-foreground-secondary mt-1">
+                  Show listings only from verified sellers & repair shops
+                </AppText>
+              </View>
+              <Switch
+                value={!!verifiedOnly}
+                onValueChange={(val) => setVerifiedOnly(val ? true : undefined)}
+                trackColor={{ false: base.slate[300], true: base.brand[500] }}
+                thumbColor="#ffffff"
+                accessibilityLabel="Verified businesses only toggle"
+              />
             </View>
           </ScrollView>
 

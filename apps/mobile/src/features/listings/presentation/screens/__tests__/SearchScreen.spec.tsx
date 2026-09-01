@@ -86,7 +86,7 @@ describe('SearchScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders initial prompt when search text and filters are empty', () => {
+  it('renders recent searches and trending keywords when search text and filters are empty', () => {
     mockUseSearch.mockReturnValue({
       query: '',
       debouncedQuery: '',
@@ -102,6 +102,7 @@ describe('SearchScreen', () => {
       handleRemoveSort: jest.fn(),
       handleRemoveCondition: jest.fn(),
       handleRemovePrice: jest.fn(),
+      handleRemoveVerifiedOnly: jest.fn(),
       data: undefined,
       isLoading: false,
       isError: false,
@@ -112,7 +113,9 @@ describe('SearchScreen', () => {
     } as any);
 
     const { getByText } = render(<SearchScreen />);
-    expect(getByText('Search Esparex')).toBeTruthy();
+    expect(getByText('Recent Searches')).toBeTruthy();
+    expect(getByText('Trending Searches')).toBeTruthy();
+    expect(getByText('iPhone 13 Screen')).toBeTruthy();
   });
 
   it('renders skeleton loading state during search execution', () => {

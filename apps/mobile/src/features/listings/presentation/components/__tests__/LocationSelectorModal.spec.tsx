@@ -127,4 +127,29 @@ describe('LocationSelectorModal', () => {
     );
     expect(mockOnClose).toHaveBeenCalled();
   });
+
+  it('renders popular metro city chips and selects a city when pressed', () => {
+    const { getByText, getByLabelText } = render(
+      <LocationSelectorModal
+        visible={true}
+        onClose={mockOnClose}
+        onSelectLocation={mockOnSelectLocation}
+      />
+    );
+
+    expect(getByText('Popular Cities')).toBeTruthy();
+    expect(getByText('Hyderabad')).toBeTruthy();
+    expect(getByText('Bengaluru')).toBeTruthy();
+
+    const hyderabadChip = getByLabelText('Select Hyderabad, Telangana');
+    fireEvent.press(hyderabadChip);
+
+    expect(mockOnSelectLocation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        city: 'Hyderabad',
+        state: 'Telangana',
+      })
+    );
+    expect(mockOnClose).toHaveBeenCalled();
+  });
 });

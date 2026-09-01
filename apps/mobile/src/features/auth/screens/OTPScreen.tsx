@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TouchableOpacity, View, BackHandler } from 'react-native';
+import { TouchableOpacity, View, BackHandler, Animated, Vibration } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
+import { AppInput, AppButton, AppText, SegmentedOtpInput } from '@esparex/mobile-ui';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';
 import { navigate } from '../../../navigation/navigationRef';
@@ -20,6 +20,24 @@ export const OTPScreen = () => {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(60);
+  const [shakeAnim] = useState(() => new Animated.Value(0));
+
+  const triggerShake = useCallback(() => {
+    try {
+      Vibration.vibrate(50);
+    } catch {
+      // Ignore vibration unsupported environments
+    }
+    shakeAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 10, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -10, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 4, duration: 40, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
+    ]).start();
+  }, [shakeAnim]);
 
   const { verifyOtp, sendOtp, cancelOtp } = useAuth();
 
@@ -76,9 +94,13 @@ export const OTPScreen = () => {
   };
 
   const handleVerify = async () => {
-    if (!mobile || code.length !== 6) return;
+    if (!mobile || code.length !== 6) {
+      triggerShake();
+      return;
+    }
     if (isNewUser && (!name || name.trim().length < 2)) {
       setError('Please enter your full name (at least 2 characters)');
+      triggerShake();
       return;
     }
 
@@ -93,6 +115,7 @@ export const OTPScreen = () => {
         navigate(ROUTES.MAIN_STACK);
       }
     } catch (err: unknown) {
+      triggerShake();
       const axiosErr = err as { response?: { data?: { error?: string; message?: string; details?: { attemptsLeft?: number; lockUntil?: string } }; status?: number } };
       const apiError = axiosErr?.response?.data?.error || axiosErr?.response?.data?.message;
       const details = axiosErr?.response?.data?.details;
@@ -156,19 +179,18 @@ export const OTPScreen = () => {
         />
       )}
 
-      <AppInput
-        label="6-Digit OTP"
-        placeholder="000000"
-        value={code}
-        onChangeText={handleCodeChange}
-        keyboardType="number-pad"
-        maxLength={6}
-        textContentType="oneTimeCode"
-        autoComplete="sms-otp"
-        error={error || undefined}
-        accessibilityLabel="Verification Code"
-        accessibilityHint="Enter the 6-digit OTP received via SMS"
-      />
+      {/* design-token-ignore: dynamic animation transform */}
+      <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
+        <SegmentedOtpInput
+          length={6}
+          value={code}
+          onChangeText={handleCodeChange}
+          error={error || undefined}
+          autoFocus={true}
+          accessibilityLabel="6-Digit Verification Code"
+          accessibilityHint="Enter the 6-digit OTP received via SMS"
+        />
+      </Animated.View>
 
       <View className="flex-row items-center justify-between mt-1 px-1">
         {secondsLeft > 0 ? (

@@ -1,7 +1,8 @@
-import { getCache, setCache, delCache, CACHE_NAMESPACES, CACHE_TTLS } from '../../utils/redisCache';
+import { getCache, setCache, delCache } from '../../utils/redisCache/operations';
+import { CACHE_NAMESPACES, CACHE_TTLS } from '../../utils/redisCache/constants';
 import logger from '../../utils/logger';
 
-const LOCATION_DOC_PREFIX = `${CACHE_NAMESPACES.LOCATION}:doc`;
+const LOCATION_DOC_PREFIX = `${CACHE_NAMESPACES?.LOCATION || 'location'}:doc`;
 
 export class LocationCacheService {
     /**

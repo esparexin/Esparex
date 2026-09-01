@@ -7,6 +7,8 @@ import {
     LEGAL_EFFECTIVE_DATE,
     LEGAL_COMPANY_NAME
 } from "@/lib/legal";
+import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | Esparex',
@@ -20,9 +22,21 @@ export const metadata: Metadata = {
     },
 };
 
+const privacyPageSchema = buildWebPageSchema({
+    name: "Privacy Policy | Esparex",
+    description: "Understand how Esparex collects, uses, stores, protects, and deletes your personal and business data under DPDP Act 2023.",
+    url: "https://esparex.in/privacy",
+    datePublished: "2026-08-26",
+    dateModified: "2026-08-26",
+});
+
 export default function PrivacyPage() {
     return (
         <InfoPage title="Privacy Policy" lastUpdated={LEGAL_LAST_UPDATED} containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(privacyPageSchema) }}
+            />
             <div className="flex flex-col gap-8 text-foreground-secondary text-body leading-relaxed">
                 {/* Notice Badge / Quick Intro */}
                 <div className="p-4 rounded-2xl bg-muted/40 border border-border">

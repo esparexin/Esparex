@@ -12,7 +12,7 @@ import { queryKeys } from "@/hooks/queries/queryKeys";
 import logger from "@/lib/logger";
 import { ROUTES } from "@/lib/logic/routes";
 import { buildOwnerMissingListingRoute, DEFAULT_LISTING_UNAVAILABLE_MESSAGE, isListingUnavailableError } from "@/lib/listings/listingUnavailable";
-import { buildLoginUrl } from "@/lib/authHelpers";
+import { useAuthModal } from "@/context/AuthModalContext";
 import { buildChatConversationRoute } from "@/lib/chatUiRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { formatPrice } from "@/lib/formatters";
@@ -53,6 +53,7 @@ export function useListingDetailActions({
 }: UseListingDetailActionsProps) {
     const queryClient = useQueryClient();
     const router = useRouter();
+    const { showLogin } = useAuthModal();
 
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -182,17 +183,13 @@ export function useListingDetailActions({
 
     useEffect(() => {
         if (!pendingChatIntentRef.current || !isAuthResolved) return;
+        if (!user) return;
 
         const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
         pendingChatIntentRef.current = false;
 
-        if (!user) {
-            void router.push(buildLoginUrl(returnTo));
-            return;
-        }
-
         void (async () => { await startChatWithSeller(returnTo); })();
-    }, [isAuthResolved, router, startChatWithSeller, user]);
+    }, [isAuthResolved, startChatWithSeller, user]);
 
     const handleChatWithSeller = () => {
         if (isStartingChat) return;
@@ -200,11 +197,8 @@ export function useListingDetailActions({
         const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
         if (!user) {
-            if (!isAuthResolved) {
-                pendingChatIntentRef.current = true;
-                return;
-            }
-            void router.push(buildLoginUrl(returnTo));
+            pendingChatIntentRef.current = true;
+            showLogin(returnTo);
             return;
         }
 
@@ -215,9 +209,8 @@ export function useListingDetailActions({
         if (!ad) return;
         if (isOwner) return;
         if (!user) {
-            if (!isAuthResolved) return;
             const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-            void router.push(buildLoginUrl(returnTo));
+            showLogin(returnTo);
             return;
         }
 
@@ -282,14 +275,13 @@ export function useListingDetailActions({
 
     const handleReport = useCallback(() => {
         if (!user) {
-            if (!isAuthResolved) return;
             const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-            void router.push(buildLoginUrl(returnTo));
+            showLogin(returnTo);
             return;
         }
 
         setShowReportDialog(true);
-    }, [isAuthResolved, router, user, setShowReportDialog]);
+    }, [user, setShowReportDialog, showLogin]);
 
     return {
         showDeleteDialog,

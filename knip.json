@@ -103,7 +103,7 @@
       "project": ["src/**/*.{ts,tsx}"]
     },
     "backend/api": {
-      "entry": ["src/index.ts", "src/cron/**/*.ts", "src/smoke.ts"],
+      "entry": ["src/index.ts", "src/cron/**/*.ts", "src/smoke.ts", "src/scripts/**/*.ts"],
       "project": ["src/**/*.ts"]
     },
     "core": {

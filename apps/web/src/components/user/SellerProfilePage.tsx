@@ -10,6 +10,8 @@ import { LocationFacade } from "@esparex/shared";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { BackButton } from "@/components/common/BackButton";
 
+import { SafeImage } from "@/components/ui/SafeImage";
+
 interface SellerProfilePageProps {
     profile: SellerProfilePayload;
 }
@@ -58,11 +60,15 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             <div className="shrink-0">
                                 <div className="bg-card p-1.5 rounded-2xl shadow-xs border border-border w-fit mx-auto sm:mx-0">
                                     {profile.user.profilePhoto ? (
-                                        <img
-                                            src={profile.user.profilePhoto}
-                                            alt={sellerName}
-                                            className="h-20 w-20 md:h-24 md:w-24 rounded-xl object-cover"
-                                        />
+                                        <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-xl overflow-hidden">
+                                            <SafeImage
+                                                src={profile.user.profilePhoto}
+                                                alt={sellerName}
+                                                fill
+                                                className="object-cover"
+                                                sizes="96px"
+                                            />
+                                        </div>
                                     ) : (
                                         <div className="h-20 w-20 md:h-24 md:w-24 rounded-xl bg-muted text-foreground-secondary flex items-center justify-center text-2xl md:text-3xl font-bold">
                                             {initials}

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
+import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
+import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 
 export const metadata: Metadata = {
     title: "How It Works | Esparex",
@@ -13,9 +15,21 @@ export const metadata: Metadata = {
     },
 };
 
+const howItWorksSchema = buildWebPageSchema({
+    name: "How Esparex Works | Buying, Selling & Repair Services",
+    description: "Step-by-step guide to finding electronics spare parts, posting classified ads, and hiring verified technicians on Esparex.",
+    url: "https://esparex.in/how-it-works",
+    datePublished: "2026-08-26",
+    dateModified: "2026-08-26",
+});
+
 export default function HowItWorksPage() {
     return (
-        <InfoPage title="How Esparex Works">
+        <InfoPage title="How Esparex Works" containerVariant="md">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: toSafeJsonLd(howItWorksSchema) }}
+            />
             <p className="mb-5 text-foreground-secondary text-body leading-relaxed">
                 Whether you{"'"}re looking to offload old electronics, source bulk iPhone displays, or find a technician to fix your shattered screen, Esparex is built to make the process completely seamless and transparent.
             </p>

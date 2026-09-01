@@ -1,5 +1,6 @@
 import { CanonicalGeoPoint as SharedCanonicalGeoPoint, LocationLevel as SharedLocationLevel } from "@esparex/contracts";
 import { Location as SharedLocation } from "@esparex/contracts";
+import { DEFAULT_INDIA_COORDINATES } from "@esparex/shared";
 /**
  * PR-3: Location Contract Normalization
  *
@@ -56,7 +57,7 @@ export const DEFAULT_APP_LOCATION: AppLocation = {
     display: "All India",
     coordinates: {
         type: "Point",
-        coordinates: [78.96, 20.59], // [lng, lat] — approximate center of India
+        coordinates: DEFAULT_INDIA_COORDINATES, // [lng, lat] — canonical center of India
     },
     detectedAt: Date.now(),
     isAuto: false,

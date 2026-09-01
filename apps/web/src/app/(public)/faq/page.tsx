@@ -384,13 +384,13 @@ export default function FaqPage() {
                     <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                         <Link
                             href="/contact"
-                            className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-primary text-primary-foreground font-semibold text-caption hover:bg-primary/90 transition-colors shadow-xs"
+                            className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-primary text-primary-foreground font-semibold text-caption hover:bg-primary/90 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
                         >
                             Contact Support Desk
                         </Link>
                         <Link
                             href="/safety-tips"
-                            className="inline-flex items-center justify-center h-9 px-5 rounded-lg bg-muted text-foreground font-semibold text-caption hover:bg-muted/80 border border-border transition-colors"
+                            className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-muted text-foreground font-semibold text-caption hover:bg-muted/80 border border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
                         >
                             Read Safety Guidelines
                         </Link>

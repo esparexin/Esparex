@@ -12,18 +12,13 @@ import logger from '../../../../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
 import { LISTING_TYPE } from '@esparex/contracts';
+import { resolveCanonicalLocationForQuery } from '../../../../../services/location/LocationQueryService';
 import { 
     filterBeforeCursor, 
     mergeRankedFeed, 
     extractAdId, 
     extractObjectIdHex 
 } from './FeedRankerService';
-
-interface FeedFacetResult {
-    spotlight: Record<string, unknown>[];
-    boosted: Record<string, unknown>[];
-    organic: Record<string, unknown>[];
-}
 
 export const buildHomeFeed = async (
     input: HomeFeedRequest,
@@ -37,8 +32,35 @@ export const buildHomeFeed = async (
         listingType: LISTING_TYPE.AD,
     };
 
+    let effectiveLat = input.lat;
+    let effectiveLng = input.lng;
+    let effectiveState: string | undefined = undefined;
+    let effectiveLevel = input.level;
+
     if (typeof input.locationId === 'string' && mongoose.Types.ObjectId.isValid(input.locationId)) {
         baseFilter.locationId = input.locationId;
+        if (effectiveLat === undefined && effectiveLng === undefined) {
+            try {
+                const canonicalLocation = await resolveCanonicalLocationForQuery(input.locationId);
+                if (canonicalLocation) {
+                    if (canonicalLocation.lat !== undefined && canonicalLocation.lng !== undefined) {
+                        effectiveLat = canonicalLocation.lat;
+                        effectiveLng = canonicalLocation.lng;
+                    }
+                    if (canonicalLocation.state) {
+                        effectiveState = canonicalLocation.state;
+                    }
+                    if (canonicalLocation.level && !effectiveLevel) {
+                        effectiveLevel = canonicalLocation.level;
+                    }
+                }
+            } catch (err) {
+                logger.warn('[FeedQueryService] Failed to resolve canonical location', {
+                    locationId: input.locationId,
+                    error: err instanceof Error ? err.message : String(err)
+                });
+            }
+        }
     } else if (typeof input.location === 'string' && input.location.trim().length > 0) {
         const safeLoc = input.location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         if (input.level === 'state') {
@@ -97,8 +119,8 @@ export const buildHomeFeed = async (
         .map((entry: { entityId?: mongoose.Types.ObjectId }) => entry.entityId)
         .filter((id: mongoose.Types.ObjectId | undefined): id is mongoose.Types.ObjectId => id instanceof mongoose.Types.ObjectId);
 
-    const { lat, lng, hasGeo } = normalizeGeoInput(input.lat, input.lng);
-    const normalizedLevel = typeof input.level === 'string' ? input.level.toLowerCase() : undefined;
+    const { lat, lng, hasGeo } = normalizeGeoInput(effectiveLat, effectiveLng);
+    const normalizedLevel = typeof effectiveLevel === 'string' ? effectiveLevel.toLowerCase() : undefined;
     const shouldUseGeo = hasGeo && normalizedLevel !== 'state' && normalizedLevel !== 'country';
     const safeRadius = shouldUseGeo 
         ? Math.min(Math.max(Number(input.radiusKm) || 50, 1), 500) 
@@ -180,9 +202,9 @@ export const buildHomeFeed = async (
             {
                 locationId: input.locationId,
                 city: typeof input.location === 'string' ? input.location.trim() : undefined,
-                state: input.level === 'state' && typeof input.location === 'string' ? input.location.trim() : undefined,
-                lat: shouldUseGeo ? input.lat : undefined,
-                lng: shouldUseGeo ? input.lng : undefined,
+                state: effectiveState || (input.level === 'state' && typeof input.location === 'string' ? input.location.trim() : undefined),
+                lat: shouldUseGeo ? effectiveLat : undefined,
+                lng: shouldUseGeo ? effectiveLng : undefined,
             },
             Array.from(seenIds),
             limit - merged.ads.length,

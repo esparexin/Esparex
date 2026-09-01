@@ -6,6 +6,7 @@ export * from './atoms/AppIcon';
 export * from './atoms/AppText';
 export * from './atoms/AppButton';
 export * from './atoms/AppInput';
+export * from './atoms/SegmentedOtpInput';
 export * from './atoms/Card';
 export * from './atoms/Badge';
 export * from './atoms/Avatar';

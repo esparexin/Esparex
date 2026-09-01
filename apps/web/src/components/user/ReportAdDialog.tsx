@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { REPORT_REASON, ReportReasonValue } from "@esparex/contracts";
 import { submitAdReport } from "@/lib/api/user/reports";
 import { buildAdReportPayload } from "@/lib/listings/adReportPayload";
@@ -19,7 +18,7 @@ import { AlertTriangle } from "@/icons/IconRegistry";
 import { FormError } from "../ui/FormError";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { useAuth } from "@/context/AuthContext";
-import { buildLoginUrl } from "@/lib/authHelpers";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 interface ReportAdDialogProps {
   adId: string | number;
@@ -44,8 +43,8 @@ export function ReportAdDialog({
   open,
   onOpenChange,
 }: ReportAdDialogProps) {
-  const router = useRouter();
   const { user, isAuthResolved } = useAuth();
+  const { showLogin } = useAuthModal();
   const [selectedReason, setSelectedReason] = useState<ReportReasonValue | "">("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,18 +76,13 @@ export function ReportAdDialog({
     setAdditionalInfoError(null);
 
     if (!user) {
-      if (!isAuthResolved) {
-        setGlobalError("Checking your login status. Please wait a moment and try again.");
-        return;
-      }
-
       const returnTo =
         typeof window !== "undefined"
           ? `${window.location.pathname}${window.location.search}${window.location.hash}`
           : "/";
 
       handleDialogOpenChange(false);
-      void router.push(buildLoginUrl(returnTo));
+      showLogin(returnTo);
       return;
     }
 

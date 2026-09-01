@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { Button, Z_INDEX } from "@esparex/ui";
+import { Button } from "@esparex/ui";
 import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
 import { MARKETPLACE_CARD_FILL_SIZES } from "@/lib/imageSizes";
+import { AdImageLightbox } from "./AdImageLightbox";
 
 interface AdImageCarouselProps {
     images: string[];
@@ -16,94 +17,30 @@ interface AdImageCarouselProps {
     showActionButtons?: boolean;
 }
 
-const SWIPE_THRESHOLD = 50; // px
+const SWIPE_THRESHOLD = 40; // px
 
-export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShare, showActionButtons = true }: AdImageCarouselProps) {
+export function AdImageCarousel({
+    images,
+    title,
+    isFavorited,
+    onFavorite,
+    onShare,
+    showActionButtons = true,
+}: AdImageCarouselProps) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const touchStartX = useRef<number | null>(null);
-    const triggerElementRef = useRef<HTMLElement | null>(null);
-    const lightboxRef = useRef<HTMLDivElement>(null);
 
     const normalizedImages = toSafeImageArray(images);
     const safeImages = normalizedImages.length > 0 ? normalizedImages : [DEFAULT_IMAGE_PLACEHOLDER];
 
     const nextImage = useCallback(() => {
-        setCurrentImageIndex((prev: number) => (prev + 1) % safeImages.length);
+        setCurrentImageIndex((prev) => (prev + 1) % safeImages.length);
     }, [safeImages.length]);
 
     const prevImage = useCallback(() => {
-        setCurrentImageIndex((prev: number) => (prev - 1 + safeImages.length) % safeImages.length);
+        setCurrentImageIndex((prev) => (prev - 1 + safeImages.length) % safeImages.length);
     }, [safeImages.length]);
-
-    const openLightbox = (e?: React.SyntheticEvent) => {
-        if (e) {
-            triggerElementRef.current = e.currentTarget as HTMLElement;
-        } else {
-            triggerElementRef.current = document.activeElement as HTMLElement;
-        }
-        setIsLightboxOpen(true);
-    };
-
-    const closeLightbox = useCallback(() => {
-        setIsLightboxOpen(false);
-        if (triggerElementRef.current) {
-            triggerElementRef.current.focus();
-            triggerElementRef.current = null;
-        }
-    }, []);
-
-    // Handle Keyboard navigation, Body & Document Scroll Lock, Focus Restoration
-    useEffect(() => {
-        if (!isLightboxOpen) return;
-
-        // Complete Body & HTML Scroll Lock
-        const originalBodyOverflow = document.body.style.overflow;
-        const originalDocOverflow = document.documentElement.style.overflow;
-
-        document.body.style.overflow = "hidden";
-        document.documentElement.style.overflow = "hidden";
-        document.body.classList.add("overflow-hidden");
-        document.documentElement.classList.add("overflow-hidden");
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                e.preventDefault();
-                closeLightbox();
-            } else if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                prevImage();
-            } else if (e.key === "ArrowRight") {
-                e.preventDefault();
-                nextImage();
-            } else if (e.key === "Tab" && lightboxRef.current) {
-                // Focus Trap
-                const focusables = lightboxRef.current.querySelectorAll<HTMLElement>(
-                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                );
-                if (focusables.length === 0) return;
-                const firstElement = focusables[0]!;
-                const lastElement = focusables[focusables.length - 1]!;
-
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
-                }
-            }
-        };
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            document.body.style.overflow = originalBodyOverflow;
-            document.documentElement.style.overflow = originalDocOverflow;
-            document.body.classList.remove("overflow-hidden");
-            document.documentElement.classList.remove("overflow-hidden");
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isLightboxOpen, closeLightbox, nextImage, prevImage]);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -123,196 +60,146 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
     };
 
     return (
-        <>
-        <div className="w-full space-y-2.5">
+        <section aria-label="Listing image gallery" className="w-full space-y-2.5">
             <div
-                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[420px] bg-card rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-border/80 shadow-2xs"
+                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[440px] bg-muted/60 dark:bg-card/80 rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-border/80 shadow-2xs select-none"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                onClick={openLightbox}
+                onClick={() => setIsLightboxOpen(true)}
                 role="button"
-                aria-label={`View full-size image gallery for ${title}`}
+                aria-label={`View fullscreen photo ${currentImageIndex + 1} of ${safeImages.length} for ${title}`}
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openLightbox(e); }}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setIsLightboxOpen(true);
+                    }
+                }}
             >
-                <SafeImage
-                    src={safeImages[currentImageIndex]!}
-                    alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
-                    fill
-                    sizes={MARKETPLACE_CARD_FILL_SIZES}
-                    priority
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover/main:scale-[1.02]"
-                />
+                {/* Ambient Blurred Background (Ensures portrait/irregular images blend smoothly without black bars) */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                    <SafeImage
+                        src={safeImages[currentImageIndex]!}
+                        alt=""
+                        fill
+                        sizes="100vw"
+                        className="w-full h-full object-cover scale-110 blur-2xl opacity-35 dark:opacity-20 transition-all duration-300"
+                    />
+                </div>
 
-                {/* Share and Favorite Buttons */}
+                {/* Primary Sharp Uncropped Foreground Image */}
+                <div className="relative z-1 w-full h-full p-2 sm:p-3 flex items-center justify-center">
+                    <SafeImage
+                        src={safeImages[currentImageIndex]!}
+                        alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
+                        fill
+                        sizes={MARKETPLACE_CARD_FILL_SIZES}
+                        priority
+                        className="w-full h-full object-contain drop-shadow-xs transition-transform duration-300 group-hover/main:scale-[1.01]"
+                    />
+                </div>
+
+                {/* Top Action Buttons (Share & Favorite) */}
                 {showActionButtons && (
-                    <div className="absolute top-2.5 right-2.5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute top-2.5 right-2.5 z-10 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                         <Button
                             size="icon"
                             variant="secondary"
-                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
+                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
                             onClick={onShare}
-                            aria-label="Share this ad"
+                            aria-label="Share this listing"
                         >
-                            <Share2 className="h-3.5 w-3.5 text-foreground-tertiary" />
+                            <Share2 className="h-4 w-4 text-foreground" />
                         </Button>
                         <Button
                             size="icon"
                             variant="secondary"
-                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
+                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
                             onClick={onFavorite}
-                            aria-label={isFavorited ? "Remove from saved ads" : "Save this ad"}
+                            aria-label={isFavorited ? "Remove from saved ads" : "Save this listing"}
                         >
                             <Heart
-                                className={`h-3.5 w-3.5 transition-colors ${
-                                    isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"
+                                className={`h-4 w-4 transition-colors ${
+                                    isFavorited ? "fill-red-500 text-red-500" : "text-foreground"
                                 }`}
                             />
                         </Button>
                     </div>
                 )}
 
-                {/* Image counter pill */}
-                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-tiny px-2.5 py-1 rounded-full font-medium tracking-wide">
-                    {currentImageIndex + 1} / {safeImages.length}
+                {/* Counter & Swipe Dots Overlay */}
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white text-tiny px-3 py-1 rounded-full font-medium pointer-events-none">
+                    <span>{currentImageIndex + 1} / {safeImages.length}</span>
                 </div>
 
-                {/* Navigation Chevrons */}
+                {/* Persistent Navigation Chevrons */}
                 {safeImages.length > 1 && (
                     <>
-                        <Button
-                            size="icon"
-                            variant="secondary"
-                            className="absolute left-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur-md hover:bg-white text-foreground-tertiary opacity-0 group-hover/main:opacity-100 transition-all shadow-sm border-none hidden sm:flex"
+                        <button
+                            type="button"
+                            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 prevImage();
                             }}
-                            aria-label="Previous image"
+                            aria-label="Previous photo"
                         >
-                            <ChevronLeft className="h-4 w-4 text-foreground-tertiary" />
-                        </Button>
-                        <Button
-                            size="icon"
-                            variant="secondary"
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur-md hover:bg-white text-foreground-tertiary opacity-0 group-hover/main:opacity-100 transition-all shadow-sm border-none hidden sm:flex"
+                            <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                            type="button"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 nextImage();
                             }}
-                            aria-label="Next image"
+                            aria-label="Next photo"
                         >
-                            <ChevronRight className="h-4 w-4 text-foreground-tertiary" />
-                        </Button>
+                            <ChevronRight className="h-5 w-5" />
+                        </button>
                     </>
                 )}
             </div>
 
-            {/* Thumbnail Carousel */}
+            {/* Thumbnail Carousel Row */}
             {safeImages.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto py-1 scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto py-1 scrollbar-hide" role="tablist" aria-label="Photo thumbnails">
                     {safeImages.map((image: string, index: number) => (
                         <button
                             key={index}
                             type="button"
+                            role="tab"
+                            aria-selected={index === currentImageIndex}
                             onClick={() => setCurrentImageIndex(index)}
                             aria-label={`View photo ${index + 1} of ${safeImages.length}`}
-                            className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                            className={`shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                                 index === currentImageIndex
-                                    ? "border-primary ring-2 ring-primary/20 scale-95"
-                                    : "border-transparent hover:border-border opacity-70 hover:opacity-100"
+                                    ? "border-primary ring-2 ring-primary/20 scale-95 opacity-100"
+                                    : "border-border/60 hover:border-border opacity-70 hover:opacity-100"
                             }`}
                         >
                             <SafeImage
                                 src={image}
-                                alt={`Thumbnail ${index + 1} of ${safeImages.length} for ${title}`}
+                                alt={`Thumbnail ${index + 1}`}
                                 fill
                                 sizes="80px"
                                 className="object-cover"
                             />
-                            {index === currentImageIndex && (
-                                <div className="absolute inset-0 bg-primary/5" />
-                            )}
                         </button>
                     ))}
                 </div>
             )}
-        </div>
 
-        {/* Lightbox / Fullscreen overlay */}
-        {isLightboxOpen && (
-            <div
-                ref={lightboxRef}
-                style={{ zIndex: Z_INDEX.drawerOverlay }}
-                className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm overscroll-contain touch-none select-none"
-                onClick={closeLightbox}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                role="dialog"
-                aria-modal="true"
-                aria-label={`Fullscreen image gallery: ${title}`}
-            >
-                {/* Screen reader live announcement */}
-                <div className="sr-only" aria-live="polite">
-                    Image {currentImageIndex + 1} of {safeImages.length}
-                </div>
-
-                {/* Close button */}
-                <button
-                    type="button"
-                    className="absolute top-4 right-4 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                    onClick={closeLightbox}
-                    aria-label="Close image viewer"
-                    autoFocus
-                >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
-                {/* Counter */}
-                {safeImages.length > 1 && (
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white text-caption font-semibold px-3 py-1 rounded-full">
-                        {currentImageIndex + 1} / {safeImages.length}
-                    </div>
-                )}
-
-                {/* Main image */}
-                <div
-                    className="relative flex items-center justify-center w-full max-w-5xl max-h-[85vh] mx-4"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <img
-                        src={safeImages[currentImageIndex]!}
-                        alt={`Fullscreen photo ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
-                        className="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl mx-auto shadow-2xl"
-                    />
-                </div>
-
-                {/* Nav arrows */}
-                {safeImages.length > 1 && (
-                    <>
-                        <button
-                            type="button"
-                            className="absolute left-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                            onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                            aria-label="Previous image"
-                        >
-                            <ChevronLeft className="h-6 w-6" />
-                        </button>
-                        <button
-                            type="button"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                            onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                            aria-label="Next image"
-                        >
-                            <ChevronRight className="h-6 w-6" />
-                        </button>
-                    </>
-                )}
-            </div>
-        )}
-    </>
+            {/* Lightbox Modal */}
+            <AdImageLightbox
+                isOpen={isLightboxOpen}
+                images={safeImages}
+                currentIndex={currentImageIndex}
+                title={title}
+                onClose={() => setIsLightboxOpen(false)}
+                onNext={nextImage}
+                onPrev={prevImage}
+            />
+        </section>
     );
 }
-
