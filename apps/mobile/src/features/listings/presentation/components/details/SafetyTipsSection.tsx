@@ -25,7 +25,7 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
           </View>
           {formattedId ? (
             <AppText variant="caption" className="font-mono text-amber-700 dark:text-amber-400 font-semibold">
-              #{formattedId}
+              {`#${formattedId}`}
             </AppText>
           ) : null}
         </View>
