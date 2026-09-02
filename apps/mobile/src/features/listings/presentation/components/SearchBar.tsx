@@ -17,7 +17,7 @@ export const SearchBar = React.memo<SearchBarProps>(({
   onClear,
   placeholder = 'Search listings…',
 }) => {
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   const handleClear = () => {
     onClear();

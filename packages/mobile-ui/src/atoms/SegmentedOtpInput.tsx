@@ -40,7 +40,7 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
     },
     ref
   ) => {
-    const inputRef = useRef<TextInput>(null);
+    const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
     const [isFocused, setIsFocused] = useState(false);
 
     useImperativeHandle(ref, () => ({

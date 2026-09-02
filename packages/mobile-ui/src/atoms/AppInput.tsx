@@ -11,7 +11,7 @@ export interface AppInputProps extends TextInputProps {
   containerClassName?: string;
 }
 
-export const AppInput = forwardRef<TextInput, AppInputProps>(({
+export const AppInput = forwardRef<React.ComponentRef<typeof TextInput>, AppInputProps>(({
   label,
   error,
   leftIcon,
