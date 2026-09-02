@@ -253,16 +253,19 @@ Verify:
 
 ---
 
-## 7. Modal & Dialog Rules
+## 7. Modal, Dialog & Fullscreen Lightbox Rules
 
-Every modal must:
+Every modal, dialog, sheet, drawer, and fullscreen image lightbox must:
 
-- Use `role="dialog"` (or `alertdialog` where appropriate)
-- Use `aria-modal="true"`
-- Associate a title correctly
-- Trap keyboard focus
-- Close with Escape (unless intentionally prevented)
-- Restore focus to the triggering element when closed
+- Consume the canonical `@esparex/ui` primitives (`Dialog`, `DialogPortal`, `DialogOverlay`, `DialogContent`, `Sheet`, `Drawer`).
+- Always render via `DialogPortal` to `document.body` to prevent stacking context traps and header bleed-through bugs.
+- Use centralized `Z_INDEX` tokens (`Z_INDEX.sheetOverlay = 1050`, `Z_INDEX.dialogOverlay = 1000 > userHeader: 999`).
+- Use `role="dialog"` (or `alertdialog` where appropriate) with `aria-modal="true"`.
+- Associate a title correctly (`DialogTitle` or accessible label).
+- Trap keyboard focus automatically without ad-hoc DOM queries.
+- Close with Escape (unless intentionally prevented).
+- Restore focus to the triggering element when closed.
+- Prohibit raw unportalled `fixed inset-0` modal `<div>` overlays.
 
 Background content must not be keyboard-accessible while the dialog is open.
 
