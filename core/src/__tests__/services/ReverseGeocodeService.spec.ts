@@ -27,24 +27,27 @@ describe('ReverseGeocodeService', () => {
         (setCache as jest.Mock).mockResolvedValue(undefined);
     });
 
-    describe('haversineDistance logic and snapping', () => {
-        it('should correctly calculate haversine distance between Mumbai coords and snap', async () => {
-            // Simulated Mumbai coords: 19.0760, 72.8777
-            // Target city coords: 19.0800, 72.8800 (very close)
+    describe('haversineDistance logic and exact GPS coordinate preservation', () => {
+        it('should correctly calculate haversine distance between coords', async () => {
             const lat1 = 19.0760;
             const lon1 = 72.8777;
             const lat2 = 19.0800;
             const lon2 = 72.8800;
 
             const distance = haversineDistance(lat1, lon1, lat2, lon2);
-            expect(distance).toBeLessThan(7.5); // Should be well within 7.5km
+            expect(distance).toBeLessThan(7.5);
         });
 
-        it('should snap coordinates to the nearest settlement if within 7.5km', async () => {
+        it('should preserve exact input GPS coordinates when a settlement is matched (even 6-7 km away)', async () => {
             const inputLat = 19.0760;
             const inputLng = 72.8777;
-            const cityCenterLat = 19.0800;
-            const cityCenterLng = 72.8800;
+            // Settlement located ~6.8km away
+            const cityCenterLat = 19.0200;
+            const cityCenterLng = 72.8500;
+
+            const distance = haversineDistance(inputLat, inputLng, cityCenterLat, cityCenterLng);
+            expect(distance).toBeGreaterThan(6.0);
+            expect(distance).toBeLessThan(7.5);
 
             (AdminBoundary.find as jest.Mock).mockReturnValue({
                 select: jest.fn().mockReturnValue({
@@ -77,21 +80,17 @@ describe('ReverseGeocodeService', () => {
             expect(result).toBeDefined();
             expect(result?.city).toBe('Mumbai');
             
-            // The coordinates should be SNAPPED to the city center, not the input
-            expect(result?.coordinates?.coordinates[0]).toBe(cityCenterLng);
-            expect(result?.coordinates?.coordinates[1]).toBe(cityCenterLat);
-            expect(result?.isSnapped).toBe(true);
+            // The coordinates MUST PRESERVE the input GPS coordinates, NOT city center
+            expect(result?.coordinates?.coordinates[0]).toBe(inputLng);
+            expect(result?.coordinates?.coordinates[1]).toBe(inputLat);
+            expect(result?.isSnapped).toBe(false);
         });
 
-        it('should NOT snap coordinates if distance > 7.5km', async () => {
-            const inputLat = 19.0760;
-            const inputLng = 72.8777;
-            // Place city center 20km away
-            const cityCenterLat = 19.2000;
-            const cityCenterLng = 72.9000;
-
-            const dist = haversineDistance(inputLat, inputLng, cityCenterLat, cityCenterLng);
-            expect(dist).toBeGreaterThan(7.5);
+        it('should accurately preserve reproduced coordinates (lat = 16.4812, lng = 79.4412)', async () => {
+            const inputLat = 16.4812;
+            const inputLng = 79.4412;
+            const settlementLat = 16.5300;
+            const settlementLng = 79.4000;
 
             (AdminBoundary.find as jest.Mock).mockReturnValue({
                 select: jest.fn().mockReturnValue({
@@ -102,11 +101,13 @@ describe('ReverseGeocodeService', () => {
             (Location.findOne as jest.Mock).mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue({
-                        _id: 'mock_city_id',
-                        name: 'Far City',
+                        _id: 'mock_macherla_id',
+                        name: 'Macherla',
+                        city: 'Macherla',
+                        state: 'Andhra Pradesh',
                         country: 'India',
                         level: 'city',
-                        coordinates: { type: 'Point', coordinates: [cityCenterLng, cityCenterLat] },
+                        coordinates: { type: 'Point', coordinates: [settlementLng, settlementLat] },
                         isActive: true
                     })
                 })
@@ -121,12 +122,9 @@ describe('ReverseGeocodeService', () => {
             const result = await reverseGeocode(inputLat, inputLng);
 
             expect(result).toBeDefined();
-            expect(result?.city).toBe('Far City');
-            
-            // The coordinates should REMAIN the input, NOT snapped
-            expect(result?.coordinates?.coordinates[0]).toBe(inputLng);
-            expect(result?.coordinates?.coordinates[1]).toBe(inputLat);
-            expect(result?.isSnapped).toBeUndefined();
+            expect(result?.name).toBe('Macherla');
+            expect(result?.coordinates?.coordinates).toEqual([79.4412, 16.4812]);
+            expect(result?.isSnapped).toBe(false);
         });
     });
 });

@@ -134,6 +134,7 @@ describe("locationService regression", () => {
         expect(result?.state).toBe("Andhra Pradesh");
         expect(result?.locationId).toBe("65f0a1b2c3d4e5f607182930");
         expect(result?.name).toBe("Macherla");
+        expect(result?.coordinates?.coordinates).toEqual([79.44, 16.48]);
     });
 
     it("reverseGeocode uses the nearest settlement-level canonical match without tiered area gating", async () => {
