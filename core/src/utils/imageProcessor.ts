@@ -3,12 +3,14 @@ import crypto from 'crypto';
 import logger from './logger';
 import { env } from '../config/env';
 import { imageDomainRegistry } from "@esparex/shared";
+import type sharp from 'sharp';
 
-let cached: typeof import('sharp') | undefined;
+let cached: typeof sharp | undefined;
 
-async function getSharp(): Promise<typeof import('sharp')> {
+async function getSharp(): Promise<typeof sharp> {
     if (!cached) {
-        cached = (await import('sharp')).default as typeof import('sharp');
+        const sharpModule = await import('sharp');
+        cached = sharpModule.default;
     }
     return cached;
 }
