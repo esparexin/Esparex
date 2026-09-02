@@ -83,6 +83,8 @@
     "expo-updates",
     "expo-system-ui",
     "expo-constants",
+    "expo-asset",
+    "react-native-css-interop",
     "lucide-react-native",
     "@babel/core",
     "@commitlint/cli",
@@ -148,6 +150,7 @@
     "backend/api/scripts/**",
     "packages/mobile-ui/src/**/__tests__/**",
     "apps/mobile/babel.config.js",
+    "apps/mobile/metro.config.js",
     "apps/mobile/ios/**",
     "apps/mobile/android/**",
     "Esparex.app/**"
