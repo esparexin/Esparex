@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { CATALOG_STATUS } from '@esparex/contracts';
 import { scoreModeratorTrust } from '../services/CatalogSearchGovernanceService';
@@ -56,9 +57,9 @@ export const applyMarketplaceTrustMetadata = (entity: Record<string, unknown>, m
 };
 
 export const ensureEntityActiveAndTrusted = async (
-    entity: { categoryIds?: unknown[]; save: (...args: any[]) => Promise<any>; approvalStatus?: string; isActive?: boolean; status?: string; rejectionReason?: string | null; needsReview?: boolean },
+    entity: { categoryIds?: unknown[]; save: (options?: { session?: ClientSession | null }) => Promise<unknown>; approvalStatus?: string; isActive?: boolean; status?: string; rejectionReason?: string | null; needsReview?: boolean },
     request: { requestCount?: number; categoryId: unknown },
-    session: unknown,
+    session: ClientSession | null | undefined,
     trustParams: { createdCanonicalEntity?: boolean; duplicateResolution?: boolean }
 ): Promise<void> => {
     let needsSave = ensureCatalogActivationFlags(entity);

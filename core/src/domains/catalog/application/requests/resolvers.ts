@@ -27,8 +27,8 @@ export const resolveOrCreateBrand = async (request: ICatalogRequest, session: Cl
             marketplaceTrust: buildApprovalTrustMetadata({ requestCount: request.requestCount, createdCanonicalEntity: true }),
         }], { session });
         return { entityId: created[0]._id as Types.ObjectId, createdCanonicalEntity: true };
-    } catch (error: any) {
-        if (error.code !== 11000) throw error;
+    } catch (error: unknown) {
+        if ((error as { code?: number }).code !== 11000) throw error;
         existingBrand = await Brand.findOne({ canonicalName: requestCanonicalName, ...NON_DELETED_QUERY, approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] } }).session(session);
         if (!existingBrand) throw error;
         await ensureEntityActiveAndTrusted(existingBrand, request, session, { createdCanonicalEntity: false });
@@ -56,8 +56,8 @@ export const resolveOrCreateModel = async (request: ICatalogRequest, session: Cl
             marketplaceTrust: buildApprovalTrustMetadata({ requestCount: request.requestCount, createdCanonicalEntity: true }),
         }], { session });
         return { entityId: created[0]._id as Types.ObjectId, createdCanonicalEntity: true };
-    } catch (error: any) {
-        if (error.code !== 11000) throw error;
+    } catch (error: unknown) {
+        if ((error as { code?: number }).code !== 11000) throw error;
         existingModel = await CatalogModel.findOne({ brandId: request.parentBrandId, canonicalName: requestCanonicalName, ...NON_DELETED_QUERY, approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] } }).session(session);
         if (!existingModel) throw error;
         await ensureEntityActiveAndTrusted(existingModel, request, session, { createdCanonicalEntity: false });

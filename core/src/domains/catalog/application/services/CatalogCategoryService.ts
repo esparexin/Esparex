@@ -28,7 +28,7 @@ const ACTIVE_CATEGORY_QUERY = {
 };
 
 const CACHE_TTL_MS = 60 * 1000;
-let activeCategoryCache: { at: number; categories: any[] } | null = null;
+let activeCategoryCache: { at: number; categories: Array<{ _id: unknown; slug?: string; name?: string }> } | null = null;
 
 const getActiveCategories = async () => {
     const now = Date.now();
@@ -53,7 +53,7 @@ export const clearCategoryCanonicalCache = () => {
 export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Promise<string[]> => {
     if (!mongoose.Types.ObjectId.isValid(categoryId)) return [];
 
-    const sourceCategory = await Category.findById(categoryId).select('_id slug name').lean<any>();
+    const sourceCategory = await Category.findById(categoryId).select('_id slug name').lean<{ _id: unknown; slug?: string; name?: string }>();
     if (!sourceCategory) return [];
 
     const sourceKeys = CatalogFacade.category.normalize.categoryKeys(sourceCategory.slug, sourceCategory.name);
@@ -176,8 +176,8 @@ export const resolveCategoryWithSubcategoryIds = async (
 const CATALOG_COUNT_MAX_TIME_MS = 1500;
 const CATALOG_COUNT_ESTIMATE_MAX_TIME_MS = 1000;
 
-async function countCatalogCollectionSafely(
-    model: MongooseModel<any>,
+async function countCatalogCollectionSafely<T>(
+    model: MongooseModel<T>,
     filter: Record<string, unknown>,
     hint?: Record<string, 1 | -1>
 ): Promise<number> {

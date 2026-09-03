@@ -54,7 +54,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Invalidate catalog caches, optionally scoped by category or brand
      */
-    async invalidateCatalogCache(opts?: { categoryIds?: any[], brandIds?: any[] }) {
+    async invalidateCatalogCache(opts?: { categoryIds?: Array<string | { toString(): string }>, brandIds?: Array<string | { toString(): string }> }) {
         const cleanOpts = opts ? {
             categoryIds: opts.categoryIds ? opts.categoryIds.map(id => String(id)) : undefined,
             brandIds: opts.brandIds ? opts.brandIds.map(id => String(id)) : undefined
@@ -197,7 +197,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Create Category with cache invalidation
      */
-    async createCategory(data: any): Promise<CategoryResult> {
+    async createCategory(data: Parameters<CategoryRepositoryPort['create']>[0]): Promise<CategoryResult> {
         const result = await this.categoryRepository.create(data);
         await this.invalidateCatalogCache({ categoryIds: [result.id] });
         return result as CategoryResult;
@@ -206,7 +206,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Update Category with cache invalidation
      */
-    async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
+    async updateCategory(id: string, data: Parameters<CategoryRepositoryPort['update']>[1]): Promise<CategoryResult | null> {
         const result = await this.categoryRepository.update(id, data);
         if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
         return result as CategoryResult;
@@ -311,7 +311,7 @@ function getServiceInstance(): CatalogOrchestratorImpl {
 export class CatalogOrchestrator {
     private static get instance() { return getServiceInstance(); }
 
-    static async invalidateCatalogCache(opts?: { categoryIds?: any[], brandIds?: any[] }) {
+    static async invalidateCatalogCache(opts?: { categoryIds?: Array<string | { toString(): string }>, brandIds?: Array<string | { toString(): string }> }) {
         return this.instance.invalidateCatalogCache(opts);
     }
     static async cascadeCategoryDelete(categoryId: string, session?: TransactionContext) {
@@ -320,10 +320,10 @@ export class CatalogOrchestrator {
     static async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         return this.instance.cascadeBrandDelete(brandId, session);
     }
-    static async createCategory(data: any): Promise<CategoryResult> {
+    static async createCategory(data: Parameters<CategoryRepositoryPort['create']>[0]): Promise<CategoryResult> {
         return this.instance.createCategory(data);
     }
-    static async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
+    static async updateCategory(id: string, data: Parameters<CategoryRepositoryPort['update']>[1]): Promise<CategoryResult | null> {
         return this.instance.updateCategory(id, data);
     }
     static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
