@@ -21,7 +21,7 @@ export class ModelNotFoundError extends Error {
 }
 
 export class ModerationModelRegistry {
-    private adapters: Map<string, ModelAdapter<any, any>> = new Map();
+    private adapters: Map<string, ModelAdapter> = new Map();
 
     /**
      * Registers a model adapter in the registry.

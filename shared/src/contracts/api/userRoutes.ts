@@ -24,17 +24,6 @@ export const USER_ROUTES = {
   SERVICE_TYPES: "catalog/service-types",
   SCREEN_SIZES: "catalog/screen-sizes",
 
-  // Ads (Legacy - Redirected to Listings)
-  ADS: "listings",
-  ADS_NEARBY: "listings/nearby",
-  ADS_SUGGESTIONS: "listings/suggestions",
-  AD_DETAIL: (id: string | number) => `listings/${encodeURIComponent(String(id))}`,
-  AD_REPOST: (id: string | number) => `listings/${id}/repost`,
-  ADS_UPLOAD_IMAGE: "listings/upload-image",
-  ADS_UPLOAD_PRESIGN: "listings/upload-presign",
-  ADS_TRENDING: "listings/trending",
-  HOME_FEED: "listings/home", // canonical home feed endpoint
-  
   // Listings (Unified SSOT)
   LISTINGS: "listings",
   LISTINGS_NEARBY: "listings/nearby",
@@ -42,6 +31,7 @@ export const USER_ROUTES = {
   LISTINGS_TRENDING: "listings/trending",
   LISTINGS_UPLOAD_IMAGE: "listings/upload-image",
   LISTINGS_UPLOAD_PRESIGN: "listings/upload-presign",
+  HOME_FEED: "listings/home",
   MY_LISTINGS: "listings/mine",
   MY_LISTINGS_STATS: "listings/mine/stats",
   LISTING_DETAIL: (id: string | number) => `listings/${id}`,
@@ -54,7 +44,6 @@ export const USER_ROUTES = {
   LISTING_VIEW: (id: string | number) => `listings/${id}/view`,
   LISTING_PHONE: (id: string | number) => `listings/${id}/phone`,
   LISTING_REPOST: (id: string | number) => `listings/${id}/repost`,
-
 
   // Locations
   LOCATIONS: "locations",
@@ -95,20 +84,6 @@ export const USER_ROUTES = {
   BUSINESS_ADS: (id: string) => `businesses/${id}/ads`,
   BUSINESS_SPARE_PARTS: (id: string) => `businesses/${id}/spare-parts`,
   BUSINESS_LISTINGS: (id: string) => `businesses/${id}/listings`,
-
-  // Services (Legacy - Redirected to Listings)
-  SERVICES: "listings",
-  SERVICE_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
-  SERVICE_VIEW: (id: string) => `listings/${encodeURIComponent(id)}/view`,
-  SERVICE_SOLD: (id: string) => `listings/${id}/sold`,
-  SERVICE_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
-  SERVICE_REPOST: (id: string) => `listings/${id}/repost`,
-
-  // Spare Part Listings (Legacy - Redirected to Listings)
-  SPARE_PART_LISTINGS: "listings",
-  SPARE_PART_LISTING_DETAIL: (id: string) => `listings/${encodeURIComponent(id)}`,
-  SPARE_PART_DEACTIVATE: (id: string) => `listings/${id}/deactivate`,
-  SPARE_PART_REPOST: (id: string) => `listings/${id}/repost`,
 
   // Users
   USERS: "users",

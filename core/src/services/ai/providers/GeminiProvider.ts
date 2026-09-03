@@ -26,8 +26,8 @@ export class GeminiProvider implements AIProvider {
 
     constructor() {
         const configPromise = getAiConfig();
-        this.clientPromise = configPromise.then((c: any) => new GoogleGenAI({ apiKey: c.geminiApiKey }));
-        this.modelNamePromise = configPromise.then((c: any) => c.geminiModel);
+        this.clientPromise = configPromise.then((c) => new GoogleGenAI({ apiKey: (c as { geminiApiKey?: string }).geminiApiKey || '' }));
+        this.modelNamePromise = configPromise.then((c) => (c as { geminiModel?: string }).geminiModel || 'gemini-1.5-flash');
     }
 
     private mapError(error: unknown): GeminiProviderError {

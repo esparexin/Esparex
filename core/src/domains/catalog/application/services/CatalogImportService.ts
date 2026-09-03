@@ -5,7 +5,7 @@ import Category, { ICategory } from '../../../../models/Category';
 import Brand from '../../../../models/Brand';
 import Model from '../../../../models/Model';
 import CatalogOrchestrator from '../services/CatalogOrchestrator';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { escapeRegExp } from '../../../../utils/stringUtils';
 
 interface ImportResult {
