@@ -11,7 +11,7 @@ const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> =
 
 type AdsFilterToolbarExtrasProps = {
     filters: ModerationFilters;
-    updateFilter: (key: keyof ModerationFilters, value: any) => void;
+    updateFilter: (key: keyof ModerationFilters, value: ModerationFilters[keyof ModerationFilters]) => void;
     clearFilters: () => void;
 };
 
