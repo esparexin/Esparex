@@ -75,7 +75,7 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
             const rk = search && Array.isArray(ri) ? rankCatalogSearchResults(ri, search, searchFields, ats?.scores, { autocomplete: limit <= 50, collapseVariants: limit <= 50 }) : ri;
             if (search) recordCatalogSearchTelemetry({ search, latencyMs: Date.now() - st, resultCount: Array.isArray(rk) ? rk.length : 0, autocomplete: limit <= 50 });
             if (uACR && Array.isArray(rk)) {
-                const ar = await tryAdminCatalogReadSwitch({ req, model, query: q, sort: aSort, skip, limit, populate, select, includeDeleted: incDel, transformResponse, userItems: rk, userTotal: total });
+                const ar = await tryAdminCatalogReadSwitch<T>({ req, model, query: q, sort: aSort, skip, limit, populate, select, includeDeleted: incDel, transformResponse, userItems: rk, userTotal: total });
                 if (ar) { const p = { items: ar.items, total: ar.total, page, limit }; if (ck) await setCache(ck, p, CACHE_TTLS.CATEGORIES); return sendPaginatedResponse(res, ar.items, ar.total, page, limit); }
             }
             if (!uACR && Array.isArray(rk)) void runCatalogShadowRead({ modelName: model.modelName, query: q, sort: aSort, skip, limit, userRows: rk as Record<string, unknown>[], requestPath: req.originalUrl || req.path, requestMethod: req.method });
@@ -108,7 +108,7 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
         const rk = search && Array.isArray(ri) ? rankCatalogSearchResults(ri, search, searchFields, ats?.scores, { autocomplete: limit <= 50, collapseVariants: limit <= 50 }) : ri;
         if (search) recordCatalogSearchTelemetry({ search, latencyMs: Date.now() - st2, resultCount: Array.isArray(rk) ? rk.length : 0, autocomplete: limit <= 50 });
         if (uACR && Array.isArray(rk)) {
-            const ar = await tryAdminCatalogReadSwitch({ req, model, query: q, sort, skip: (page - 1) * limit, limit, populate, select, transformResponse, userItems: rk, userTotal: total });
+            const ar = await tryAdminCatalogReadSwitch<T>({ req, model, query: q, sort, skip: (page - 1) * limit, limit, populate, select, transformResponse, userItems: rk, userTotal: total });
             if (ar) { const p = { items: ar.items, total: ar.total }; if (ck) await setCache(ck, p, CACHE_TTLS.CATEGORIES); return sendSuccessResponse(res, p); }
         }
         if (!uACR && Array.isArray(rk)) void runCatalogShadowRead({ modelName: model.modelName, query: q, sort, skip: (page - 1) * limit, limit, userRows: rk as Record<string, unknown>[], requestPath: req.originalUrl || req.path, requestMethod: req.method });

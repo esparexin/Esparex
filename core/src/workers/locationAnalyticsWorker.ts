@@ -46,7 +46,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
 
     try {
         const locations = await locationRepository.findMany({ isActive: true });
-        const locationIds = locations.map((loc: any) => loc._id);
+        const locationIds = locations.map((loc) => loc._id);
 
         const [adCountsAgg, userCountsAgg, existingAnalyticsDocs] = await Promise.all([
             Ad.aggregate<{
@@ -100,7 +100,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
             });
         }
 
-        const analyticsBulkOps: any[] = [];
+        const analyticsBulkOps: Parameters<typeof locationAnalyticsRepository.bulkWriteAnalytics>[0] = [];
 
         for (const loc of locations) {
             const locationKey = String(loc._id);
