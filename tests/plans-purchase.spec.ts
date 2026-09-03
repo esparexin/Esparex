@@ -205,6 +205,7 @@ test.describe('Plans & Wallet Hub — 15-Point Release Gate E2E Regression Suite
         !e.includes('Access-Control-Allow-Origin') &&
         !e.includes('Cross-Origin Request Blocked') &&
         !e.includes('Same Origin Policy') &&
+        !e.includes('interactive-widget') &&
         !e.includes('status of 500')
     );
     expect(filteredErrors).toHaveLength(0);

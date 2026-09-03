@@ -1,12 +1,11 @@
 import React, { useCallback } from 'react';
-import { View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, FlatList, TouchableOpacity, RefreshControl, Linking } from 'react-native';
 import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { AppNotification } from '../../domain/Notification';
 import { ErrorState } from '../../../common/components/ErrorState';
-
 
 export const NotificationScreen = () => {
   const { data: notifications, isLoading, isError, refetch, isRefetching } = useNotifications();
@@ -20,6 +19,13 @@ export const NotificationScreen = () => {
     (item: AppNotification) => {
       if (!item.isRead) {
         markReadMutation.mutate(item.id);
+      }
+      const conversationId = (item.data?.conversationId || (item.data?.targetScreen === 'CHAT' ? item.data?.conversationId : undefined)) as string | undefined;
+      const listingId = (item.data?.listingId || item.data?.adId) as string | undefined;
+      if (conversationId) {
+        void Linking.openURL(`esparex://chat/thread/${conversationId}`).catch(() => {});
+      } else if (listingId) {
+        void Linking.openURL(`esparex://listing/${listingId}`).catch(() => {});
       }
     },
     [markReadMutation]

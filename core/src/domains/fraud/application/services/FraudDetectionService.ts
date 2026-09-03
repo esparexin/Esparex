@@ -78,6 +78,13 @@ export const analyzeFraudRisk = async (context: FraudContext): Promise<FraudDeci
     if (context.isTextSpam) {
         totalScore += (context.textSpamScore || 20);
         activeSignals.push('Keyword / Pattern Text Spam Detected');
+    } else if (context.description) {
+        const { detectSpam } = await import('./SpamDetectorService');
+        const spamCheck = detectSpam(context.description);
+        if (spamCheck.isSpam) {
+            totalScore += spamCheck.score;
+            activeSignals.push(spamCheck.reason || 'Keyword / Pattern Text Spam Detected');
+        }
     }
     if (context.isAiSpam) {
         totalScore += (context.aiSpamScore || 20);

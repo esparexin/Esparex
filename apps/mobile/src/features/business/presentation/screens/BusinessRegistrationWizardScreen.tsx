@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Alert, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
 import { Screen, AppText } from '@esparex/mobile-ui';
 import { BusinessWizardStep } from '../../domain/BusinessWizardStep';
 import { BusinessFormState, INITIAL_BUSINESS_FORM_STATE } from '../../domain/BusinessFormState';
@@ -28,6 +28,20 @@ export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: Busine
   const submitMutation = useSubmitBusinessRegistration();
 
   const currentStep = STEPS_ORDER[currentStepIndex];
+
+  // Android hardware back button handling: step backward instead of exiting wizard
+  useEffect(() => {
+    const onBackPress = () => {
+      if (currentStepIndex > 0) {
+        setCurrentStepIndex((prev) => prev - 1);
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [currentStepIndex]);
 
   const handleFormChange = (updates: Partial<BusinessFormState>) => {
     setFormState((prev) => ({ ...prev, ...updates }));
@@ -101,7 +115,7 @@ export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: Busine
           { text: 'OK', onPress: () => onSuccess && onSuccess() },
         ]);
       },
-      onError: (err: any) => {
+      onError: (err: Error) => {
         Alert.alert('Submission Error', err?.message || 'Unable to submit business application. Please try again.');
       },
     });

@@ -91,14 +91,14 @@ const DialogContent = React.forwardRef<
     switch (activeVariant) {
       case "fullscreen":
         return [
-          "fixed inset-0 w-full h-[100dvh] max-w-none max-h-none translate-x-0 translate-y-0 rounded-none border-none bg-background p-0 flex flex-col overflow-hidden shadow-none",
+          "fixed inset-0 w-full h-[var(--visual-viewport-height,100dvh)] max-w-none max-h-none translate-x-0 translate-y-0 rounded-none border-none bg-background p-0 flex flex-col overflow-hidden shadow-none",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         ];
       case "bottomSheet":
         return [
-          "fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 w-full max-w-none h-auto max-h-[92dvh] rounded-t-2xl border-none p-0 bg-background flex flex-col overflow-hidden shadow-2xl",
+          "fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 w-full max-w-none h-auto max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] rounded-t-2xl border-none p-0 bg-background flex flex-col overflow-hidden shadow-2xl",
           "sm:fixed sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%]",
           "sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[calc(100dvh-3rem)]",
           "sm:rounded-2xl sm:shadow-2xl sm:shadow-slate-900/15 sm:border sm:border-border",
@@ -112,7 +112,7 @@ const DialogContent = React.forwardRef<
       case "mobileSafe":
         return [
           "fixed left-[50%] top-4 bottom-auto right-auto w-[calc(100vw-2rem)] max-w-lg outline-none -translate-x-1/2 translate-y-0 sm:top-[50%] sm:-translate-y-1/2",
-          "flex h-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-background shadow-lg",
+          "flex h-full max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-2rem))] flex-col overflow-hidden rounded-2xl bg-background shadow-lg",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -122,8 +122,8 @@ const DialogContent = React.forwardRef<
       case "centered":
       default:
         return [
-          "fixed left-[50%] top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
-          "bg-background rounded-2xl shadow-xl p-5 max-h-[calc(100dvh-2rem)] overflow-y-auto border border-border",
+          "fixed left-[50%] top-4 sm:top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
+          "bg-background rounded-2xl shadow-xl p-5 max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-2rem))] overflow-y-auto border border-border",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",

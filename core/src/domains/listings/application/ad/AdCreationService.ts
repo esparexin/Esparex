@@ -79,29 +79,17 @@ const toObjectIdString = (value: unknown): string | undefined => {
     if (typeof value === 'string') return value.trim() || undefined;
     if (typeof value === 'number') return String(value);
     if (value && typeof value === 'object') {
-        const record = value as Record<string, unknown>;
-        const candidate = record._id ?? record.id;
-        if (typeof candidate === 'string') return candidate.trim() || undefined;
-        if (typeof candidate === 'number') return String(candidate);
+        const candidate = (value as Record<string, unknown>)._id ?? (value as Record<string, unknown>).id;
+        return typeof candidate === 'string' ? candidate.trim() || undefined : typeof candidate === 'number' ? String(candidate) : undefined;
     }
     return undefined;
 };
 
-const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {
-    if (value instanceof mongoose.Types.ObjectId) return value;
-    if (typeof value !== 'string' || !mongoose.Types.ObjectId.isValid(value)) return undefined;
-    return new mongoose.Types.ObjectId(value);
-};
+const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined =>
+    value instanceof mongoose.Types.ObjectId ? value : typeof value === 'string' && mongoose.Types.ObjectId.isValid(value) ? new mongoose.Types.ObjectId(value) : undefined;
 
-const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown }): mongoose.Types.ObjectId | undefined => {
-    const rawBusinessLocationId =
-        business.locationId
-        || (typeof business.location === 'object' && business.location
-            ? (business.location as { locationId?: unknown }).locationId
-            : undefined);
-
-    return normalizeObjectId(rawBusinessLocationId);
-};
+const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown } | null | undefined): mongoose.Types.ObjectId | undefined =>
+    normalizeObjectId(business?.locationId || (typeof business?.location === 'object' && business?.location ? (business.location as { locationId?: unknown }).locationId : undefined));
 
 export const validateSparePartsForCategory = async (
     sparePartIds: string[],
@@ -374,6 +362,8 @@ export class AdCreationService {
         }
 
         if (Array.isArray(payload.images) && payload.images.length > 0) {
+            const rawImages = payload.images.filter((img): img is string => typeof img === 'string' && img.trim().length > 0);
+            const deduplicatedImages = Array.from(new Set(rawImages));
             const targetAdId = adId || new mongoose.Types.ObjectId().toString();
             type ProcessedImage = { url: string; thumbnailUrl?: string; hash?: string };
             
@@ -382,14 +372,19 @@ export class AdCreationService {
             if (listingType === LISTING_TYPE.SERVICE) folder = 'services';
             else if (listingType === LISTING_TYPE.SPARE_PART) folder = 'spare-part-listings';
 
-            const processed = (await processImages(payload.images ?? [], `${folder}/${targetAdId}`)) as ProcessedImage[];
+            const processed = (await processImages(deduplicatedImages, `${folder}/${targetAdId}`)) as ProcessedImage[];
 
             payload.images = sanitizeStoredImageUrls(processed.map((img) => img.url));
             payload.thumbnails = sanitizeStoredImageUrls(processed.map((img) => img.thumbnailUrl || img.url));
 
+            const passedHashes = Array.isArray(source.imageHashes)
+                ? (source.imageHashes as unknown[]).filter((h): h is string => typeof h === 'string' && h !== 'existing-url' && h.trim().length > 0)
+                : [];
+
             payload.imageHashes = processed
                 .filter((img) => payload.images?.includes(img.url))
-                .map((img) => img.hash ?? '');
+                .map((img, idx) => (img.hash && img.hash !== 'existing-url' ? img.hash : (passedHashes[idx] ?? '')))
+                .filter((h): h is string => typeof h === 'string' && h.trim().length > 0);
 
             if (processed.length > 0 && (!payload.images || payload.images.length === 0)) {
                 throw new AppError('Image upload failed. Please retry.', 502);

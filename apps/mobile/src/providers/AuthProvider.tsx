@@ -99,3 +99,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
