@@ -18,7 +18,7 @@ const resolveUserId = (req: Request, res: Response): string | null => {
 };
 
 export const getMe = async (
-  req: any,
+  req: Request & { user?: AuthUser },
   res: Response,
   next: NextFunction
 ): Promise<void> => {

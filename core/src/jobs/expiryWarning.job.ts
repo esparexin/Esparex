@@ -13,7 +13,7 @@ import { ACTOR_TYPE } from '@esparex/contracts';
 import AdminLog from '../models/AdminLog';
 
 const expiryWarningQueue = shouldDisableQueueConnection
-    ? createNoopQueue<any>()
+    ? createNoopQueue<TraceableJobData>()
     : new Queue('expiry_warning_queue', { connection: redisConnection });
 
 /**

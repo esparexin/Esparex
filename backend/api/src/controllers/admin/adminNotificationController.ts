@@ -17,6 +17,8 @@ import { logAdminAction } from "../../utils/adminLogger";
 import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
 import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@esparex/core/models/User";
+import { type INotificationLog } from "@esparex/core/models/NotificationLog";
+import { type IScheduledNotification } from "@esparex/core/models/ScheduledNotification";
 import { respond } from "../../utils/respond";
 import { escapeRegExp } from "@esparex/core/utils/stringUtils";
 
@@ -241,7 +243,7 @@ export async function getHistory(req: Request, res: Response) {
             { includeLogs, includeScheduled, mergeWindow }
         );
 
-        const normalizedLogs: HistoryRecord[] = logs.map((log: Record<string, any>) => ({
+        const normalizedLogs: HistoryRecord[] = (logs as INotificationLog[]).map((log: INotificationLog) => ({
             id: log._id.toString(),
             title: log.title,
             body: log.body,
@@ -258,7 +260,7 @@ export async function getHistory(req: Request, res: Response) {
             createdAt: log.createdAt,
         }));
 
-        const normalizedScheduled: HistoryRecord[] = scheduled.map((job: Record<string, any>) => ({
+        const normalizedScheduled: HistoryRecord[] = (scheduled as IScheduledNotification[]).map((job: IScheduledNotification) => ({
             id: job._id.toString(),
             title: job.title,
             body: job.body,

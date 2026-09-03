@@ -5,7 +5,7 @@ export class NoopEmailServiceAdapter implements EmailServicePort {
         return false;
     }
 
-    public async sendEmail(payload: EmailPayload): Promise<EmailDispatchResult> {
+    public async sendEmail(_payload: EmailPayload): Promise<EmailDispatchResult> {
         // Soft success log when email service is unconfigured
         return {
             success: true,
