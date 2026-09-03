@@ -8,7 +8,7 @@ import { PostAdProvider } from '../features/postAd/PostAdProvider';
 import { PostAdScreen } from '../features/postAd/presentation/PostAdScreen';
 import { ChatNavigator } from './ChatNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
-import { useUnreadNotificationsCount } from '../features/notifications/presentation/hooks/useNotifications';
+import { useUnreadChatCount } from '../features/chat/presentation/hooks/useConversations';
 import { semantic } from '@esparex/design-tokens';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -35,8 +35,8 @@ const PostAdTab = () => (
 // ---------------------------------------------------------------------------
 
 export const MainTabs = () => {
-  // Drives the unread-count badge on the Chat tab.
-  const unreadCount = useUnreadNotificationsCount();
+  // Drives the unread-count badge on the Chat tab from conversation threads.
+  const unreadChatCount = useUnreadChatCount();
 
   return (
     <Tab.Navigator
@@ -81,8 +81,7 @@ export const MainTabs = () => {
         component={ChatNavigator}
         options={{
           title: 'Chat',
-          // Show a badge when there are unread notifications
-          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          tabBarBadge: unreadChatCount > 0 ? unreadChatCount : undefined,
           tabBarBadgeStyle: { backgroundColor: semantic.light.destructive, color: semantic.light['destructive-foreground'], fontSize: 10 },
         }}
       />

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { AppText, Card, Badge, AppIcon } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { base, semantic } from '@esparex/design-tokens';
 import { Listing } from '../../domain/Listing';
 
 interface ListingCardProps {
@@ -37,13 +37,13 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
             />
           ) : (
             <View style={StyleSheet.absoluteFillObject} className="items-center justify-center bg-slate-100 dark:bg-slate-800">
-              <AppIcon name="Image" size={28} color="#94a3b8" />
+              <AppIcon name="Image" size={28} color={base.slate[400]} />
             </View>
           )}
 
           {listing.isSpotlight ? (
             <View className="absolute top-2 left-2 flex-row items-center bg-amber-500 px-2 py-0.5 rounded-full shadow-sm z-10">
-              <AppIcon name="Sparkles" size={10} color="#ffffff" />
+              <AppIcon name="Sparkles" size={10} color={base.white} />
               <AppText variant="caption" className="text-white text-tiny font-bold ml-1 uppercase tracking-wider">
                 Spotlight
               </AppText>
@@ -58,7 +58,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
             <View
               className={`absolute top-2 ${onToggleSave ? 'right-9' : 'right-2'} bg-white/90 dark:bg-slate-900/90 rounded-full p-0.5 shadow-sm z-10`}
             >
-              <AppIcon name="CheckCircle2" size={14} color="#10b981" />
+              <AppIcon name="CheckCircle2" size={14} color={base.success[500]} />
             </View>
           )}
 
@@ -76,7 +76,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               <AppIcon
                 name="Heart"
                 size={14}
-                color={isSaved ? '#ef4444' : '#64748b'}
+                color={isSaved ? semantic.light.destructive : base.slate[500]}
               />
             </TouchableOpacity>
           )}
@@ -102,7 +102,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                 <AppIcon
                   name={listing.condition === 'power_on' ? 'Zap' : 'Power'}
                   size={10}
-                  color={listing.condition === 'power_on' ? '#059669' : '#e11d48'}
+                  color={listing.condition === 'power_on' ? base.success : base.error}
                 />
                 <AppText
                   variant="caption"
@@ -130,7 +130,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
           {/* Location */}
           {listing.location?.display && (
             <View className="flex-row items-center mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
-              <AppIcon name="MapPin" size={11} color="#94a3b8" />
+              <AppIcon name="MapPin" size={11} color={base.slate[400]} />
               <AppText
                 variant="caption"
                 className="text-slate-400 dark:text-slate-500 ml-1 text-xs flex-1"
