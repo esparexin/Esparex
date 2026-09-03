@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import { toApiResult } from '@/lib/api/result';
+import { toApiResult, type ApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '../routes';
 
 export interface AIInput {
@@ -17,7 +17,7 @@ export interface AIOutput {
     [key: string]: unknown;
 }
 
-export const generateAIContent = async (payload: AIInput): Promise<{ data: AIOutput | null; error: any }> => {
+export const generateAIContent = async (payload: AIInput): Promise<ApiResult<AIOutput>> => {
     return await toApiResult<AIOutput>(
         apiClient.post(API_ROUTES.USER.AI_GENERATE, payload, {
             silent: true,

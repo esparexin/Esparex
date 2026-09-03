@@ -35,7 +35,7 @@ export interface PostAdContextType {
     toggleAllSpareParts: (selectAll: boolean) => void;
     listingImages: ListingImage[];
     addImages: (files: File[]) => void;
-    removeImage: (index: number) => void;
+    removeImage: (indexOrId: string | number) => void;
     setMainImage: (index: number) => void;
     reorderImages: (startIndex: number, endIndex: number) => void;
     listingLocation: ListingLocation | null;

@@ -105,7 +105,8 @@ export function useListingImages({
         }
     }, [maxImages]);
 
-    const removeImage = useCallback((index: number) => {
+    const removeImage = useCallback((indexOrId: string | number) => {
+        const index = Number(indexOrId);
         setImageUploadError(null);
         setListingImages(prev => {
             const copy = [...prev];
