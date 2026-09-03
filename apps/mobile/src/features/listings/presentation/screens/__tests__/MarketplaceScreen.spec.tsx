@@ -42,6 +42,10 @@ jest.mock('../../../../notifications/presentation/hooks/useNotifications', () =>
   useUnreadNotificationsCount: () => 0,
 }));
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(

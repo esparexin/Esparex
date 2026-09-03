@@ -40,6 +40,10 @@ jest.mock('../../hooks/useToggleSaveListing', () => ({
   }),
 }));
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(
