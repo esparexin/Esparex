@@ -14,7 +14,7 @@ import { ListingImageTile } from "./ListingImageTile";
 interface ListingImagesFieldProps {
     images: ListingImage[];
     onUpload: (files: File[]) => void;
-    onRemove: (idOrIndex: any) => void;
+    onRemove: (idOrIndex: string | number) => void;
     onSetMain?: (index: number) => void;
     onReorder?: (startIndex: number, endIndex: number) => void;
     firstImageBadgeLabel?: string;

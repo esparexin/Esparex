@@ -1,5 +1,5 @@
 import React from "react";
-import type { UseFormReturn } from "react-hook-form";
+import type { UseFormReturn, FieldValues } from "react-hook-form";
 import { useGenericListingForm } from "@/components/user/shared/useGenericListingForm";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import {
@@ -32,10 +32,10 @@ const ServiceListingEditSchema = ServiceListingPayloadSchema.partial({
 
 interface UseListingFormOrchestrationProps {
     config: ListingFormConfig;
-    form: UseFormReturn<any>;
+    form: UseFormReturn<FieldValues>;
     editId?: string;
     loadBrandsForCategory: (categoryId: string) => Promise<void>;
-    loadCatalogItems: (categoryId: string) => Promise<any>;
+    loadCatalogItems: (categoryId: string) => Promise<unknown>;
     onSubmitted: () => void;
 }
 
@@ -87,7 +87,7 @@ export function useListingFormOrchestration({
         onDataLoaded,
     });
 
-    const submitFn = React.useCallback(async (payload: any, options?: { idempotencyKey?: string }) => {
+    const submitFn = React.useCallback(async (payload: Record<string, unknown>, options?: { idempotencyKey?: string }) => {
         if (config.listingType === LISTING_TYPE.SERVICE) {
             if (isEditMode && editId) {
                 return updateServiceListing(editId, {
