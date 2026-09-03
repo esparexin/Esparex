@@ -35,16 +35,19 @@ export class ApiListingRepository implements IListingRepository {
   }
 
   public async getMyListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
-    const response = await apiClient.get<any>('/listings/mine', { params });
+    const response = await apiClient.get<{
+      data?: { items?: Ad[] } | Ad[];
+      items?: Ad[];
+    } | Ad[]>('/listings/mine', { params });
     const resData = response.data;
-    const items = Array.isArray(resData?.data?.items)
-      ? resData.data.items
+    const items = Array.isArray(resData)
+      ? resData
       : Array.isArray(resData?.data)
       ? resData.data
+      : Array.isArray(resData?.data?.items)
+      ? resData.data.items
       : Array.isArray(resData?.items)
       ? resData.items
-      : Array.isArray(resData)
-      ? resData
       : [];
     return items.map(ListingMapper.mapAdToListing);
   }
