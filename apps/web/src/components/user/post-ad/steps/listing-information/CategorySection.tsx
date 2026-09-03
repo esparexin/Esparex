@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
+import type { FieldValues } from "react-hook-form";
 import { CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
 import { Tag } from "@/icons/IconRegistry";
 
@@ -23,7 +24,7 @@ export function CategorySection() {
     return (
         <section className="flex flex-col gap-2" aria-labelledby="category-heading">
             <h2 id="category-heading" className="sr-only">Category</h2>
-            <FieldRoot<any>
+            <FieldRoot<FieldValues>
                 name="categoryId"
                 render={() => (
                     <div className="flex flex-col gap-1.5">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
+import logger from "@/lib/logger";
 
 export function HomeLocationAutoPrompt() {
     const { status, promptDismissed } = useLocationStatus();
@@ -21,7 +22,7 @@ export function HomeLocationAutoPrompt() {
             hasPrompted.current = true;
             // Trigger automatic detection (persist = true, force = false, isAutoPrompt = true)
             detectLocation(true, false, true).catch((e) => {
-                console.error(`[HomeLocationAutoPrompt] detectLocation error:`, e);
+                logger.error("[HomeLocationAutoPrompt] detectLocation error:", e);
             }); 
         }
     }, [status, promptDismissed, location.source, detectLocation]);

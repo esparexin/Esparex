@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
+import type { FieldValues } from "react-hook-form";
 import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
 import { cn } from "@/components/ui/utils";
 
@@ -39,7 +40,7 @@ export function ModelSection() {
     return (
         <fieldset disabled={!brandNameValue || isEditMode} className="w-full border-0 p-0 m-0 flex flex-col gap-2">
             <h2 id="model-heading" className="sr-only">Model</h2>
-            <FieldRoot<any>
+            <FieldRoot<FieldValues>
                 name="model"
                 render={() => (
                     <div className={cn("flex flex-col gap-1.5", (!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] cursor-not-allowed")}>
