@@ -14,9 +14,15 @@ const baselinePath = path.join(
 
 const scanRoots = [
   path.join(repoRoot, "backend/api", "src"),
+  path.join(repoRoot, "core", "src"),
   path.join(repoRoot, "apps", "web", "src"),
   path.join(repoRoot, "apps/admin", "src"),
-  path.join(repoRoot, "shared"),
+  path.join(repoRoot, "apps/mobile", "src"),
+  path.join(repoRoot, "packages/ui", "src"),
+  path.join(repoRoot, "packages/mobile-ui", "src"),
+  path.join(repoRoot, "packages/contracts", "src"),
+  path.join(repoRoot, "packages/design-tokens", "src"),
+  path.join(repoRoot, "shared", "src"),
 ];
 
 const EXCLUDED_DIRS = new Set(["node_modules", "dist", ".next", "coverage"]);

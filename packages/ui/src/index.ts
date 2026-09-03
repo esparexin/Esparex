@@ -52,7 +52,7 @@ export * from "./forms/ControlledPassword";
 export * from "./forms/ControlledOtp";
 export * from "./forms/ControlledRadioGroup";
 export * from "./forms/InputGroup";
-export * from "./forms/Field"; // Legacy
+export * from "./forms/Field";
 export * from "./data-display/DataTable/DataTable";
 export * from "./data-display/DataTable/DataTableBody";
 export * from "./data-display/DataTable/DataTablePagination";

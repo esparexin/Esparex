@@ -51,7 +51,7 @@ export default tseslint.config(
     },
     rules: {
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-namespace": "off",
@@ -182,9 +182,9 @@ export default tseslint.config(
     }
   },
 
-  // 9. Scripts and Configs (Allow console)
+  // 9. Scripts, Configs, and Tooling (Allow console)
   {
-    files: ["**/scripts/**/*.{js,ts}", "**/*.cjs", "**/*.mjs"],
+    files: ["**/scripts/**/*.{js,ts}", "tooling/**/*.{js,ts}", "**/*.cjs", "**/*.mjs"],
     rules: {
       "no-console": "off"
     }
