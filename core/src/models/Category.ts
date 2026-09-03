@@ -1,10 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@esparex/contracts';
 import {
+    CATALOG_STATUS,
+    CATALOG_STATUS_VALUES,
+    type CatalogStatusValue,
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
-    CatalogApprovalStatusValue,
-} from '@esparex/shared';
+    type CatalogApprovalStatusValue,
+} from '@esparex/contracts';
 import { IMarketplaceTrust, marketplaceTrustDefinition } from './catalogLifecycle';
 
 export interface ICategory extends Document {

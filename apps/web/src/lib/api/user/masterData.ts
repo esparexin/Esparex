@@ -165,3 +165,48 @@ export async function getSpareParts(
         throw (error instanceof Error ? error : new Error("Failed to load spare parts"));
     }
 }
+
+export type CatalogBrandPayload = {
+    id?: string;
+    _id?: string;
+    name?: string;
+    slug?: string;
+};
+
+export type CatalogModelPayload = {
+    id?: string;
+    _id?: string;
+    name?: string;
+    brandId?:
+        | string
+        | {
+            id?: string;
+            _id?: string;
+            name?: string;
+        };
+};
+
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+
+export async function fetchCatalogRecordServer(
+    entity: "brand" | "model",
+    identifier: string,
+    fetchById: boolean
+): Promise<CatalogBrandPayload | CatalogModelPayload | null> {
+    const endpoint = fetchById && OBJECT_ID_PATTERN.test(identifier)
+        ? `${entity === "brand" ? API_ROUTES.USER.BRANDS_BASE : API_ROUTES.USER.MODELS_BASE}/${encodeURIComponent(identifier)}`
+        : entity === "brand"
+            ? API_ROUTES.USER.BRAND_BY_SLUG(identifier)
+            : API_ROUTES.USER.MODEL_BY_SLUG(identifier);
+
+    const { fetchUserApiJson } = await import("@/lib/api/user/server");
+    const response = await fetchUserApiJson(
+        endpoint,
+        {
+            next: { revalidate: 3600 },
+        },
+        { returnNullOnHttpError: true }
+    );
+
+    return unwrapApiPayload<CatalogBrandPayload | CatalogModelPayload>(response);
+}

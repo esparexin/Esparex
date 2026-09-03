@@ -137,4 +137,56 @@ export async function installAuthenticatedUserApiMocks(page: Page) {
   await page.route("**/**/api/v1/auth/logout**", (route) =>
     fulfillJson(route, { success: true })
   );
+
+  await page.route("**/**/api/v1/catalog/categories**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/listings/home**", (route) =>
+    fulfillJson(route, envelope({ featured: [], recent: [] }))
+  );
+
+  await page.route("**/**/api/v1/listings**", (route) =>
+    fulfillJson(route, envelope({ items: [], total: 0, page: 1, limit: 20 }))
+  );
+
+  await page.route("**/**/api/v1/locations/log-event**", (route) =>
+    fulfillJson(route, { success: true })
+  );
+
+  await page.route("**/**/api/v1/catalog/brands**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/catalog/models**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/catalog/spare-parts**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/catalog/screen-sizes**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/catalog/service-types**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/analytics/post-ad-event**", (route) =>
+    fulfillJson(route, { success: true })
+  );
+
+  await page.route("**/**/api/v1/locations/config**", (route) =>
+    fulfillJson(route, envelope({}))
+  );
+
+  await page.route("**/**/api/v1/entitlements/posting**", (route) =>
+    fulfillJson(route, envelope({ canPost: true, freeAdsRemaining: 5, planName: "Free" }))
+  );
+
+  await page.route("**/**/api/v1/monetization/resolve**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
 }

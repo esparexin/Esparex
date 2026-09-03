@@ -35,7 +35,7 @@ type MutableLocationPayload = Partial<Location> & {
 const DEFAULT_LIMIT = 20;
 
 function stripLocationFormHelpers(data: MutableLocationPayload): Partial<Location> {
-    const { selectedStateId: _s, parentId: _p, ...clean } = data;
+    const { selectedStateId: _selectedStateId, parentId: _parentId, ...clean } = data;
     return clean;
 }
 

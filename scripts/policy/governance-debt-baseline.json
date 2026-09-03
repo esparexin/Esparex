@@ -1,17 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "version": "1.0.0",
-  "updatedAt": "2026-08-03T12:46:30.000Z",
+  "updatedAt": "2026-09-02T07:17:00.000Z",
   "description": "Authoritative technical debt baseline snapshot. Pre-existing debt is recorded and grandfathered; zero NEW debt allowed.",
+  "intentionallyKept": {
+    "apps/mobile/.eslintrc.js": "Active ESLint config for the mobile workspace. Uses ESLINT_USE_FLAT_CONFIG=false to enforce no-inline-styles and no-color-literals at error severity — required by AGENTS.md Zero Suppression Policy. Not superseded by root eslint.config.mjs. Do NOT delete."
+  },
   "baselines": {
     "namingViolations": [],
     "platformGovernanceViolations": [],
     "adminStatusLiteralViolations": [],
     "missingPublicBarrels": [],
     "missingDomainManifests": [],
-    "orphanFiles": [
-      "apps/mobile/.eslintrc.js"
-    ],
-    "duplicateCodeClones": 15
+    "orphanFiles": [],
+    "duplicateCodeClones": 9
   }
 }

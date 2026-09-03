@@ -44,7 +44,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
-                                    <span aria-current="step" className="text-tiny sm:text-caption font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20 uppercase tracking-wide">
+                                    <span aria-current="step" className="text-tiny sm:text-caption font-bold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full uppercase tracking-wide">
                                         {subtitle}
                                     </span>
                                 )}
@@ -82,7 +82,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                             {title}
                         </DialogTitle>
                         {subtitle && (
-                            <span aria-current="step" className="self-start sm:self-auto text-tiny sm:text-caption font-semibold text-primary bg-primary/10 px-2 py-0.5 sm:px-2.5 rounded-full border border-primary/20 uppercase tracking-wide truncate max-w-full">
+                            <span aria-current="step" className="self-start sm:self-auto text-tiny sm:text-caption font-semibold text-primary-foreground bg-primary px-2 py-0.5 sm:px-2.5 rounded-full uppercase tracking-wide truncate max-w-full">
                                 {subtitle}
                             </span>
                         )}

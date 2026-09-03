@@ -71,7 +71,7 @@ export const updateAiConfig = async (req: Request, res: Response) => {
         }
 
         if (providers) {
-            const updatedProviders: any = doc.ai.providers || {};
+            const updatedProviders = { ...(doc.ai.providers || {}) };
             if (providers.gemini) {
                 updatedProviders.gemini = {
                     enabled: Boolean(providers.gemini.enabled),

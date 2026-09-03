@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 export { respond } from "./respond";
 
@@ -19,19 +19,21 @@ import { AppError } from '@esparex/core/utils/AppError';
  * Ensures the admin user has the required scope for the action.
  * Supports wildcard (*) for full access.
  */
-export const getActorId = (req: any): string =>
+type AdminRequest = Request & { user?: AuthUser };
+
+export const getActorId = (req: AdminRequest): string =>
     (req.user as AuthUser)?._id?.toString() ?? (req.user as AuthUser)?.id ?? '';
 
-export const getActorRole = (req: any): string =>
+export const getActorRole = (req: AdminRequest): string =>
     ((req.user as AuthUser)?.role) ?? '';
 
-export const getIp = (req: any): string =>
+export const getIp = (req: Request): string =>
     (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
 
-export const getUserAgent = (req: any): string =>
+export const getUserAgent = (req: Request): string =>
     (req.headers['user-agent'] as string) || '';
 
-export const buildLogFn = (req: any): AdminLogFn =>
+export const buildLogFn = (req: AdminRequest): AdminLogFn =>
     (action, targetType, targetId, metadata) =>
         logAdminActionDirect(
             getActorId(req),
@@ -66,7 +68,7 @@ export const checkPermission = (user: AuthUser | undefined, module: string, acti
     return false;
 };
 
-export const getPaginationParams = (req: any) => {
+export const getPaginationParams = (req: Request) => {
     const rawPage = Array.isArray(req.query.page) ? req.query.page[0] : req.query.page;
     const rawLimit = Array.isArray(req.query.limit) ? req.query.limit[0] : req.query.limit;
 
@@ -86,7 +88,7 @@ export { sendPaginatedResponse, sendSuccessResponse } from "./respond";
  * 🛠️ CENTRALIZED ADMIN ERROR HANDLER
  * Standardizes administrative error responses.
  */
-export const sendAdminError = (req: any, res: Response, error: unknown, statusCode = 500) => {
+export const sendAdminError = (req: Request, res: Response, error: unknown, statusCode = 500) => {
     const isError = error instanceof Error;
     const message = isError ? error.message : String(error);
     const code = (error as { code?: string }).code;

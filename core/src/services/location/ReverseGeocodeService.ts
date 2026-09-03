@@ -26,7 +26,6 @@ import type {
 } from './_shared/locationServiceBase';
 export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 
-const SNAP_THRESHOLD_KM = 7.5; // Confidence radius for snapping to city center
 const resolveBoundaryMatch = async (lat: number, lng: number): Promise<NormalizedLocationResponse | null> => {
     const point = { type: 'Point', coordinates: [lng, lat] as [number, number] };
     const boundaries = await adminBoundaryRepository.findBoundaries({
@@ -76,26 +75,20 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
         const cityCoords = (nearestCity.coordinates as GeoJSONPoint)?.coordinates;
         if (cityCoords) {
             const distance = haversineDistance(lat, lng, cityCoords[1], cityCoords[0]);
-            if (distance <= SNAP_THRESHOLD_KM) {
-                logger.info('Snapping coordinates to nearest city center.', { 
-                    city: nearestCity.name, 
-                    distance: distance.toFixed(2),
-                    from: { lat, lng },
-                    to: { lat: cityCoords[1], lng: cityCoords[0] }
-                });
-                // Update local coordinates to match canonical city center
-                lat = cityCoords[1];
-                lng = cityCoords[0];
-            }
+            logger.info('Reverse geocode matched nearest settlement in boundary.', { 
+                city: nearestCity.name, 
+                distanceKm: Number(distance.toFixed(2)),
+                inputCoordinates: { lat, lng },
+                settlementCoordinates: { lat: cityCoords[1], lng: cityCoords[0] }
+            });
         }
 
         const [mappedCity] = await mapLocationDocsToResponses([nearestCity]);
         if (mappedCity) {
-            const isSnapped = lat === cityCoords?.[1] && lng === cityCoords?.[0];
             return {
                 ...mappedCity,
                 coordinates: { type: 'Point', coordinates: [lng, lat] },
-                isSnapped: isSnapped
+                isSnapped: false
             } as NormalizedLocationResponse;
         }
     }
@@ -105,7 +98,8 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     if (mappedState) {
         return {
             ...mappedState,
-            coordinates: { type: 'Point', coordinates: [lng, lat] }
+            coordinates: { type: 'Point', coordinates: [lng, lat] },
+            isSnapped: false
         };
     }
     return null;
@@ -180,18 +174,10 @@ export const reverseGeocode = async (
 
     const finalResponse = {
         ...response,
-        coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] }
+        coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] },
+        isSnapped: false
     } as NormalizedLocationResponse;
 
-    const candidateCoords = (nearest.coordinates as GeoJSONPoint)?.coordinates;
-    if (candidateCoords) {
-        const distance = haversineDistance(lat, lng, candidateCoords[1], candidateCoords[0]);
-        if (distance <= SNAP_THRESHOLD_KM && finalResponse.coordinates) {
-            finalResponse.coordinates.coordinates = [candidateCoords[0], candidateCoords[1]];
-            finalResponse.isSnapped = true;
-        }
-    }
-
     await setCache(cacheKey, finalResponse, CACHE_TTLS.REVERSE_GEOCODE);
-    return finalResponse as NormalizedLocationResponse;
+    return finalResponse;
 };

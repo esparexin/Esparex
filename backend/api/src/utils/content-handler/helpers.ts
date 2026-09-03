@@ -6,7 +6,7 @@ import { castCatalogQueryIds, summarizeCatalogReadDiff, recordCatalogReadDiff } 
 
 export const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
 
-export const ensureAdminCatalogModel = <T extends Document>(model: Model<T>): Model<T> => {
+export const ensureAdminCatalogModel = <T>(model: Model<T>): Model<T> => {
     const adminConn = getAdminConnection();
     const userConn = getUserConnection();
     for (const modelName of CATALOG_MODELS) {
@@ -16,8 +16,8 @@ export const ensureAdminCatalogModel = <T extends Document>(model: Model<T>): Mo
     return (adminConn.models[model.modelName] as Model<T> | undefined) || adminConn.model<T>(model.modelName, model.schema, model.collection.name);
 };
 
-export const readAdminCatalogPage = async (params: {
-    model: Model<any>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean;
+export const readAdminCatalogPage = async <T>(params: {
+    model: Model<T>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean;
 }) => {
     const adminModel = ensureAdminCatalogModel(params.model);
     const adminQuery = castCatalogQueryIds(params.query) as Record<string, unknown>;
@@ -30,8 +30,8 @@ export const readAdminCatalogPage = async (params: {
     return Promise.all([findQuery, countQuery]);
 };
 
-export const tryAdminCatalogReadSwitch = async <T extends Document>(params: {
-    req: Request; model: Model<any>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean; transformResponse?: (items: unknown[]) => unknown | Promise<unknown>; userItems: unknown[]; userTotal: number;
+export const tryAdminCatalogReadSwitch = async <T>(params: {
+    req: Request; model: Model<T>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean; transformResponse?: (items: unknown[]) => unknown | Promise<unknown>; userItems: unknown[]; userTotal: number;
 }): Promise<{ items: unknown[]; total: number } | null> => {
     try {
         const [adminItems, adminTotal] = await readAdminCatalogPage({ model: params.model, query: params.query, sort: params.sort, skip: params.skip, limit: params.limit, populate: params.populate, select: params.select, includeDeleted: params.includeDeleted });

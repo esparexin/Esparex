@@ -22,7 +22,7 @@ interface GenericPostFormProps<TFormValues extends GenericPostFormValues> {
     isEditMode: boolean;
     images: ListingImage[];
     onImageUpload: (files: File[]) => void;
-    onImageRemove: (id: string) => void;
+    onImageRemove: (id: string | number) => void;
     locationDisplay?: string;
     children: ReactNode;
     submitLabel?: string;

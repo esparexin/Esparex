@@ -21,7 +21,9 @@ let redisReadyWaitInFlight: Promise<boolean> | null = null;
 
 export const resolveRequestIp = (req: Request): string => req.ip || req.socket?.remoteAddress || 'unknown';
 
-export const resolveUserOrMobile = (req: any): string | undefined => {
+type RequestWithOptionalUser = Request & { user?: { _id?: unknown } };
+
+export const resolveUserOrMobile = (req: RequestWithOptionalUser): string | undefined => {
     const userId = req.user?._id ? String(req.user._id) : undefined;
     if (userId) return userId;
     const body = req.body as { mobile?: unknown; email?: unknown } | undefined;
@@ -30,7 +32,7 @@ export const resolveUserOrMobile = (req: any): string | undefined => {
     return undefined;
 };
 
-export const buildHybridRateLimitKey = (req: any, actor?: string): string => {
+export const buildHybridRateLimitKey = (req: RequestWithOptionalUser, actor?: string): string => {
     const ip = resolveRequestIp(req);
     return `${actor || resolveUserOrMobile(req) || 'anonymous'}:${ip}`;
 };
@@ -75,7 +77,7 @@ const formatCountdown = (seconds: number): string => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
-export const respondRateLimited = (req: any, res: Response, error: string, bucket: string, options: { code?: string; retryAfterSeconds?: number } = {}) => {
+export const respondRateLimited = (req: RequestWithOptionalUser, res: Response, error: string, bucket: string, options: { code?: string; retryAfterSeconds?: number } = {}) => {
     const key = `spike:${req.ip}:${req.originalUrl}`; const now = Date.now();
     let record = spikeCache.get(key);
     if (!record || now > record.resetAt) {

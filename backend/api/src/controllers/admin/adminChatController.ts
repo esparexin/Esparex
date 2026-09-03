@@ -17,7 +17,7 @@ export const getAdminChats = async (req: Request, res: Response) => {
         const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
         const q = String(req.query.q || req.query.search || '');
 
-        const { convs, total } = await adminListConversations(filter, riskMin, page, limit, q);
+        const { convs, total } = await adminListConversations({ filter, riskMin, page, limit, q });
 
         return res.status(200).json({
             success: true,

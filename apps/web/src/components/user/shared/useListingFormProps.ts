@@ -28,7 +28,7 @@ export function useListingFormProps<TFormValues extends GenericListingFormValues
     form: UseFormReturn<TFormValues>;
     images: ListingImage[];
     onImageUpload: (files: File[]) => void;
-    onImageRemove: (id: string) => void;
+    onImageRemove: (id: string | number) => void;
     isEditMode: boolean;
     isSubmitting: boolean;
     onValidSubmit: (data: TFormValues) => Promise<void | unknown>;

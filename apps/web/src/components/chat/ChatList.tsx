@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import { useChatList } from '@/hooks/useChatList';
 import { buildChatConversationRoute } from '@/lib/chatUiRoutes';
-import { chatApi, type ConversationListView } from '@/lib/api/chatApi';
+import type { ConversationListView } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { formatStableNumber } from '@/lib/formatters';
@@ -125,7 +125,7 @@ export function ChatList({
   const [activeTab, setActiveTab] = useState<FilterTab>(view === 'archived' ? 'archived' : 'active');
 
   const fetchView: ConversationListView = activeTab === 'archived' ? 'archived' : 'active';
-  const { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, retry, refresh } = useChatList(fetchView);
+  const { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, retry, unhideConversation } = useChatList(fetchView);
 
   const handleTabChange = (tab: FilterTab) => {
     setActiveTab(tab);
@@ -173,9 +173,8 @@ export function ChatList({
     try {
       setActionError(null);
       setIsRestoringId(conversationId);
-      await chatApi.unhide(conversationId);
+      await unhideConversation(conversationId);
       dispatchChatInboxUpdated();
-      await refresh();
     } catch {
       setActionError('Failed to restore conversation. Please try again.');
     } finally {

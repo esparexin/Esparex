@@ -17,6 +17,14 @@ export type AuditEvent = {
     metadata?: Record<string, unknown>;
 };
 
+export interface AdminLogActionParams {
+    adminId: string;
+    action: string;
+    targetType: string;
+    targetId?: string;
+    metadata?: Record<string, unknown>;
+}
+
 export class AuditService {
     /**
      * Log an administrative or security event.
@@ -59,13 +67,8 @@ export class AuditService {
     /**
      * Shorthand for admin actions
      */
-    static async logAdminAction(
-        adminId: string,
-        action: string,
-        targetType: string,
-        targetId?: string,
-        metadata?: Record<string, unknown>
-    ) {
+    static async logAdminAction(params: AdminLogActionParams) {
+        const { adminId, action, targetType, targetId, metadata } = params;
         return this.logEvent(
             { action, targetType, targetId, metadata },
             { actorId: adminId, actorType: 'admin' }

@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { Listing as Ad } from "@/lib/api/user/listings";
+import type { User } from "@esparex/contracts";
 import { deleteListing, markListingAsSold } from "@/lib/api/user/listings";
 import { saveAd, unsaveAd } from "@/lib/api/user/users";
 import { chatApi } from "@/lib/api/chatApi";
@@ -18,9 +19,9 @@ import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { formatPrice } from "@/lib/formatters";
 import type { UserPage } from "@/lib/routeUtils";
 
-type UseListingDetailActionsProps = {
+export type UseListingDetailActionsProps = {
     ad: Ad | undefined;
-    user: any;
+    user: User | undefined;
     isAuthResolved: boolean;
     isOwner: boolean;
     isFavorited: boolean;

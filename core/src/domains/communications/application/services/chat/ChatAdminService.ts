@@ -14,13 +14,24 @@ import {
     shapeConv
 } from './ChatUtils';
 
+export interface AdminListConversationsQuery {
+    filter?: string;
+    riskMin?: number;
+    page?: number;
+    limit?: number;
+    q?: string;
+}
+
 export async function adminListConversations(
-    filter: string,
-    riskMin: number,
-    page: number,
-    limit: number,
-    q: string
+    params: AdminListConversationsQuery = {}
 ): Promise<{ convs: AdminConvSummary[]; total: number }> {
+    const {
+        filter = '',
+        riskMin = 0,
+        page = 1,
+        limit = 20,
+        q = ''
+    } = params;
     const query: Record<string, unknown> = {};
 
     if (filter === 'blocked') query.isBlocked = true;
@@ -182,12 +193,15 @@ export async function adminExportConversation(conversationId: string) {
     return { conversationId, exportedAt: new Date().toISOString(), conv, messages, reports };
 }
 
-export async function resolveReport(
-    reportId: string,
-    adminId: string,
-    status: 'resolved' | 'dismissed',
-    adminNote?: string
-) {
+export interface ResolveChatReportParams {
+    reportId: string;
+    adminId: string;
+    status: 'resolved' | 'dismissed';
+    adminNote?: string;
+}
+
+export async function resolveReport(params: ResolveChatReportParams) {
+    const { reportId, adminId, status, adminNote } = params;
     const report = await ChatReport.findById(reportId);
     if (!report) throw Object.assign(new Error('Report not found'), { status: 404 });
 

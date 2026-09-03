@@ -132,7 +132,12 @@ export const getConversationMessages = async (req: Request, res: Response): Prom
       sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid query');
       return;
     }
-    const { msgs, nextCursor } = await getMessages(conversationId, userId, parsed.data.before, parsed.data.after);
+    const { msgs, nextCursor } = await getMessages({
+      conversationId,
+      userId,
+      before: parsed.data.before,
+      after: parsed.data.after
+    });
     res.json(respond({ success: true, data: msgs, nextCursor }));
   } catch (err: unknown) {
     const e = err as { message?: string; status?: number };
@@ -260,7 +265,13 @@ export const reportChat = async (req: Request, res: Response): Promise<void> => 
       return;
     }
     const { conversationId, reason, description, messageId } = parsed.data;
-    const report = await reportConversation(conversationId, userId, reason, description, messageId);
+    const report = await reportConversation({
+      conversationId,
+      reporterId: userId,
+      reason,
+      description,
+      messageId
+    });
     res.status(201).json(respond({ success: true, data: report }));
   } catch (err: unknown) {
     const e = err as { message?: string; status?: number };

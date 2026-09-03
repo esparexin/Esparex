@@ -180,7 +180,7 @@ export const updateAdLogic = async (
                              );
                         }
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
                     logger.error('Failed to dispatch price drop notifications', { error: err, adId });
                 }
             })();

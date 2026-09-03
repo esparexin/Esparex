@@ -25,12 +25,12 @@ describe('AdDuplicateService', () => {
 
             mockRepo.findOne.mockResolvedValue({ id: 'ad-123', status: 'live' });
 
-            const result = await findExistingSelfDuplicate(
+            const result = await findExistingSelfDuplicate({
                 sellerId,
                 categoryId,
                 locationId,
-                1000
-            );
+                price: 1000
+            });
 
             expect(result).toEqual({ id: 'ad-123', status: 'live' });
             expect(mockRepo.findOne).toHaveBeenCalledWith(expect.objectContaining({
@@ -45,11 +45,11 @@ describe('AdDuplicateService', () => {
         });
 
         it('should return null when locationId is missing', async () => {
-            const result = await findExistingSelfDuplicate(
-                'seller-1',
-                'cat-1',
-                undefined
-            );
+            const result = await findExistingSelfDuplicate({
+                sellerId: 'seller-1',
+                categoryId: 'cat-1',
+                locationId: undefined
+            });
             expect(result).toBeNull();
             expect(mockRepo.findOne).not.toHaveBeenCalled();
         });

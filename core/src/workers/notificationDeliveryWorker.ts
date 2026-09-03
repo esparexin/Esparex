@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { Worker, type Job } from 'bullmq';
 import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
 import { NotificationDispatcher } from '../services/notification/NotificationDispatcher';
 import { NotificationIntent } from '../domain/NotificationIntent';
@@ -25,7 +25,13 @@ const createNoopWorker = <T>(): Worker<T> => {
     return dummy as Worker<T>;
 };
 
-export const notificationDeliveryProcessor = async (job: any) => {
+export interface NotificationDeliveryJob {
+    id?: string | number;
+    name: string;
+    data: unknown;
+}
+
+export const notificationDeliveryProcessor = async (job: Job | NotificationDeliveryJob) => {
     const traceId = (job.data as { _trace?: { requestId?: string } } | undefined)?._trace?.requestId || `job-${String(job.id || 'unknown')}`;
     const traceUserId = (job.data as { _trace?: { userId?: string } } | undefined)?._trace?.userId;
     TraceContext.setCorrelationId(traceId);

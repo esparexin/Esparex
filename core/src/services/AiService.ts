@@ -118,7 +118,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         moderate: 'content_moderation',
     };
     const capabilityKey = capabilityKeyMap[type] || 'post_ad_title';
-    const capabilityConfig = (config.capabilities as Record<string, any>)?.[capabilityKey];
+    const capabilityConfig = (config.capabilities as Record<string, { provider?: string }> | undefined)?.[capabilityKey];
     
     const primaryProvider = capabilityConfig?.provider || config.provider || 'gemini';
     const fallbackCandidates = ['gemini', 'openai', 'claude', 'deepseek'];

@@ -9,7 +9,8 @@ import { BusinessErrorCode } from '@esparex/contracts';
 import { 
     DuplicatePayload, 
     DuplicateLookupResult, 
-    CrossUserDuplicateRisk, 
+    CrossUserDuplicateRisk,
+    SelfDuplicateQuery, 
     buildDuplicateFingerprint,
     findExistingSelfDuplicate,
     assessCrossUserDuplicateRisk,
@@ -85,6 +86,7 @@ export {
     type DuplicatePayload,
     type DuplicateLookupResult,
     type CrossUserDuplicateRisk,
+    type SelfDuplicateQuery,
     type DuplicateAwareError,
     buildDuplicateFingerprint,
     findExistingSelfDuplicate,

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "@/components/ui/field";
 import { cn } from "@/components/ui/utils";
@@ -27,7 +27,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
     const router = useRouter();
     const [submitted, setSubmitted] = React.useState(false);
 
-    const form = useForm<any>({
+    const form = useForm<FieldValues>({
         resolver: zodResolver(config.schema),
         mode: "onBlur",
         reValidateMode: "onChange",
@@ -83,7 +83,11 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
         onSubmitted: () => setSubmitted(true),
     });
 
-    const handleRemoveImage = React.useCallback((idOrIndex: string) => {
+    const handleRemoveImage = React.useCallback((idOrIndex: string | number) => {
+        if (typeof idOrIndex === 'number') {
+            removeImage(idOrIndex);
+            return;
+        }
         const indexById = images.findIndex((img) => img.id === idOrIndex);
         if (indexById >= 0) {
             removeImage(indexById);

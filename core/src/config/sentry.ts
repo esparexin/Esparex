@@ -11,7 +11,8 @@ import * as Sentry from '@sentry/node';
 import { env, isProduction, isDevelopment } from './env';
 import logger from '../utils/logger';
 
-let nodeProfilingIntegration: any = null;
+type SentryIntegration = Parameters<typeof Sentry.addIntegration>[0];
+let nodeProfilingIntegration: (() => SentryIntegration) | null = null;
 try {
     nodeProfilingIntegration = require('@sentry/profiling-node').nodeProfilingIntegration;
 } catch (error) {

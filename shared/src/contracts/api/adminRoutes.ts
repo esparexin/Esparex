@@ -77,10 +77,6 @@ export const ADMIN_ROUTES = {
   LISTING_BULK_RESEND_SPOTLIGHT_WARNINGS: "/listings/bulk/resend-spotlight-warnings",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
-  // Legacy report aliases mapped to canonical reports surface
-  REPORTED_ADS: "/reports",
-  REPORTED_AD_DETAIL: (id: string) => `/reports/${id}`,
-  REPORTED_AD_RESOLVE: (id: string) => `/reports/${id}/resolve`,
   REPORTS: "/reports",
   REPORT_STATUS: (id: string) => `/reports/${id}/status`,
 

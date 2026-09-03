@@ -23,6 +23,7 @@ import {
     type DashboardCardAdStatsFacet,
     type RevenueTotalAggItem,
 } from '../../../../domains/admin';
+import type { Model } from 'mongoose';
 import Category from '../../../../models/Category';
 import Brand from '../../../../models/Brand';
 import SparePart from '../../../../models/SparePart';
@@ -169,7 +170,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
     public async getCatalogEntityCounts(): Promise<Record<string, number>> {
         const nonDeletedFilter = { isDeleted: { $ne: true } };
 
-        const countCollection = async (model: any, name: string): Promise<number> => {
+        const countCollection = async <T>(model: Model<T>, name: string): Promise<number> => {
             try {
                 return await model.countDocuments(nonDeletedFilter).hint({ isDeleted: 1 }).exec();
             } catch (error) {

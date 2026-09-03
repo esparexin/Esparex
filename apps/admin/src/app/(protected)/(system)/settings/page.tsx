@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { Tv } from "lucide-react";
+import { Tv, type LucideIcon } from "lucide-react";
 import { PlatformSettings } from "./components/PlatformSettings";
 import { ModerationSettings } from "./components/ModerationSettings";
 import { PaymentSettings } from "./components/PaymentSettings";
@@ -43,7 +43,7 @@ type SettingsTab =
   | "display-ads"
   | "monetization";
 
-const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: any }> = [
+const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: LucideIcon }> = [
   { key: "platform", label: "Platform", icon: Globe },
   { key: "listing", label: "Listing Rules", icon: ListChecks },
   { key: "moderation", label: "Moderation", icon: Cpu },

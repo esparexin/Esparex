@@ -1,21 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '../../../../infrastructure/api/apiClient';
+import { useState, useEffect } from 'react';
+import {
+  CatalogDependentsService,
+  type CatalogBrand,
+  type CatalogModel,
+  type CatalogSparePart,
+} from '../../application/CatalogDependentsService';
 
-export interface CatalogBrand {
-  id: string;
-  name: string;
-}
-
-export interface CatalogModel {
-  id: string;
-  name: string;
-}
-
-export interface CatalogSparePart {
-  id: string;
-  name: string;
-  brand?: string;
-}
+export type { CatalogBrand, CatalogModel, CatalogSparePart };
 
 export const useCategoryDependents = (categoryId?: string, brandId?: string) => {
   const [brands, setBrands] = useState<CatalogBrand[]>([]);
@@ -27,30 +18,30 @@ export const useCategoryDependents = (categoryId?: string, brandId?: string) => 
 
   // Load brands and spare parts when categoryId changes
   useEffect(() => {
-    if (!categoryId) {
-      setBrands([]);
-      setModels([]);
-      setSpareParts([]);
-      return;
-    }
-
     let isMounted = true;
 
     const loadCategoryData = async () => {
+      if (!categoryId) {
+        await Promise.resolve();
+        if (isMounted) {
+          setBrands([]);
+          setModels([]);
+          setSpareParts([]);
+        }
+        return;
+      }
+
       setIsLoadingBrands(true);
       setIsLoadingSpareParts(true);
       try {
-        const [brandsRes, partsRes] = await Promise.all([
-          apiClient.get<{ data?: any[] }>(`/brands?categoryId=${categoryId}`).catch(() => ({ data: [] })),
-          apiClient.get<{ data?: any[] }>(`/spare-parts?categoryId=${categoryId}`).catch(() => ({ data: [] })),
+        const [fetchedBrands, fetchedParts] = await Promise.all([
+          CatalogDependentsService.getBrands(categoryId),
+          CatalogDependentsService.getSpareParts(categoryId),
         ]);
 
         if (isMounted) {
-          const rawBrands = Array.isArray(brandsRes.data) ? brandsRes.data : Array.isArray(brandsRes) ? brandsRes : [];
-          setBrands(rawBrands.map((b: any) => ({ id: b._id || b.id || b.name, name: b.name })));
-
-          const rawParts = Array.isArray(partsRes.data) ? partsRes.data : Array.isArray(partsRes) ? partsRes : [];
-          setSpareParts(rawParts.map((p: any) => ({ id: p._id || p.id || p.name, name: p.name, brand: p.brand })));
+          setBrands(fetchedBrands);
+          setSpareParts(fetchedParts);
         }
       } catch {
         if (isMounted) {
@@ -74,20 +65,22 @@ export const useCategoryDependents = (categoryId?: string, brandId?: string) => 
 
   // Load models when brandId changes
   useEffect(() => {
-    if (!brandId) {
-      setModels([]);
-      return;
-    }
-
     let isMounted = true;
 
     const loadModels = async () => {
+      if (!brandId) {
+        await Promise.resolve();
+        if (isMounted) {
+          setModels([]);
+        }
+        return;
+      }
+
       setIsLoadingModels(true);
       try {
-        const modelsRes = await apiClient.get<{ data?: any[] }>(`/models?brandId=${brandId}`).catch(() => ({ data: [] }));
+        const fetchedModels = await CatalogDependentsService.getModels(brandId);
         if (isMounted) {
-          const rawModels = Array.isArray(modelsRes.data) ? modelsRes.data : Array.isArray(modelsRes) ? modelsRes : [];
-          setModels(rawModels.map((m: any) => ({ id: m._id || m.id || m.name, name: m.name })));
+          setModels(fetchedModels);
         }
       } catch {
         if (isMounted) {

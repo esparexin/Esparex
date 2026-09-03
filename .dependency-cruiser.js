@@ -112,7 +112,7 @@ module.exports = {
     {
       name: 'no-frontend-imports-from-core',
       severity: 'error',
-      comment: 'Frontend apps must never import from @esparex/core. Use @esparex/shared for cross-platform contracts.',
+      comment: 'Frontend apps must never import from @esparex/core. Use @esparex/contracts for cross-platform contracts.',
       from: { path: '^apps/' },
       to: {
         path: '^(core/|@esparex/core)',
@@ -132,12 +132,23 @@ module.exports = {
     {
       name: 'no-new-legacy-shared-imports',
       severity: 'warn',
-      comment: 'The shared package is frozen for the Contracts migration. No new imports are allowed. Use @esparex/contracts instead.',
+      comment: 'Shared domain utilities are permitted in @esparex/shared. All API wire contracts, DTOs, and request/response models must be imported exclusively from @esparex/contracts.',
       from: {
         pathNot: '^shared/src/'
       },
       to: {
         path: '^shared/src/'
+      }
+    },
+    {
+      name: 'platform-sdk-in-infrastructure-only',
+      severity: 'error',
+      comment: 'Native device SDKs (expo-image-picker, expo-camera, expo-notifications, expo-location) must be encapsulated in infrastructure adapters and never imported directly in presentation, application, or domain layers.',
+      from: {
+        path: '^apps/mobile/src/features/[^/]+/(presentation|domain|application)'
+      },
+      to: {
+        path: '(expo-image-picker|expo-camera|expo-notifications|expo-location)'
       }
     }
   ],

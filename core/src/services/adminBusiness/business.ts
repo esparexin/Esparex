@@ -176,7 +176,7 @@ export const rejectAdminBusiness = async (id: string, reason: string, actorId: s
     return business;
 };
 
-export const expireAdminBusiness = async (id: string, actorId: string, logFn: any) => {
+export const expireAdminBusiness = async (id: string, actorId: string, logFn: AdminLogFn) => {
     const business = await Business.findById(id);
     if (!business) throw new AppError('Business not found', 404);
     const actor: ActorMetadata = { type: ACTOR_TYPE.ADMIN, id: actorId };

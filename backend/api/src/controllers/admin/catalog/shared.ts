@@ -7,7 +7,7 @@
  */
 
 import { Request, Response } from 'express';
-import { Document, Model as MongooseModel } from 'mongoose';
+import { Document, Model as MongooseModel, Types } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
@@ -438,7 +438,13 @@ export async function handleCatalogReview<T extends Document>(
 
 import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
 
-export const invalidateItemCatalogCache = (item: any) => void CatalogOrchestrator.invalidateCatalogCache({
-    categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []),
-    brandIds: item.brandId ? [item.brandId] : []
+export interface CatalogCacheInvalidationItem {
+    categoryIds?: Array<string | Types.ObjectId>;
+    categoryId?: string | Types.ObjectId;
+    brandId?: string | Types.ObjectId;
+}
+
+export const invalidateItemCatalogCache = (item: CatalogCacheInvalidationItem) => void CatalogOrchestrator.invalidateCatalogCache({
+    categoryIds: (item.categoryIds as string[] | undefined) || (item.categoryId ? [String(item.categoryId)] : []),
+    brandIds: item.brandId ? [String(item.brandId)] : []
 });

@@ -49,6 +49,7 @@ export const renewAdminBusiness = async (id: string, actorId: string, logFn: Adm
     if (!business) throw new AppError('Business not found', 404);
     const userIdStr = String(business.userId ?? '');
     const expiresAtStr = business.expiresAt ? new Date(business.expiresAt as string | number | Date).toLocaleDateString() : 'N/A';
+    await logFn('RENEW_BUSINESS', 'Business', id, { actorId });
     await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_RENEWED', { name: String(business.name ?? ''), expiresAt: expiresAtStr }, { businessId: id, status: 'live' });
     return business;
 };

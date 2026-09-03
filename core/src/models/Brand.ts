@@ -1,13 +1,13 @@
 import { Schema, Document, Types, Model } from 'mongoose'
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
 import softDeletePlugin from '../utils/softDeletePlugin'
-import { CATALOG_STATUS } from '@esparex/contracts'
-import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance'
 import {
+  CATALOG_STATUS,
   CATALOG_APPROVAL_STATUS,
   CATALOG_APPROVAL_STATUS_VALUES,
-  CatalogApprovalStatusValue,
-} from '@esparex/shared'
+  type CatalogApprovalStatusValue,
+} from '@esparex/contracts'
+import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance'
 import {
   IMarketplaceTrust,
   marketplaceTrustDefinition,
