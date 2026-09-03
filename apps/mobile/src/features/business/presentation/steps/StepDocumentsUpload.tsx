@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Container, Card, AppText } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
-import * as ImagePicker from 'expo-image-picker';
 import { BusinessFormState } from '../../domain/BusinessFormState';
 import { services } from '../../../../bootstrap';
 
@@ -16,19 +15,18 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
   const handlePickDocument = async (docType: 'id_proof' | 'business_proof' | 'certificate') => {
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert('Permission Required', 'Media library access is required to attach verification documents.');
+      const result = await services.imagePicker.pick();
+      if (!result.success) {
+        if (result.reason === 'permission-denied') {
+          Alert.alert('Permission Required', result.message || 'Media library access is required to attach verification documents.');
+        } else if (result.reason === 'error') {
+          Alert.alert('Selection Failed', result.message || 'Unable to select document. Please try again.');
+        }
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets && result.assets[0]) {
-        const asset = result.assets[0];
+      if (result.images && result.images[0]) {
+        const asset = result.images[0];
         setUploading(true);
         const fileUrl = await services.businessService.uploadDocument(asset.uri, asset.mimeType || 'image/jpeg');
 
@@ -41,8 +39,9 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
         onChange({ documents: updatedDocs });
       }
-    } catch (err: any) {
-      Alert.alert('Upload Failed', err?.message || 'Unable to upload document. Please try again.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unable to upload document. Please try again.';
+      Alert.alert('Upload Failed', message);
     } finally {
       setUploading(false);
     }

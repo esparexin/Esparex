@@ -66,7 +66,7 @@ export const MarketplaceHeader = ({
           <AppIcon name="Bell" size={15} color={base.slate[700]} />
           {unreadCount > 0 && (
             <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[15px] h-3.5 px-0.5 items-center justify-center border border-card">
-              <AppText variant="tiny" className="text-white font-bold text-[9px] leading-none">
+              <AppText variant="tiny" className="text-white font-bold text-tiny leading-none">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </AppText>
             </View>
