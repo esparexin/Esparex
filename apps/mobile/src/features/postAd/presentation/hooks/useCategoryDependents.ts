@@ -18,16 +18,19 @@ export const useCategoryDependents = (categoryId?: string, brandId?: string) => 
 
   // Load brands and spare parts when categoryId changes
   useEffect(() => {
-    if (!categoryId) {
-      setBrands([]);
-      setModels([]);
-      setSpareParts([]);
-      return;
-    }
-
     let isMounted = true;
 
     const loadCategoryData = async () => {
+      if (!categoryId) {
+        await Promise.resolve();
+        if (isMounted) {
+          setBrands([]);
+          setModels([]);
+          setSpareParts([]);
+        }
+        return;
+      }
+
       setIsLoadingBrands(true);
       setIsLoadingSpareParts(true);
       try {
@@ -62,14 +65,17 @@ export const useCategoryDependents = (categoryId?: string, brandId?: string) => 
 
   // Load models when brandId changes
   useEffect(() => {
-    if (!brandId) {
-      setModels([]);
-      return;
-    }
-
     let isMounted = true;
 
     const loadModels = async () => {
+      if (!brandId) {
+        await Promise.resolve();
+        if (isMounted) {
+          setModels([]);
+        }
+        return;
+      }
+
       setIsLoadingModels(true);
       try {
         const fetchedModels = await CatalogDependentsService.getModels(brandId);
