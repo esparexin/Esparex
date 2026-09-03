@@ -24,7 +24,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
             <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
                 <DialogContent
                     hideClose
-                    className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-dvh max-h-none rounded-none border-none p-0 bg-background text-foreground flex flex-col overflow-hidden"
+                    className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-[var(--visual-viewport-height,100dvh)] max-h-none rounded-none border-none p-0 bg-background text-foreground flex flex-col overflow-hidden"
                     style={{ zIndex: Z_INDEX.listingModal }}
                 >
                     <header className="shrink-0 bg-background border-b border-border flex items-center px-4 h-14 sm:px-6">
@@ -124,7 +124,7 @@ export function ListingModalLoading() {
         <Dialog open={true}>
             <DialogContent
                 hideClose
-                className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-full max-h-none border-none p-0 bg-card flex flex-col overflow-hidden sm:fixed sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[85dvh] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-border"
+                className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-full max-h-none border-none p-0 bg-card flex flex-col overflow-hidden sm:fixed sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[min(85dvh,calc(var(--visual-viewport-height,100dvh)-3rem))] sm:rounded-2xl sm:shadow-2xl sm:border sm:border-border"
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <DialogTitle className="sr-only">Loading modal</DialogTitle>

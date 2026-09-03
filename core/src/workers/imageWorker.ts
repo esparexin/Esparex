@@ -98,6 +98,9 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                 }
 
                 const replacementMap = new Map<string, { hdUrl: string; thumbUrl: string }>();
+                const computedHashes: string[] = [];
+                let moderationFlagged = false;
+                let moderationReason: string | undefined;
                 let imagesProcessedCount = 0;
                 let imagesSkippedCount = 0;
                 let thumbsGeneratedCount = 0;
@@ -159,6 +162,25 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                             chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
                         }
                         const rawBuffer = Buffer.concat(chunks);
+
+                        // 🔍 Moderate image buffer (Perceptual dHash + OCR contact detection)
+                        try {
+                            const { DuplicateImageService } = await import('../domains/moderation/classifiers/DuplicateImageService');
+                            const dupService = new DuplicateImageService();
+                            const fp = await dupService.computeFingerprint(rawBuffer);
+                            if (fp?.hash) computedHashes.push(fp.hash);
+
+                            const { LocalOcrProvider } = await import('../domains/moderation/classifiers/LocalOcrProvider');
+                            const ocrProvider = new LocalOcrProvider();
+                            const ocrResult = await ocrProvider.process(rawBuffer);
+                            if (!ocrResult.passed && ad) {
+                                moderationFlagged = true;
+                                moderationReason = ocrResult.reason || 'Prohibited off-platform contact details detected in image';
+                                logger.warn('[ImageWorker] Image flagged by OCR watermark inspection', { entityId, reason: moderationReason });
+                            }
+                        } catch (modErr) {
+                            logger.warn('[ImageWorker] Non-blocking moderation inspection exception', modErr);
+                        }
 
                         const hdBuffer = await sharp(rawBuffer, { failOn: 'none' })
                             .rotate()
@@ -235,18 +257,27 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                             });
                         }
 
+                        const updateSet: Record<string, unknown> = {
+                            images: newImagesArray.filter((img): img is string => typeof img === 'string'),
+                            thumbnails: newThumbnailsArray.filter((img): img is string => typeof img === 'string'),
+                        };
+
+                        if (computedHashes.length > 0) {
+                            updateSet.imageHashes = computedHashes;
+                        }
+
+                        if (moderationFlagged && ad.status === 'pending') {
+                            updateSet.moderationStatus = 'held_for_review';
+                            updateSet.moderationReason = moderationReason || 'Flagged by visual moderation';
+                        }
+
                         // Atomic Update with Exact Image-Set Verification
                         const updateResult = await Ad.updateOne(
                             { 
                                 _id: entityId, 
                                 images: { $eq: ad.images }
                             },
-                            {
-                                $set: {
-                                    images: newImagesArray.filter((img): img is string => typeof img === 'string'),
-                                    thumbnails: newThumbnailsArray.filter((img): img is string => typeof img === 'string')
-                                }
-                            }
+                            { $set: updateSet }
                         );
 
                         const durationMs = Date.now() - startProcessingTime;

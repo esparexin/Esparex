@@ -66,7 +66,7 @@ export function MobileNavDrawer({
         <div className="flex flex-col h-full relative z-50">
           {/* Header */}
           <div
-            className="px-5 py-6 bg-slate-900 cursor-pointer active:opacity-90 transition-opacity"
+            className="px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-6 bg-foreground text-background cursor-pointer active:opacity-90 transition-opacity"
             onClick={() => isLoggedIn && handleNav('profile-settings')}
           >
             {isLoggedIn ? (
