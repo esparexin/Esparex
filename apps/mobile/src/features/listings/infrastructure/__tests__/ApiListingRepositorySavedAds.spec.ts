@@ -60,4 +60,57 @@ describe('ApiListingRepository - Saved Ads', () => {
 
     expect(apiClient.post).toHaveBeenCalledWith('/users/saved-ads', { adId: 'ad-101' });
   });
+
+  describe('getListings', () => {
+    const mockAds = [
+      {
+        id: 'ad-201',
+        title: 'MacBook Air M2',
+        price: 85000,
+        category: 'Laptops',
+        images: ['https://example.com/macbook.jpg'],
+        createdAt: '2026-08-02T10:00:00Z',
+      },
+    ];
+
+    it('fetches and maps listings from canonical PaginatedResponse shape', async () => {
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: {
+          success: true,
+          data: mockAds,
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        },
+      });
+
+      const listings = await repository.getListings({ page: 1 });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/listings', { params: { page: 1 } });
+      expect(listings.length).toBe(1);
+      expect(listings[0].id).toBe('ad-201');
+      expect(listings[0].title).toBe('MacBook Air M2');
+    });
+
+    it('handles direct array response gracefully', async () => {
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: mockAds,
+      });
+
+      const listings = await repository.getListings();
+
+      expect(listings.length).toBe(1);
+      expect(listings[0].id).toBe('ad-201');
+    });
+
+    it('translates search param to q for backend query', async () => {
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: { success: true, data: mockAds },
+      });
+
+      await repository.getListings({ search: 'MacBook' });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/listings', {
+        params: { q: 'MacBook' },
+      });
+    });
+  });
 });
