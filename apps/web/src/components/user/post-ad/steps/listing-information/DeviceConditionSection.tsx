@@ -2,6 +2,7 @@
 
 import { usePostAdCatalog, usePostAdAction, usePostAdFlow } from "../../context";
 import { Button, FieldRoot, FieldLabel, FieldControl, FormItem } from "@esparex/ui";
+import type { FieldValues } from "react-hook-form";
 import { cn } from "@/components/ui/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Leaf, Contrast, Zap } from "@/icons/IconRegistry";
@@ -69,7 +70,7 @@ export function DeviceConditionSection() {
 
             <section aria-labelledby="condition-heading" className="pt-2">
                 <h2 id="condition-heading" className="sr-only">Device Condition</h2>
-                <FieldRoot<any>
+                <FieldRoot<FieldValues>
                     name="deviceCondition"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-x-4 gap-y-0 space-y-0">

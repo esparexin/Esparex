@@ -150,8 +150,8 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
                     <div className="rounded-xl border border-border bg-card p-8 text-center">
-                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-subtle" />
-                        <p className="mt-2 text-caption text-foreground-subtle">
+                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
+                        <p className="mt-2 text-caption font-medium text-foreground-secondary">
                             No ads available right now.
                         </p>
                     </div>

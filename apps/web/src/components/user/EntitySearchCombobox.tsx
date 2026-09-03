@@ -195,7 +195,7 @@ export function EntitySearchCombobox<T>({
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
-                    aria-controls="select-options-list"
+                    aria-controls={isListOpen ? "select-options-list" : undefined}
                     aria-activedescendant={activeOptionId}
                     autoComplete="off"
                 />
@@ -211,7 +211,7 @@ export function EntitySearchCombobox<T>({
                                 onClear?.();
                             }}
                             title="Remove selection"
-                            className="p-1 rounded-md text-foreground-subtle hover:text-destructive hover:bg-muted transition-colors"
+                            className="p-1 rounded-md text-foreground-secondary hover:text-destructive hover:bg-muted transition-colors"
                         >
                             <X className="w-4 h-4" />
                         </button>

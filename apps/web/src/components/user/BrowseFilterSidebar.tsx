@@ -75,7 +75,7 @@ export function BrowseFilterSidebar({
           )}
         </div>
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={onReset} className="h-7 text-caption font-semibold text-foreground-subtle hover:text-destructive px-2 gap-1">
+          <Button variant="ghost" size="sm" onClick={onReset} className="h-7 text-caption font-semibold text-foreground-secondary hover:text-destructive px-2 gap-1">
             <RotateCcw className="size-3" />
             Clear
           </Button>
@@ -149,7 +149,7 @@ export function BrowseFilterSidebar({
           <div id="filter-price-section" className="space-y-3 pt-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-min-price" className="text-tiny text-foreground-subtle font-medium">Min</Label>
+                <Label htmlFor="sidebar-min-price" className="text-caption text-foreground-secondary font-medium">Min</Label>
                 <Input
                   id="sidebar-min-price"
                   type="number"
@@ -159,9 +159,9 @@ export function BrowseFilterSidebar({
                   className="h-9 text-small rounded-xl border-border bg-background"
                 />
               </div>
-              <span className="text-foreground-subtle pt-4">-</span>
+              <span className="text-foreground-secondary pt-4">-</span>
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-max-price" className="text-tiny text-foreground-subtle font-medium">Max</Label>
+                <Label htmlFor="sidebar-max-price" className="text-caption text-foreground-secondary font-medium">Max</Label>
                 <Input
                   id="sidebar-max-price"
                   type="number"
