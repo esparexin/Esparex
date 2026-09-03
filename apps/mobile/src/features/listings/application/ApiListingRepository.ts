@@ -4,7 +4,7 @@ import { CreatedListing } from '../domain/CreatedListing';
 import { ListingMapper } from '../infrastructure/mappers/ListingMapper';
 import { CreatedListingMapper } from '../infrastructure/mappers/CreatedListingMapper';
 import { apiClient } from '../../../infrastructure/api/apiClient';
-import type { Ad } from '@esparex/contracts/src/v1/listings/schema/ad.schema';
+import type { Ad } from '@esparex/contracts';
 import { ListingQueryParams, CreateListingRequest, Category } from '@esparex/contracts';
 import { API_ROUTES } from '@esparex/shared';
 
