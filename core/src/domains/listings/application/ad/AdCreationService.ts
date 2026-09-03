@@ -88,15 +88,8 @@ const toObjectIdString = (value: unknown): string | undefined => {
 const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined =>
     value instanceof mongoose.Types.ObjectId ? value : typeof value === 'string' && mongoose.Types.ObjectId.isValid(value) ? new mongoose.Types.ObjectId(value) : undefined;
 
-const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown } | null | undefined): mongoose.Types.ObjectId | undefined => {
-    const rawBusinessLocationId =
-        business?.locationId
-        || (typeof business?.location === 'object' && business?.location
-            ? (business.location as { locationId?: unknown }).locationId
-            : undefined);
-
-    return normalizeObjectId(rawBusinessLocationId);
-};
+const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown } | null | undefined): mongoose.Types.ObjectId | undefined =>
+    normalizeObjectId(business?.locationId || (typeof business?.location === 'object' && business?.location ? (business.location as { locationId?: unknown }).locationId : undefined));
 
 export const validateSparePartsForCategory = async (
     sparePartIds: string[],
