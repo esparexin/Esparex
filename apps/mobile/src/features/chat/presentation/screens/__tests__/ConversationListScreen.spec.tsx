@@ -19,6 +19,10 @@ jest.mock('lucide-react-native', () => {
   );
 });
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 import { ConversationListScreen } from '../ConversationListScreen';
 import { useConversations } from '../../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';

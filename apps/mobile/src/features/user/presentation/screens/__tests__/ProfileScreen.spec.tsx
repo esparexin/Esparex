@@ -19,6 +19,10 @@ jest.mock('lucide-react-native', () => {
   );
 });
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 import { ProfileScreen } from '../ProfileScreen';
 import { useProfile } from '../../hooks/useProfile';
 import { User } from '@esparex/contracts';
