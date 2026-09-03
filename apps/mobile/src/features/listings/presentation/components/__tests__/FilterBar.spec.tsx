@@ -30,6 +30,19 @@ describe('FilterBar Component', () => {
     expect(getByText('Condition: used_good')).toBeTruthy();
   });
 
+  it('renders canonical device condition chip (power_on -> Power On)', () => {
+    const { getByText } = render(
+      <FilterBar
+        filters={{ deviceCondition: 'power_on' }}
+        activeFilterCount={1}
+        onOpenFilterModal={jest.fn()}
+        onClearFilters={jest.fn()}
+      />
+    );
+
+    expect(getByText('Condition: Power On')).toBeTruthy();
+  });
+
   it('triggers onOpenFilterModal when Filters button is pressed', () => {
     const mockOpen = jest.fn();
     const { getByText } = render(

@@ -15,6 +15,12 @@ export class ApiListingRepository implements IListingRepository {
     }
     delete queryParams.search;
 
+    if (queryParams.condition && !queryParams.deviceCondition) {
+      if (queryParams.condition === 'power_on' || queryParams.condition === 'power_off') {
+        queryParams.deviceCondition = queryParams.condition;
+      }
+    }
+
     const response = await apiClient.get<PaginatedResponse<Ad> | Ad[]>('/listings', { params: queryParams });
     const resData = response.data;
 

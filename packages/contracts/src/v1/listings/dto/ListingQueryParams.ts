@@ -4,6 +4,7 @@ export interface ListingQueryParams {
   categoryId?: string;
   search?: string;
   condition?: string;
+  deviceCondition?: 'power_on' | 'power_off';
   brandId?: string;
   modelId?: string;
   locationId?: string;

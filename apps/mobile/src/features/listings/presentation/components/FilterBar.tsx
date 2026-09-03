@@ -69,15 +69,21 @@ export const FilterBar = React.memo<FilterBarProps>(({
         )}
 
         {/* Condition Chip */}
-        {filters.condition && (
+        {(filters.condition || filters.deviceCondition) && (
           <TouchableOpacity
             onPress={onRemoveCondition}
             className="flex-row items-center bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
             accessibilityRole="button"
-            accessibilityLabel={`Remove condition ${filters.condition} filter`}
+            accessibilityLabel={`Remove condition filter`}
           >
             <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mr-1">
-              Condition: {filters.condition}
+              Condition: {
+                (filters.deviceCondition || filters.condition) === 'power_on'
+                  ? 'Power On'
+                  : (filters.deviceCondition || filters.condition) === 'power_off'
+                  ? 'Power Off'
+                  : (filters.deviceCondition || filters.condition)
+              }
             </AppText>
             <AppIcon name="X" size={12} color={base.brand[600]} />
           </TouchableOpacity>
