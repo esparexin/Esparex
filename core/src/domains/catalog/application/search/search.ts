@@ -1,4 +1,3 @@
-import type { Model } from 'mongoose';
 import logger from '../../../../utils/logger';
 import { escapeRegExp } from '../../../../utils/stringUtils';
 import type { AtlasCatalogSearchResult, SeoCrawlDecision } from './types';
@@ -52,8 +51,15 @@ export function buildRegexSearchClauses(search: string, searchFields: string[]):
     return clauses;
 }
 
+import type { PipelineStage } from 'mongoose';
+
 export async function tryAtlasCatalogSearch(params: {
-    model: Model<any>;
+    model: {
+        aggregate: (pipeline: PipelineStage[]) => {
+            option: (opts: Record<string, unknown>) => Promise<Array<{ _id: unknown; score?: number }>>;
+        };
+        modelName?: string;
+    };
     query: Record<string, unknown>;
     search: string;
     searchFields: string[];
@@ -78,8 +84,8 @@ export async function tryAtlasCatalogSearch(params: {
             },
         }))).slice(0, MAX_ATLAS_SHOULD_CLAUSES);
 
-        const filterClauses: Record<string, any>[] = [];
-        const mustNotClauses: Record<string, any>[] = [];
+        const filterClauses: Record<string, unknown>[] = [];
+        const mustNotClauses: Record<string, unknown>[] = [];
         const MAPPED_ATLAS_FIELDS = new Set(['isActive', 'isDeleted', 'approvalStatus', 'categoryIds', 'brandId', 'parentModelId', 'variantOfModelId', 'type']);
 
         for (const [key, rawVal] of Object.entries(params.query)) {
@@ -92,23 +98,23 @@ export async function tryAtlasCatalogSearch(params: {
                 const keys = Object.keys(rawVal);
                 if (keys.length === 1) {
                     const op = keys[0];
-                    const opVal = (rawVal as Record<string, any>)[op];
+                    const opVal = (rawVal as Record<string, unknown>)[op];
                     if (op === '$ne') {
                         mustNotClauses.push({ equals: { path: targetPath, value: typeof opVal === 'object' && opVal ? String(opVal) : opVal } });
                     } else if (op === '$in' && Array.isArray(opVal)) {
-                        filterClauses.push({ in: { path: targetPath, value: opVal.map((v: any) => typeof v === 'object' && v ? String(v) : v) } });
+                        filterClauses.push({ in: { path: targetPath, value: opVal.map((v) => typeof v === 'object' && v ? String(v) : v) } });
                     } else if (op === '$nin' && Array.isArray(opVal)) {
-                        mustNotClauses.push({ in: { path: targetPath, value: opVal.map((v: any) => typeof v === 'object' && v ? String(v) : v) } });
+                        mustNotClauses.push({ in: { path: targetPath, value: opVal.map((v) => typeof v === 'object' && v ? String(v) : v) } });
                     }
                 }
             } else if (Array.isArray(rawVal)) {
-                filterClauses.push({ in: { path: targetPath, value: rawVal.map((v: any) => typeof v === 'object' && v ? String(v) : v) } });
+                filterClauses.push({ in: { path: targetPath, value: rawVal.map((v) => typeof v === 'object' && v ? String(v) : v) } });
             } else {
                 filterClauses.push({ equals: { path: targetPath, value: typeof rawVal === 'object' && rawVal ? String(rawVal) : rawVal } });
             }
         }
 
-        const compound: Record<string, any> = { should, minimumShouldMatch: 1 };
+        const compound: Record<string, unknown> = { should, minimumShouldMatch: 1 };
         if (filterClauses.length > 0) compound.filter = filterClauses;
         if (mustNotClauses.length > 0) compound.mustNot = mustNotClauses;
 
