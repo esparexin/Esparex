@@ -92,10 +92,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   );
 };
 
-export const useAuth = () => {
+const DEFAULT_ANONYMOUS_AUTH: AuthContextType = {
+  status: 'anonymous',
+  sendOtp: async () => ({ success: false, isNewUser: false, otpExpiresIn: 0 }),
+  verifyOtp: async () => {},
+  cancelOtp: async () => {},
+  logout: async () => {},
+};
+
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return context || DEFAULT_ANONYMOUS_AUTH;
 };

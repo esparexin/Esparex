@@ -24,13 +24,7 @@ export const SearchScreen = () => {
   const insets = useSafeAreaInsets();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
-  let authStatus = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
+  const { status: authStatus } = useAuth();
 
   const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
   const toggleSaveMutation = useToggleSaveListing();

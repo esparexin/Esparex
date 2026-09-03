@@ -18,13 +18,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
   onSelectConversation,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  let authStatus: string = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
+  const { status: authStatus } = useAuth();
   const { data: conversations, isLoading, isError, refetch, isRefetching } = useConversations();
 
   const filteredConversations = useMemo(() => {
