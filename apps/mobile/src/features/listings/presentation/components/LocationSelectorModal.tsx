@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { AppText, AppInput, AppIcon } from '@esparex/mobile-ui';
+import { View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { AppText, AppInput, AppIcon, AppModalSheet } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { LocationMeta } from '@esparex/contracts';
 import { services } from '../../../../bootstrap';
@@ -86,17 +86,8 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
   }, [onSelectLocation, onClose]);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} accessibilityViewIsModal={true}>
-      <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-surface rounded-t-3xl p-6 max-h-[85%] border-t border-border">
-          <View className="flex-row items-center justify-between pb-4 border-b border-border">
-            <AppText variant="h3" className="font-bold text-foreground">Select Location</AppText>
-            <TouchableOpacity onPress={onClose} accessibilityLabel="Close location selector" accessibilityRole="button" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <AppIcon name="X" size={20} color={base.slate[400]} />
-            </TouchableOpacity>
-          </View>
-
-          <View className="my-4">
+    <AppModalSheet visible={visible} onClose={onClose} title="Select Location">
+      <View className="my-4">
             <AppInput placeholder="Search city, area or state…" value={searchQuery} onChangeText={handleSearchChange} autoCapitalize="none" autoCorrect={false} accessibilityLabel="Location search input" />
           </View>
 
@@ -183,8 +174,6 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
               </View>
             )}
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </AppModalSheet>
   );
 };
