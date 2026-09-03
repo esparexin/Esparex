@@ -99,7 +99,13 @@ describe('adminListConversations', () => {
     );
     mockedConversation.countDocuments.mockResolvedValue(1);
 
-    const result = await adminListConversations('all', 0.8, 2, 20, 'screen');
+    const result = await adminListConversations({
+      filter: 'all',
+      riskMin: 0.8,
+      page: 2,
+      limit: 20,
+      q: 'screen'
+    });
 
     expect(mockedUser.find).toHaveBeenCalledWith({
       $or: [

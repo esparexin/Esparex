@@ -11,12 +11,15 @@ import {
     buildConversationPreview
 } from './ChatUtils';
 
-export async function getMessages(
-    conversationId: string,
-    userId: string,
-    before?: string,
-    after?: string
-) {
+export interface GetMessagesParams {
+    conversationId: string;
+    userId: string;
+    before?: string;
+    after?: string;
+}
+
+export async function getMessages(params: GetMessagesParams) {
+    const { conversationId, userId, before, after } = params;
     return await chatRepository.findMessages(conversationId, userId, before, after);
 }
 

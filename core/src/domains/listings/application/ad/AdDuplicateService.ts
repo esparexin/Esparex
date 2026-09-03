@@ -42,6 +42,12 @@ export type CrossUserDuplicateRisk = {
     details: Record<string, unknown>;
 };
 
+export interface SelfDuplicateQuery {
+    sellerId: string; categoryId: string; locationId?: string; price?: number;
+    brandId?: string; modelId?: string; excludeAdId?: string;
+    session?: ClientSession; listingType?: string;
+}
+
 export interface DuplicateCheckResult {
     isDuplicate: boolean;
     riskScore: number;
@@ -201,19 +207,16 @@ export const buildDuplicateFingerprint = (
 };
 
 export const findExistingSelfDuplicate = async (
-    sellerId: string,
-    categoryId: string,
-    locationId?: string,
-    price?: number,
-    brandId?: string,
-    modelId?: string,
-    excludeAdId?: string,
-    session?: ClientSession,
-    listingType?: string
+    query: SelfDuplicateQuery
 ): Promise<DuplicateLookupResult | null> => {
+    const {
+        sellerId, categoryId, locationId, price,
+        brandId, modelId, excludeAdId, session, listingType
+    } = query;
+
     if (!locationId) return null;
 
-    const query: Record<string, unknown> = {
+    const mongoQuery: Record<string, unknown> = {
         sellerId: sellerId,
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         isDeleted: { $ne: true },
@@ -224,15 +227,15 @@ export const findExistingSelfDuplicate = async (
 
     if (typeof price === 'number' && Number.isFinite(price) && price > 0) {
         const priceMargin = price * 0.1;
-        query.price = { $gte: price - priceMargin, $lte: price + priceMargin };
+        mongoQuery.price = { $gte: price - priceMargin, $lte: price + priceMargin };
     }
 
-    if (brandId) query.brandId = brandId;
-    if (modelId) query.modelId = modelId;
-    if (excludeAdId) query._id = { $ne: excludeAdId };
-    if (session) query.session = session;
+    if (brandId) mongoQuery.brandId = brandId;
+    if (modelId) mongoQuery.modelId = modelId;
+    if (excludeAdId) mongoQuery._id = { $ne: excludeAdId };
+    if (session) mongoQuery.session = session;
 
-    const doc = await getListingRepository().findOne(query as ListingFilter);
+    const doc = await getListingRepository().findOne(mongoQuery as ListingFilter);
     if (doc) {
         logDuplicateDetection({
             level: 'info',
@@ -345,17 +348,16 @@ export class AdDuplicateService {
     ): Promise<DuplicateCheckResult> {
         // 1. Precise Self-Duplicate Check
         const selfDuplicate = payload.categoryId
-            ? await findExistingSelfDuplicate(
+            ? await findExistingSelfDuplicate({
                 sellerId,
-                String(payload.categoryId),
-                payload.location?.locationId ? String(payload.location.locationId) : undefined,
-                payload.price as number,
-                payload.brandId ? String(payload.brandId) : undefined,
-                payload.modelId ? String(payload.modelId) : undefined,
-                undefined,
+                categoryId: String(payload.categoryId),
+                locationId: payload.location?.locationId ? String(payload.location.locationId) : undefined,
+                price: typeof payload.price === 'number' ? payload.price : undefined,
+                brandId: payload.brandId ? String(payload.brandId) : undefined,
+                modelId: payload.modelId ? String(payload.modelId) : undefined,
                 session,
-                payload.listingType
-            )
+                listingType: payload.listingType
+            })
             : null;
 
         if (selfDuplicate) {

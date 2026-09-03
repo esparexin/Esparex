@@ -31,18 +31,22 @@ export const maskPhone = (phone?: string): string | undefined => {
     return `${start}****${end}`;
 };
 
+export interface LogPhoneRevealParams {
+    entityId: string;
+    entityType: 'ad' | 'service' | 'spare_part';
+    sellerId: string;
+    buyerId: string;
+    ipAddress?: string;
+    device?: string;
+}
+
 /**
  * Log when a phone number is revealed to a buyer
  * This helps track suspicious activity and validate business metrics
  */
-export const logPhoneReveal = async (
-    entityId: string,
-    entityType: 'ad' | 'service' | 'spare_part',
-    sellerId: string,
-    buyerId: string,
-    ipAddress?: string,
-    device?: string
-): Promise<void> => {  
+export const logPhoneReveal = async (params: LogPhoneRevealParams): Promise<void> => {
+    const { entityId, entityType, sellerId, buyerId, ipAddress, device } = params;
+  
     try {
         const logData = {
             entityId: new mongoose.Types.ObjectId(entityId),
@@ -144,14 +148,14 @@ export const getSellerPhone = async (
         }
 
         if (buyerId && !isOwner) {
-            logPhoneReveal(
-                String(id),
-                resolvedEntityType,
-                String(seller._id || ''),
+            logPhoneReveal({
+                entityId: String(id),
+                entityType: resolvedEntityType,
+                sellerId: String(seller._id || ''),
                 buyerId,
-                metadata?.ip,
-                metadata?.device
-            ).catch((err: unknown) => {
+                ipAddress: metadata?.ip,
+                device: metadata?.device
+            }).catch((err: unknown) => {
                 logger.error('Failed to log phone reveal', { error: err instanceof Error ? err.message : String(err) });
             });
         }

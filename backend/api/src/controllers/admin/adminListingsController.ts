@@ -166,13 +166,13 @@ export const adminSoftDeleteListing = async (req: Request, res: Response) => {
 export const adminResolveListingReport = async (req: Request, res: Response) => {
     try {
         const body = req.body as { action?: string; note?: string } | undefined;
-        const listingResult = await adminListingsService.adminResolveListingReport(
-            req.params.id as string,
-            getActorId(req),
-            body?.action ?? 'dismiss',
-            body?.note,
-            buildLogFn(req)
-        );
+        const listingResult = await adminListingsService.adminResolveListingReport({
+            id: req.params.id as string,
+            actorId: getActorId(req),
+            action: body?.action ?? 'dismiss',
+            note: body?.note,
+            logFn: buildLogFn(req)
+        });
         return sendSuccessResponse(res, listingResult, 'Reports resolved successfully');
     } catch (error: unknown) {
         return sendAdminError(req, res, error);

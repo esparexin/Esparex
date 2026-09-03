@@ -157,7 +157,16 @@ export const adminSoftDeleteListing = async (id: string, actorId: string, logFn:
     return { action: 'deleted', listing: updated, message: 'Listing soft deleted successfully' };
 };
 
-export const adminResolveListingReport = async (id: string, actorId: string, action: string, note: string | undefined, logFn: AdminLogFn) => {
+export interface ResolveListingReportParams {
+    id: string;
+    actorId: string;
+    action?: 'dismiss' | 'take_down' | 'warn_user' | string;
+    note?: string;
+    logFn: AdminLogFn;
+}
+
+export const adminResolveListingReport = async (params: ResolveListingReportParams) => {
+    const { id, actorId, action, note, logFn } = params;
     validateListingId(id);
     await getListingForMutation(id);
     const resolvedAction = action || 'dismiss';
