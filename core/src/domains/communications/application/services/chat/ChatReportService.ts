@@ -1,13 +1,16 @@
 import { chatRepository } from '../../../../../composition/chat';
 import type { ChatReportReasonValue } from '@esparex/contracts';
 
-export async function reportConversation(
-    conversationId: string,
-    reporterId: string,
-    reason: ChatReportReasonValue,
-    description?: string,
-    messageId?: string
-) {
+export interface ReportConversationParams {
+    conversationId: string;
+    reporterId: string;
+    reason: ChatReportReasonValue;
+    description?: string;
+    messageId?: string;
+}
+
+export async function reportConversation(params: ReportConversationParams) {
+    const { conversationId, reporterId, reason, description, messageId } = params;
     const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 

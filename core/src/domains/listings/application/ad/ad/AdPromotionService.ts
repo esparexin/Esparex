@@ -8,13 +8,22 @@ import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { consumeCredit } from '../../../../../services/wallet/WalletService';
 import { isValidObjectId } from '../../../../../utils/idUtils';
 
-export const promoteAdLogic = async (
-    id: string,
-    days: number = 7,
-    type: 'spotlight_hp' | 'spotlight_cat' = 'spotlight_hp',
-    userId: string,
-    isAdmin: boolean = false
-) => {
+export interface PromoteAdParams {
+    id: string;
+    userId: string;
+    days?: number;
+    type?: 'spotlight_hp' | 'spotlight_cat';
+    isAdmin?: boolean;
+}
+
+export const promoteAdLogic = async (params: PromoteAdParams) => {
+    const {
+        id,
+        days = 7,
+        type = 'spotlight_hp',
+        userId,
+        isAdmin = false
+    } = params;
     const Boost = (await import('@esparex/core/models/Boost')).default;
     const User = (await import('@esparex/core/models/User')).default;
 

@@ -1,15 +1,22 @@
 import User from "../../../../models/User";
-import { Role } from '@esparex/shared';
-import { NOTIFICATION_TYPE } from '@esparex/shared';
+import { Role, NOTIFICATION_TYPE } from '@esparex/contracts';
 import { NotificationIntent } from "../../../../domain/NotificationIntent";
 import { NotificationDispatcher } from "../../../../services/notification/NotificationDispatcher";
 import logger from "../../../../utils/logger";
+
+export interface NotifyAdminsOfSuggestionParams {
+    type: 'brand' | 'model';
+    name: string;
+    suggestedBy: string;
+    requestId?: string;
+}
 
 export class CatalogNotificationService {
     /**
      * Notify all admins about a new brand or model suggestion.
      */
-    static async notifyAdminsOfSuggestion(type: 'brand' | 'model', name: string, suggestedBy: string, requestId?: string) {
+    static async notifyAdminsOfSuggestion(params: NotifyAdminsOfSuggestionParams) {
+        const { type, name, suggestedBy, requestId } = params;
         try {
             const admins = await User.find({ 
                 role: { $in: [Role.ADMIN, Role.SUPER_ADMIN] }, 
@@ -26,6 +33,7 @@ export class CatalogNotificationService {
             const data = {
                 kind: 'catalog_request_submitted',
                 requestId,
+                suggestedBy,
                 entityType: type,
                 name,
                 actionUrl: requestId ? `/catalog-requests/${requestId}` : '/catalog-requests?status=pending'

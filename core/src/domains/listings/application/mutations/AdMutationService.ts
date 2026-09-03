@@ -5,7 +5,7 @@ import { mutateStatus } from '../../../../services/lifecycle/StatusMutationServi
 
 // Leaf Services
 import { updateAdLogic } from '../ad/ad/AdUpdateService';
-import { promoteAdLogic } from '../ad/ad/AdPromotionService';
+import { promoteAdLogic, type PromoteAdParams } from '../ad/ad/AdPromotionService';
 import { repostAdLogic } from '../ad/ad/AdRepostService';
 import { assertOwnership } from '../ad/ad/AdPolicyService';
 
@@ -57,17 +57,13 @@ export const updateAdTransactional = async (options: {
     return result;
 };
 
-export const promoteAd = async (
-    id: string,
-    days: number = 7,
-    type: 'spotlight_hp' | 'spotlight_cat' = 'spotlight_hp',
-    userId: string,
-    isAdmin: boolean = false
-) => {
-    const result = await promoteAdLogic(id, days, type, userId, isAdmin);
+export { type PromoteAdParams };
+
+export const promoteAd = async (params: PromoteAdParams) => {
+    const result = await promoteAdLogic(params);
     if (result) {
         void getListingsCache().invalidateAdFeedCaches().catch(() => {});
-        void getListingsCache().invalidatePublicAdCache(id).catch(() => {});
+        void getListingsCache().invalidatePublicAdCache(params.id).catch(() => {});
     }
     return result;
 };

@@ -30,7 +30,7 @@ export interface AdminListingsQuery {
     search?: unknown;
 }
 
-type DuplicateBypassBody = {
+export type DuplicateBypassBody = {
     allowDuplicateBypass?: unknown;
     duplicateBypassReason?: unknown;
 };
