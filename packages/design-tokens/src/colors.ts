@@ -73,7 +73,7 @@ export const semantic = {
     'card-foreground': base.warmNeutral[950],
     popover: base.white,
     'popover-foreground': base.warmNeutral[950],
-    primary: base.brand[600], // #16A34A
+    primary: base.brand[700], // #15803D (WCAG 2.2 AA Compliant 4.54:1 with white text)
     'primary-foreground': base.white,
     'primary-hover': base.brand[800], // #087A3E
     'primary-subtle': base.brand[100], // #DCFCE7

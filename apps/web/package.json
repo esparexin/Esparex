@@ -24,6 +24,7 @@
     "e2e": "playwright test",
     "e2e:listing-edit": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=4",
     "e2e:listing-edit:ci": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=1",
+    "test:a11y": "playwright test tests/a11y-wcag-suite.spec.ts",
     "test:smoke": "playwright test tests/listing-chat-smoke.spec.ts",
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
@@ -45,6 +46,7 @@
     "firebase": "^12.7.0",
     "framer-motion": "^11.0.8",
     "fuse.js": "^7.1.0",
+    "heic2any": "^0.0.4",
     "lucide-react": "^0.562.0",
     "next": "^16.0.6",
     "next-themes": "^0.4.6",
@@ -54,11 +56,11 @@
     "sharp": "^0.34.5",
     "socket.io-client": "^4.8.3",
     "socket.io-parser": "^4.2.6",
-    "heic2any": "^0.0.4",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@next/eslint-plugin-next": "^16.1.1",
     "@playwright/test": "^1.57.0",
     "@types/crypto-js": "^4.2.2",
