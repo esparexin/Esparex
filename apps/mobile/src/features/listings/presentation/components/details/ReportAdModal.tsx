@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Modal, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
-import { AppText, AppIcon, AppButton } from '@esparex/mobile-ui';
+import { View, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
+import { AppText, AppButton, AppModalSheet } from '@esparex/mobile-ui';
 import { REPORT_REASON, ReportReasonValue } from '@esparex/contracts';
 import { services } from '../../../../../bootstrap';
 
@@ -53,37 +53,13 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
   };
 
   return (
-    <Modal
+    <AppModalSheet
       visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
+      onClose={onClose}
+      title="Report Listing"
     >
-      <View className="flex-1 bg-black/60 justify-end">
-        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-5 max-h-[85%]">
-          {/* Header */}
-          <View className="flex-row items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
-            <View className="flex-row items-center flex-1 mr-2">
-              <View className="mr-2">
-                <AppIcon name="AlertTriangle" size={20} color="#ef4444" />
-              </View>
-              <AppText variant="h3" className="text-slate-900 dark:text-white font-bold" numberOfLines={1}>
-                Report Listing
-              </AppText>
-            </View>
-            <TouchableOpacity
-              onPress={onClose}
-              disabled={isSubmitting}
-              className="p-1 rounded-full bg-slate-100 dark:bg-slate-800"
-              accessibilityRole="button"
-              accessibilityLabel="Close report dialog"
-            >
-              <AppIcon name="X" size={18} color="#64748b" />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-3">
+      <ScrollView showsVerticalScrollIndicator={false}>
+            <AppText variant="caption" className="text-foreground-secondary mb-3">
               Why are you reporting &quot;{adTitle}&quot;?
             </AppText>
 
@@ -98,23 +74,23 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
                     activeOpacity={0.7}
                     className={`p-3 rounded-xl border flex-row items-center justify-between mb-1.5 ${
                       isSelected
-                        ? 'border-sky-600 bg-sky-50 dark:bg-sky-950/40'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60'
+                        ? 'border-brand-600 bg-brand-50 dark:bg-brand-950/40'
+                        : 'border-border bg-muted'
                     }`}
                   >
                     <AppText
                       variant="body"
-                      className={`text-sm font-medium ${
+                      className={`font-medium ${
                         isSelected
-                          ? 'text-sky-700 dark:text-sky-300 font-semibold'
-                          : 'text-slate-700 dark:text-slate-300'
+                          ? 'text-brand-600 dark:text-brand-400 font-semibold'
+                          : 'text-foreground'
                       }`}
                     >
                       {item.label}
                     </AppText>
                     <View
                       className={`w-4 h-4 rounded-full border items-center justify-center ${
-                        isSelected ? 'border-sky-600 bg-sky-600' : 'border-slate-400'
+                        isSelected ? 'border-brand-600 bg-brand-600' : 'border-border'
                       }`}
                     >
                       {isSelected && <View className="w-1.5 h-1.5 rounded-full bg-white" />}
@@ -125,7 +101,7 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
             </View>
 
             {/* Additional details */}
-            <AppText variant="caption" className="text-slate-600 dark:text-slate-300 font-semibold mb-1.5">
+            <AppText variant="caption" className="text-foreground font-semibold mb-1.5">
               Additional Details (Optional)
             </AppText>
             <TextInput
@@ -135,7 +111,7 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
               placeholderTextColor="#94a3b8"
               multiline
               numberOfLines={3}
-              className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm min-h-[72px] text-top mb-5"
+              className="p-3 bg-muted border border-border rounded-xl text-foreground text-body-lg min-h-[72px] text-top mb-5"
             />
 
             {/* Action buttons */}
@@ -158,8 +134,6 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
               </View>
             </View>
           </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    </AppModalSheet>
   );
 };

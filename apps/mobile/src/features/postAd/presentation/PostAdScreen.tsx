@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, ScrollView, Alert, KeyboardAvoidingView, Platform, BackHandler } from 'react-native';
 import { Screen, Container, AppText, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useAuth } from '../../../providers/AuthProvider';
@@ -39,14 +39,8 @@ const SUBMIT_LABELS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const PostAdScreen = () => {
-  let authStatus: string = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
-  const { state, nextStep, previousStep, reset } = usePostAdDraft();
+  const { status: authStatus } = useAuth();
+  const { state, nextStep, previousStep } = usePostAdDraft();
   const { currentStep, draft } = state;
   const { submit, status, submitError, resetError } = useSubmitAd();
 
@@ -54,6 +48,20 @@ export const PostAdScreen = () => {
   const isSubmitting = status === 'uploading' || status === 'creating';
   const canGoNext = PostAdValidator.canAdvanceFrom(currentStep, draft);
   const StepComponent = STEP_COMPONENTS[currentStep];
+
+  // Android hardware back button handling: step backward instead of exiting wizard
+  useEffect(() => {
+    const onBackPress = () => {
+      if (currentStep !== WizardStep.CATEGORY) {
+        previousStep();
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [currentStep, previousStep]);
 
   // Derive a status-aware label; undefined falls back to WizardNavBar's default.
   const nextLabel: string | undefined = SUBMIT_LABELS[status];

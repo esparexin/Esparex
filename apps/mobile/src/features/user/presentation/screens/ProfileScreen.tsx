@@ -20,13 +20,7 @@ import { ProfileMenuSection, MenuItem } from '../components/ProfileMenuSection';
 type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE_OVERVIEW>;
 
 export const ProfileScreen = ({ navigation }: Props) => {
-  let authStatus: string = 'authenticated';
-  try {
-    const auth = useAuth();
-    authStatus = auth.status;
-  } catch {
-    authStatus = 'authenticated';
-  }
+  const { status: authStatus } = useAuth();
   const { data: profile, isLoading, isError, refetch, isRefetching } = useProfile();
 
   const isBusinessUser = profile?.userType === 'business' || Boolean(profile?.businessId);

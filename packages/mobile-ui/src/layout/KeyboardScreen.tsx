@@ -8,7 +8,7 @@ export interface KeyboardScreenProps extends ScrollScreenProps {
 }
 
 export const KeyboardScreen: React.FC<KeyboardScreenProps> = ({
-  behavior = Platform.OS === 'ios' ? 'padding' : 'height',
+  behavior = Platform.OS === 'ios' ? 'padding' : undefined,
   keyboardVerticalOffset = 0,
   children,
   ...props
