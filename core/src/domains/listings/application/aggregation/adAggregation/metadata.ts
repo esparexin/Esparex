@@ -28,7 +28,7 @@ async function fetchMetadataWithCache<T>(
     const cachedResults = await getMultiCache<T>(cacheKeys);
     const results: T[] = [];
     const missingIds: string[] = [];
-    cachedResults.forEach((val: any, index: any) => {
+    cachedResults.forEach((val, index) => {
         if (val) results.push(val);
         else { const id = idArray[index]; if (id) missingIds.push(id); }
     });

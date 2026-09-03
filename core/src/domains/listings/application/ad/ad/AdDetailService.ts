@@ -73,8 +73,6 @@ export const getAnyAdById = async (
     void _requesterId;
     if (!mongoose.Types.ObjectId.isValid(adId)) return null;
 
-    const id = new mongoose.Types.ObjectId(adId);
-
     try {
         const ad = await getListingRepository().findOne({ ids: [adId], isDeleted: { $in: [true, false] } });
         if (!ad) return null;
