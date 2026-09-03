@@ -58,6 +58,11 @@ const RULES = {
     severity: "error",
     description: "Hardcoded hex color in TSX (use design tokens or CSS variables)",
   },
+  RAW_MODAL_OVERLAY: {
+    id: "raw-modal-overlay",
+    severity: "error",
+    description: "Raw unportalled modal dialog overlay (must use @esparex/ui Dialog/Sheet/Drawer or Radix Portal)",
+  },
   NATIVE_BUTTON: {
     id: "native-button",
     severity: "warning",
@@ -170,6 +175,22 @@ function auditFile(filePath) {
       }
     }
   });
+
+  // ── Rule: Raw unportalled modal overlays ─────────────────────────────────
+  const hasPortalOrDialogImport =
+    /from\s+["']@esparex\/ui["']/.test(src) ||
+    /from\s+["']@radix-ui\/react-dialog["']/.test(src) ||
+    /createPortal/.test(src);
+
+  if (!hasPortalOrDialogImport) {
+    const RAW_MODAL_PATTERN = /<div[^>]*\brole=["'](?:dialog|alertdialog)["']/;
+    lines.forEach((l, i) => {
+      const prevLine = i > 0 ? lines[i - 1] : "";
+      if (RAW_MODAL_PATTERN.test(l) && !isIgnored(l, RULES.RAW_MODAL_OVERLAY.id, prevLine)) {
+        report(RULES.RAW_MODAL_OVERLAY, i, l);
+      }
+    });
+  }
 
   // ── Warning: Native <button> elements ─────────────────────────────────────
   const NATIVE_BUTTON_PATTERN = /^\s*<button\b(?!.*ui-guard-ignore)/;
