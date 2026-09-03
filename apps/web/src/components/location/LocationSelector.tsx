@@ -345,7 +345,7 @@ export default function LocationSelector({
             </div>
 
             {isOpen && !hasSelection && !disabled && (
-                <div ref={dropdownRef} className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-[280px] bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                <div ref={dropdownRef} className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-[min(280px,calc(var(--visual-viewport-height,100dvh)-12rem))] bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                     {searchApi.detectFeedback && !searchApi.isDetecting && (
                         <div className="px-3 py-1.5 bg-destructive/5 border-b border-destructive/10">
                             <p className="text-tiny font-medium text-destructive">{searchApi.detectFeedback}</p>

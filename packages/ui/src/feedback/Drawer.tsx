@@ -30,7 +30,7 @@ export function Drawer({
         />
         <VaulDrawer.Content
           style={{ zIndex: Z_INDEX.drawerContent }}
-          className="bg-background flex flex-col rounded-t-[20px] shadow-2xl fixed bottom-0 left-0 right-0 max-h-[96vh] focus:outline-none"
+          className="bg-background flex flex-col rounded-t-[20px] shadow-2xl fixed bottom-0 left-0 right-0 max-h-[min(96%,calc(var(--visual-viewport-height,100dvh)-1rem))] focus:outline-none"
         >
           {/* Drag Handle */}
           <div className="mx-auto mt-4 h-1.5 w-12 shrink-0 rounded-full bg-slate-200" />

@@ -56,17 +56,41 @@ const throwIfLegacyAdQueryAliasesPresent = (
 
 
 
+import { normalizeStatus, validateText, getValidationError } from "@esparex/shared";
+
+const validateTextFieldContent = (text: unknown, fieldName: 'title' | 'description', ctx: z.RefinementCtx) => {
+    if (typeof text !== 'string' || text.trim().length === 0) return;
+    const result = validateText(text, {
+        checkBannedWords: true,
+        checkGibberish: true,
+        checkQuality: true,
+        allowEmpty: true,
+    });
+    if (result.action === 'reject') {
+        const errorMsg = getValidationError(result) || `${fieldName} contains prohibited or invalid text`;
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [fieldName],
+            message: errorMsg,
+        });
+    }
+};
+
 /**
  * Create Ad Request Schema
  */
-export const createAdSchema = SharedAdPayloadSchema;
+export const createAdSchema = SharedAdPayloadSchema.superRefine((data, ctx) => {
+    if (data.title) validateTextFieldContent(data.title, 'title', ctx);
+    if (data.description) validateTextFieldContent(data.description, 'description', ctx);
+});
 
 /**
  * Update Ad Request Schema
  */
-export const updateAdSchema = SharedPartialAdPayloadSchema;
-
-import { normalizeStatus } from "@esparex/shared";
+export const updateAdSchema = SharedPartialAdPayloadSchema.superRefine((data, ctx) => {
+    if (data.title) validateTextFieldContent(data.title, 'title', ctx);
+    if (data.description) validateTextFieldContent(data.description, 'description', ctx);
+});
 
 /**
  * Safe sort fields — must match canonical values in AdQueryHelpers.buildAdSortStage.
