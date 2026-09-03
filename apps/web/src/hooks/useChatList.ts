@@ -22,6 +22,7 @@ interface UseChatListReturn {
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
   retry: () => Promise<void>;
+  unhideConversation: (conversationId: string) => Promise<void>;
 }
 
 export function mergeRefreshedConversations(
@@ -133,6 +134,11 @@ export function useChatList(view: ConversationListView = 'active'): UseChatListR
     };
   }, [refresh]);
 
-  return { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, refresh, retry: load };
+  const unhideConversation = useCallback(async (conversationId: string) => {
+    await chatApi.unhide(conversationId);
+    await refresh();
+  }, [refresh]);
+
+  return { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, refresh, retry: load, unhideConversation };
 }
 

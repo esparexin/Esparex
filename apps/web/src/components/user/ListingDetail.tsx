@@ -36,7 +36,7 @@ import {
   resolveListingCategoryLabel,
   resolveListingLocationLabel,
 } from "@/lib/listings/listingPresentation";
-import { useListingDetailActions } from "./listing-detail/useListingDetailActions";
+import { useListingDetailActions } from "@/hooks/listings/useListingDetailActions";
 
 interface ListingDetailProps {
   adId: string | number | null;
@@ -119,7 +119,7 @@ export function ListingDetail({
     handleListingUnavailable,
   } = useListingDetailActions({
     ad: ad ?? undefined,
-    user,
+    user: user ?? undefined,
     isAuthResolved,
     isOwner,
     isFavorited,

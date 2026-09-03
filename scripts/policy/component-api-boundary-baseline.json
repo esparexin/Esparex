@@ -1,14 +1,1 @@
-{
-  "apps/web/src/components/catalog/CatalogSlugRoutes.tsx": [
-    "fetchUserApiJson"
-  ],
-  "apps/web/src/components/chat/ChatActionsMenu.tsx": [
-    "chatApi"
-  ],
-  "apps/web/src/components/chat/ChatList.tsx": [
-    "chatApi"
-  ],
-  "apps/web/src/components/user/ListingDetail.tsx": [
-    "chatApi"
-  ]
-}
+{}
