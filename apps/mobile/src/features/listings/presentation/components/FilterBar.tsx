@@ -9,7 +9,6 @@ interface FilterBarProps {
   activeFilterCount: number;
   onOpenFilterModal: () => void;
   onClearFilters: () => void;
-  onRemoveCategory?: () => void;
   onRemoveCondition?: () => void;
   onRemovePrice?: () => void;
   onRemoveSort?: () => void;

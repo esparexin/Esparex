@@ -5,8 +5,7 @@ import { ListingMapper } from '../infrastructure/mappers/ListingMapper';
 import { CreatedListingMapper } from '../infrastructure/mappers/CreatedListingMapper';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import type { Ad, PaginatedResponse } from '@esparex/contracts';
-import { ListingQueryParams, CreateListingRequest, Category } from '@esparex/contracts';
-import { API_ROUTES } from '@esparex/shared';
+import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
 
 export class ApiListingRepository implements IListingRepository {
   public async getListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
@@ -81,15 +80,6 @@ export class ApiListingRepository implements IListingRepository {
     const response = await apiClient.patch<{ data: Ad }>(`/listings/${id}/edit`, request);
     const ad = response.data?.data || response.data;
     return ListingMapper.mapAdToListing(ad);
-  }
-
-  public async getCategories(): Promise<readonly Category[]> {
-    const response = await apiClient.get<Category[] | { data: Category[] }>(API_ROUTES.USER.CATEGORIES);
-    const data = response.data;
-    if (data && 'data' in data && Array.isArray(data.data)) {
-      return data.data;
-    }
-    return Array.isArray(data) ? data : [];
   }
 
   public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
