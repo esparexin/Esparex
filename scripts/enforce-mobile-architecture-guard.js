@@ -218,6 +218,42 @@ for (const relFile of forbiddenCapacitorFiles) {
   }
 }
 
+// Rule 8: Category SSOT Ownership Guard
+// Ensures no duplicate getCategories methods are declared in listing services or repositories
+for (const filePath of allFiles) {
+  const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+  if (
+    relPath.endsWith("ListingService.ts") ||
+    relPath.endsWith("IListingRepository.ts") ||
+    relPath.endsWith("ApiListingRepository.ts")
+  ) {
+    const content = fs.readFileSync(filePath, "utf8");
+    if (/\bgetCategories\s*\(/.test(content)) {
+      violations.push({
+        file: relPath,
+        line: 1,
+        rule: "Category SSOT Violation: Categories must be accessed solely via CategoryService. Do not duplicate getCategories() in listing services or repositories.",
+        code: "getCategories() declared in " + relPath,
+      });
+    }
+  }
+}
+
+// Rule 9: Device Condition SSOT Filter Guard
+// Prevents zombie condition options (new, used_like_new, used_good, used_fair) in mobile search filters
+const filterModalPath = path.join(mobileSrcDir, "features", "listings", "presentation", "components", "FilterModal.tsx");
+if (fs.existsSync(filterModalPath)) {
+  const filterModalContent = fs.readFileSync(filterModalPath, "utf8");
+  if (/['"]used_like_new['"]|['"]used_good['"]|['"]used_fair['"]/.test(filterModalContent)) {
+    violations.push({
+      file: "features/listings/presentation/components/FilterModal.tsx",
+      line: 1,
+      rule: "Zombie Filter Option Detected: FilterModal must use canonical 'power_on' and 'power_off' options matching backend schema and domain model.",
+      code: "Non-canonical condition option detected in FilterModal.tsx",
+    });
+  }
+}
+
 if (violations.length > 0) {
   console.error("❌ Mobile Architecture Guard Violations Found:\n");
   for (const v of violations) {
