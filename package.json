@@ -72,6 +72,7 @@
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
     "test": "npm test -w @esparex/backend-api && npm test -w @esparex/core && npm test -w @esparex/apps-web && npm test -w @esparex/apps-admin && npm test -w @esparex/apps-mobile",
+    "test:a11y": "npm run test:a11y -w @esparex/apps-web",
     "e2e": "node scripts/run-deterministic-e2e.mjs",
     "e2e:listing-edit": "npm run e2e:listing-edit -w @esparex/apps-web",
     "e2e:listing-edit:ci": "npm run e2e:listing-edit:ci -w @esparex/apps-web",
