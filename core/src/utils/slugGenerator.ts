@@ -1,8 +1,8 @@
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { Model } from 'mongoose';
-
-type SlugModel = Model<any>;
+export interface SlugModel {
+    exists(filter: Record<string, unknown>): Promise<unknown>;
+}
 
 /**
  * Generates a unique SEO-friendly slug with DB-checked retries to avoid

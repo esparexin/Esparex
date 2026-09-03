@@ -132,10 +132,10 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     }
     if (isActive !== undefined) location.isActive = Boolean(isActive);
     if (name || country || level || hasParentMutation) {
-        let parentLocation: any = null;
+        let parentLocation: Awaited<ReturnType<typeof findLocationParent>> = null;
         if (location.parentId) parentLocation = await findLocationParent(location.parentId);
-        location.path = buildHierarchyPath(location._id, parentLocation);
-        const ps = parentLocation ? await resolveLocationSummary(parentLocation) : null;
+        location.path = buildHierarchyPath(location._id, parentLocation as { _id?: unknown; path?: unknown[] });
+        const ps = parentLocation ? await resolveLocationSummary(parentLocation as CanonicalLocationDoc) : null;
         location.slug = safeSlugify([location.name, ps?.state, location.country || 'unknown'].filter((p): p is string => Boolean(p)).join('-'));
     }
     await saveLocation(location);
@@ -157,8 +157,8 @@ export const adminDeleteLocation = async (id: string, logFn: AdminLogFn) => {
     const location = await findLocationById(id);
     if (!location) throw new AppError('Location not found', 404);
     const locationSummary = await resolveLocationSummary(location.toObject());
-    const adUsageQuery: any = { $or: [{ 'location.locationId': id }] };
-    const userUsageQuery: any = { $or: [{ locationId: id }] };
+    const adUsageQuery: { $or: Array<Record<string, unknown>> } = { $or: [{ 'location.locationId': id }] };
+    const userUsageQuery: { $or: Array<Record<string, unknown>> } = { $or: [{ locationId: id }] };
     if (locationSummary?.city && locationSummary?.state) { adUsageQuery.$or.push({ 'location.city': locationSummary.city, 'location.state': locationSummary.state }); userUsageQuery.$or.push({ 'location.city': locationSummary.city, 'location.state': locationSummary.state }); }
     const [adsCount, usersCount] = await Promise.all([countAdsForLocation(adUsageQuery), countUsersForLocation(userUsageQuery)]);
     if (adsCount > 0 || usersCount > 0) throw new AppError(`Cannot delete location "${locationSummary?.name || location.name}". It is currently used by ${adsCount} ads and ${usersCount} users. Consider deactivating it instead.`, 409);

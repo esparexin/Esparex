@@ -1,5 +1,5 @@
-type FilterQuery<T = unknown> = Record<string, unknown>;
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+type FilterQuery = Record<string, unknown>;
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
 import Model from '../models/Model';
@@ -22,7 +22,7 @@ export interface MigrationStats {
  * on catalog collections with `CATALOG_APPROVAL_STATUS.APPROVED`.
  */
 export async function runCatalogApprovalStatusMigration(): Promise<MigrationStats> {
-    const missingFilter: FilterQuery<unknown> = {
+    const missingFilter: FilterQuery = {
         $or: [
             { approvalStatus: { $exists: false } },
             { approvalStatus: null },

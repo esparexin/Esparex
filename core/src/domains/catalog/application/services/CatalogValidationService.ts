@@ -1,8 +1,8 @@
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
-    CatalogFacade,
-} from '@esparex/shared';
+} from '@esparex/contracts';
+import { CatalogFacade } from '@esparex/shared';
 import { validateObjectIdOrThrow } from '../../../../utils/idUtils';
 import {
     applyCatalogGovernanceDefaults,

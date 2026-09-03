@@ -2,7 +2,7 @@ import { getBucketName, uploadToS3 } from './s3';
 import crypto from 'crypto';
 import logger from './logger';
 import { env } from '../config/env';
-import { imageDomainRegistry } from "@esparex/shared";
+import { imageDomainRegistry } from "@esparex/contracts";
 
 let cached: typeof import('sharp') | undefined;
 
