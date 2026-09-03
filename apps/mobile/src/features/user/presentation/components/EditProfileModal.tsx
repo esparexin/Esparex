@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
 import { AppText, AppButton, AppInput, AppModalSheet } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
 import { User } from '@esparex/contracts';
 
 interface EditProfileModalProps {

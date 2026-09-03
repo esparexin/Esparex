@@ -115,7 +115,7 @@ export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: Busine
           { text: 'OK', onPress: () => onSuccess && onSuccess() },
         ]);
       },
-      onError: (err: any) => {
+      onError: (err: Error) => {
         Alert.alert('Submission Error', err?.message || 'Unable to submit business application. Please try again.');
       },
     });

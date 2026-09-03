@@ -40,7 +40,7 @@ const SUBMIT_LABELS: Record<string, string> = {
 
 export const PostAdScreen = () => {
   const { status: authStatus } = useAuth();
-  const { state, nextStep, previousStep, reset } = usePostAdDraft();
+  const { state, nextStep, previousStep } = usePostAdDraft();
   const { currentStep, draft } = state;
   const { submit, status, submitError, resetError } = useSubmitAd();
 

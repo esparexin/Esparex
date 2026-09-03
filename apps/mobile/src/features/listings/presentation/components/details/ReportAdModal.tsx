@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
-import { AppText, AppIcon, AppButton, AppModalSheet } from '@esparex/mobile-ui';
+import { AppText, AppButton, AppModalSheet } from '@esparex/mobile-ui';
 import { REPORT_REASON, ReportReasonValue } from '@esparex/contracts';
 import { services } from '../../../../../bootstrap';
 
