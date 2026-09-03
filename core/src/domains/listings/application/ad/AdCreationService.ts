@@ -93,7 +93,7 @@ const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined 
     return new mongoose.Types.ObjectId(value);
 };
 
-const extractBusinessLocationId = (business: any): mongoose.Types.ObjectId | undefined => {
+const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown }): mongoose.Types.ObjectId | undefined => {
     const rawBusinessLocationId =
         business.locationId
         || (typeof business.location === 'object' && business.location
@@ -308,7 +308,7 @@ export class AdCreationService {
                     );
                 }
 
-                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id: any) => id.toString());
+                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id) => String(id));
             }
         }
 
@@ -430,7 +430,7 @@ export class AdCreationService {
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
             const { calculateServiceQuality } = await import('../../../../utils/serviceQuality');
-            let merged: any = { ...payload };
+            let merged: Record<string, unknown> = { ...payload };
             if (partial && adId) {
                 const existing = await getListingRepository().findById(adId);
                 if (existing) {
