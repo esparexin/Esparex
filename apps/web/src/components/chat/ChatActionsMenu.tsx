@@ -11,8 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { chatApi } from "@/lib/api/chatApi";
-import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
+import { useChatActions } from '@/hooks/useChatActions';
 import { CHAT_REPORT_REASON } from "@esparex/contracts";
 
 
@@ -42,13 +41,14 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
+  const { block, hide, unhide, report } = useChatActions({ conversationId });
+
   const handleBlock = async () => {
     setIsSubmitting(true);
     try {
-      await chatApi.block(conversationId);
+      await block();
       setFeedback('User blocked. This chat is now read-only.');
       setModal(null);
-      dispatchChatInboxUpdated();
       onActionComplete('block');
     } catch {
       setFeedback('Failed to block. Please try again.');
@@ -60,8 +60,7 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
   const handleReport = async () => {
     setIsSubmitting(true);
     try {
-      await chatApi.report({
-        conversationId,
+      await report({
         reason: reportReason,
         description: reportDesc.trim() || undefined,
       });
@@ -78,10 +77,9 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
   const handleHide = async () => {
     setIsSubmitting(true);
     try {
-      await chatApi.hide(conversationId);
+      await hide();
       setFeedback('Conversation hidden from your inbox.');
       setModal(null);
-      dispatchChatInboxUpdated();
       onActionComplete('hide');
     } catch {
       setFeedback('Failed to hide. Please try again.');
@@ -93,9 +91,8 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
   const handleRestore = async () => {
     setIsSubmitting(true);
     try {
-      await chatApi.unhide(conversationId);
+      await unhide();
       setFeedback('Conversation restored to your inbox.');
-      dispatchChatInboxUpdated();
       onActionComplete('restore');
     } catch {
       setFeedback('Failed to restore. Please try again.');

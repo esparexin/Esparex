@@ -57,7 +57,8 @@ function parseStatusOutput(rawOutput) {
     if (parts.length >= 2) {
       const status = parts[0];
       const filePath = parts[parts.length - 1]; // Handles renames R100 old new -> new
-      map.set(filePath, status.charAt(0)); // Normalized to A, M, D, R, etc.
+      const oldPath = (status.charAt(0) === 'R' && parts.length >= 3) ? parts[1] : filePath;
+      map.set(filePath, { status: status.charAt(0), oldPath }); // Normalized to A, M, D, R, etc.
     }
   }
   return map;
@@ -132,7 +133,9 @@ function run() {
   let auditedCount = 0;
   let violations = [];
 
-  for (const [relFile, status] of statusMap.entries()) {
+  for (const [relFile, entry] of statusMap.entries()) {
+    const status = typeof entry === 'string' ? entry : entry.status;
+    const oldPath = typeof entry === 'string' ? relFile : entry.oldPath;
     if (status === 'D') continue; // Deleted files are ignored
     if (!/\.(ts|tsx)$/.test(relFile) || relFile.endsWith('.d.ts') || relFile.includes('node_modules')) continue;
 
@@ -156,7 +159,7 @@ function run() {
       }
     } else if (status === 'M' || status === 'R') {
       // MODIFIED FILE: Baseline ratchet check (+5 lines tolerance for formatting/tokens)
-      const baseLines = getBaseLineCount(relFile);
+      const baseLines = getBaseLineCount(oldPath);
       const maxAllowed = Math.max(matchedRule.max, baseLines + 5);
       if (currentLines > maxAllowed) {
         violations.push({

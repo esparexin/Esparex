@@ -6,7 +6,6 @@ import { PostAdFormSkeleton } from "./loading/PostAdFormSkeleton";
 import { AlertCircle, RefreshCcw, WifiOff } from "@/icons/IconRegistry";
 import { useBackendStatus } from "@/context/BackendStatusContext";
 import { mapErrorToMessage } from "@/lib/errorMapper";
-import { apiClient } from "@/lib/api/client";
 import { Button } from "@esparex/ui";
 
 /**
@@ -20,7 +19,7 @@ import { Button } from "@esparex/ui";
  *
  * GOVERNANCE FIX:
  * - Replaces window.location.reload() with soft state recovery.
- * - Offline retry: triggers a fresh health check via apiClient.
+ * - Offline retry: triggers a fresh health check via useBackendStatus.
  * - Error retry: clears the load error and re-triggers catalog loading.
  * - Preserves React Query cache and all application state.
  * - Prevents SSR re-execution and request storms.
@@ -28,7 +27,7 @@ import { Button } from "@esparex/ui";
 export function PostAdShell({ children }: { children: React.ReactNode }) {
     const { isLoading, loadError } = usePostAdState();
     const { setLoadError, loadBrandsForCategory } = usePostAdAction();
-    const { isBackendUp } = useBackendStatus();
+    const { isBackendUp, recheckHealth } = useBackendStatus();
 
     /**
      * Offline retry handler.
@@ -38,8 +37,8 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
      * Does NOT reload the page or restart SSR.
      */
     const handleOfflineRetry = useCallback(() => {
-        void apiClient.checkHealth();
-    }, []);
+        void recheckHealth();
+    }, [recheckHealth]);
 
     /**
      * Error retry handler.

@@ -8,9 +8,7 @@ import {
   type CatalogSlugEntity,
   type CatalogSlugRecord,
 } from "@/components/catalog/CatalogSlugPage";
-import { unwrapApiPayload } from "@/lib/api/result";
-import { API_ROUTES } from "@/lib/api/routes";
-import { fetchUserApiJson } from "@/lib/api/user/server";
+import { fetchCatalogRecordServer } from "@/lib/api/user/masterData";
 import { getAdsPage } from "@/lib/api/user/listings";
 import { buildCatalogLinkedBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { generateAdSlug } from "@/lib/slug";
@@ -18,28 +16,6 @@ import { generateAdSlug } from "@/lib/slug";
 type CatalogSlugRouteProps = {
   params: Promise<{ slug: string }>;
 };
-
-type CatalogBrandPayload = {
-  id?: string;
-  _id?: string;
-  name?: string;
-  slug?: string;
-};
-
-type CatalogModelPayload = {
-  id?: string;
-  _id?: string;
-  name?: string;
-  brandId?:
-    | string
-    | {
-        id?: string;
-        _id?: string;
-        name?: string;
-      };
-};
-
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 const extractId = (value: unknown): string | null => {
   if (typeof value === "string" && value.trim()) {
@@ -111,21 +87,8 @@ const resolveCatalogRecord = cache(
     identifier: string,
     fetchById: boolean
   ): Promise<CatalogSlugRecord | null> => {
-    const endpoint = fetchById && OBJECT_ID_PATTERN.test(identifier)
-      ? `${entity === "brand" ? API_ROUTES.USER.BRANDS_BASE : API_ROUTES.USER.MODELS_BASE}/${encodeURIComponent(identifier)}`
-      : entity === "brand"
-        ? API_ROUTES.USER.BRAND_BY_SLUG(identifier)
-        : API_ROUTES.USER.MODEL_BY_SLUG(identifier);
-
-    const response = await fetchUserApiJson(
-      endpoint,
-      {
-        next: { revalidate: 3600 },
-      },
-      { returnNullOnHttpError: true }
-    );
-
-    return normalizeCatalogRecord(entity, unwrapApiPayload<CatalogBrandPayload | CatalogModelPayload>(response));
+    const payload = await fetchCatalogRecordServer(entity, identifier, fetchById);
+    return normalizeCatalogRecord(entity, payload);
   }
 );
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { API_ROUTES } from "@/lib/api/routes";
 import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
@@ -8,12 +8,14 @@ type BackendStatus = {
     isBackendUp: boolean;
     checked: boolean;
     apiBaseUrl: string;
+    recheckHealth: () => Promise<void>;
 };
 
 const BackendStatusContext = createContext<BackendStatus>({
     isBackendUp: true,
     checked: false,
     apiBaseUrl: "",
+    recheckHealth: async () => {},
 });
 
 const HEALTH_CHECK_INTERVAL_MS = 2 * 60 * 1000; // re-check every 2 minutes
@@ -29,10 +31,21 @@ export function BackendStatusProvider({
     const [isBackendUp, setIsBackendUp] = useState(true);
     const [checked, setChecked] = useState(false);
 
+    const recheckHealth = useCallback(async () => {
+        try {
+            const res = await fetch(`${apiBaseUrl}/${API_ROUTES.USER.HEALTH}`, { method: "GET" });
+            setIsBackendUp(res.ok);
+        } catch {
+            setIsBackendUp(false);
+        } finally {
+            setChecked(true);
+        }
+    }, [apiBaseUrl]);
+
     useEffect(() => {
         const check = () => {
             fetch(`${apiBaseUrl}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
-                .then(() => setIsBackendUp(true))
+                .then((res) => setIsBackendUp(res.ok))
                 .catch(() => setIsBackendUp(false))
                 .finally(() => setChecked(true));
         };
@@ -43,8 +56,8 @@ export function BackendStatusProvider({
     }, [apiBaseUrl]);
 
     const value = useMemo(
-        () => ({ isBackendUp, checked, apiBaseUrl }),
-        [apiBaseUrl, checked, isBackendUp]
+        () => ({ isBackendUp, checked, apiBaseUrl, recheckHealth }),
+        [apiBaseUrl, checked, isBackendUp, recheckHealth]
     );
 
     return (
