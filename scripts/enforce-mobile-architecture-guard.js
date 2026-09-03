@@ -140,6 +140,62 @@ for (const filePath of allFiles) {
       });
     }
   });
+
+  // Rule 5: React Rules-of-Hooks Governance — No hook calls inside try/catch blocks
+  if (filePath.endsWith(".tsx") && !filePath.includes(".spec.") && !filePath.includes(".test.")) {
+    const tryBlockRegex = /try\s*\{[^}]*\buse[A-Z]\w*\s*\(/gs;
+    let match;
+    while ((match = tryBlockRegex.exec(content)) !== null) {
+      const matchIndex = match.index;
+      const lineNum = content.slice(0, matchIndex).split("\n").length;
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: "React hooks (use*) must never be called inside try/catch blocks. Provide safe fallback context.",
+        code: match[0].replace(/\s+/g, " ").slice(0, 80),
+      });
+    }
+  }
+
+  // Rule 6: Multi-Step Form Wizard Hardware BackHandler Enforcement (Screen level)
+  if (
+    filePath.endsWith("Screen.tsx") &&
+    (relPath.includes("Wizard") || content.includes("WizardStep") || content.includes("STEPS_ORDER"))
+  ) {
+    if (!content.includes("BackHandler") || !content.includes("hardwareBackPress")) {
+      violations.push({
+        file: relPath,
+        line: 1,
+        rule: "Multi-step form wizards on Android must handle hardwareBackPress via BackHandler to prevent losing user progress.",
+        code: "Missing BackHandler.addEventListener('hardwareBackPress', ...)",
+      });
+    }
+  }
+}
+
+// Rule 7: Orphan Screen Prevention Gate (All presentation screens must be registered in navigation)
+const navigationFiles = walk(path.join(mobileSrcDir, "navigation"));
+const navigationContent = navigationFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n");
+const screenFiles = allFiles.filter(
+  (f) =>
+    f.includes(path.sep + "presentation" + path.sep + "screens" + path.sep) &&
+    f.endsWith(".tsx") &&
+    !f.includes(".spec.") &&
+    !f.includes(".test.") &&
+    !f.includes(".styles.")
+);
+
+for (const screenFile of screenFiles) {
+  const screenName = path.basename(screenFile, ".tsx");
+  if (!navigationContent.includes(screenName)) {
+    const relScreenPath = toUnixPath(path.relative(mobileSrcDir, screenFile));
+    violations.push({
+      file: relScreenPath,
+      line: 1,
+      rule: "Dead/Orphan Screen Detected: Every screen component must be mounted in a navigation stack or registered in routes.ts.",
+      code: `Screen '${screenName}' is not referenced in apps/mobile/src/navigation/`,
+    });
+  }
 }
 
 // Global Repository Capacitor Artifact Prevention Check
@@ -170,7 +226,7 @@ if (violations.length > 0) {
   }
   process.exit(1);
 } else {
-  console.log("✅ Mobile Architecture Guard: All mobile layer boundaries and zero-Capacitor gates clean.");
+  console.log("✅ Mobile Architecture Guard: All mobile layer boundaries, hook hygiene, screen registry, and platform rules clean.");
   process.exit(0);
 }
 
