@@ -6,74 +6,34 @@ export class ListingService {
   constructor(private readonly repository: IListingRepository) {}
 
   public async getMarketplaceFeed(params?: ListingQueryParams): Promise<readonly Listing[]> {
-    try {
-      return await this.repository.getListings(params);
-    } catch (error) {
-      console.error('ListingService.getMarketplaceFeed failed:', error);
-      throw error;
-    }
+    return this.repository.getListings(params);
   }
 
   public async getListingDetails(id: string): Promise<Listing> {
-    try {
-      return await this.repository.getListingById(id);
-    } catch (error) {
-      console.error(`ListingService.getListingDetails failed for ID ${id}:`, error);
-      throw error;
-    }
+    return this.repository.getListingById(id);
   }
 
   public async getMyListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
-    try {
-      return await this.repository.getMyListings(params);
-    } catch (error) {
-      console.error('ListingService.getMyListings failed:', error);
-      throw error;
-    }
+    return this.repository.getMyListings(params);
   }
 
   public async getSavedListings(): Promise<readonly Listing[]> {
-    try {
-      return await this.repository.getSavedListings();
-    } catch (error) {
-      console.error('ListingService.getSavedListings failed:', error);
-      throw error;
-    }
+    return this.repository.getSavedListings();
   }
 
   public async toggleSaveListing(adId: string, isSaved: boolean): Promise<void> {
-    try {
-      return await this.repository.toggleSaveListing(adId, isSaved);
-    } catch (error) {
-      console.error(`ListingService.toggleSaveListing failed for ID ${adId}:`, error);
-      throw error;
-    }
+    return this.repository.toggleSaveListing(adId, isSaved);
   }
 
   public async updateListing(id: string, request: Partial<CreateListingRequest>): Promise<Listing> {
-    try {
-      return await this.repository.update(id, request);
-    } catch (error) {
-      console.error(`ListingService.updateListing failed for ID ${id}:`, error);
-      throw error;
-    }
+    return this.repository.update(id, request);
   }
 
   public async getCategories(): Promise<readonly Category[]> {
-    try {
-      return await this.repository.getCategories();
-    } catch (error) {
-      console.error('ListingService.getCategories failed:', error);
-      throw error;
-    }
+    return this.repository.getCategories();
   }
 
   public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
-    try {
-      return await this.repository.reportListing(adId, reason, description);
-    } catch (error) {
-      console.error(`ListingService.reportListing failed for ID ${adId}:`, error);
-      throw error;
-    }
+    return this.repository.reportListing(adId, reason, description);
   }
 }
