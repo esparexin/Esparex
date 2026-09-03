@@ -30,10 +30,10 @@ export class ApiCatalogDependentsRepository {
         `/brands?categoryId=${encodeURIComponent(categoryId)}`
       ).catch(() => ({ data: [] }));
 
-      const raw = Array.isArray((response as any)?.data)
-        ? (response as any).data
-        : Array.isArray(response)
+      const raw: ApiItemDto[] = Array.isArray(response)
         ? response
+        : Array.isArray(response?.data)
+        ? response.data
         : [];
 
       return raw.map((b: ApiItemDto) => ({
@@ -51,10 +51,10 @@ export class ApiCatalogDependentsRepository {
         `/spare-parts?categoryId=${encodeURIComponent(categoryId)}`
       ).catch(() => ({ data: [] }));
 
-      const raw = Array.isArray((response as any)?.data)
-        ? (response as any).data
-        : Array.isArray(response)
+      const raw: ApiItemDto[] = Array.isArray(response)
         ? response
+        : Array.isArray(response?.data)
+        ? response.data
         : [];
 
       return raw.map((p: ApiItemDto) => ({
@@ -73,10 +73,10 @@ export class ApiCatalogDependentsRepository {
         `/models?brandId=${encodeURIComponent(brandId)}`
       ).catch(() => ({ data: [] }));
 
-      const raw = Array.isArray((response as any)?.data)
-        ? (response as any).data
-        : Array.isArray(response)
+      const raw: ApiItemDto[] = Array.isArray(response)
         ? response
+        : Array.isArray(response?.data)
+        ? response.data
         : [];
 
       return raw.map((m: ApiItemDto) => ({
