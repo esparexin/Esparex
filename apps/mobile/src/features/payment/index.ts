@@ -10,5 +10,4 @@ export * from './presentation/hooks/useWalletSummary';
 export * from './presentation/hooks/useCheckoutPayment';
 export * from './presentation/screens/PlanSelectionScreen';
 export * from './presentation/screens/TransactionHistoryScreen';
-export * from './presentation/screens/PlansWalletDashboardScreen';
-export * from './presentation/hooks/usePlansWalletDashboard';
+
