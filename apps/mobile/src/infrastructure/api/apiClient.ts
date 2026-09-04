@@ -128,6 +128,26 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+type UnauthorizedListener = () => void;
+const unauthorizedListeners = new Set<UnauthorizedListener>();
+
+export const onUnauthorized = (listener: UnauthorizedListener): (() => void) => {
+  unauthorizedListeners.add(listener);
+  return () => {
+    unauthorizedListeners.delete(listener);
+  };
+};
+
+export const notifyUnauthorized = (): void => {
+  unauthorizedListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {
+      // Ignore listener error
+    }
+  });
+};
+
 // Response Interceptor: Handle 401 Unauthorized
 apiClient.interceptors.response.use(
   (response) => response,
@@ -135,7 +155,9 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       TokenProvider.clearCache();
       await SecureStoreAdapter.clearTokens().catch(() => {});
+      notifyUnauthorized();
     }
     return Promise.reject(error);
   }
 );
+

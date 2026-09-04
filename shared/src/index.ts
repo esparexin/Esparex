@@ -5,6 +5,7 @@
 // adLimits, fieldLimits, adminNotificationTargets, mobileVisibility constants,
 // locationEvents, notificationRetention are all now in @esparex/contracts above.
 export * from './constants/bannedWords';
+export * from './constants/legal';
 // normalizeMobileVisibility is a utility function — not in contracts, stays here
 export { normalizeMobileVisibility } from './constants/mobileVisibility';
 
