@@ -239,18 +239,23 @@ export class CatalogOrchestratorImpl {
         logger.info(`Detached spare parts from model: ${modelId}`);
     }
 
-    async deleteCategoryOrchestrated(categoryId: string): Promise<CategoryResult> {
+    async deleteCategoryOrchestrated(categoryId: string): Promise<{ id: string; alreadyDeleted: boolean }> {
+        const existingCategory = await this.categoryRepository.findById(categoryId, true);
+        if (!existingCategory) {
+            throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
+        }
+
+        if (existingCategory.isDeleted) {
+            await this.invalidateCatalogCache({ categoryIds: [categoryId] });
+            return { id: categoryId, alreadyDeleted: true };
+        }
+
         return this.unitOfWork.executeTransaction(async (txSession) => {
-            const category = await this.categoryRepository.findById(categoryId, txSession);
-
-            if (!category) {
-                throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
-            }
-
             await this.categoryRepository.softDelete(categoryId, txSession);
-            await this.cascadeCategoryDelete(categoryId, txSession);
+            await this.cascadeCategoryDelete(categoryId, txSession ?? undefined);
+            await this.invalidateCatalogCache({ categoryIds: [categoryId] });
 
-            return await this.categoryRepository.findById(categoryId, txSession) as CategoryResult;
+            return { id: categoryId, alreadyDeleted: false };
         });
     }
 

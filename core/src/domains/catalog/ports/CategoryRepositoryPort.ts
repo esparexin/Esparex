@@ -29,7 +29,7 @@ export interface Category {
 }
 
 export interface CategoryRepositoryPort {
-    findById(id: string, tx?: unknown): Promise<Category | null>;
+    findById(id: string, includeDeleted?: boolean, tx?: unknown): Promise<Category | null>;
     findBySlug(slug: string, tx?: unknown): Promise<Category | null>;
     exists(id: string, tx?: unknown): Promise<boolean>;
     resolveActiveCategoryIds(categoryIds?: readonly CategoryId[], tx?: unknown): Promise<readonly CategoryId[]>;
