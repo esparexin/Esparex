@@ -19,12 +19,8 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import {
-    buildUrlWithSearchParams,
-    normalizeSearchParamValue,
-    parsePositiveIntParam,
-    updateSearchParams,
-} from "@/lib/urlSearchParams";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
 const DEFAULT_STATUS = "all";
 const FINANCE_STATUSES = new Set(["all", "SUCCESS", "FAILED", "INITIATED"]);
@@ -56,13 +52,11 @@ export default function FinancePage() {
                 : DEFAULT_STATUS;
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [pathname, router, searchParams]);
+    const { replaceQueryState } = useAdminQuerySync({
+        loading,
+        initialPage: page,
+        totalPages: pagination.pages,
+    });
 
     const fetchFinanceData = useCallback(async () => {
         setLoading(true);
@@ -97,29 +91,6 @@ export default function FinancePage() {
         }, 300);
         return () => clearTimeout(timer);
     }, [fetchFinanceData]);
-
-    useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                search: null,
-                q: search,
-                status: rawStatus === null ? null : statusFilter,
-                page: page > 1 ? page : null,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [page, pathname, rawStatus, router, search, searchParams, statusFilter]);
-
-    useEffect(() => {
-        if (!loading && page > pagination.pages) {
-            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
-        }
-    }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<Transaction>[] = [
         {

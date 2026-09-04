@@ -11,19 +11,15 @@ import {
     Calendar,
     Terminal,
 } from "@esparex/ui";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminLog } from "@/types/audit";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import {
-    buildUrlWithSearchParams,
-    normalizeSearchParamValue,
-    parsePositiveIntParam,
-    updateSearchParams,
-} from "@/lib/urlSearchParams";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 
 const ACTION_OPTIONS = [
@@ -74,13 +70,11 @@ export default function AuditLogsPage() {
     const targetTypeFilter = normalizeSearchParamValue(rawTargetType) || "all";
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [pathname, router, searchParams]);
+    const { replaceQueryState } = useAdminQuerySync({
+        loading,
+        initialPage: page,
+        totalPages: pagination.pages,
+    });
 
     const statusOptions = useMemo(() => {
         if (actionFilter === "all" || ACTION_OPTIONS.some((option) => option.value === actionFilter)) {
@@ -105,30 +99,6 @@ export default function AuditLogsPage() {
         }, 300);
         return () => clearTimeout(timer);
     }, [actionFilter, targetTypeFilter, page, search, getAuditLogs]);
-
-    useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                q: search || null,
-                search: null,
-                action: actionFilter === "all" ? null : actionFilter,
-                targetType: targetTypeFilter === "all" ? null : targetTypeFilter,
-                page: page > 1 ? page : null,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [actionFilter, targetTypeFilter, page, pathname, router, search, searchParams]);
-
-    useEffect(() => {
-        if (!loading && page > pagination.pages) {
-            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
-        }
-    }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<AdminLog>[] = [
         {
