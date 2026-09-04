@@ -1,4 +1,4 @@
-import { IdProofTypeValue } from '@esparex/contracts';
+import { Business, IdProofTypeValue } from '@esparex/contracts';
 
 export interface BusinessFormDocument {
   type: 'id_proof' | 'business_proof' | 'certificate';
@@ -35,3 +35,26 @@ export const INITIAL_BUSINESS_FORM_STATE: BusinessFormState = {
   pincode: '',
   documents: [],
 };
+
+export function businessToFormState(business: Business): BusinessFormState {
+  return {
+    name: business.name || '',
+    description: business.description || '',
+    businessType: business.businessTypes?.[0] || 'Repair services',
+    mobile: business.mobile || '',
+    email: business.email || '',
+    website: business.website || '',
+    gstNumber: business.gstNumber || '',
+    address: business.location?.address || '',
+    city: business.location?.city || '',
+    state: business.location?.state || '',
+    pincode: business.location?.pincode || '',
+    documents: Array.isArray(business.documents)
+      ? business.documents.map((doc) => ({
+          type: doc.type,
+          url: doc.url,
+          idProofType: doc.idProofType,
+        }))
+      : [],
+  };
+}

@@ -14,6 +14,7 @@ export interface NearbyBusinessesParams {
 export interface IBusinessRepository {
   getMyBusiness(): Promise<Business | null>;
   registerBusiness(state: BusinessFormState): Promise<Business>;
+  updateBusiness(businessId: string, state: Partial<BusinessFormState>): Promise<Business>;
   uploadDocument(uri: string, fileType: string): Promise<string>;
   getNearbyBusinesses(params?: NearbyBusinessesParams): Promise<readonly Business[]>;
 }

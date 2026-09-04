@@ -44,11 +44,14 @@ export class ApiAiGenerationRepository {
       });
 
       const output = response.data || response;
-      if (targetField === 'title' && output.title) {
-        return output.title.slice(0, MAX_AD_TITLE_CHARS);
+      const title = output.data?.title || output.title;
+      const description = output.data?.description || output.description;
+
+      if (targetField === 'title' && title) {
+        return title.slice(0, MAX_AD_TITLE_CHARS);
       }
-      if (targetField === 'description' && output.description) {
-        return output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
+      if (targetField === 'description' && description) {
+        return description.slice(0, MAX_AD_DESCRIPTION_CHARS);
       }
     } catch {
       // Safe instant fallback generation when network or AI quota is unavailable

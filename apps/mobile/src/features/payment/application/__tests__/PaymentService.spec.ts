@@ -13,7 +13,6 @@ describe('PaymentService', () => {
       openNativeCheckout: jest.fn(),
       getWalletSummary: jest.fn(),
       getTransactionHistory: jest.fn(),
-      getPlansWalletDashboard: jest.fn(),
     };
     service = new PaymentService(mockRepository);
   });
@@ -32,6 +31,23 @@ describe('PaymentService', () => {
     const result = await service.createPaymentOrder('plan_123');
     expect(result).toEqual(order);
     expect(mockRepository.createPaymentOrder).toHaveBeenCalledWith('plan_123');
+  });
+
+  it('delegates getWalletSummary to repository', async () => {
+    const wallet = { adCredits: 5, spotlightCredits: 1, smartAlertSlots: 3 };
+    mockRepository.getWalletSummary.mockResolvedValue(wallet);
+
+    const result = await service.getWalletSummary();
+    expect(result).toEqual(wallet);
+    expect(mockRepository.getWalletSummary).toHaveBeenCalled();
+  });
+
+  it('delegates getTransactionHistory to repository', async () => {
+    mockRepository.getTransactionHistory.mockResolvedValue([]);
+
+    const result = await service.getTransactionHistory();
+    expect(result).toEqual([]);
+    expect(mockRepository.getTransactionHistory).toHaveBeenCalled();
   });
 
   it('processes checkout for standard paid order and verifies payment', async () => {

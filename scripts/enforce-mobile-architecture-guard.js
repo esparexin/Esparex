@@ -90,7 +90,7 @@ for (const filePath of allFiles) {
 
     // (Concrete Api* / Expo* adapters are allowed to import infrastructure / native modules)
     const isConcreteApiAdapter =
-      /(^|\/)Api[A-Z]\w+\.ts$/.test(relPath) ||
+      /(^|\/)Api[A-Z]\w+(\.spec|\.test)?\.ts$/.test(relPath) ||
       relPath.endsWith("ImageUploadService.ts") ||
       relPath.endsWith("ExpoImagePicker.ts") ||
       relPath.includes("/infrastructure/");

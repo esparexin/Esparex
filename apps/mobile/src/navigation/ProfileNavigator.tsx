@@ -29,8 +29,10 @@ function MyListingsWrapper({ navigation }: WrapperProps) {
 }
 
 function BusinessRegistrationWrapper({ navigation }: WrapperProps) {
+  const { data: business } = useBusinessProfile();
   return (
     <BusinessRegistrationWizardScreen
+      initialBusiness={business}
       onSuccess={() => navigation.navigate(ROUTES.PROFILE_OVERVIEW)}
       onCancel={() => navigation.goBack()}
     />

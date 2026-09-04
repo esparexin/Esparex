@@ -15,7 +15,7 @@ type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE
 export const SettingsScreen = ({ navigation }: Props) => {
   const { data: profile, isLoading, isError, refetch } = useProfile();
   const updateProfileMutation = useUpdateProfile();
-  const { logout } = useAuth();
+  const { logout, status: authStatus } = useAuth();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
@@ -61,6 +61,12 @@ export const SettingsScreen = ({ navigation }: Props) => {
         <ErrorState onRetry={refetch} />
       </Screen>
     );
+  }
+
+  // SettingsScreen is always accessed from an authenticated profile navigator;
+  // guard anonymous state defensively to prevent blank renders on deep link entry.
+  if (authStatus === 'anonymous') {
+    return null;
   }
 
   return (

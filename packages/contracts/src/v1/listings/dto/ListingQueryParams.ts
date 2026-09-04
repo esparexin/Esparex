@@ -3,6 +3,7 @@ export interface ListingQueryParams {
   limit?: number;
   categoryId?: string;
   search?: string;
+  status?: string;
   condition?: string;
   deviceCondition?: 'power_on' | 'power_off';
   brandId?: string;

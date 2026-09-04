@@ -1,4 +1,4 @@
-import { Plan, PlansWalletV1DTO } from '@esparex/contracts';
+import { Plan } from '@esparex/contracts';
 import { PaymentOrder } from '../domain/PaymentOrder';
 import { WalletSummary } from '../domain/WalletSummary';
 import { PaymentTransaction } from '../domain/PaymentTransaction';
@@ -22,5 +22,4 @@ export interface IPaymentRepository {
   openNativeCheckout(order: PaymentOrder): Promise<PaymentSuccessResult>;
   getWalletSummary(): Promise<WalletSummary>;
   getTransactionHistory(): Promise<PaymentTransaction[]>;
-  getPlansWalletDashboard(): Promise<PlansWalletV1DTO | null>;
 }

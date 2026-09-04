@@ -147,6 +147,9 @@ async function auditLocalSourceFiles() {
   if (sitemapContent.includes('?limit=1000&page=1') && sitemapContent.includes('${url}?')) {
     issues.push('sitemap.ts contains possible double ? concatenation');
   }
+  if (sitemapContent.includes('lastModified:') || sitemapContent.includes('changeFrequency:') || sitemapContent.includes('priority:')) {
+    issues.push('sitemap.ts contains unnecessary metadata (lastModified, changeFrequency, priority) — sitemap must emit loc only');
+  }
 
   // 2. Check web robots.ts
   const robotsFile = path.join(projectRoot, 'src/app/robots.ts');
