@@ -34,6 +34,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
     metadataBase,
+    applicationName: 'Esparex',
     manifest: '/manifest.json',
     icons: {
         icon: [
@@ -46,6 +47,9 @@ export const metadata: Metadata = {
         ],
     },
     openGraph: {
+        siteName: 'Esparex',
+        type: 'website',
+        locale: 'en_IN',
         images: [
             {
                 url: '/og-image.png',
@@ -57,6 +61,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
+        site: '@esparexin',
+        creator: '@esparexin',
         images: ['/og-image.png'],
     },
 };

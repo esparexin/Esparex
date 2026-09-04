@@ -168,8 +168,9 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
                         <input
                             {...register("email")}
                             className={inputClassName}
-                            placeholder="Email"
+                            placeholder="Admin email address"
                             type="email"
+                            autoComplete="email"
                             autoCapitalize="none"
                             autoCorrect="off"
                         />
@@ -181,8 +182,9 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
                             <input
                                 {...register("password")}
                                 className={inputClassName}
-                                placeholder="Password"
+                                placeholder="Set initial password"
                                 type="password"
+                                autoComplete="new-password"
                             />
                             <FieldError message={"password" in errors ? errors.password?.message : undefined} />
                         </div>

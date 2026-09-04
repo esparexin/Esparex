@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
                                 <input
                                     className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
                                     value={permissionsDraft}
-                                    placeholder="users:read, ads:write, ..."
+                                    placeholder="e.g. users:read, listings:write"
                                     onChange={(e) => setPermissionsDraft(e.target.value)}
                                 />
                                 <button
@@ -283,7 +283,7 @@ export default function AdminUsersPage() {
                         submitIcon={UserPlus}
                         secondaryIcon={XCircle}
                         isSubmitting={isMutating}
-                        permissionsPlaceholder="Permissions, comma separated (example: users:read, ads:write)"
+                        permissionsPlaceholder="Comma-separated permission scopes (e.g. users:read, listings:write)"
                         onSubmit={onCreate}
                         onSecondary={() => setShowCreateForm(false)}
                     />
