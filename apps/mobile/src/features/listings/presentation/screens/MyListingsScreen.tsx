@@ -37,7 +37,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useMyListings(selectedStatus ? { condition: selectedStatus } : undefined);
+  } = useMyListings(selectedStatus ? { status: selectedStatus } : undefined);
 
   const handlePress = useCallback((id: string) => {
     navigate(ROUTES.MAIN_STACK, {

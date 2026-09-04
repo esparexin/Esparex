@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 
 jest.mock('../../../../../providers/AuthProvider', () => ({
   useAuth: () => ({ status: 'authenticated' }),
@@ -101,5 +101,21 @@ describe('MyListingsScreen Component', () => {
     const { getByText } = render(<MyListingsScreen />);
     expect(getByText('No Listings Found')).toBeTruthy();
     expect(getByText("You haven't created any ads yet.")).toBeTruthy();
+  });
+
+  it('filters by status when a status tab is selected', () => {
+    mockUseMyListings.mockReturnValue({
+      data: { pages: [[]], pageParams: [1] },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      fetchNextPage: jest.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    } as any);
+
+    const { getByText } = render(<MyListingsScreen />);
+    fireEvent.press(getByText('Live'));
+    expect(mockUseMyListings).toHaveBeenCalledWith({ status: 'live' });
   });
 });
