@@ -1,12 +1,17 @@
-export const LEGAL_LAST_UPDATED = "August 26, 2026";
-export const LEGAL_EFFECTIVE_DATE = "August 26, 2026";
-
-export const LEGAL_COMPANY_NAME = "Esparex Platform";
-export const LEGAL_COMPANY_LOCATION = "Hyderabad, Telangana, India";
-export const LEGAL_SUPPORT_EMAIL = "support@esparex.in";
-export const LEGAL_GRIEVANCE_EMAIL = "grievance@esparex.in";
-export const LEGAL_BUSINESS_EMAIL = "business@esparex.in";
-export const LEGAL_SUPPORT_PHONE = "+91 9030787819";
-export const LEGAL_GRIEVANCE_OFFICER = "Kalyan V Medaboina";
-export const LEGAL_GRIEVANCE_DESIGNATION = "Grievance Officer & Trust & Safety Lead";
-
+export {
+    LEGAL_LAST_UPDATED,
+    LEGAL_EFFECTIVE_DATE,
+    LEGAL_COMPANY_NAME,
+    LEGAL_COMPANY_LOCATION,
+    LEGAL_SUPPORT_EMAIL,
+    LEGAL_GRIEVANCE_EMAIL,
+    LEGAL_BUSINESS_EMAIL,
+    LEGAL_SUPPORT_PHONE,
+    LEGAL_GRIEVANCE_OFFICER,
+    LEGAL_GRIEVANCE_DESIGNATION,
+    LEGAL_TIMELINES_ACKNOWLEDGMENT,
+    LEGAL_TIMELINES_DISPOSAL,
+    LEGAL_JURISDICTION,
+    LEGAL_WEB_TERMS_URL,
+    LEGAL_WEB_PRIVACY_URL,
+} from "@esparex/shared";
