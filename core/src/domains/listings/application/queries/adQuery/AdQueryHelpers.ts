@@ -37,18 +37,27 @@ export const extractLocationIdFromAd = (ad: Record<string, unknown>): string | n
 
 export const buildAdSortStage = (filters: { sortBy?: string }): SortStage => {
     const sort: SortStage = {};
+    const sb = (filters.sortBy || '').trim().toLowerCase();
 
-    if (filters.sortBy === 'distance') {
+    if (sb === 'distance') {
         sort.distance = 1;
         sort.createdAt = -1;
-    } else if (filters.sortBy === 'newest') {
+    } else if (sb === 'newest') {
         sort.createdAt = -1;
-    } else if (filters.sortBy === 'price-low') {
+    } else if (sb === 'oldest') {
+        sort.createdAt = 1;
+    } else if (sb === 'price-low' || sb === 'price_low') {
         sort.price = 1;
-    } else if (filters.sortBy === 'price-high') {
+    } else if (sb === 'price-high' || sb === 'price_high') {
         sort.price = -1;
-    } else if (filters.sortBy === 'trending') {
+    } else if (sb === 'trending') {
         sort.rankScore = -1;
+    } else if (sb === 'risk_desc' || sb === 'risk-desc') {
+        sort.fraudScore = -1;
+        sort.createdAt = -1;
+    } else if (sb === 'most_viewed' || sb === 'most-viewed') {
+        sort.viewsCount = -1;
+        sort.createdAt = -1;
     } else {
         sort.listingQualityScore = -1;
         sort.createdAt = -1;
