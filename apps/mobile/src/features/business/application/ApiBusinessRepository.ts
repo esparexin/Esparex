@@ -3,6 +3,7 @@ import { apiClient } from '../../../infrastructure/api/apiClient';
 import { BusinessFormState } from '../domain/BusinessFormState';
 import { IBusinessRepository, NearbyBusinessesParams } from './IBusinessRepository';
 import { CreateBusinessRequestMapper } from './mappers/CreateBusinessRequestMapper';
+import { UpdateBusinessRequestMapper } from './mappers/UpdateBusinessRequestMapper';
 
 export class ApiBusinessRepository implements IBusinessRepository {
   async getMyBusiness(): Promise<Business | null> {
@@ -20,6 +21,12 @@ export class ApiBusinessRepository implements IBusinessRepository {
   async registerBusiness(state: BusinessFormState): Promise<Business> {
     const payload = CreateBusinessRequestMapper.toPayload(state);
     const response = await apiClient.post<{ data: Business }>('/businesses', payload);
+    return response.data.data;
+  }
+
+  async updateBusiness(businessId: string, state: Partial<BusinessFormState>): Promise<Business> {
+    const payload = UpdateBusinessRequestMapper.toPayload(state);
+    const response = await apiClient.patch<{ data: Business }>(`/businesses/${businessId}`, payload);
     return response.data.data;
   }
 

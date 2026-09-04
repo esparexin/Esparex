@@ -57,6 +57,19 @@ describe('BusinessStatusScreen Component', () => {
     expect(getByText(/Verified Business/)).toBeTruthy();
   });
 
+  it('renders edit business profile button and calls onEdit for verified/live businesses', () => {
+    const mockEdit = jest.fn();
+    const liveBusiness = { ...mockBusiness, status: BUSINESS_STATUS.LIVE };
+    const { getByText } = render(
+      <BusinessStatusScreen business={liveBusiness} onEdit={mockEdit} />
+    );
+    expect(getByText(/Verified Business/)).toBeTruthy();
+
+    const editButton = getByText('Edit Business Profile');
+    fireEvent.press(editButton);
+    expect(mockEdit).toHaveBeenCalledTimes(1);
+  });
+
   it('renders update application button and calls onEdit for rejected applications', () => {
     const mockEdit = jest.fn();
     const rejectedBusiness = {

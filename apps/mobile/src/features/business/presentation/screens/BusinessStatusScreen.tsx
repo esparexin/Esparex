@@ -30,6 +30,15 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
             <AppText variant="caption" className="text-foreground-subtle">
               Reviews are typically completed within 24 to 48 hours.
             </AppText>
+            {onEdit && (
+              <AppButton
+                label="Update Application"
+                onPress={onEdit}
+                variant="outline"
+                className="mt-4"
+                accessibilityLabel="Update application details"
+              />
+            )}
           </Card>
         );
 
@@ -47,6 +56,14 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
             <AppText variant="body" className="text-foreground-subtle leading-5">
               Your business is active and verified on the Esparex marketplace. Buyers can discover your listings with the official Business Badge.
             </AppText>
+            {onEdit && (
+              <AppButton
+                label="Edit Business Profile"
+                onPress={onEdit}
+                className="mt-4"
+                accessibilityLabel="Edit business profile"
+              />
+            )}
           </Card>
         );
 
