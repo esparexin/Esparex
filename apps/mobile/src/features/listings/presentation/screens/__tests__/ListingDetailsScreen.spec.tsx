@@ -159,4 +159,21 @@ describe('ListingDetailsScreen', () => {
 
     expect(services.listingService.getListingPhone).toHaveBeenCalledWith('ad-details-100');
   });
+
+  it('renders 3-tab segmented layout and allows switching to Description tab', () => {
+    mockUseListingDetails.mockReturnValue({
+      data: sampleListing,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    const { getByLabelText, getByText } = render(<ListingDetailsScreen />);
+    expect(getByText('Repair Shops')).toBeTruthy();
+    expect(getByText('Description')).toBeTruthy();
+    expect(getByText('Spare Parts')).toBeTruthy();
+
+    const descTab = getByLabelText('Description');
+    fireEvent.press(descTab);
+    expect(getByText('16GB RAM 512GB SSD Space Gray')).toBeTruthy();
+  });
 });

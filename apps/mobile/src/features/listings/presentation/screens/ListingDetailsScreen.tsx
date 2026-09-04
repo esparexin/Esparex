@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator, Alert, Linking, Share } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
-import { navigate } from '../../../../navigation/navigationRef';
 import { useAuth } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
@@ -13,10 +12,8 @@ import { useListingActions } from '../hooks/useListingActions';
 import { ImageCarousel } from '../components/details/ImageCarousel';
 import { PriceSection } from '../components/details/PriceSection';
 import { SellerSection } from '../components/details/SellerSection';
-import { AvailableSparePartsSection } from '../components/details/AvailableSparePartsSection';
-import { DescriptionSection } from '../components/details/DescriptionSection';
+import { ListingContentTabs } from '../components/details/ListingContentTabs';
 import { SafetyTipsSection } from '../components/details/SafetyTipsSection';
-import { NearbyRepairServicesSection } from '../components/details/NearbyRepairServicesSection';
 import { ReportAdModal } from '../components/details/ReportAdModal';
 import { ActionBar } from '../components/details/ActionBar';
 
@@ -89,11 +86,27 @@ export const ListingDetailsScreen = () => {
     );
   }
 
+  const scrollViewRef = useRef<ScrollView>(null);
+  const tabSectionY = useRef<number>(0);
+
+  const handleTabChange = useCallback(() => {
+    if (tabSectionY.current > 0) {
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, tabSectionY.current - 12),
+        animated: true,
+      });
+    }
+  }, []);
+
   const imageUrls = listing.images ? listing.images.map((img) => img.url) : [];
 
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
         <ImageCarousel
           images={imageUrls}
           isSaved={isSaved}
@@ -109,22 +122,25 @@ export const ListingDetailsScreen = () => {
           category={listing.category}
         />
 
+        <View
+          onLayout={(e) => {
+            tabSectionY.current = e.nativeEvent.layout.y;
+          }}
+        >
+          <ListingContentTabs
+            description={listing.description}
+            spareParts={listing.spareParts}
+            locationId={listing.location?.locationId}
+            listingCategoryId={listing.categoryId}
+            onTabChange={handleTabChange}
+          />
+        </View>
+
         <SellerSection seller={listing.seller} />
-
-        {listing.spareParts && listing.spareParts.length > 0 && (
-          <AvailableSparePartsSection spareParts={listing.spareParts} />
-        )}
-
-        <DescriptionSection description={listing.description} />
 
         <SafetyTipsSection
           adId={listing.id}
           onReportPress={handleReportPress}
-        />
-
-        <NearbyRepairServicesSection
-          locationId={listing.location?.locationId}
-          listingCategoryId={listing.categoryId}
         />
 
         <View className="h-24" />
