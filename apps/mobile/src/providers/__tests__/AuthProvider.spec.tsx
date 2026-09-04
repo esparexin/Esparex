@@ -3,6 +3,7 @@ import { render, screen, act, waitFor, fireEvent } from '@testing-library/react-
 import { AuthProvider, useAuth } from '../AuthProvider';
 import { SessionRestoration } from '../../infrastructure/auth/SessionRestoration';
 import { IAuthService } from '../../infrastructure/auth/AuthService';
+import { notifyUnauthorized } from '../../infrastructure/api/apiClient';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { View, Text, TouchableOpacity } from 'react-native';
 
@@ -174,6 +175,55 @@ describe('AuthProvider', () => {
 
     expect(mockAuthService.logout).toHaveBeenCalled();
     expect(screen.getByTestId('status').props.children).toBe('anonymous');
+  });
+
+  it('should invalidate queries on successful verifyOtp', async () => {
+    (SessionRestoration.restoreSession as jest.Mock).mockResolvedValue({ status: 'anonymous' });
+    const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider authService={mockAuthService}>
+          <MobileTestConsumer />
+        </AuthProvider>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status').props.children).toBe('anonymous');
+    });
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('verify-otp-btn'));
+    });
+
+    expect(invalidateSpy).toHaveBeenCalled();
+  });
+
+  it('should reset status to anonymous when notifyUnauthorized is dispatched', async () => {
+    (SessionRestoration.restoreSession as jest.Mock).mockResolvedValue({ status: 'authenticated' });
+    const clearSpy = jest.spyOn(queryClient, 'clear');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider authService={mockAuthService}>
+          <MobileTestConsumer />
+        </AuthProvider>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status').props.children).toBe('authenticated');
+    });
+
+    act(() => {
+      notifyUnauthorized();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status').props.children).toBe('anonymous');
+      expect(clearSpy).toHaveBeenCalled();
+    });
   });
 
   it('should throw an error if useAuth is used outside of AuthProvider', () => {

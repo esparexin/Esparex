@@ -17,6 +17,7 @@ export const ScrollScreen: React.FC<ScrollScreenProps> = ({
     <Screen {...screenProps}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         className="flex-1"
         contentContainerClassName={`grow p-4 ${contentContainerClassName}`}
         {...scrollViewProps}
