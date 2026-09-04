@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Alert, ScrollView } from 'react-native';
-import { AppButton, AppText, AppInput, AppModalSheet } from '@esparex/mobile-ui';
+import { AppButton, AppInput, AppModalSheet } from '@esparex/mobile-ui';
 import { SmartAlertFormState, INITIAL_SMART_ALERT_FORM_STATE } from '../../domain/SmartAlertFormState';
 import { useCreateSmartAlert } from '../hooks/useCreateSmartAlert';
 import { SmartAlert } from '../../domain/SmartAlert';
