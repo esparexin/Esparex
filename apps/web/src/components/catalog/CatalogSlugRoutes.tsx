@@ -119,7 +119,7 @@ function createCatalogSlugMetadata(entity: CatalogSlugEntity) {
   }: CatalogSlugRouteProps): Promise<Metadata> {
     const { slug } = await params;
     if (!slug) {
-      return { title: "Catalog Page | Esparex" };
+      return { title: "Catalog Page | Esparex", robots: { index: false, follow: false } };
     }
 
     const parsed = parseOptionalSlugId(slug);
@@ -131,7 +131,7 @@ function createCatalogSlugMetadata(entity: CatalogSlugEntity) {
 
     return record
       ? buildCatalogSlugMetadata(entity, record)
-      : { title: "Catalog Page Not Found | Esparex" };
+      : { title: "Catalog Page Not Found | Esparex", robots: { index: false, follow: false } };
   };
 }
 

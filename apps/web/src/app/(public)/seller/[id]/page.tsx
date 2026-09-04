@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { SellerProfilePage } from "@/components/user/SellerProfilePage";
 import { getUserProfile } from "@/lib/api/user/users";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { generateAdSlug } from "@/lib/slug";
 
 type SellerProfileRouteProps = {
@@ -36,8 +37,9 @@ export async function generateMetadata({
 
   if (!profile) {
     return {
-      title: "Seller Profile | Esparex",
-      description: "View verified seller profile and active listings on Esparex.",
+      title: "Seller Profile Not Found | Esparex",
+      description: "The requested seller profile could not be found.",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -46,7 +48,7 @@ export async function generateMetadata({
     title: `${profile.user.name || "Seller"} | Esparex`,
     description: "View seller profile and active listings on Esparex.",
     alternates: {
-      canonical: `https://esparex.in/seller/${sellerSlug}-${profile.user.id}`,
+      canonical: toCanonicalUrl(`/seller/${sellerSlug}-${profile.user.id}`),
     },
   };
 }
