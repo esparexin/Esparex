@@ -458,7 +458,7 @@
   - [ ] `POST /api/v1/listings/:id/save` (auth guard 401 for guests, 200 for authenticated)
   - [ ] `POST /api/v1/chat/conversations` (initiates conversation thread for buyer)
 
-### 1.4 Login Screen (`ROUTES.LOGIN`)
+### 1.4 Login Screen (`ROUTES.LOGIN`) — ✅ **AUDITED & VERIFIED**
 - **Frontend ([LoginScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/auth/screens/LoginScreen.tsx))**:
   - [x] Mobile input format (+91 prefix, 10-digit strict validation & paste normalization)
   - [x] Input font size >= 16px to prevent viewport zoom jumps
@@ -468,7 +468,7 @@
 - **Backend API Integration**:
   - [x] `POST /api/v1/auth/send-otp` (rate limiting, validation, response format)
 
-### 1.5 OTP Verification Screen (`ROUTES.OTP`)
+### 1.5 OTP Verification Screen (`ROUTES.OTP`) — ✅ **AUDITED & VERIFIED**
 - **Frontend ([OTPScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/auth/screens/OTPScreen.tsx))**:
   - [x] 6-digit segmented OTP input cells auto-focus progression
   - [x] SMS OTP auto-fill & clipboard paste support (iOS & Android)
