@@ -57,7 +57,7 @@ export const SessionRestoration = {
       }
 
       return { status: 'anonymous' };
-    } catch (error) {
+    } catch {
       // In case of Keystore failure, fallback to anonymous (e.g. key corruption)
       return { status: 'anonymous' };
     }
