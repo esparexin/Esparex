@@ -38,6 +38,7 @@ export async function generateMetadata({
     return {
       title: "Seller Profile | Esparex",
       description: "View verified seller profile and active listings on Esparex.",
+      robots: { index: false, follow: false },
     };
   }
 
