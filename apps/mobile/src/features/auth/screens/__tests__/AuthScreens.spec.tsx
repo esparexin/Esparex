@@ -146,6 +146,38 @@ describe('Auth Stack Screens Verification', () => {
       expect(mockParentNavigation.goBack).toHaveBeenCalled();
     });
 
+    it('exposes accessible TextInput to screen readers with fontSize 16 to prevent auto-zoom', () => {
+      const { UNSAFE_getByType } = render(<OTPScreen />);
+      const textInput = UNSAFE_getByType('TextInput' as any);
+
+      expect(textInput.props.accessible).toBe(true);
+      expect(textInput.props.accessibilityRole).toBe('text');
+      expect(textInput.props.accessibilityLabel).toBe('6-Digit Verification Code');
+      expect(textInput.props.style).toEqual(
+        expect.objectContaining({ fontSize: 16 })
+      );
+    });
+
+    it('sets initial autoFocus on Full Name when isNewUser is true', () => {
+      (useRoute as jest.Mock).mockReturnValueOnce({
+        params: { mobile: '9876543210', isNewUser: true },
+      });
+      const { getByLabelText, UNSAFE_getAllByType } = render(<OTPScreen />);
+      const nameInput = getByLabelText('Full Name');
+      const textInputs = UNSAFE_getAllByType('TextInput' as any);
+      const otpInput = textInputs.find((t) => t.props.accessibilityLabel === '6-Digit Verification Code');
+
+      expect(nameInput.props.autoFocus).toBe(true);
+      expect(otpInput?.props.autoFocus).toBe(false);
+    });
+
+    it('sets initial autoFocus on OTP input when isNewUser is false', () => {
+      const { UNSAFE_getByType } = render(<OTPScreen />);
+      const otpInput = UNSAFE_getByType('TextInput' as any);
+
+      expect(otpInput.props.autoFocus).toBe(true);
+    });
+
     it('falls back to navigate(ROUTES.MAIN_STACK) upon verification if parent navigator is unavailable', async () => {
       mockNavigation.getParent.mockReturnValue(null);
       mockVerifyOtp.mockResolvedValueOnce({});

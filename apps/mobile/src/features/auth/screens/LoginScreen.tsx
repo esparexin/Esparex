@@ -68,7 +68,7 @@ export const LoginScreen = () => {
             By continuing, you agree to Esparex{' '}
             <AppText
               variant="caption"
-              className="text-brand-600 font-semibold underline"
+              className="text-brand-600 dark:text-brand-400 font-semibold underline"
               onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
               accessibilityRole="link"
               accessibilityLabel="View terms of service"
@@ -78,7 +78,7 @@ export const LoginScreen = () => {
             {' '}&amp;{' '}
             <AppText
               variant="caption"
-              className="text-brand-600 font-semibold underline"
+              className="text-brand-600 dark:text-brand-400 font-semibold underline"
               onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
               accessibilityRole="link"
               accessibilityLabel="View privacy policy"

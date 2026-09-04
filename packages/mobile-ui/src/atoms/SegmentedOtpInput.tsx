@@ -70,14 +70,15 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
       <View className={`w-full ${containerClassName}`}>
         <Pressable
           onPress={handlePress}
-          accessible={true}
-          accessibilityRole="none"
-          accessibilityLabel={accessibilityLabel}
-          accessibilityHint={accessibilityHint}
-          accessibilityValue={{ text: value ? `Current code: ${value}` : 'Empty' }}
+          accessible={false}
           className="w-full relative"
         >
-          <View className="flex-row items-center justify-between gap-2">
+          <View
+            className="flex-row items-center justify-between gap-2"
+            accessible={false}
+            aria-hidden={true}
+            importantForAccessibility="no-hide-descendants"
+          >
             {Array.from({ length }).map((_, index) => {
               const digit = digits[index] || '';
               const isCurrent = isFocused && editable && index === digits.length;
@@ -108,7 +109,7 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
             })}
           </View>
 
-          {/* Hidden absolute input overlay for keyboard focus & SMS OTP autofill */}
+          {/* Accessible interactive input overlay for keyboard focus, TalkBack/VoiceOver & SMS OTP autofill */}
           <TextInput
             ref={inputRef}
             value={value}
@@ -123,8 +124,11 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
             onBlur={() => setIsFocused(false)}
             style={styles.hiddenInput}
             caretHidden={true}
-            accessibilityElementsHidden={true}
-            importantForAccessibility="no"
+            accessible={true}
+            accessibilityRole="text"
+            accessibilityLabel={accessibilityLabel}
+            accessibilityHint={accessibilityHint}
+            accessibilityValue={{ text: value ? value.split('').join(' ') : 'Empty' }}
           />
         </Pressable>
 
@@ -153,5 +157,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     opacity: 0,
+    fontSize: 16,
   },
 });

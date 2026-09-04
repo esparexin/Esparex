@@ -191,6 +191,7 @@ export const OTPScreen = () => {
             setName(val);
             if (error) setError(null);
           }}
+          autoFocus={isNewUser}
           autoCapitalize="words"
           maxLength={50}
           accessibilityLabel="Full Name"
@@ -205,7 +206,7 @@ export const OTPScreen = () => {
           value={code}
           onChangeText={handleCodeChange}
           error={error || undefined}
-          autoFocus={true}
+          autoFocus={!isNewUser}
           accessibilityLabel="6-Digit Verification Code"
           accessibilityHint="Enter the 6-digit OTP received via SMS"
         />
