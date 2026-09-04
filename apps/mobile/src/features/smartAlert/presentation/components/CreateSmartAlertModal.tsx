@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { AppButton, AppText } from '@esparex/mobile-ui';
+import { View, Alert, ScrollView } from 'react-native';
+import { AppButton, AppText, AppInput, AppModalSheet } from '@esparex/mobile-ui';
 import { SmartAlertFormState, INITIAL_SMART_ALERT_FORM_STATE } from '../../domain/SmartAlertFormState';
 import { useCreateSmartAlert } from '../hooks/useCreateSmartAlert';
 import { SmartAlert } from '../../domain/SmartAlert';
@@ -58,8 +58,9 @@ export function CreateSmartAlertModal({
         Alert.alert('Smart Alert Created', 'You will receive instant push notifications when matching ads are posted.');
         onClose();
       },
-      onError: (err: any) => {
-        if (err?.response?.status === 403 || err?.message?.includes('SMART_ALERT_LIMIT_EXCEEDED')) {
+      onError: (err: unknown) => {
+        const errorObj = err as { response?: { status?: number }; message?: string };
+        if (errorObj?.response?.status === 403 || errorObj?.message?.includes('SMART_ALERT_LIMIT_EXCEEDED')) {
           Alert.alert(
             'Alert Limit Reached',
             'You have reached your smart alert quota limit. Upgrade your credit plan to create more alerts.',
@@ -69,133 +70,93 @@ export function CreateSmartAlertModal({
             ]
           );
         } else {
-          Alert.alert('Creation Failed', err?.message || 'Unable to create smart alert. Please try again.');
+          Alert.alert('Creation Failed', errorObj?.message || 'Unable to create smart alert. Please try again.');
         }
       },
     });
   };
 
   return (
-    <Modal
+    <AppModalSheet
       visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-      accessibilityViewIsModal={true}
+      onClose={onClose}
+      title={initialAlert ? 'Edit Smart Alert' : 'Create Smart Alert'}
     >
-      <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-5 max-h-[85%] border-t border-slate-200 dark:border-slate-800">
-          <View className="flex-row justify-between items-center mb-4">
-            <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
-              {initialAlert ? 'Edit Smart Alert' : 'Create Smart Alert'}
-            </AppText>
-            <TouchableOpacity
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel="Close smart alert dialog"
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <AppText variant="body" className="font-semibold text-slate-500 dark:text-slate-400 text-lg">
-                ✕
-              </AppText>
-            </TouchableOpacity>
+      <ScrollView className="my-4" showsVerticalScrollIndicator={false}>
+        <View className="mb-3.5">
+          <AppInput
+            label="Alert Label *"
+            placeholder="e.g. iPhone 13 in Mumbai"
+            value={formState.name}
+            onChangeText={(text) => setFormState((prev) => ({ ...prev, name: text }))}
+            accessibilityLabel="Alert label input"
+          />
+        </View>
+
+        <View className="mb-3.5">
+          <AppInput
+            label="Search Keyword"
+            placeholder="e.g. OLED TV, Royal Enfield"
+            value={formState.keywords}
+            onChangeText={(text) => setFormState((prev) => ({ ...prev, keywords: text }))}
+            accessibilityLabel="Search keyword input"
+          />
+        </View>
+
+        <View className="mb-3.5">
+          <AppInput
+            label="Category"
+            placeholder="e.g. Mobile Phones, Electronics"
+            value={formState.category}
+            onChangeText={(text) => setFormState((prev) => ({ ...prev, category: text }))}
+            accessibilityLabel="Category input"
+          />
+        </View>
+
+        <View className="flex-row justify-between mb-3.5">
+          <View className="w-[48%]">
+            <AppInput
+              label="Min Price (₹)"
+              placeholder="Min"
+              keyboardType="numeric"
+              value={formState.minPrice}
+              onChangeText={(text) => setFormState((prev) => ({ ...prev, minPrice: text }))}
+              accessibilityLabel="Minimum price input"
+            />
           </View>
 
-          <ScrollView className="mb-4" showsVerticalScrollIndicator={false}>
-            <View className="mb-3.5">
-              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Alert Label *
-              </AppText>
-              <TextInput
-                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                placeholder="e.g. iPhone 13 in Mumbai"
-                placeholderTextColor="#94a3b8"
-                value={formState.name}
-                onChangeText={(text) => setFormState((prev) => ({ ...prev, name: text }))}
-              />
-            </View>
-
-            <View className="mb-3.5">
-              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Search Keyword
-              </AppText>
-              <TextInput
-                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                placeholder="e.g. OLED TV, Royal Enfield"
-                placeholderTextColor="#94a3b8"
-                value={formState.keywords}
-                onChangeText={(text) => setFormState((prev) => ({ ...prev, keywords: text }))}
-              />
-            </View>
-
-            <View className="mb-3.5">
-              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Category
-              </AppText>
-              <TextInput
-                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                placeholder="e.g. Mobile Phones, Electronics"
-                placeholderTextColor="#94a3b8"
-                value={formState.category}
-                onChangeText={(text) => setFormState((prev) => ({ ...prev, category: text }))}
-              />
-            </View>
-
-            <View className="flex-row justify-between mb-3.5">
-              <View className="w-[48%]">
-                <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Min Price (₹)
-                </AppText>
-                <TextInput
-                  className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                  placeholder="Min"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="numeric"
-                  value={formState.minPrice}
-                  onChangeText={(text) => setFormState((prev) => ({ ...prev, minPrice: text }))}
-                />
-              </View>
-
-              <View className="w-[48%]">
-                <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Max Price (₹)
-                </AppText>
-                <TextInput
-                  className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                  placeholder="Max"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="numeric"
-                  value={formState.maxPrice}
-                  onChangeText={(text) => setFormState((prev) => ({ ...prev, maxPrice: text }))}
-                />
-              </View>
-            </View>
-
-            <View className="mb-3.5">
-              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                Location / City
-              </AppText>
-              <TextInput
-                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
-                placeholder="e.g. Mumbai, New Delhi"
-                placeholderTextColor="#94a3b8"
-                value={formState.location}
-                onChangeText={(text) => setFormState((prev) => ({ ...prev, location: text }))}
-              />
-            </View>
-          </ScrollView>
-
-          <View className="pt-2">
-            <AppButton
-              label={createMutation.isPending ? 'Saving...' : 'Save Smart Alert'}
-              onPress={handleSubmit}
-              disabled={createMutation.isPending}
-              className="bg-brand-600 hover:bg-brand-700"
+          <View className="w-[48%]">
+            <AppInput
+              label="Max Price (₹)"
+              placeholder="Max"
+              keyboardType="numeric"
+              value={formState.maxPrice}
+              onChangeText={(text) => setFormState((prev) => ({ ...prev, maxPrice: text }))}
+              accessibilityLabel="Maximum price input"
             />
           </View>
         </View>
+
+        <View className="mb-3.5">
+          <AppInput
+            label="Location / City"
+            placeholder="e.g. Mumbai, New Delhi"
+            value={formState.location}
+            onChangeText={(text) => setFormState((prev) => ({ ...prev, location: text }))}
+            accessibilityLabel="Location input"
+          />
+        </View>
+      </ScrollView>
+
+      <View className="pt-2 border-t border-border">
+        <AppButton
+          label={createMutation.isPending ? 'Saving...' : 'Save Smart Alert'}
+          onPress={handleSubmit}
+          disabled={createMutation.isPending}
+          loading={createMutation.isPending}
+          accessibilityLabel="Save smart alert"
+        />
       </View>
-    </Modal>
+    </AppModalSheet>
   );
 }
-
