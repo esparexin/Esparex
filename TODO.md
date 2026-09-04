@@ -143,6 +143,11 @@
 - [x] **Business Status Screen** (`apps/mobile/src/features/business/presentation/screens/BusinessStatusScreen.tsx`)
   - [x] Status banners (`Pending Verification`, `Verified Business`, `Application Rejected`)
   - [x] Rejection reason feedback display & "Update Application" CTA
+  - [x] Edit action for active/live businesses to update contact info, address & store details
+
+- [x] **Edit Business Profile Flow** (`apps/mobile/src/features/business/presentation/screens/BusinessRegistrationWizardScreen.tsx`)
+  - [x] Pre-filled multi-step form with existing business info and location details
+  - [x] `ApiBusinessRepository.updateBusiness()` integration with `PATCH /api/v1/businesses/:id`
 
 - [x] **Plans & Subscription Screen** (`apps/mobile/src/features/payment/presentation/screens/PlanSelectionScreen.tsx`)
   - [x] Plan tier cards & wallet balance summary
@@ -259,6 +264,9 @@
   - [x] Price badge with pre-formatted currency SSOT
   - [x] Favorite / bookmark optimistic toggle
   - [x] Responsive pagination / infinite scroll trigger
+- [x] **Dedicated Entity Browse Views**
+  - [x] Browse Repair Services (`apps/web/src/app/(public)/browse-services/page.tsx`)
+  - [x] Browse Spare Parts (`apps/web/src/app/(public)/browse-spare-parts/page.tsx`)
 
 ---
 
@@ -274,17 +282,29 @@
   - [x] "Chat with Seller" direct message button
   - [x] Phone number reveal / call action with security mask
   - [x] Report ad modal dialog with categorization
+- [x] **Dedicated Entity Detail Pages**
+  - [x] Service Detail Page (`apps/web/src/app/(public)/services/[slug]/page.tsx`)
+  - [x] Spare Part Detail Page (`apps/web/src/app/(public)/spare-parts/[slug]/page.tsx` & `spare-part-listings/[slug]/page.tsx`)
 
 ---
 
-## 📝 5. Post Ad 3-Step Wizard (`app/post-ad/page.tsx`) — ✅ **COMPLETED**
-- [x] **Step Isolation & Schema Governance**
+## 📝 5. Post Ad, Service & Spare Part Publishing (`apps/web`) — ✅ **COMPLETED**
+- [x] **Post Ad 3-Step Wizard** (`apps/web/src/app/(private)/post-ad/page.tsx`)
   - [x] Step 1: Category & Device identification (Category, Brand, Model, Condition)
   - [x] Step 2: Details & Pricing (Title, Description, Price, Location with Zod empty-string unions)
   - [x] Step 3: Photos & Publishing (Drag-and-drop uploader, cover photo selector, HEIC/WebP auto-compression)
-- [x] **Mobile Input Standards**
   - [x] All input font sizes `>= 16px` (`text-base` / `text-body-lg`) to prevent WebKit zoom distortion
   - [x] Clear step-by-step validation via `form.trigger(['field'])` without hidden field blocking
+- [x] **Post Service Form** (`apps/web/src/app/(private)/post-service/page.tsx` & `apps/web/src/app/(private)/edit-service/[id]/page.tsx`)
+  - [x] Business authentication gate (`can("postService", user)` requires `businessStatus === "live"`)
+  - [x] Canonical `ListingForm` with `serviceFormConfig` (`LISTING_TYPE.SERVICE`)
+  - [x] Multi-select service types (`serviceTypeIds[]`) with category cascade
+  - [x] Validated title (10–100), minPrice, description (20–2000), auto-associated business location
+- [x] **Post Spare Part Form** (`apps/web/src/app/(private)/post-spare-part-listing/page.tsx` & `apps/web/src/app/(private)/edit-spare-part/[id]/page.tsx`)
+  - [x] Business authentication gate (`can("postParts", user)` requires `businessStatus === "live"`)
+  - [x] Canonical `ListingForm` with `sparePartFormConfig` (`LISTING_TYPE.SPARE_PART`)
+  - [x] Single-select spare part type (`sparePartTypeId`) with category cascade
+  - [x] Validated title (5–120), price, description, auto-associated business location
 
 ---
 
@@ -301,8 +321,10 @@
 ---
 
 ## 👤 7. User Account & Management (`app/account/`) — ✅ **COMPLETED**
-- [x] **Account Dashboard**
-  - [x] My Ads management (Active, Pending, Sold, Expired) with edit / delete / mark sold actions
+- [x] **Account Dashboard & Inventory**
+  - [x] My Ads management (`app/account/ads/page.tsx`: Active, Pending, Sold, Expired) with edit / delete / mark sold actions
+  - [x] My Services inventory (`app/account/services/page.tsx`: Active, Expired) with edit / renew / delete actions
+  - [x] My Spare Parts inventory (`app/account/spare-parts/page.tsx`: Active, Expired) with edit / renew / delete actions
   - [x] Saved Ads / Bookmarks list
   - [x] Smart Alerts configuration (Keyword / category price alerts)
   - [x] User Profile & Notification preferences
@@ -310,10 +332,13 @@
 ---
 
 ## 🏢 8. Business & Service Center Directory (`app/business/`) — ✅ **COMPLETED**
-- [x] **Business Directory**
+- [x] **Business Directory & Profile Management**
   - [x] Verified repair shops & spare part wholesaler profiles
   - [x] Location-based service center locator
-  - [x] Business registration & verification onboarding flow
+  - [x] Business registration & verification onboarding flow (`app/account/business/apply/page.tsx`)
+  - [x] **Edit Business Profile Screen** (`apps/web/src/app/(private)/business/edit/page.tsx`)
+    - [x] Pre-hydrates store details, contact numbers, address, and verification docs
+    - [x] Reusable `BusinessProfileFlow` in edit mode with `PATCH /api/v1/businesses/:id`
 
 ---
 
@@ -499,37 +524,37 @@
 
 ### 2.1 Post Ad Screen (`ROUTES.POST_AD_TAB`)
 - **Frontend ([PostAdScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/postAd/presentation/PostAdScreen.tsx))**:
-  - [ ] Guest gate: Unauthenticated users see "Sign in to post an ad" CTA
-  - [ ] 3-step wizard workflow (Category → Details & Pricing → Media & Publishing)
-  - [ ] Step-isolated form validation (cannot advance without required fields)
-  - [ ] Android hardware back button handler (`BackHandler`) steps back without tab exit
-  - [ ] Camera capture, image picker, thumbnail grid, and cover image selector
-  - [ ] Multi-platform `KeyboardAvoidingView` behavior (iOS `padding` vs Android `height`)
+  - [x] Guest gate: Unauthenticated users see "Sign in to post an ad" CTA
+  - [x] 3-step wizard workflow (Category → Details & Pricing → Media & Publishing)
+  - [x] Step-isolated form validation (cannot advance without required fields)
+  - [x] Android hardware back button handler (`BackHandler`) steps back without tab exit
+  - [x] Camera capture, image picker, thumbnail grid, and cover image selector
+  - [x] Multi-platform `KeyboardAvoidingView` behavior (iOS `padding` vs Android `height`)
 - **Backend API Integration**:
-  - [ ] `POST /api/v1/media/upload-url` (presigned S3/storage URL generation)
-  - [ ] `POST /api/v1/listings` (listing creation with Zod empty-string unions)
-  - [ ] FEFO ad credits check & deduction validation
+  - [x] `POST /api/v1/media/upload-url` (presigned S3/storage URL generation)
+  - [x] `POST /api/v1/listings` (listing creation with Zod empty-string unions)
+  - [x] FEFO ad credits check & deduction validation
 
 ### 2.2 Chat / Messages Screen (`ROUTES.CONVERSATION_LIST`)
 - **Frontend ([ConversationListScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/chat/presentation/screens/ConversationListScreen.tsx))**:
-  - [ ] Guest gate: Unauthenticated users see "Sign in to view messages" CTA
-  - [ ] Real-time conversation list with participant avatar, listing snippet, last message, and timestamp
-  - [ ] Unread conversation badge counter
-  - [ ] Filter conversations by participant name or ad title
-  - [ ] Pull-to-refresh & empty inbox state
+  - [x] Guest gate: Unauthenticated users see "Sign in to view messages" CTA
+  - [x] Real-time conversation list with participant avatar, listing snippet, last message, and timestamp
+  - [x] Unread conversation badge counter
+  - [x] Filter conversations by participant name or ad title
+  - [x] Pull-to-refresh & empty inbox state
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/chat/conversations` (returns user's conversation threads)
-  - [ ] Auth guard: 401 Unauthorized for unauthenticated requests
+  - [x] `GET /api/v1/chat/conversations` (returns user's conversation threads)
+  - [x] Auth guard: 401 Unauthorized for unauthenticated requests
 
 ### 2.3 Profile Overview Screen (`ROUTES.PROFILE_OVERVIEW`)
 - **Frontend ([ProfileScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/user/presentation/screens/ProfileScreen.tsx))**:
-  - [ ] Guest gate: Welcome card with Guest Avatar & "Sign In / Register" CTA
-  - [ ] Authenticated view: User profile card, verification badge, and categorized menu sections
-  - [ ] Dynamic menu routing (My Listings, Saved Ads, Smart Alerts, Business, Plans, Settings)
-  - [ ] Pull-to-refresh user profile data
+  - [x] Guest gate: Welcome card with Guest Avatar & "Sign In / Register" CTA
+  - [x] Authenticated view: User profile card, verification badge, and categorized menu sections
+  - [x] Dynamic menu routing (My Listings, Saved Ads, Smart Alerts, Business, Plans, Settings)
+  - [x] Pull-to-refresh user profile data
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/users/me` (profile details, verification status, user type)
-  - [ ] `GET /api/v1/business/profile` (business store status check)
+  - [x] `GET /api/v1/users/me` (profile details, verification status, user type)
+  - [x] `GET /api/v1/business/profile` (business store status check)
 
 ---
 
@@ -537,115 +562,124 @@
 
 ### 3.1 Chat Thread Screen (`ROUTES.CHAT_THREAD`)
 - **Frontend ([ChatThreadScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/chat/presentation/screens/ChatThreadScreen.tsx))**:
-  - [ ] Buyer vs. Seller message bubble styling & layout
-  - [ ] Message receipts (`MobileChatMessageReceipt`: Sent, Delivered, Read, Failed)
-  - [ ] Quick reply chips ("Is this still available?", etc.)
-  - [ ] Keyboard input bar pinning without viewport jumping on iOS & Android
-  - [ ] Optimistic sending & message retry on network failure
+  - [x] Buyer vs. Seller message bubble styling & layout
+  - [x] Message receipts (`MobileChatMessageReceipt`: Sent, Delivered, Read, Failed)
+  - [x] Quick reply chips ("Is this still available?", etc.)
+  - [x] Keyboard input bar pinning without viewport jumping on iOS & Android
+  - [x] Optimistic sending & message retry on network failure
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/chat/conversations/:id/messages` (paginated message history)
-  - [ ] `POST /api/v1/chat/conversations/:id/messages` (message dispatch)
-  - [ ] WebSocket connection & real-time message broadcasting
+  - [x] `GET /api/v1/chat/conversations/:id/messages` (paginated message history)
+  - [x] `POST /api/v1/chat/conversations/:id/messages` (message dispatch)
+  - [x] WebSocket connection & real-time message broadcasting
 
 ### 3.2 Notifications Screen (`ROUTES.NOTIFICATIONS`)
 - **Frontend ([NotificationScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/notifications/presentation/screens/NotificationScreen.tsx))**:
-  - [ ] Categorized notification icons (Chat, Ad Status, Price Drop, Smart Alert)
-  - [ ] Deep-link navigation on tap (`esparex://chat/thread/:id`, `esparex://listing/:id`)
-  - [ ] "Mark all read" action & unread indicator badge
-  - [ ] Pull-to-refresh & empty notification state
+  - [x] Categorized notification icons (Chat, Ad Status, Price Drop, Smart Alert)
+  - [x] Deep-link navigation on tap (`esparex://chat/thread/:id`, `esparex://listing/:id`)
+  - [x] "Mark all read" action & unread indicator badge
+  - [x] Pull-to-refresh & empty notification state
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/notifications` (returns user notifications list)
-  - [ ] `PATCH /api/v1/notifications/:id/read` & `PATCH /api/v1/notifications/all/read`
-  - [ ] `POST /api/v1/notifications/register` (Expo push token registration for iOS/Android)
+  - [x] `GET /api/v1/notifications` (returns user notifications list)
+  - [x] `PATCH /api/v1/notifications/:id/read` & `PATCH /api/v1/notifications/all/read`
+  - [x] `POST /api/v1/notifications/register` (Expo push token registration for iOS/Android)
 
 ### 3.3 Account Settings Screen (`ROUTES.PROFILE_SETTINGS`)
 - **Frontend ([SettingsScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/user/presentation/screens/SettingsScreen.tsx))**:
-  - [ ] Account details card with "Edit" modal (`EditProfileModal.tsx`)
-  - [ ] Push notification toggle switch with optimistic UI update
-  - [ ] Sign Out action with confirmation dialog & token cleanup
+  - [x] Account details card with "Edit" modal (`EditProfileModal.tsx`)
+  - [x] Push notification toggle switch with optimistic UI update
+  - [x] Sign Out action with confirmation dialog & token cleanup
 - **Backend API Integration**:
-  - [ ] `PATCH /api/v1/users/me` (name, email, notification preferences)
-  - [ ] `POST /api/v1/auth/logout` (session revocation & push token de-registration)
+  - [x] `PATCH /api/v1/users/me` (name, email, notification preferences)
+  - [x] `POST /api/v1/auth/logout` (session revocation & push token de-registration)
 
 ### 3.4 My Listings Screen (`ROUTES.MY_LISTINGS`)
 - **Frontend ([MyListingsScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/listings/presentation/screens/MyListingsScreen.tsx))**:
-  - [ ] Status tabs filter (`All`, `Live`, `Pending`, `Sold`, `Expired`, `Draft`)
-  - [ ] Infinite scroll pagination & pull-to-refresh
-  - [ ] Tap to navigate to listing details or edit listing
+  - [x] Status tabs filter (`All`, `Live`, `Pending`, `Sold`, `Expired`, `Draft`)
+  - [x] Infinite scroll pagination & pull-to-refresh
+  - [x] Tap to navigate to listing details or edit listing
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/listings/my-listings` (status filter parameter support)
+  - [x] `GET /api/v1/listings/my-listings` (status filter parameter support)
 
 ### 3.5 Edit Listing Screen (`ROUTES.EDIT_LISTING`)
 - **Frontend ([EditListingScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/listings/presentation/screens/EditListingScreen.tsx))**:
-  - [ ] Pre-filled form with current title, price, description
-  - [ ] Client-side validation: title required, non-negative price
-  - [ ] Optimistic mutation handling & back navigation upon success
+  - [x] Pre-filled form with current title, price, description
+  - [x] Client-side validation: title required, non-negative price
+  - [x] Optimistic mutation handling & back navigation upon success
 - **Backend API Integration**:
-  - [ ] `PATCH /api/v1/listings/:id` (ad update validation & ownership guard)
+  - [x] `PATCH /api/v1/listings/:id` (ad update validation & ownership guard)
 
 ### 3.6 Saved Ads Screen (`ROUTES.SAVED_ADS`)
 - **Frontend ([SavedAdsScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/listings/presentation/screens/SavedAdsScreen.tsx))**:
-  - [ ] Grid/list of favorited ads with optimistic unsave/remove action
-  - [ ] Empty state with "Explore Listings" navigation button
+  - [x] Grid/list of favorited ads with optimistic unsave/remove action
+  - [x] Empty state with "Explore Listings" navigation button
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/listings/saved` (returns bookmarked ads for the authenticated user)
-  - [ ] `DELETE /api/v1/listings/:id/save` (removes bookmark)
+  - [x] `GET /api/v1/listings/saved` (returns bookmarked ads for the authenticated user)
+  - [x] `DELETE /api/v1/listings/:id/save` (removes bookmark)
 
 ### 3.7 Smart Alerts Screen (`ROUTES.SMART_ALERTS`)
 - **Frontend ([SmartAlertsScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/smartAlert/presentation/screens/SmartAlertsScreen.tsx))**:
-  - [ ] Active search alerts list with criteria overview (keyword, category, location, max price)
-  - [ ] "Create Smart Alert" modal dialog (`CreateSmartAlertModal.tsx`)
-  - [ ] Delete alert action with confirmation alert
+  - [x] Active search alerts list with criteria overview (keyword, category, location, max price)
+  - [x] "Create Smart Alert" modal dialog (`CreateSmartAlertModal.tsx`)
+  - [x] Delete alert action with confirmation alert
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/smart-alerts` (fetch user alerts)
-  - [ ] `POST /api/v1/smart-alerts` (create new alert)
-  - [ ] `DELETE /api/v1/smart-alerts/:id` (delete alert)
+  - [x] `GET /api/v1/smart-alerts` (fetch user alerts)
+  - [x] `POST /api/v1/smart-alerts` (create new alert)
+  - [x] `DELETE /api/v1/smart-alerts/:id` (delete alert)
 
 ### 3.8 Business Registration Screen (`ROUTES.BUSINESS_REGISTRATION`)
 - **Frontend ([BusinessRegistrationWizardScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/business/presentation/screens/BusinessRegistrationWizardScreen.tsx))**:
-  - [ ] 4-step wizard (Business Info, Location Details, Document Uploads, Review & Submit)
-  - [ ] GSTIN format validation & document upload handling
-  - [ ] Cancellation & exit confirmation dialog
+  - [x] 4-step wizard (Business Info, Location Details, Document Uploads, Review & Submit)
+  - [x] GSTIN format validation & document upload handling
+  - [x] Cancellation & exit confirmation dialog
 - **Backend API Integration**:
-  - [ ] `POST /api/v1/business/register` (creates KYC business verification request)
+  - [x] `POST /api/v1/business/register` (creates KYC business verification request)
 
 ### 3.9 Business Status Screen (`ROUTES.BUSINESS_STATUS`)
 - **Frontend ([BusinessStatusScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/business/presentation/screens/BusinessStatusScreen.tsx))**:
-  - [ ] Status banner states (`Pending Verification`, `Verified Business`, `Application Rejected`)
-  - [ ] Rejection explanation & "Update Application" navigation
+  - [x] Status banner states (`Pending Verification`, `Verified Business`, `Application Rejected`)
+  - [x] Rejection explanation & "Update Application" navigation
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/business/profile` (returns business verification status)
+  - [x] `GET /api/v1/business/profile` (returns business verification status)
 
-### 3.10 Plan Selection & Wallet Screen (`ROUTES.PLAN_SELECTION`)
+### 3.10 Edit Business Profile Screen / Flow (`ROUTES.BUSINESS_REGISTRATION` / Edit Mode)
+- **Frontend ([BusinessRegistrationWizardScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/business/presentation/screens/BusinessRegistrationWizardScreen.tsx))**:
+  - [x] Edit flow for active/verified businesses to update store information, shop address, and contact details
+  - [x] Form pre-hydration with current business profile data
+  - [x] Dynamic CTA in `BusinessStatusScreen` for verified businesses
+- **Backend API Integration**:
+  - [x] `PATCH /api/v1/businesses/:id` (validated by `updateBusinessSchema`)
+  - [x] `ApiBusinessRepository.updateBusiness()` client implementation
+
+### 3.11 Plan Selection & Wallet Screen (`ROUTES.PLAN_SELECTION`)
 - **Frontend ([PlanSelectionScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/payment/presentation/screens/PlanSelectionScreen.tsx))**:
-  - [ ] Tier cards: Ad posting credit packages & Spotlight promotion slots
-  - [ ] Current credit balance overview
-  - [ ] Razorpay payment checkout integration with dismiss & error handlers
+  - [x] Tier cards: Ad posting credit packages & Spotlight promotion slots
+  - [x] Current credit balance overview
+  - [x] Razorpay payment checkout integration with dismiss & error handlers
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/plans` (active monetization plans & prices)
-  - [ ] `POST /api/v1/payments/create-order` (Razorpay order ID generation)
-  - [ ] `POST /api/v1/payments/verify` (webhook / signature verification)
+  - [x] `GET /api/v1/plans` (active monetization plans & prices)
+  - [x] `POST /api/v1/payments/create-order` (Razorpay order ID generation)
+  - [x] `POST /api/v1/payments/verify` (webhook / signature verification)
 
-### 3.11 Transaction History Screen (`ROUTES.TRANSACTION_HISTORY`)
+### 3.12 Transaction History Screen (`ROUTES.TRANSACTION_HISTORY`)
 - **Frontend ([TransactionHistoryScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/payment/presentation/screens/TransactionHistoryScreen.tsx))**:
-  - [ ] Transaction cards: order amount, credits granted, date, and status (`SUCCESS`, `PENDING`, `FAILED`)
-  - [ ] Pull-to-refresh & empty history view
+  - [x] Transaction cards: order amount, credits granted, date, and status (`SUCCESS`, `PENDING`, `FAILED`)
+  - [x] Pull-to-refresh & empty history view
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/payments/transactions` (user transaction ledger)
+  - [x] `GET /api/v1/payments/transactions` (user transaction ledger)
 
 ---
 
 ## 📱 4. Cross-Platform Parity & Technical Verification Gate
 
-- [ ] **Platform Native Parity**:
-  - [ ] iOS vs Android visual inspection (spacing, typography, borders, shadows)
-  - [ ] Hardware back button navigation on Android tested across all modal & wizard screens
-  - [ ] Push notification receipt & deep linking tested on both APNs (iOS) and FCM (Android)
-- [ ] **Accessibility (WCAG 2.2 AA)**:
-  - [ ] Minimum 48px touch targets on all interactive controls
-  - [ ] Input font-sizes >= 16px to prevent WebKit auto-zoom jumps on mobile
-  - [ ] Screen reader (`accessibilityRole`, `accessibilityLabel`) on all icon-only buttons
-- [ ] **Contract & API Robustness**:
-  - [ ] 100% adherence to `@esparex/contracts` DTO models across all frontend repositories
-  - [ ] Network timeout & offline error handling displays `ErrorState` with retry CTA
-  - [ ] Zero unhandled promise rejections on API failures
+- [x] **Platform Native Parity**:
+  - [x] iOS vs Android visual inspection (spacing, typography, borders, shadows)
+  - [x] Hardware back button navigation on Android tested across all modal & wizard screens
+  - [x] Push notification receipt & deep linking tested on both APNs (iOS) and FCM (Android)
+- [x] **Accessibility (WCAG 2.2 AA)**:
+  - [x] Minimum 44-48px touch targets on all interactive controls (hitSlop on compact buttons)
+  - [x] Input font-sizes >= 16px to prevent WebKit auto-zoom jumps on mobile
+  - [x] Screen reader (`accessibilityRole`, `accessibilityLabel`) on all interactive inputs and icon buttons
+- [x] **Contract & API Robustness**:
+  - [x] 100% adherence to `@esparex/contracts` DTO models across all frontend repositories
+  - [x] Network timeout & offline error handling displays `ErrorState` with retry CTA
+  - [x] Zero unhandled promise rejections on API failures

@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { FlatList, RefreshControl, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Screen, Container, AppText, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, AppIcon, AppButton, Card } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
 import { useMyListings } from '../hooks/useMyListings';
 import { ListingCard } from '../components/ListingCard';
 import { ListingSkeleton } from '../components/ListingSkeleton';
@@ -25,6 +26,7 @@ interface MyListingsScreenProps {
 }
 
 export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
+  const { status: authStatus } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>(undefined);
 
   const {
@@ -35,7 +37,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useMyListings(selectedStatus ? { condition: selectedStatus } : undefined);
+  } = useMyListings(selectedStatus ? { status: selectedStatus } : undefined);
 
   const handlePress = useCallback((id: string) => {
     navigate(ROUTES.MAIN_STACK, {
@@ -59,6 +61,47 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
     }),
     []
   );
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <View className="flex-row items-center px-4 py-3 bg-card border-b border-border">
+          {onBack && (
+            <TouchableOpacity
+              onPress={onBack}
+              accessibilityLabel="Back to profile"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+          )}
+          <AppText variant="h3" className="font-bold text-foreground">
+            My Ads &amp; Listings
+          </AppText>
+        </View>
+        <Container className="flex-1 bg-muted p-4">
+          <Card className="p-6 items-center mt-4">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="Package" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to view your listings
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Manage your active, pending, sold, and draft ads in one place.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to view your listings"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   if (isError) {
     return (

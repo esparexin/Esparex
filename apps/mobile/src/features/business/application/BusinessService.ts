@@ -13,6 +13,10 @@ export class BusinessService {
     return this.businessRepository.registerBusiness(state);
   }
 
+  async updateBusiness(businessId: string, state: Partial<BusinessFormState>): Promise<Business> {
+    return this.businessRepository.updateBusiness(businessId, state);
+  }
+
   async uploadDocument(uri: string, fileType: string): Promise<string> {
     return this.businessRepository.uploadDocument(uri, fileType);
   }

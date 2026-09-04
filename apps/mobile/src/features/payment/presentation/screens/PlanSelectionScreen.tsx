@@ -3,6 +3,9 @@ import { View, ScrollView, Alert, ActivityIndicator, TouchableOpacity } from 're
 import { Screen, Container, Card, AppButton, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { Plan } from '@esparex/contracts';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { usePaymentPlans } from '../hooks/usePaymentPlans';
 import { useWalletSummary } from '../hooks/useWalletSummary';
 import { useCheckoutPayment } from '../hooks/useCheckoutPayment';
@@ -13,10 +16,52 @@ interface PlanSelectionScreenProps {
 }
 
 export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenProps) {
+  const { status: authStatus } = useAuth();
   const { data: plans, isLoading: loadingPlans } = usePaymentPlans();
   const { data: wallet } = useWalletSummary();
   const checkoutMutation = useCheckoutPayment();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen className="flex-1 bg-muted">
+        <View className="flex-row items-center px-4 py-3.5 bg-card border-b border-border">
+          {onBack && (
+            <TouchableOpacity
+              onPress={onBack}
+              accessibilityLabel="Back to profile"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+          )}
+          <AppText variant="h3" className="font-bold text-foreground">
+            Ad Credits &amp; Wallet Plans
+          </AppText>
+        </View>
+        <Container className="flex-1 p-4">
+          <Card className="p-6 items-center mt-4">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="CreditCard" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to manage credits
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Purchase ad posting credits, spotlight slots, and smart alert quotas.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to manage ad credits"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   const handlePurchase = (plan: Plan) => {
     setSelectedPlanId(plan.id);
@@ -36,11 +81,12 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
             ]
           );
         },
-        onError: (err: any) => {
-          if (err?.message?.toLowerCase().includes('cancelled')) {
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err || '');
+          if (message.toLowerCase().includes('cancelled')) {
             return; // User cancelled — silent exit
           }
-          Alert.alert('Checkout Failed', err?.message || 'Unable to complete payment order. Please try again.');
+          Alert.alert('Checkout Failed', message || 'Unable to complete payment order. Please try again.');
         },
       }
     );
