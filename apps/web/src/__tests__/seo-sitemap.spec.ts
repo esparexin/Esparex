@@ -163,7 +163,9 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                 expect(url).not.toContain("admin.esparex.in");
                 expect(url).not.toContain("preview");
                 expect(url).not.toContain("staging");
-                expect(url.startsWith("https://esparex.in")).toBe(true);
+                const parsedUrl = new URL(url);
+                expect(parsedUrl.protocol).toBe("https:");
+                expect(parsedUrl.hostname).toBe("esparex.in");
             }
         });
 
