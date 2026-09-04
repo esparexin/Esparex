@@ -69,7 +69,11 @@ export function hasCategoryOverlap(
 }
 
 export function validateRequiredCategoryIds(categoryIds?: string[] | null): string | null {
-    if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.filter(Boolean).length === 0) {
+    if (
+        !categoryIds ||
+        !Array.isArray(categoryIds) ||
+        categoryIds.map((id) => (typeof id === "string" ? id.trim() : id)).filter(Boolean).length === 0
+    ) {
         return "Please select at least one category";
     }
     return null;

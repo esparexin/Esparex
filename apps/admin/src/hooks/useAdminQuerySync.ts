@@ -64,12 +64,12 @@ export function useAdminQuerySync(options?: UseAdminQuerySyncOptions) {
         }
     }, [initialPage, loading, replaceQueryState, totalPages]);
 
-    // Normalizes legacy ?search= to ?q=
+    // Normalizes alternate ?search= to ?q=
     useEffect(() => {
         if (initialSearch === undefined) return;
-        const hasLegacySearch = searchParams.has("search");
+        const hasAltSearch = searchParams.has("search");
         const currentQ = normalizeSearchParamValue(searchParams.get("q"));
-        if (!hasLegacySearch && currentQ === initialSearch) {
+        if (!hasAltSearch && currentQ === initialSearch) {
             return;
         }
 

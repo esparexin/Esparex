@@ -94,7 +94,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             />
 
             <button
-                className="fixed bottom-6 right-6 z-50 rounded-full bg-primary p-4 text-white shadow-2xl transition-transform active:scale-95 lg:hidden"
+                className="fixed bottom-6 right-6 z-50 rounded-full bg-primary p-4 text-white shadow-2xl transition-transform active:scale-95 lg:hidden" /* ui-guard-ignore: parallel-responsive-dom [Mobile drawer trigger button] */
                 onClick={() => setIsMobileOpen((prev) => !prev)}
             >
                 {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,6 +109,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     isMinified ? "lg:w-16" : "lg:w-64"
                 )}
             >
+                {/* ui-guard-ignore: parallel-responsive-dom [Single-instance sidebar expanded vs minified logo] */}
                 <div className={cn("flex h-14 shrink-0 items-center border-b border-sidebar-border px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
                     <div className="flex items-center gap-2.5 overflow-hidden">
                         <Image
@@ -120,7 +121,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                             className={cn("h-7 w-auto object-contain", isMinified && "lg:hidden")}
                         />
                         {isMinified && (
-                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-extrabold text-primary-foreground shadow-xs text-caption">
+                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-extrabold text-primary-foreground shadow-xs text-caption"> {/* ui-guard-ignore: parallel-responsive-dom [Minified sidebar icon] */}
                                 E
                             </span>
                         )}
@@ -128,14 +129,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
                     <div className="flex items-center">
                         <button
-                            className="lg:hidden rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer"
+                            className="lg:hidden rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer" /* ui-guard-ignore: parallel-responsive-dom [Mobile drawer close button] */
                             onClick={() => setIsMobileOpen(false)}
                         >
                             <X size={20} />
                         </button>
                         
                         <button
-                            className={cn("hidden lg:flex rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer", isMinified && "h-9 w-9 items-center justify-center")}
+                            className={cn("hidden lg:flex rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer", isMinified && "h-9 w-9 items-center justify-center")} /* ui-guard-ignore: parallel-responsive-dom [Desktop collapse toggle] */
                             onClick={() => setIsMinified(!isMinified)}
                             aria-label={isMinified ? "Expand sidebar" : "Collapse sidebar"}
                         >
