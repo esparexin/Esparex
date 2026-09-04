@@ -69,6 +69,7 @@ export async function generateMetadata(
     return {
       title: "Business Not Found | Esparex",
       description: "The requested business profile could not be found.",
+      robots: { index: false, follow: false },
     };
   }
 

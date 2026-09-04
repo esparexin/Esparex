@@ -6,8 +6,19 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
             disallow: [
-                // Account namespace
+                // Account namespace & Messaging
                 '/account/',
+                '/chat',
+                '/chat/',
+                // Actions
+                '/post-ad',
+                '/post-service',
+                '/post-spare-part-listing',
+                '/edit-ad/',
+                '/edit-service/',
+                '/edit-spare-part/',
+                '/business/edit',
+                '/notifications',
                 // Legacy private routes (all have 301 redirects)
                 '/profile/',
                 '/my-ads',
@@ -17,15 +28,10 @@ export default function robots(): MetadataRoute.Robots {
                 '/purchases',
                 '/business/my-business',
                 '/business/register',
-                '/business/edit',
-                // Actions
-                '/post-ad',
-                '/post-service',
-                '/edit-ad/',
-                '/notifications',
-                // System
+                // System & Internal
                 '/api/',
                 '/admin/',
+                '/internal/',
             ],
         },
         sitemap: 'https://esparex.in/sitemap.xml',

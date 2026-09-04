@@ -47,9 +47,10 @@ export function StepBasicDetails({
                     <Input
                         id="reg-email"
                         type="email"
+                        autoComplete="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="contact@yourbusiness.com"
+                        placeholder="business@example.com"
                         className="h-10 text-body-lg md:text-body"
                         aria-invalid={Boolean(formData.errors?.email)}
                     />

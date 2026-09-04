@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Button } from "@esparex/ui";
 import type { ListingPageResult } from "@/lib/api/user/listings";
+import { generateAdSlug } from "@/lib/slug";
 
 export type CatalogSlugEntity = "brand" | "model";
 
@@ -55,9 +56,15 @@ export function buildCatalogSlugMetadata(
   record: CatalogSlugRecord
 ): Metadata {
   const config = ENTITY_CONFIG[entity];
+  const canonicalSlug = record.slug || generateAdSlug(record.name);
+  const canonicalParam = `${canonicalSlug}-${record.id}`;
+  const basePath = entity === "brand" ? "brands" : "models";
   return {
     title: config.metadataTitle(record.name),
     description: config.metadataDescription(record.name, record.contextLabel),
+    alternates: {
+      canonical: `https://esparex.in/${basePath}/${canonicalParam}`,
+    },
   };
 }
 

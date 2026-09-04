@@ -78,7 +78,8 @@ export async function buildListingMetadata({
     const listingTitle = `${listing.title}${locationSuffix}` || missingTitle;
     
     const canonicalSlug = listing.seoSlug || generateAdSlug(listing.title || "");
-    const canonicalUrl = `${canonicalBasePath}/${canonicalSlug}-${listing.id}`;
+    const canonicalPath = `${canonicalBasePath}/${canonicalSlug}-${listing.id}`;
+    const canonicalUrl = `https://esparex.in${canonicalPath}`;
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
 
