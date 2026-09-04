@@ -27,6 +27,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         const expiringIn3Days = typeof req.query.expiringIn3Days === 'string' ? req.query.expiringIn3Days : undefined;
         const warningSent = typeof req.query.warningSent === 'string' ? req.query.warningSent : undefined;
         const warningNotSent = typeof req.query.warningNotSent === 'string' ? req.query.warningNotSent : undefined;
+        const includeDeleted = typeof req.query.includeDeleted === 'string' ? req.query.includeDeleted : undefined;
 
         const { items, total } = await adminBusinessService.getAdminBusinessAccounts({
             status,
@@ -35,6 +36,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
             expiringIn3Days,
             warningSent,
             warningNotSent,
+            includeDeleted,
             skip,
             limit,
         });

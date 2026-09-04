@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { MS_IN_DAY } from '../../config/constants';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { BUSINESS_STATUS } from '@esparex/contracts';
@@ -20,7 +21,13 @@ export const getBusinessAccountsQuery = (status?: string) => {
 
 export const getAdminBusinessAccountsData = (params: AdminBusinessPaginationParams) => {
     const adminQuery = getBusinessAccountsQuery(params.status);
-    if (params.locationId) adminQuery.locationId = params.locationId;
+    if (params.locationId) {
+        if (mongoose.Types.ObjectId.isValid(params.locationId)) {
+            adminQuery.locationId = new mongoose.Types.ObjectId(params.locationId);
+        } else {
+            adminQuery._id = { $in: [] };
+        }
+    }
     if (params.expiringIn3Days === 'true') { const w = new Date(Date.now() + 3 * MS_IN_DAY); adminQuery.expiresAt = { $lte: w, $gte: new Date() }; adminQuery.status = publishedBusinessStatusQuery; }
     if (params.warningSent === 'true') adminQuery.expiryWarningSentAt = { $exists: true, $ne: null };
     else if (params.warningNotSent === 'true') adminQuery.expiryWarningSentAt = { $exists: false };
