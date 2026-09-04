@@ -1,6 +1,6 @@
 import { Listing } from '../domain/Listing';
 import { CreatedListing } from '../domain/CreatedListing';
-import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
+import { ListingQueryParams, CreateListingRequest, ListingContactNumberResponse } from '@esparex/contracts';
 
 export interface IListingRepository {
   getListings(params?: ListingQueryParams): Promise<readonly Listing[]>;
@@ -11,4 +11,6 @@ export interface IListingRepository {
   create(request: CreateListingRequest): Promise<CreatedListing>;
   update(id: string, request: Partial<CreateListingRequest>): Promise<Listing>;
   reportListing(adId: string, reason: string, description?: string): Promise<void>;
+  getListingPhone(id: string): Promise<ListingContactNumberResponse>;
+  incrementListingView(id: string): Promise<void>;
 }

@@ -1,23 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { View, ScrollView, ActivityIndicator, Alert, Linking, Share } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
-import { navigate } from '../../../../navigation/navigationRef';
 import { useAuth } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { useSavedListings } from '../hooks/useSavedListings';
 import { useProfile } from '../../../user/presentation/hooks/useProfile';
+import { useListingActions } from '../hooks/useListingActions';
 import { ImageCarousel } from '../components/details/ImageCarousel';
 import { PriceSection } from '../components/details/PriceSection';
 import { SellerSection } from '../components/details/SellerSection';
-import { AvailableSparePartsSection } from '../components/details/AvailableSparePartsSection';
-import { DescriptionSection } from '../components/details/DescriptionSection';
+import { ListingContentTabs } from '../components/details/ListingContentTabs';
 import { SafetyTipsSection } from '../components/details/SafetyTipsSection';
-import { NearbyRepairServicesSection } from '../components/details/NearbyRepairServicesSection';
 import { ReportAdModal } from '../components/details/ReportAdModal';
-import { ActionBar, ActionDef } from '../components/details/ActionBar';
+import { ActionBar } from '../components/details/ActionBar';
 
 import { services } from '../../../../bootstrap';
 
@@ -29,6 +27,18 @@ export const ListingDetailsScreen = () => {
   const { status: authStatus } = useAuth();
   const { id } = route.params;
 
+  const scrollViewRef = useRef<ScrollView>(null);
+  const tabSectionY = useRef<number>(0);
+
+  const handleTabChange = useCallback(() => {
+    if (tabSectionY.current > 0) {
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, tabSectionY.current - 12),
+        animated: true,
+      });
+    }
+  }, []);
+
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
   const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
@@ -39,83 +49,29 @@ export const ListingDetailsScreen = () => {
     authStatus === 'authenticated' &&
     Boolean(userProfile?.id && String(userProfile.id) === String(listing?.seller.id));
 
-  const handleToggleFavorite = useCallback(() => {
-    if (authStatus !== 'authenticated') {
-      navigate(ROUTES.AUTH_STACK);
-      return;
-    }
-    toggleSave({ adId: id, isSaved });
-  }, [authStatus, id, isSaved, toggleSave]);
-
-  const handleShare = useCallback(async () => {
-    if (!listing) return;
-    try {
-      await Share.share({
-        title: listing.title,
-        message: `Check out ${listing.title} on Esparex: ${listing.price.formatted}`,
+  // View tracking: increment view count once when viewed by a non-owner
+  useEffect(() => {
+    if (id && listing && !isOwner) {
+      services.listingService.incrementListingView(id).catch(() => {
+        // Non-blocking telemetry
       });
-    } catch {
-      // ignore
     }
-  }, [listing]);
+  }, [id, isOwner, listing]);
 
-  const handleEditPress = useCallback(() => {
-    navigate(ROUTES.MAIN_STACK, {
-      screen: ROUTES.MAIN_TABS,
-      params: {
-        screen: ROUTES.PROFILE_TAB,
-        params: {
-          screen: ROUTES.EDIT_LISTING,
-          params: { id },
-        },
-      },
-    });
-  }, [id]);
-
-  const handleMessagePress = useCallback(() => {
-    if (authStatus !== 'authenticated') {
-      navigate(ROUTES.AUTH_STACK);
-      return;
-    }
-
-    Alert.alert(
-      'Contact Seller',
-      'Safety Reminder: Never pay in advance or send money online before inspecting items in person.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Start Chat',
-          onPress: async () => {
-            try {
-              const conversationId = await services.chatService.startChat(id);
-              if (conversationId) {
-                navigate(ROUTES.MAIN_STACK, {
-                  screen: ROUTES.MAIN_TABS,
-                  params: {
-                    screen: ROUTES.CHAT_TAB,
-                    params: {
-                      screen: ROUTES.CHAT_THREAD,
-                      params: { conversationId },
-                    },
-                  },
-                });
-              }
-            } catch (err: unknown) {
-              const errorMessage = err instanceof Error ? err.message : 'Please try again later.';
-              Alert.alert('Unable to start chat', errorMessage);
-            }
-          },
-        },
-      ]
-    );
-  }, [authStatus, id]);
-
-  const handleCallPress = useCallback(() => {
-    Alert.alert('Call Seller', 'Do you want to make a call to the seller?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Call', onPress: () => Linking.openURL('tel:1800000000') },
-    ]);
-  }, []);
+  const {
+    handleToggleFavorite,
+    handleShare,
+    handleReportPress,
+    actions,
+  } = useListingActions({
+    id,
+    listing,
+    isSaved,
+    isOwner,
+    authStatus,
+    toggleSave,
+    onOpenReportModal: () => setShowReportModal(true),
+  });
 
   if (isLoading) {
     return (
@@ -144,33 +100,13 @@ export const ListingDetailsScreen = () => {
 
   const imageUrls = listing.images ? listing.images.map((img) => img.url) : [];
 
-  const actions: ActionDef[] = isOwner
-    ? [
-        {
-          label: 'Edit Listing',
-          onPress: handleEditPress,
-          isPrimary: true,
-          variant: 'primary',
-        },
-      ]
-    : [
-        {
-          label: 'Call Seller',
-          onPress: handleCallPress,
-          isPrimary: false,
-          variant: 'outline',
-        },
-        {
-          label: 'Chat / Message',
-          onPress: handleMessagePress,
-          isPrimary: true,
-          variant: 'primary',
-        },
-      ];
-
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
         <ImageCarousel
           images={imageUrls}
           isSaved={isSaved}
@@ -181,24 +117,30 @@ export const ListingDetailsScreen = () => {
         <PriceSection
           title={listing.title}
           price={listing.price}
+          location={listing.location}
+          condition={listing.condition}
+          category={listing.category}
         />
+
+        <View
+          onLayout={(e) => {
+            tabSectionY.current = e.nativeEvent.layout.y;
+          }}
+        >
+          <ListingContentTabs
+            description={listing.description}
+            spareParts={listing.spareParts}
+            locationId={listing.location?.locationId}
+            listingCategoryId={listing.categoryId}
+            onTabChange={handleTabChange}
+          />
+        </View>
 
         <SellerSection seller={listing.seller} />
 
-        {listing.spareParts && listing.spareParts.length > 0 && (
-          <AvailableSparePartsSection spareParts={listing.spareParts} />
-        )}
-
-        <DescriptionSection description={listing.description} />
-
         <SafetyTipsSection
           adId={listing.id}
-          onReportPress={() => setShowReportModal(true)}
-        />
-
-        <NearbyRepairServicesSection
-          category={listing.category}
-          city={listing.location?.city || listing.location?.display}
+          onReportPress={handleReportPress}
         />
 
         <View className="h-24" />

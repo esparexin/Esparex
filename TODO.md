@@ -446,17 +446,19 @@
   - [x] `GET /api/v1/listings/search` (query param parsing: `q`, `categoryId`, `minPrice`, `maxPrice`, `condition`, `sort`)
   - [x] Rate limiting & empty search response handling
 
-### 1.3 Listing Details Screen (`ROUTES.LISTING_DETAILS`)
+### 1.3 Listing Details Screen (`ROUTES.LISTING_DETAILS`) — ✅ **AUDITED & VERIFIED**
 - **Frontend ([ListingDetailsScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/listings/presentation/screens/ListingDetailsScreen.tsx))**:
-  - [ ] Image carousel pagination dots & smooth swipe on iOS & Android
-  - [ ] Native share sheet trigger (`Share.share`)
-  - [ ] Dynamic sticky action bar: "Edit" for owner vs "Chat with Seller" for buyer
-  - [ ] Unauthenticated click on "Chat with Seller" or "Save" prompts `ROUTES.AUTH_STACK`
-  - [ ] Safety reminder dialog & report ad modal trigger
+  - [x] Image carousel pagination dots & smooth swipe on iOS & Android
+  - [x] Native share sheet trigger (`Share.share`)
+  - [x] Dynamic sticky action bar: "Edit" for owner vs "Chat with Seller" for buyer
+  - [x] Unauthenticated click on "Chat with Seller" or "Save" prompts `ROUTES.AUTH_STACK`
+  - [x] Safety reminder dialog & report ad modal trigger
+  - [x] Compact 3-tab segmented layout with auto-scroll: Tab 1 "Repair Shops" (default), Tab 2 "Description", Tab 3 "Spare Parts" (with badge count)
+  - [x] Canonical device condition badge enforcement: only 'Power On' (variant="success") and 'Power Off' (variant="warning")
 - **Backend API Integration**:
-  - [ ] `GET /api/v1/listings/:id` (returns full detail with seller profile & formatted price)
-  - [ ] `POST /api/v1/listings/:id/save` (auth guard 401 for guests, 200 for authenticated)
-  - [ ] `POST /api/v1/chat/conversations` (initiates conversation thread for buyer)
+  - [x] `GET /api/v1/listings/:id` (returns full detail with seller profile & formatted price)
+  - [x] `POST /api/v1/listings/:id/save` (auth guard 401 for guests, 200 for authenticated)
+  - [x] `POST /api/v1/chat/conversations` (initiates conversation thread for buyer)
 
 ### 1.4 Login Screen (`ROUTES.LOGIN`) — ✅ **AUDITED & VERIFIED**
 - **Frontend ([LoginScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/auth/screens/LoginScreen.tsx))**:

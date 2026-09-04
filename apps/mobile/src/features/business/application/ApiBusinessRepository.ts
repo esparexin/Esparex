@@ -1,7 +1,7 @@
 import { Business } from '@esparex/contracts';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import { BusinessFormState } from '../domain/BusinessFormState';
-import { IBusinessRepository } from './IBusinessRepository';
+import { IBusinessRepository, NearbyBusinessesParams } from './IBusinessRepository';
 import { CreateBusinessRequestMapper } from './mappers/CreateBusinessRequestMapper';
 
 export class ApiBusinessRepository implements IBusinessRepository {
@@ -53,7 +53,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
     return rawResData as string;
   }
 
-  async getNearbyBusinesses(params?: { category?: string; city?: string; limit?: number }): Promise<readonly Business[]> {
+  async getNearbyBusinesses(params?: NearbyBusinessesParams): Promise<readonly Business[]> {
     try {
       const response = await apiClient.get<any>('/businesses', { params });
       const resData = response.data;

@@ -1,9 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, FlatList, Dimensions, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, FlatList, useWindowDimensions, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Image } from 'expo-image';
 import { Center, AppIcon, AppText } from '@esparex/mobile-ui';
-
-const { width } = Dimensions.get('window');
 
 interface ImageCarouselProps {
   images: string[];
@@ -18,14 +16,15 @@ export const ImageCarousel = ({
   onToggleSave,
   onShare,
 }: ImageCarouselProps) => {
+  const { width } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const slide = Math.round(event.nativeEvent.contentOffset.x / width);
+    const slide = Math.round(event.nativeEvent.contentOffset.x / (width || 1));
     if (slide !== activeIndex) {
       setActiveIndex(slide);
     }
-  }, [activeIndex]);
+  }, [activeIndex, width]);
 
   if (!images || images.length === 0) {
     return (
@@ -45,14 +44,22 @@ export const ImageCarousel = ({
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={100}
-        renderItem={({ item }) => (
-          <Image
-            source={{ uri: item }}
-            style={{ width, height: '100%' }} // Exception: width is a runtime prop (dynamic measurement)
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            transition={150}
-          />
+        renderItem={({ item, index }) => (
+          <View
+            // design-token-ignore: dynamic screen width measurement
+            style={{ width, height: '100%' }}
+            accessible={true}
+            accessibilityRole="image"
+            accessibilityLabel={`Product photo ${index + 1} of ${images.length}`}
+          >
+            <Image
+              source={{ uri: item }}
+              className="w-full h-full"
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={150}
+            />
+          </View>
         )}
       />
 
@@ -62,6 +69,7 @@ export const ImageCarousel = ({
           <TouchableOpacity
             onPress={onShare}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md items-center justify-center"
             accessibilityRole="button"
             accessibilityLabel="Share listing"
@@ -73,6 +81,7 @@ export const ImageCarousel = ({
           <TouchableOpacity
             onPress={onToggleSave}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md items-center justify-center"
             accessibilityRole="button"
             accessibilityLabel={isSaved ? 'Remove from saved' : 'Save listing'}
@@ -88,7 +97,11 @@ export const ImageCarousel = ({
 
       {/* Pagination Dots */}
       {images.length > 1 && (
-        <View className="absolute bottom-3 left-0 right-0 flex-row items-center justify-center gap-1.5">
+        <View
+          accessible={false}
+          importantForAccessibility="no"
+          className="absolute bottom-3 left-0 right-0 flex-row items-center justify-center gap-1.5"
+        >
           {images.map((_, i) => (
             <View
               key={i}

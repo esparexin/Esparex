@@ -5,6 +5,8 @@ jest.mock('../../../../../bootstrap', () => ({
   services: {
     listingService: {
       getListingDetails: jest.fn(),
+      getListingPhone: jest.fn().mockResolvedValue({ phone: '+919876543210' }),
+      incrementListingView: jest.fn().mockResolvedValue(undefined),
     },
     chatService: {
       startChat: jest.fn(),
@@ -129,5 +131,49 @@ describe('ListingDetailsScreen', () => {
     expect(getByText('Edit Listing')).toBeTruthy();
     expect(queryByText('Call Seller')).toBeNull();
     expect(queryByText('Chat / Message')).toBeNull();
+  });
+
+  it('increments listing views for non-owners on mount', () => {
+    const { services } = require('../../../../../bootstrap');
+    mockUseListingDetails.mockReturnValue({
+      data: sampleListing,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    render(<ListingDetailsScreen />);
+    expect(services.listingService.incrementListingView).toHaveBeenCalledWith('ad-details-100');
+  });
+
+  it('fetches real phone number when Call Seller is pressed', async () => {
+    const { services } = require('../../../../../bootstrap');
+    mockUseListingDetails.mockReturnValue({
+      data: sampleListing,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    const { getByText } = render(<ListingDetailsScreen />);
+    const callButton = getByText('Call Seller');
+    fireEvent.press(callButton);
+
+    expect(services.listingService.getListingPhone).toHaveBeenCalledWith('ad-details-100');
+  });
+
+  it('renders 3-tab segmented layout and allows switching to Description tab', () => {
+    mockUseListingDetails.mockReturnValue({
+      data: sampleListing,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    const { getByLabelText, getByText } = render(<ListingDetailsScreen />);
+    expect(getByText('Repair Shops')).toBeTruthy();
+    expect(getByText('Description')).toBeTruthy();
+    expect(getByText('Spare Parts')).toBeTruthy();
+
+    const descTab = getByLabelText('Description');
+    fireEvent.press(descTab);
+    expect(getByText('16GB RAM 512GB SSD Space Gray')).toBeTruthy();
   });
 });

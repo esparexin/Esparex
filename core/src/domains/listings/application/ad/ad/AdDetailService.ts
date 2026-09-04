@@ -383,8 +383,3 @@ export const getAdIdBySlug = async (
 
     return null;
 };
-
-/**
- * Builds the aggregation pipeline for the homepage feed.
- * Pushes heavy lifting (facet matching, sorting, spotlight/boost separation) to MongoDB.
- */
