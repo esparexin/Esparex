@@ -154,7 +154,7 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
 
           {loadingPlans && (
             <View className="p-8 items-center">
-              <ActivityIndicator size="large" color="#0284c7" />
+              <ActivityIndicator size="large" color={base.brand[500]} />
             </View>
           )}
 
