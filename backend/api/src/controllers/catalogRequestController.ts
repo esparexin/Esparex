@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
 import * as CatalogRequestService from '@esparex/core/domains/catalog/application/services/CatalogRequestService';
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
@@ -154,10 +155,11 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
         }
 
         if (query.q) {
+            const safeSearch = escapeRegExp(query.q);
             filter.$or = [
-                { requestedName: { $regex: query.q, $options: 'i' } },
-                { canonicalName: { $regex: query.q, $options: 'i' } },
-                { normalizedName: { $regex: query.q, $options: 'i' } },
+                { requestedName: { $regex: safeSearch, $options: 'i' } },
+                { canonicalName: { $regex: safeSearch, $options: 'i' } },
+                { normalizedName: { $regex: safeSearch, $options: 'i' } },
             ];
         }
 
