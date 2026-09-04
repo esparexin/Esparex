@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -56,9 +56,6 @@ export default function UsersPage() {
     const [searchInput, setSearchInput] = useState("");
     const [selectedUser, setSelectedUser] = useState<ManagedUser | null>(null);
     const [actionModal, setActionModal] = useState<UserActionState>(DEFAULT_USER_ACTION_STATE);
-    const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
-
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const statusFilter = normalizeUserManagementStatusFilter(searchParams.get("status"));
     const roleFilter = searchParams.get("role") || "all";
@@ -123,17 +120,6 @@ export default function UsersPage() {
 
         return () => clearTimeout(timer);
     }, [committedSearch, pathname, router, searchInput, searchParams, statusFilter, roleFilter, verifiedFilter]);
-
-    // Close dropdown on outside click
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setDropdownOpen(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     const openActionModal = (type: UserActionType, user: ManagedUser) => {
         setActionModal({ isOpen: true, type, user });
@@ -215,10 +201,6 @@ export default function UsersPage() {
             cell: (user) => (
                 <UserActionMenu
                     user={user}
-                    isOpen={dropdownOpen === user.id}
-                    menuRef={dropdownRef}
-                    onToggle={() => setDropdownOpen(dropdownOpen === user.id ? null : user.id)}
-                    onClose={() => setDropdownOpen(null)}
                     onOpenDetails={setSelectedUser}
                     onOpenAction={openActionModal}
                 />
