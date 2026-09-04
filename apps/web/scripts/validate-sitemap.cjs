@@ -68,7 +68,7 @@ function auditUrlList(urls) {
     let parsed;
     try {
       parsed = new URL(urlStr);
-    } catch (e) {
+    } catch {
       violations.push({ type: 'MALFORMED_URL', url: urlStr, detail: 'Failed to parse URL' });
       continue;
     }
@@ -207,12 +207,12 @@ async function main() {
       const urls = parseUrlsFromXml(response.data);
       console.log(`📊 Found ${urls.length} URLs in sitemap`);
 
-      const { violations, warnings, uniqueUrls } = auditUrlList(urls);
+      const { violations, uniqueUrls } = auditUrlList(urls);
       console.log(`📈 Unique URLs: ${uniqueUrls}`);
 
       if (violations.length > 0) {
         console.error(`\n❌ Found ${violations.length} Critical SEO Violations in Sitemap:`);
-        violations.forEach((v, idx) => {
+        violations.forEach((v) => {
           console.error(`  [${v.type}] ${v.url}: ${v.detail}`);
         });
         process.exit(1);
