@@ -107,13 +107,13 @@ export default function AdminUsersPage() {
                         return (
                             <div className="flex items-center gap-2">
                                 <input
-                                    className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                    className="flex-1 rounded-lg border border-input bg-background px-2 py-1 text-caption text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={permissionsDraft}
                                     placeholder="e.g. users:read, listings:write"
                                     onChange={(e) => setPermissionsDraft(e.target.value)}
                                 />
                                 <button
-                                    className="inline-flex items-center gap-1 rounded-md bg-slate-900 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+                                    className="inline-flex items-center gap-1 rounded-md bg-foreground px-2 py-1 text-caption font-semibold text-background hover:bg-foreground/90 disabled:opacity-50 cursor-pointer"
                                     disabled={isMutating}
                                     onClick={() => {
                                         if (!editingAdmin) return;
@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
                                     <Save size={12} /> Save
                                 </button>
                                 <button
-                                    className="rounded-md border border-slate-200 px-2 py-1 text-xs text-foreground-secondary hover:bg-slate-50"
+                                    className="rounded-md border border-border px-2 py-1 text-caption text-foreground-secondary hover:bg-muted/50 cursor-pointer"
                                     onClick={onCancelEdit}
                                 >
                                     Cancel
@@ -138,9 +138,9 @@ export default function AdminUsersPage() {
                         <div className="flex flex-wrap gap-1 max-w-[380px]">
                             {admin.permissions.length > 0
                                 ? admin.permissions.map((p) => (
-                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
+                                    <span key={p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
                                 ))
-                                : <span className="text-xs italic text-foreground-subtle">No explicit permissions</span>
+                                : <span className="text-caption italic text-foreground-subtle">No explicit permissions</span>
                             }
                         </div>
                     );
@@ -151,7 +151,7 @@ export default function AdminUsersPage() {
                 cell: (admin) => (
                     editingAdminId === admin.id ? null : (
                         <button
-                            className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-foreground-secondary hover:bg-slate-50"
+                            className="rounded-md border border-border px-2 py-1 text-caption font-medium text-foreground-secondary hover:bg-muted/50 cursor-pointer"
                             onClick={() => onStartEdit(admin)}
                         >
                             Edit Permissions
@@ -192,7 +192,7 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => onToggleStatus(admin)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-foreground-subtle hover:text-primary transition-all group"
+                            className="p-1.5 hover:bg-muted rounded-lg text-foreground-subtle hover:text-primary transition-all group cursor-pointer"
                             title={admin.status === "inactive" ? "Activate" : "Deactivate"}
                         >
                             <Power size={14} className={admin.status === "inactive" ? "text-foreground-subtle" : "text-emerald-500"} />
@@ -200,7 +200,7 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => onStartEdit(admin)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-foreground-subtle hover:text-blue-600 transition-all"
+                            className="p-1.5 hover:bg-muted rounded-lg text-foreground-subtle hover:text-primary transition-all cursor-pointer"
                             title="Edit Account"
                         >
                             <Save size={14} />
@@ -208,7 +208,7 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => confirmDelete(admin.id)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-red-50 rounded-lg text-foreground-subtle hover:text-red-600 transition-all"
+                            className="p-1.5 hover:bg-destructive/10 rounded-lg text-foreground-subtle hover:text-destructive transition-all cursor-pointer"
                             title="Delete Account"
                         >
                             <Trash2 size={14} />
@@ -324,14 +324,14 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => setDeletingAdminId(null)}
                             disabled={isMutating}
-                            className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-slate-50 transition-all text-sm"
+                            className="px-5 py-2 rounded-xl border border-border text-foreground-secondary font-semibold hover:bg-muted/50 transition-all text-body cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={onConfirmDelete}
                             disabled={isMutating}
-                            className="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 shadow-lg shadow-red-200 transition-all text-sm flex items-center gap-2"
+                            className="px-5 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold hover:bg-destructive/90 shadow-sm transition-all text-body flex items-center gap-2 cursor-pointer"
                         >
                             {isMutating ? "Deleting..." : "Confirm Delete"}
                         </button>

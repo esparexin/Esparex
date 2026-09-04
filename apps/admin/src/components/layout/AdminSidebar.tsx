@@ -20,8 +20,8 @@ function SidebarFooterMeta({ role }: { role?: string }) {
         : role?.replace("_", " ") || "";
     return (
         <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-foreground-subtle">v2.0.0-rc</span>
-            <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-tiny font-bold uppercase tracking-widest text-foreground-subtle">
+            <span className="text-caption font-medium text-foreground-subtle">v2.0.0-rc</span>
+            <span className="rounded-full bg-sidebar-accent px-2 py-0.5 text-tiny font-bold uppercase tracking-widest text-foreground-subtle">
                 {formattedRole}
             </span>
         </div>
@@ -103,13 +103,13 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             <aside
                 ref={sidebarRef}
                 className={cn(
-                    "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
+                    "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
                     isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full w-64",
                     "lg:relative lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
                     isMinified ? "lg:w-16" : "lg:w-64"
                 )}
             >
-                <div className={cn("flex h-14 shrink-0 items-center border-b border-slate-800 px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
+                <div className={cn("flex h-14 shrink-0 items-center border-b border-sidebar-border px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
                     <div className="flex items-center gap-2.5 overflow-hidden">
                         <Image
                             src="/icons/logo.png"
@@ -120,7 +120,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                             className={cn("h-7 w-auto object-contain", isMinified && "lg:hidden")}
                         />
                         {isMinified && (
-                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 font-extrabold text-white shadow-sm text-sm">
+                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-extrabold text-primary-foreground shadow-xs text-caption">
                                 E
                             </span>
                         )}
@@ -128,14 +128,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
                     <div className="flex items-center">
                         <button
-                            className="lg:hidden rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white"
+                            className="lg:hidden rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer"
                             onClick={() => setIsMobileOpen(false)}
                         >
                             <X size={20} />
                         </button>
                         
                         <button
-                            className={cn("hidden lg:flex rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white", isMinified && "h-9 w-9 items-center justify-center")}
+                            className={cn("hidden lg:flex rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground cursor-pointer", isMinified && "h-9 w-9 items-center justify-center")}
                             onClick={() => setIsMinified(!isMinified)}
                             aria-label={isMinified ? "Expand sidebar" : "Collapse sidebar"}
                         >
@@ -146,9 +146,9 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
                 <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
                     <div className="px-4 pt-4">
-                        <div className={cn("rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-3", isMinified && "lg:hidden")}>
+                        <div className={cn("rounded-2xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-3", isMinified && "lg:hidden")}>
                             <p className="text-tiny font-bold uppercase tracking-[0.14em] text-foreground-tertiary">Navigation</p>
-                            <p className="mt-2 text-xs text-foreground-subtle">
+                            <p className="mt-2 text-caption text-foreground-subtle">
                                 Modules consolidate filtered views into tabs and query-driven screens.
                             </p>
                         </div>
@@ -157,7 +157,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     <SidebarNavigation items={visibleModules} counts={counts} isMinified={isMinified} />
                 </div>
 
-                <div className={cn("border-t border-slate-800 px-4 py-3", isMinified && "lg:text-center")}>
+                <div className={cn("border-t border-sidebar-border px-4 py-3", isMinified && "lg:text-center")}>
                     <div className={cn(isMinified && "lg:hidden block")}>
                         <SidebarFooterMeta role={admin?.role} />
                     </div>

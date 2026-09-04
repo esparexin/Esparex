@@ -54,8 +54,8 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                         "group relative flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200",
                                         isMinified ? "justify-center" : "justify-between",
                                         isActive
-                                            ? "bg-primary text-white shadow-md shadow-primary/20"
-                                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                                            ? "bg-primary text-primary-foreground shadow-xs"
+                                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                                     )}
                                 >
                                     <div className={cn("flex items-center gap-3 min-w-0", isMinified && "justify-center")}>
@@ -63,11 +63,11 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                             size={20}
                                             className={cn(
                                                 "shrink-0",
-                                                isActive ? "text-white" : "text-foreground-subtle group-hover:text-white"
+                                                isActive ? "text-primary-foreground" : "text-foreground-subtle group-hover:text-sidebar-foreground"
                                             )}
                                         />
                                         {!isMinified && (
-                                            <span className={cn("truncate text-sm font-medium", isActive ? "text-white" : "text-slate-200")}>
+                                            <span className={cn("truncate text-body font-medium", isActive ? "text-primary-foreground" : "text-sidebar-foreground")}>
                                                 {item.label}
                                             </span>
                                         )}
@@ -77,7 +77,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                         <span
                                             className={cn(
                                                 "rounded-full px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.14em] whitespace-nowrap",
-                                                isActive ? "bg-white/15 text-white" : "bg-slate-800 text-slate-300"
+                                                isActive ? "bg-white/15 text-white" : "bg-sidebar-accent text-sidebar-foreground/80"
                                             )}
                                         >
                                             {counter}
@@ -86,7 +86,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
 
                                     {isMinified && (
                                         <div className="absolute left-14 hidden items-center z-50 group-hover:flex animate-in slide-in-from-left-2 duration-150">
-                                            <div className="rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-white shadow-xl whitespace-nowrap">
+                                            <div className="rounded-md border border-sidebar-border bg-sidebar px-3 py-2 text-caption font-semibold text-sidebar-foreground shadow-xl whitespace-nowrap">
                                                 {item.label}
                                                 {typeof counter === "number" && counter > 0 ? ` (${counter})` : ""}
                                             </div>

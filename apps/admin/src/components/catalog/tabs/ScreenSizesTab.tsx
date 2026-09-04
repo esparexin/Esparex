@@ -195,12 +195,12 @@ export default function ScreenSizesTab() {
                                 onChange={(size) => setFormData((prev) => ({ ...prev, size }))}
                             />
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">Sort Order</label>
+                                <label className="text-tiny font-bold text-foreground-tertiary uppercase tracking-wider">Sort Order</label>
                                 <input
                                     required
                                     type="number"
                                     min={1}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={formData.value}
                                     onChange={(e) => setFormData((prev) => ({ ...prev, value: Number(e.target.value) }))}
                                 />

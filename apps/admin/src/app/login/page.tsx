@@ -155,24 +155,24 @@ function LoginForm() {
   const showSpinner = authLoading && !submitting && !authCheckTimedOut;
   if (showSpinner) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-100 via-slate-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-[420px] space-y-8">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-xl shadow-primary/20 mb-4 animate-in zoom-in duration-500">
-            <Shield className="text-white w-8 h-8" />
+            <Shield className="text-primary-foreground w-8 h-8" />
           </div>
           <Heading variant="h1">Esparex Admin</Heading>
           <Text variant="small" className="text-foreground-tertiary">Secure access to the command center</Text>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="bg-card/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-border isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FieldRoot<LoginFormValues, "email">
@@ -307,7 +307,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
       }

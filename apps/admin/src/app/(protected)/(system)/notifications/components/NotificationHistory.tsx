@@ -56,7 +56,7 @@ export function NotificationHistory({
                     <div className="font-bold text-foreground truncate">{log.title}</div>
                     <div className="text-xs text-foreground-tertiary line-clamp-2">{log.body}</div>
                     {log.actionUrl ? (
-                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-tiny font-medium text-foreground-secondary">
+                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-1 text-tiny font-medium text-foreground-secondary">
                             <LinkIcon size={10} />
                             <span className="truncate">{log.actionUrl}</span>
                         </div>
@@ -129,8 +129,8 @@ export function NotificationHistory({
 
     return (
         <div className="space-y-4 lg:col-span-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+                <h2 className="mb-4 flex items-center gap-2 text-body-lg font-bold text-foreground">
                     <HistoryIcon size={20} className="text-foreground-subtle" />
                     Delivery History
                 </h2>
@@ -150,7 +150,7 @@ export function NotificationHistory({
                 />
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-foreground-secondary">
+            <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 text-body text-foreground-secondary">
                 <div className="flex items-center gap-2 font-semibold text-foreground-secondary">
                     <Clock3 size={16} />
                     What this screen is for

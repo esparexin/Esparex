@@ -20,7 +20,7 @@ const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.tot
 const COLOR_VARIANTS: Record<string, string> = {
     emerald: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200",
     red: "bg-red-50 text-red-700 hover:bg-red-100 border-red-200",
-    slate: "bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200",
+    slate: "bg-muted text-foreground-secondary hover:bg-muted/80 border-border",
     amber: "bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200",
     blue: "bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200",
     indigo: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200",
@@ -82,7 +82,7 @@ export default function BusinessesView() {
               { label: "Renew", color: "blue", icon: CalendarClock, handler: () => { void handleBulkRenew(Array.from(selectedIds)); setSelectedIds(new Set()); } },
               { label: "Resend Warnings", color: "indigo", icon: History, handler: () => { void handleBulkResendWarnings(Array.from(selectedIds)); setSelectedIds(new Set()); } },
             ].map(({ label, color, icon: Icon, handler }) => (
-                <button key={label} onClick={handler} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${COLOR_VARIANTS[color] || "bg-slate-50 text-slate-700 border-slate-200"}`}>
+                <button key={label} onClick={handler} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-caption font-bold transition-colors border ${COLOR_VARIANTS[color] || "bg-muted text-foreground-secondary border-border"} cursor-pointer`}>
                     <Icon size={14} /> {label}
                 </button>
             ))}
@@ -102,11 +102,11 @@ export default function BusinessesView() {
                                 onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
                                 className={`rounded-xl border p-3 flex items-center gap-3 shadow-xs text-left transition-all cursor-pointer ${
                                     isActive
-                                        ? "bg-sky-50/60 border-sky-300 ring-2 ring-sky-500/20 shadow-xs"
-                                        : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                                        ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
+                                        : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
                                 }`}
                             >
-                                <ChartBar size={16} className={isActive ? "text-sky-600" : "text-foreground-subtle"} />
+                                <ChartBar size={16} className={isActive ? "text-primary" : "text-foreground-subtle"} />
                                 <div>
                                     <div className={`text-lg font-bold ${color}`}>{value}</div>
                                     <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider">{label}</div>
@@ -117,7 +117,7 @@ export default function BusinessesView() {
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
-                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
+                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
                         <div className="flex items-center gap-2">
                             {[
                                 { key: "expiringIn3Days", raw: rawExpiringIn3Days, label: "Expiring (3d)", c1: "rose" },
@@ -125,7 +125,7 @@ export default function BusinessesView() {
                                 { key: "warningNotSent", raw: rawWarningNotSent, label: "No Warning", c1: "amber" },
                             ].map(({ key, raw, label, c1 }) => (
                                 <button key={key} onClick={() => replaceQueryState({ [key]: raw === "true" ? null : "true", page: null, ...(key !== "expiringIn3Days" ? { [key === "warningSent" ? "warningNotSent" : "warningSent"]: null } : {}) })}
-                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${raw === "true" ? `${COLOR_VARIANTS[c1]} shadow-xs` : "bg-white border-slate-200 text-foreground-secondary hover:bg-slate-50"}`}>
+                                    className={`px-3 py-2 border rounded-lg text-caption font-bold transition-all cursor-pointer ${raw === "true" ? `${COLOR_VARIANTS[c1]} shadow-xs` : "bg-card border-border text-foreground-secondary hover:bg-muted/50"}`}>
                                     {label}
                                 </button>
                             ))}

@@ -77,7 +77,7 @@ export default function SmartAlertsPage() {
             <div className="flex flex-col gap-6">
                 {/* View Switcher */}
                 <div className="flex items-center justify-between">
-                    <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                    <div className="inline-flex p-1 bg-muted rounded-xl border border-border">
                         <button
                             onClick={() => { setActiveView('logs'); setPage(1); setSelectedIds(new Set()); }}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
@@ -108,7 +108,7 @@ export default function SmartAlertsPage() {
                         <button 
                             onClick={() => activeView === 'logs' ? getLogs({ page, limit: 50 }) : getAlerts({ page, limit: 50 })}
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 transition-colors text-foreground-secondary font-medium"
+                            className="flex items-center gap-2 px-3 py-1.5 text-body bg-card border border-border rounded-lg shadow-xs hover:bg-muted/50 transition-colors text-foreground-secondary font-medium cursor-pointer"
                         >
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-foreground-subtle' : 'text-foreground-tertiary'}`} />
                             Refresh
@@ -116,10 +116,10 @@ export default function SmartAlertsPage() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-card rounded-xl shadow-xs border border-border overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left text-foreground-secondary">
-                            <thead className="text-xs text-foreground-tertiary uppercase bg-slate-50 border-b border-slate-200">
+                        <table className="w-full text-body text-left text-foreground-secondary">
+                            <thead className="text-caption text-foreground-tertiary uppercase bg-muted/30 border-b border-border">
                                 {activeView === 'logs' ? (
                                     <tr>
                                         <th className="px-6 py-4 font-semibold">Alert Owner</th>
@@ -134,7 +134,7 @@ export default function SmartAlertsPage() {
                                                 type="checkbox"
                                                 checked={alerts.length > 0 && selectedIds.size === alerts.length}
                                                 onChange={toggleSelectAll}
-                                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                                                className="rounded border-input text-primary focus-visible:ring-primary/40 h-4 w-4"
                                             />
                                         </th>
                                         <th className="px-6 py-4 font-semibold">Alert Name / User</th>
@@ -145,35 +145,35 @@ export default function SmartAlertsPage() {
                                     </tr>
                                 )}
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-border/60">
                                 {isLoading && items.length === 0 ? (
                                     <tr>
                                         <td colSpan={activeView === 'logs' ? 4 : 6} className="h-48 text-center text-foreground-subtle">
                                             <div className="flex flex-col items-center gap-3">
                                                 <Loader2 className="h-6 w-6 animate-spin text-foreground-subtle" />
-                                                <span className="text-sm font-medium">Fetching data...</span>
+                                                <span className="text-body font-medium">Fetching data...</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : error ? (
                                     <tr>
-                                        <td colSpan={activeView === 'logs' ? 4 : 6} className="h-48 text-center text-red-500">
+                                        <td colSpan={activeView === 'logs' ? 4 : 6} className="h-48 text-center text-destructive">
                                             <div className="flex flex-col items-center gap-2">
-                                                <span className="font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-md mb-1">Error fetching data</span>
-                                                <span className="text-sm">{error}</span>
+                                                <span className="font-semibold text-destructive bg-destructive/10 px-3 py-1 rounded-md mb-1">Error fetching data</span>
+                                                <span className="text-body">{error}</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : items.length === 0 ? (
                                     <tr>
-                                        <td colSpan={activeView === 'logs' ? 4 : 6} className="h-48 text-center bg-slate-50/30">
+                                        <td colSpan={activeView === 'logs' ? 4 : 6} className="h-48 text-center bg-muted/20">
                                             <div className="flex flex-col items-center justify-center gap-3 py-6">
-                                                <div className="h-12 w-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                                <div className="h-12 w-12 rounded-full bg-muted border border-border flex items-center justify-center">
                                                     <BellRing className="h-5 w-5 text-foreground-subtle" />
                                                 </div>
                                                 <div>
                                                     <p className="text-foreground-secondary font-medium">{activeView === 'logs' ? 'No Alerts Delivered Yet' : 'No Alerts Found'}</p>
-                                                    <p className="text-sm text-foreground-subtle mt-1 max-w-sm">
+                                                    <p className="text-caption text-foreground-subtle mt-1 max-w-sm">
                                                         {activeView === 'logs' 
                                                             ? 'When an active listing matches a user\'s saved criteria, the delivery log will appear here.'
                                                             : 'There are no active or expired smart alerts in the system.'}
@@ -184,7 +184,7 @@ export default function SmartAlertsPage() {
                                     </tr>
                                 ) : activeView === 'logs' ? (
                                     (items as AlertLog[]).map((log) => (
-                                        <tr key={log._id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={log._id} className="hover:bg-muted/40 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {typeof log.alertId === "object" ? (
                                                     <div className="flex flex-col">
@@ -250,13 +250,13 @@ export default function SmartAlertsPage() {
                                     ))
                                 ) : (
                                     (items as AlertItem[]).map((alert) => (
-                                        <tr key={String(alert._id || alert.id)} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={String(alert._id || alert.id)} className="hover:bg-muted/40 transition-colors group">
                                             <td className="px-4 py-4">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedIds.has(String(alert._id || alert.id))}
                                                     onChange={() => toggleSelect(String(alert._id || alert.id))}
-                                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                                                    className="rounded border-input text-primary focus-visible:ring-primary/40 h-4 w-4"
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
@@ -269,7 +269,7 @@ export default function SmartAlertsPage() {
                                                 <div className="flex gap-1 flex-wrap max-w-xs">
                                                     {Object.entries(alert.criteria || {}).map(([k, v]) => 
                                                         v ? (
-                                                            <span key={k} className="px-1.5 py-0.5 bg-slate-100 text-foreground-secondary rounded text-tiny border border-slate-200">
+                                                            <span key={k} className="px-1.5 py-0.5 bg-muted text-foreground-secondary rounded text-tiny border border-border">
                                                                 {k}: {String(v)}
                                                             </span>
                                                         ) : null
@@ -307,22 +307,22 @@ export default function SmartAlertsPage() {
                         </table>
                     </div>
                     {pagination.pages > 1 && (
-                        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                            <span className="text-sm font-medium text-foreground-tertiary">
+                        <div className="px-6 py-4 border-t border-border flex items-center justify-between bg-muted/20">
+                            <span className="text-caption font-medium text-foreground-tertiary">
                                 Showing page {page} of {pagination.pages}
                             </span>
                             <div className="flex gap-2">
                                 <button
                                     disabled={page === 1}
                                     onClick={() => { setPage(p => p - 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-sm font-medium bg-white border border-slate-200 rounded-md shadow-sm hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     disabled={page === pagination.pages}
                                     onClick={() => { setPage(p => p + 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-sm font-medium bg-white border border-slate-200 rounded-md shadow-sm hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Next
                                 </button>

@@ -27,13 +27,13 @@ export function NotificationFilters({
                 <input
                     type="text"
                     placeholder="Search title or body..."
-                    className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
                 />
             </div>
             <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-lg border border-input bg-background px-3 py-2 text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 value={status}
                 onChange={(event) =>
                     onFilterChange({ status: event.target.value === "all" ? null : event.target.value, page: null })
@@ -45,7 +45,7 @@ export function NotificationFilters({
                 <option value="scheduled">Scheduled</option>
             </select>
             <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-lg border border-input bg-background px-3 py-2 text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 value={historyTargetType}
                 onChange={(event) =>
                     onFilterChange({

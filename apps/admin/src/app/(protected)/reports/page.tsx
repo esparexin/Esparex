@@ -115,7 +115,7 @@ export default function ReportsPage() {
                 header: "Status",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
+                        <span className="inline-flex rounded-full bg-muted px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
                             {item.status}
                         </span>
                         <div className="text-xs text-foreground-subtle">{item.reportCount} reports</div>

@@ -128,7 +128,7 @@ export function AdsTable({
                 id: "image",
             className: "w-14",
             cell: (item) => (
-                <div className="h-10 w-10 overflow-hidden rounded-md border border-slate-200 bg-slate-100 shrink-0">
+                <div className="h-10 w-10 overflow-hidden rounded-md border border-border bg-muted shrink-0">
                     {item.images[0] ? (
                         <img
                             src={item.images[0]}
@@ -196,7 +196,7 @@ export function AdsTable({
                             <span className="font-medium text-foreground truncate max-w-[130px]">{item.locationLabel || "Unknown"}</span>
                         </div>
                         <div className="pl-4">
-                            <span className={`inline-flex rounded px-1.5 py-0.5 text-tiny font-bold uppercase tracking-wider ${geo.color} bg-slate-100/80`}>
+                            <span className={`inline-flex rounded px-1.5 py-0.5 text-tiny font-bold uppercase tracking-wider ${geo.color} bg-muted/80`}>
                                 {geo.label}
                             </span>
                         </div>

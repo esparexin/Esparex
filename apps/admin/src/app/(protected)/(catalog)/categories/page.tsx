@@ -16,10 +16,10 @@ export default function CategoriesPage() {
             tabs={<AdminModuleTabs tabs={catalogManagementTabs} variant="pills" />}
         >
             <Suspense fallback={
-                <div className="flex h-[400px] w-full items-center justify-center rounded-xl border border-slate-100 bg-white/50 backdrop-blur-sm">
+                <div className="flex h-[400px] w-full items-center justify-center rounded-xl border border-border bg-card/50 backdrop-blur-sm">
                     <div className="flex flex-col items-center gap-2">
                         <Loader2 className="h-8 w-8 animate-spin text-primary/50" />
-                        <p className="text-xs font-medium text-foreground-subtle uppercase tracking-widest">Loading Catalog...</p>
+                        <p className="text-caption font-medium text-foreground-subtle uppercase tracking-widest">Loading Catalog...</p>
                     </div>
                 </div>
             }>

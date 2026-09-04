@@ -16,13 +16,13 @@ export function CatalogCategoryTags({
                 const cat = categories.find((c) => c.id === cid);
                 const isValid = validateId ? validateId(cid) : true;
                 return (
-                    <span key={cid} className={`px-2 py-0.5 rounded text-tiny border whitespace-nowrap ${isValid ? "bg-slate-100 text-foreground-secondary border-slate-200" : "bg-red-50 text-red-600 border-red-100 font-bold"}`}
+                    <span key={cid} className={`px-2 py-0.5 rounded text-tiny border whitespace-nowrap ${isValid ? "bg-muted text-foreground-secondary border-border" : "bg-destructive/10 text-destructive border-destructive/20 font-bold"}`}
                         title={!isValid ? "This category link is invalid or inactive for this entity type." : ""}>
                         {cat?.name || "Archived"}{!isValid && " (!)"}
                     </span>
                 );
             })}
-            {hiddenCount > 0 && <span className="px-2 py-0.5 rounded text-tiny bg-slate-50 text-foreground-subtle border border-slate-100 whitespace-nowrap">+{hiddenCount} more</span>}
+            {hiddenCount > 0 && <span className="px-2 py-0.5 rounded text-tiny bg-muted/40 text-foreground-subtle border border-border/60 whitespace-nowrap">+{hiddenCount} more</span>}
         </div>
     );
 }

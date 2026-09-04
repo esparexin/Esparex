@@ -38,7 +38,7 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
             header: "Business",
             cell: (biz) => (
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 shrink-0 rounded-xl bg-slate-100 flex items-center justify-center text-foreground-subtle"><Building2 size={20} /></div>
+                    <div className="w-10 h-10 shrink-0 rounded-xl bg-muted flex items-center justify-center text-foreground-subtle"><Building2 size={20} /></div>
                     <div className="min-w-0">
                         <div className="font-bold text-foreground leading-tight truncate">{biz.name}</div>
                         <div className="text-tiny text-foreground-subtle font-mono mt-0.5 truncate">{biz.id}</div>
@@ -58,7 +58,7 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
                             <div className="text-tiny font-black tracking-tighter tabular-nums" style={{ color }}>{score}%</div>
                             {score > 85 && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_4px_theme(colors.emerald.400)]" />}
                         </div>
-                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden border border-border/50 shadow-inner">
                             <div className="h-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(0,0,0,0.1)]" style={{ width: `${score}%`, backgroundColor: color, backgroundImage: `linear-gradient(to right, transparent, rgba(255,255,255,0.3))` }} />
                         </div>
                     </div>

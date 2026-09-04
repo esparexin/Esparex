@@ -137,7 +137,7 @@ export default function AuditLogsPage() {
                 const admin = (log.adminId && typeof log.adminId === 'object') ? log.adminId : null;
                 return (
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground-subtle">
                             <User size={14} />
                         </div>
                         <div>
@@ -172,7 +172,7 @@ export default function AuditLogsPage() {
         {
             header: "Details",
             cell: (log) => (
-                <div className="max-w-[300px] truncate text-tiny text-foreground-tertiary italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
+                <div className="max-w-[300px] truncate text-tiny text-foreground-tertiary italic bg-muted/40 p-1 rounded border border-border overflow-hidden">
                     {log.metadata ? JSON.stringify(log.metadata) : 'No extra data'}
                 </div>
             )
@@ -219,12 +219,12 @@ export default function AuditLogsPage() {
                 onStatusChange={(value) => replaceQueryState({ action: value === "all" ? null : value, page: null })}
                 statusOptions={statusOptions}
                 extraFilters={
-                    <div className="flex items-center gap-1.5 ml-2 border-l border-slate-100 pl-4">
+                    <div className="flex items-center gap-1.5 ml-2 border-l border-border pl-4">
                         <Database className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                         <select
                             value={targetTypeFilter}
                             onChange={(e) => replaceQueryState({ targetType: e.target.value === "all" ? null : e.target.value, page: null })}
-                            className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-7 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                            className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                             {TARGET_TYPE_OPTIONS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -241,8 +241,8 @@ export default function AuditLogsPage() {
                 </div>
             ) : null}
 
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2 text-black">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-border bg-muted/20 flex items-center gap-2 text-foreground">
                     <Activity size={18} className="text-foreground-subtle" />
                     <h2 className="text-sm font-bold text-foreground-secondary">Audit Trail</h2>
                 </div>

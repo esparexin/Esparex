@@ -160,12 +160,12 @@ export default function UsersPage() {
             header: "User Name",
             cell: (user) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground-subtle">
                         <UserIcon size={20} />
                     </div>
                     <div>
                         <div className="font-bold text-foreground">{user.name || "Unknown"}</div>
-                        <div className="text-xs text-foreground-tertiary">ID: {user.id}</div>
+                        <div className="text-tiny text-foreground-tertiary">ID: {user.id}</div>
                     </div>
                 </div>
             )
@@ -249,7 +249,7 @@ export default function UsersPage() {
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 shadow-2xs transition hover:border-slate-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-md border border-border bg-card px-2.5 py-1.5 shadow-xs transition hover:border-border/80">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
                             <p className="mt-0.5 text-base font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
@@ -292,7 +292,7 @@ export default function UsersPage() {
                         extraFilters={
                             <>
                                 <select
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={roleFilter}
                                     onChange={(event) => {
                                         const nextRole = event.target.value;
@@ -312,7 +312,7 @@ export default function UsersPage() {
                                     <option value="business">Businesses</option>
                                 </select>
                                 <select
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={verifiedFilter}
                                     onChange={(event) => {
                                         const nextVerified = event.target.value as "all" | "true" | "false";

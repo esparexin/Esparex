@@ -125,7 +125,7 @@ export default function FinancePage() {
         {
             header: "Transaction ID",
             cell: (t) => (
-                <div className="font-mono text-tiny text-foreground-tertiary bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
+                <div className="font-mono text-tiny text-foreground-tertiary bg-muted/40 px-2 py-1 rounded border border-border uppercase">
                     {t.gatewayPaymentId || t.id.substring(0, 12)}
                 </div>
             )

@@ -17,6 +17,7 @@ import {
     ShieldCheck,
     DataTable,
     AlertCircle,
+    Button,
     type ColumnDef,
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
@@ -124,10 +125,10 @@ export default function PlansPage() {
                         <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-tiny bg-slate-100 text-foreground-secondary px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
+                                <span className="text-tiny bg-muted text-foreground-secondary px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
                             )}
                         </div>
-                        <div className="text-tiny font-mono text-foreground-tertiary bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
+                        <div className="text-tiny font-mono text-foreground-tertiary bg-muted/40 px-1.5 py-0.5 rounded border border-border w-fit mt-1">
                             {plan.code}
                         </div>
                     </div>
@@ -187,7 +188,7 @@ export default function PlansPage() {
             cell: (plan) => {
                 const status = plan.status ?? (plan.active ? "ACTIVE" : "INACTIVE");
                 type CfgEntry = { dot: string; label: string; text: string };
-                const fallback: CfgEntry = { dot: "bg-slate-400", label: "Inactive", text: "text-slate-600" };
+                const fallback: CfgEntry = { dot: "bg-foreground-tertiary", label: "Inactive", text: "text-foreground-secondary" };
                 const statusConfig: Partial<Record<string, CfgEntry>> = {
                     ACTIVE: { dot: "bg-emerald-500", label: "Active", text: "text-emerald-700" },
                     INACTIVE: fallback,
@@ -221,7 +222,7 @@ export default function PlansPage() {
                         {!isArchived && (
                             <button
                                 onClick={() => { setEditPlan(plan); setShowModal(true); }}
-                                className="p-1.5 rounded text-foreground-tertiary hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
+                                className="p-1.5 rounded text-foreground-tertiary hover:bg-muted transition-colors flex items-center gap-1 text-caption font-medium cursor-pointer"
                                 aria-label={`Edit plan ${plan.name}`}
                             >
                                 <Pencil size={13} aria-hidden="true" /> Edit
@@ -287,12 +288,12 @@ export default function PlansPage() {
                 description="Manage subscription plans, ad packs, and spotlight credits."
                 tabs={<AdminModuleTabs tabs={financeTabs} />}
                 actions={
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => { setEditPlan(null); setShowModal(true); }}
-                        className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-sky-600/20 active:scale-95"
                     >
                         <CreditCard size={18} /> New Plan
-                    </button>
+                    </Button>
                 }
             >
                 <div className="flex flex-col gap-6">

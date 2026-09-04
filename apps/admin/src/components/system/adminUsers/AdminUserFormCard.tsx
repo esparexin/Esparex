@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import type { LucideIcon } from "@esparex/ui";
+import { Button, type LucideIcon } from "@esparex/ui";
 import { USER_STATUS, Role } from "@esparex/contracts";
 import type {
     AdminStatus,
@@ -67,7 +67,7 @@ type AdminUserFormValues = {
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
-    return <p className="mt-1 text-xs text-red-500">{message}</p>;
+    return <p className="mt-1 text-caption text-destructive">{message}</p>;
 }
 
 export function AdminUserFormCard(props: AdminUserFormCardProps) {
@@ -125,7 +125,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
         reset(normalizedValues);
     }, [normalizedValues, reset]);
 
-    const inputClassName = "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm";
+    const inputClassName = "w-full rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground px-3 py-2 text-body focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
     const handleSecondary = () => {
         reset(normalizedValues);
@@ -141,8 +141,8 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
     });
 
     return (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            {title ? <h2 className="mb-3 text-base font-semibold text-foreground">{title}</h2> : null}
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            {title ? <h2 className="mb-3 text-body-lg font-semibold text-foreground">{title}</h2> : null}
 
             <form onSubmit={(event) => void onValidSubmit(event)} noValidate>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
@@ -228,21 +228,21 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
                     </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2">
-                    <button
+                <div className="mt-4 flex items-center gap-2">
+                    <Button
                         type="submit"
-                        className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+                        variant="primary"
                         disabled={isSubmitting}
                     >
                         <SubmitIcon size={14} /> {submitLabel}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-foreground-secondary hover:bg-slate-50"
+                        variant="outline"
                         onClick={handleSecondary}
                     >
                         <SecondaryIcon size={14} /> {secondaryLabel}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

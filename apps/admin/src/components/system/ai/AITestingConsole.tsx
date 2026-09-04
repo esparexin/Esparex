@@ -31,15 +31,15 @@ export function AITestingConsole() {
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col gap-4">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-xs flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
                         <Zap size={18} />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-slate-900">AI Sandbox & Provider Benchmark Console</h3>
-                        <p className="text-xs text-slate-500">Test raw prompts, measure latency, token counts, and inspect outputs side-by-side</p>
+                        <h3 className="text-body-lg font-bold text-foreground">AI Sandbox & Provider Benchmark Console</h3>
+                        <p className="text-caption text-foreground-tertiary">Test raw prompts, measure latency, token counts, and inspect outputs side-by-side</p>
                     </div>
                 </div>
 
@@ -47,19 +47,19 @@ export function AITestingConsole() {
                     type="button"
                     onClick={handleRunTest}
                     disabled={running}
-                    className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-purple-200 hover:bg-purple-700 disabled:opacity-50 transition-all active:scale-95"
+                    className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2 text-caption font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
                 >
                     <Play size={14} /> {running ? "Running Test..." : "Run AI Benchmark"}
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-4 rounded-xl bg-muted/30 border border-border">
                 <div>
-                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Provider</label>
+                    <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Provider</label>
                     <select
                         value={providerName}
                         onChange={(e) => setProviderName(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold bg-white"
+                        className="w-full rounded-lg border border-input px-2.5 py-1.5 text-caption font-bold bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                         <option value="gemini">Google Gemini</option>
                         <option value="openai">OpenAI</option>
@@ -68,48 +68,48 @@ export function AITestingConsole() {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Capability</label>
+                    <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Capability</label>
                     <select
                         value={capability}
                         onChange={(e) => setCapability(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs bg-white"
+                        className="w-full rounded-lg border border-input px-2.5 py-1.5 text-caption bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                         <option value="post_ad_title">Post Ad Title & Description</option>
                         <option value="device_identification">Device Identification</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Brand</label>
+                    <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Brand</label>
                     <input
                         type="text"
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs bg-white"
+                        className="w-full rounded-lg border border-input px-2.5 py-1.5 text-caption bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     />
                 </div>
                 <div>
-                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Model</label>
+                    <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Model</label>
                     <input
                         type="text"
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs bg-white"
+                        className="w-full rounded-lg border border-input px-2.5 py-1.5 text-caption bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     />
                 </div>
                 <div>
-                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Condition</label>
+                    <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Condition</label>
                     <input
                         type="text"
                         value={condition}
                         onChange={(e) => setCondition(e.target.value)}
-                        className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs bg-white"
+                        className="w-full rounded-lg border border-input px-2.5 py-1.5 text-caption bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     />
                 </div>
             </div>
 
             {testResult && (
-                <div className="space-y-3 pt-2 border-t border-slate-100">
-                    <div className="flex items-center gap-3 text-xs">
+                <div className="space-y-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-3 text-caption">
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 font-bold text-emerald-700 border border-emerald-200">
                             <CheckCircle size={12} /> {String(testResult.provider ?? "")} ({String(testResult.model ?? "")})
                         </span>
@@ -123,14 +123,14 @@ export function AITestingConsole() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <p className="text-xs font-bold text-slate-700 mb-1">Constructed Prompt Payload</p>
-                            <pre className="rounded-xl bg-slate-900 p-3 text-tiny text-emerald-400 font-mono overflow-x-auto max-h-48 leading-relaxed">
+                            <p className="text-caption font-bold text-foreground mb-1">Constructed Prompt Payload</p>
+                            <pre className="rounded-xl bg-foreground text-background p-3 text-tiny font-mono overflow-x-auto max-h-48 leading-relaxed">
                                 {String(testResult.rawPrompt ?? "")}
                             </pre>
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-slate-700 mb-1">Parsed Output Response JSON</p>
-                            <pre className="rounded-xl bg-slate-900 p-3 text-tiny text-sky-300 font-mono overflow-x-auto max-h-48 leading-relaxed">
+                            <p className="text-caption font-bold text-foreground mb-1">Parsed Output Response JSON</p>
+                            <pre className="rounded-xl bg-foreground text-background p-3 text-tiny font-mono overflow-x-auto max-h-48 leading-relaxed">
                                 {JSON.stringify(testResult.output, null, 2)}
                             </pre>
                         </div>

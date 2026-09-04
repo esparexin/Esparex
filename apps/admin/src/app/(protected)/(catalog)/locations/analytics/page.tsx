@@ -136,13 +136,13 @@ function LocationAnalyticsPageContent({
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 rounded-xl border border-border shadow-xs">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
                         <input
                             type="text"
                             placeholder="Filter by city..."
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={cityInput}
                             onChange={(e) => setCityInput(e.target.value)}
                         />
@@ -150,12 +150,12 @@ function LocationAnalyticsPageContent({
                     <input
                         type="text"
                         placeholder="Filter by district..."
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={districtInput}
                         onChange={(e) => setDistrictInput(e.target.value)}
                     />
                     <select
-                        className="bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
+                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialState}
                         onChange={(e) => replaceQueryState({ state: e.target.value || null })}
                     >
@@ -167,7 +167,7 @@ function LocationAnalyticsPageContent({
                         ))}
                     </select>
                     <select
-                        className="bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
+                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialCountry}
                         onChange={(e) => replaceQueryState({ country: e.target.value || null })}
                     >
@@ -191,7 +191,7 @@ function LocationAnalyticsPageContent({
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="h-28 bg-slate-100 rounded-xl animate-pulse" />
+                            <div key={i} className="h-28 bg-muted rounded-xl animate-pulse" />
                         ))}
                     </div>
                 ) : data ? (
@@ -203,42 +203,42 @@ function LocationAnalyticsPageContent({
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                                <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <TrendingUp size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Top Cities by Ads</h3>
                                 </div>
-                                <div className="divide-y divide-slate-50">
+                                <div className="divide-y divide-border/60">
                                     {data.topCities?.length ? data.topCities.map((city, i) => (
                                         <div key={`${city.city}-${city.state}-${i}`} className="flex items-center justify-between px-5 py-3">
                                             <div className="flex items-center gap-3">
-                                                <span className="w-6 h-6 rounded-full bg-slate-100 text-foreground-tertiary text-xs font-bold flex items-center justify-center">
+                                                <span className="w-6 h-6 rounded-full bg-muted text-foreground-tertiary text-caption font-bold flex items-center justify-center">
                                                     {i + 1}
                                                 </span>
                                                 <div>
-                                                    <div className="font-semibold text-foreground text-sm">{city.city}</div>
-                                                    <div className="text-xs text-foreground-subtle">{city.state}</div>
+                                                    <div className="font-semibold text-foreground text-body">{city.city}</div>
+                                                    <div className="text-caption text-foreground-subtle">{city.state}</div>
                                                 </div>
                                             </div>
-                                            <span className="font-bold text-foreground-secondary text-sm">{city.adsCount ?? 0} ads</span>
+                                            <span className="font-bold text-foreground-secondary text-body">{city.adsCount ?? 0} ads</span>
                                         </div>
                                     )) : (
-                                        <p className="px-5 py-4 text-sm text-foreground-subtle">No city data available.</p>
+                                        <p className="px-5 py-4 text-body text-foreground-subtle">No city data available.</p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                                <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <BarChart2 size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Ads by State</h3>
                                 </div>
-                                <div className="divide-y divide-slate-50">
+                                <div className="divide-y divide-border/60">
                                     {adsByStateRows.length ? adsByStateRows.map((row) => (
                                         <div key={row.key} className="flex items-center justify-between px-5 py-3">
-                                            <span className="text-sm font-medium text-foreground-secondary">{row.label}</span>
+                                            <span className="text-body font-medium text-foreground-secondary">{row.label}</span>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-primary rounded-full"
                                                         style={{
@@ -246,34 +246,34 @@ function LocationAnalyticsPageContent({
                                                         }}
                                                     />
                                                 </div>
-                                                <span className="font-bold text-foreground-secondary text-sm w-12 text-right">{row.count}</span>
+                                                <span className="font-bold text-foreground-secondary text-body w-12 text-right">{row.count}</span>
                                             </div>
                                         </div>
                                     )) : (
-                                        <p className="px-5 py-4 text-sm text-foreground-subtle">No state data available.</p>
+                                        <p className="px-5 py-4 text-body text-foreground-subtle">No state data available.</p>
                                     )}
                                 </div>
                             </div>
                         </div>
 
                         {data.hotZones?.length ? (
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                                <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                                <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <Flame size={18} className="text-orange-500" />
                                     <h3 className="font-bold text-foreground">Hot Zones</h3>
-                                    <span className="ml-auto text-xs text-foreground-subtle font-medium">High search & ad activity</span>
+                                    <span className="ml-auto text-caption text-foreground-subtle font-medium">High search & ad activity</span>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-border/60">
                                     {data.hotZones.map((zone, idx) => (
                                         <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
-                                                <div className="font-semibold text-foreground text-sm flex items-center gap-1.5">
+                                                <div className="font-semibold text-foreground text-body flex items-center gap-1.5">
                                                     {zone.isHotZone && <Flame size={13} className="text-orange-500" />}
                                                     {zone.city}
                                                 </div>
-                                                <div className="text-xs text-foreground-subtle">{zone.state}</div>
+                                                <div className="text-caption text-foreground-subtle">{zone.state}</div>
                                             </div>
-                                            <span className="text-xs font-bold text-foreground-tertiary bg-slate-100 px-2 py-1 rounded">
+                                            <span className="text-caption font-bold text-foreground-tertiary bg-muted px-2 py-1 rounded">
                                                 score {Math.round(zone.popularityScore)}
                                             </span>
                                         </div>
@@ -318,7 +318,7 @@ function StatCard({ icon, label, value, color }: {
         violet: "bg-violet-50 text-violet-600",
     };
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-4">
+        <div className="bg-card rounded-xl border border-border shadow-xs p-6 flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
                 {icon}
             </div>

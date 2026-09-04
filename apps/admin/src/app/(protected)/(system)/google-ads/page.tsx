@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, ShieldCheck, CheckCircle, Stack } from "@esparex/ui";
+import { Plus, ShieldCheck, CheckCircle, Stack, Button } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { GoogleAdsTable } from "@/components/google-ads/GoogleAdsTable";
 import { GoogleAdModal } from "@/components/google-ads/GoogleAdModal";
@@ -136,31 +136,30 @@ export default function GoogleAdsPage() {
             description="Centrally configure AdSense slots, target locations, responsive rules, and AdBlock fallback behavior."
             showGlobalSearch={false}
             actions={
-                <button
-                    type="button"
+                <Button
+                    variant="primary"
                     onClick={handleCreate}
-                    className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all active:scale-95"
                 >
                     <Plus size={18} /> Add Placement
-                </button>
+                </Button>
             }
         >
             <Stack direction="col" gap="md">
                 {/* Master Config & Publisher Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-xs gap-3">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
                             <ShieldCheck size={22} />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-slate-900">Google AdSense Publisher Account</h3>
+                                <h3 className="text-body font-bold text-foreground">Google AdSense Publisher Account</h3>
                                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
                                     <CheckCircle size={10} /> Active
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-500 font-mono">
-                                Publisher ID: <span className="font-semibold text-slate-800">{process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-esparex-official-master"}</span>
+                            <p className="text-caption text-foreground-tertiary font-mono">
+                                Publisher ID: <span className="font-semibold text-foreground">{process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-esparex-official-master"}</span>
                             </p>
                         </div>
                     </div>
@@ -171,12 +170,12 @@ export default function GoogleAdsPage() {
                             placeholder="Search placements..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:border-sky-500 focus:outline-none w-48"
+                            className="rounded-xl border border-input bg-background px-3 py-1.5 text-caption text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 w-48"
                         />
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs focus:border-sky-500 focus:outline-none bg-white"
+                            className="rounded-xl border border-input bg-background px-3 py-1.5 text-caption text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                             <option value="all">All Status</option>
                             <option value="active">Active</option>

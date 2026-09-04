@@ -20,24 +20,24 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
     const createdAtLabel = user.createdAt ? new Date(user.createdAt).toLocaleString() : "Unknown";
 
     return (
-        <div className="absolute right-0 top-0 z-10 h-full w-[400px] overflow-y-auto border-l border-slate-200 bg-white shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)]">
+        <div className="absolute right-0 top-0 z-10 h-full w-[400px] overflow-y-auto border-l border-border bg-card shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)]">
             <div className="space-y-6 p-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-foreground">User Details</h2>
+                    <h2 className="text-body-lg font-bold text-foreground">User Details</h2>
                     <button
                         onClick={onClose}
-                        className="rounded-full p-2 text-foreground-tertiary transition-colors hover:bg-slate-100"
+                        className="rounded-full p-2 text-foreground-tertiary transition-colors hover:bg-muted cursor-pointer"
                         aria-label="Close user details"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="flex flex-col items-center rounded-xl border border-slate-100 bg-slate-50 p-6">
-                    <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-foreground-tertiary">
+                <div className="flex flex-col items-center rounded-xl border border-border bg-muted/20 p-6">
+                    <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted text-foreground-tertiary">
                         <UserIcon size={40} />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground">{getUserDisplayName(user)}</h3>
+                    <h3 className="text-body-lg font-bold text-foreground">{getUserDisplayName(user)}</h3>
                     <StatusChip
                         status={statusPresentation.status}
                         label={statusPresentation.label}
@@ -46,13 +46,13 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                 </div>
 
                 <div className="space-y-4">
-                    <h4 className="border-b border-slate-100 pb-2 text-sm font-bold uppercase tracking-widest text-foreground-tertiary">
+                    <h4 className="border-b border-border pb-2 text-caption font-bold uppercase tracking-widest text-foreground-tertiary">
                         Identity
                     </h4>
 
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Mobile Number</div>
-                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Mobile Number</div>
+                        <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.mobile}
                             {user.isPhoneVerified ? (
                                 <CheckCircle2 size={14} className="text-emerald-500" />
@@ -60,8 +60,8 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         </div>
                     </div>
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Email Address</div>
-                        <div className="flex items-center gap-2 font-semibold text-foreground">
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Email Address</div>
+                        <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.email || "N/A"}
                             {user.isEmailVerified ? (
                                 <CheckCircle2 size={14} className="text-emerald-500" />
@@ -69,8 +69,8 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         </div>
                     </div>
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Overall Verification</div>
-                        <div className="font-semibold text-foreground">
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Overall Verification</div>
+                        <div className="font-semibold text-foreground text-body">
                             {user.isVerified ? (
                                 <span className="text-emerald-600">Verified</span>
                             ) : (
@@ -81,45 +81,45 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                 </div>
 
                 <div className="space-y-4 pt-4">
-                    <h4 className="border-b border-slate-100 pb-2 text-sm font-bold uppercase tracking-widest text-foreground-tertiary">
+                    <h4 className="border-b border-border pb-2 text-caption font-bold uppercase tracking-widest text-foreground-tertiary">
                         Business & Status
                     </h4>
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Role</div>
-                        <div className="font-semibold capitalize text-foreground">{user.role}</div>
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Role</div>
+                        <div className="font-semibold capitalize text-foreground text-body">{user.role}</div>
                     </div>
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Business Status</div>
-                        <div className="font-semibold capitalize text-foreground">
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Business Status</div>
+                        <div className="font-semibold capitalize text-foreground text-body">
                             {(user.businessStatus as string) || "None"}
                         </div>
                     </div>
                     <div>
-                        <div className="mb-1 text-xs text-foreground-tertiary">Account Created</div>
-                        <div className="font-semibold text-foreground">{createdAtLabel}</div>
+                        <div className="mb-1 text-tiny text-foreground-tertiary">Account Created</div>
+                        <div className="font-semibold text-foreground text-body">{createdAtLabel}</div>
                     </div>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                    <h4 className="border-b border-slate-100 pb-2 text-sm font-bold uppercase tracking-widest text-foreground-tertiary">
+                    <h4 className="border-b border-border pb-2 text-caption font-bold uppercase tracking-widest text-foreground-tertiary">
                         Quick Access
                     </h4>
                     <div className="flex flex-col gap-2">
                         <Link
                             href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })}
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
+                            className="rounded-lg border border-border px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center"
                         >
                             View User Ads
                         </Link>
                         <Link
                             href={ADMIN_UI_ROUTES.reports({ status: REPORT_STATUS.OPEN })}
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
+                            className="rounded-lg border border-border px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center"
                         >
                             View Reports Queue
                         </Link>
                         <Link
                             href={ADMIN_UI_ROUTES.finance({ q: user.id })}
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
+                            className="rounded-lg border border-border px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center"
                         >
                             View User Payments
                         </Link>
