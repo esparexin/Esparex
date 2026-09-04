@@ -40,11 +40,15 @@ export async function generateMetadata(
     };
     const titleDefault = 'Buy Used Electronics & Spare Parts Online India | Esparex';
 
+    const canonicalPath = parsed.type === 'ad'
+        ? '/search'
+        : `/search?type=${parsed.type}`;
+
     return {
         title: titleMap[parsed.type] ?? titleDefault,
         description: 'Browse thousands of mobile spare parts, used phones, laptops and repair services across India on Esparex.',
         alternates: {
-          
+            canonical: toCanonicalUrl(canonicalPath),
         },
         robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
     };

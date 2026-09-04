@@ -58,10 +58,12 @@ export function buildCatalogSlugMetadata(
   const config = ENTITY_CONFIG[entity];
   const canonicalSlug = record.slug || generateAdSlug(record.name);
   const canonicalParam = `${canonicalSlug}-${record.id}`;
+  const basePath = entity === "brand" ? "brands" : "models";
   return {
     title: config.metadataTitle(record.name),
     description: config.metadataDescription(record.name, record.contextLabel),
     alternates: {
+      canonical: `https://esparex.in/${basePath}/${canonicalParam}`,
     },
   };
 }

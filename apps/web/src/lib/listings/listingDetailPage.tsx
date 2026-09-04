@@ -79,6 +79,7 @@ export async function buildListingMetadata({
     const listingTitle = `${listing.title}${locationSuffix}` || missingTitle;
     
     const canonicalSlug = listing.seoSlug || generateAdSlug(listing.title || "");
+    const canonicalUrl = toCanonicalUrl(`${canonicalBasePath}/${canonicalSlug}-${listing.id}`);
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
 
