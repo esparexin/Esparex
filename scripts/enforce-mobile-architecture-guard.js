@@ -254,6 +254,46 @@ if (fs.existsSync(filterModalPath)) {
   }
 }
 
+// Rule 10: Zero Hardcoded/Dummy Phone Numbers Gate
+// Enforces that phone numbers in mobile presentation are fetched dynamically from backend services, never hardcoded.
+for (const filePath of allFiles) {
+  if (filePath.includes(".spec.") || filePath.includes(".test.")) continue;
+  const content = fs.readFileSync(filePath, "utf8");
+  if (
+    /Linking\.openURL\(\s*['"`]tel:(?:1800000000|\+?1234567890|0000000000)['"`]\s*\)/.test(content) ||
+    /tel:1800\d{6}/.test(content)
+  ) {
+    const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+    violations.push({
+      file: relPath,
+      line: 1,
+      rule: "Hardcoded Phone Number Gate: Dummy/hardcoded phone numbers are strictly prohibited. Fetch verified phone numbers dynamically via ListingService.getListingPhone().",
+      code: "Hardcoded tel: URL found in " + relPath,
+    });
+  }
+}
+
+// Rule 11: Business Query Canonical Parameter Guard
+// Ensures mobile business queries use canonical 'locationId' and 'listingCategoryId' rather than legacy aliases 'city' or 'category'
+for (const filePath of allFiles) {
+  if (filePath.includes(".spec.") || filePath.includes(".test.")) continue;
+  const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+  if (relPath.includes("Business") || relPath.includes("business")) {
+    const content = fs.readFileSync(filePath, "utf8");
+    if (
+      /\bgetNearbyBusinesses\s*\([^)]*\b(city|category)\s*:/s.test(content) ||
+      /\buseNearbyBusinesses\s*\([^)]*\b(city|category)\s*:/s.test(content)
+    ) {
+      violations.push({
+        file: relPath,
+        line: 1,
+        rule: "Business Query Contract Drift: Passing legacy aliases 'city' or 'category' to business queries is prohibited. Use canonical 'locationId' and 'listingCategoryId' required by publicBusinessQuerySchema.",
+        code: "Legacy query parameter alias in " + relPath,
+      });
+    }
+  }
+}
+
 if (violations.length > 0) {
   console.error("❌ Mobile Architecture Guard Violations Found:\n");
   for (const v of violations) {
