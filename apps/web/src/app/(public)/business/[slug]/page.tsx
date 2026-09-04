@@ -11,6 +11,7 @@ import {
   getBusinessSpareParts,
 } from "@/lib/api/user/businesses";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { generateAdSlug } from "@/lib/slug";
 
 type Props = {
@@ -84,7 +85,7 @@ export async function generateMetadata(
       business.description?.substring(0, 150) ||
       `Check out ${business.name} on Esparex`,
     alternates: {
-      canonical: `https://esparex.in/business/${canonicalSlug}-${businessId}`,
+      canonical: toCanonicalUrl(`/business/${canonicalSlug}-${businessId}`),
     },
     openGraph: {
       title: `${business.name} | Esparex`,

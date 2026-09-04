@@ -7,6 +7,7 @@ import { getAdsPage, type ListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import { getCategories, type Category } from "@/lib/api/user/categories";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { buildPublicBrowseRoute, normalizePublicBrowseType, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { PUBLIC_BROWSE_SORT_MAP, type SortOption } from "@/lib/publicBrowseSort";
 
@@ -39,15 +40,15 @@ export async function generateMetadata(
     };
     const titleDefault = 'Buy Used Electronics & Spare Parts Online India | Esparex';
 
-    const canonicalUrl = searchParams.type
-        ? `https://esparex.in${buildPublicBrowseRoute({ type: parsed.type })}`
-        : 'https://esparex.in/search';
+    const canonicalPath = parsed.type === 'ad'
+        ? '/search'
+        : `/search?type=${parsed.type}`;
 
     return {
         title: titleMap[parsed.type] ?? titleDefault,
         description: 'Browse thousands of mobile spare parts, used phones, laptops and repair services across India on Esparex.',
         alternates: {
-            canonical: canonicalUrl,
+            canonical: toCanonicalUrl(canonicalPath),
         },
         robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
     };
