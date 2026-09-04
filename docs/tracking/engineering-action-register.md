@@ -1487,3 +1487,42 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test` ──► PASS (All test suites green across backend-api, core, web, admin, mobile)
 - ✅ `npm run build` ──► PASS (Clean production builds across all packages)
 
+---
+
+### EA-043
+
+**Sprint**: Catalog Resilience & Idempotency Governance  
+**PR**: PR on `fix/catalog-category-cache-invalidation-and-idempotent-deletion`  
+**Category**: Architecture / Performance / Caching / Admin  
+**Status**: ✅ Completed  
+
+**Action**  
+1. **Redis List Cache Invalidation Hardening**: Added `catalog:list:*` and `catalog:categories:*` patterns to `RedisCatalogCacheAdapter` and `CatalogCategoryService.clearCategoryCanonicalCache` to ensure any entity mutation immediately purges all paginated content query caches in Redis.
+2. **Idempotent Soft-Deletion Contracts**: Updated `CategoryRepositoryPort`, `MongoCategoryRepositoryAdapter`, `CatalogOrchestrator.deleteCategoryOrchestrated`, and `backend/api/shared.ts.handleCatalogDelete` to inspect `withDeleted: true`. Repeated deletion requests on already soft-deleted entities return `{ alreadyDeleted: true }` and purge caches instead of throwing 404 deadlocks.
+3. **Admin UI Resilience & Revalidation**: Updated `useAdminCategories.handleDelete` for instant UI state filtering and graceful 404 recovery; generalized `triggerNextJsRevalidation` for tag/path cache clearing.
+4. **Testing & Architecture Governance**: Added unit test suite `catalogOrchestrator.categoryDelete.spec.ts` and created `docs/architecture/catalog-cache-and-idempotency-governance.md`.
+
+**Files Modified / Created**:
+```
+apps/admin/src/hooks/useAdminCategories.ts
+backend/api/src/controllers/admin/catalog/catalogCategoryController.ts
+backend/api/src/controllers/admin/catalog/shared.ts
+core/src/__tests__/services/catalogOrchestrator.categoryDelete.spec.ts
+core/src/domains/catalog/adapters/outbound/database/MongoCategoryRepositoryAdapter.ts
+core/src/domains/catalog/adapters/outbound/database/RedisCatalogCacheAdapter.ts
+core/src/domains/catalog/application/services/CatalogCategoryService.ts
+core/src/domains/catalog/application/services/CatalogOrchestrator.ts
+core/src/domains/catalog/ports/CategoryRepositoryPort.ts
+core/src/events/listeners/CacheInvalidationListener.ts
+docs/architecture/catalog-cache-and-idempotency-governance.md
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm test -w @esparex/core` ──► PASS (71 suites, 387 tests)
+- ✅ `npm test -w @esparex/backend-api` ──► PASS (74 suites, 375 tests)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run lint:ci` ──► PASS (0 new violations)
+- ✅ `npm run build` ──► PASS (All packages, admin, and web compiled cleanly)
+
+

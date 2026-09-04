@@ -270,9 +270,14 @@ export const deleteCategory = async (req: Request, res: Response) => {
     const categoryId = req.params.id as string;
 
     try {
-        await CatalogOrchestrator.deleteCategoryOrchestrated(categoryId);
+        const result = await CatalogOrchestrator.deleteCategoryOrchestrated(categoryId);
         clearCategoryCanonicalCache();
-        sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
+        void logAdminAction(req, 'CATEGORY_DELETE', 'Category', categoryId, { alreadyDeleted: result.alreadyDeleted });
+        sendSuccessResponse(
+            res,
+            result,
+            result.alreadyDeleted ? 'Category was already deleted' : 'Category and all dependent brands/models soft-deleted successfully'
+        );
     } catch (e: unknown) {
         const err = e instanceof AppError ? e : null;
         if (err?.code === 'FORBIDDEN') {
