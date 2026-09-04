@@ -17,6 +17,11 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.esparex.mobile",
       "buildNumber": "1",
+      "splash": {
+        "image": "./assets/splash-icon-ios.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#0A0C0B"
+      },
       "infoPlist": {
         "NSUserNotificationsUsageDescription": "Receive alerts for new messages and listing activity.",
         "NSCameraUsageDescription": "Esparex requires camera access to capture listing photos.",
@@ -28,6 +33,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0A0C0B"
       },
+      "splash": {
+        "image": "./assets/splash-icon-android.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#0A0C0B"
+      },
       "package": "com.esparex.mobile",
       "versionCode": 1,
       "permissions": ["android.permission.POST_NOTIFICATIONS"]
@@ -36,6 +46,15 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0C0B",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain"
+        }
+      ],
       [
         "expo-build-properties",
         {
