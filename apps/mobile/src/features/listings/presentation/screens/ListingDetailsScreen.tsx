@@ -104,6 +104,9 @@ export const ListingDetailsScreen = () => {
         <PriceSection
           title={listing.title}
           price={listing.price}
+          location={listing.location}
+          condition={listing.condition}
+          category={listing.category}
         />
 
         <SellerSection seller={listing.seller} />
