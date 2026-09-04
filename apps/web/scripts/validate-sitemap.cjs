@@ -1,7 +1,7 @@
 /**
  * Esparex SEO & Sitemap Automated Validation Tool
  * Validates canonical URL structure, hostnames, redirects, and indexing exclusion rules.
- * 
+ *
  * Usage:
  *   node scripts/validate-sitemap.cjs
  *   SITEMAP_URL=https://esparex.in/sitemap.xml node scripts/validate-sitemap.cjs

@@ -76,11 +76,11 @@ export function buildSitemapApiUrl(
     const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
     const urlObj = new URL(cleanEndpoint, base);
-    
+
     // Set default pagination parameters
     urlObj.searchParams.set('limit', '1000');
     urlObj.searchParams.set('page', '1');
-    
+
     for (const [key, value] of Object.entries(params)) {
         urlObj.searchParams.set(key, value);
     }
