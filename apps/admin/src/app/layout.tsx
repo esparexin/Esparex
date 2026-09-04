@@ -7,7 +7,12 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Esparex Admin",
-  description: "Admin control plane for Esparex"
+  description: "Admin control plane for Esparex",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
 };
 
 const geist = Geist({
