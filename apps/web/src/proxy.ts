@@ -4,6 +4,7 @@ import { CANONICAL_SLUG_MAPPING } from "@/lib/seo/canonicalSlugs";
 import { isProtectedPath } from "@/config/protectedRoutes";
 import { ADMIN_API_V1_BASE_PATH } from "@/lib/api/routes";
 import logger from "@/lib/logger";
+import { CANONICAL_ORIGIN } from "@/lib/seo/canonicalHost";
 import { buildAuthCallbackUrl, buildLoginUrl } from "@/lib/authHelpers";
 
 /**
@@ -21,6 +22,17 @@ function isIpAllowed(ip: string, allowedIps?: string): boolean {
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get("esparex_auth")?.value;
+
+    // 0) Canonical public SEO host enforcement (redirect www and non-admin subdomains to canonical origin)
+    const hostHeader = request.headers.get("host") || request.nextUrl.host;
+    const cleanHost = hostHeader.split(":")[0]?.toLowerCase().trim() ?? "";
+    if (
+        cleanHost === "www.esparex.in" ||
+        (cleanHost.endsWith(".esparex.in") && cleanHost !== "admin.esparex.in")
+    ) {
+        const canonicalUrl = new URL(request.nextUrl.pathname + request.nextUrl.search, CANONICAL_ORIGIN);
+        return NextResponse.redirect(canonicalUrl, 301);
+    }
 
     // 1) IP restriction for admin endpoints
     if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin") || pathname.startsWith(ADMIN_API_V1_BASE_PATH)) {
