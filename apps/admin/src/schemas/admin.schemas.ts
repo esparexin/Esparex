@@ -74,7 +74,7 @@ const permissionsTextSchema = z
                 .map((item) => item.trim())
                 .filter(Boolean)
                 .every((item) => /^[a-z0-9:_-]+$/i.test(item)),
-        'Permissions must be comma-separated values like users:read or ads:write',
+        'Permissions must be comma-separated values like users:read or listings:write',
     );
 
 const adminUserBaseFormSchema = z.object({

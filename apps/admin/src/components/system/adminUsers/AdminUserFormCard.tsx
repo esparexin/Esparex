@@ -171,8 +171,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
                             placeholder="Admin email address"
                             type="email"
                             autoComplete="email"
-                            autoCapitalize="none" autoCorrect="off"
-                        />
+                          />
                         <FieldError message={errors.email?.message} />
                     </div>
 

@@ -16,7 +16,16 @@ const metadataBase = (() => {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     if (appUrl) {
         try {
-            return new URL(appUrl);
+            const parsed = new URL(appUrl);
+            const hostname = parsed.hostname.toLowerCase();
+            if (
+                hostname !== 'admin.esparex.in' &&
+                !hostname.includes('preview') &&
+                !hostname.includes('staging') &&
+                (process.env.NODE_ENV !== 'production' || hostname === 'esparex.in')
+            ) {
+                return parsed;
+            }
         } catch {
             // Fall through to canonical default.
         }

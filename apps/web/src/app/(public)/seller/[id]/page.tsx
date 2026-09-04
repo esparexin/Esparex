@@ -37,8 +37,6 @@ export async function generateMetadata({
 
   if (!profile) {
     return {
-      title: "Seller Profile Not Found | Esparex",
-      description: "The requested seller profile could not be found.",
       robots: { index: false, follow: false },
     };
   }

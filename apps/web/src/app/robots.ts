@@ -7,12 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
             disallow: [
-                // Account and user namespace
-                '/account/',
-                '/chat',
-                '/chat/',
-                '/notifications',
-                // Private create & edit actions
                 '/post-ad',
                 '/post-service',
                 '/post-spare-part-listing',
@@ -20,8 +14,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/edit-service/',
                 '/edit-spare-part/',
                 '/business/edit',
-                '/business/my-business',
-                '/business/register',
                 // Legacy private routes (all have 301 redirects)
                 '/profile/',
                 '/my-ads',
@@ -29,12 +21,6 @@ export default function robots(): MetadataRoute.Robots {
                 '/messages',
                 '/my-services',
                 '/purchases',
-                // System and internal endpoints
-                '/api/',
-                '/admin/',
-                '/internal/',
-                '/offline',
-                '/unauthorized',
             ],
         },
         sitemap: `${CANONICAL_ORIGIN}/sitemap.xml`,
