@@ -460,24 +460,25 @@
 
 ### 1.4 Login Screen (`ROUTES.LOGIN`)
 - **Frontend ([LoginScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/auth/screens/LoginScreen.tsx))**:
-  - [ ] Mobile input format (+91 prefix, 10-digit strict validation)
-  - [ ] Input font size >= 16px to prevent viewport zoom jumps
-  - [ ] "Send OTP" CTA button active/disabled states & loading spinner
-  - [ ] Interactive link navigation to Terms & Privacy Policy
-  - [ ] `KeyboardAvoidingView` offsets on iOS and Android
+  - [x] Mobile input format (+91 prefix, 10-digit strict validation & paste normalization)
+  - [x] Input font size >= 16px to prevent viewport zoom jumps
+  - [x] "Send OTP" CTA button active/disabled states & loading spinner
+  - [x] Interactive link navigation to Terms & Privacy Policy
+  - [x] `KeyboardAvoidingView` offsets on iOS and Android
 - **Backend API Integration**:
-  - [ ] `POST /api/v1/auth/otp/send` (rate limiting, validation, response format)
+  - [x] `POST /api/v1/auth/send-otp` (rate limiting, validation, response format)
 
 ### 1.5 OTP Verification Screen (`ROUTES.OTP`)
 - **Frontend ([OTPScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/auth/screens/OTPScreen.tsx))**:
-  - [ ] 6-digit segmented OTP input cells auto-focus progression
-  - [ ] SMS OTP auto-fill & clipboard paste support (iOS & Android)
-  - [ ] Resend OTP countdown timer & cooldown lock
-  - [ ] "Edit mobile number" back action with `cancelOtp`
-  - [ ] New user name input field when `isNewUser === true`
+  - [x] 6-digit segmented OTP input cells auto-focus progression
+  - [x] SMS OTP auto-fill & clipboard paste support (iOS & Android)
+  - [x] Resend OTP countdown timer & cooldown lock
+  - [x] "Edit mobile number" back action with `cancelOtp`
+  - [x] New user name input field when `isNewUser === true`
 - **Backend API Integration**:
-  - [ ] `POST /api/v1/auth/otp/verify` (JWT token issuance, refresh token, user object)
-  - [ ] Error status handling (400 Invalid OTP, 429 Too Many Attempts)
+  - [x] `POST /api/v1/auth/verify-otp` (JWT token issuance, refresh token, user object)
+  - [x] `POST /api/v1/auth/cancel-otp` (OTP session cancellation)
+  - [x] Error status handling (400 Invalid OTP, 423 Lockout, 429 Too Many Attempts)
 
 ### 1.6 Terms & Privacy Policy Screen (`ROUTES.TERMS_AND_PRIVACY`)
 - **Frontend ([TermsAndPrivacyScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/user/presentation/screens/TermsAndPrivacyScreen.tsx))**:

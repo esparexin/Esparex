@@ -4,6 +4,7 @@ import { IAuthService, SendOtpResult } from '../infrastructure/auth/AuthService'
 import { SessionRestoration } from '../infrastructure/auth/SessionRestoration';
 import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
 import { TokenProvider } from '../infrastructure/api/TokenProvider';
+import { onUnauthorized } from '../infrastructure/api/apiClient';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
 
@@ -57,6 +58,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     };
   }, [pushTokenRegistrationService]);
 
+  useEffect(() => {
+    const unsubscribe = onUnauthorized(() => {
+      TokenProvider.clearCache();
+      queryClient.clear();
+      setStatus('anonymous');
+    });
+
+    return unsubscribe;
+  }, [queryClient]);
+
   const sendOtp = async (mobile: string): Promise<SendOtpResult> => {
     return await authService.sendOtp(mobile);
   };
@@ -64,6 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const verifyOtp = async (mobile: string, otp: string, name?: string) => {
     await authService.verifyOtp(mobile, otp, name);
     setStatus('authenticated');
+    await queryClient.invalidateQueries();
   };
 
   const cancelOtp = async (mobile: string) => {
