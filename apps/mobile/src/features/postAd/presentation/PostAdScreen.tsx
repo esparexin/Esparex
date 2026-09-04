@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, ScrollView, Alert, KeyboardAvoidingView, Platform, BackHandler } from 'react-native';
+import { View, Alert, KeyboardAvoidingView, Platform, BackHandler } from 'react-native';
 import { Screen, Container, AppText, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useAuth } from '../../../providers/AuthProvider';
@@ -137,17 +137,15 @@ export const PostAdScreen = () => {
     <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Progress indicator */}
         <WizardProgress currentStep={currentStep} />
 
         {/* Active step content */}
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-          <View className="flex-1 min-h-80">
-            <StepComponent />
-          </View>
-        </ScrollView>
+        <View className="flex-1">
+          <StepComponent />
+        </View>
 
         {/* Navigation controls */}
         <WizardNavBar

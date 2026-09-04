@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, View } from 'react-native';
-import { Screen, Container, Card, AppText, AppIcon } from '@esparex/mobile-ui';
+import { ScrollView, TouchableOpacity, Alert, View, ActivityIndicator } from 'react-native';
+import { Screen, Container, Card, AppText, AppIcon, AppButton, AppInput } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
@@ -56,7 +56,7 @@ function EditListingForm({ id, listing }: EditListingFormProps) {
   };
 
   return (
-    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+    <Screen className="flex-1 bg-muted">
       <ScrollView className="flex-1 px-4 py-4" keyboardShouldPersistTaps="handled">
         <Container className="mb-4">
           <View className="flex-row items-center">
@@ -64,72 +64,64 @@ function EditListingForm({ id, listing }: EditListingFormProps) {
               onPress={() => navigation.goBack()}
               accessibilityLabel="Back"
               accessibilityRole="button"
-              className="mr-3 p-1"
+              className="mr-3 p-1 min-h-[44px] min-w-[44px] items-center justify-center"
             >
               <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
             </TouchableOpacity>
             <View className="flex-1">
-              <AppText variant="h2" className="text-slate-900 dark:text-white font-bold mb-1">
+              <AppText variant="h2" className="text-foreground font-bold mb-1">
                 Edit Listing
               </AppText>
-              <AppText variant="body" className="text-slate-500 dark:text-slate-400">
+              <AppText variant="body" className="text-foreground-subtle">
                 Update your ad title, price, or description.
               </AppText>
             </View>
           </View>
         </Container>
 
-        <Card className="p-4 mb-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-          <AppText variant="label" className="text-slate-700 dark:text-slate-300 mb-1 font-semibold">
-            Ad Title *
-          </AppText>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g. iPhone 13 Pro 128GB"
-            placeholderTextColor="#94a3b8"
-            className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white mb-4"
-          />
+        <Card className="p-4 mb-4 bg-card rounded-xl border border-border">
+          <View className="mb-4">
+            <AppInput
+              label="Ad Title *"
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g. iPhone 13 Pro 128GB"
+              accessibilityLabel="Ad Title input"
+            />
+          </View>
 
-          <AppText variant="label" className="text-slate-700 dark:text-slate-300 mb-1 font-semibold">
-            Price (₹) *
-          </AppText>
-          <TextInput
-            value={price}
-            onChangeText={setPrice}
-            placeholder="e.g. 45000"
-            keyboardType="numeric"
-            placeholderTextColor="#94a3b8"
-            className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white mb-4"
-          />
+          <View className="mb-4">
+            <AppInput
+              label="Price (₹) *"
+              value={price}
+              onChangeText={setPrice}
+              placeholder="e.g. 45000"
+              keyboardType="numeric"
+              accessibilityLabel="Price input"
+            />
+          </View>
 
-          <AppText variant="label" className="text-slate-700 dark:text-slate-300 mb-1 font-semibold">
-            Description
-          </AppText>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Describe condition, specs, reason for selling..."
-            multiline
-            numberOfLines={4}
-            placeholderTextColor="#94a3b8"
-            className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white mb-2 min-h-[100px] text-top"
-          />
+          <View className="mb-2">
+            <AppInput
+              label="Description"
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Describe condition, specs, reason for selling..."
+              multiline
+              numberOfLines={4}
+              className="min-h-[100px] text-top"
+              accessibilityLabel="Description input"
+            />
+          </View>
         </Card>
 
-        <TouchableOpacity
+        <AppButton
+          label="Save Changes"
           onPress={handleSave}
-          disabled={updateMutation.isPending}
-          className="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 p-4 rounded-xl items-center justify-center mb-8"
-        >
-          {updateMutation.isPending ? (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <AppText variant="body" className="text-white font-bold text-base">
-              Save Changes
-            </AppText>
-          )}
-        </TouchableOpacity>
+          loading={updateMutation.isPending}
+          className="mb-8 bg-brand-600 hover:bg-brand-700"
+          accessibilityLabel="Save Changes"
+        />
       </ScrollView>
     </Screen>
   );

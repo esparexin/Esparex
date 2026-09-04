@@ -2,6 +2,9 @@ import React from 'react';
 import { View, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { Screen, Container, Card, AppText, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { useSavedListings } from '../hooks/useSavedListings';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { ListingCard } from '../components/ListingCard';
@@ -14,6 +17,7 @@ interface SavedAdsScreenProps {
 }
 
 export function SavedAdsScreen({ onPressListing, onExploreListings, onBack }: SavedAdsScreenProps) {
+  const { status: authStatus } = useAuth();
   const { data: listings, isLoading, isRefetching, refetch } = useSavedListings();
   const toggleSaveMutation = useToggleSaveListing();
 
@@ -29,6 +33,47 @@ export function SavedAdsScreen({ onPressListing, onExploreListings, onBack }: Sa
       onToggleSave={handleToggleFavorite}
     />
   );
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <View className="flex-row items-center px-4 py-3.5 bg-card border-b border-border">
+          {onBack && (
+            <TouchableOpacity
+              onPress={onBack}
+              accessibilityLabel="Back to profile"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+          )}
+          <AppText variant="h3" className="font-bold text-foreground">
+            Saved Ads &amp; Favorites
+          </AppText>
+        </View>
+        <Container className="flex-1 bg-muted p-4">
+          <Card className="p-6 items-center mt-4">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="Heart" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to view saved ads
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Bookmark spare parts and listings to find them again quickly.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to view saved ads"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   return (
     <Screen edges={['top', 'left', 'right']}>

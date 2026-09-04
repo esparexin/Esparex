@@ -51,6 +51,7 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
+            accessibilityLabel="Full Name input"
           />
         </View>
 
@@ -64,6 +65,7 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            accessibilityLabel="Email Address input"
           />
         </View>
       </ScrollView>

@@ -69,6 +69,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                 onToggleSave(listing.id);
               }}
               activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               className="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full p-1.5 shadow-sm items-center justify-center z-10"
               accessibilityRole="button"
               accessibilityLabel={isSaved ? `Remove ${listing.title} from saved` : `Save ${listing.title}`}
