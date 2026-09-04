@@ -72,6 +72,11 @@ for (const file of allSourceFiles) {
             `Rule B/C Violation: No-op onSearchChange detected in ${rel(file)}. Set "showSearch={false}" in AdminFilterToolbar instead of passing a fake handler.`
         );
     }
+    if (/onClick=\{\s*\(\)\s*=>\s*\{\s*\}\s*\}/.test(content) && !content.includes("ui-guard-ignore")) {
+        violations.push(
+            `Rule B/C Violation: No-op onClick handler detected in ${rel(file)}. Remove non-functional interactive controls.`
+        );
+    }
 
     // ─── 3. Rule D: No raw unportalled modal implementations ──────────────────
     if (file.endsWith(".tsx")) {
