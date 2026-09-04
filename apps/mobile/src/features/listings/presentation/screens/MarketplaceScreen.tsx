@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { FlatList, RefreshControl, View, Image, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Container, AppText, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { ListingQueryParams, LocationMeta } from '@esparex/contracts';
 import { useListings } from '../hooks/useListings';
