@@ -8,6 +8,7 @@ interface PriceSectionProps {
   price: ListingPrice;
   location?: ListingLocation;
   condition?: 'power_on' | 'power_off';
+  deviceCondition?: 'power_on' | 'power_off';
   category?: string;
 }
 
@@ -16,8 +17,10 @@ export const PriceSection = ({
   price,
   location,
   condition,
+  deviceCondition,
   category,
 }: PriceSectionProps) => {
+  const activeCondition = deviceCondition || condition;
   const locationText =
     location?.display || [location?.city, location?.state].filter(Boolean).join(', ');
 
@@ -43,10 +46,10 @@ export const PriceSection = ({
           </View>
         ) : null}
 
-        {condition ? (
+        {activeCondition ? (
           <Badge
-            variant={condition === 'power_on' ? 'success' : 'warning'}
-            label={condition === 'power_on' ? 'Working (Powers On)' : 'For Parts / Power Off'}
+            variant={activeCondition === 'power_on' ? 'success' : 'warning'}
+            label={activeCondition === 'power_on' ? 'Power On' : 'Power Off'}
             size="sm"
           />
         ) : null}
