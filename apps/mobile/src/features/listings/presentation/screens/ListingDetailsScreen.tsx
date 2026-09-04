@@ -197,8 +197,8 @@ export const ListingDetailsScreen = () => {
         />
 
         <NearbyRepairServicesSection
-          category={listing.category}
-          city={listing.location?.city || listing.location?.display}
+          locationId={listing.location?.locationId}
+          listingCategoryId={listing.categoryId}
         />
 
         <View className="h-24" />

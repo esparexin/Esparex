@@ -4,7 +4,7 @@ import { CreatedListing } from '../domain/CreatedListing';
 import { ListingMapper } from '../infrastructure/mappers/ListingMapper';
 import { CreatedListingMapper } from '../infrastructure/mappers/CreatedListingMapper';
 import { apiClient } from '../../../infrastructure/api/apiClient';
-import type { Ad, PaginatedResponse } from '@esparex/contracts';
+import type { Ad, PaginatedResponse, ListingContactNumberResponse } from '@esparex/contracts';
 import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
 
 export class ApiListingRepository implements IListingRepository {
@@ -95,5 +95,14 @@ export class ApiListingRepository implements IListingRepository {
       reason,
       description,
     });
+  }
+
+  public async getListingPhone(id: string): Promise<ListingContactNumberResponse> {
+    const response = await apiClient.get<{ data: ListingContactNumberResponse }>(`/listings/${id}/phone`);
+    return response.data?.data || response.data;
+  }
+
+  public async incrementListingView(id: string): Promise<void> {
+    await apiClient.get(`/listings/${id}/view`);
   }
 }
