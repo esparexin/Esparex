@@ -138,7 +138,7 @@ export function useListingActions({
       const errorMessage = err instanceof Error ? err.message : 'Please try again later.';
       Alert.alert('Unable to contact seller', errorMessage);
     }
-  }, [authStatus, handleMessagePress, id, listing?.seller.name]);
+  }, [authStatus, handleMessagePress, id, listing]);
 
   const handleReportPress = useCallback(() => {
     if (authStatus !== 'authenticated') {

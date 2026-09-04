@@ -27,6 +27,18 @@ export const ListingDetailsScreen = () => {
   const { status: authStatus } = useAuth();
   const { id } = route.params;
 
+  const scrollViewRef = useRef<ScrollView>(null);
+  const tabSectionY = useRef<number>(0);
+
+  const handleTabChange = useCallback(() => {
+    if (tabSectionY.current > 0) {
+      scrollViewRef.current?.scrollTo({
+        y: Math.max(0, tabSectionY.current - 12),
+        animated: true,
+      });
+    }
+  }, []);
+
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
   const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
@@ -44,7 +56,7 @@ export const ListingDetailsScreen = () => {
         // Non-blocking telemetry
       });
     }
-  }, [id, isOwner, Boolean(listing)]);
+  }, [id, isOwner, listing]);
 
   const {
     handleToggleFavorite,
@@ -85,18 +97,6 @@ export const ListingDetailsScreen = () => {
       </Screen>
     );
   }
-
-  const scrollViewRef = useRef<ScrollView>(null);
-  const tabSectionY = useRef<number>(0);
-
-  const handleTabChange = useCallback(() => {
-    if (tabSectionY.current > 0) {
-      scrollViewRef.current?.scrollTo({
-        y: Math.max(0, tabSectionY.current - 12),
-        animated: true,
-      });
-    }
-  }, []);
 
   const imageUrls = listing.images ? listing.images.map((img) => img.url) : [];
 
