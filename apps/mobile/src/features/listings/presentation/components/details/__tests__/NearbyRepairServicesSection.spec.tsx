@@ -56,7 +56,7 @@ describe('NearbyRepairServicesSection', () => {
     } as any);
 
     const { queryByText } = render(
-      <NearbyRepairServicesSection category="Laptops" city="Bengaluru" />
+      <NearbyRepairServicesSection listingCategoryId="cat-1" locationId="loc-1" />
     );
     expect(queryByText('Nearby Repair Services')).toBeNull();
   });
@@ -70,7 +70,7 @@ describe('NearbyRepairServicesSection', () => {
     const openUrlSpy = jest.spyOn(Linking, 'openURL').mockImplementation(() => Promise.resolve());
 
     const { getByText } = render(
-      <NearbyRepairServicesSection category="Laptops" city="Bengaluru" />
+      <NearbyRepairServicesSection listingCategoryId="cat-1" locationId="loc-1" />
     );
 
     expect(getByText('Nearby Repair Services')).toBeTruthy();

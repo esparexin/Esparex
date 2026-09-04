@@ -121,12 +121,14 @@ export class ListingMapper {
             display:
               ad.location.display ||
               [ad.location.city, ad.location.state].filter(Boolean).join(', '),
+            locationId: ad.location.locationId ? String(ad.location.locationId) : undefined,
           }
         : undefined,
       status: ad.status || 'draft',
       createdAt: new Date(ad.createdAt || Date.now()),
       updatedAt: ad.updatedAt ? new Date(ad.updatedAt) : undefined,
       category: ad.categoryName || ad.category,
+      categoryId: ad.categoryId ? String(ad.categoryId) : undefined,
       condition: ListingMapper.resolveCondition(ad),
       spareParts: mappedSpareParts,
       isFeatured: !!ad.isFeatured,

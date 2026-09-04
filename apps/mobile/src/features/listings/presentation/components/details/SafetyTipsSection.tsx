@@ -79,6 +79,7 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
         <TouchableOpacity
           onPress={onReportPress}
           activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
           className="mt-3 flex-row items-center justify-center py-2"
           accessibilityRole="button"
           accessibilityLabel="Report this listing"

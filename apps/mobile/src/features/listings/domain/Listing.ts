@@ -23,6 +23,7 @@ export interface ListingLocation {
   city?: string;
   state?: string;
   display?: string;
+  locationId?: string;
 }
 
 export interface ListingSparePart {
@@ -43,6 +44,7 @@ export interface Listing {
   createdAt: Date;
   updatedAt?: Date;
   category?: string;
+  categoryId?: string;
   condition?: 'power_on' | 'power_off';
   spareParts?: ListingSparePart[];
   isFeatured: boolean;
