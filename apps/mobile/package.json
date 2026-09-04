@@ -11,6 +11,7 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
     "prebuild": "expo prebuild",
+    "generate:splash": "node ../../scripts/generate-mobile-splash-assets.js",
     "eas-build-post-install": "npm run build -w @esparex/design-tokens -w @esparex/contracts -w @esparex/shared",
     "test": "jest"
   },
