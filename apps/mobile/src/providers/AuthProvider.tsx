@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { IAuthService, SendOtpResult } from '../infrastructure/auth/AuthService';
 import { SessionRestoration } from '../infrastructure/auth/SessionRestoration';
 import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
 import { TokenProvider } from '../infrastructure/api/TokenProvider';
+import { onUnauthorized } from '../infrastructure/api/apiClient';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
 
@@ -43,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             pushTokenRegistrationService.registerPushToken().catch(() => {});
           }
         }
-      } catch (error) {
+      } catch {
         if (mounted) {
           setStatus('anonymous');
         }
@@ -57,25 +58,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     };
   }, [pushTokenRegistrationService]);
 
-  const sendOtp = async (mobile: string): Promise<SendOtpResult> => {
-    return await authService.sendOtp(mobile);
-  };
+  useEffect(() => {
+    const unsubscribe = onUnauthorized(() => {
+      TokenProvider.clearCache();
+      queryClient.clear();
+      setStatus('anonymous');
+    });
 
-  const verifyOtp = async (mobile: string, otp: string, name?: string) => {
+    return unsubscribe;
+  }, [queryClient]);
+
+  const sendOtp = useCallback(async (mobile: string): Promise<SendOtpResult> => {
+    return await authService.sendOtp(mobile);
+  }, [authService]);
+
+  const verifyOtp = useCallback(async (mobile: string, otp: string, name?: string) => {
     await authService.verifyOtp(mobile, otp, name);
     setStatus('authenticated');
-  };
+    await queryClient.invalidateQueries();
+  }, [authService, queryClient]);
 
-  const cancelOtp = async (mobile: string) => {
+  const cancelOtp = useCallback(async (mobile: string) => {
     await authService.cancelOtp(mobile);
-  };
+  }, [authService]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await authService.logout();
     TokenProvider.clearCache();
     queryClient.clear(); // Clear all queries on logout for a complete reset
     setStatus('anonymous');
-  };
+  }, [authService, queryClient]);
 
   const value = useMemo(() => ({
     status,
@@ -83,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     verifyOtp,
     cancelOtp,
     logout
-  }), [status, authService]);
+  }), [status, sendOtp, verifyOtp, cancelOtp, logout]);
 
   return (
     <AuthContext.Provider value={value}>

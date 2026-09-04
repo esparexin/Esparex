@@ -1,8 +1,23 @@
 import { z } from 'zod';
 import { CONTACT_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
 
+/**
+ * Canonical normalizer for Indian mobile numbers.
+ * Strips non-digits, strips leading +91 / 91 / 0, and returns the 10-digit number.
+ */
+export function normalizeIndianMobileInput(raw: string): string {
+    const digits = (raw || '').replace(/\D/g, '');
+    if (digits.length >= 12 && digits.startsWith('91')) {
+        return digits.slice(2, 12);
+    }
+    if (digits.length === 11 && digits.startsWith('0')) {
+        return digits.slice(1, 11);
+    }
+    return digits.slice(0, 10);
+}
+
 export const authMobileSchema = z.string()
-    .transform((val) => val.replace(/\D/g, '').slice(-10))
+    .transform((val) => normalizeIndianMobileInput(val))
     .refine(
         (val) => {
             const isProd = typeof process !== 'undefined' && process.env?.NODE_ENV === 'production';

@@ -69,6 +69,15 @@ export function verifyCsrfToken(req: Request, res: Response, next: NextFunction)
         return next();
     }
 
+    // Skip for public auth onboarding endpoints (mobile clients & initial auth do not use double-submit cookies)
+    if (
+        req.path.endsWith('/auth/send-otp') ||
+        req.path.endsWith('/auth/verify-otp') ||
+        req.path.endsWith('/auth/cancel-otp')
+    ) {
+        return next();
+    }
+
     // Skip in test and development environments
     if (env.NODE_ENV === 'test' || env.NODE_ENV === 'development') {
         return next();
