@@ -5,6 +5,8 @@ import sitemap, {
     sanitiseSlug,
     buildSitemapApiUrl,
     formatSitemapDate,
+    isValidSitemapUrl,
+    BASE_URL,
 } from "@/app/sitemap";
 import robots from "@/app/robots";
 
@@ -55,7 +57,64 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
         });
     });
 
-    describe("4. Sitemap Generation & Policy Validation", () => {
+    describe("4. isValidSitemapUrl Gatekeeper", () => {
+        it("accepts valid canonical HTTPS public routes on esparex.in", () => {
+            expect(isValidSitemapUrl("https://esparex.in/")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/about")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/terms")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/category/mobiles")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/ads/iphone-13-ad-12345")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/business/repair-hub-biz-99")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/services/screen-repair-srv-1")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/spare-part-listings/oled-part-2")).toBe(true);
+        });
+
+        it("rejects non-HTTPS and insecure protocols", () => {
+            expect(isValidSitemapUrl("http://esparex.in/")).toBe(false);
+            expect(isValidSitemapUrl("http://esparex.in/about")).toBe(false);
+            expect(isValidSitemapUrl("ftp://esparex.in/about")).toBe(false);
+        });
+
+        it("rejects admin and other subdomains (*.esparex.in)", () => {
+            expect(isValidSitemapUrl("https://admin.esparex.in/")).toBe(false);
+            expect(isValidSitemapUrl("https://admin.esparex.in/login")).toBe(false);
+            expect(isValidSitemapUrl("https://api.esparex.in/v1/listings")).toBe(false);
+            expect(isValidSitemapUrl("https://staging.esparex.in/about")).toBe(false);
+            expect(isValidSitemapUrl("https://preview.esparex.in/about")).toBe(false);
+        });
+
+        it("rejects query parameters, hash fragments, and custom ports", () => {
+            expect(isValidSitemapUrl("https://esparex.in/about?ref=share")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/about#section")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in:3000/about")).toBe(false);
+        });
+
+        it("rejects private, internal, authentication, and user management routes", () => {
+            expect(isValidSitemapUrl("https://esparex.in/admin")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/account/profile")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/chat")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/messages")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/login")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/register")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/post-ad")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/post-service")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/edit-ad/123")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/api/v1/health")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/internal/revalidate")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/offline")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/unauthorized")).toBe(false);
+        });
+
+        it("rejects redirect-only and non-canonical category paths", () => {
+            expect(isValidSitemapUrl("https://esparex.in/browse-services")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/browse-spare-parts")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/spare-parts/screen")).toBe(false);
+            expect(isValidSitemapUrl("https://esparex.in/business")).toBe(false); // bare 301
+            expect(isValidSitemapUrl("https://esparex.in/category/mobile-phones")).toBe(false); // 301 redirect
+        });
+    });
+
+    describe("5. Sitemap Generation & Policy Validation", () => {
         const originalFetch = global.fetch;
 
         beforeEach(() => {
@@ -66,8 +125,8 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                         ok: true,
                         json: async () => ({
                             data: [
-                                { id: "ad-1", seoSlug: "iphone-13", updatedAt: "2026-09-01T00:00:00.000Z" },
-                                { id: "ad-2", seoSlug: "samsung-s21", updatedAt: "2026-09-02T00:00:00.000Z" },
+                                { id: "ad-1", seoSlug: "iphone-13", status: "live", updatedAt: "2026-09-01T00:00:00.000Z" },
+                                { id: "ad-2", seoSlug: "samsung-s21", status: "live", updatedAt: "2026-09-02T00:00:00.000Z" },
                             ],
                         }),
                     };
@@ -77,7 +136,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                         ok: true,
                         json: async () => ({
                             data: [
-                                { id: "srv-1", slug: "screen-repair", updatedAt: "2026-09-01T00:00:00.000Z" },
+                                { id: "srv-1", slug: "screen-repair", status: "live", updatedAt: "2026-09-01T00:00:00.000Z" },
                             ],
                         }),
                     };
@@ -87,8 +146,8 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                         ok: true,
                         json: async () => ({
                             data: [
-                                { id: "part-1", slug: "oled-display", updatedAt: "2026-09-01T00:00:00.000Z" },
-                                { id: "part-2", slug: "battery-5000mah", updatedAt: "2026-09-02T00:00:00.000Z" },
+                                { id: "part-1", slug: "oled-display", status: "live", updatedAt: "2026-09-01T00:00:00.000Z" },
+                                { id: "part-2", slug: "battery-5000mah", status: "live", updatedAt: "2026-09-02T00:00:00.000Z" },
                             ],
                         }),
                     };
@@ -98,7 +157,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                         ok: true,
                         json: async () => ({
                             data: [
-                                { id: "biz-1", slug: "apex-repairs", updatedAt: "2026-09-01T00:00:00.000Z" },
+                                { id: "biz-1", slug: "apex-repairs", status: "active", updatedAt: "2026-09-01T00:00:00.000Z" },
                             ],
                         }),
                     };
@@ -116,7 +175,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const urls = entries.map((e) => e.url);
 
             const expectedStatic = [
-                "https://esparex.in",
+                "https://esparex.in/",
                 "https://esparex.in/about",
                 "https://esparex.in/contact",
                 "https://esparex.in/faq",
@@ -129,6 +188,32 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
 
             for (const expected of expectedStatic) {
                 expect(urls).toContain(expected);
+            }
+        });
+
+        it("omits lastModified, changeFrequency, and priority metadata from all entries (loc-only)", async () => {
+            const entries = await sitemap();
+            expect(entries.length).toBeGreaterThan(0);
+
+            for (const entry of entries) {
+                expect(entry.url).toBeDefined();
+                expect(typeof entry.url).toBe("string");
+                expect(entry.lastModified).toBeUndefined();
+                expect(entry.changeFrequency).toBeUndefined();
+                expect(entry.priority).toBeUndefined();
+            }
+        });
+
+        it("strictly enforces canonical host https://esparex.in and BASE_URL constant", async () => {
+            expect(BASE_URL).toBe("https://esparex.in");
+
+            const entries = await sitemap();
+            for (const entry of entries) {
+                expect(entry.url.startsWith("https://esparex.in")).toBe(true);
+                const parsed = new URL(entry.url);
+                expect(parsed.hostname).toBe("esparex.in");
+                expect(parsed.protocol).toBe("https:");
+                expect(parsed.port).toBe("");
             }
         });
 
@@ -197,9 +282,78 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const uniqueUrls = new Set(urls);
             expect(urls.length).toBe(uniqueUrls.size);
         });
+
+        it("excludes draft, deleted, inactive, and non-indexable records from sitemap", async () => {
+            global.fetch = vi.fn().mockImplementation(async (url: string) => {
+                if (url.includes("listingType=ad")) {
+                    return {
+                        ok: true,
+                        json: async () => ({
+                            data: [
+                                { id: "ad-live", seoSlug: "valid-live-ad", status: "live" },
+                                { id: "ad-draft", seoSlug: "draft-ad", status: "draft" },
+                                { id: "ad-deleted", seoSlug: "deleted-ad", status: "live", isDeleted: true },
+                                { id: "ad-inactive", seoSlug: "inactive-ad", status: "live", isActive: false },
+                                { id: "ad-noindex", seoSlug: "noindex-ad", status: "live", noindex: true },
+                            ],
+                        }),
+                    };
+                }
+                return { ok: true, json: async () => ({ data: [] }) };
+            });
+
+            const entries = await sitemap();
+            const urls = entries.map((e) => e.url);
+
+            expect(urls).toContain("https://esparex.in/ads/valid-live-ad-ad-live");
+            expect(urls.some((u) => u.includes("draft-ad"))).toBe(false);
+            expect(urls.some((u) => u.includes("deleted-ad"))).toBe(false);
+            expect(urls.some((u) => u.includes("inactive-ad"))).toBe(false);
+            expect(urls.some((u) => u.includes("noindex-ad"))).toBe(false);
+        });
+
+        it("rejects malformed IDs and corrupt characters", async () => {
+            global.fetch = vi.fn().mockImplementation(async (url: string) => {
+                if (url.includes("listingType=ad")) {
+                    return {
+                        ok: true,
+                        json: async () => ({
+                            data: [
+                                { id: "valid-123", seoSlug: "valid-slug", status: "live" },
+                                { id: "../traversal", seoSlug: "traversal-slug", status: "live" },
+                                { id: "bad?param=1", seoSlug: "query-slug", status: "live" },
+                            ],
+                        }),
+                    };
+                }
+                return { ok: true, json: async () => ({ data: [] }) };
+            });
+
+            const entries = await sitemap();
+            const urls = entries.map((e) => e.url);
+
+            expect(urls).toContain("https://esparex.in/ads/valid-slug-valid-123");
+            expect(urls.some((u) => u.includes("traversal"))).toBe(false);
+            expect(urls.some((u) => u.includes("query-slug"))).toBe(false);
+        });
+
+        it("handles backend API failures safely without crashing and preserves valid static routes", async () => {
+            global.fetch = vi.fn().mockImplementation(async () => {
+                throw new Error("Connection refused by upstream backend");
+            });
+
+            const entries = await sitemap();
+            expect(entries.length).toBeGreaterThan(0);
+
+            const urls = entries.map((e) => e.url);
+            expect(urls).toContain("https://esparex.in/");
+            expect(urls).toContain("https://esparex.in/about");
+            expect(urls).toContain("https://esparex.in/privacy");
+            expect(urls).toContain("https://esparex.in/category/mobiles");
+        });
     });
 
-    describe("5. Web Robots Policy", () => {
+    describe("6. Web Robots Policy", () => {
         it("explicitly disallows all sensitive and private routes", () => {
             const result = robots();
             const rules = result.rules;
@@ -224,7 +378,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
         });
     });
 
-    describe("6. Sensitive Form Placeholders Security Verification", () => {
+    describe("7. Sensitive Form Placeholders Security Verification", () => {
         const repoRoot = path.resolve(__dirname, "../../../..");
 
         it("admin login page contains no company email or default OTP placeholders", () => {
