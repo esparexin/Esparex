@@ -20,10 +20,8 @@ const SORT_OPTIONS: Array<{ label: string; value: ListingQueryParams['sortBy'] }
 ];
 
 const CONDITION_OPTIONS = [
-  { label: 'Brand New', value: 'new' },
-  { label: 'Like New', value: 'used_like_new' },
-  { label: 'Good', value: 'used_good' },
-  { label: 'Fair', value: 'used_fair' },
+  { label: 'Power On (Working)', value: 'power_on' },
+  { label: 'Power Off (For Parts)', value: 'power_off' },
 ];
 
 export const FilterModal: React.FC<FilterModalProps> = ({
@@ -34,7 +32,9 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   onReset,
 }) => {
   const [sortBy, setSortBy] = useState<ListingQueryParams['sortBy']>(initialFilters.sortBy);
-  const [condition, setCondition] = useState<string | undefined>(initialFilters.condition);
+  const [condition, setCondition] = useState<string | undefined>(
+    initialFilters.deviceCondition || initialFilters.condition
+  );
   const [minPrice, setMinPrice] = useState<string>(
     initialFilters.minPrice !== undefined ? String(initialFilters.minPrice) : ''
   );
@@ -46,11 +46,13 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   const handleApply = () => {
     const minVal = minPrice ? Number(minPrice) : undefined;
     const maxVal = maxPrice ? Number(maxPrice) : undefined;
+    const devCond = (condition === 'power_on' || condition === 'power_off') ? condition : undefined;
 
     onApply({
       ...initialFilters,
       sortBy,
       condition,
+      deviceCondition: devCond,
       minPrice: minVal,
       maxPrice: maxVal,
       verifiedOnly,

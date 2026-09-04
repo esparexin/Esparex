@@ -112,5 +112,29 @@ describe('ApiListingRepository - Saved Ads', () => {
         params: { q: 'MacBook' },
       });
     });
+
+    it('maps condition power_on to deviceCondition for backend query', async () => {
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: { success: true, data: mockAds },
+      });
+
+      await repository.getListings({ condition: 'power_on' });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/listings', {
+        params: { condition: 'power_on', deviceCondition: 'power_on' },
+      });
+    });
+
+    it('passes deviceCondition directly for backend query', async () => {
+      (apiClient.get as jest.Mock).mockResolvedValueOnce({
+        data: { success: true, data: mockAds },
+      });
+
+      await repository.getListings({ deviceCondition: 'power_off' });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/listings', {
+        params: { deviceCondition: 'power_off' },
+      });
+    });
   });
 });

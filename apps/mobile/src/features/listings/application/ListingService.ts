@@ -1,6 +1,6 @@
 import { IListingRepository } from './IListingRepository';
 import { Listing } from '../domain/Listing';
-import { ListingQueryParams, CreateListingRequest, Category } from '@esparex/contracts';
+import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
 
 export class ListingService {
   constructor(private readonly repository: IListingRepository) {}
@@ -27,10 +27,6 @@ export class ListingService {
 
   public async updateListing(id: string, request: Partial<CreateListingRequest>): Promise<Listing> {
     return this.repository.update(id, request);
-  }
-
-  public async getCategories(): Promise<readonly Category[]> {
-    return this.repository.getCategories();
   }
 
   public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
