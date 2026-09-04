@@ -40,7 +40,7 @@ describe('TermsAndPrivacyScreen', () => {
   const mockParentGoBack = jest.fn();
   let mockCanGoBack = jest.fn();
   let mockParentCanGoBack = jest.fn();
-  let backHandlerCallback: (() => boolean) | null = null;
+  let backHandlerCallback: (() => boolean | null | undefined) | null = null;
   const mockRemoveSubscription = jest.fn();
 
   beforeEach(() => {
