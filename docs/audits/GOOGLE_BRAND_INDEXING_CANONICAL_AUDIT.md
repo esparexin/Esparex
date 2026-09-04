@@ -1,6 +1,6 @@
 # Comprehensive Google Brand, Indexing, Canonical & Search Visibility Audit
 
-> **Branch:** `fix/seo-indexing-brand-canonicalization`  
+> **Branch:** `fix/seo-indexing-brand-canonicalization`
 > **Objective:** Identify and permanently remediate Google search indexing, canonicalization, sitemap, host-isolation, and brand/entity ambiguity issues (e.g. Google interpreting "esparex" as "sparex").
 
 ---
