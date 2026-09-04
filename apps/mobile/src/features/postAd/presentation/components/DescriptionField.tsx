@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { MAX_AD_DESCRIPTION_CHARS } from '@esparex/contracts';
 
 interface DescriptionFieldProps {
@@ -34,10 +35,10 @@ export const DescriptionField = ({
             accessibilityLabel="Auto-fill description with AI"
           >
             {isGeneratingAi ? (
-              <ActivityIndicator size="small" color="#0284c7" />
+              <ActivityIndicator size="small" color={base.brand[500]} />
             ) : (
               <>
-                <AppIcon name="Sparkles" size={12} color="#0284c7" />
+                <AppIcon name="Sparkles" size={12} color={base.brand[500]} />
                 <AppText variant="caption" className="ml-1 text-sky-700 dark:text-sky-300 font-semibold text-xs">
                   Auto-fill (AI)
                 </AppText>

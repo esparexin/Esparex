@@ -66,10 +66,10 @@ export const LocationField = ({
             accessibilityLabel="Auto-detect location"
           >
             {isDetecting ? (
-              <ActivityIndicator size="small" color="#0284c7" />
+              <ActivityIndicator size="small" color={base.brand[500]} />
             ) : (
               <>
-                <AppIcon name="Compass" size={16} color="#0284c7" />
+                <AppIcon name="Compass" size={16} color={base.brand[500]} />
                 <AppText variant="caption" className="ml-1.5 text-sky-700 dark:text-sky-300 font-semibold text-xs">
                   Auto-Detect
                 </AppText>
