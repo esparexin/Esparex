@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "@esparex/ui";
+import { Plus, type ColumnDef } from "@esparex/ui";
 import { CatalogIndexPage } from "@/components/catalog/CatalogIndexPage";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
-import { ColumnDef } from "@/components/ui/DataTable";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { CatalogFormActions } from "@/components/catalog/CatalogFormActions";
 import { z } from "zod";

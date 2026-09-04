@@ -8,13 +8,13 @@ import {
   AlertCircle,
   ExternalLink,
   Checkbox,
+  type ColumnDef,
 } from "@esparex/ui";
 import {
   CatalogActionsRow,
   CatalogActionIconButton,
   CatalogEntityCell,
 } from "@/components/catalog/primitives";
-import type { ColumnDef } from "@/components/ui/DataTable";
 
 interface GenerateCatalogRequestsColumnsParams {
   headerCheckedState: boolean | "indeterminate";

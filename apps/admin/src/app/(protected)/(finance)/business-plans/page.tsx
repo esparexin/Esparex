@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ColumnDef } from "@/components/ui/DataTable";
-import { Plan } from "@esparex/contracts";
+import type { Plan } from "@esparex/contracts";
 import {
     CreditCard,
     Search,
@@ -12,14 +11,15 @@ import {
     Activity,
     Pencil,
     ShieldCheck,
-    Award
+    Award,
+    DataTable,
+    AlertCircle,
+    type ColumnDef,
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
-import { DataTable } from "@/components/ui/DataTable";
-import { AlertCircle } from "@esparex/ui";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
     buildUrlWithSearchParams,

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { DataTable, type ColumnDef } from "@esparex/ui";
 
 const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
 

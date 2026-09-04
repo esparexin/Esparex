@@ -11,10 +11,9 @@ import {
     normalizeManagedUser,
     type ManagedUser,
 } from "@/components/system/users/userManagement";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { User } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@esparex/shared";
-import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "@esparex/ui";
+import { ArrowLeft, Mail, Phone, Shield, User as UserIcon, StatusChip } from "@esparex/ui";
 
 type Props = {
     params: Promise<{

@@ -5,7 +5,7 @@ const projectRoot = process.cwd();
 const srcRoot = path.join(projectRoot, "src");
 const protectedRoot = path.join(srcRoot, "app", "(protected)");
 const hooksRoot = path.join(srcRoot, "hooks");
-const dataTablePath = path.join(srcRoot, "components", "ui", "DataTable.tsx");
+const dataTablePath = path.join(projectRoot, "..", "..", "packages", "ui", "src", "data-display", "DataTable", "DataTable.tsx");
 const routesPath = path.join(srcRoot, "lib", "api", "routes.ts");
 
 const violations = [];

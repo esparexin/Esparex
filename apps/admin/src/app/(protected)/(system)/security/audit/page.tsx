@@ -1,18 +1,19 @@
 "use client";
 
-import { AlertCircle } from "@esparex/ui";
-import { useCallback, useEffect, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { AdminLog } from "@/types/audit";
 import {
+    AlertCircle,
+    DataTable,
+    type ColumnDef,
     Shield,
     User,
     Activity,
     Database,
     Calendar,
-    Terminal
+    Terminal,
 } from "@esparex/ui";
+import { useCallback, useEffect, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AdminLog } from "@/types/audit";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";

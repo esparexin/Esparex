@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, User as UserIcon, X } from "@esparex/ui";
+import { CheckCircle2, User as UserIcon, X, StatusChip } from "@esparex/ui";
 import { REPORT_STATUS } from "@esparex/contracts";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {
     getUserDisplayName,

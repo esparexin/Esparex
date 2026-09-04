@@ -2,12 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { UserPlus, Power, Trash2, Save, XCircle } from "@esparex/ui";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { UserPlus, Power, Trash2, Save, XCircle, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { AdminUserFormCard } from "@/components/system/adminUsers/AdminUserFormCard";
 import { AdminUserIdentityCell } from "@/components/system/adminUsers/AdminUserIdentityCell";
 import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";

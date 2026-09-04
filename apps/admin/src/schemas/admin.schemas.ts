@@ -23,11 +23,6 @@ export const adminCategorySchema = CreateCategorySchema.pick({
     status: z.enum(['live', 'inactive', 'pending', 'rejected']).optional(),
 });
 
-export const adminServiceModerationSchema = z.object({
-    moderationStatus: z.enum(['pending', 'live', 'rejected']),
-    moderationComment: z.string().max(1000).optional()
-});
-
 export const adminBrandSchema = CreateBrandSchema.pick({
     name: true,
     categoryIds: true,

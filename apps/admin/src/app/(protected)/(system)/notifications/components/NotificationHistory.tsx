@@ -10,7 +10,7 @@ import {
     Users 
 } from "lucide-react";
 import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { DataTable, type ColumnDef } from "@esparex/ui";
 import type { NotificationLog } from "@/types/notification";
 
 interface NotificationHistoryProps {

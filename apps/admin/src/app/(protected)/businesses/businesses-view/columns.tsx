@@ -1,8 +1,7 @@
 "use client";
 
-import { Building2, MapPin, Ban, RotateCcw, Checkbox } from "@esparex/ui";
+import { Building2, MapPin, Ban, RotateCcw, Checkbox, type ColumnDef } from "@esparex/ui";
 import { format } from "date-fns";
-import type { ColumnDef } from "@/components/ui/DataTable";
 import { Business } from "@esparex/contracts";
 import { BusinessTypesCell, BusinessActionButton, createBusinessStatusColumn, createBusinessActionsColumn } from "@/components/business/BusinessListPrimitives";
 

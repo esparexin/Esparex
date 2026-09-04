@@ -30,7 +30,6 @@ import { DisplayAdsSettings } from "./components/DisplayAdsSettings";
 import { MonetizationSettings } from "./components/MonetizationSettings";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
-import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
 
 type SettingsTab =
   | "platform"
@@ -71,8 +70,6 @@ export default function SettingsPage() {
       loadConfig,
       handleSaveSection
   } = useSystemConfig();
-  void getSystemConfig;
-  void updateSystemConfig;
 
   const requestedTab = searchParams.get("tab");
   const activeTab: SettingsTab = isSettingsTab(requestedTab) ? requestedTab : "platform";

@@ -3,16 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import {
     AlertCircle,
     User as UserIcon,
     Mail,
+    DataTable,
+    StatusChip,
+    type ColumnDef,
 } from "@esparex/ui";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { UserActionDialog } from "@/components/system/users/UserActionDialog";
 import { UserActionMenu } from "@/components/system/users/UserActionMenu";
 import { UserQuickDetailsPanel } from "@/components/system/users/UserQuickDetailsPanel";

@@ -1,8 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Eye, Pencil, Trash2 } from "@esparex/ui";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { Eye, Pencil, Trash2, DataTable, type ColumnDef } from "@esparex/ui";
 import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
 import { Business } from "@esparex/contracts";

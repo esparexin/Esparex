@@ -8,7 +8,7 @@ import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { adminModelSchema } from "@/schemas/admin.schemas";
-import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
+import { normalizeObjectIdLike } from "@esparex/shared";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { deriveCatalogLifecycleStatus, getEntityCategoryIds, hasCategoryOverlap, resolveModalAssignableCategoryState, toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";

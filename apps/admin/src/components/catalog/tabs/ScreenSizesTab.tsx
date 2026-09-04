@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Monitor } from "@esparex/ui";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";
-import { type ScreenSize } from "@/types/screenSize";
+import type { ScreenSize } from "@esparex/contracts";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useCatalogTabState } from "@/hooks/useCatalogTabState";

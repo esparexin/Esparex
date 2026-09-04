@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { DataTable, type ColumnDef, StatusChip, Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { ApiKeyItem } from "@/types/adminSession";
-import { Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { useApiKeys } from "@/hooks/useApiKeys";
 
 export default function ApiKeysPage() {

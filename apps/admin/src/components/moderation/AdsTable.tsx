@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
+import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
 import { AdminModerationActions } from "./AdminModerationActions";
-import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { ListingTypeValue } from "@esparex/contracts";
 // ── Risk badge helpers ────────────────────────────────────────────────────────

@@ -1,8 +1,7 @@
 "use client";
 
-import { Edit, Trash2, Tag, CheckCircle, AlertCircle, Monitor, Smartphone, Tablet } from "@esparex/ui";
+import { Edit, Trash2, Tag, CheckCircle, AlertCircle, Monitor, Smartphone, Tablet, DataTable, type ColumnDef } from "@esparex/ui";
 import { GOOGLE_AD_STATUS, type GoogleAdPlacementDTO } from "@esparex/contracts";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 
 interface GoogleAdsTableProps {
     placements: GoogleAdPlacementDTO[];

@@ -3,15 +3,13 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, Download, FileText } from "@esparex/ui";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { Search, Download, FileText, DataTable, AlertCircle, type ColumnDef } from "@esparex/ui";
 import { adminFetch, getAdminApiBase } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
-import { AlertCircle } from "@esparex/ui";
 import {
   buildUrlWithSearchParams,
   normalizeSearchParamValue,
