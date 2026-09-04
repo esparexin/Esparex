@@ -101,6 +101,26 @@ describe('Auth Stack Screens Verification', () => {
       });
     });
 
+    it('normalizes pasted phone numbers with +91 or leading 0 correctly', () => {
+      const { getByLabelText } = render(<LoginScreen />);
+      const mobileInput = getByLabelText('Mobile Number');
+      const sendOtpButton = getByLabelText('Send OTP Button');
+
+      // Pasting +91 98765 43210
+      fireEvent.changeText(mobileInput, '+91 98765 43210');
+      expect(mobileInput.props.value).toBe('9876543210');
+      expect(sendOtpButton.props.accessibilityState?.disabled).toBe(false);
+
+      // Pasting 09876543210
+      fireEvent.changeText(mobileInput, '09876543210');
+      expect(mobileInput.props.value).toBe('9876543210');
+      expect(sendOtpButton.props.accessibilityState?.disabled).toBe(false);
+
+      // Invalid start digit (e.g. 5) keeps button disabled in pattern validation
+      fireEvent.changeText(mobileInput, '5876543210');
+      expect(sendOtpButton.props.accessibilityState?.disabled).toBe(true);
+    });
+
     it('dismisses the auth modal via parent navigation when close button is pressed', () => {
       const { getByLabelText } = render(<LoginScreen />);
       const closeButton = getByLabelText('Close and return to marketplace');
@@ -125,6 +145,52 @@ describe('Auth Stack Screens Verification', () => {
         expect(mockVerifyOtp).toHaveBeenCalledWith('9876543210', '123456', undefined);
         expect(mockParentNavigation.goBack).toHaveBeenCalled();
         expect(mockNavigation.goBack).not.toHaveBeenCalled();
+      });
+    });
+
+    it('extracts 6-digit OTP code when pasted with surrounding SMS text', async () => {
+      mockVerifyOtp.mockResolvedValueOnce({});
+      const { getByText, UNSAFE_getByType } = render(<OTPScreen />);
+
+      const textInput = UNSAFE_getByType('TextInput' as any);
+      fireEvent.changeText(textInput, 'Your Esparex verification code is 876543. Do not share.');
+
+      expect(textInput.props.value).toBe('876543');
+
+      const verifyButton = getByText('Verify & Sign In');
+      fireEvent.press(verifyButton);
+
+      await waitFor(() => {
+        expect(mockVerifyOtp).toHaveBeenCalledWith('9876543210', '876543', undefined);
+      });
+    });
+
+    it('validates full name schema for new users and blocks submit if name is invalid', async () => {
+      (useRoute as jest.Mock).mockReturnValue({
+        params: { mobile: '9876543210', isNewUser: true },
+      });
+      const { getByText, getByLabelText, UNSAFE_getAllByType } = render(<OTPScreen />);
+
+      const textInputs = UNSAFE_getAllByType('TextInput' as any);
+      const otpInput = textInputs.find((t) => t.props.accessibilityLabel === '6-Digit Verification Code')!;
+      const nameInput = getByLabelText('Full Name');
+      const verifyButton = getByLabelText('Verify and Register Button');
+
+      // Enter valid OTP but single character name
+      fireEvent.changeText(otpInput, '123456');
+      fireEvent.changeText(nameInput, 'A');
+
+      expect(verifyButton.props.accessibilityState?.disabled).toBe(true);
+
+      // Enter valid name
+      fireEvent.changeText(nameInput, 'Arun Sharma');
+      expect(verifyButton.props.accessibilityState?.disabled).toBe(false);
+
+      mockVerifyOtp.mockResolvedValueOnce({});
+      fireEvent.press(verifyButton);
+
+      await waitFor(() => {
+        expect(mockVerifyOtp).toHaveBeenCalledWith('9876543210', '123456', 'Arun Sharma');
       });
     });
 

@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TouchableOpacity, View, BackHandler, Animated, Vibration } from 'react-native';
+import { TouchableOpacity, View, BackHandler, Animated } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { AppInput, AppButton, AppText, SegmentedOtpInput } from '@esparex/mobile-ui';
+import { TEXT_LIMITS, authNameSchema } from '@esparex/contracts';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';
 import { navigate } from '../../../navigation/navigationRef';
 import { AuthStackParamList, ROUTES } from '../../../navigation/routes';
+
+import { useOtpTimer } from '../hooks/useOtpTimer';
+import { useShakeAnimation } from '../hooks/useShakeAnimation';
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export const OTPScreen = () => {
   const navigation = useNavigation();
@@ -19,36 +25,10 @@ export const OTPScreen = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(60);
-  const [shakeAnim] = useState(() => new Animated.Value(0));
 
-  const triggerShake = useCallback(() => {
-    try {
-      Vibration.vibrate(50);
-    } catch {
-      // Ignore vibration unsupported environments
-    }
-    shakeAnim.setValue(0);
-    Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 40, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 40, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 4, duration: 40, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
-    ]).start();
-  }, [shakeAnim]);
-
+  const { shakeAnim, triggerShake } = useShakeAnimation();
   const { verifyOtp, sendOtp, cancelOtp } = useAuth();
-
-  // 60-Second Resend Cooldown Timer
-  useEffect(() => {
-    if (secondsLeft <= 0) return;
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [secondsLeft]);
+  const { secondsLeft, formattedTimer, resetTimer } = useOtpTimer(RESEND_COOLDOWN_SECONDS);
 
   // Handle complete modal dismissal
   const handleDismiss = useCallback(() => {
@@ -87,7 +67,8 @@ export const OTPScreen = () => {
   }, [handleChangeNumber]);
 
   const handleCodeChange = (text: string) => {
-    const digitsOnly = text.replace(/\D/g, '').slice(0, 6);
+    const match = text.match(/\b\d{6}\b/);
+    const digitsOnly = match ? match[0] : text.replace(/\D/g, '').slice(0, 6);
     setCode(digitsOnly);
     if (error) setError(null);
   };
@@ -99,12 +80,19 @@ export const OTPScreen = () => {
     try {
       const res = await sendOtp(mobile);
       if (res.success) {
-        setSecondsLeft(60);
+        resetTimer();
       }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { error?: string; message?: string }; status?: number } };
+      const status = axiosErr?.response?.status;
       const apiError = axiosErr?.response?.data?.error || axiosErr?.response?.data?.message;
-      setError(apiError || 'Failed to resend OTP. Please try again.');
+      if (status === 423) {
+        setError('Too many invalid attempts. Account temporarily locked.');
+      } else if (status === 429) {
+        setError('Too many OTP requests. Please wait before retrying.');
+      } else {
+        setError(apiError || 'Failed to resend OTP. Please try again.');
+      }
     } finally {
       setResending(false);
     }
@@ -115,10 +103,14 @@ export const OTPScreen = () => {
       triggerShake();
       return;
     }
-    if (isNewUser && (!name || name.trim().length < 2)) {
-      setError('Please enter your full name (at least 2 characters)');
-      triggerShake();
-      return;
+    if (isNewUser) {
+      const nameValidation = authNameSchema.safeParse(name.trim());
+      if (!nameValidation.success) {
+        const errorMsg = nameValidation.error.issues[0]?.message || 'Please enter a valid full name';
+        setError(errorMsg);
+        triggerShake();
+        return;
+      }
     }
 
     setLoading(true);
@@ -155,12 +147,11 @@ export const OTPScreen = () => {
     }
   };
 
+  const isNameValid = !isNewUser || authNameSchema.safeParse(name.trim()).success;
   const isSubmitDisabled =
     code.length !== 6 ||
-    (isNewUser && (!name || name.trim().length < 2)) ||
+    !isNameValid ||
     loading;
-
-  const formattedTimer = `0:${secondsLeft < 10 ? '0' : ''}${secondsLeft}`;
 
   return (
     <AuthLayout
@@ -193,7 +184,7 @@ export const OTPScreen = () => {
           }}
           autoFocus={isNewUser}
           autoCapitalize="words"
-          maxLength={50}
+          maxLength={TEXT_LIMITS.NAME.MAX}
           accessibilityLabel="Full Name"
           accessibilityHint="Required for new account registration"
         />
