@@ -136,7 +136,7 @@ export function EditListingScreen() {
     return (
       <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
         <Container className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#0ea5e9" />
+          <ActivityIndicator size="large" color={base.brand[500]} />
         </Container>
       </Screen>
     );
