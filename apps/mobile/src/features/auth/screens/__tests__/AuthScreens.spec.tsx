@@ -30,10 +30,15 @@ describe('Auth Stack Screens Verification', () => {
   const mockSendOtp = jest.fn();
   const mockVerifyOtp = jest.fn();
   const mockCancelOtp = jest.fn();
+  const mockParentNavigation = {
+    goBack: jest.fn(),
+    canGoBack: jest.fn().mockReturnValue(true),
+  };
   const mockNavigation = {
     navigate: jest.fn(),
     goBack: jest.fn(),
     canGoBack: jest.fn().mockReturnValue(true),
+    getParent: jest.fn().mockReturnValue(mockParentNavigation),
   };
 
   beforeEach(() => {
@@ -95,12 +100,20 @@ describe('Auth Stack Screens Verification', () => {
         });
       });
     });
+
+    it('dismisses the auth modal via parent navigation when close button is pressed', () => {
+      const { getByLabelText } = render(<LoginScreen />);
+      const closeButton = getByLabelText('Close and return to marketplace');
+
+      fireEvent.press(closeButton);
+      expect(mockParentNavigation.goBack).toHaveBeenCalled();
+    });
   });
 
   describe('OTPScreen', () => {
     it('renders 6-digit segmented OTP input and submits on valid 6-digit code', async () => {
       mockVerifyOtp.mockResolvedValueOnce({});
-      const { getByLabelText, getByText, UNSAFE_getByType } = render(<OTPScreen />);
+      const { getByText, UNSAFE_getByType } = render(<OTPScreen />);
 
       const textInput = UNSAFE_getByType('TextInput' as any);
       fireEvent.changeText(textInput, '123456');
@@ -110,6 +123,8 @@ describe('Auth Stack Screens Verification', () => {
 
       await waitFor(() => {
         expect(mockVerifyOtp).toHaveBeenCalledWith('9876543210', '123456', undefined);
+        expect(mockParentNavigation.goBack).toHaveBeenCalled();
+        expect(mockNavigation.goBack).not.toHaveBeenCalled();
       });
     });
 
@@ -119,8 +134,32 @@ describe('Auth Stack Screens Verification', () => {
 
       fireEvent.press(changeNumberButton);
       expect(mockCancelOtp).toHaveBeenCalledWith('9876543210');
-      expect(navigate).toHaveBeenCalledWith(ROUTES.AUTH_STACK, {
-        screen: ROUTES.LOGIN,
+      expect(mockNavigation.goBack).toHaveBeenCalled();
+    });
+
+    it('calls cancelOtp and dismisses modal when close (X) button is pressed', () => {
+      const { getByLabelText } = render(<OTPScreen />);
+      const closeButton = getByLabelText('Close and return to marketplace');
+
+      fireEvent.press(closeButton);
+      expect(mockCancelOtp).toHaveBeenCalledWith('9876543210');
+      expect(mockParentNavigation.goBack).toHaveBeenCalled();
+    });
+
+    it('falls back to navigate(ROUTES.MAIN_STACK) upon verification if parent navigator is unavailable', async () => {
+      mockNavigation.getParent.mockReturnValue(null);
+      mockVerifyOtp.mockResolvedValueOnce({});
+      const { getByText, UNSAFE_getByType } = render(<OTPScreen />);
+
+      const textInput = UNSAFE_getByType('TextInput' as any);
+      fireEvent.changeText(textInput, '123456');
+
+      const verifyButton = getByText('Verify & Sign In');
+      fireEvent.press(verifyButton);
+
+      await waitFor(() => {
+        expect(mockVerifyOtp).toHaveBeenCalledWith('9876543210', '123456', undefined);
+        expect(navigate).toHaveBeenCalledWith(ROUTES.MAIN_STACK);
       });
     });
   });

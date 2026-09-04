@@ -50,13 +50,30 @@ export const OTPScreen = () => {
     return () => clearInterval(timer);
   }, [secondsLeft]);
 
-  // Handle Number Change / Cancellation
+  // Handle complete modal dismissal
+  const handleDismiss = useCallback(() => {
+    if (mobile) {
+      void cancelOtp(mobile);
+    }
+    const parentNav = navigation.getParent();
+    if (parentNav?.canGoBack()) {
+      parentNav.goBack();
+    } else {
+      navigate(ROUTES.MAIN_STACK);
+    }
+  }, [mobile, cancelOtp, navigation]);
+
+  // Handle Number Change / Cancellation (navigate back to Login)
   const handleChangeNumber = useCallback(async () => {
     if (mobile) {
       void cancelOtp(mobile);
     }
-    navigate(ROUTES.AUTH_STACK, { screen: ROUTES.LOGIN });
-  }, [mobile, cancelOtp]);
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigate(ROUTES.AUTH_STACK, { screen: ROUTES.LOGIN });
+    }
+  }, [mobile, cancelOtp, navigation]);
 
   // Android Hardware Back Handler
   useEffect(() => {
@@ -109,8 +126,9 @@ export const OTPScreen = () => {
 
     try {
       await verifyOtp(mobile, code, isNewUser ? name.trim() : undefined);
-      if (navigation.canGoBack()) {
-        navigation.goBack();
+      const parentNav = navigation.getParent();
+      if (parentNav?.canGoBack()) {
+        parentNav.goBack();
       } else {
         navigate(ROUTES.MAIN_STACK);
       }
@@ -148,6 +166,7 @@ export const OTPScreen = () => {
     <AuthLayout
       title={isNewUser ? 'Complete Registration' : 'Verify OTP'}
       description={`Enter the 6-digit code sent to +91 ${mobile}`}
+      onDismiss={handleDismiss}
       footer={
         <View className="items-center gap-3">
           <TouchableOpacity
