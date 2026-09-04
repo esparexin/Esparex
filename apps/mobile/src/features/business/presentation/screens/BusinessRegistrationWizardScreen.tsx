@@ -41,6 +41,21 @@ export function BusinessRegistrationWizardScreen({ initialBusiness, onSuccess, o
   const updateMutation = useUpdateBusinessProfile();
   const isPending = submitMutation.isPending || updateMutation.isPending;
 
+  // Android hardware back button handling: step backward instead of exiting wizard
+  useEffect(() => {
+    if (authStatus === 'anonymous') return;
+    const onBackPress = () => {
+      if (currentStepIndex > 0) {
+        setCurrentStepIndex((prev) => prev - 1);
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [authStatus, currentStepIndex]);
+
   if (authStatus === 'anonymous') {
     return (
       <Screen className="flex-1 bg-muted">
@@ -83,20 +98,6 @@ export function BusinessRegistrationWizardScreen({ initialBusiness, onSuccess, o
   }
 
   const currentStep = STEPS_ORDER[currentStepIndex];
-
-  // Android hardware back button handling: step backward instead of exiting wizard
-  useEffect(() => {
-    const onBackPress = () => {
-      if (currentStepIndex > 0) {
-        setCurrentStepIndex((prev) => prev - 1);
-        return true;
-      }
-      return false;
-    };
-
-    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () => subscription.remove();
-  }, [currentStepIndex]);
 
   const handleFormChange = (updates: Partial<BusinessFormState>) => {
     setFormState((prev) => ({ ...prev, ...updates }));

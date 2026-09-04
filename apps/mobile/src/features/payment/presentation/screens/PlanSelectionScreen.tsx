@@ -81,11 +81,12 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
             ]
           );
         },
-        onError: (err: any) => {
-          if (err?.message?.toLowerCase().includes('cancelled')) {
+        onError: (err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err || '');
+          if (message.toLowerCase().includes('cancelled')) {
             return; // User cancelled — silent exit
           }
-          Alert.alert('Checkout Failed', err?.message || 'Unable to complete payment order. Please try again.');
+          Alert.alert('Checkout Failed', message || 'Unable to complete payment order. Please try again.');
         },
       }
     );

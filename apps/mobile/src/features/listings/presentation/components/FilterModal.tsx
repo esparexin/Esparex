@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView } from 'react-native';
-import { AppText, AppButton, AppInput, AppIcon, AppModalSheet } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { AppText, AppButton, AppInput, AppModalSheet } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 
 interface FilterModalProps {
