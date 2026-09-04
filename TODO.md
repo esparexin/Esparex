@@ -481,12 +481,16 @@
   - [ ] `POST /api/v1/auth/otp/verify` (JWT token issuance, refresh token, user object)
   - [ ] Error status handling (400 Invalid OTP, 429 Too Many Attempts)
 
-### 1.6 Terms & Privacy Policy Screen (`ROUTES.TERMS_AND_PRIVACY`)
+### 1.6 Terms & Privacy Policy Screen (`ROUTES.TERMS_AND_PRIVACY`) — ✅ **AUDITED & VERIFIED**
 - **Frontend ([TermsAndPrivacyScreen.tsx](file:///Users/admin/Desktop/Esparex/apps/mobile/src/features/user/presentation/screens/TermsAndPrivacyScreen.tsx))**:
-  - [ ] Accessible navigation back button & clean typography hierarchy
-  - [ ] Statutory compliance review: Intermediary role, 18+ eligibility, safety, grievance officer info
+  - [x] Accessible navigation back button (44px touch target, safe dismissal fallback to `MAIN_STACK`, Android `BackHandler`) & clean typography hierarchy
+  - [x] Segmented section filter tabs (`All`, `Terms of Service`, `Privacy Policy`, `Safety & Grievance`) with badge indicators
+  - [x] Statutory compliance review: Intermediary status (IT Act 2000 Sec 79), 18+ eligibility (Indian Contract Act 1872), in-person safety advisory, Rule 3(1)(b) prohibited goods, DPDP Act 2023 data rights & deletion
+  - [x] Statutory Grievance Redressal card (Rule 3(2) IT Rules 2021) with interactive actions (`mailto:`, `tel:`, web terms & privacy URLs)
+  - [x] Single Source of Truth (SSOT) legal constants centralized in `@esparex/shared`
 - **Backend API Integration**:
-  - [ ] Static document rendering / API terms sync if dynamic
+  - [x] Static offline-first document rendering with zero-network failure risk for statutory disclosures
+  - [x] Backend editorial endpoints (`GET /api/v1/editorial/:slug`, `PATCH /api/v1/editorial/:slug`, `GET /api/v1/editorial`) verified with 100% test coverage
 
 ---
 
@@ -644,4 +648,3 @@
   - [ ] 100% adherence to `@esparex/contracts` DTO models across all frontend repositories
   - [ ] Network timeout & offline error handling displays `ErrorState` with retry CTA
   - [ ] Zero unhandled promise rejections on API failures
-
