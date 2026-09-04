@@ -248,6 +248,19 @@ const nextConfig = {
 
     async redirects() {
         return [
+            // ── Host Canonicalization (www -> apex) ──────────────────────────
+            {
+                source: '/:path*',
+                has: [
+                    {
+                        type: 'host',
+                        value: 'www.esparex.in',
+                    },
+                ],
+                destination: 'https://esparex.in/:path*',
+                permanent: true,
+            },
+
             // ── Legacy /account route migrations ─────────────────────────────
             // Tab-specific redirects must come BEFORE the plain catch-all
             {

@@ -18,11 +18,11 @@ const metadataBase = (() => {
         try {
             return new URL(appUrl);
         } catch {
-            // Fall through to local default.
+            // Fall through to canonical default.
         }
     }
 
-    return new URL('http://localhost:3000');
+    return new URL('https://esparex.in');
 })();
 
 export const viewport: Viewport = {
