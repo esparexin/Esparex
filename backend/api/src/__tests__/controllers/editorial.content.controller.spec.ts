@@ -13,9 +13,9 @@ import {
 } from '@esparex/core/services/PageContentService';
 import * as editorialController from '../../controllers/content/editorial.content.controller';
 
-const mockFindContentBySlug = findContentBySlug as jest.MockedFunction<typeof findContentBySlug>;
-const mockUpsertContentBySlug = upsertContentBySlug as jest.MockedFunction<typeof upsertContentBySlug>;
-const mockGetAllContent = fetchAllContent as jest.MockedFunction<typeof fetchAllContent>;
+const mockFindContentBySlug = findContentBySlug as jest.Mock;
+const mockUpsertContentBySlug = upsertContentBySlug as jest.Mock;
+const mockGetAllContent = fetchAllContent as jest.Mock;
 
 const createMockResponse = () => {
   const res: Partial<Response> & {
@@ -47,7 +47,7 @@ describe('EditorialContentController', () => {
         items: [],
         updatedAt: new Date(),
       };
-      mockFindContentBySlug.mockResolvedValue(mockDoc as never);
+      mockFindContentBySlug.mockResolvedValue(mockDoc);
 
       const req: Partial<Request> = {
         params: { slug: 'terms' },
@@ -114,7 +114,7 @@ describe('EditorialContentController', () => {
         items: [],
         updatedBy: 'admin-42',
       };
-      mockUpsertContentBySlug.mockResolvedValue(updatedDoc as never);
+      mockUpsertContentBySlug.mockResolvedValue(updatedDoc);
 
       const req: Partial<Request> & { admin?: { id?: string } } = {
         params: { slug: 'terms' },
@@ -154,7 +154,7 @@ describe('EditorialContentController', () => {
         items: [],
         updatedBy: 'admin-mongo-id',
       };
-      mockUpsertContentBySlug.mockResolvedValue(updatedDoc as never);
+      mockUpsertContentBySlug.mockResolvedValue(updatedDoc);
 
       const req: Partial<Request> & { admin?: { _id?: { toString(): string } } } = {
         params: { slug: 'terms' },
@@ -195,7 +195,7 @@ describe('EditorialContentController', () => {
         { slug: 'terms', title: 'Terms of Service', updatedAt: new Date() },
         { slug: 'privacy', title: 'Privacy Policy', updatedAt: new Date() },
       ];
-      mockGetAllContent.mockResolvedValue(allDocs as never);
+      mockGetAllContent.mockResolvedValue(allDocs);
 
       const req: Partial<Request> = {};
       const res = createMockResponse();
