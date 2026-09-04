@@ -209,8 +209,8 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
 
             const entries = await sitemap();
             for (const entry of entries) {
-                expect(entry.url.startsWith("https://esparex.in")).toBe(true);
                 const parsed = new URL(entry.url);
+                expect(parsed.origin).toBe("https://esparex.in");
                 expect(parsed.hostname).toBe("esparex.in");
                 expect(parsed.protocol).toBe("https:");
                 expect(parsed.port).toBe("");
