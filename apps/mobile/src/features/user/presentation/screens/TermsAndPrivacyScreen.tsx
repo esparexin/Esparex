@@ -1,105 +1,143 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen, Container, Card, AppText, AppIcon } from '@esparex/mobile-ui';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, ScrollView, TouchableOpacity, BackHandler } from 'react-native';
+import { Screen, Container, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useNavigation } from '@react-navigation/native';
+import {
+  LEGAL_LAST_UPDATED,
+  LEGAL_EFFECTIVE_DATE,
+  LEGAL_COMPANY_NAME,
+  LEGAL_COMPANY_LOCATION,
+} from '@esparex/shared';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
+import { LegalGrievanceCard } from '../components/LegalGrievanceCard';
+import { LegalContentSections, LegalFilterTab } from '../components/LegalContentSections';
+
+interface FilterPill {
+  id: LegalFilterTab;
+  label: string;
+}
+
+const FILTER_PILLS: FilterPill[] = [
+  { id: 'all', label: 'All' },
+  { id: 'terms', label: 'Terms of Service' },
+  { id: 'privacy', label: 'Privacy Policy' },
+  { id: 'safety_grievance', label: 'Safety & Grievance' },
+];
 
 export function TermsAndPrivacyScreen() {
   const navigation = useNavigation();
+  const parentNav = navigation.getParent();
+  const [activeFilter, setActiveFilter] = useState<LegalFilterTab>('all');
+
+  const handleBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else if (parentNav?.canGoBack()) {
+      parentNav.goBack();
+    } else {
+      navigate(ROUTES.MAIN_STACK);
+    }
+  }, [navigation, parentNav]);
+
+  useEffect(() => {
+    const onBackPress = () => {
+      handleBack();
+      return true;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [handleBack]);
+
+  const showGrievance = activeFilter === 'all' || activeFilter === 'safety_grievance';
 
   return (
     <Screen className="flex-1 bg-background">
-      <View className="px-4 py-3 bg-card border-b border-border flex-row items-center">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="p-1 mr-3"
-          accessibilityLabel="Go back"
-          accessibilityRole="button"
-        >
-          <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
-        </TouchableOpacity>
-        <AppText variant="h3" className="text-foreground font-bold">
-          Terms &amp; Privacy Policy
-        </AppText>
+      {/* Top App Bar with Accessible Back Navigation */}
+      <View className="px-4 py-3 bg-card border-b border-border flex-row items-center justify-between">
+        <View className="flex-row items-center flex-1">
+          <TouchableOpacity
+            onPress={handleBack}
+            className="w-11 h-11 rounded-full items-center justify-center mr-3 bg-muted active:opacity-70"
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
+            accessibilityHint="Returns to previous screen or marketplace"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+          </TouchableOpacity>
+          <View className="flex-1">
+            <AppText variant="h3" className="text-foreground font-bold" numberOfLines={1}>
+              Terms &amp; Privacy Policy
+            </AppText>
+            <AppText variant="caption" className="text-foreground-subtle" numberOfLines={1}>
+              Legal Governance &amp; Compliance
+            </AppText>
+          </View>
+        </View>
       </View>
 
+      {/* Segmented Filter Pills */}
+      <View className="bg-card border-b border-border py-2">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
+          accessibilityRole="tablist"
+        >
+          {FILTER_PILLS.map((pill) => {
+            const isSelected = activeFilter === pill.id;
+            return (
+              <TouchableOpacity
+                key={pill.id}
+                onPress={() => setActiveFilter(pill.id)}
+                accessibilityRole="tab"
+                accessibilityLabel={`Filter by ${pill.label}`}
+                accessibilityState={{ selected: isSelected }}
+                className={`px-3.5 py-1.5 rounded-full border min-h-[36px] items-center justify-center ${
+                  isSelected
+                    ? 'bg-brand-600 border-brand-600 dark:bg-brand-500 dark:border-brand-500'
+                    : 'bg-card border-border'
+                }`}
+              >
+                <AppText
+                  variant="caption"
+                  className={`font-semibold ${
+                    isSelected ? 'text-white' : 'text-foreground-secondary'
+                  }`}
+                >
+                  {pill.label}
+                </AppText>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Main Content Area */}
       <ScrollView className="flex-1 px-4 py-4" showsVerticalScrollIndicator={false}>
         <Container className="mb-4">
           <AppText variant="h2" className="text-foreground font-bold mb-1">
             Esparex Marketplace Terms &amp; Privacy
           </AppText>
           <AppText variant="caption" className="text-foreground-subtle">
-            Last Updated: August 26, 2026 | Effective Date: August 26, 2026
+            Last Updated: {LEGAL_LAST_UPDATED} | Effective Date: {LEGAL_EFFECTIVE_DATE}
           </AppText>
         </Container>
 
-        <Card className="p-4 mb-4 bg-card rounded-xl border border-border gap-4">
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              1. Platform Nature &amp; Intermediary Role
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              Esparex operates strictly as an online marketplace intermediary under Section 79 of the Information Technology Act, 2000. We connect independent buyers, sellers, and repair technicians. Esparex does not own, manufacture, or warrant items listed by third parties. All trades, testing, and payments take place directly between users.
-            </AppText>
-          </View>
+        {/* Modular Sections 1 - 6 */}
+        <LegalContentSections activeFilter={activeFilter} />
 
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              2. User Eligibility (18+ Requirement)
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              You must be at least 18 years of age and legally competent to enter into binding contracts under the Indian Contract Act, 1872 to create an account or post listings on Esparex.
-            </AppText>
-          </View>
+        {/* Section 7: Statutory Grievance Redressal Card */}
+        {showGrievance && <LegalGrievanceCard />}
 
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              3. Safety &amp; In-Person Transactions
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              Never send advance booking fees, courier deposits, or wire transfers to unverified sellers. Always meet in well-lit public locations or verified technician repair shops. Physically inspect and test all electronic components (touch sensitivity, dead pixels, battery health) before paying.
-            </AppText>
-          </View>
-
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              4. Prohibited Content &amp; Goods
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              Posting stolen phones/parts, counterfeit goods falsely labeled as OEM, devices with tampered IMEI numbers, iCloud/FRP bypass unlocking services, adult material, or weapons is strictly prohibited and results in immediate permanent bans.
-            </AppText>
-          </View>
-
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              5. Paid Services &amp; No-Refund Policy
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              Payments made for optional Spotlight ad promotions, featured listings, or business storefront subscriptions are non-refundable once the campaign is activated or served on the platform.
-            </AppText>
-          </View>
-
-          <View>
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              6. Privacy, Data Retention &amp; Deletion
-            </AppText>
-            <AppText variant="body" className="text-foreground-secondary leading-6">
-              We never sell your personal information. Mobile numbers are authenticated via OTP and visibility can be configured in Profile Settings. You can permanently delete your account and personal data at any time under Profile Settings &gt; Delete Account.
-            </AppText>
-          </View>
-
-          <View className="pt-2 border-t border-border">
-            <AppText variant="h3" className="text-foreground font-semibold mb-1">
-              7. Statutory Grievance Redressal
-            </AppText>
-            <AppText variant="caption" className="text-foreground-secondary leading-5">
-              Grievance Officer: Kalyan V Medaboina{'\n'}
-              Entity: Esparex Platform (Hyderabad, Telangana, India){'\n'}
-              Email: grievance@esparex.in | Phone: +91 9030787819{'\n'}
-              Timelines: Grievance reports are acknowledged within 24 hours and addressed within 15 days.
-            </AppText>
-          </View>
-        </Card>
+        <View className="py-6 items-center">
+          <AppText variant="caption" className="text-foreground-subtle text-center">
+            {LEGAL_COMPANY_NAME} &bull; {LEGAL_COMPANY_LOCATION}
+          </AppText>
+        </View>
       </ScrollView>
     </Screen>
   );

@@ -4,51 +4,32 @@ import { CreatedListing } from '../domain/CreatedListing';
 import { ListingMapper } from '../infrastructure/mappers/ListingMapper';
 import { CreatedListingMapper } from '../infrastructure/mappers/CreatedListingMapper';
 import { apiClient } from '../../../infrastructure/api/apiClient';
-import type { Ad } from '@esparex/contracts';
-import { ListingQueryParams, CreateListingRequest, Category } from '@esparex/contracts';
-import { API_ROUTES } from '@esparex/shared';
-
-interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-  };
-}
+import type { Ad, PaginatedResponse, ListingContactNumberResponse } from '@esparex/contracts';
+import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
 
 export class ApiListingRepository implements IListingRepository {
   public async getListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
-    const queryParams: Record<string, any> = { ...params };
+    const queryParams: Record<string, unknown> = { ...params };
     if (queryParams.search && !queryParams.q) {
       queryParams.q = queryParams.search;
     }
     delete queryParams.search;
 
-    const response = await apiClient.get<PaginatedResponse<Ad> | Ad[]>('/listings', { params: queryParams });
-    const resData = response.data as {
-      data?: Ad[] | { items?: Ad[]; ads?: Ad[] };
-      items?: Ad[];
-      ads?: Ad[];
-    } | Ad[];
-
-    let items: Ad[] = [];
-    if (Array.isArray(resData)) {
-      items = resData;
-    } else if (resData && typeof resData === 'object') {
-      if ('data' in resData && resData.data) {
-        if (Array.isArray(resData.data)) {
-          items = resData.data;
-        } else if ('items' in resData.data && Array.isArray(resData.data.items)) {
-          items = resData.data.items;
-        } else if ('ads' in resData.data && Array.isArray(resData.data.ads)) {
-          items = resData.data.ads;
-        }
-      } else if ('items' in resData && Array.isArray(resData.items)) {
-        items = resData.items;
-      } else if ('ads' in resData && Array.isArray(resData.ads)) {
-        items = resData.ads;
+    if (queryParams.condition && !queryParams.deviceCondition) {
+      if (queryParams.condition === 'power_on' || queryParams.condition === 'power_off') {
+        queryParams.deviceCondition = queryParams.condition;
       }
     }
+
+    const response = await apiClient.get<PaginatedResponse<Ad> | Ad[]>('/listings', { params: queryParams });
+    const resData = response.data;
+
+    const items: Ad[] = Array.isArray(resData)
+      ? resData
+      : Array.isArray(resData?.data)
+      ? resData.data
+      : [];
+
     return items.map(ListingMapper.mapAdToListing);
   }
 
@@ -59,16 +40,19 @@ export class ApiListingRepository implements IListingRepository {
   }
 
   public async getMyListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
-    const response = await apiClient.get<any>('/listings/mine', { params });
+    const response = await apiClient.get<{
+      data?: { items?: Ad[] } | Ad[];
+      items?: Ad[];
+    } | Ad[]>('/listings/mine', { params });
     const resData = response.data;
-    const items = Array.isArray(resData?.data?.items)
-      ? resData.data.items
+    const items = Array.isArray(resData)
+      ? resData
       : Array.isArray(resData?.data)
       ? resData.data
+      : Array.isArray(resData?.data?.items)
+      ? resData.data.items
       : Array.isArray(resData?.items)
       ? resData.items
-      : Array.isArray(resData)
-      ? resData
       : [];
     return items.map(ListingMapper.mapAdToListing);
   }
@@ -104,15 +88,6 @@ export class ApiListingRepository implements IListingRepository {
     return ListingMapper.mapAdToListing(ad);
   }
 
-  public async getCategories(): Promise<readonly Category[]> {
-    const response = await apiClient.get<Category[] | { data: Category[] }>(API_ROUTES.USER.CATEGORIES);
-    const data = response.data;
-    if (data && 'data' in data && Array.isArray(data.data)) {
-      return data.data;
-    }
-    return Array.isArray(data) ? data : [];
-  }
-
   public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
     await apiClient.post('/reports', {
       targetType: 'ad',
@@ -120,5 +95,14 @@ export class ApiListingRepository implements IListingRepository {
       reason,
       description,
     });
+  }
+
+  public async getListingPhone(id: string): Promise<ListingContactNumberResponse> {
+    const response = await apiClient.get<{ data: ListingContactNumberResponse }>(`/listings/${id}/phone`);
+    return response.data?.data || response.data;
+  }
+
+  public async incrementListingView(id: string): Promise<void> {
+    await apiClient.get(`/listings/${id}/view`);
   }
 }

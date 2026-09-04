@@ -188,7 +188,7 @@ function LoginForm() {
                           <Mail size={18} />
                         </InputPrefix>
                         <Input
-                          placeholder="admin@esparex.com"
+                          placeholder="Your admin email address"
                           type="email"
                           autoComplete="username"
                           className="pl-10"
@@ -252,7 +252,7 @@ function LoginForm() {
                       <FieldControl animateOnError>
                         <InputGroup>
                           <Input
-                            placeholder="000000"
+                            placeholder="6-digit code"
                             inputMode="numeric"
                             autoComplete="one-time-code"
                             disabled={submitting}

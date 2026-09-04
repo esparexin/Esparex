@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import type { Metadata } from "next";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, CreditCard } from "@/icons/IconRegistry";
+import { LEGAL_GRIEVANCE_EMAIL, LEGAL_SUPPORT_PHONE } from "@/lib/legal";
 
 export const metadata: Metadata = {
     title: "Help Center & FAQ | Esparex",
@@ -292,7 +293,7 @@ const FAQ_CATEGORIES: FaqCategory[] = [
             {
                 id: "ts-5",
                 question: "Where can I report illegal activity or contact the Grievance Officer?",
-                answer: "For critical safety concerns, cyber fraud, or statutory complaints, contact our Grievance Officer directly at grievance@esparex.in or call +91 9030787819. All statutory grievances are acknowledged within 24 hours."
+                answer: `For critical safety concerns, cyber fraud, or statutory complaints, contact our Grievance Officer directly at ${LEGAL_GRIEVANCE_EMAIL} or call ${LEGAL_SUPPORT_PHONE}. All statutory grievances are acknowledged within 24 hours.`
             }
         ]
     }

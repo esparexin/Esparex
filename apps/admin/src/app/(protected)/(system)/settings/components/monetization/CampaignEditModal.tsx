@@ -141,7 +141,7 @@ export function CampaignEditModal({
                     providerConfig: { ...campaign.providerConfig, googleSlotId: e.target.value },
                   })
                 }
-                placeholder="e.g. 1234567890"
+                placeholder="Google AdSense slot ID"
                 className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
               />
             </div>
@@ -173,7 +173,7 @@ export function CampaignEditModal({
                       providerConfig: { ...campaign.providerConfig, bannerTargetUrl: e.target.value },
                     })
                   }
-                  placeholder="https://partner.com"
+                  placeholder="https://advertiser.example.com"
                   className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
                 />
               </div>

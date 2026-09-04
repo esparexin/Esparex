@@ -23,7 +23,7 @@ export function PersonalProfileEmailSection({
             <Input
                 id="profile-email"
                 type="email"
-                placeholder="name@company.com"
+                placeholder="your@email.com"
                 {...register("email")}
                 className={`h-10 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium ${emailError ? "border-destructive" : ""}`}
                 aria-invalid={!!emailError}

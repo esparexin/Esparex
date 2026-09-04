@@ -5,15 +5,15 @@ import { Business } from '@esparex/contracts';
 import { useNearbyBusinesses } from '../../hooks/useNearbyBusinesses';
 
 interface NearbyRepairServicesSectionProps {
-  category?: string;
-  city?: string;
+  locationId?: string;
+  listingCategoryId?: string;
 }
 
 export const NearbyRepairServicesSection: React.FC<NearbyRepairServicesSectionProps> = ({
-  category,
-  city,
+  locationId,
+  listingCategoryId,
 }) => {
-  const { data: businesses = [], isLoading } = useNearbyBusinesses({ category, city, limit: 6 });
+  const { data: businesses = [], isLoading } = useNearbyBusinesses({ locationId, listingCategoryId, limit: 6 });
 
   if (isLoading || businesses.length === 0) {
     return null;

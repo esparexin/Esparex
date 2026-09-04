@@ -16,13 +16,22 @@ const metadataBase = (() => {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
     if (appUrl) {
         try {
-            return new URL(appUrl);
+            const parsed = new URL(appUrl);
+            const hostname = parsed.hostname.toLowerCase();
+            if (
+                hostname !== 'admin.esparex.in' &&
+                !hostname.includes('preview') &&
+                !hostname.includes('staging') &&
+                (process.env.NODE_ENV !== 'production' || hostname === 'esparex.in')
+            ) {
+                return parsed;
+            }
         } catch {
-            // Fall through to local default.
+            // Fall through to canonical default.
         }
     }
 
-    return new URL('http://localhost:3000');
+    return new URL('https://esparex.in');
 })();
 
 export const viewport: Viewport = {
@@ -34,6 +43,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
     metadataBase,
+    applicationName: 'Esparex',
     manifest: '/manifest.json',
     icons: {
         icon: [
@@ -46,6 +56,9 @@ export const metadata: Metadata = {
         ],
     },
     openGraph: {
+        siteName: 'Esparex',
+        type: 'website',
+        locale: 'en_IN',
         images: [
             {
                 url: '/og-image.png',
@@ -57,6 +70,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
+        site: '@esparexin',
+        creator: '@esparexin',
         images: ['/og-image.png'],
     },
 };

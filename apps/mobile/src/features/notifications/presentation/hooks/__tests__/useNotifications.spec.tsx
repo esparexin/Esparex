@@ -6,6 +6,10 @@ import { useMarkNotificationRead } from '../useMarkNotificationRead';
 import { services } from '../../../../../bootstrap';
 import { AppNotification } from '../../../domain/Notification';
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 jest.mock('../../../../../bootstrap', () => ({
   services: {
     notificationService: {

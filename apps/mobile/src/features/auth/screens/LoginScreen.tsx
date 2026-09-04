@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
+import { CONTACT_LIMITS, normalizeIndianMobileInput } from '@esparex/contracts';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';
 import { navigate } from '../../../navigation/navigationRef';
@@ -13,14 +14,14 @@ export const LoginScreen = () => {
   const { sendOtp } = useAuth();
 
   const handleMobileChange = (text: string) => {
-    const digitsOnly = text.replace(/\D/g, '').slice(0, 10);
+    const digitsOnly = normalizeIndianMobileInput(text);
     setMobile(digitsOnly);
     if (error) setError(null);
   };
 
   const handleSendOtp = async () => {
-    if (mobile.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+    if (!CONTACT_LIMITS.PHONE.PATTERN.test(mobile)) {
+      setError('Please enter a valid 10-digit Indian mobile number starting with 6-9');
       return;
     }
 
@@ -68,7 +69,7 @@ export const LoginScreen = () => {
             By continuing, you agree to Esparex{' '}
             <AppText
               variant="caption"
-              className="text-brand-600 font-semibold underline"
+              className="text-brand-600 dark:text-brand-400 font-semibold underline"
               onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
               accessibilityRole="link"
               accessibilityLabel="View terms of service"
@@ -78,7 +79,7 @@ export const LoginScreen = () => {
             {' '}&amp;{' '}
             <AppText
               variant="caption"
-              className="text-brand-600 font-semibold underline"
+              className="text-brand-600 dark:text-brand-400 font-semibold underline"
               onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.TERMS_AND_PRIVACY })}
               accessibilityRole="link"
               accessibilityLabel="View privacy policy"
@@ -96,6 +97,8 @@ export const LoginScreen = () => {
         value={mobile}
         onChangeText={handleMobileChange}
         keyboardType="phone-pad"
+        returnKeyType="done"
+        onSubmitEditing={handleSendOtp}
         maxLength={10}
         error={error || undefined}
         leftIcon={
@@ -112,7 +115,7 @@ export const LoginScreen = () => {
         onPress={handleSendOtp}
         loading={loading}
         className="mt-4"
-        disabled={mobile.length !== 10 || loading}
+        disabled={!CONTACT_LIMITS.PHONE.PATTERN.test(mobile) || loading}
         accessibilityLabel="Send OTP Button"
       />
     </AuthLayout>

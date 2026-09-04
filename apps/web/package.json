@@ -18,6 +18,7 @@
     "lint": "eslint .",
     "lint:image-domains": "node scripts/validate-image-domains.cjs",
     "ci:image-domains": "node scripts/validate-image-domains.cjs",
+    "ci:seo": "node scripts/validate-sitemap.cjs",
     "type-check": "tsc --noEmit",
     "seed:locations:full": "echo \"Moved to backend ops; run from backend package.\" && exit 1",
     "test": "vitest",

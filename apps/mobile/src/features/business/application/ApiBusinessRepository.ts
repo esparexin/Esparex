@@ -1,16 +1,22 @@
 import { Business } from '@esparex/contracts';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import { BusinessFormState } from '../domain/BusinessFormState';
-import { IBusinessRepository } from './IBusinessRepository';
+import { IBusinessRepository, NearbyBusinessesParams } from './IBusinessRepository';
 import { CreateBusinessRequestMapper } from './mappers/CreateBusinessRequestMapper';
+import { UpdateBusinessRequestMapper } from './mappers/UpdateBusinessRequestMapper';
 
 export class ApiBusinessRepository implements IBusinessRepository {
   async getMyBusiness(): Promise<Business | null> {
     try {
       const response = await apiClient.get<{ data: Business }>('/businesses/me');
       return response.data?.data ?? null;
-    } catch (error: any) {
-      if (error?.response?.status === 404) {
+    } catch (error: unknown) {
+      const isNotFound =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        (error as { response?: { status?: number } }).response?.status === 404;
+      if (isNotFound) {
         return null;
       }
       throw error;
@@ -20,6 +26,12 @@ export class ApiBusinessRepository implements IBusinessRepository {
   async registerBusiness(state: BusinessFormState): Promise<Business> {
     const payload = CreateBusinessRequestMapper.toPayload(state);
     const response = await apiClient.post<{ data: Business }>('/businesses', payload);
+    return response.data.data;
+  }
+
+  async updateBusiness(businessId: string, state: Partial<BusinessFormState>): Promise<Business> {
+    const payload = UpdateBusinessRequestMapper.toPayload(state);
+    const response = await apiClient.patch<{ data: Business }>(`/businesses/${businessId}`, payload);
     return response.data.data;
   }
 
@@ -53,18 +65,18 @@ export class ApiBusinessRepository implements IBusinessRepository {
     return rawResData as string;
   }
 
-  async getNearbyBusinesses(params?: { category?: string; city?: string; limit?: number }): Promise<readonly Business[]> {
+  async getNearbyBusinesses(params?: NearbyBusinessesParams): Promise<readonly Business[]> {
     try {
-      const response = await apiClient.get<any>('/businesses', { params });
+      const response = await apiClient.get<Record<string, unknown> | Business[]>('/businesses', { params });
       const resData = response.data;
-      const items: Business[] = Array.isArray(resData?.data)
-        ? resData.data
-        : Array.isArray(resData?.data?.items)
-        ? resData.data.items
-        : Array.isArray(resData?.items)
-        ? resData.items
-        : Array.isArray(resData)
+      const items: Business[] = Array.isArray(resData)
         ? resData
+        : Array.isArray((resData as { data?: unknown })?.data)
+        ? ((resData as { data: Business[] }).data)
+        : Array.isArray((resData as { data?: { items?: unknown } })?.data?.items)
+        ? ((resData as { data: { items: Business[] } }).data.items)
+        : Array.isArray((resData as { items?: unknown })?.items)
+        ? ((resData as { items: Business[] }).items)
         : [];
       return items;
     } catch {

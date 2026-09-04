@@ -6,6 +6,7 @@ import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/brandEntitySchema";
 import { Container } from "@esparex/ui";
 import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
@@ -86,14 +87,10 @@ export default async function Home() {
                 dangerouslySetInnerHTML={{
                     __html: toSafeJsonLd({
                         "@context": "https://schema.org",
-                        "@type": "WebSite",
-                        name: "Esparex",
-                        url: "https://esparex.in/",
-                        potentialAction: {
-                            "@type": "SearchAction",
-                            target: "https://esparex.in/search?q={search_term_string}",
-                            "query-input": "required name=search_term_string",
-                        },
+                        "@graph": [
+                            buildOrganizationSchema(),
+                            buildWebSiteSchema(),
+                        ],
                     }),
                 }}
             />

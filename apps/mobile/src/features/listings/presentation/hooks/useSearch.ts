@@ -34,7 +34,7 @@ export const useSearch = (initialFilters?: ListingQueryParams) => {
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.sortBy) count++;
-    if (filters.condition) count++;
+    if (filters.condition || filters.deviceCondition) count++;
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) count++;
     if (filters.categoryId) count++;
     if (filters.verifiedOnly) count++;
@@ -89,7 +89,7 @@ export const useSearch = (initialFilters?: ListingQueryParams) => {
   }, []);
 
   const handleRemoveCondition = useCallback(() => {
-    setFilters((prev) => ({ ...prev, condition: undefined, page: 1 }));
+    setFilters((prev) => ({ ...prev, condition: undefined, deviceCondition: undefined, page: 1 }));
   }, []);
 
   const handleRemovePrice = useCallback(() => {

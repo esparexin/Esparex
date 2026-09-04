@@ -90,7 +90,7 @@ for (const filePath of allFiles) {
 
     // (Concrete Api* / Expo* adapters are allowed to import infrastructure / native modules)
     const isConcreteApiAdapter =
-      /(^|\/)Api[A-Z]\w+\.ts$/.test(relPath) ||
+      /(^|\/)Api[A-Z]\w+(\.spec|\.test)?\.ts$/.test(relPath) ||
       relPath.endsWith("ImageUploadService.ts") ||
       relPath.endsWith("ExpoImagePicker.ts") ||
       relPath.includes("/infrastructure/");
@@ -215,6 +215,82 @@ for (const relFile of forbiddenCapacitorFiles) {
       rule: "Capacitor configuration file detected. Capacitor architecture is deprecated and prohibited.",
       code: "capacitor.config.*",
     });
+  }
+}
+
+// Rule 8: Category SSOT Ownership Guard
+// Ensures no duplicate getCategories methods are declared in listing services or repositories
+for (const filePath of allFiles) {
+  const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+  if (
+    relPath.endsWith("ListingService.ts") ||
+    relPath.endsWith("IListingRepository.ts") ||
+    relPath.endsWith("ApiListingRepository.ts")
+  ) {
+    const content = fs.readFileSync(filePath, "utf8");
+    if (/\bgetCategories\s*\(/.test(content)) {
+      violations.push({
+        file: relPath,
+        line: 1,
+        rule: "Category SSOT Violation: Categories must be accessed solely via CategoryService. Do not duplicate getCategories() in listing services or repositories.",
+        code: "getCategories() declared in " + relPath,
+      });
+    }
+  }
+}
+
+// Rule 9: Device Condition SSOT Filter Guard
+// Prevents zombie condition options (new, used_like_new, used_good, used_fair) in mobile search filters
+const filterModalPath = path.join(mobileSrcDir, "features", "listings", "presentation", "components", "FilterModal.tsx");
+if (fs.existsSync(filterModalPath)) {
+  const filterModalContent = fs.readFileSync(filterModalPath, "utf8");
+  if (/['"]used_like_new['"]|['"]used_good['"]|['"]used_fair['"]/.test(filterModalContent)) {
+    violations.push({
+      file: "features/listings/presentation/components/FilterModal.tsx",
+      line: 1,
+      rule: "Zombie Filter Option Detected: FilterModal must use canonical 'power_on' and 'power_off' options matching backend schema and domain model.",
+      code: "Non-canonical condition option detected in FilterModal.tsx",
+    });
+  }
+}
+
+// Rule 10: Zero Hardcoded/Dummy Phone Numbers Gate
+// Enforces that phone numbers in mobile presentation are fetched dynamically from backend services, never hardcoded.
+for (const filePath of allFiles) {
+  if (filePath.includes(".spec.") || filePath.includes(".test.")) continue;
+  const content = fs.readFileSync(filePath, "utf8");
+  if (
+    /Linking\.openURL\(\s*['"`]tel:(?:1800000000|\+?1234567890|0000000000)['"`]\s*\)/.test(content) ||
+    /tel:1800\d{6}/.test(content)
+  ) {
+    const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+    violations.push({
+      file: relPath,
+      line: 1,
+      rule: "Hardcoded Phone Number Gate: Dummy/hardcoded phone numbers are strictly prohibited. Fetch verified phone numbers dynamically via ListingService.getListingPhone().",
+      code: "Hardcoded tel: URL found in " + relPath,
+    });
+  }
+}
+
+// Rule 11: Business Query Canonical Parameter Guard
+// Ensures mobile business queries use canonical 'locationId' and 'listingCategoryId' rather than legacy aliases 'city' or 'category'
+for (const filePath of allFiles) {
+  if (filePath.includes(".spec.") || filePath.includes(".test.")) continue;
+  const relPath = toUnixPath(path.relative(mobileSrcDir, filePath));
+  if (relPath.includes("Business") || relPath.includes("business")) {
+    const content = fs.readFileSync(filePath, "utf8");
+    if (
+      /\bgetNearbyBusinesses\s*\([^)]*\b(city|category)\s*:/s.test(content) ||
+      /\buseNearbyBusinesses\s*\([^)]*\b(city|category)\s*:/s.test(content)
+    ) {
+      violations.push({
+        file: relPath,
+        line: 1,
+        rule: "Business Query Contract Drift: Passing legacy aliases 'city' or 'category' to business queries is prohibited. Use canonical 'locationId' and 'listingCategoryId' required by publicBusinessQuerySchema.",
+        code: "Legacy query parameter alias in " + relPath,
+      });
+    }
   }
 }
 

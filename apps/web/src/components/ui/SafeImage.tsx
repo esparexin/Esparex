@@ -40,7 +40,7 @@ export function SafeImage({
     if (typeof currentSrc !== "string") return false;
     try {
       if (currentSrc.startsWith("http://") || currentSrc.startsWith("https://")) {
-        const base = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const base = typeof window !== "undefined" ? window.location.origin : "https://esparex.in";
         const url = new URL(currentSrc, base);
         // Local relative assets or same-origin paths do not need unoptimized flag
         if (typeof window !== "undefined" && url.origin === window.location.origin) {

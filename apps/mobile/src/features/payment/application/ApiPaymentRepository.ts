@@ -1,5 +1,5 @@
 import RazorpayCheckout from 'react-native-razorpay';
-import { Plan, PlansWalletV1DTO } from '@esparex/contracts';
+import { Plan, CreditWalletSummaryPayload } from '@esparex/contracts';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import { PaymentOrder } from '../domain/PaymentOrder';
 import { WalletSummary } from '../domain/WalletSummary';
@@ -76,11 +76,27 @@ export class ApiPaymentRepository implements IPaymentRepository {
   }
 
   async getWalletSummary(): Promise<WalletSummary> {
-    const response = await apiClient.get<{ data: WalletSummary }>('/payments/credits/wallet');
-    return response.data?.data ?? {
-      adCredits: 0,
-      spotlightCredits: 0,
-      smartAlertSlots: 0,
+    const response = await apiClient.get<{ data: CreditWalletSummaryPayload | WalletSummary }>('/payments/credits/wallet');
+    const data = response.data?.data;
+    if (!data) {
+      return {
+        adCredits: 0,
+        spotlightCredits: 0,
+        smartAlertSlots: 0,
+      };
+    }
+
+    const payload = data as Partial<CreditWalletSummaryPayload & WalletSummary>;
+    const adCredits = typeof payload.totalRemaining === 'number'
+      ? payload.totalRemaining
+      : typeof payload.adCredits === 'number'
+      ? payload.adCredits
+      : ((payload.monthlyFree?.remaining ?? 0) + (payload.purchased?.balance ?? 0));
+
+    return {
+      adCredits,
+      spotlightCredits: payload.spotlightCredits ?? 0,
+      smartAlertSlots: payload.smartAlertSlots ?? 0,
     };
   }
 
@@ -89,18 +105,6 @@ export class ApiPaymentRepository implements IPaymentRepository {
     const resData = response.data;
     if (Array.isArray(resData)) return resData;
     return resData?.data || [];
-  }
-
-  async getPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
-    try {
-      const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/payments/account/plans-wallet');
-      if (res.data?.data) {
-        return res.data.data;
-      }
-      return null;
-    } catch {
-      return null;
-    }
   }
 }
 

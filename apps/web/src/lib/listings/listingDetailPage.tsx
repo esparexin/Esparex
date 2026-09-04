@@ -5,6 +5,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ListingPageClient } from "@/app/(public)/ads/[slug]/ListingPageClient";
 import { getListingById, type Listing } from "@/lib/api/user/listings";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { generateAdSlug, parseListingSlugParam } from "@/lib/slug";
 
 export { parseListingSlugParam };
@@ -58,7 +59,7 @@ export async function buildListingMetadata({
     canonicalBasePath,
 }: BuildListingMetadataOptions): Promise<Metadata> {
     const { slug: rawParam } = await params;
-    if (!rawParam) return { title: "Listing Not Found" };
+    if (!rawParam) return { title: "Listing Not Found", robots: { index: false, follow: false } };
 
     const { id } = parseListingSlugParam(rawParam);
     let listing: ListingLike | null = null;
@@ -70,15 +71,15 @@ export async function buildListingMetadata({
             { throwOnServerError: true }
         );
     } catch {
-        return { title: missingTitle };
+        return { title: missingTitle, robots: { index: false, follow: false } };
     }
-    if (!listing) return { title: missingTitle };
+    if (!listing) return { title: missingTitle, robots: { index: false, follow: false } };
 
     const locationSuffix = listing.locationName ? ` in ${listing.locationName}` : "";
     const listingTitle = `${listing.title}${locationSuffix}` || missingTitle;
     
     const canonicalSlug = listing.seoSlug || generateAdSlug(listing.title || "");
-    const canonicalUrl = `${canonicalBasePath}/${canonicalSlug}-${listing.id}`;
+    const canonicalUrl = toCanonicalUrl(`${canonicalBasePath}/${canonicalSlug}-${listing.id}`);
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
 
