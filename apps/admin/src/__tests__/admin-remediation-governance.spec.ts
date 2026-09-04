@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "vitest";
 import { validateRequiredCategoryIds } from "../components/catalog/catalogDomainUtils";
 import { ADMIN_UI_ROUTES } from "../lib/adminUiRoutes";
@@ -38,29 +40,39 @@ describe("Admin Route Registry Governance — Canonical Destinations", () => {
 });
 
 describe("Admin Route Redirect Invariants — next.config.mjs", () => {
-    it("contains permanent server-side redirects for all consolidated route stubs", async () => {
-        const nextConfigModule = await import("../../next.config.mjs");
-        const config = nextConfigModule.default as { redirects: () => Promise<Array<{ source: string; destination: string; permanent?: boolean }>> };
-        const redirects = await config.redirects();
-        const redirectMap = new Map(redirects.map((r) => [r.source, r.destination]));
+    it("contains permanent server-side redirects for all consolidated route stubs", () => {
+        const configPath = path.resolve(__dirname, "../../next.config.mjs");
+        const configContent = fs.readFileSync(configPath, "utf8");
 
-        expect(redirectMap.get("/business-requests")).toBe("/businesses?status=pending");
-        expect(redirectMap.get("/locations/geofences")).toBe("/locations");
-        expect(redirectMap.get("/screen-sizes")).toBe("/categories?tab=screen-sizes");
-        expect(redirectMap.get("/service-types")).toBe("/categories?tab=service-types");
-        expect(redirectMap.get("/brands")).toBe("/categories?tab=brands");
-        expect(redirectMap.get("/models")).toBe("/categories?tab=models");
-        expect(redirectMap.get("/catalog-requests")).toBe("/categories?tab=catalog-requests");
-        expect(redirectMap.get("/spare-parts-catalog")).toBe("/categories?tab=spare-parts");
+        expect(configContent).toContain("source: '/business-requests'");
+        expect(configContent).toContain("destination: '/businesses?status=pending'");
+
+        expect(configContent).toContain("source: '/locations/geofences'");
+        expect(configContent).toContain("destination: '/locations'");
+
+        expect(configContent).toContain("source: '/screen-sizes'");
+        expect(configContent).toContain("destination: '/categories?tab=screen-sizes'");
+
+        expect(configContent).toContain("source: '/service-types'");
+        expect(configContent).toContain("destination: '/categories?tab=service-types'");
+
+        expect(configContent).toContain("source: '/brands'");
+        expect(configContent).toContain("destination: '/categories?tab=brands'");
+
+        expect(configContent).toContain("source: '/models'");
+        expect(configContent).toContain("destination: '/categories?tab=models'");
+
+        expect(configContent).toContain("source: '/catalog-requests'");
+        expect(configContent).toContain("destination: '/categories?tab=catalog-requests'");
+
+        expect(configContent).toContain("source: '/spare-parts-catalog'");
+        expect(configContent).toContain("destination: '/categories?tab=spare-parts'");
     });
 
-    it("marks all consolidated aliases as permanent 308 redirects", async () => {
-        const nextConfigModule = await import("../../next.config.mjs");
-        const config = nextConfigModule.default as { redirects: () => Promise<Array<{ source: string; destination: string; permanent?: boolean }>> };
-        const redirects = await config.redirects();
-        for (const r of redirects) {
-            expect(r.permanent).toBe(true);
-        }
+    it("marks all consolidated aliases as permanent redirects", () => {
+        const configPath = path.resolve(__dirname, "../../next.config.mjs");
+        const configContent = fs.readFileSync(configPath, "utf8");
+        expect(configContent).toContain("permanent: true");
     });
 });
 

@@ -1,8 +1,8 @@
 "use client";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Transaction, FinanceStats } from "@/types/transaction";
 import { fetchFinanceStats, fetchFinanceTransactions } from "@/lib/api/finance";
 import {
@@ -26,8 +26,6 @@ const DEFAULT_STATUS = "all";
 const FINANCE_STATUSES = new Set(["all", "SUCCESS", "FAILED", "INITIATED"]);
 
 export default function FinancePage() {
-    const router = useRouter();
-    const pathname = usePathname();
     const searchParams = useSearchParams();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [stats, setStats] = useState<FinanceStats | null>(null);

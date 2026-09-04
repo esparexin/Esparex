@@ -12,7 +12,7 @@ import {
     Terminal,
 } from "@esparex/ui";
 import { useEffect, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AdminLog } from "@/types/audit";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -48,8 +48,6 @@ const TARGET_TYPE_OPTIONS = [
 ];
 
 export default function AuditLogsPage() {
-    const router = useRouter();
-    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const {
