@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
-import { Screen, AppText } from '@esparex/mobile-ui';
+import { Screen, AppText, AppButton, AppIcon, Card, Container } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { BusinessWizardStep } from '../../domain/BusinessWizardStep';
 import { BusinessFormState, INITIAL_BUSINESS_FORM_STATE } from '../../domain/BusinessFormState';
 import { StepBusinessInfo } from '../steps/StepBusinessInfo';
@@ -22,10 +26,52 @@ const STEPS_ORDER = [
 ];
 
 export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: BusinessRegistrationWizardScreenProps) {
+  const { status: authStatus } = useAuth();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formState, setFormState] = useState<BusinessFormState>(INITIAL_BUSINESS_FORM_STATE);
 
   const submitMutation = useSubmitBusinessRegistration();
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen className="flex-1 bg-muted">
+        <View className="flex-row items-center px-4 py-3.5 bg-card border-b border-border">
+          {onCancel && (
+            <TouchableOpacity
+              onPress={onCancel}
+              accessibilityLabel="Cancel"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+          )}
+          <AppText variant="h3" className="font-bold text-foreground">
+            Register as Business
+          </AppText>
+        </View>
+        <Container className="flex-1 p-4">
+          <Card className="p-6 items-center mt-4">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="Building2" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to register your business
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Get a verified business badge, post unlimited ads, and grow your sales on Esparex.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to register your business"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   const currentStep = STEPS_ORDER[currentStepIndex];
 

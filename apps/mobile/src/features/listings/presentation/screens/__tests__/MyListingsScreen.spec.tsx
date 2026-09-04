@@ -1,6 +1,14 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
+jest.mock('../../../../../navigation/navigationRef', () => ({
+  navigate: jest.fn(),
+}));
+
 jest.mock('../../../../../bootstrap', () => ({
   services: {
     listingService: {

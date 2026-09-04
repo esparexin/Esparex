@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Screen, Container, Card, AppButton, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { useSmartAlertsList } from '../hooks/useSmartAlertsList';
 import { useDeleteSmartAlert } from '../hooks/useDeleteSmartAlert';
 import { CreateSmartAlertModal } from '../components/CreateSmartAlertModal';
@@ -13,10 +16,54 @@ interface SmartAlertsScreenProps {
 }
 
 export function SmartAlertsScreen({ onUpgradePlan, onBack }: SmartAlertsScreenProps) {
+  const { status: authStatus } = useAuth();
   const { data: alerts, isLoading } = useSmartAlertsList();
   const deleteMutation = useDeleteSmartAlert();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAlert, setEditingAlert] = useState<SmartAlert | null>(null);
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen className="flex-1 bg-muted">
+        <View className="flex-row items-center justify-between px-4 py-3.5 bg-card border-b border-border">
+          <View className="flex-row items-center">
+            {onBack && (
+              <TouchableOpacity
+                onPress={onBack}
+                accessibilityLabel="Back to profile"
+                accessibilityRole="button"
+                className="mr-3 p-1"
+              >
+                <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+              </TouchableOpacity>
+            )}
+            <AppText variant="h3" className="font-bold text-foreground">
+              Smart Search Alerts
+            </AppText>
+          </View>
+        </View>
+        <Container className="flex-1 p-4">
+          <Card className="p-6 items-center mt-4">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="Bell" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to manage smart alerts
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Create instant push alerts when matching spare parts and listings are posted.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to manage smart alerts"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   const handleDelete = (alertItem: SmartAlert) => {
     Alert.alert('Delete Smart Alert', `Are you sure you want to delete "${alertItem.name}"?`, [

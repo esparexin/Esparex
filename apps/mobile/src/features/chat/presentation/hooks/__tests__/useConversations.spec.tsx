@@ -5,6 +5,10 @@ import { useConversations } from '../useConversations';
 import { services } from '../../../../../bootstrap';
 import { IConversationDTO } from '@esparex/contracts';
 
+jest.mock('../../../../../providers/AuthProvider', () => ({
+  useAuth: () => ({ status: 'authenticated' }),
+}));
+
 jest.mock('../../../../../bootstrap', () => ({
   services: {
     chatService: {

@@ -1,13 +1,17 @@
 import React, { useCallback } from 'react';
 import { View, FlatList, TouchableOpacity, RefreshControl, Linking } from 'react-native';
-import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, Card, AppIcon, AppButton } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { AppNotification } from '../../domain/Notification';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 export const NotificationScreen = () => {
+  const { status: authStatus } = useAuth();
   const { data: notifications, isLoading, isError, refetch, isRefetching } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
 
@@ -106,6 +110,37 @@ export const NotificationScreen = () => {
     },
     [handleItemPress]
   );
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <Container className="flex-1 bg-muted p-4">
+          <View className="px-2 pt-2 pb-4">
+            <AppText variant="h2" className="font-bold text-foreground">
+              Notifications
+            </AppText>
+          </View>
+          <Card className="p-6 items-center">
+            <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+              <AppIcon name="Bell" size={28} color={base.slate[400]} />
+            </View>
+            <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
+              Sign in to view notifications
+            </AppText>
+            <AppText variant="body" className="text-foreground-subtle text-center mb-5">
+              Stay up to date with chat messages, ad status updates, and smart alert matches.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to view notifications"
+            />
+          </Card>
+        </Container>
+      </Screen>
+    );
+  }
 
   if (isError) {
     return (
