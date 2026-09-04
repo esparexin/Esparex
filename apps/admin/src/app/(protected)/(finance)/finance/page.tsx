@@ -7,13 +7,9 @@ import { Transaction, FinanceStats } from "@/types/transaction";
 import { fetchFinanceStats, fetchFinanceTransactions } from "@/lib/api/finance";
 import {
     DollarSign,
-    Search,
-    Filter,
-    Download,
     CreditCard,
     TrendingUp,
     Calendar,
-    Wallet,
     DataTable,
     AlertCircle,
     type ColumnDef,
@@ -22,6 +18,7 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import {
     buildUrlWithSearchParams,
     normalizeSearchParamValue,
@@ -195,16 +192,6 @@ export default function FinancePage() {
             title="Finance Management"
             description="Monitor revenue, sales, and transaction audits"
             tabs={<AdminModuleTabs tabs={financeTabs} />}
-            actions={
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 bg-white border border-slate-200 text-foreground-secondary px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
-                        <Download size={16} /> Export
-                    </button>
-                    <button className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-blue-600 transition-colors">
-                        <Wallet size={16} /> Adjust Wallet
-                    </button>
-                </div>
-            }
         >
             <div className="flex flex-col gap-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl">
@@ -236,34 +223,22 @@ export default function FinancePage() {
                     />
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <div className="relative flex-1 w-full text-black">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search by Payment ID, User or description..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
-                            value={search}
-                            onChange={(e) => replaceQueryState({ q: e.target.value, page: null })}
-                        />
-                    </div>
-                    <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                        <Filter className="text-foreground-subtle" size={18} />
-                        <select
-                            className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
-                            value={statusFilter}
-                            onChange={(e) => replaceQueryState({ status: e.target.value, page: null })}
-                        >
-                            <option value="all">All Status</option>
-                            <option value="SUCCESS">Success</option>
-                            <option value="FAILED">Failed</option>
-                            <option value="INITIATED">Initiated</option>
-                        </select>
-                    </div>
-                </div>
+                <AdminFilterToolbar
+                    search={search}
+                    onSearchChange={(val) => replaceQueryState({ q: val, page: null })}
+                    searchPlaceholder="Search by Payment ID, User, or description..."
+                    status={statusFilter}
+                    onStatusChange={(val) => replaceQueryState({ status: val, page: null })}
+                    statusOptions={[
+                        { value: "all", label: "All Status" },
+                        { value: "SUCCESS", label: "Success" },
+                        { value: "FAILED", label: "Failed" },
+                        { value: "INITIATED", label: "Initiated" },
+                    ]}
+                />
 
                 {error && (
-                    <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4 text-body font-medium flex items-center gap-2">
                         <AlertCircle size={18} /> {error}
                     </div>
                 )}
@@ -274,6 +249,9 @@ export default function FinancePage() {
                         columns={columns}
                         isLoading={loading}
                         emptyMessage="No transaction history found"
+                        enableCsvExport
+                        csvFileName="finance-transactions.csv"
+                        enableColumnVisibility
                         pagination={{
                             currentPage: page,
                             totalPages: pagination.pages,

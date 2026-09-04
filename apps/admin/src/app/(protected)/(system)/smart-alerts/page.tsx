@@ -8,6 +8,7 @@ import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
 import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "@esparex/ui";
+import { formatPrice } from "@esparex/shared";
 import { format } from "date-fns";
 
 type AlertLog = {
@@ -210,7 +211,7 @@ export default function SmartAlertsPage() {
                                                                 </>
                                                             )}
                                                             <span className="text-tiny font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                                                {(log.adId.price ?? 0) > 0 ? `$${log.adId.price}` : "Free"}
+                                                                {(log.adId.price ?? 0) > 0 ? formatPrice(log.adId.price ?? 0) : "Free"}
                                                             </span>
                                                         </div>
                                                     </div>

@@ -144,9 +144,7 @@ export default function ApiKeysPage() {
                 </div>
 
                 <AdminFilterToolbar
-                    search=""
-                    onSearchChange={() => { }}
-                    searchPlaceholder="API key search not supported"
+                    showSearch={false}
                     status={statusFilter}
                     onStatusChange={(value) => setStatusFilter(value)}
                     statusOptions={[

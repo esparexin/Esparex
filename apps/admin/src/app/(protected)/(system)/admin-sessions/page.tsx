@@ -109,9 +109,7 @@ export default function AdminSessionsPage() {
         >
             <div className="space-y-5">
                 <AdminFilterToolbar
-                    search=""
-                    onSearchChange={() => { }}
-                    searchPlaceholder="Session search not supported"
+                    showSearch={false}
                     status={statusFilter}
                     onStatusChange={(val) => setStatusFilter(val)}
                     statusOptions={[

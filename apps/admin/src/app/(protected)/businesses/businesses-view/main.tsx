@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
+import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
 import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import { Business } from "@esparex/contracts";
 import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
@@ -133,17 +134,28 @@ export default function BusinessesView() {
                 <BusinessListTable data={businesses} columns={columns} isLoading={loading} page={page} setPage={(np) => replaceQueryState({ page: np > 1 ? np : null })} pagination={pagination} onRowClick={(b) => businessList.setSelectedBusiness(b)} emptyMessage={error || "No businesses found."} selectedCount={selectedIds.size} bulkActions={bulkActions} />
             </div>
             {bulkRejectReason && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-label="Bulk reject reason modal">
-                    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
-                        <div className="flex items-center gap-3 text-red-600"><XCircle size={24} /><h3 className="text-lg font-bold">Bulk Reject Reason</h3></div>
-                        <p className="text-sm text-foreground-tertiary">Please provide a reason for rejecting the {selectedIds.size} selected businesses.</p>
-                        <textarea id="brr" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all min-h-[100px]" placeholder="Reason for rejection..." aria-label="Reason for rejection" />
-                        <div className="flex gap-3 pt-2">
-                            <button onClick={() => setBulkRejectReason(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-foreground-secondary hover:bg-slate-50 transition-colors">Cancel</button>
-                            <button onClick={async () => { const r = (document.getElementById("brr") as HTMLTextAreaElement).value; if (!r.trim()) return; await handleBulkReject(Array.from(selectedIds), r); setBulkRejectReason(false); setSelectedIds(new Set()); }} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white hover:bg-red-700 transition-colors">Confirm Reject</button>
-                        </div>
-                    </div>
-                </div>
+                <BusinessReasonModal
+                    businessName={`${selectedIds.size} Selected Businesses`}
+                    title="Bulk Reject Businesses"
+                    description="This action will reject"
+                    notice="All associated listings for selected businesses will be expired upon rejection."
+                    label="Rejection Reason"
+                    placeholder="e.g. Incomplete documentation, duplicate registration, invalid GST number..."
+                    requiredMessage="Rejection reason is required."
+                    minLength={5}
+                    minLengthMessage="Please provide a more descriptive reason."
+                    submitLabel="Confirm Bulk Reject"
+                    submittingLabel="Rejecting..."
+                    failureMessage="Failed to reject businesses"
+                    icon={XCircle}
+                    tone="danger"
+                    onClose={() => setBulkRejectReason(false)}
+                    onConfirm={async (reason) => {
+                        await handleBulkReject(Array.from(selectedIds), reason);
+                        setBulkRejectReason(false);
+                        setSelectedIds(new Set());
+                    }}
+                />
             )}
             <BusinessListModals controller={buildBusinessModalController(businesses, businessList)} onApproveFromDetails={(b) => void handleActivate(b.id)} onSuspendFromDetails={(b) => setSuspendTarget(b)} onActivateFromDetails={(id) => void handleActivate(id)} deleteDescription={<>Soft-deletes the business and expires all listings.</>}
                 extraDialogs={suspendTarget && <BusinessSuspendModal businessName={suspendTarget.name} onClose={() => setSuspendTarget(null)} onConfirm={async (reason) => { await handleSuspend(suspendTarget.id, reason); setSuspendTarget(null); }} />} />
