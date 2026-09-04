@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-native';
-import { AppState } from 'react-native';
+import { AppState, AppStateStatus, NativeEventSubscription } from 'react-native';
 import { useOtpTimer } from '../useOtpTimer';
 
 describe('useOtpTimer', () => {
@@ -27,10 +27,10 @@ describe('useOtpTimer', () => {
   });
 
   it('re-computes remaining time when app transitions to active state', () => {
-    let appStateCallback: ((state: string) => void) | undefined;
+    let appStateCallback: ((state: AppStateStatus) => void) | undefined;
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
       appStateCallback = listener;
-      return { remove: jest.fn() } as any;
+      return { remove: jest.fn() } as NativeEventSubscription;
     });
 
     const { result } = renderHook(() => useOtpTimer(60));
