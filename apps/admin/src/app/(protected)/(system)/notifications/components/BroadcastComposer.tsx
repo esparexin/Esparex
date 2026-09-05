@@ -111,7 +111,7 @@ export function BroadcastComposer({
                             Platform Audience
                         </label>
                         <select
-                            className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={targetValue}
                             onChange={(event) => setTargetValue(event.target.value)}
                             required
@@ -137,7 +137,7 @@ export function BroadcastComposer({
                             <input
                                 type="text"
                                 placeholder="Search by name, email, or mobile..."
-                                className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                 value={recipientQuery}
                                 onChange={(event) => setRecipientQuery(event.target.value)}
                             />
@@ -206,7 +206,7 @@ export function BroadcastComposer({
                     <input
                         type="text"
                         placeholder="What’s new today?"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
                         required
@@ -220,7 +220,7 @@ export function BroadcastComposer({
                     <textarea
                         placeholder="Type your message here..."
                         rows={4}
-                        className="w-full resize-none rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full resize-none rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={body}
                         onChange={(event) => setBody(event.target.value)}
                         required
@@ -234,7 +234,7 @@ export function BroadcastComposer({
                     <input
                         type="text"
                         placeholder="/plans or https://example.com/offers"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={actionUrl}
                         onChange={(event) => setActionUrl(event.target.value)}
                     />
@@ -249,7 +249,7 @@ export function BroadcastComposer({
                     </label>
                     <input
                         type="datetime-local"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={sendAt}
                         onChange={(event) => setSendAt(event.target.value)}
                     />
@@ -257,12 +257,12 @@ export function BroadcastComposer({
                 </div>
 
                 {error ? (
-                    <div className="flex items-center gap-1 text-xs italic text-red-500">
+                    <div className="flex items-center gap-1 text-caption text-destructive">
                         <AlertCircle size={14} /> {error}
                     </div>
                 ) : null}
                 {success ? (
-                    <div className="flex items-center gap-1 text-xs italic text-emerald-500">
+                    <div className="flex items-center gap-1 text-caption text-success">
                         <CheckCircle2 size={14} /> {success}
                     </div>
                 ) : null}
@@ -270,7 +270,7 @@ export function BroadcastComposer({
                 <button
                     type="submit"
                     disabled={sending}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                 >
                     {sending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                     {sending ? "Sending..." : sendAt ? "Schedule Broadcast" : "Send Broadcast"}

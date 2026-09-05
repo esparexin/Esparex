@@ -7,10 +7,11 @@ import {
     History as HistoryIcon, 
     Link as LinkIcon, 
     Smartphone, 
-    Users 
-} from "lucide-react";
+    Users,
+    DataTable, 
+    type ColumnDef 
+} from "@esparex/ui";
 import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
-import { DataTable, type ColumnDef } from "@esparex/ui";
 import type { NotificationLog } from "@/types/notification";
 
 interface NotificationHistoryProps {
