@@ -201,7 +201,7 @@ function LoginForm() {
                           <Mail size={18} className="text-foreground-subtle" />
                         </InputPrefix>
                         <Input
-                          placeholder="admin@esparex.com"
+                          placeholder="Your admin email address"
                           type="email"
                           autoComplete="username"
                           className="pl-10 h-11 text-body-lg md:text-body bg-background/50 focus:bg-background transition-colors"
