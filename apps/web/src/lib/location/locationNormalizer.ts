@@ -82,7 +82,7 @@ export function normalizeToAppLocation(
         if (!value) return null;
         const parts = value.split(",");
         const city = parts[0]?.trim() || value;
-        const state = parts[1]?.trim() || city;
+        const state = parts[1]?.trim() || "";
         return buildAppLocation({ formattedAddress: value, city, state, source: sourceOverride ?? "manual", name: city });
     }
 
@@ -96,7 +96,7 @@ export function normalizeToAppLocation(
     const city =
         (typeof rawLocation.city === "string" && rawLocation.city) ||
         (typeof rawLocation.name === "string" && rawLocation.name) || "";
-    const state = (typeof rawLocation.state === "string" && rawLocation.state) || city;
+    const state = (typeof rawLocation.state === "string" && rawLocation.state) || "";
     const country =
         (typeof rawLocation.country === "string" && rawLocation.country) || DEFAULT_APP_LOCATION.country;
     const formattedAddress =

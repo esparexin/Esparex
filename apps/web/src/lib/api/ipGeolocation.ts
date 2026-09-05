@@ -5,7 +5,7 @@
  * API key stays on the server and is never exposed to the browser.
  *
  * Persistence is managed by LocationContext under the canonical key:
- * - esparex_user_choice
+ * - SEARCH_LOCATION_STORAGE_KEY ("esparex_location")
  */
 
 import { apiClient } from "@/lib/api/client";

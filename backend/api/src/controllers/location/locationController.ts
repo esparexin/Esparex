@@ -11,8 +11,7 @@ import {
     getDefaultCenterLocation,
     getAreasByCityId,
     getCitiesByStateId,
-    getStateLocations,
-    ingestLocation as ingestLocationService
+    getStateLocations
 } from '@esparex/core/services/location/LocationHierarchyService';
 import {
     lookupLocationByPincode as lookupLocationByPincodeService,
@@ -217,6 +216,10 @@ export const getAreas = async (req: Request, res: Response) => {
 
 export const ipLocate = async (req: Request, res: Response) => {
     try {
+        res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         const apiKey = env.IPAPI_KEY;
         const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
         const isLocalhost = ip === '::1' || ip === '127.0.0.1' || ip === 'localhost';
@@ -272,12 +275,8 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        if (!data?.city || data.latitude == undefined || data.longitude == undefined) {
+        if (!data?.city || !data?.region || data.latitude == undefined || data.longitude == undefined) {
             return res.json(respond({ success: false, data: null }));
-        }
-
-        if (!data || !data.city || !data.region) {
-            return sendErrorResponse(req, res, 422, 'IP geolocation returned incomplete location data');
         }
 
         const lat = Number(data.latitude);
@@ -292,14 +291,13 @@ export const ipLocate = async (req: Request, res: Response) => {
 
         // Refinement: Try to snap IP coordinates to our internal hierarchy for better precision
         try {
-            const internalLocation = await reverseGeocodeService(lat, lng);
-            if (internalLocation && (internalLocation.level === 'city' || internalLocation.level === 'area')) {
-                return res.json(respond({ success: true, data: internalLocation }));
+            const config = await getLocationConfig();
+            if (config.enableReverseGeocoding) {
+                const internalLocation = await reverseGeocodeService(lat, lng);
+                if (internalLocation && (internalLocation.level === 'city' || internalLocation.level === 'area')) {
+                    return res.json(respond({ success: true, data: internalLocation }));
+                }
             }
-            
-            // If we only got a state/country from our DB, but IP provider has a city name,
-            // we merge them or prefer the IP provider's city if it's reasonably close.
-            // For now, we fall back to the formatted IP data if internal refinement isn't specific enough.
         } catch (error: unknown) {
             logger.warn('IP-Geocode refinement failed', { error: error instanceof Error ? error.message : String(error) });
         }
@@ -409,18 +407,6 @@ export const geocode = async (req: Request, res: Response) => {
         logger.error('geocode error', { error: error instanceof Error ? error.message : String(error) });
         const message = error instanceof Error ? error.message : 'Geocode failed';
         const statusCode = /Invalid|range|Null-island/i.test(message) ? 400 : 500;
-        return sendErrorResponse(req, res, statusCode, message);
-    }
-};
-
-export const ingestLocation = async (req: Request, res: Response) => {
-    try {
-        const ingested = await ingestLocationService(req.body as Parameters<typeof ingestLocationService>[0]);
-        return res.json(respond({ success: true, data: ingested }));
-    } catch (error: unknown) {
-        logger.error('ingestLocation error', { error: error instanceof Error ? error.message : String(error) });
-        const message = error instanceof Error ? error.message : 'Failed to ingest location';
-        const statusCode = /Missing required fields|Invalid coordinates/i.test(message) ? 400 : 500;
         return sendErrorResponse(req, res, statusCode, message);
     }
 };

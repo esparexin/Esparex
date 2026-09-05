@@ -1,6 +1,7 @@
 import type { AdminEnvelope } from "@/types/admin";
 import {
   ADMIN_ROUTES,
+  ADMIN_API_V1_BASE_PATH,
 } from "@/lib/api/routes";
 import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
 import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
@@ -182,7 +183,11 @@ export async function adminFetch<T>(
 
   const makeRequest = async (csrfRetry: boolean, retryCount: number = 0): Promise<AdminEnvelope<T>> => {
     try {
-      const url = `${ADMIN_API_BASE}${path}`;
+      const url = path.startsWith("http://") || path.startsWith("https://")
+        ? path
+        : path.startsWith("/api/v1/")
+          ? `${ADMIN_API_BASE.replace(new RegExp(`${ADMIN_API_V1_BASE_PATH}$`), "")}${path}`
+          : `${ADMIN_API_BASE}${path}`;
       const headers = new Headers(options.headers || {});
       const isFormDataBody = options.body instanceof FormData;
 

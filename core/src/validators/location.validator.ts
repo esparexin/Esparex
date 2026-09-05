@@ -6,17 +6,6 @@ export const logLocationEventSchema = SharedLogLocationEventSchema.extend({
     locationId: commonSchemas.objectId.optional(),
 });
 
-export const ingestLocationSchema = z.object({
-    name: z.string().trim().min(1),
-    state: z.string().trim().min(1),
-    coordinates: z.object({
-        type: z.literal('Point'),
-        coordinates: z.tuple([z.number(), z.number()])
-    }),
-    radius: z.number().positive().optional(),
-    tags: z.array(z.string()).optional()
-}).passthrough(); // Allow extra props based on what the ingest service takes natively
-
 const adminLocationLevelSchema = z.enum([
     'country',
     'state',

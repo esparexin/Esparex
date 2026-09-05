@@ -53,18 +53,6 @@ export const getDistinctStates = async (req: Request, res: Response) => {
     }
 };
 
-export const reverseGeocode = async (req: Request, res: Response) => {
-    try {
-        const match = await adminLocationService.adminReverseGeocode(
-            req.query.lat as string,
-            req.query.lng as string
-        );
-        sendSuccessResponse(res, match);
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
-
 export const getAllLocations = async (req: Request, res: Response) => {
     try {
         const { items, total, page, limit } = await adminLocationService.adminGetAllLocations(req.query);

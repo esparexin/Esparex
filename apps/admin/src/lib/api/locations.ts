@@ -126,6 +126,7 @@ export const getLocationAnalytics = async (filters: LocationAnalyticsFilters = {
 };
 
 export const reverseGeocode = async (lat: number, lng: number): Promise<Location | null> => {
-    const env = await adminFetch<Location>(`${BASE_PATH}/reverse-geocode?lat=${lat}&lng=${lng}`);
+    const env = await adminFetch<Location>(`/api/v1/locations/geocode?lat=${lat}&lng=${lng}`);
     return env.data || null;
 };
+

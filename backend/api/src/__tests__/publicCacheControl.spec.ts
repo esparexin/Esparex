@@ -47,3 +47,25 @@ describe('publicCacheControl Middleware', () => {
         expect(next).toHaveBeenCalledTimes(1);
     });
 });
+
+describe('privateNoCacheControl Middleware', () => {
+    it('sets strict private no-store headers to prevent caching of user-sensitive data', () => {
+        const req = { method: 'GET' } as Request;
+        const setHeaderSpy = jest.fn();
+        const res = { setHeader: setHeaderSpy } as any;
+        const next = jest.fn() as NextFunction;
+
+        const { privateNoCacheControl } = require('../middleware/publicCacheControl');
+        const middleware = privateNoCacheControl();
+        middleware(req, res, next);
+
+        expect(setHeaderSpy).toHaveBeenCalledWith(
+            'Cache-Control',
+            'private, no-store, no-cache, must-revalidate, max-age=0'
+        );
+        expect(setHeaderSpy).toHaveBeenCalledWith('Pragma', 'no-cache');
+        expect(setHeaderSpy).toHaveBeenCalledWith('Expires', '0');
+        expect(next).toHaveBeenCalledTimes(1);
+    });
+});
+

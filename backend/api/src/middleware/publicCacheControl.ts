@@ -16,3 +16,17 @@ export const publicCacheControl = (
         next();
     };
 };
+
+/**
+ * Middleware setting strict no-cache/no-store headers for user-sensitive dynamic GET endpoints.
+ * Prevents CDN, reverse proxy, and browser caching of user IP / identity data.
+ */
+export const privateNoCacheControl = () => {
+    return (_req: Request, res: Response, next: NextFunction): void => {
+        res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        next();
+    };
+};
+
