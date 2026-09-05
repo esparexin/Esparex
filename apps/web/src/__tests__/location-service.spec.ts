@@ -145,7 +145,7 @@ describe("getCurrentLocationResult", () => {
 
         vi.mocked(reverseGeocode).mockResolvedValue(null);
 
-        await getCurrentLocationResult({
+        const result = await getCurrentLocationResult({
             allowApproximateFallback: false,
         });
 
@@ -157,6 +157,44 @@ describe("getCurrentLocationResult", () => {
                 maximumAge: 0,
             })
         );
+        expect(result.location).toBeNull();
+        expect(result.source).toBe("none");
+        expect(result.failure?.reason).toBe("position_unavailable");
+    });
+
+    it("returns canonical AppLocation when GPS coordinates are successfully reverse-geocoded", async () => {
+        stubBrowser({
+            geolocation: {
+                getCurrentPosition: vi.fn((resolve: (position: { coords: GeolocationCoordinates }) => void) => {
+                    resolve({
+                        coords: {
+                            latitude: 12.9716,
+                            longitude: 77.5946,
+                        } as GeolocationCoordinates,
+                    });
+                }),
+            },
+        });
+        const { reverseGeocode } = await import("@/lib/api/user/locations");
+        vi.mocked(reverseGeocode).mockResolvedValue({
+            id: "loc_bengaluru",
+            city: "Bengaluru",
+            state: "Karnataka",
+            country: "India",
+            coordinates: { type: "Point", coordinates: [77.5946, 12.9716] },
+        } as any);
+
+        const result = await getCurrentLocationResult({
+            allowApproximateFallback: false,
+        });
+
+        expect(result.source).toBe("auto");
+        expect(result.location).toMatchObject({
+            city: "Bengaluru",
+            state: "Karnataka",
+            country: "India",
+            source: "auto",
+        });
     });
 
     it("flags stale generic detected labels for self-healing", () => {
