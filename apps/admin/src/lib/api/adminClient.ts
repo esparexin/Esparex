@@ -220,7 +220,9 @@ export async function adminFetch<T>(
         body:
           options.body === undefined || isFormDataBody
             ? (options.body as BodyInit | undefined)
-            : JSON.stringify(options.body)
+            : typeof options.body === "string"
+              ? options.body
+              : JSON.stringify(options.body)
       });
 
       const payload = (await response.json().catch(() => ({}))) as AdminEnvelope<T>;

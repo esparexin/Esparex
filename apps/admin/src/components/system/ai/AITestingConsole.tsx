@@ -47,7 +47,7 @@ export function AITestingConsole() {
                     type="button"
                     onClick={handleRunTest}
                     disabled={running}
-                    className="flex items-center gap-1.5 rounded-lg bg-purple-600 px-3.5 py-1.5 text-caption font-bold text-white shadow-xs hover:bg-purple-700 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-caption font-bold text-primary-foreground shadow-xs hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
                 >
                     <Play size={14} /> {running ? "Running Test..." : "Run AI Benchmark"}
                 </button>
