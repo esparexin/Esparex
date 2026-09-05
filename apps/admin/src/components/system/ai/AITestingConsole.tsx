@@ -31,14 +31,14 @@ export function AITestingConsole() {
     };
 
     return (
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xs flex flex-col gap-4">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs flex flex-col gap-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
-                        <Zap size={18} />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100 shrink-0">
+                        <Zap size={16} />
                     </div>
                     <div>
-                        <h3 className="text-body-lg font-bold text-foreground">AI Sandbox & Provider Benchmark Console</h3>
+                        <h3 className="text-body font-bold text-foreground">AI Sandbox & Provider Benchmark Console</h3>
                         <p className="text-caption text-foreground-tertiary">Test raw prompts, measure latency, token counts, and inspect outputs side-by-side</p>
                     </div>
                 </div>
@@ -47,13 +47,13 @@ export function AITestingConsole() {
                     type="button"
                     onClick={handleRunTest}
                     disabled={running}
-                    className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2 text-caption font-bold text-white shadow-sm hover:bg-purple-700 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-lg bg-purple-600 px-3.5 py-1.5 text-caption font-bold text-white shadow-xs hover:bg-purple-700 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
                 >
                     <Play size={14} /> {running ? "Running Test..." : "Run AI Benchmark"}
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-4 rounded-xl bg-muted/30 border border-border">
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 p-3 rounded-lg bg-muted/30 border border-border">
                 <div>
                     <label className="block text-tiny font-bold uppercase tracking-wider text-foreground-secondary mb-1">Provider</label>
                     <select

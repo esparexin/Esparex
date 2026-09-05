@@ -146,10 +146,10 @@ export default function GoogleAdsPage() {
         >
             <Stack direction="col" gap="md">
                 {/* Master Config & Publisher Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-xs gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
-                            <ShieldCheck size={22} />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-border bg-card p-3 shadow-xs gap-3">
+                    <div className="flex items-center gap-2.5">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+                            <ShieldCheck size={18} />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">

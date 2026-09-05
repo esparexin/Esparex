@@ -100,16 +100,16 @@ export default function BusinessesView() {
                                 type="button"
                                 key={label}
                                 onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
-                                className={`rounded-xl border p-3 flex items-center gap-3 shadow-xs text-left transition-all cursor-pointer ${
+                                className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
                                     isActive
                                         ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
                                         : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
                                 }`}
                             >
-                                <ChartBar size={16} className={isActive ? "text-primary" : "text-foreground-subtle"} />
+                                <ChartBar size={14} className={isActive ? "text-primary shrink-0" : "text-foreground-subtle shrink-0"} />
                                 <div>
-                                    <div className={`text-lg font-bold ${color}`}>{value}</div>
-                                    <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider">{label}</div>
+                                    <div className={`text-body font-bold leading-tight ${color}`}>{value}</div>
+                                    <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider leading-none">{label}</div>
                                 </div>
                             </button>
                         );

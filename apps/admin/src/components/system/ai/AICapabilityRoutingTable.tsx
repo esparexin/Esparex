@@ -68,18 +68,18 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
     const [expandedKey, setExpandedKey] = useState<string | null>("post_ad_title");
 
     return (
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs space-y-3">
             <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-                    <Cpu size={18} />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
+                    <Cpu size={16} />
                 </div>
                 <div>
-                    <h3 className="text-body-lg font-bold text-foreground">AI Capability Routing Rules</h3>
+                    <h3 className="text-body font-bold text-foreground">AI Capability Routing Rules</h3>
                     <p className="text-caption text-foreground-tertiary">Route individual AI capabilities to distinct Provider & Model engines</p>
                 </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
                 {Object.entries(capabilities || {}).map(([key, config]) => {
                     const meta = CAPABILITY_LABELS[key] || { title: key, desc: "System AI capability" };
                     const isExpanded = expandedKey === key;
@@ -95,12 +95,12 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
                     return (
                         <div
                             key={key}
-                            className="rounded-xl border border-border bg-muted/20 overflow-hidden transition-all shadow-xs"
+                            className="rounded-lg border border-border bg-muted/20 overflow-hidden transition-all shadow-xs"
                         >
                             {/* Accordion Header */}
                             <div
                                 onClick={() => setExpandedKey(isExpanded ? null : key)}
-                                className="flex items-center justify-between p-4 bg-card hover:bg-muted/40 cursor-pointer transition-colors select-none"
+                                className="flex items-center justify-between p-3 bg-card hover:bg-muted/40 cursor-pointer transition-colors select-none"
                             >
                                 <div className="space-y-0.5">
                                     <div className="flex items-center gap-2">

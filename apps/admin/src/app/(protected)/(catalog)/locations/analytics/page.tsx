@@ -318,13 +318,13 @@ function StatCard({ icon, label, value, color }: {
         violet: "bg-violet-50 text-violet-600",
     };
     return (
-        <div className="bg-card rounded-xl border border-border shadow-xs p-6 flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
+        <div className="bg-card rounded-xl border border-border shadow-xs p-3.5 flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${colorMap[color]}`}>
                 {icon}
             </div>
             <div>
-                <div className="text-2xl font-black text-foreground">{value?.toLocaleString() ?? "—"}</div>
-                <div className="text-xs font-medium text-foreground-tertiary uppercase tracking-wider">{label}</div>
+                <div className="text-body-lg font-bold text-foreground leading-tight">{value?.toLocaleString() ?? "—"}</div>
+                <div className="text-tiny font-medium text-foreground-tertiary uppercase tracking-wider">{label}</div>
             </div>
         </div>
     );
