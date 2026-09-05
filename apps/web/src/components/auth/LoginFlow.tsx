@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Loader2 } from "@esparex/ui";
 import { Login } from "@/components/user/Login";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";

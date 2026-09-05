@@ -2,7 +2,7 @@
 
 import type { User } from "@/types/User";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
-import { LogOut } from "@/icons/IconRegistry";
+import { LogOut } from "@esparex/ui";
 import { AccountNavItemList } from "../../AccountNavItemList";
 
 interface MoreMenuTabProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "@/icons/IconRegistry";
+import { ArrowLeft } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 
 interface BackButtonProps {

@@ -7,7 +7,7 @@ import {
   DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
-import { X } from "@/icons/IconRegistry";
+import { X } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 

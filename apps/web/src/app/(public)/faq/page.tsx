@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { Metadata } from "next";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
-import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, CreditCard } from "@/icons/IconRegistry";
+import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, CreditCard } from "@esparex/ui";
 import { LEGAL_GRIEVANCE_EMAIL, LEGAL_SUPPORT_PHONE } from "@/lib/legal";
 
 export const metadata: Metadata = {

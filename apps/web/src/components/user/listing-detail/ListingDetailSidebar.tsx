@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle } from "@/icons/IconRegistry";
+import { AlertTriangle } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 
 import type { Ad } from "@/schemas/ad.schema";

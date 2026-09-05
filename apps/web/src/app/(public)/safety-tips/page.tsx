@@ -9,7 +9,7 @@ import {
     Flag,
     HelpCircle,
     CheckCircle
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import {
     LEGAL_GRIEVANCE_EMAIL,
     LEGAL_SUPPORT_PHONE

@@ -1,4 +1,4 @@
-import { Megaphone, LayoutGrid } from "@/icons/IconRegistry";
+import { Megaphone, LayoutGrid } from "@esparex/ui";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

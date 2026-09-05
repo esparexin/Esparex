@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
-import { Eye, Download, FileText } from '@/icons/IconRegistry';
+import { Eye, Download, FileText } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
 
 interface RecentPaymentsCardProps {

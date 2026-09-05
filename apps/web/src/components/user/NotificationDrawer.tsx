@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, CheckCheck, Trash2, Inbox } from "@/icons/IconRegistry";
+import { Bell, CheckCheck, Trash2, Inbox } from "@esparex/ui";
 import { type Notification } from "@/lib/api/user/notifications";
 
 import {

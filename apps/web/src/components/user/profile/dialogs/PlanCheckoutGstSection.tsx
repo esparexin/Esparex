@@ -1,7 +1,7 @@
 "use client";
 
 import { Checkbox, Input, Label } from "@esparex/ui";
-import { CheckCircle2 } from "@/icons/IconRegistry";
+import { CheckCircle2 } from "@esparex/ui";
 
 interface PlanCheckoutGstSectionProps {
     wantsGst: boolean;

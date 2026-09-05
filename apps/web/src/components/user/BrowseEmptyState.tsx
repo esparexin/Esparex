@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchX, Bell } from "@/icons/IconRegistry";
+import { SearchX, Bell } from "@esparex/ui";
 import { Button, EmptyState } from "@esparex/ui";
 import Link from "next/link";
 

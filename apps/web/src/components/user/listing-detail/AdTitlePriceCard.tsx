@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
-import { Shield, CheckCircle, MapPin, Clock, Briefcase, CircuitBoard, Wrench } from "@/icons/IconRegistry";
+import { Shield, CheckCircle, MapPin, Clock, Briefcase, CircuitBoard, Wrench } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 
 interface AdTitlePriceCardProps {

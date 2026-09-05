@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { LogOut } from "@/icons/IconRegistry";
+import { LogOut } from "@esparex/ui";
 import type { User } from "@/types/User";
 import { getUserInitials } from "@/lib/headerUtils";
 import { Button } from "@esparex/ui";

@@ -15,7 +15,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Crown, AlertCircle } from "@/icons/IconRegistry";
+import { Crown, AlertCircle } from "@esparex/ui";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { PlanCheckoutGstSection } from "./PlanCheckoutGstSection";
 import { notify } from "@/lib/feedback";

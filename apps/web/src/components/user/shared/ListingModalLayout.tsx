@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "@/icons/IconRegistry";
+import { X } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import {
   Button,

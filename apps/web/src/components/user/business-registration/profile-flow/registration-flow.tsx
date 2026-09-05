@@ -12,7 +12,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2 } from "@/icons/IconRegistry";
+import { CheckCircle2 } from "@esparex/ui";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { registerBusiness, type CreateBusinessDTO } from "@/lib/api/user/businesses";
 

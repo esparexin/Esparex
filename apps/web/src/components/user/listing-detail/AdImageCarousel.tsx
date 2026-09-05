@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Button } from "@esparex/ui";
-import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
+import { Share2, Heart, ChevronLeft, ChevronRight } from "@esparex/ui";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
 import { MARKETPLACE_CARD_FILL_SIZES } from "@/lib/imageSizes";
 import { AdImageLightbox } from "./AdImageLightbox";

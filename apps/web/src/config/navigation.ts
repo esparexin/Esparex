@@ -1,4 +1,4 @@
-import type { LucideIcon } from "@/icons/IconRegistry";
+import type { LucideIcon } from "@esparex/ui";
 import {
   Bell,
   Building2,
@@ -12,7 +12,7 @@ import {
   Sparkles,
   CreditCard,
   ShoppingBag,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import {
   type UserPage,
 } from "@/lib/routeUtils";

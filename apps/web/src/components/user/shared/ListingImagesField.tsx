@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Upload, AlertCircle } from "@/icons/IconRegistry";
+import { Upload, AlertCircle } from "@esparex/ui";
 import type { ListingImage } from "@/types/listing";
 import { cn } from "@/components/ui/utils";
 import { Stack } from "@esparex/ui";

@@ -83,6 +83,11 @@ function run(val) {
             }
           }
 
+          // Rule C: Prohibit application-local icon registry (Icons SSOT is @esparex/ui)
+          if (relPath.includes('/icons/IconRegistry') || /\/src\/icons\//.test(relPath)) {
+            val.error(`Icon SSOT Violation: ${relPath} detected. Icons must be imported from @esparex/ui.`);
+          }
+
           // Rule B: Dynamic Canonical Ownership & Import Resolution
           // Check if app file exports a local symbol that collides with a canonical package symbol
           const localExports = content.matchAll(/^export\s+(?:const|function|class|interface|type|enum)\s+(\w+)/gm);

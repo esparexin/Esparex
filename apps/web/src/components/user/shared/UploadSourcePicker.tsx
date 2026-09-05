@@ -6,7 +6,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@esparex/ui";
-import { Camera, FileText, Upload, Trash2 } from "@/icons/IconRegistry";
+import { Camera, FileText, Upload, Trash2 } from "@esparex/ui";
 import { useIsMobileDevice } from "@/components/ui/useMobile";
 
 export interface UploadSourcePickerProps {

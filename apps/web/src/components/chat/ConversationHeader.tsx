@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft } from "@/icons/IconRegistry";
+import { ChevronLeft } from "@esparex/ui";
 import { buildChatInboxRoute, type ChatInboxView } from "@/lib/chatUiRoutes";
 import { ChatActionsMenu } from "./ChatActionsMenu";
 import type { IConversationDTO } from "@esparex/contracts";

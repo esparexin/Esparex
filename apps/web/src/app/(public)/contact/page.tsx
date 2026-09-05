@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage } from "@/components/common/InfoPage";
-import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@/icons/IconRegistry";
+import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@esparex/ui";
 import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
     LEGAL_COMPANY_LOCATION,

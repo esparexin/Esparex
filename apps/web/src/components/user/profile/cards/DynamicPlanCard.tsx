@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Sparkles, Zap, Package, BellRing } from "@/icons/IconRegistry";
+import { CheckCircle2, Sparkles, Zap, Package, BellRing } from "@esparex/ui";
 import type { ProfilePlan } from "../types";
 
 export type PlanCardItem = Omit<ProfilePlan, 'type'> & { type: string };

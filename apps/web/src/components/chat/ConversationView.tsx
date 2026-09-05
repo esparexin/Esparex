@@ -13,7 +13,7 @@ import { ChatReadOnly } from './ChatReadOnly';
 import { SafetyTips } from './SafetyTips';
 import { DateSeparator } from './DateSeparator';
 import { ConversationHeader } from './ConversationHeader';
-import { MessageSquare } from "@/icons/IconRegistry";
+import { MessageSquare } from "@esparex/ui";
 import { decodeHtmlEntities } from "@/lib/formatters";
 import type { IConversationDTO } from "@esparex/contracts";
 

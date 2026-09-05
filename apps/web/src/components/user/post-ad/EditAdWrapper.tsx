@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getListingById } from "@/lib/api/user/listings";
 import { usePostAdAction } from "./context";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Loader2 } from "@esparex/ui";
 
 export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     const params = useParams();

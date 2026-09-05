@@ -10,7 +10,7 @@ import { Button, Card, CardContent } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { User, Camera, Trash2, Lock } from "@/icons/IconRegistry";
+import { User, Camera, Trash2, Lock } from "@esparex/ui";
 
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";

@@ -14,7 +14,7 @@ import {
     LogOut,
     RefreshCw,
     Plus,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 
 import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";

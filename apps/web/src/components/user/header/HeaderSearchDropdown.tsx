@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock } from "@/icons/IconRegistry";
+import { Clock } from "@esparex/ui";
 import { Z_INDEX } from "@esparex/ui";
 
 interface HeaderSearchDropdownProps {

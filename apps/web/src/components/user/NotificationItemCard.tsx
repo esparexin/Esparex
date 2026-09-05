@@ -8,7 +8,7 @@ import {
     Tag,
     Check,
     type LucideIcon,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import { NotificationTypeValue } from "@esparex/contracts";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 import type { Notification } from "@/lib/api/user/notifications";

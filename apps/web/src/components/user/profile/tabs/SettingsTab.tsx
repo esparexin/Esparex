@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, BellRing, Trash2 } from "@/icons/IconRegistry";
+import { AlertTriangle, BellRing, Trash2 } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";

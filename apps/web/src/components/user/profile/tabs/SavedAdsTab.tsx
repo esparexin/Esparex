@@ -10,7 +10,7 @@ import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { Button, Card, Spinner } from "@esparex/ui";
-import { Heart, MapPin, Calendar, ArrowRight } from "@/icons/IconRegistry";
+import { Heart, MapPin, Calendar, ArrowRight } from "@esparex/ui";
 import { notify } from "@/lib/feedback";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/hooks/queries/queryKeys";

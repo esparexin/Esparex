@@ -1,12 +1,78 @@
-import type { LucideIcon } from "@/icons/IconRegistry";
-import { IconRegistry } from "@/icons/IconRegistry";
+import type { LucideIcon } from "@esparex/ui";
+import {
+    Package,
+    Drone,
+    Tv,
+    Laptop,
+    Smartphone,
+    Tablet,
+    Leaf,
+    Contrast,
+    Monitor,
+    Cpu,
+    HardDrive,
+    Headphones,
+    Speaker,
+    Watch,
+    Wrench,
+    Tag,
+    ShoppingCart,
+    CreditCard,
+    Building2,
+    Store,
+    Home,
+    Search,
+    User,
+    Settings,
+    Activity,
+    FolderTree,
+    Grid3x3,
+    Zap,
+    Flame,
+    Sparkles,
+    Palette,
+} from "@esparex/ui";
+
+const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+    Drone,
+    Smartphone,
+    Tablet,
+    Leaf,
+    Contrast,
+    Laptop,
+    Monitor,
+    Tv,
+    Cpu,
+    HardDrive,
+    Headphones,
+    Speaker,
+    Watch,
+    Wrench,
+    Tag,
+    Package,
+    ShoppingCart,
+    CreditCard,
+    Building2,
+    Store,
+    Home,
+    Search,
+    User,
+    Settings,
+    Activity,
+    FolderTree,
+    Grid3x3,
+    Zap,
+    Flame,
+    Sparkles,
+    Palette,
+};
 
 /**
  * Robust utility to resolve category names, slugs, or icon keys to their canonical Lucide icons.
  * Normalizes input (trims, lowercases, collapses whitespace) and resolves aliases.
  */
 export function getCategoryIcon(input?: string): LucideIcon {
-    const defaultIcon = IconRegistry.Package as LucideIcon;
+    const defaultIcon = Package as LucideIcon;
     
     if (!input) {
         return defaultIcon;
@@ -17,7 +83,7 @@ export function getCategoryIcon(input?: string): LucideIcon {
 
     // 1. Check exact aliases
     if (normalized === "drone" || normalized === "drones") {
-        return (IconRegistry.Drone as LucideIcon) || defaultIcon;
+        return Drone || defaultIcon;
     }
     if (
         normalized === "led tv" ||
@@ -26,10 +92,10 @@ export function getCategoryIcon(input?: string): LucideIcon {
         normalized === "television" ||
         normalized === "monitor"
     ) {
-        return (IconRegistry.Tv as LucideIcon) || defaultIcon;
+        return Tv || defaultIcon;
     }
     if (normalized === "laptop" || normalized === "laptops") {
-        return (IconRegistry.Laptop as LucideIcon) || defaultIcon;
+        return Laptop || defaultIcon;
     }
     if (
         normalized === "mobile" ||
@@ -37,17 +103,17 @@ export function getCategoryIcon(input?: string): LucideIcon {
         normalized === "phone" ||
         normalized === "smartphone"
     ) {
-        return (IconRegistry.Smartphone as LucideIcon) || defaultIcon;
+        return Smartphone || defaultIcon;
     }
     if (normalized === "tablet" || normalized === "tablets" || normalized === "ipad") {
-        return (IconRegistry.Tablet as LucideIcon) || defaultIcon;
+        return Tablet || defaultIcon;
     }
 
-    // 2. Case-insensitive lookup in the Registry keys
-    const registryKeys = Object.keys(IconRegistry);
+    // 2. Case-insensitive lookup in the Map keys
+    const registryKeys = Object.keys(CATEGORY_ICON_MAP);
     const foundKey = registryKeys.find((key) => key.toLowerCase() === normalized);
     if (foundKey) {
-        return (IconRegistry[foundKey] as LucideIcon) || defaultIcon;
+        return CATEGORY_ICON_MAP[foundKey] || defaultIcon;
     }
 
     // 3. Fallback

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight } from "@/icons/IconRegistry";
+import { ChevronRight } from "@esparex/ui";
 
 interface BreadcrumbItem {
   label: string;

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SubscriptionSummaryDTO } from '@esparex/contracts';
-import { Crown } from '@/icons/IconRegistry';
+import { Crown } from "@esparex/ui";
 
 interface ActiveSubscriptionCardProps {
   subscription: SubscriptionSummaryDTO | null;

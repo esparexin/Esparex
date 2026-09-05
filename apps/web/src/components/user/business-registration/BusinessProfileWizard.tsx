@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Loader2 } from "@esparex/ui";
 import type { User } from "@/types/User";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";

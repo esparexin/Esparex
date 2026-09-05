@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck } from "@/icons/IconRegistry";
+import { ShieldCheck } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { getPlanBadge, type AdCardData } from "../shared";
 

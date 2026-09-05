@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
 import {
     CheckCircle,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { isWizardPathname } from "@/lib/routeUtils";
 import { cn } from "@/lib/utils";

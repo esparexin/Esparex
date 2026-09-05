@@ -1,4 +1,4 @@
-import { AlertTriangle } from "@/icons/IconRegistry";
+import { AlertTriangle } from "@esparex/ui";
 
 export function AdPendingStatusCard() {
     return (
