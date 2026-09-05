@@ -105,3 +105,5 @@ export const bulkRejectCatalogRequestSchema = bulkApproveCatalogRequestSchema.ex
 export const bulkMarkCatalogRequestDuplicateSchema = bulkApproveCatalogRequestSchema.extend({
     duplicateOfId: objectIdSchema,
 });
+
+export const bulkDeleteCatalogRequestSchema = bulkApproveCatalogRequestSchema;

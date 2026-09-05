@@ -8,6 +8,7 @@ import {
   AlertCircle,
   ExternalLink,
   Checkbox,
+  Trash2,
   type ColumnDef,
 } from "@esparex/ui";
 import {
@@ -23,6 +24,7 @@ interface GenerateCatalogRequestsColumnsParams {
   onToggleSelect: (id: string, checked: boolean) => void;
   handleApprove: (id: string) => Promise<void>;
   onOpenRejectModal: (req: CatalogRequestItem) => void;
+  onOpenDeleteModal: (req: CatalogRequestItem) => void;
 }
 
 export function generateCatalogRequestsColumns({
@@ -32,6 +34,7 @@ export function generateCatalogRequestsColumns({
   onToggleSelect,
   handleApprove,
   onOpenRejectModal,
+  onOpenDeleteModal,
 }: GenerateCatalogRequestsColumnsParams): ColumnDef<CatalogRequestItem>[] {
   return [
     {
@@ -196,6 +199,12 @@ export function generateCatalogRequestsColumns({
               />
             </>
           )}
+          <CatalogActionIconButton
+            onClick={() => onOpenDeleteModal(req)}
+            className="p-1.5 text-foreground-subtle hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
+            title="Delete Request"
+            icon={<Trash2 size={18} />}
+          />
         </CatalogActionsRow>
       ),
     },

@@ -1,9 +1,11 @@
 import type { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
 import * as CatalogRequestService from '@esparex/core/domains/catalog/application/services/CatalogRequestService';
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
 import { sendErrorResponse } from '../utils/errorResponse';
+import { logAdminAction } from '../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import {
     approveCatalogRequest,
@@ -277,6 +279,46 @@ export const bulkMarkCatalogRequestsMergedByAdmin = async (req: Request, res: Re
         );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const deleteCatalogRequestByAdmin = async (req: Request, res: Response) => {
+    try {
+        const id = getParamId(req);
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return sendErrorResponse(req, res, 400, 'Invalid catalog request ID');
+        }
+
+        const request = await CatalogRequestService.deleteCatalogRequestById(id);
+        if (!request) {
+            return sendErrorResponse(req, res, 404, 'Catalog request not found');
+        }
+
+        await logAdminAction(req, 'DELETE_CATALOG_REQUEST', 'CatalogRequest', id, {
+            requestedName: request.requestedName,
+            requestType: request.requestType,
+        });
+
+        return sendSuccessResponse(res, { id }, 'Catalog request deleted successfully');
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const bulkDeleteCatalogRequestsByAdmin = async (req: Request, res: Response) => {
+    try {
+        const { requestIds } = req.body as { requestIds: string[] };
+
+        const { deletedCount } = await CatalogRequestService.bulkDeleteCatalogRequests(requestIds);
+
+        await logAdminAction(req, 'BULK_DELETE_CATALOG_REQUESTS', 'CatalogRequest', 'bulk', {
+            deletedCount,
+            requestIds,
+        });
+
+        return sendSuccessResponse(res, { deletedCount }, `Deleted ${deletedCount} catalog requests`);
     } catch (error) {
         return sendControllerError(req, res, error);
     }

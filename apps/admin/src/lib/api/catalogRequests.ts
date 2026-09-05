@@ -129,6 +129,22 @@ export async function markAdminCatalogRequestDuplicate(id: string, payload: { du
     });
 }
 
+export async function deleteAdminCatalogRequest(id: string) {
+    return adminFetch<{ id: string }>(ADMIN_ROUTES.CATALOG_REQUEST_BY_ID(id), {
+        method: 'DELETE',
+    });
+}
+
+export async function bulkDeleteAdminCatalogRequests(payload: { requestIds: string[] }) {
+    return adminFetch<{ deletedCount: number }>(
+        ADMIN_ROUTES.CATALOG_REQUEST_BULK_DELETE,
+        {
+            method: 'POST',
+            body: payload,
+        }
+    );
+}
+
 export async function getAdminCatalogRequestStats(requestType?: CatalogRequestType) {
     const query = buildQueryString(requestType ? { requestType } : {});
     const suffix = query ? `?${query}` : '';

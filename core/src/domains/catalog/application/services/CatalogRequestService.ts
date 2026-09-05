@@ -86,6 +86,15 @@ export const getCatalogRequestById = async (id: string, populateRequestedBy = fa
     return await query;
 };
 
+export const deleteCatalogRequestById = async (id: string) => {
+    return CatalogRequest.findByIdAndDelete(id);
+};
+
+export const bulkDeleteCatalogRequests = async (requestIds: string[]) => {
+    const result = await CatalogRequest.deleteMany({ _id: { $in: requestIds } });
+    return { deletedCount: result.deletedCount };
+};
+
 export const getCatalogRequestStats = async (match: Record<string, unknown>) => {
     const [groupedCounts, totalCount] = await Promise.all([
         CatalogRequest.aggregate<{

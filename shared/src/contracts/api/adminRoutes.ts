@@ -112,6 +112,7 @@ export const ADMIN_ROUTES = {
   CATALOG_REQUEST_BULK_APPROVE: "/catalog-requests/bulk/approve",
   CATALOG_REQUEST_BULK_REJECT: "/catalog-requests/bulk/reject",
   CATALOG_REQUEST_BULK_MARK_DUPLICATE: "/catalog-requests/bulk/mark-duplicate",
+  CATALOG_REQUEST_BULK_DELETE: "/catalog-requests/bulk/delete",
   CATALOG_REQUEST_STATS: "/catalog-requests/stats",
 
   // Finance
