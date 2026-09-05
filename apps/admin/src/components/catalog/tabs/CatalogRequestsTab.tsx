@@ -184,10 +184,9 @@ export default function CatalogRequestsTab() {
                 { value: "all", label: "All Status" },
                 { value: "pending", label: "Pending" },
                 { value: "approved", label: "Approved" },
-                { value: "resolved", label: "Resolved" },
                 { value: "rejected", label: "Rejected" },
-                { value: "duplicate", label: "Duplicate" },
-                { value: "merged", label: "Merged" },
+                { value: "merged", label: "Duplicate / Merged" },
+                { value: "resolved", label: "Resolved (All)" },
               ]}
             />
           </>
