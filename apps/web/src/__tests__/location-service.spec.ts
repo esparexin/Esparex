@@ -263,4 +263,21 @@ describe("getCurrentLocationResult", () => {
             }).headerText
         ).toBe("Macherla, Andhra Pradesh");
     });
+
+    it("parses valid stored location payload from storage event", async () => {
+        const { parseStoredAppLocation } = await import("@/context/hooks/locationStorage.helpers");
+        const raw = JSON.stringify({
+            city: "Guntur",
+            state: "Andhra Pradesh",
+            country: "India",
+            source: "manual",
+            display: "Guntur, Andhra Pradesh",
+            formattedAddress: "Guntur, Andhra Pradesh, India",
+            detectedAt: Date.now(),
+        });
+        const parsed = parseStoredAppLocation(raw);
+        expect(parsed).not.toBeNull();
+        expect(parsed?.city).toBe("Guntur");
+        expect(parsed?.state).toBe("Andhra Pradesh");
+    });
 });
