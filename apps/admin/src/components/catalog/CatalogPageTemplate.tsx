@@ -77,7 +77,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
     customSubmitValidation,
     onModalOpen,
     onModalClose,
-    createLabel = "Add Item",
+    createLabel,
     tabs,
     modalTitleConfig = { create: "Add New Item", edit: "Edit Item" },
     emptyMessage = "No items found",
@@ -135,6 +135,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
         }
     };
 
+    const effectiveCreateLabel = createLabel === undefined ? "Add Item" : createLabel;
     const columns = generateColumns(openEditModal);
 
     return (
@@ -144,13 +145,15 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
             tabs={!isNested && (tabs || catalogManagementTabs) ? <AdminModuleTabs tabs={tabs || catalogManagementTabs} /> : undefined}
             isNested={isNested}
             actions={
-                <button
-                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                    onClick={openCreateModal}
-                >
-                    <Plus size={18} />
-                    {createLabel}
-                </button>
+                effectiveCreateLabel ? (
+                    <button
+                        className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-body shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                        onClick={openCreateModal}
+                    >
+                        <Plus size={18} />
+                        {effectiveCreateLabel}
+                    </button>
+                ) : undefined
             }
             filters={filtersRenderer}
             filterLayoutClassName={filterLayoutClassName}
@@ -170,21 +173,23 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
                 onPageChange: setPage
             }}
         >
-            <CatalogModal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingItem ? modalTitleConfig.edit : modalTitleConfig.create}
-            >
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    {formRenderer(formData, setFormData, !!editingItem, editingItem)}
-                    
-                    <CatalogFormActions
-                        onCancel={closeModal}
-                        isSubmitting={loading}
-                        submitLabel={editingItem ? modalTitleConfig.edit.replace("Edit ", "Update ") : modalTitleConfig.create.replace("Add New ", "Create ")}
-                    />
-                </form>
-            </CatalogModal>
+            {Boolean(effectiveCreateLabel || editingItem) && (
+                <CatalogModal
+                    isOpen={isModalOpen}
+                    onClose={closeModal}
+                    title={editingItem ? modalTitleConfig.edit : modalTitleConfig.create}
+                >
+                    <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        {formRenderer(formData, setFormData, !editingItem, editingItem)}
+                        
+                        <CatalogFormActions
+                            onCancel={closeModal}
+                            isSubmitting={loading}
+                            submitLabel={editingItem ? modalTitleConfig.edit.replace("Edit ", "Update ") : modalTitleConfig.create.replace("Add New ", "Create ")}
+                        />
+                    </form>
+                </CatalogModal>
+            )}
         </CatalogIndexPage>
     );
 }

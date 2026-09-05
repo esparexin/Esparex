@@ -135,7 +135,7 @@ export default function CatalogRequestsTab() {
         isNested={true}
         title="Catalog Requests"
         description="Manage user-submitted requests for new brands, models, or categories. Reviewing and approving these maintains the SSOT integrity."
-        createLabel=""
+        createLabel={null}
         csvFileName="catalog-requests.csv"
         items={requests}
         loading={loading}
