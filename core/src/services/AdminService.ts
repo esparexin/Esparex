@@ -198,7 +198,7 @@ export const resetAdminFailedLoginAttempts = async (adminId: string | Types.Obje
 };
 
 export const findAdminForLogin = async (email: string) => {
-    return Admin.findOne({ email }).select('+password +twoFactorSecret failedLoginAttempts lockUntil');
+    return Admin.findOne({ email }).select('+password +twoFactorSecret');
 };
 
 export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
