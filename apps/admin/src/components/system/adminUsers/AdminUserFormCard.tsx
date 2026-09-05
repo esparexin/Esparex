@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { Button, type LucideIcon } from "@esparex/ui";
@@ -18,6 +18,7 @@ import {
     type AdminCreateUserFormValues,
     type AdminEditUserFormValues,
 } from "@/schemas/admin.schemas";
+import { AdminPermissionScopeSelector } from "./AdminPermissionScopeSelector";
 
 type AdminUserFormCardProps =
     | {
@@ -29,7 +30,7 @@ type AdminUserFormCardProps =
         submitIcon: LucideIcon;
         secondaryIcon: LucideIcon;
         isSubmitting: boolean;
-        permissionsPlaceholder: string;
+        permissionsPlaceholder?: string;
         onSubmit: (values: AdminCreateUserFormValues) => void | Promise<void>;
         onSecondary: () => void;
     }
@@ -42,7 +43,7 @@ type AdminUserFormCardProps =
         submitIcon: LucideIcon;
         secondaryIcon: LucideIcon;
         isSubmitting: boolean;
-        permissionsPlaceholder: string;
+        permissionsPlaceholder?: string;
         onSubmit: (values: AdminEditUserFormValues) => void | Promise<void>;
         onSecondary: () => void;
     };
@@ -78,7 +79,6 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
         submitIcon: SubmitIcon,
         secondaryIcon: SecondaryIcon,
         isSubmitting,
-        permissionsPlaceholder,
         onSecondary,
         mode,
         values
@@ -88,31 +88,17 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
     const password = "password" in values ? values.password : undefined;
     const status = "status" in values ? values.status : undefined;
 
-    const normalizedValues = useMemo<AdminUserFormValues>(() => {
-        return mode === "create"
-            ? {
-                firstName,
-                lastName,
-                email,
-                password,
-                role,
-                permissionsText,
-            }
-            : {
-                firstName,
-                lastName,
-                email,
-                role,
-                status,
-                permissionsText,
-            };
-    }, [mode, firstName, lastName, email, password, role, status, permissionsText]);
+    const normalizedValues = useMemo<AdminUserFormValues>(() => (
+        mode === "create"
+            ? { firstName, lastName, email, password, role, permissionsText }
+            : { firstName, lastName, email, role, status, permissionsText }
+    ), [mode, firstName, lastName, email, password, role, status, permissionsText]);
 
-    const validationSchema =
-        props.mode === "create" ? adminCreateUserFormSchema : adminEditUserFormSchema;
+    const validationSchema = mode === "create" ? adminCreateUserFormSchema : adminEditUserFormSchema;
 
     const {
         register,
+        control,
         handleSubmit,
         reset,
         formState: { errors },
@@ -127,17 +113,10 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
 
     const inputClassName = "w-full rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground px-3 py-2 text-body focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
 
-    const handleSecondary = () => {
-        reset(normalizedValues);
-        onSecondary();
-    };
-
-    const onValidSubmit = handleSubmit((values) => {
-        if (props.mode === "create") {
-            return props.onSubmit(values as AdminCreateUserFormValues);
-        }
-
-        return props.onSubmit(values as AdminEditUserFormValues);
+    const onValidSubmit = handleSubmit((formValues) => {
+        return mode === "create"
+            ? props.onSubmit(formValues as AdminCreateUserFormValues)
+            : props.onSubmit(formValues as AdminEditUserFormValues);
     });
 
     return (
@@ -147,100 +126,67 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
             <form onSubmit={(event) => void onValidSubmit(event)} noValidate>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                     <div>
-                        <input
-                            {...register("firstName")}
-                            className={inputClassName}
-                            placeholder="First name"
-                        />
+                        <input {...register("firstName")} className={inputClassName} placeholder="First name" />
                         <FieldError message={errors.firstName?.message} />
                     </div>
 
                     <div>
-                        <input
-                            {...register("lastName")}
-                            className={inputClassName}
-                            placeholder="Last name"
-                        />
+                        <input {...register("lastName")} className={inputClassName} placeholder="Last name" />
                         <FieldError message={errors.lastName?.message} />
                     </div>
 
                     <div>
-                        <input
-                            {...register("email")}
-                            className={inputClassName}
-                            placeholder="Admin email address"
-                            type="email"
-                            autoComplete="email"
-                          />
+                        <input {...register("email")} className={inputClassName} placeholder="Admin email address" type="email" autoComplete="email" />
                         <FieldError message={errors.email?.message} />
                     </div>
 
-                    {props.mode === "create" && (
+                    {mode === "create" && (
                         <div>
-                            <input
-                                {...register("password")}
-                                className={inputClassName}
-                                placeholder="Set initial password"
-                                type="password"
-                                autoComplete="new-password"
-                            />
+                            <input {...register("password")} className={inputClassName} placeholder="Set initial password" type="password" autoComplete="new-password" />
                             <FieldError message={"password" in errors ? errors.password?.message : undefined} />
                         </div>
                     )}
 
                     <div>
-                        <select
-                            {...register("role")}
-                            className={inputClassName}
-                        >
-                            {ROLE_OPTIONS.map((role) => (
-                                <option key={role} value={role}>
-                                    {role}
-                                </option>
+                        <select {...register("role")} className={inputClassName}>
+                            {ROLE_OPTIONS.map((r) => (
+                                <option key={r} value={r}>{r}</option>
                             ))}
                         </select>
                         <FieldError message={errors.role?.message} />
                     </div>
 
-                    {props.mode === "edit" ? (
+                    {mode === "edit" && (
                         <div>
-                            <select
-                                {...register("status")}
-                                className={inputClassName}
-                            >
-                                {STATUS_OPTIONS.map((status) => (
-                                    <option key={status} value={status}>
-                                        {status}
-                                    </option>
+                            <select {...register("status")} className={inputClassName}>
+                                {STATUS_OPTIONS.map((s) => (
+                                    <option key={s} value={s}>{s}</option>
                                 ))}
                             </select>
                             <FieldError message={"status" in errors ? errors.status?.message : undefined} />
                         </div>
-                    ) : null}
+                    )}
 
                     <div className="md:col-span-5">
-                        <input
-                            {...register("permissionsText")}
-                            className={inputClassName}
-                            placeholder={permissionsPlaceholder}
+                        <Controller
+                            control={control}
+                            name="permissionsText"
+                            render={({ field }) => (
+                                <AdminPermissionScopeSelector
+                                    value={field.value || ""}
+                                    onChange={field.onChange}
+                                    error={errors.permissionsText?.message}
+                                />
+                            )}
                         />
-                        <FieldError message={errors.permissionsText?.message} />
                     </div>
                 </div>
 
                 <div className="mt-4 flex items-center gap-2">
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={isSubmitting}
-                    >
+                    <Button type="submit" variant="primary" disabled={isSubmitting}>
                         <SubmitIcon size={14} /> {submitLabel}
                     </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleSecondary}
-                    >
+                    <Button type="button" variant="outline" onClick={() => { reset(normalizedValues); onSecondary(); }}>
                         <SecondaryIcon size={14} /> {secondaryLabel}
                     </Button>
                 </div>
