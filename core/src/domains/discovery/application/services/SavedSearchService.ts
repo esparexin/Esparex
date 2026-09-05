@@ -12,7 +12,7 @@ import { isQueueConnectionAvailable } from '../../../../queues/redisConnection';
 import { emitReliabilityAlert } from '../../../../utils/reliabilityAlerts';
 import { reliabilityAlertsTotal } from '../../../../utils/metrics';
 import { pLimit } from '../../../../utils/pLimit';
-import { NotificationIntent } from '../../../../domain/NotificationIntent';
+import { NotificationIntent } from '../../../notifications';
 import { NotificationDispatcher } from '../../../../services/notification/NotificationDispatcher';
 import { getNotificationTemplate } from '../../../../services/notification/NotificationTemplateService';
 import { 

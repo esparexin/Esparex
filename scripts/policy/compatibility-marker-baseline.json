@@ -57,7 +57,6 @@
   "backend/api/src/middleware/fraudMiddleware.ts": 1,
   "backend/api/src/middleware/requestId.ts": 2,
   "backend/api/src/middleware/validateIdOrSlug.ts": 4,
-  "backend/api/src/models/Ad.ts": 3,
   "backend/api/src/routes/adminRoutes.ts": 1,
   "backend/api/src/utils/apiResponse.ts": 1,
   "core/src/__tests__/services/AdminUsersService.spec.ts": 1,

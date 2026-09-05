@@ -2,7 +2,7 @@ import Notification from '../../../models/Notification';
 import logger from '../../../utils/logger';
 import { NotificationTypeValue } from '@esparex/contracts';
 import { NotificationDispatcher } from './NotificationDispatcher';
-import { NotificationIntent } from '../../../domain/NotificationIntent';
+import { NotificationIntent } from '../domain/NotificationIntent';
 import { getNotificationTemplate, type TemplateParams } from './NotificationTemplateService';
 
 export { registerToken, sendNotification } from './PushGatewayService';

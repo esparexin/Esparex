@@ -1,6 +1,6 @@
 import User from "../../../../models/User";
 import { Role, NOTIFICATION_TYPE } from '@esparex/contracts';
-import { NotificationIntent } from "../../../../domain/NotificationIntent";
+import { NotificationIntent } from "../../../notifications";
 import { NotificationDispatcher } from "../../../../services/notification/NotificationDispatcher";
 import logger from "../../../../utils/logger";
 
