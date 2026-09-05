@@ -42,6 +42,29 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
       );
     }
 
+    if (isAdmin) {
+      return (
+        <div ref={ref} className={cn("flex h-dvh flex-col overflow-hidden bg-background", className)} {...props}>
+          {header}
+          <div className="flex flex-1 min-h-0 overflow-hidden">
+            {hasSidebar && (
+              <aside className="shrink-0 h-full">
+                {sidebar}
+              </aside>
+            )}
+            <main className="flex flex-1 flex-col focus:outline-none min-w-0 min-h-0 overflow-y-auto">
+              {breadcrumbs && (
+                <div className="px-4 sm:px-6 md:px-8 pt-4 pb-2">
+                  {breadcrumbs}
+                </div>
+              )}
+              {children}
+            </main>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div ref={ref} className={cn("flex min-h-screen flex-col bg-background", className)} {...props}>
         {header}

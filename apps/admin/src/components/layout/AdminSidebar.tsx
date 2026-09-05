@@ -105,7 +105,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                 className={cn(
                     "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
                     isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full w-64",
-                    "lg:relative lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
+                    "lg:static lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
                     isMinified ? "lg:w-16" : "lg:w-64"
                 )}
             >
