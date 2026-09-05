@@ -25,6 +25,7 @@ export {
     hasValidCoordinateArray, isValidGeoPoint, normalizeGeoPoint,
     getLatitude, getLongitude, hasCoordinates, createPoint, toCanonicalGeoPoint
 } from './utils/geoUtils';
+export { formatCoordinateLabel } from './utils/geoDisplay';
 export {
     LOCATION_LEVELS,
     normalizeLocationLevel,
@@ -37,8 +38,8 @@ export * from './utils/planEntitlements';
 export { sanitizeMongoObjectId, normalizeObjectIdLike } from './validators/mongo';
 export * from './listingUtils/imageUtils';
 
+export * from './location';
 export { adaptLocationInput } from './location/location.normalize';
-export { LocationFacade } from './location';
 
 export { CatalogFacade, validateCatalogName, hasCatalogPollution } from './catalog';
 export {

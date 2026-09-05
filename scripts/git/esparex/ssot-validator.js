@@ -88,6 +88,11 @@ function run(val) {
             val.error(`Icon SSOT Violation: ${relPath} detected. Icons must be imported from @esparex/ui.`);
           }
 
+          // Rule D: Location Display SSOT Guard — Ban local locationLabels / formatters in apps
+          if (relPath.includes('locationLabels') || (relPath.includes('/location/') && /formatLocation\.(ts|tsx)$/.test(relPath))) {
+            val.error(`Location SSOT Violation: ${relPath} detected. Location display formatting must be consumed from @esparex/shared.`);
+          }
+
           // Rule B: Dynamic Canonical Ownership & Import Resolution
           // Check if app file exports a local symbol that collides with a canonical package symbol
           const localExports = content.matchAll(/^export\s+(?:const|function|class|interface|type|enum)\s+(\w+)/gm);
@@ -106,7 +111,7 @@ function run(val) {
                 (relPath.startsWith('apps/admin/') && canonicalOwner === '@esparex/core');
 
               if (!importsCanonical && !relPath.includes('/app/') && !relPath.includes('/pages/')) {
-                val.warning(`Canonical Ownership Violation: "${sym}" in ${relPath} collides with canonical symbol in ${canonicalOwner}. Import from ${canonicalOwner} instead.`);
+                val.error(`Canonical Ownership Violation: "${sym}" in ${relPath} re-declares a canonical symbol owned by ${canonicalOwner}. Import from ${canonicalOwner} instead of declaring a local copy.`);
               }
             }
           }

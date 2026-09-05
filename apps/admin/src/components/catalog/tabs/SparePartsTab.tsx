@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Wrench, AlertTriangle, Loader2, Button } from "@esparex/ui";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
@@ -20,7 +19,7 @@ import {
     validateRequiredCategoryIds,
 } from "@/components/catalog/catalogDomainUtils";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useCatalogTabState } from "@/hooks/useCatalogTabState";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
@@ -54,8 +53,6 @@ export default function SparePartsTab() {
     const initialIsActive = normalizeActiveParam(searchParams.get("isActive"));
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
 
-    const [searchInput, setSearchInput] = useState(initialSearch);
-
     const {
         parts,
         loading,
@@ -84,16 +81,22 @@ export default function SparePartsTab() {
         assignableCategoryIdSet: assignableSpareCategoryIds,
     } = useAssignableCategories(categories, categorySupportsSpareParts);
 
-    const { replaceQueryState } = useCatalogQueryStateSync({
+    const {
         searchInput,
-        initialSearch,
-        loading,
-        initialPage,
+        setSearchInput,
+        deletingItem,
+        setDeletingItem,
+        isDeleting,
+        setIsDeleting,
+        replaceQueryState,
+    } = useCatalogTabState<SparePart>({
         totalPages: pagination.totalPages,
+        loading,
+        initialSearch,
+        initialCategoryId,
+        initialStatus: initialIsActive,
+        initialPage,
     });
-
-    const [deletingItem, setDeletingItem] = useState<SparePart | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     const confirmDelete = async () => {
         if (!deletingItem) return;
