@@ -215,3 +215,14 @@ export const resolveCatalogRequestsForSubmission = async (params: {
     };
 };
 
+export const linkListingToCatalogRequests = async (
+    requestIds: string[],
+    listingId: string
+): Promise<void> => {
+    if (!requestIds || requestIds.length === 0 || !listingId) return;
+    await CatalogRequest.updateMany(
+        { _id: { $in: requestIds } },
+        { $set: { listingId } }
+    );
+};
+
