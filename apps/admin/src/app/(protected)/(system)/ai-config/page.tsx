@@ -208,7 +208,7 @@ export default function AIConfigPage() {
                             <Key className="text-foreground-secondary" size={20} />
                             <div>
                                 <h3 className="text-body font-bold text-foreground">AI Provider Accounts & API Keys</h3>
-                                <p className="text-caption text-foreground-subtle">Configure provider state, default models, and encrypted API credentials (Single Key Operational Guarantee)</p>
+                                <p className="text-caption text-foreground-subtle">Configure provider state, default models, and encrypted API credentials</p>
                             </div>
                         </div>
                     </div>

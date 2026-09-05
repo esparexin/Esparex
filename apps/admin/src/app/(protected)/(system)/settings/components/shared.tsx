@@ -1,42 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-
-type SettingsHelpCopy = {
-  description: string;
-  impact: string;
-};
-
-const SETTINGS_HELP: Record<string, SettingsHelpCopy> = {
-  Platform: {
-    description: "Controls the live maintenance middleware for the public marketplace.",
-    impact: "Turning on maintenance mode or changing bypass controls affects public traffic immediately."
-  },
-  "Listing Rules": {
-    description: "Controls live listing expiry windows and spare-part seller thresholds.",
-    impact: "Changing these values affects validation and lifecycle jobs without a deploy."
-  },
-  "Moderation & AI": {
-    description: "Controls the live moderation kill-switch, community auto-hide threshold, and AI generation settings.",
-    impact: "These values directly affect report auto-hide behavior and AI content generation."
-  },
-  Payments: {
-    description: "Controls the active Razorpay checkout configuration used by user plan purchases.",
-    impact: "Disabling Razorpay immediately blocks new plan purchases."
-  },
-  Notifications: {
-    description: "Controls runtime SMTP email delivery and push notification delivery.",
-    impact: "Invalid SMTP or push values can break password reset, invoices, chat, and alert notifications."
-  },
-  Security: {
-    description: "Controls admin session lifetime, 2FA issuer labeling, and sign-in IP allowlisting.",
-    impact: "Incorrect values can shorten sessions or block admin login from expected networks."
-  },
-  "Search & Location": {
-    description: "Controls the live location-search settings used by autocomplete and reverse-geocoding flows.",
-    impact: "Aggressive limits can reduce discoverability; permissive values can increase noisy requests."
-  }
-};
+import type { ReactNode } from "react";
 
 export function SettingsSection({
   title,
@@ -49,62 +13,17 @@ export function SettingsSection({
   children: ReactNode;
   actions?: ReactNode;
 }) {
-  const [helpOpen, setHelpOpen] = useState(false);
-  const help = useMemo(() => SETTINGS_HELP[title], [title]);
-
   return (
-    <>
-      <section className="rounded-xl border border-border bg-card shadow-sm">
-        <header className="border-b border-border px-5 py-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-body-lg font-semibold text-foreground">{title}</h2>
-              <p className="mt-1 text-caption text-foreground-tertiary">{description}</p>
-            </div>
-            {help ? (
-              <button
-                type="button"
-                onClick={() => setHelpOpen(true)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-caption font-semibold text-foreground-secondary hover:bg-muted/50 transition-colors cursor-pointer"
-                aria-label={`Help for ${title}`}
-                title={`Help for ${title}`}
-              >
-                ?
-              </button>
-            ) : null}
-          </div>
-        </header>
-        <div className="space-y-4 p-6">{children}</div>
-        {actions ? <footer className="border-t border-border px-5 py-6">{actions}</footer> : null}
-      </section>
-
-      {helpOpen && help ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-xl">
-            <h3 className="text-body-lg font-semibold text-foreground">{title} Help</h3>
-            <div className="mt-3 space-y-3 text-body text-foreground-secondary">
-              <div>
-                <p className="text-caption font-semibold uppercase tracking-wide text-foreground-tertiary">What this controls</p>
-                <p className="mt-1">{help.description}</p>
-              </div>
-              <div>
-                <p className="text-caption font-semibold uppercase tracking-wide text-foreground-tertiary">Impact</p>
-                <p className="mt-1">{help.impact}</p>
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setHelpOpen(false)}
-                className="rounded-lg bg-primary px-4 py-2 text-body font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+    <section className="rounded-xl border border-border bg-card shadow-sm">
+      <header className="border-b border-border px-5 py-4">
+        <div>
+          <h2 className="text-body-lg font-semibold text-foreground">{title}</h2>
+          <p className="mt-1 text-caption text-foreground-tertiary">{description}</p>
         </div>
-      ) : null}
-    </>
+      </header>
+      <div className="space-y-4 p-6">{children}</div>
+      {actions ? <footer className="border-t border-border px-5 py-6">{actions}</footer> : null}
+    </section>
   );
 }
 
