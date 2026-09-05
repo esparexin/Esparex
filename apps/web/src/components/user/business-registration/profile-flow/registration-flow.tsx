@@ -18,7 +18,7 @@ import { registerBusiness, type CreateBusinessDTO } from "@/lib/api/user/busines
 
 import { BusinessProfileWizard } from "../BusinessProfileWizard";
 import { businessRegistrationSchema, type BusinessRegistrationFormData, type BusinessRegistrationFormInput } from "@/schemas/businessRegistration.schema";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, mapBusinessToCreateDefaults } from "./helpers";
 import { processStagedFiles } from "./upload";

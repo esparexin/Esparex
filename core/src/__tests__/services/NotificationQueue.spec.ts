@@ -3,13 +3,12 @@
  */
 
 import { Worker } from 'bullmq';
-import { NotificationDispatcher } from '../../services/notification/NotificationDispatcher';
-import { NotificationIntent } from '../../domains/notifications';
+import { NotificationDispatcher, NotificationIntent } from '../../domains/notifications';
 import { enqueueDeadLetter } from '../../queues/deadLetterQueue';
 import { notificationDeliveryProcessor } from '../../workers/notificationDeliveryWorker';
 
 jest.mock('bullmq');
-jest.mock('../../services/notification/NotificationDispatcher');
+jest.mock('../../domains/notifications');
 jest.mock('../../queues/deadLetterQueue');
 jest.mock('../../utils/logger');
 jest.mock('../../utils/reliabilityContext');

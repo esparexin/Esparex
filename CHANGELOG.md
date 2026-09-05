@@ -53,7 +53,7 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ### Added
 - **Developer Architecture Guide (`ARCHITECTURE.md`):** Added a root-level guide documenting Bounded Context topology, Ports & Adapters naming suffixes, and implementation patterns (Repository, UnitOfWork, Caching, and Composition Roots).
-- **Bounded Context Migration Workflow (`.agents/workflows/bounded_context_migration.md`):** Established a repeatable 10-step template (Discovery, Repository Audit, Port Design, Adapter Implementation, UnitOfWork, Cache Decoupling, Controller Cleanup, Architecture Audit, Release Gate, and Pull Request) for all future domain modernizations.
+- **Bounded Context Migration Workflow (`.agents/workflow/bounded_context_migration.md`):** Established a repeatable 10-step template (Discovery, Repository Audit, Port Design, Adapter Implementation, UnitOfWork, Cache Decoupling, Controller Cleanup, Architecture Audit, Release Gate, and Pull Request) for all future domain modernizations.
 - **Listings Cache Boundary:** Introduced `ListingsCachePort` and its concrete `RedisListingsCacheAdapter` implementation to isolate Redis primitives.
 - **Listings Transaction Boundary:** Implemented `ListingUnitOfWorkPort` and `MongoListingUnitOfWorkAdapter` to encapsulate Mongoose sessions.
 

@@ -17,7 +17,7 @@ import { notify } from "@/lib/feedback";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { isAllowedProfilePhotoType, PROFILE_PHOTO_ALLOWED_LABEL, PROFILE_PHOTO_MAX_BYTES, PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
-import type { User as UserType } from "@/types/User";
+import type { User as UserType } from "@esparex/contracts";
 import type { ProfileUser } from "../types";
 import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
 import { PersonalProfileGstSection } from "./PersonalProfileGstSection";

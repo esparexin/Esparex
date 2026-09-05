@@ -8,17 +8,11 @@ jest.mock("@esparex/core/models/ScheduledNotification", () => ({
     default: { create: jest.fn() },
 }));
 
-jest.mock("@esparex/core/services/notification/AdminNotificationTargetingService", () => ({
+jest.mock("@esparex/core/domains/notifications", () => ({
     createAdminNotificationTargetCursor: jest.fn(),
-}));
-
-jest.mock("@esparex/core/services/notification/NotificationDispatcher", () => ({
     NotificationDispatcher: {
         bulkDispatch: jest.fn().mockResolvedValue({ successCount: 0, skippedCount: 0, failureCount: 0 }),
     },
-}));
-
-jest.mock("@esparex/core/domains/notifications/domain/NotificationIntent", () => ({
     NotificationIntent: {
         fromAdminBroadcast: jest.fn((userId, audienceId, title, body, kind, targetType) => ({
             userId,
@@ -36,9 +30,11 @@ jest.mock("../../utils/adminLogger", () => ({
 }));
 
 import NotificationLog from "@esparex/core/models/NotificationLog";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { NotificationIntent } from "@esparex/core/domains/notifications/domain/NotificationIntent";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
+import {
+    NotificationDispatcher,
+    NotificationIntent,
+    createAdminNotificationTargetCursor,
+} from "@esparex/core/domains/notifications";
 import type { Request, Response } from "express";
 import { sendNotification } from "../../controllers/admin/adminNotificationController";
 

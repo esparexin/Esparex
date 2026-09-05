@@ -310,10 +310,12 @@ function main() {
   
   // SSOT: Routes are now managed in the shared module
   const userRoutesFile = resolveFirstExistingFile([
+    path.join(repoRoot, "shared/src/routes/api/userRoutes.ts"),
     path.join(repoRoot, "shared/src/contracts/api/userRoutes.ts"),
     path.join(repoRoot, "shared/contracts/api/userRoutes.ts"),
   ]);
   const adminRoutesFile = resolveFirstExistingFile([
+    path.join(repoRoot, "shared/src/routes/api/adminRoutes.ts"),
     path.join(repoRoot, "shared/src/contracts/api/adminRoutes.ts"),
     path.join(repoRoot, "shared/contracts/api/adminRoutes.ts"),
   ]);

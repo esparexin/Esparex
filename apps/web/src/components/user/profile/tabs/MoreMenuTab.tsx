@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { LogOut } from "@esparex/ui";
 import { AccountNavItemList } from "../../AccountNavItemList";

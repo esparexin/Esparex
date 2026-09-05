@@ -2,7 +2,7 @@
 import { useLayoutEffect, useMemo, useReducer, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { UserPage } from "@/lib/routeUtils";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import dynamic from "next/dynamic";

@@ -1,5 +1,5 @@
 import { apiClient, EsparexRequestConfig } from "@/lib/api/client";
-import { User } from "@/types/User";
+import { User } from "@esparex/contracts";
 import { API_ROUTES } from "./routes";
 import { getMe } from "./user/users";
 

@@ -1,5 +1,5 @@
 import { PERMISSIONS, type PermissionAction } from "./permissionMatrix";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 
 export function can(

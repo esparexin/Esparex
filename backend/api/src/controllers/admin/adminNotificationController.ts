@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { NOTIFICATION_TYPE } from "@esparex/contracts";
-import { NotificationIntent } from "@esparex/core/domains/notifications";
+import {
+    NotificationIntent,
+    NotificationDispatcher,
+    createAdminNotificationTargetCursor,
+} from "@esparex/core/domains/notifications";
 import {
     createNotificationLog,
     createScheduledNotification,
@@ -14,8 +18,6 @@ import {
     sendSuccessResponse,
 } from '../../utils/adminBaseController';
 import { logAdminAction } from "../../utils/adminLogger";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@esparex/core/models/User";
 import { type INotificationLog } from "@esparex/core/models/NotificationLog";
 import { type IScheduledNotification } from "@esparex/core/models/ScheduledNotification";

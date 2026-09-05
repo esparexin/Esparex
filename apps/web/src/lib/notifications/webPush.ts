@@ -1,6 +1,6 @@
 "use client";
 
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 
 import { notificationApi } from "@/lib/api/user/notifications";
 import { isNativeShell } from "@/lib/runtime/nativeShell";

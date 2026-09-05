@@ -3,11 +3,13 @@ import type { Types } from "mongoose";
 import ScheduledNotification from "../models/ScheduledNotification";
 import NotificationLog from "../models/NotificationLog";
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
-import { NotificationIntent } from "../domains/notifications";
-import { NotificationDispatcher } from "./notification/NotificationDispatcher";
+import {
+    NotificationIntent,
+    NotificationDispatcher,
+    createAdminNotificationTargetCursor,
+} from "../domains/notifications";
 import logger from "../utils/logger";
 import { runWithDistributedJobLock } from "../utils/distributedJobLock";
-import { createAdminNotificationTargetCursor } from "./notification/AdminNotificationTargetingService";
 
 interface ScheduledJobLike {
     _id: unknown;

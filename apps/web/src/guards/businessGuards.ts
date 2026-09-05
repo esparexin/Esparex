@@ -1,4 +1,4 @@
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { BusinessStatus } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 

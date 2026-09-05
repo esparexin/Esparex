@@ -14,7 +14,7 @@ import { LogOut, LogIn } from "@esparex/ui";
 import { getUserInitials } from "@/lib/headerUtils";
 import { useRouter } from "next/navigation";
 import { getNavigationItems, getNavigationSections, type ResolvedNavigationItem } from "@/config/navigation";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import type { UserPage } from "@/lib/routeUtils";
 
 interface MobileNavDrawerProps {

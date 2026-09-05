@@ -14,7 +14,7 @@ import {
 } from "@/lib/api/user/listings";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { queryKeys } from "@/hooks/queries/queryKeys";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 
 export type ProfileListingType = "ads" | "services" | "spare-parts";
 

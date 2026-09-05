@@ -17,7 +17,7 @@ import {
   type UserPage,
 } from "@/lib/routeUtils";
 import { isProtectedPath, isProtectedUserPage } from "@/config/protectedRoutes";
-import type { User as AppUser } from "@/types/User";
+import type { User as AppUser } from "@esparex/contracts";
 import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 
