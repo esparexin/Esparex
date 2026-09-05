@@ -145,16 +145,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-                    <div className="px-4 pt-4">
-                        <div className={cn("rounded-2xl border border-sidebar-border bg-sidebar-accent/50 px-3 py-3", isMinified && "lg:hidden")}>
-                            <p className="text-tiny font-bold uppercase tracking-[0.14em] text-foreground-tertiary">Navigation</p>
-                            <p className="mt-2 text-caption text-foreground-subtle">
-                                Modules consolidate filtered views into tabs and query-driven screens.
-                            </p>
-                        </div>
-                    </div>
-
+                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pt-2">
                     <SidebarNavigation items={visibleModules} counts={counts} isMinified={isMinified} />
                 </div>
 
