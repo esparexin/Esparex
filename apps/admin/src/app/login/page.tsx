@@ -13,7 +13,6 @@ import { AdminApiError } from "@/lib/api/adminClient";
 import {
   Lock,
   Mail,
-  Shield,
   Eye,
   EyeOff,
   LogIn,
@@ -21,7 +20,6 @@ import {
   Loader2,
   KeyRound,
   Heading,
-  Text,
   Form,
   FieldRoot,
   FieldControl,
@@ -173,8 +171,8 @@ function LoginForm() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:28px_28px] text-foreground/[0.04]" />
 
       <div className="relative w-full max-w-[420px] space-y-6">
-        <div className="text-center space-y-3">
-          <div className="flex justify-center mb-1 animate-in zoom-in duration-500">
+        <div className="text-center space-y-2">
+          <div className="flex justify-center mb-2 animate-in zoom-in duration-500">
             <Image
               src="/icons/logo.png"
               alt="Esparex Logo"
@@ -184,14 +182,7 @@ function LoginForm() {
               className="h-8 w-auto object-contain"
             />
           </div>
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-foreground-secondary shadow-xs">
-              <Shield size={12} className="text-primary" />
-              <span>Admin Command Center</span>
-            </div>
-            <Heading variant="h2" className="mt-1 font-extrabold tracking-tight">Sign In</Heading>
-            <Text variant="small" className="text-foreground-tertiary">Enter your credentials to access the admin portal</Text>
-          </div>
+          <Heading variant="h2" className="font-extrabold tracking-tight">Sign In</Heading>
         </div>
 
         <div className="bg-card/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-xl border border-border isolate animate-in fade-in slide-in-from-bottom-4 duration-500">
