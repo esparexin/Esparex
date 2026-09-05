@@ -3,21 +3,36 @@ import { ADMIN_ROUTES } from '@/lib/api/routes';
 import { buildQueryString } from '@/lib/api/queryParams';
 
 export type CatalogRequestType = 'brand' | 'model';
-export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
+export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'merged' | 'resolved';
 
 export interface CatalogRequestUserRef {
-    id: string;
+    id?: string;
+    _id?: string;
     firstName?: string;
     lastName?: string;
     email?: string;
     mobile?: string;
 }
 
+export interface CatalogRequestCategoryRef {
+    id?: string;
+    _id?: string;
+    name?: string;
+    slug?: string;
+}
+
+export interface CatalogRequestBrandRef {
+    id?: string;
+    _id?: string;
+    name?: string;
+    slug?: string;
+}
+
 export interface CatalogRequestItem {
     id: string;
     requestType: CatalogRequestType;
-    categoryId: string;
-    parentBrandId?: string | null;
+    categoryId: string | CatalogRequestCategoryRef;
+    parentBrandId?: string | CatalogRequestBrandRef | null;
     requestedName: string;
     canonicalName: string;
     normalizedName?: string;
@@ -29,6 +44,7 @@ export interface CatalogRequestItem {
     status: CatalogRequestStatus;
     approvedEntityId?: string | null;
     duplicateOfEntityId?: string | null;
+    mergedIntoEntityId?: string | null;
     rejectionReason?: string | null;
     adminNotes?: string | null;
     approvedBy?: string | null;

@@ -17,7 +17,7 @@ import { CatalogBulkRejectModal, CatalogBulkDuplicateModal } from "@/components/
 import { useCatalogRequestsBulkActions } from "./useCatalogRequestsBulkActions";
 import { generateCatalogRequestsColumns } from "./CatalogRequestsColumns";
 
-const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "resolved"]);
+const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "merged", "resolved"]);
 
 const normalizeRequestStatusParam = (value: string | null) =>
   value && REQUEST_STATUS_VALUES.has(value) ? value : "all";
@@ -169,6 +169,7 @@ export default function CatalogRequestsTab() {
                 { value: "resolved", label: "Resolved" },
                 { value: "rejected", label: "Rejected" },
                 { value: "duplicate", label: "Duplicate" },
+                { value: "merged", label: "Merged" },
               ]}
             />
           </>

@@ -59,7 +59,10 @@ export const getCatalogRequests = async (filter: Record<string, unknown>, skip: 
     let query = CatalogRequest.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
     
     if (populateRequestedBy) {
-        query = query.populate('requestedBy', 'firstName lastName email mobile');
+        query = query
+            .populate('requestedBy', 'firstName lastName email mobile')
+            .populate('categoryId', 'name slug')
+            .populate('parentBrandId', 'name slug');
     }
 
     const [items, total] = await Promise.all([
@@ -74,7 +77,10 @@ export const getCatalogRequestById = async (id: string, populateRequestedBy = fa
     let query = CatalogRequest.findById(id);
     
     if (populateRequestedBy) {
-        query = query.populate('requestedBy', 'firstName lastName email mobile');
+        query = query
+            .populate('requestedBy', 'firstName lastName email mobile')
+            .populate('categoryId', 'name slug')
+            .populate('parentBrandId', 'name slug');
     }
 
     return await query;
