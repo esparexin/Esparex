@@ -66,7 +66,7 @@ export default function ModelsTab() {
         <CatalogAsyncComboboxFilter key="category" value={initialCategoryId} onChange={(cid) => replaceQueryState({ categoryId: cid !== "all" ? cid : null, brandId: null, page: null })} options={categoryFilterOptions} allLabel="All Categories" placeholder="Search categories..." />,
         <CatalogAsyncComboboxFilter key="brand" value={initialBrandId} onChange={(bid) => replaceQueryState({ brandId: bid !== "all" ? bid : null, page: null })} options={brandFilterOptions} allLabel="All Brands" placeholder="Search brands..." />,
         <CatalogAsyncComboboxFilter key="status" value={initialStatus} onChange={(s) => replaceQueryState({ status: s !== "all" ? s : null, page: null })} options={[{ value: "live", label: "Live Only" }, { value: "pending", label: "Pending Only" }, { value: "rejected", label: "Rejected Only" }]} allLabel="All Status" placeholder="Search status..." />,
-    ], [brandFilterOptions, categoryFilterOptions, initialBrandId, initialCategoryId, initialStatus, replaceQueryState, searchInput]);
+    ], [brandFilterOptions, categoryFilterOptions, initialBrandId, initialCategoryId, initialStatus, replaceQueryState, searchInput, setSearchInput]);
 
     return (
         <>
