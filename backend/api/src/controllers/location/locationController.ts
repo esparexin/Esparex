@@ -217,6 +217,10 @@ export const getAreas = async (req: Request, res: Response) => {
 
 export const ipLocate = async (req: Request, res: Response) => {
     try {
+        res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         const apiKey = env.IPAPI_KEY;
         const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
         const isLocalhost = ip === '::1' || ip === '127.0.0.1' || ip === 'localhost';
