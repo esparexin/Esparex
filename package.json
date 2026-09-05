@@ -110,6 +110,8 @@
     "guard:admin-status-literals": "node scripts/enforce-admin-status-literals.js",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
     "guard:ui-architecture": "node scripts/guard-ui-architecture.js",
+    "guard:hygiene": "node scripts/guard-repository-hygiene.js",
+    "guard:repository-hygiene": "node scripts/guard-repository-hygiene.js",
     "guard:license": "license-checker --summary --production",
     "guard:audit": "npm audit --audit-level=critical",
     "guard:buildgraph": "node scripts/git/esparex/buildgraph-validator.js",
