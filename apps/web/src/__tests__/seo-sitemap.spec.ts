@@ -406,8 +406,13 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const pagePath = path.join(repoRoot, "apps/admin/src/app/(protected)/(system)/admin-users/page.tsx");
             const content = fs.readFileSync(pagePath, "utf8");
 
-            expect(content).not.toContain('placeholder="users:read, ads:write, ..."');
-            expect(content).toContain('placeholder="e.g. users:read, listings:write"');
+            expect(content).not.toContain('ads:write');
+            expect(content).toContain('permissionsPlaceholder="Comma-separated permission scopes (e.g. users:read, listings:write)"');
+
+            const schemaPath = path.join(repoRoot, "apps/admin/src/schemas/admin.schemas.ts");
+            const schemaContent = fs.readFileSync(schemaPath, "utf8");
+            expect(schemaContent).not.toContain('ads:write');
+            expect(schemaContent).toContain('users:read or listings:write');
         });
 
         it("campaign settings modal uses safe example.com domain", () => {
