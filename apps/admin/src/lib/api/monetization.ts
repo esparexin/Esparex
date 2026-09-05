@@ -1,4 +1,5 @@
 import { adminFetch } from "@/lib/api/adminClient";
+import { ADMIN_ROUTES } from "@/lib/api/routes";
 import type {
   AdCampaignItem,
   MonetizationSystemState,
@@ -8,7 +9,7 @@ const toRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 
 export async function getAdminCampaigns(): Promise<AdCampaignItem[]> {
-  const response = await adminFetch<unknown>("/api/v1/admin/monetization/campaigns");
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CAMPAIGNS);
   const root = toRecord(response);
   const data = Array.isArray(root.data) ? root.data : [];
   return data as AdCampaignItem[];
@@ -17,7 +18,7 @@ export async function getAdminCampaigns(): Promise<AdCampaignItem[]> {
 export async function createAdminCampaign(
   campaign: Partial<AdCampaignItem>
 ): Promise<AdCampaignItem> {
-  const response = await adminFetch<unknown>("/api/v1/admin/monetization/campaigns", {
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CAMPAIGNS, {
     method: "POST",
     body: campaign,
   });
@@ -29,7 +30,7 @@ export async function updateAdminCampaign(
   id: string,
   patch: Partial<AdCampaignItem>
 ): Promise<AdCampaignItem> {
-  const response = await adminFetch<unknown>(`/api/v1/admin/monetization/campaigns/${id}`, {
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CAMPAIGN_BY_ID(id), {
     method: "PATCH",
     body: patch,
   });
@@ -38,7 +39,7 @@ export async function updateAdminCampaign(
 }
 
 export async function deleteAdminCampaign(id: string): Promise<boolean> {
-  const response = await adminFetch<unknown>(`/api/v1/admin/monetization/campaigns/${id}`, {
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CAMPAIGN_BY_ID(id), {
     method: "DELETE",
   });
   const root = toRecord(response);
@@ -46,7 +47,7 @@ export async function deleteAdminCampaign(id: string): Promise<boolean> {
 }
 
 export async function getAdminMonetizationConfig(): Promise<MonetizationSystemState> {
-  const response = await adminFetch<unknown>("/api/v1/admin/monetization/config");
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CONFIG);
   const root = toRecord(response);
   return (root.data || {
     featureEnabled: true,
@@ -58,7 +59,7 @@ export async function getAdminMonetizationConfig(): Promise<MonetizationSystemSt
 export async function updateAdminMonetizationConfig(
   patch: Partial<MonetizationSystemState>
 ): Promise<MonetizationSystemState> {
-  const response = await adminFetch<unknown>("/api/v1/admin/monetization/config", {
+  const response = await adminFetch<unknown>(ADMIN_ROUTES.MONETIZATION_CONFIG, {
     method: "PATCH",
     body: patch,
   });

@@ -161,6 +161,11 @@ export const ADMIN_ROUTES = {
   GOOGLE_ADS_PLACEMENT_BY_ID: (id: string) => `/google-ads/placements/${id}`,
   GOOGLE_ADS_PLACEMENT_STATUS: (id: string) => `/google-ads/placements/${id}/status`,
 
+  // Monetization & Advertising Campaigns
+  MONETIZATION_CAMPAIGNS: "/monetization/campaigns",
+  MONETIZATION_CAMPAIGN_BY_ID: (id: string) => `/monetization/campaigns/${id}`,
+  MONETIZATION_CONFIG: "/monetization/config",
+
   // Other
   IMPORT_BULK: "/import/bulk",
 
