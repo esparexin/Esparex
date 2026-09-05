@@ -43,11 +43,11 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
                         height={26}
                         className="h-6 w-auto object-contain lg:hidden"
                     />
-                    <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-sky-700">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-primary">
                         <ShieldCheck size={13} />
                         <span>Admin Console</span>
                     </div>
-                    <span className="hidden sm:inline-block text-xs font-medium text-foreground-subtle border-l border-slate-200 pl-3">
+                    <span className="hidden sm:inline-block text-caption font-medium text-foreground-subtle border-l border-border pl-3">
                         {todayLabel}
                     </span>
                 </div>

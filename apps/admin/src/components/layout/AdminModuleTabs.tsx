@@ -41,7 +41,7 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
     return (
         <div 
             role="tablist"
-            className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-slate-200 w-full", className)}
+            className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-border w-full", className)}
         >
             {parsedTabs.map(({ tab, url: _url, tabParams, pathMatches, paramsMatch }) => {
                 const hasMoreSpecificMatch =
@@ -55,20 +55,20 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                     );
                 const isActive = paramsMatch && !(pathMatches && hasMoreSpecificMatch);
 
-                const baseStyles = "inline-flex items-center gap-2 font-semibold uppercase tracking-[0.12em] transition-colors";
+                const baseStyles = "inline-flex items-center gap-2 font-semibold uppercase tracking-[0.12em] transition-colors cursor-pointer";
                 
                 const pillStyles = cn(
-                    "rounded-full border px-3 py-2 text-xs",
+                    "rounded-full border px-3 py-2 text-caption",
                     isActive
-                        ? "border-sky-200 bg-sky-50 text-sky-700"
-                        : "border-slate-200 bg-white text-foreground-tertiary hover:border-slate-300 hover:text-foreground-secondary"
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-border bg-card text-foreground-tertiary hover:border-border/80 hover:text-foreground-secondary"
                 );
 
                 const primaryStyles = cn(
-                    "text-sm pb-3 border-b-2 -mb-[1px]",
+                    "text-body pb-3 border-b-2 -mb-[1px]",
                     isActive
-                        ? "border-sky-600 text-sky-700"
-                        : "border-transparent text-foreground-tertiary hover:text-foreground hover:border-slate-300"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-foreground-tertiary hover:text-foreground hover:border-border"
                 );
 
                 return (
@@ -84,7 +84,7 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                             <span
                                 className={cn(
                                     "rounded-full px-1.5 py-0.5 text-tiny",
-                                    isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-foreground-secondary"
+                                    isActive ? "bg-primary/20 text-primary" : "bg-muted text-foreground-secondary"
                                 )}
                             >
                                 {tab.count}

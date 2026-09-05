@@ -127,7 +127,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                     <button
                         type="button"
                         onClick={refresh}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 transition-all active:scale-95"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-all active:scale-95 cursor-pointer"
                     >
                         <RefreshCcw size={14} /> 
                         <span>Refresh</span>
@@ -216,14 +216,14 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                                     <button
                                                         type="button"
                                                         onClick={() => void handleBulkDeactivate()}
-                                                        className="rounded-lg bg-slate-600 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition-all shadow-sm"
+                                                        className="rounded-lg bg-foreground/80 px-3 py-2 text-caption font-semibold text-background hover:bg-foreground transition-all shadow-xs cursor-pointer"
                                                     >
                                                         Deactivate Selected
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => void handleBulkExpire()}
-                                                        className="rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-700 transition-all shadow-sm"
+                                                        className="rounded-lg bg-amber-600 px-3 py-2 text-caption font-semibold text-white hover:bg-amber-700 transition-all shadow-xs cursor-pointer"
                                                     >
                                                         Expire Selected
                                                     </button>
@@ -260,7 +260,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     <button
                                         type="button"
                                         onClick={() => void handleBulkDelete()}
-                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-foreground-secondary hover:bg-slate-50 transition-all shadow-sm"
+                                        className="rounded-lg border border-border bg-card px-3 py-2 text-caption font-semibold text-foreground-secondary hover:bg-muted/50 transition-all shadow-xs cursor-pointer"
                                     >
                                         Delete Selected
                                     </button>
@@ -307,7 +307,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={() => setDeleteModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all"
+                                    className="px-4 py-2 rounded-lg border border-border text-body font-semibold text-foreground-secondary hover:bg-muted/50 transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -315,7 +315,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={handleConfirmDelete}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-body font-bold hover:bg-destructive/90 transition-all shadow-sm cursor-pointer"
                                 >
                                     {isMutating ? <><Loader2 size={16} className="animate-spin" /> Deleting...</> : "Confirm Delete"}
                                 </button>
@@ -345,7 +345,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={() => setBanModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all"
+                                    className="px-4 py-2 rounded-lg border border-border text-body font-semibold text-foreground-secondary hover:bg-muted/50 transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -353,7 +353,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={handleConfirmBan}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700 transition-all shadow-lg shadow-amber-200"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-body font-bold hover:bg-amber-700 transition-all shadow-sm cursor-pointer"
                                 >
                                     {isMutating ? <><Loader2 size={16} className="animate-spin" /> Blocking...</> : "Block Seller"}
                                 </button>

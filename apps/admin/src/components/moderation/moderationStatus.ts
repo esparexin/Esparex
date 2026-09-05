@@ -16,7 +16,7 @@ export const MODERATION_STATUS_BADGES: Record<ModerationStatus, string> = {
     rejected: "bg-red-100 text-red-700 border-red-200",
     deactivated: "bg-orange-100 text-orange-700 border-orange-200",
     sold: "bg-blue-100 text-blue-700 border-blue-200",
-    expired: "bg-slate-100 text-foreground-secondary border-slate-200"
+    expired: "bg-muted text-foreground-secondary border-border"
 };
 
 export const MODERATION_STATUSES: ModerationStatus[] = [

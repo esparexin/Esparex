@@ -29,13 +29,16 @@ function run(val) {
     const routeMatches = content.match(/(?:router|route)\.(?:get|post|put|patch|delete|options)\s*\(\s*['"`](\/[^'"`]*)['"`]/gi);
     if (routeMatches) {
       for (const match of routeMatches) {
+        const methodMatch = match.match(/(?:router|route)\.(get|post|put|patch|delete|options)/i);
+        const method = methodMatch ? methodMatch[1].toUpperCase() : '';
         const parts = match.split(/['"`]/);
         if (parts.length >= 2) {
           const routePath = parts[1];
-          if (routes.has(routePath)) {
-            val.error(`Duplicate route "${routePath}" in ${file} and ${routes.get(routePath)}`);
+          const key = `${method} ${routePath}`;
+          if (routes.has(key)) {
+            val.error(`Duplicate route "${key}" in ${file} and ${routes.get(key)}`);
           } else {
-            routes.set(routePath, file);
+            routes.set(key, file);
           }
         }
       }

@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle } from "@esparex/ui";
+import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle, DataTable, type ColumnDef } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminActionMenu } from "@/components/layout/AdminActionMenu";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
 
@@ -116,7 +115,7 @@ export default function ReportsPage() {
                 header: "Status",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
+                        <span className="inline-flex rounded-full bg-muted px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
                             {item.status}
                         </span>
                         <div className="text-xs text-foreground-subtle">{item.reportCount} reports</div>

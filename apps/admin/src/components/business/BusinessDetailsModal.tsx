@@ -65,7 +65,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-full w-full flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white p-4 text-center transition-colors hover:border-primary hover:bg-slate-50"
+                    className="flex h-full w-full flex-col items-center justify-center rounded-md border border-dashed border-border bg-card p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
                 >
                     <FileText size={28} className="text-primary" />
                     <span className="mt-3 text-xs font-semibold text-foreground-secondary">Open PDF document</span>
@@ -114,7 +114,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
         <Dialog open={Boolean(business)} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl p-0 flex flex-col" hideClose>
                 {/* Header */}
-                <div className="flex items-start justify-between gap-4 p-6 border-b border-slate-100 bg-slate-50/50 shrink-0">
+                <div className="flex items-start justify-between gap-4 p-6 border-b border-border bg-muted/20 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                             <Building2 size={22} />
@@ -145,7 +145,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     {/* X button — clear top-right placement */}
                     <button
                         onClick={onClose}
-                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-200 transition-colors text-foreground-subtle hover:text-foreground-secondary shrink-0 mt-0.5"
+                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors text-foreground-subtle hover:text-foreground-secondary shrink-0 mt-0.5"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -156,49 +156,49 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-6">
                     {/* Basic Info Grid — single row, each card full-width on mobile */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-xl bg-muted/30 border border-border">
                             <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Contact</div>
                             <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-sm text-foreground-secondary min-w-0">
+                                <div className="flex items-center gap-2 text-body text-foreground-secondary min-w-0">
                                     <Mail size={13} className="text-primary shrink-0" />
-                                    <span className="truncate text-xs">{business.email}</span>
+                                    <span className="truncate text-caption">{business.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                                <div className="flex items-center gap-2 text-body text-foreground-secondary">
                                     <Phone size={13} className="text-primary shrink-0" />
-                                    <span className="text-xs">{business.mobile}</span>
+                                    <span className="text-caption">{business.mobile}</span>
                                 </div>
                                 {business.website && (
-                                    <div className="flex items-center gap-2 text-sm text-foreground-secondary min-w-0">
+                                    <div className="flex items-center gap-2 text-body text-foreground-secondary min-w-0">
                                         <Globe size={13} className="text-primary shrink-0" />
-                                        <span className="truncate text-xs">{business.website}</span>
+                                        <span className="truncate text-caption">{business.website}</span>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-xl bg-muted/30 border border-border">
                             <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Identifiers</div>
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-foreground-secondary">GST</span>
-                                    <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
+                                    <span className="text-caption text-foreground-secondary">GST</span>
+                                    <span className="font-mono text-tiny bg-card px-2 py-0.5 rounded border border-border truncate max-w-[100px]">
                                         {business.gstNumber || 'N/A'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-foreground-secondary">Reg No</span>
-                                    <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
+                                    <span className="text-caption text-foreground-secondary">Reg No</span>
+                                    <span className="font-mono text-tiny bg-card px-2 py-0.5 rounded border border-border truncate max-w-[100px]">
                                         {business.registrationNumber || 'N/A'}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <div className="p-3 rounded-xl bg-muted/30 border border-border">
                             <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Location</div>
                             <div className="flex gap-2">
                                 <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
-                                <span className="text-xs text-foreground-secondary leading-snug">
+                                <span className="text-caption text-foreground-secondary leading-snug">
                                     {preferredLocationDisplay || "Location not available"}
                                 </span>
                             </div>
@@ -210,7 +210,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         <h3 className="font-bold text-foreground flex items-center gap-2">
                             <FileText size={18} className="text-primary" /> Description
                         </h3>
-                        <p className="text-foreground-secondary text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <p className="text-foreground-secondary text-body leading-relaxed bg-muted/30 p-4 rounded-xl border border-border">
                             {business.description || "No description provided."}
                         </p>
                     </div>
@@ -222,48 +222,48 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* ID Proof */}
-                            <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
-                                <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
+                            <div className="group relative rounded-xl border border-border overflow-hidden bg-muted/30 aspect-[4/3] flex flex-col">
+                                <div className="p-3 bg-card border-b border-border flex items-center justify-between">
                                     <div className="min-w-0">
-                                        <span className="text-xs font-bold uppercase text-foreground-secondary">ID Proof</span>
+                                        <span className="text-caption font-bold uppercase text-foreground-secondary">ID Proof</span>
                                         {idProofTypeLabel ? (
                                             <p className="mt-1 text-tiny font-medium text-foreground-tertiary">{idProofTypeLabel}</p>
                                         ) : null}
                                     </div>
                                     {groupedDocs.id_proof.length > 0 && (
-                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-foreground-secondary">v{groupedDocs.id_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-muted text-foreground-secondary">v{groupedDocs.id_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.id_proof.length > 0 ? (
                                         renderDocumentPreview(groupedDocs.id_proof[0]?.url, "ID Proof")
                                     ) : (
-                                        <span className="text-foreground-subtle text-xs italic">No ID Proof uploaded</span>
+                                        <span className="text-foreground-subtle text-caption italic">No ID Proof uploaded</span>
                                     )}
                                 </div>
                             </div>
 
                             {/* Business Proof */}
-                            <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
-                                <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-foreground-secondary uppercase">Business Proof</span>
+                            <div className="group relative rounded-xl border border-border overflow-hidden bg-muted/30 aspect-[4/3] flex flex-col">
+                                <div className="p-3 bg-card border-b border-border flex items-center justify-between">
+                                    <span className="text-caption font-bold text-foreground-secondary uppercase">Business Proof</span>
                                     {groupedDocs.business_proof.length > 0 && (
-                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-foreground-secondary">v{groupedDocs.business_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-muted text-foreground-secondary">v{groupedDocs.business_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.business_proof.length > 0 ? (
                                         renderDocumentPreview(groupedDocs.business_proof[0]?.url, "Business Proof")
                                     ) : (
-                                        <span className="text-foreground-subtle text-xs italic">No Business Proof uploaded</span>
+                                        <span className="text-foreground-subtle text-caption italic">No Business Proof uploaded</span>
                                     )}
                                 </div>
                             </div>
 
                             {/* Certificates */}
-                            <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
-                                <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-foreground-secondary uppercase">Certificates</span>
+                            <div className="group relative rounded-xl border border-border overflow-hidden bg-muted/30 aspect-[4/3] flex flex-col">
+                                <div className="p-3 bg-card border-b border-border flex items-center justify-between">
+                                    <span className="text-caption font-bold text-foreground-secondary uppercase">Certificates</span>
                                 </div>
                                 <div className="flex-1 overflow-hidden p-4">
                                     <div className="grid grid-cols-2 gap-2 h-full">
@@ -274,7 +274,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="col-span-2 flex items-center justify-center text-foreground-subtle text-xs italic h-full">
+                                            <div className="col-span-2 flex items-center justify-center text-foreground-subtle text-caption italic h-full">
                                                 No certificates uploaded
                                             </div>
                                         )}
@@ -291,22 +291,22 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </h3>
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                             {(business.images || []).map((url, i) => (
-                                <a key={i} href={url} target="_blank" className="shrink-0 w-48 h-32 rounded-xl overflow-hidden border border-slate-200 hover:border-primary transition-colors" rel="noreferrer">
+                                <a key={i} href={url} target="_blank" className="shrink-0 w-48 h-32 rounded-xl overflow-hidden border border-border hover:border-primary transition-colors" rel="noreferrer">
                                     <img src={url} className="w-full h-full object-cover" alt={`Shop ${i + 1}`} />
                                 </a>
                             ))}
-                            {(!business.images || business.images.length === 0) && <span className="text-foreground-subtle text-sm italic py-4">No images provided</span>}
+                            {(!business.images || business.images.length === 0) && <span className="text-foreground-subtle text-body italic py-4">No images provided</span>}
                         </div>
                     </div>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between gap-2">
+                <div className="p-6 border-t border-border bg-muted/20 flex flex-wrap justify-between gap-2">
                     <div className="flex items-center gap-2">
                         {onModify && (
                             <button
                                 onClick={() => onModify(business)}
-                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 hover:bg-slate-200 transition-colors text-sm"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-muted text-foreground-secondary font-semibold border border-border hover:bg-muted/80 transition-colors text-body cursor-pointer"
                             >
                                 <Pencil size={15} /> Modify
                             </button>
@@ -314,7 +314,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {onDelete && (
                             <button
                                 onClick={() => onDelete(business.id)}
-                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-colors text-sm"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-destructive/10 text-destructive font-semibold border border-destructive/20 hover:bg-destructive/20 transition-colors text-body cursor-pointer"
                             >
                                 <Trash2 size={15} /> Delete
                             </button>
@@ -323,7 +323,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     <div className="flex gap-2 flex-wrap">
                         <button
                             onClick={onClose}
-                            className="inline-flex h-10 items-center px-4 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-white transition-colors text-sm"
+                            className="inline-flex h-10 items-center px-4 rounded-xl border border-border text-foreground-secondary font-semibold hover:bg-card transition-colors text-body cursor-pointer"
                         >
                             Close
                         </button>

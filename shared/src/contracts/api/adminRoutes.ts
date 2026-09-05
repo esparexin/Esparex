@@ -112,6 +112,7 @@ export const ADMIN_ROUTES = {
   CATALOG_REQUEST_BULK_APPROVE: "/catalog-requests/bulk/approve",
   CATALOG_REQUEST_BULK_REJECT: "/catalog-requests/bulk/reject",
   CATALOG_REQUEST_BULK_MARK_DUPLICATE: "/catalog-requests/bulk/mark-duplicate",
+  CATALOG_REQUEST_BULK_DELETE: "/catalog-requests/bulk/delete",
   CATALOG_REQUEST_STATS: "/catalog-requests/stats",
 
   // Finance
@@ -159,6 +160,11 @@ export const ADMIN_ROUTES = {
   GOOGLE_ADS_PLACEMENTS: "/google-ads/placements",
   GOOGLE_ADS_PLACEMENT_BY_ID: (id: string) => `/google-ads/placements/${id}`,
   GOOGLE_ADS_PLACEMENT_STATUS: (id: string) => `/google-ads/placements/${id}/status`,
+
+  // Monetization & Advertising Campaigns
+  MONETIZATION_CAMPAIGNS: "/monetization/campaigns",
+  MONETIZATION_CAMPAIGN_BY_ID: (id: string) => `/monetization/campaigns/${id}`,
+  MONETIZATION_CONFIG: "/monetization/config",
 
   // Other
   IMPORT_BULK: "/import/bulk",

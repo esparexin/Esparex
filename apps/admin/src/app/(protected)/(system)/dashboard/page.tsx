@@ -22,7 +22,7 @@ import type { AdminDashboardStatsDTO, CatalogHealthMetricsDTO } from "@esparex/c
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
   loading: () => (
-    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex items-center justify-center">
+    <div className="bg-card p-6 rounded-xl border border-border shadow-xs h-[400px] flex items-center justify-center">
       <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
     </div>
   ),
@@ -278,8 +278,8 @@ export default function DashboardPage() {
 
         {/* Right Sidebar Column: Live Activity Audit Feed */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-card border border-border rounded-xl p-4 shadow-xs flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Live Activity</h3>
                 <p className="text-tiny text-foreground-tertiary">Real-time audit log stream</p>
@@ -293,8 +293,8 @@ export default function DashboardPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {liveLogs.length > 0 ? liveLogs.map((log) => (
-                  <div key={log.id} className="flex items-center gap-2.5 pb-2.5 border-b border-slate-100 last:border-0 last:pb-0">
-                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-foreground-subtle shrink-0">
+                  <div key={log.id} className="flex items-center gap-2.5 pb-2.5 border-b border-border/60 last:border-0 last:pb-0">
+                    <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center text-foreground-subtle shrink-0">
                       <Users size={14} />
                     </div>
                     <div className="flex-1 min-w-0">

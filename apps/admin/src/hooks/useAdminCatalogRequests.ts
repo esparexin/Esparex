@@ -3,9 +3,11 @@ import {
     listAdminCatalogRequests,
     approveAdminCatalogRequest,
     rejectAdminCatalogRequest,
+    deleteAdminCatalogRequest,
     markAdminCatalogRequestDuplicate,
     bulkRejectAdminCatalogRequests,
     bulkMarkAdminCatalogRequestsDuplicate,
+    bulkDeleteAdminCatalogRequests,
     type CatalogRequestItem,
     type CatalogRequestStatus,
 } from "@/lib/api/catalogRequests";
@@ -61,9 +63,10 @@ export function useAdminCatalogRequests(options?: {
         initialPagination: options?.initialPagination,
     });
 
-    const { handleApprove, handleReject } = useCatalogMutation({
+    const { handleApprove, handleReject, handleDelete } = useCatalogMutation({
         approveFn: approveAdminCatalogRequest,
         rejectFn: (id, reason) => rejectAdminCatalogRequest(id, { rejectionReason: reason }),
+        deleteFn: deleteAdminCatalogRequest,
         fetchItems: refresh,
         runAction,
         entityName: "Request",
@@ -99,6 +102,16 @@ export function useAdminCatalogRequests(options?: {
         });
     };
 
+    const handleBulkDelete = async (ids: string[]) => {
+        await runAction(() => bulkDeleteAdminCatalogRequests({ requestIds: ids }), {
+            successMessage: "Selected requests deleted",
+            errorMessage: "Failed to delete selected requests",
+            onSuccess: async () => {
+                await refresh();
+            },
+        });
+    };
+
     return {
         requests,
         loading,
@@ -110,8 +123,10 @@ export function useAdminCatalogRequests(options?: {
         refresh,
         handleApprove,
         handleReject,
+        handleDelete,
         handleMarkDuplicate,
         handleBulkReject,
         handleBulkMarkDuplicate,
+        handleBulkDelete,
     };
 }

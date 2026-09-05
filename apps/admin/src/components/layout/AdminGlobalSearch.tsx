@@ -93,13 +93,13 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                 }}
                 onFocus={() => setIsOpen(true)}
                 placeholder="Search users, listings, businesses, reports, and transactions"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-foreground-secondary shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-200"
+                className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-body text-foreground-secondary placeholder:text-muted-foreground shadow-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             />
 
             {isOpen && query.trim().length >= 2 && (
-                <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
+                <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-[28rem] overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-2xl">
                     {loading && sections.length === 0 ? (
-                        <div className="px-3 py-6 text-sm text-foreground-tertiary">Searching…</div>
+                        <div className="px-3 py-6 text-body text-foreground-tertiary">Searching…</div>
                     ) : sections.length > 0 ? (
                         <div className="space-y-4">
                             {sections.map(([bucket, items]) => (
@@ -113,10 +113,10 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                                                 key={`${bucket}-${item.id}`}
                                                 href={item.href}
                                                 onClick={() => setIsOpen(false)}
-                                                className="block rounded-xl px-3 py-2 hover:bg-slate-50"
+                                                className="block rounded-xl px-3 py-2 hover:bg-muted/50 transition-colors"
                                             >
-                                                <p className="text-sm font-medium text-foreground">{item.label}</p>
-                                                <p className="text-xs text-foreground-tertiary">{item.meta}</p>
+                                                <p className="text-body font-medium text-foreground">{item.label}</p>
+                                                <p className="text-caption text-foreground-tertiary">{item.meta}</p>
                                             </Link>
                                         ))}
                                     </div>
@@ -124,7 +124,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                             ))}
                         </div>
                     ) : (
-                        <div className="px-3 py-6 text-sm text-foreground-tertiary">No matching admin records found.</div>
+                        <div className="px-3 py-6 text-body text-foreground-tertiary">No matching admin records found.</div>
                     )}
                 </div>
             )}

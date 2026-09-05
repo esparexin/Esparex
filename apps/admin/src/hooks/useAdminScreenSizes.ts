@@ -8,7 +8,7 @@ import {
 } from "@/lib/api/screenSizes";
 import { useCallback } from "react";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import { ScreenSize } from "@/types/screenSize";
+import type { ScreenSize } from "@esparex/contracts";
 
 import { type AdminListPagination } from "@/hooks/useAdminCrudList";
 

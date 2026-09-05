@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import type { AdminSessionItem } from "@/types/adminSession";
-import { Power, AlertTriangle, Loader2, AlertCircle } from "@esparex/ui";
+import { DataTable, type ColumnDef, StatusChip, Button, Power, AlertTriangle, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminSessions } from "@/hooks/useAdminSessions";
+import type { AdminSessionItem } from "@/types/adminSession";
 
 export default function AdminSessionsPage() {
     const {
@@ -111,9 +109,7 @@ export default function AdminSessionsPage() {
         >
             <div className="space-y-5">
                 <AdminFilterToolbar
-                    search=""
-                    onSearchChange={() => { }}
-                    searchPlaceholder="Session search not supported"
+                    showSearch={false}
                     status={statusFilter}
                     onStatusChange={(val) => setStatusFilter(val)}
                     statusOptions={[
@@ -165,19 +161,19 @@ export default function AdminSessionsPage() {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
+                        <Button
                             type="button"
+                            variant="outline"
                             disabled={isMutating}
                             onClick={() => setRevokingSession(null)}
-                            className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                         >
                             Cancel
-                        </button>
+                        </Button>
                         <button
                             type="button"
                             disabled={isMutating}
                             onClick={onConfirmRevoke}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700 transition-all disabled:opacity-70 shadow-lg shadow-amber-200"
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-body font-bold hover:bg-amber-700 transition-all disabled:opacity-70 shadow-sm cursor-pointer"
                         >
                             {isMutating ? (
                                 <><Loader2 size={16} className="animate-spin" /> Revoking...</>

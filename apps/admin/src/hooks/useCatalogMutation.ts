@@ -5,9 +5,11 @@ interface CatalogMutationOptions {
     approveFn?: (id: string) => Promise<AdminResponseLike>;
     rejectFn?: (id: string, reason: string) => Promise<AdminResponseLike>;
     toggleStatusFn?: (id: string) => Promise<AdminResponseLike>;
+    deleteFn?: (id: string) => Promise<AdminResponseLike>;
     onApproveSuccess?: (id: string) => void | Promise<void>;
     onRejectSuccess?: (id: string) => void | Promise<void>;
     onToggleSuccess?: (id: string) => void | Promise<void>;
+    onDeleteSuccess?: (id: string) => void | Promise<void>;
     fetchItems?: () => Promise<void> | void;
     runAction: (action: () => Promise<AdminResponseLike>, options: { successMessage: string; errorMessage: string; onSuccess?: () => Promise<void> | void }) => Promise<void | boolean>;
     entityName?: string;
@@ -17,9 +19,11 @@ export function useCatalogMutation({
     approveFn,
     rejectFn,
     toggleStatusFn,
+    deleteFn,
     onApproveSuccess,
     onRejectSuccess,
     onToggleSuccess,
+    onDeleteSuccess,
     fetchItems,
     runAction,
     entityName = "Item"
@@ -58,11 +62,24 @@ export function useCatalogMutation({
                 else if (fetchItems) void fetchItems();
             },
         });
-    }, [toggleStatusFn, runAction, onToggleSuccess, fetchItems, entityName]);
+    }, [toggleStatusFn, runAction, onToggleSuccess, fetchItems]);
+
+    const handleDelete = useCallback(async (id: string) => {
+        if (!deleteFn) return;
+        await runAction(() => deleteFn(id), {
+            successMessage: `${entityName} deleted`,
+            errorMessage: `Failed to delete ${entityName.toLowerCase()}`,
+            onSuccess: () => {
+                if (onDeleteSuccess) onDeleteSuccess(id);
+                else if (fetchItems) void fetchItems();
+            },
+        });
+    }, [deleteFn, runAction, onDeleteSuccess, fetchItems, entityName]);
 
     return {
         handleApprove,
         handleReject,
         handleToggleStatus,
+        handleDelete,
     };
 }

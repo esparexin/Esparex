@@ -118,4 +118,30 @@ describe('buildAdSortStage', () => {
         const sort = buildAdSortStage({ sortBy: 'distance' });
         expect(sort).toEqual({ distance: 1, createdAt: -1 });
     });
+
+    it('sorts by newest (createdAt -1) when sortBy=newest', () => {
+        expect(buildAdSortStage({ sortBy: 'newest' })).toEqual({ createdAt: -1 });
+    });
+
+    it('sorts by oldest (createdAt 1) when sortBy=oldest', () => {
+        expect(buildAdSortStage({ sortBy: 'oldest' })).toEqual({ createdAt: 1 });
+    });
+
+    it('sorts by price high (price -1) for both price_high and price-high', () => {
+        expect(buildAdSortStage({ sortBy: 'price_high' })).toEqual({ price: -1 });
+        expect(buildAdSortStage({ sortBy: 'price-high' })).toEqual({ price: -1 });
+    });
+
+    it('sorts by price low (price 1) for both price_low and price-low', () => {
+        expect(buildAdSortStage({ sortBy: 'price_low' })).toEqual({ price: 1 });
+        expect(buildAdSortStage({ sortBy: 'price-low' })).toEqual({ price: 1 });
+    });
+
+    it('sorts by risk desc when sortBy=risk_desc', () => {
+        expect(buildAdSortStage({ sortBy: 'risk_desc' })).toEqual({ fraudScore: -1, createdAt: -1 });
+    });
+
+    it('sorts by most viewed when sortBy=most_viewed', () => {
+        expect(buildAdSortStage({ sortBy: 'most_viewed' })).toEqual({ viewsCount: -1, createdAt: -1 });
+    });
 });

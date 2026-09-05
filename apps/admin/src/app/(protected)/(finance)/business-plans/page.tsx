@@ -2,24 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ColumnDef } from "@/components/ui/DataTable";
-import { Plan } from "@esparex/contracts";
+import type { Plan } from "@esparex/contracts";
 import {
     CreditCard,
-    Search,
     CheckCircle2,
     XCircle,
     Activity,
     Pencil,
     ShieldCheck,
-    Award
+    Award,
+    DataTable,
+    AlertCircle,
+    type ColumnDef,
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
-import { DataTable } from "@/components/ui/DataTable";
-import { AlertCircle } from "@esparex/ui";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
     buildUrlWithSearchParams,
@@ -27,6 +27,7 @@ import {
     updateSearchParams,
 } from "@/lib/urlSearchParams";
 import { useSubscriptionPlans } from "@/hooks/useSubscriptionPlans";
+import { Button } from "@esparex/ui";
 
 export default function BusinessPlansPage() {
     const router = useRouter();
@@ -111,7 +112,7 @@ export default function BusinessPlansPage() {
                                 </span>
                             )}
                         </div>
-                        <div className="text-tiny font-mono text-foreground-tertiary bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
+                        <div className="text-tiny font-mono text-foreground-tertiary bg-muted/40 px-1.5 py-0.5 rounded border border-border w-fit mt-1">
                             {plan.code}
                         </div>
                     </div>
@@ -162,10 +163,10 @@ export default function BusinessPlansPage() {
                     type="button"
                     onClick={() => onToggleClick(plan)}
                     disabled={isMutating}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-medium transition-colors cursor-pointer ${
                         plan.active
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
-                            : "bg-slate-100 text-foreground-secondary border border-slate-200 hover:bg-slate-200"
+                            : "bg-muted text-foreground-secondary border border-border hover:bg-muted/80"
                     }`}
                 >
                     {plan.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -203,30 +204,23 @@ export default function BusinessPlansPage() {
                 description="Manage Business Base and Business Pro membership subscription plans."
                 tabs={<AdminModuleTabs tabs={financeTabs} />}
                 actions={
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={() => { setEditPlan(null); setShowModal(true); }}
-                        className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-sky-600/20 active:scale-95"
                     >
                         <CreditCard size={18} /> New Business Plan
-                    </button>
+                    </Button>
                 }
             >
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <div className="relative flex-1 w-full text-black">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search business plans by name or code..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
-                                value={search}
-                                onChange={(e) => replaceQueryState({ q: e.target.value })}
-                            />
-                        </div>
-                    </div>
+                    <AdminFilterToolbar
+                        search={search}
+                        onSearchChange={(val) => replaceQueryState({ q: val })}
+                        searchPlaceholder="Search business plans by name or code..."
+                    />
 
                     {error && (
-                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                        <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4 text-body font-medium flex items-center gap-2">
                             <AlertCircle size={18} /> {error}
                         </div>
                     )}

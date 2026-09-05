@@ -3,6 +3,7 @@ import {
   ADMIN_ROUTES,
 } from "@/lib/api/routes";
 import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
+import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
 
 const ADMIN_API_BASE = resolveValidatedAdminApiBase();
 
@@ -87,7 +88,30 @@ export async function fetchCsrfToken(): Promise<string> {
 
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
+  silent?: boolean;
 };
+
+type AuthFailureListener = (error: AdminApiError) => void;
+const authFailureListeners = new Set<AuthFailureListener>();
+
+export function subscribeAdminAuthFailure(listener: AuthFailureListener): () => void {
+  authFailureListeners.add(listener);
+  return () => {
+    authFailureListeners.delete(listener);
+  };
+}
+
+export function notifyAdminAuthFailure(error: AdminApiError): void {
+  setAdminAccessToken(null);
+  cachedCsrfToken = null;
+  authFailureListeners.forEach((listener) => {
+    try {
+      listener(error);
+    } catch {
+      // ignore subscriber errors
+    }
+  });
+}
 
 export class AdminApiError<T = unknown> extends Error {
   status: number;
@@ -196,16 +220,14 @@ export async function adminFetch<T>(
         body:
           options.body === undefined || isFormDataBody
             ? (options.body as BodyInit | undefined)
-            : JSON.stringify(options.body)
+            : typeof options.body === "string"
+              ? options.body
+              : JSON.stringify(options.body)
       });
 
       const payload = (await response.json().catch(() => ({}))) as AdminEnvelope<T>;
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setAdminAccessToken(null);
-        }
-
         const errorText = `${payload.message || ""} ${payload.error || ""}`.toLowerCase();
         const isCsrfError = response.status === 403 && errorText.includes("csrf");
         if (isCsrfError && isStateChangingRequest && !csrfRetry) {
@@ -229,12 +251,19 @@ export async function adminFetch<T>(
         const message = payload.message || nestedErrorMessage || (typeof payload.error === 'string' ? payload.error : undefined) || detailsMessage || `Request failed (${response.status})`;
         const error = new AdminApiError(String(message), response.status, payload);
 
-        // Surface unexpected failures (5xx, network) via console. 4xx errors are
+        if (response.status === 401 && path !== ADMIN_ROUTES.LOGIN) {
+          notifyAdminAuthFailure(error);
+        }
+
+        // Surface unexpected failures (5xx, network) via console and popup. 4xx errors are
         // expected business logic and should be handled by the calling hook.
         const isUnexpected = response.status >= 500;
         if (isUnexpected) {
           // eslint-disable-next-line no-console -- infrastructure boundary: 5xx errors are surfaced for observability
           console.error("[API ERROR]", message);
+          if (!options.silent) {
+            emitAdminErrorPopup(response.status, message);
+          }
         }
 
         throw error;
@@ -265,6 +294,9 @@ export async function adminFetch<T>(
       const networkError = new AdminNetworkError(message, err);
       // eslint-disable-next-line no-console -- infrastructure boundary: network failures are surfaced for observability
       console.error("[API ERROR]", message);
+      if (!options.silent) {
+        emitAdminErrorPopup(0, "Unable to connect to server. Please check your network connection.", "NETWORK_ERROR");
+      }
       throw networkError;
     }
   };

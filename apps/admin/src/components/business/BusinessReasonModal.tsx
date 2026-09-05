@@ -6,6 +6,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Button,
 } from "@esparex/ui";
 import { useState, type ReactNode } from "react";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
@@ -34,18 +35,18 @@ interface BusinessReasonModalProps {
 
 const toneStyles = {
     danger: {
-        header: "bg-red-50/60",
-        iconWrap: "bg-red-100 text-red-600",
+        header: "bg-destructive/10",
+        iconWrap: "bg-destructive/20 text-destructive",
         notice: "bg-amber-50 border-amber-200 text-amber-800",
-        field: "focus:ring-2 focus:ring-red-300 focus:border-red-400",
-        action: "bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200",
+        field: "focus-visible:ring-2 focus-visible:ring-destructive/40 focus-visible:border-destructive",
+        action: "destructive" as const,
     },
     warning: {
-        header: "bg-orange-50/60",
-        iconWrap: "bg-orange-100 text-orange-600",
+        header: "bg-amber-500/10",
+        iconWrap: "bg-amber-500/20 text-amber-600",
         notice: "bg-amber-50 border-amber-200 text-amber-800",
-        field: "focus:ring-2 focus:ring-orange-300 focus:border-orange-400",
-        action: "bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-200",
+        field: "focus-visible:ring-2 focus-visible:ring-amber-500/40 focus-visible:border-amber-500",
+        action: "primary" as const,
     },
 } as const;
 
@@ -102,14 +103,14 @@ export function BusinessReasonModal({
     return (
         <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
             <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden">
-                <DialogHeader className={`p-6 border-b border-slate-100 ${styles.header}`}>
+                <DialogHeader className={`p-6 border-b border-border ${styles.header}`}>
                     <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${styles.iconWrap}`}>
                             <Icon size={20} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-foreground">{title}</DialogTitle>
-                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
+                            <DialogTitle className="text-body-lg font-bold text-foreground">{title}</DialogTitle>
+                            <DialogDescription className="text-caption text-foreground-tertiary mt-0.5">
                                 {description}{" "}
                                 <span className="font-semibold text-foreground-secondary">{businessName}</span>.
                             </DialogDescription>
@@ -118,16 +119,16 @@ export function BusinessReasonModal({
                 </DialogHeader>
 
                 <div className="p-6 space-y-4">
-                    <div className={`flex items-start gap-2 p-3 rounded-lg border text-xs ${styles.notice}`}>
+                    <div className={`flex items-start gap-2 p-3 rounded-lg border text-caption ${styles.notice}`}>
                         <Icon size={14} className="shrink-0 mt-0.5" />
                         {notice}
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-foreground-secondary mb-1.5 uppercase tracking-wider">
-                            {label} <span className="text-red-500">*</span>
+                        <label className="block text-tiny font-bold text-foreground-secondary mb-1.5 uppercase tracking-wider">
+                            {label} <span className="text-destructive">*</span>
                         </label>
                         <textarea
-                            className={`w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none resize-none transition-all ${styles.field}`}
+                            className={`w-full px-3 py-2 rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all ${styles.field}`}
                             rows={rows}
                             placeholder={placeholder}
                             value={reason}
@@ -138,7 +139,7 @@ export function BusinessReasonModal({
                             disabled={loading}
                             autoFocus
                         />
-                        {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+                        {error && <p className="text-caption text-destructive mt-1">{error}</p>}
                         {minLength ? (
                             <p className="text-tiny text-foreground-subtle mt-1">
                                 {reason.trim().length} / min {minLength} characters
@@ -148,21 +149,23 @@ export function BusinessReasonModal({
                 </div>
 
                 <div className="px-6 pb-6 flex justify-end gap-3">
-                    <button
+                    <Button
+                        type="button"
+                        variant="outline"
                         onClick={onClose}
                         disabled={loading}
-                        className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-slate-50 transition-all text-sm"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        type="button"
+                        variant={styles.action}
                         onClick={handleSubmit}
                         disabled={loading || !reason.trim()}
-                        className={`px-5 py-2 rounded-xl text-white font-semibold transition-all text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${styles.action}`}
                     >
                         <Icon size={16} />
                         {loading ? submittingLabel : submitLabel}
-                    </button>
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>

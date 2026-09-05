@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "@esparex/ui";
+import { AlertTriangle, Loader2, Button } from "@esparex/ui";
 import { type Location } from "@/types/location";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 
@@ -45,18 +45,20 @@ export function LocationDeleteModal({
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                    <button
+                    <Button
+                        type="button"
+                        variant="outline"
                         disabled={isDeleting}
                         onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        type="button"
                         autoFocus
+                        variant="destructive"
                         disabled={isDeleting}
                         onClick={onConfirm}
-                        className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-all shadow-sm active:transform active:scale-95 disabled:opacity-75"
                     >
                         {isDeleting ? (
                             <>
@@ -66,7 +68,7 @@ export function LocationDeleteModal({
                         ) : (
                             "Confirm Delete"
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </CatalogModal>

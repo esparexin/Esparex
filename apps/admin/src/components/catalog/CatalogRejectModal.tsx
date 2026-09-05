@@ -1,8 +1,7 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "@esparex/ui";
+import { AlertTriangle, Loader2, Button, Textarea } from "@esparex/ui";
 import { CatalogModal } from "./CatalogModal";
-import { Textarea } from "@esparex/ui";
 
 interface CatalogRejectModalProps {
     isOpen: boolean;
@@ -53,26 +52,26 @@ export function CatalogRejectModal({
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                    <button
+                    <Button
                         type="button"
+                        variant="outline"
                         disabled={isRejecting}
                         onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
+                        variant="primary"
                         disabled={isRejecting || !reason.trim()}
                         onClick={onConfirm}
-                        className="flex items-center gap-2 rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-60 transition-colors"
                     >
                         {isRejecting ? (
                             <><Loader2 size={14} className="animate-spin" /> Rejecting…</>
                         ) : (
                             "Confirm Rejection"
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </CatalogModal>

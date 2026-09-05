@@ -55,24 +55,24 @@ export function BroadcastComposer({
     removeRecipient
 }: BroadcastComposerProps) {
     return (
-        <div className="h-fit rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+        <div className="h-fit rounded-xl border border-border bg-card p-6 shadow-xs lg:col-span-1">
+            <h2 className="mb-4 flex items-center gap-2 text-body-lg font-bold text-foreground">
                 <Send size={20} className="text-primary" />
                 Compose Broadcast
             </h2>
             <form onSubmit={handleSend} className="space-y-4">
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                    <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Audience
                     </label>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         <button
                             type="button"
                             onClick={() => setTargetType("all")}
-                            className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
+                            className={`rounded-lg border px-3 py-2 text-caption font-bold transition-all cursor-pointer ${
                                 targetType === "all"
-                                    ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-muted/30 text-foreground-tertiary hover:bg-muted"
                             }`}
                         >
                             All Users
@@ -83,10 +83,10 @@ export function BroadcastComposer({
                                 setTargetType("topic");
                                 if (!targetValue) setTargetValue(DEFAULT_TOPIC);
                             }}
-                            className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
+                            className={`rounded-lg border px-3 py-2 text-caption font-bold transition-all cursor-pointer ${
                                 targetType === "topic"
-                                    ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-muted/30 text-foreground-tertiary hover:bg-muted"
                             }`}
                         >
                             Device Platform
@@ -94,10 +94,10 @@ export function BroadcastComposer({
                         <button
                             type="button"
                             onClick={() => setTargetType("users")}
-                            className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
+                            className={`rounded-lg border px-3 py-2 text-caption font-bold transition-all cursor-pointer ${
                                 targetType === "users"
-                                    ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-muted/30 text-foreground-tertiary hover:bg-muted"
                             }`}
                         >
                             Specific Users
@@ -107,11 +107,11 @@ export function BroadcastComposer({
 
                 {targetType === "topic" ? (
                     <div>
-                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                        <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                             Platform Audience
                         </label>
                         <select
-                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                            className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={targetValue}
                             onChange={(event) => setTargetValue(event.target.value)}
                             required
@@ -129,15 +129,15 @@ export function BroadcastComposer({
                 ) : null}
 
                 {targetType === "users" ? (
-                    <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-3">
                         <div>
-                            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                            <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                                 Search Recipients
                             </label>
                             <input
                                 type="text"
                                 placeholder="Search by name, email, or mobile..."
-                                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                                className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                 value={recipientQuery}
                                 onChange={(event) => setRecipientQuery(event.target.value)}
                             />
@@ -153,7 +153,7 @@ export function BroadcastComposer({
                                         key={user.id}
                                         type="button"
                                         onClick={() => removeRecipient(user.id)}
-                                        className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                                        className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-caption font-medium text-primary cursor-pointer"
                                         title="Remove recipient"
                                     >
                                         <span>{user.label}</span>
@@ -164,32 +164,32 @@ export function BroadcastComposer({
                         ) : null}
 
                         {recipientSearchError ? (
-                            <div className="text-xs text-red-500">{recipientSearchError}</div>
+                            <div className="text-caption text-destructive">{recipientSearchError}</div>
                         ) : null}
 
                         {recipientSearchLoading ? (
-                            <div className="flex items-center gap-2 text-xs text-foreground-tertiary">
+                            <div className="flex items-center gap-2 text-caption text-foreground-tertiary">
                                 <Loader2 size={14} className="animate-spin" />
                                 Searching users...
                             </div>
                         ) : null}
 
                         {!recipientSearchLoading && recipientResults.length > 0 ? (
-                            <div className="max-h-56 overflow-y-auto rounded-lg border border-slate-200 bg-white">
+                            <div className="max-h-56 overflow-y-auto rounded-lg border border-border bg-card">
                                 {recipientResults.map((user) => (
                                     <button
                                         key={user.id}
                                         type="button"
                                         onClick={() => addRecipient(user)}
-                                        className="flex w-full items-start justify-between gap-3 border-b border-slate-100 px-3 py-2 text-left last:border-b-0 hover:bg-slate-50"
+                                        className="flex w-full items-start justify-between gap-3 border-b border-border/60 px-3 py-2 text-left last:border-b-0 hover:bg-muted/40 cursor-pointer"
                                     >
                                         <div className="min-w-0">
-                                            <div className="truncate text-sm font-medium text-foreground">{user.label}</div>
-                                            <div className="truncate text-xs text-foreground-tertiary">
+                                            <div className="truncate text-body font-medium text-foreground">{user.label}</div>
+                                            <div className="truncate text-caption text-foreground-tertiary">
                                                 {user.email || user.mobile || user.id}
                                             </div>
                                         </div>
-                                        <span className="shrink-0 rounded-full border border-slate-200 px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">
+                                        <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">
                                             Add
                                         </span>
                                     </button>
@@ -200,13 +200,13 @@ export function BroadcastComposer({
                 ) : null}
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                    <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Notification Title
                     </label>
                     <input
                         type="text"
                         placeholder="What’s new today?"
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
                         required
@@ -214,13 +214,13 @@ export function BroadcastComposer({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                    <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Message Body
                     </label>
                     <textarea
                         placeholder="Type your message here..."
                         rows={4}
-                        className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full resize-none rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={body}
                         onChange={(event) => setBody(event.target.value)}
                         required
@@ -228,13 +228,13 @@ export function BroadcastComposer({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                    <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Action Link
                     </label>
                     <input
                         type="text"
                         placeholder="/plans or https://example.com/offers"
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={actionUrl}
                         onChange={(event) => setActionUrl(event.target.value)}
                     />
@@ -244,12 +244,12 @@ export function BroadcastComposer({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                    <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Schedule For
                     </label>
                     <input
                         type="datetime-local"
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={sendAt}
                         onChange={(event) => setSendAt(event.target.value)}
                     />
@@ -257,12 +257,12 @@ export function BroadcastComposer({
                 </div>
 
                 {error ? (
-                    <div className="flex items-center gap-1 text-xs italic text-red-500">
+                    <div className="flex items-center gap-1 text-caption text-destructive">
                         <AlertCircle size={14} /> {error}
                     </div>
                 ) : null}
                 {success ? (
-                    <div className="flex items-center gap-1 text-xs italic text-emerald-500">
+                    <div className="flex items-center gap-1 text-caption text-success">
                         <CheckCircle2 size={14} /> {success}
                     </div>
                 ) : null}
@@ -270,7 +270,7 @@ export function BroadcastComposer({
                 <button
                     type="submit"
                     disabled={sending}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                 >
                     {sending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                     {sending ? "Sending..." : sendAt ? "Schedule Broadcast" : "Send Broadcast"}

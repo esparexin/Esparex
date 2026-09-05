@@ -3,15 +3,14 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, Download, FileText } from "@esparex/ui";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { Download, FileText, DataTable, AlertCircle, type ColumnDef } from "@esparex/ui";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { adminFetch, getAdminApiBase } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
-import { AlertCircle } from "@esparex/ui";
 import {
   buildUrlWithSearchParams,
   normalizeSearchParamValue,
@@ -206,31 +205,23 @@ export default function InvoicesPage() {
       tabs={<AdminModuleTabs tabs={financeTabs} />}
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle" />
-            <input
-              value={search}
-              onChange={(e) => replaceQueryState({ q: e.target.value, page: null })}
-              placeholder="Search invoice number or customer..."
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm text-black outline-none"
-            />
-          </div>
-          <select
-            value={status}
-            onChange={(e) => replaceQueryState({ status: e.target.value === "all" ? null : e.target.value, page: null })}
-            className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-black"
-          >
-            <option value="all">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="SUCCESS">Success</option>
-            <option value="FAILED">Failed</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
-        </div>
+        <AdminFilterToolbar
+          search={search}
+          onSearchChange={(val) => replaceQueryState({ q: val, page: null })}
+          searchPlaceholder="Search invoice number or customer..."
+          status={status}
+          onStatusChange={(val) => replaceQueryState({ status: val === "all" ? null : val, page: null })}
+          statusOptions={[
+            { value: "all", label: "All Status" },
+            { value: "PENDING", label: "Pending" },
+            { value: "SUCCESS", label: "Success" },
+            { value: "FAILED", label: "Failed" },
+            { value: "CANCELLED", label: "Cancelled" },
+          ]}
+        />
 
         {error && (
-          <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4 text-body font-medium flex items-center gap-2">
             <AlertCircle size={18} /> {error}
           </div>
         )}

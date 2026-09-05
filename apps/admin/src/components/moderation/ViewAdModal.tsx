@@ -65,7 +65,7 @@ export function ViewAdModal({
                 className="max-w-4xl w-full flex max-h-[92dvh] flex-col bg-white overflow-hidden rounded-2xl border-none p-0"
                 hideClose
             >
-                <div className="flex items-center justify-between shrink-0 border-b border-slate-100 px-6 py-4">
+                <div className="flex items-center justify-between shrink-0 border-b border-border px-6 py-4">
                     <div>
                         <p className="text-tiny font-semibold uppercase tracking-widest text-foreground-subtle">Moderation</p>
                         <DialogTitle className="text-lg font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
@@ -73,7 +73,7 @@ export function ViewAdModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="h-9 w-9 flex items-center justify-center rounded-xl text-foreground-subtle hover:bg-slate-100 hover:text-foreground-secondary transition-colors shrink-0"
+                        className="h-9 w-9 flex items-center justify-center rounded-xl text-foreground-subtle hover:bg-muted hover:text-foreground-secondary transition-colors shrink-0"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -84,7 +84,7 @@ export function ViewAdModal({
                 <div className="flex-1 overflow-y-auto px-6 py-5 relative min-h-0">
                     {loading && !ad && (
                         <div className="flex flex-col items-center justify-center py-12 text-foreground-subtle">
-                            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-sky-600" />
+                            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
                             <p className="text-sm">Fetching listing details...</p>
                         </div>
                     )}
@@ -96,7 +96,7 @@ export function ViewAdModal({
                                 <div className="space-y-3 xl:col-span-3">
                                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-h-[60vh] overflow-y-auto pr-1">
                                         {(ad.images.length > 0 ? ad.images : [IMAGE_FALLBACK]).map((image, index) => (
-                                            <div key={`${ad.id}:${index}`} className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-lg border border-slate-200">
+                                            <div key={`${ad.id}:${index}`} className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-lg border border-border">
                                                 <img
                                                     src={image}
                                                     alt={`${ad.title} ${index + 1}`}
@@ -119,12 +119,12 @@ export function ViewAdModal({
                                     </div>
                                 </div>
 
-                                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 xl:col-span-2">
+                                <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-4 xl:col-span-2">
                                     {(() => {
                                         const badgeClass = MODERATION_STATUS_BADGES[ad.status];
                                         return (
                                             <span
-                                                className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass || "border-slate-200 bg-slate-100 text-foreground-secondary"}`}
+                                                className={`inline-flex rounded-full border px-2.5 py-1 text-caption font-semibold ${badgeClass || "border-border bg-muted text-foreground-secondary"}`}
                                             >
                                                 {MODERATION_STATUS_LABELS[ad.status] || ad.status}
                                             </span>
@@ -203,7 +203,7 @@ export function ViewAdModal({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 rounded-lg border border-slate-200 p-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
                                 <div className="min-w-0 space-y-2">
                                     <h3 className="text-sm font-semibold text-foreground">{presentation.informationHeader}</h3>
                                     <div className="truncate text-lg font-semibold text-foreground" title={ad.title}>{ad.title}</div>
@@ -253,7 +253,7 @@ export function ViewAdModal({
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+                            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
                                 {ad.status === LIFECYCLE_STATUS.PENDING && (
                                     <>
                                         <button

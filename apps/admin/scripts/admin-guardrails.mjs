@@ -1,11 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const projectRoot = process.cwd();
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const projectRoot = path.resolve(__dirname, "..");
 const srcRoot = path.join(projectRoot, "src");
 const protectedRoot = path.join(srcRoot, "app", "(protected)");
 const hooksRoot = path.join(srcRoot, "hooks");
-const dataTablePath = path.join(srcRoot, "components", "ui", "DataTable.tsx");
+const dataTablePath = path.resolve(projectRoot, "..", "..", "packages", "ui", "src", "data-display", "DataTable", "DataTable.tsx");
 const routesPath = path.join(srcRoot, "lib", "api", "routes.ts");
 
 const violations = [];

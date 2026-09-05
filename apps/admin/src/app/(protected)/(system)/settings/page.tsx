@@ -18,19 +18,17 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { Tv, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { PlatformSettings } from "./components/PlatformSettings";
+import { ListingSettings } from "./components/ListingSettings";
 import { ModerationSettings } from "./components/ModerationSettings";
 import { PaymentSettings } from "./components/PaymentSettings";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { SecuritySettings } from "./components/SecuritySettings";
 import { SearchSettings } from "./components/SearchSettings";
-import { ListingSettings } from "./components/ListingSettings";
-import { DisplayAdsSettings } from "./components/DisplayAdsSettings";
 import { MonetizationSettings } from "./components/MonetizationSettings";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { useSystemConfig } from "@/hooks/useSystemConfig";
-import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
 
 type SettingsTab =
   | "platform"
@@ -40,7 +38,6 @@ type SettingsTab =
   | "payments"
   | "security"
   | "location"
-  | "display-ads"
   | "monetization";
 
 const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: LucideIcon }> = [
@@ -49,8 +46,7 @@ const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: LucideIcon }
   { key: "moderation", label: "Moderation", icon: Cpu },
   { key: "notifications", label: "Notifications", icon: Bell },
   { key: "payments", label: "Payments", icon: CreditCard },
-  { key: "display-ads", label: "Display Ads", icon: Tv },
-  { key: "monetization", label: "Advertisements", icon: Settings },
+  { key: "monetization", label: "Monetization & Ads", icon: Settings },
   { key: "security", label: "Security", icon: Shield },
   { key: "location", label: "Search & Location", icon: Search },
 ];
@@ -71,8 +67,6 @@ export default function SettingsPage() {
       loadConfig,
       handleSaveSection
   } = useSystemConfig();
-  void getSystemConfig;
-  void updateSystemConfig;
 
   const requestedTab = searchParams.get("tab");
   const activeTab: SettingsTab = isSettingsTab(requestedTab) ? requestedTab : "platform";
@@ -101,8 +95,6 @@ export default function SettingsPage() {
         return <NotificationSettings {...props} config={config} />;
       case "payments":
         return <PaymentSettings {...props} config={config} />;
-      case "display-ads":
-        return <DisplayAdsSettings {...props} config={config} />;
       case "security":
         return <SecuritySettings {...props} config={config} />;
       case "location":

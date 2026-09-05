@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
+import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
 import { AdminModerationActions } from "./AdminModerationActions";
-import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { ListingTypeValue } from "@esparex/contracts";
 // ── Risk badge helpers ────────────────────────────────────────────────────────
@@ -130,7 +128,7 @@ export function AdsTable({
                 id: "image",
             className: "w-14",
             cell: (item) => (
-                <div className="h-10 w-10 overflow-hidden rounded-md border border-slate-200 bg-slate-100 shrink-0">
+                <div className="h-10 w-10 overflow-hidden rounded-md border border-border bg-muted shrink-0">
                     {item.images[0] ? (
                         <img
                             src={item.images[0]}
@@ -198,7 +196,7 @@ export function AdsTable({
                             <span className="font-medium text-foreground truncate max-w-[130px]">{item.locationLabel || "Unknown"}</span>
                         </div>
                         <div className="pl-4">
-                            <span className={`inline-flex rounded px-1.5 py-0.5 text-tiny font-bold uppercase tracking-wider ${geo.color} bg-slate-100/80`}>
+                            <span className={`inline-flex rounded px-1.5 py-0.5 text-tiny font-bold uppercase tracking-wider ${geo.color} bg-muted/80`}>
                                 {geo.label}
                             </span>
                         </div>
@@ -270,7 +268,7 @@ export function AdsTable({
         return cols;
     }, [
         showCheckboxes,
-        allSelected,
+        headerCheckedState,
         onToggleSelectAll,
         selectedSet,
         onToggleSelect,

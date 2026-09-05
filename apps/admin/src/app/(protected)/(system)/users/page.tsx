@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import {
     AlertCircle,
     User as UserIcon,
     Mail,
+    DataTable,
+    StatusChip,
+    type ColumnDef,
 } from "@esparex/ui";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { UserActionDialog } from "@/components/system/users/UserActionDialog";
 import { UserActionMenu } from "@/components/system/users/UserActionMenu";
 import { UserQuickDetailsPanel } from "@/components/system/users/UserQuickDetailsPanel";
@@ -55,9 +56,6 @@ export default function UsersPage() {
     const [searchInput, setSearchInput] = useState("");
     const [selectedUser, setSelectedUser] = useState<ManagedUser | null>(null);
     const [actionModal, setActionModal] = useState<UserActionState>(DEFAULT_USER_ACTION_STATE);
-    const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
-
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const statusFilter = normalizeUserManagementStatusFilter(searchParams.get("status"));
     const roleFilter = searchParams.get("role") || "all";
@@ -123,17 +121,6 @@ export default function UsersPage() {
         return () => clearTimeout(timer);
     }, [committedSearch, pathname, router, searchInput, searchParams, statusFilter, roleFilter, verifiedFilter]);
 
-    // Close dropdown on outside click
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setDropdownOpen(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const openActionModal = (type: UserActionType, user: ManagedUser) => {
         setActionModal({ isOpen: true, type, user });
     };
@@ -159,12 +146,12 @@ export default function UsersPage() {
             header: "User Name",
             cell: (user) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground-subtle">
                         <UserIcon size={20} />
                     </div>
                     <div>
                         <div className="font-bold text-foreground">{user.name || "Unknown"}</div>
-                        <div className="text-xs text-foreground-tertiary">ID: {user.id}</div>
+                        <div className="text-tiny text-foreground-tertiary">ID: {user.id}</div>
                     </div>
                 </div>
             )
@@ -214,10 +201,6 @@ export default function UsersPage() {
             cell: (user) => (
                 <UserActionMenu
                     user={user}
-                    isOpen={dropdownOpen === user.id}
-                    menuRef={dropdownRef}
-                    onToggle={() => setDropdownOpen(dropdownOpen === user.id ? null : user.id)}
-                    onClose={() => setDropdownOpen(null)}
                     onOpenDetails={setSelectedUser}
                     onOpenAction={openActionModal}
                 />
@@ -248,25 +231,25 @@ export default function UsersPage() {
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 shadow-2xs transition hover:border-slate-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-border bg-card px-2.5 py-1.5 shadow-xs transition hover:border-border/80">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
-                            <p className="mt-0.5 text-base font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-md border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-emerald-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-emerald-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
-                            <p className="mt-0.5 text-base font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-md border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-blue-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-blue-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
-                            <p className="mt-0.5 text-base font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-md border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-indigo-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-indigo-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
-                            <p className="mt-0.5 text-base font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-md border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-red-300 hover:shadow-xs">
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-red-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
-                            <p className="mt-0.5 text-base font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
                         </Link>
                     </div>
 
@@ -291,7 +274,7 @@ export default function UsersPage() {
                         extraFilters={
                             <>
                                 <select
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={roleFilter}
                                     onChange={(event) => {
                                         const nextRole = event.target.value;
@@ -311,7 +294,7 @@ export default function UsersPage() {
                                     <option value="business">Businesses</option>
                                 </select>
                                 <select
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={verifiedFilter}
                                     onChange={(event) => {
                                         const nextVerified = event.target.value as "all" | "true" | "false";

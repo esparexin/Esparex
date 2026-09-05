@@ -37,7 +37,7 @@ export function DashboardCard({
 }: DashboardCardProps) {
     const iconStyle = variantStyles[variant] || variantStyles.default;
     const content = (
-        <Card className={`bg-white px-3 py-2.5 rounded-xl border border-slate-200 shadow-xs hover:shadow-sm transition-all hover:border-slate-300 ${className}`}>
+        <Card className={`bg-card px-3 py-2.5 rounded-xl border border-border shadow-xs hover:shadow-sm transition-all hover:border-border/80 ${className}`}>
             <CardContent className="p-0 flex items-center justify-between gap-2">
                 <div className="min-w-0 flex-1">
                     <p className="text-tiny font-bold text-foreground-tertiary uppercase tracking-wider truncate mb-0.5">{title}</p>

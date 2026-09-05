@@ -31,14 +31,14 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
 
     if (!mounted) {
         return (
-            <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-[320px] flex items-center justify-center">
-                <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
+            <div className="bg-card p-4 rounded-lg border border-border shadow-xs h-[320px] flex items-center justify-center">
+                <span className="text-tiny font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
             </div>
         );
     }
 
     return (
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+        <div className="bg-card p-4 rounded-lg border border-border shadow-xs">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold text-foreground leading-none">{title}</h3>
                 <div className="flex items-center gap-3">
@@ -66,6 +66,7 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                             </linearGradient>
                         </defs>
+                        {/* ui-guard-ignore: hardcoded-hex-color [Recharts SVG grid stroke] */}
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis
                             dataKey="name"
@@ -90,7 +91,7 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                         <Area
                             type="monotone"
                             dataKey="ads"
-                            stroke="#3b82f6"
+                            stroke="#3b82f6" /* ui-guard-ignore: hardcoded-hex-color [Recharts area chart stroke] */
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorAds)"
@@ -98,7 +99,7 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                         <Area
                             type="monotone"
                             dataKey="users"
-                            stroke="#10b981"
+                            stroke="#10b981" /* ui-guard-ignore: hardcoded-hex-color [Recharts area chart stroke] */
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorUsers)"

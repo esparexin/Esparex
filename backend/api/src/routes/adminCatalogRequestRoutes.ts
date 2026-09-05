@@ -12,6 +12,7 @@ import {
     bulkApproveCatalogRequestSchema,
     bulkRejectCatalogRequestSchema,
     bulkMarkCatalogRequestDuplicateSchema,
+    bulkDeleteCatalogRequestSchema,
 } from '@esparex/core/validators/catalogRequest.validator';
 import {
     getAdminCatalogRequests,
@@ -23,6 +24,8 @@ import {
     bulkApproveCatalogRequestsByAdmin,
     bulkRejectCatalogRequestsByAdmin,
     bulkMarkCatalogRequestsMergedByAdmin,
+    deleteCatalogRequestByAdmin,
+    bulkDeleteCatalogRequestsByAdmin,
 } from '../controllers/catalogRequestController';
 
 const router = express.Router();
@@ -50,8 +53,14 @@ router.post(
     validateRequest(bulkMarkCatalogRequestDuplicateSchema),
     bulkMarkCatalogRequestsMergedByAdmin
 );
+router.post(
+    '/bulk/delete',
+    validateRequest(bulkDeleteCatalogRequestSchema),
+    bulkDeleteCatalogRequestsByAdmin
+);
 
 router.get('/:id', validateObjectId, getAdminCatalogRequestById);
+router.delete('/:id', validateObjectId, deleteCatalogRequestByAdmin);
 router.post(
     '/:id/approve',
     validateObjectId,

@@ -11,6 +11,7 @@ import {
     findAdminByResetToken,
     findAdminForLogin,
     updateAdminLastLogin,
+    recordFailedAdminLogin,
     getAdminProfileById,
     saveAdmin,
     seedAdmin,
@@ -192,7 +193,25 @@ export const adminLogin = async (req: Request, res: Response) => {
         const admin = await findAdminForLogin(email);
         if (!admin) {
             logger.warn('Admin login failed: Account not found in database', { email, ip: req.ip });
-            return sendAdminError(req, res, 'Admin account not found', 401);
+            // 🛡️ SECURITY: Prevent user enumeration by returning generic error
+            return sendAdminError(req, res, 'Invalid email or password', 401);
+        }
+
+        // 🛡️ SECURITY: Account Lockout Guard
+        const adminDoc = admin as typeof admin & { lockUntil?: Date | null; failedLoginAttempts?: number };
+        if (adminDoc.lockUntil && new Date(adminDoc.lockUntil).getTime() > Date.now()) {
+            const remainingMinutes = Math.max(1, Math.ceil((new Date(adminDoc.lockUntil).getTime() - Date.now()) / (60 * 1000)));
+            logger.warn('Admin login blocked: Account is temporarily locked', {
+                email,
+                lockUntil: adminDoc.lockUntil,
+                ip: req.ip,
+            });
+            return sendAdminError(
+                req,
+                res,
+                `Account is temporarily locked due to multiple failed login attempts. Please try again in ${remainingMinutes} minute${remainingMinutes === 1 ? '' : 's'}.`,
+                429
+            );
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
@@ -201,7 +220,8 @@ export const adminLogin = async (req: Request, res: Response) => {
                 status: admin.status,
                 ip: req.ip
             });
-            return sendAdminError(req, res, `Admin account is ${admin.status} (expected LIVE)`, 401);
+            // 🛡️ SECURITY: Prevent user enumeration by returning generic error
+            return sendAdminError(req, res, 'Invalid email or password', 401);
         }
 
         const isMatch = admin.password ? await comparePassword(password, admin.password) : false;
@@ -209,7 +229,9 @@ export const adminLogin = async (req: Request, res: Response) => {
             (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
         if (!isMatch) {
             logger.warn('Admin login failed: Password mismatch', { email, ip: req.ip });
-            return sendAdminError(req, res, 'Incorrect password', 401);
+            await recordFailedAdminLogin(admin._id);
+            // 🛡️ SECURITY: Prevent user enumeration by returning generic error
+            return sendAdminError(req, res, 'Invalid email or password', 401);
         }
 
         // Use updateOne to bypass pre-save hooks — avoids accidental bcrypt re-hash

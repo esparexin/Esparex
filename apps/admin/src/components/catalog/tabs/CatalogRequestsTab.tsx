@@ -5,19 +5,14 @@ import { useSearchParams } from "next/navigation";
 import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import type { CatalogRequestItem } from "@/lib/api/catalogRequests";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
-import { CatalogModal } from "@/components/catalog/CatalogModal";
-import {
-  CatalogSelectFilter,
-  CatalogRejectSuggestionForm,
-  CatalogSearchInput,
-} from "@/components/catalog/primitives";
+import { CatalogSelectFilter, CatalogSearchInput } from "@/components/catalog/primitives";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
-import { CatalogBulkRejectModal, CatalogBulkDuplicateModal } from "@/components/catalog/CatalogBulkModals";
 import { useCatalogRequestsBulkActions } from "./useCatalogRequestsBulkActions";
 import { generateCatalogRequestsColumns } from "./CatalogRequestsColumns";
+import { CatalogRequestsModals } from "./CatalogRequestsModals";
 
-const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "resolved"]);
+const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "merged", "resolved"]);
 
 const normalizeRequestStatusParam = (value: string | null) =>
   value && REQUEST_STATUS_VALUES.has(value) ? value : "all";
@@ -36,8 +31,10 @@ export default function CatalogRequestsTab() {
     error,
     handleApprove,
     handleReject,
+    handleDelete,
     handleBulkReject,
     handleBulkMarkDuplicate,
+    handleBulkDelete,
     pagination,
   } = useAdminCatalogRequests({
     initialFilters: {
@@ -64,6 +61,9 @@ export default function CatalogRequestsTab() {
     rejectionReason,
     setRejectionReason,
     isRejecting,
+    deletingRequest,
+    setDeletingRequest,
+    isDeletingRequest,
     selectedIds,
     bulkRejectOpen,
     setBulkRejectOpen,
@@ -72,6 +72,9 @@ export default function CatalogRequestsTab() {
     isBulkRejecting,
     bulkDuplicateOpen,
     setBulkDuplicateOpen,
+    bulkDeleteOpen,
+    setBulkDeleteOpen,
+    isBulkDeleting,
     searchQuery,
     setSearchQuery,
     searchResults,
@@ -85,14 +88,19 @@ export default function CatalogRequestsTab() {
     onToggleSelect,
     openBulkReject,
     openBulkDuplicate,
+    openBulkDelete,
     confirmReject,
     confirmBulkReject,
     confirmBulkDuplicate,
+    confirmSingleDelete,
+    confirmBulkDelete,
   } = useCatalogRequestsBulkActions({
     requests,
     handleReject,
     handleBulkReject,
     handleBulkMarkDuplicate,
+    handleDelete,
+    handleBulkDelete,
   });
 
   const bulkActions = (
@@ -111,6 +119,13 @@ export default function CatalogRequestsTab() {
       >
         Quick Duplicate
       </button>
+      <button
+        type="button"
+        onClick={openBulkDelete}
+        className="rounded-lg bg-destructive px-3 py-2 text-caption font-semibold text-destructive-foreground hover:bg-destructive/90 transition-all shadow-xs cursor-pointer"
+      >
+        Quick Delete
+      </button>
     </div>
   );
 
@@ -120,7 +135,7 @@ export default function CatalogRequestsTab() {
         isNested={true}
         title="Catalog Requests"
         description="Manage user-submitted requests for new brands, models, or categories. Reviewing and approving these maintains the SSOT integrity."
-        createLabel=""
+        createLabel={null}
         csvFileName="catalog-requests.csv"
         items={requests}
         loading={loading}
@@ -144,6 +159,9 @@ export default function CatalogRequestsTab() {
               setRejectionReason("");
               setRejectingRequest(req);
             },
+            onOpenDeleteModal: (req) => {
+              setDeletingRequest(req);
+            },
           })
         }
         filterLayoutClassName="md:grid-cols-2"
@@ -166,54 +184,48 @@ export default function CatalogRequestsTab() {
                 { value: "all", label: "All Status" },
                 { value: "pending", label: "Pending" },
                 { value: "approved", label: "Approved" },
-                { value: "resolved", label: "Resolved" },
                 { value: "rejected", label: "Rejected" },
-                { value: "duplicate", label: "Duplicate" },
+                { value: "merged", label: "Duplicate / Merged" },
+                { value: "resolved", label: "Resolved (All)" },
               ]}
             />
           </>
         }
       />
 
-      <CatalogModal
-        isOpen={Boolean(rejectingRequest)}
-        onClose={() => !isRejecting && setRejectingRequest(null)}
-        title="Reject Catalog Request"
-      >
-        <CatalogRejectSuggestionForm
-          itemName={rejectingRequest?.requestedName}
-          rejectionReason={rejectionReason}
-          onRejectionReasonChange={setRejectionReason}
-          onCancel={() => setRejectingRequest(null)}
-          onConfirm={() => void confirmReject()}
-          isSubmitting={isRejecting}
-          placeholder="e.g. Duplicate request, Already in catalog, Spam..."
-        />
-      </CatalogModal>
-
-      <CatalogBulkRejectModal
-        isOpen={bulkRejectOpen}
-        onClose={() => setBulkRejectOpen(false)}
+      <CatalogRequestsModals
+        rejectingRequest={rejectingRequest}
+        setRejectingRequest={setRejectingRequest}
+        rejectionReason={rejectionReason}
+        setRejectionReason={setRejectionReason}
+        isRejecting={isRejecting}
+        confirmReject={confirmReject}
+        deletingRequest={deletingRequest}
+        setDeletingRequest={setDeletingRequest}
+        isDeletingRequest={isDeletingRequest}
+        confirmSingleDelete={confirmSingleDelete}
+        bulkRejectOpen={bulkRejectOpen}
+        setBulkRejectOpen={setBulkRejectOpen}
         selectedCount={selectedIds.length}
-        rejectionReason={bulkRejectionReason}
-        onRejectionReasonChange={setBulkRejectionReason}
-        onConfirm={confirmBulkReject}
-        isSubmitting={isBulkRejecting}
-      />
-
-      <CatalogBulkDuplicateModal
-        isOpen={bulkDuplicateOpen}
-        onClose={() => setBulkDuplicateOpen(false)}
+        bulkRejectionReason={bulkRejectionReason}
+        setBulkRejectionReason={setBulkRejectionReason}
+        confirmBulkReject={confirmBulkReject}
+        isBulkRejecting={isBulkRejecting}
+        bulkDuplicateOpen={bulkDuplicateOpen}
+        setBulkDuplicateOpen={setBulkDuplicateOpen}
         requestType={requestType}
-        selectedCount={selectedIds.length}
         searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
+        setSearchQuery={setSearchQuery}
         searching={searching}
         searchResults={searchResults}
         selectedTargetId={selectedTargetId}
-        onSelectTarget={setSelectedTargetId}
-        onConfirm={confirmBulkDuplicate}
-        isSubmitting={isBulkDuplicating}
+        setSelectedTargetId={setSelectedTargetId}
+        confirmBulkDuplicate={confirmBulkDuplicate}
+        isBulkDuplicating={isBulkDuplicating}
+        bulkDeleteOpen={bulkDeleteOpen}
+        setBulkDeleteOpen={setBulkDeleteOpen}
+        isBulkDeleting={isBulkDeleting}
+        confirmBulkDelete={confirmBulkDelete}
       />
     </>
   );
