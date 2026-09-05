@@ -2,6 +2,7 @@ import express from 'express';
 
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
+import { authLoginLimiter } from '../middleware/rate-limiter/limiters';
 
 import * as adminSystem from '../controllers/admin/system';
 import * as adminAnalytics from '../controllers/admin/adminAnalyticsController';
@@ -29,7 +30,7 @@ const router = express.Router();
 
 // Public admin auth surface
 router.get('/csrf-token', setCsrfToken, getCsrfToken);
-router.post('/auth/login', adminSystem.adminLogin);
+router.post('/auth/login', authLoginLimiter, adminSystem.adminLogin);
 router.post('/forgot-password', adminSystem.forgotPassword);
 router.post('/reset-password/:token', adminSystem.resetPassword);
 

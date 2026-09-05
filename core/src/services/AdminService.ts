@@ -159,12 +159,59 @@ export const findAdminByResetToken = async (resetPasswordToken: string) => {
     });
 };
 
+export const ADMIN_MAX_LOGIN_ATTEMPTS = 5;
+export const ADMIN_LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+export const recordFailedAdminLogin = async (adminId: string | Types.ObjectId) => {
+    const id = typeof adminId === 'string' ? new Types.ObjectId(adminId) : adminId;
+    const admin = await Admin.findById(id).select('failedLoginAttempts lockUntil');
+    if (!admin) return;
+
+    const currentAttempts = (admin.failedLoginAttempts || 0) + 1;
+    const update: Record<string, unknown> = {
+        failedLoginAttempts: currentAttempts,
+    };
+
+    if (currentAttempts >= ADMIN_MAX_LOGIN_ATTEMPTS) {
+        update.lockUntil = new Date(Date.now() + ADMIN_LOCKOUT_DURATION_MS);
+        update.failedLoginAttempts = 0; // Reset counter once locked
+        logger.warn('🛡️ Admin account temporarily locked due to excessive failed logins', {
+            adminId: id.toString(),
+            lockUntil: update.lockUntil,
+        });
+    }
+
+    await Admin.updateOne({ _id: id }, { $set: update });
+};
+
+export const resetAdminFailedLoginAttempts = async (adminId: string | Types.ObjectId) => {
+    const id = typeof adminId === 'string' ? new Types.ObjectId(adminId) : adminId;
+    await Admin.updateOne(
+        { _id: id },
+        {
+            $set: {
+                failedLoginAttempts: 0,
+                lockUntil: null,
+            },
+        }
+    );
+};
+
 export const findAdminForLogin = async (email: string) => {
-    return Admin.findOne({ email }).select('+password +twoFactorSecret');
+    return Admin.findOne({ email }).select('+password +twoFactorSecret failedLoginAttempts lockUntil');
 };
 
 export const updateAdminLastLogin = async (id: string | { toString(): string }) => {
-    return Admin.updateOne({ _id: new Types.ObjectId(id.toString()) }, { $set: { lastLogin: new Date() } });
+    return Admin.updateOne(
+        { _id: new Types.ObjectId(id.toString()) },
+        {
+            $set: {
+                lastLogin: new Date(),
+                failedLoginAttempts: 0,
+                lockUntil: null,
+            },
+        }
+    );
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {
