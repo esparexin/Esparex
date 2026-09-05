@@ -1,4 +1,6 @@
-import CatalogRequest from '@esparex/core/models/CatalogRequest';
+import CatalogRequest from '../../../../models/CatalogRequest';
+import Brand from '../../../../models/Brand';
+import Model from '../../../../models/Model';
 
 export interface CatalogRequestPayload {
     requestType: 'brand' | 'model';
@@ -24,17 +26,28 @@ export const findOrCreateCatalogRequest = async (payload: CatalogRequestPayload)
         status: 'pending' as const,
     };
 
-    const existingPending = await CatalogRequest.findOneAndUpdate(
-        dedupeQuery,
-        {
-            $addToSet: { requestedByUsers: payload.requestedBy },
-            $inc: { requestCount: 1 },
-        },
-        { new: true, sort: { createdAt: -1 } }
-    );
+    const existingPending = await CatalogRequest.findOne(dedupeQuery);
 
     if (existingPending) {
-        return { request: existingPending, isNew: false };
+        const isAlreadyRequester =
+            existingPending.requestedByUsers?.some(
+                (u) => String(u) === String(payload.requestedBy)
+            ) || String(existingPending.requestedBy) === String(payload.requestedBy);
+
+        const updateOp: Record<string, unknown> = {
+            $addToSet: { requestedByUsers: payload.requestedBy },
+        };
+        if (!isAlreadyRequester) {
+            updateOp.$inc = { requestCount: 1 };
+        }
+
+        const updated = await CatalogRequest.findByIdAndUpdate(
+            existingPending._id,
+            updateOp,
+            { new: true }
+        );
+
+        return { request: updated ?? existingPending, isNew: false };
     }
 
     const createdRequest = await CatalogRequest.create({
@@ -131,40 +144,67 @@ export const resolveCatalogRequestsForSubmission = async (params: {
     modelId?: string;
     pendingModelRequestId?: string;
 }> => {
-    const resolvedBrandId = params.brandId;
+    let resolvedBrandId = params.brandId;
     let pendingBrandRequestId: string | undefined;
-    const resolvedModelId = params.modelId;
+    let resolvedModelId = params.modelId;
     let pendingModelRequestId: string | undefined;
 
     // Handle proposed custom brand
     if (!resolvedBrandId && params.customBrandName && params.customBrandName.trim().length > 0) {
         const trimmedBrand = params.customBrandName.trim();
         const canonicalBrand = trimmedBrand.toLowerCase().replace(/\s+/g, ' ');
-        const brandRequest = await findOrCreateCatalogRequest({
-            requestType: 'brand',
-            categoryId: params.categoryId,
-            requestedName: trimmedBrand,
+
+        // 1. Canonical DB Pre-Check: If brand already exists in category, re-bind and skip request creation
+        const existingBrand = await Brand.findOne({
             canonicalName: canonicalBrand,
-            slug: `brand-request-${Date.now()}`,
-            requestedBy: params.userId,
+            categoryIds: params.categoryId,
+            isDeleted: { $ne: true },
         });
-        pendingBrandRequestId = String(brandRequest.request._id);
+
+        if (existingBrand) {
+            resolvedBrandId = String(existingBrand._id);
+        } else {
+            const brandRequest = await findOrCreateCatalogRequest({
+                requestType: 'brand',
+                categoryId: params.categoryId,
+                requestedName: trimmedBrand,
+                canonicalName: canonicalBrand,
+                slug: `brand-request-${Date.now()}`,
+                requestedBy: params.userId,
+            });
+            pendingBrandRequestId = String(brandRequest.request._id);
+        }
     }
 
     // Handle proposed custom model
     if (!resolvedModelId && params.customModelName && params.customModelName.trim().length > 0) {
         const trimmedModel = params.customModelName.trim();
         const canonicalModel = trimmedModel.toLowerCase().replace(/\s+/g, ' ');
-        const modelRequest = await findOrCreateCatalogRequest({
-            requestType: 'model',
-            categoryId: params.categoryId,
-            parentBrandId: resolvedBrandId,
-            requestedName: trimmedModel,
-            canonicalName: canonicalModel,
-            slug: `model-request-${Date.now()}`,
-            requestedBy: params.userId,
-        });
-        pendingModelRequestId = String(modelRequest.request._id);
+
+        // 2. Canonical DB Pre-Check: If model already exists under parent brand, re-bind and skip request creation
+        let existingModel = null;
+        if (resolvedBrandId) {
+            existingModel = await Model.findOne({
+                brandId: resolvedBrandId,
+                canonicalName: canonicalModel,
+                isDeleted: { $ne: true },
+            });
+        }
+
+        if (existingModel) {
+            resolvedModelId = String(existingModel._id);
+        } else {
+            const modelRequest = await findOrCreateCatalogRequest({
+                requestType: 'model',
+                categoryId: params.categoryId,
+                parentBrandId: resolvedBrandId,
+                requestedName: trimmedModel,
+                canonicalName: canonicalModel,
+                slug: `model-request-${Date.now()}`,
+                requestedBy: params.userId,
+            });
+            pendingModelRequestId = String(modelRequest.request._id);
+        }
     }
 
     return {

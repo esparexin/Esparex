@@ -19,6 +19,14 @@ const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
 const mockResolveCatalogRequestsForSubmission = jest.fn();
+const mockCatalogRequestUpdateMany = jest.fn().mockResolvedValue({ modifiedCount: 1 });
+
+jest.mock('@esparex/core/models/CatalogRequest', () => ({
+    __esModule: true,
+    default: {
+        updateMany: (...args: unknown[]) => mockCatalogRequestUpdateMany(...args),
+    },
+}));
 
 jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
@@ -248,6 +256,10 @@ describe('createListing.controller', () => {
         const [createdBody] = mockCreateAd.mock.calls[0] as [{ pendingBrandRequestId?: string; customBrandName?: string }];
         expect(createdBody.pendingBrandRequestId).toBe('65f0a1b2c3d4e5f6a7b8c9d1');
         expect(createdBody.customBrandName).toBeUndefined();
+        expect(mockCatalogRequestUpdateMany).toHaveBeenCalledWith(
+            { _id: { $in: ['65f0a1b2c3d4e5f6a7b8c9d1'] } },
+            { $set: { listingId: 'ad-custom-1' } }
+        );
         expect(mockSendSuccessResponse).toHaveBeenCalled();
     });
 });
