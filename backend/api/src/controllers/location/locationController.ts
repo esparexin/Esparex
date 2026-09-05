@@ -275,12 +275,8 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        if (!data?.city || data.latitude == undefined || data.longitude == undefined) {
+        if (!data?.city || !data?.region || data.latitude == undefined || data.longitude == undefined) {
             return res.json(respond({ success: false, data: null }));
-        }
-
-        if (!data || !data.city || !data.region) {
-            return sendErrorResponse(req, res, 422, 'IP geolocation returned incomplete location data');
         }
 
         const lat = Number(data.latitude);
@@ -295,14 +291,13 @@ export const ipLocate = async (req: Request, res: Response) => {
 
         // Refinement: Try to snap IP coordinates to our internal hierarchy for better precision
         try {
-            const internalLocation = await reverseGeocodeService(lat, lng);
-            if (internalLocation && (internalLocation.level === 'city' || internalLocation.level === 'area')) {
-                return res.json(respond({ success: true, data: internalLocation }));
+            const config = await getLocationConfig();
+            if (config.enableReverseGeocoding) {
+                const internalLocation = await reverseGeocodeService(lat, lng);
+                if (internalLocation && (internalLocation.level === 'city' || internalLocation.level === 'area')) {
+                    return res.json(respond({ success: true, data: internalLocation }));
+                }
             }
-            
-            // If we only got a state/country from our DB, but IP provider has a city name,
-            // we merge them or prefer the IP provider's city if it's reasonably close.
-            // For now, we fall back to the formatted IP data if internal refinement isn't specific enough.
         } catch (error: unknown) {
             logger.warn('IP-Geocode refinement failed', { error: error instanceof Error ? error.message : String(error) });
         }
