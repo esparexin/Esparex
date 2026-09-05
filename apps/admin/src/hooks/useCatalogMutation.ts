@@ -62,7 +62,7 @@ export function useCatalogMutation({
                 else if (fetchItems) void fetchItems();
             },
         });
-    }, [toggleStatusFn, runAction, onToggleSuccess, fetchItems, entityName]);
+    }, [toggleStatusFn, runAction, onToggleSuccess, fetchItems]);
 
     const handleDelete = useCallback(async (id: string) => {
         if (!deleteFn) return;

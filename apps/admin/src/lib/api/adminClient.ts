@@ -3,6 +3,7 @@ import {
   ADMIN_ROUTES,
 } from "@/lib/api/routes";
 import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
+import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
 
 const ADMIN_API_BASE = resolveValidatedAdminApiBase();
 
@@ -87,6 +88,7 @@ export async function fetchCsrfToken(): Promise<string> {
 
 type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
+  silent?: boolean;
 };
 
 type AuthFailureListener = (error: AdminApiError) => void;
@@ -251,12 +253,15 @@ export async function adminFetch<T>(
           notifyAdminAuthFailure(error);
         }
 
-        // Surface unexpected failures (5xx, network) via console. 4xx errors are
+        // Surface unexpected failures (5xx, network) via console and popup. 4xx errors are
         // expected business logic and should be handled by the calling hook.
         const isUnexpected = response.status >= 500;
         if (isUnexpected) {
           // eslint-disable-next-line no-console -- infrastructure boundary: 5xx errors are surfaced for observability
           console.error("[API ERROR]", message);
+          if (!options.silent) {
+            emitAdminErrorPopup(response.status, message);
+          }
         }
 
         throw error;
@@ -287,6 +292,9 @@ export async function adminFetch<T>(
       const networkError = new AdminNetworkError(message, err);
       // eslint-disable-next-line no-console -- infrastructure boundary: network failures are surfaced for observability
       console.error("[API ERROR]", message);
+      if (!options.silent) {
+        emitAdminErrorPopup(0, "Unable to connect to server. Please check your network connection.", "NETWORK_ERROR");
+      }
       throw networkError;
     }
   };

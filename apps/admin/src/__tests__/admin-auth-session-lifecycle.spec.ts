@@ -7,6 +7,7 @@ import {
     AdminApiError,
     AdminNetworkError,
 } from "../lib/api/adminClient";
+import { subscribeAdminPopupEvents } from "../lib/popup/popupEvents";
 
 describe("Admin Auth Session Lifecycle — Centralized 401 Eviction & Event Bus", () => {
     beforeEach(() => {
@@ -73,15 +74,25 @@ describe("Admin Auth Session Lifecycle — Centralized 401 Eviction & Event Bus"
         unsubscribe();
     });
 
-    it("throws AdminNetworkError on network failure without calling notifyAdminAuthFailure", async () => {
-        const listener = vi.fn();
-        const unsubscribe = subscribeAdminAuthFailure(listener);
+    it("throws AdminNetworkError and emits error popup on network failure without calling notifyAdminAuthFailure", async () => {
+        const authListener = vi.fn();
+        const popupListener = vi.fn();
+        const unsubscribeAuth = subscribeAdminAuthFailure(authListener);
+        const unsubscribePopup = subscribeAdminPopupEvents(popupListener);
 
         globalThis.fetch = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
 
         await expect(adminFetch("/api/v1/admin/listings")).rejects.toThrow();
-        expect(listener).not.toHaveBeenCalled();
+        expect(authListener).not.toHaveBeenCalled();
+        expect(popupListener).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: "error",
+                title: "NETWORK_ERROR",
+                message: expect.stringContaining("Unable to connect to server"),
+            })
+        );
 
-        unsubscribe();
+        unsubscribeAuth();
+        unsubscribePopup();
     });
 });
