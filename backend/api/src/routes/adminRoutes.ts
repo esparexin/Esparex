@@ -164,7 +164,6 @@ router.get('/locations', adminLocations.getAllLocations);
 router.post('/locations', adminLocations.createLocation);
 router.get('/locations/analytics', adminSystem.getLocationAnalytics);
 router.get('/locations/states', adminLocations.getDistinctStates);
-router.get('/locations/reverse-geocode', adminLocations.reverseGeocode);
 router.get('/locations/moderation-queue', adminLocations.getModerationQueue);
 router.post('/locations/refresh-stats', adminLocations.refreshLocationStats);
 router.patch('/locations/:id', adminLocations.updateLocation);
