@@ -44,6 +44,7 @@ export const getBrands = async (req: Request, res: Response) => {
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
     applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
     return handlePaginatedContent(req, res, BrandModel, {
+        populate: 'categoryIds',
         searchFields: ['name', 'canonicalName', 'aliases'],
         publicQuery: { ...CATALOG_PUBLIC_VISIBILITY_QUERY, ...categoryFilter },
         adminQuery: adminCategoryFilter, queryParams,

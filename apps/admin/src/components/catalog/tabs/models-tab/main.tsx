@@ -96,7 +96,12 @@ export default function ModelsTab() {
                 }}
                 generateColumns={(openEditModal) => [
                     { header: "Model", cell: (m) => <CatalogEntityCell icon={<Layers size={20} />} iconClassName="bg-blue-50 text-blue-600" title={m.name} /> },
-                    { header: "Brand / Categories", cell: (m) => { const b = brands.find((br) => br.id === normalizeObjectIdLike(m.brandId)); return <div className="text-xs space-y-1.5"><div className="text-foreground font-bold">{b?.name || "Unknown Brand"}</div><CatalogCategoryTags categoryIds={getEntityCategoryIds(m)} categories={categories} /></div>; } },
+                    { header: "Brand / Categories", cell: (m) => {
+                        const brandObjName = typeof m.brandId === "object" && m.brandId && "name" in m.brandId ? String((m.brandId as { name?: string }).name) : undefined;
+                        const b = brands.find((br) => br.id === normalizeObjectIdLike(m.brandId));
+                        const brandName = brandObjName || b?.name || (typeof m.brandId === "string" && m.brandId ? m.brandId : "—");
+                        return <div className="text-caption space-y-1.5"><div className="text-foreground font-bold">{brandName}</div><CatalogCategoryTags categoryIds={getEntityCategoryIds(m)} categories={categories} /></div>;
+                    } },
                     { header: "Status", cell: (m) => <CatalogActiveToggleButton isActive={m.isActive} onClick={() => void handleToggleStatus(m.id)} /> },
                     { header: "Approval State", cell: (m) => { const ls = deriveCatalogLifecycleStatus(m); return <span className={`px-2 py-0.5 rounded text-tiny font-bold uppercase tracking-wider ${ls === 'active' ? "bg-emerald-100 text-emerald-700" : ls === 'pending' ? "bg-amber-100 text-amber-700" : ls === 'rejected' ? "bg-red-100 text-red-700" : "bg-muted text-foreground-secondary"}`}>{ls}</span>; } },
                     { header: "Actions", className: "text-right", cell: (m) => { const ls = deriveCatalogLifecycleStatus(m); return <CatalogActionsRow>{ls === 'pending' && <><CatalogActionIconButton onClick={() => void handleApproveModel(m.id)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all" title="Approve" icon={<CheckCircle size={18} />} /><CatalogActionIconButton onClick={() => { setRejectionReason(""); setRejectingModel(m); }} className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all" title="Reject" icon={<XCircle size={18} />} /></>}<CatalogEditDeleteActions onEdit={() => openEditModal(m)} onDelete={() => setDeletingModel(m)} /></CatalogActionsRow>; } },

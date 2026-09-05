@@ -125,7 +125,7 @@ export default function ScreenSizesTab() {
                         header: "Category",
                         cell: (screenSize) => {
                             const category = categories.find((cat) => cat.id === screenSize.categoryId);
-                            return <span className="text-sm font-medium text-foreground-secondary">{category?.name || "Unknown"}</span>;
+                            return <span className="text-body font-medium text-foreground-secondary">{category?.name || screenSize.categoryId || "—"}</span>;
                         },
                     },
                     {

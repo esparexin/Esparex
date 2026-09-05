@@ -208,6 +208,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
     delete cleanQuery.status;
 
     return handlePaginatedContent(req, res, SparePartModel, {
+        populate: 'categoryIds brandId modelId',
         adminQuery,
         queryParams: cleanQuery,
         searchFields: ['name', 'canonicalName', 'aliases'],
