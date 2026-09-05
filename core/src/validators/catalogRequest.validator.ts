@@ -15,6 +15,8 @@ export const catalogRequestStatusSchema = z.enum([
     'approved',
     'rejected',
     'duplicate',
+    'merged',
+    'resolved',
 ]);
 
 export const createCatalogRequestSchema = z

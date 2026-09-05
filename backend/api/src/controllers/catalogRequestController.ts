@@ -57,7 +57,13 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
         const filter: Record<string, unknown> = {};
 
         if (query.status && query.status !== 'all') {
-            filter.status = query.status;
+            if (query.status === 'resolved') {
+                filter.status = { $in: ['resolved', 'approved', 'rejected', 'merged'] };
+            } else if (query.status === 'duplicate') {
+                filter.status = { $in: ['duplicate', 'merged'] };
+            } else {
+                filter.status = query.status;
+            }
         }
 
         if (query.requestType) {
