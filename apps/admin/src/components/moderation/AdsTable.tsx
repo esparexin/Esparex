@@ -268,7 +268,7 @@ export function AdsTable({
         return cols;
     }, [
         showCheckboxes,
-        allSelected,
+        headerCheckedState,
         onToggleSelectAll,
         selectedSet,
         onToggleSelect,
