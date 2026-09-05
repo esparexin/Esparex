@@ -49,7 +49,7 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     onModalOpen?: (item: TItem | null, setFormData: React.Dispatch<React.SetStateAction<TFormData>>) => void;
     onModalClose?: () => void;
     
-    createLabel?: string;
+    createLabel?: string | null;
     modalTitleConfig?: { create: string; edit: string };
     emptyMessage?: string;
     isNested?: boolean;
