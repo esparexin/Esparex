@@ -19,14 +19,7 @@ const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
 const mockResolveCatalogRequestsForSubmission = jest.fn();
-const mockCatalogRequestUpdateMany = jest.fn().mockResolvedValue({ modifiedCount: 1 });
-
-jest.mock('@esparex/core/models/CatalogRequest', () => ({
-    __esModule: true,
-    default: {
-        updateMany: (...args: unknown[]) => mockCatalogRequestUpdateMany(...args),
-    },
-}));
+const mockLinkListingToCatalogRequests = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
@@ -34,6 +27,7 @@ jest.mock('@esparex/core/services/AdOrchestrator', () => ({
 
 jest.mock('@esparex/core/domains/catalog/application/services/CatalogRequestService', () => ({
     resolveCatalogRequestsForSubmission: (...args: unknown[]) => mockResolveCatalogRequestsForSubmission(...args),
+    linkListingToCatalogRequests: (...args: unknown[]) => mockLinkListingToCatalogRequests(...args),
 }));
 
 jest.mock('@esparex/core/services/AdImageService', () => ({
@@ -256,9 +250,9 @@ describe('createListing.controller', () => {
         const [createdBody] = mockCreateAd.mock.calls[0] as [{ pendingBrandRequestId?: string; customBrandName?: string }];
         expect(createdBody.pendingBrandRequestId).toBe('65f0a1b2c3d4e5f6a7b8c9d1');
         expect(createdBody.customBrandName).toBeUndefined();
-        expect(mockCatalogRequestUpdateMany).toHaveBeenCalledWith(
-            { _id: { $in: ['65f0a1b2c3d4e5f6a7b8c9d1'] } },
-            { $set: { listingId: 'ad-custom-1' } }
+        expect(mockLinkListingToCatalogRequests).toHaveBeenCalledWith(
+            ['65f0a1b2c3d4e5f6a7b8c9d1'],
+            'ad-custom-1'
         );
         expect(mockSendSuccessResponse).toHaveBeenCalled();
     });
