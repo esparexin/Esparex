@@ -6,12 +6,11 @@
 
 import { createPoint } from "@esparex/shared";
 import { detectLocationByIP } from "@/lib/api/ipGeolocation";
-import { reverseGeocode as reverseGeocodeApi } from "@/lib/api/user/locations";
 import {
     LABEL_CURRENT_LOCATION,
     LABEL_CURRENT_LOCATION_CAPTURED,
 } from "@/lib/location/locationLabels";
-import { buildAppLocation, normalizeToAppLocation } from "./locationNormalizer";
+import { buildAppLocation, reverseGeocode } from "./locationNormalizer";
 import type { AppLocation } from "@/types/location";
 
 // ── types ────────────────────────────────────────────────────────────────────
@@ -70,11 +69,6 @@ const isSecureLocationContext = (): boolean => {
     return /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
 };
 
-const autoDetectLocation = async (latitude: number, longitude: number): Promise<AppLocation | null> => {
-    const existing = await reverseGeocodeApi(latitude, longitude);
-    return existing ? normalizeToAppLocation(existing, "auto") : null;
-};
-
 const buildFailureResult = (failure: LocationDetectFailure): LocationDetectResult =>
     ({ location: null, source: "none", failure });
 
@@ -104,7 +98,7 @@ type CurrentLocationOptions = {
 };
 
 async function resolveCoordsToLocation(coords: GeolocationCoordinates): Promise<{ location: AppLocation; isResolved: boolean }> {
-    const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
+    const resolved = await reverseGeocode(coords.latitude, coords.longitude);
     if (resolved) return { location: resolved, isResolved: true };
     return {
         location: buildAppLocation({

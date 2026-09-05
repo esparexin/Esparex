@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Loader2, Target } from "@/icons/IconRegistry";
 
 import { Button } from "@esparex/ui";
@@ -10,10 +10,9 @@ import logger from "@/lib/logger";
 import {
     getCurrentLocationResult,
     normalizeLocationName,
-    reverseGeocode,
 } from "@/lib/location/locationService";
 import { LocationFacade, toCanonicalGeoPoint as normalizeCoordinates } from "@esparex/shared";
-import type { AppLocation } from "@/types/location";
+import type { AppLocation, AppLocationSource } from "@/types/location";
 
 import type { StepBaseProps } from "./types";
 
@@ -29,16 +28,11 @@ const buildDetectedLocationDisplay = (location: AppLocation): string =>
         LocationFacade.format(location) || "Current location",
     );
 
-import type { AppLocationSource } from "@/types/location";
-
 const getCurrentLocationSourceLabel = (source: AppLocationSource | ""): string => {
     if (source === "auto") return "GPS";
     if (source === "ip") return "IP";
     return "";
 };
-
-const isGenericCapturedLocation = (display: string): boolean =>
-    ["current location", "current location captured", "approximate current location"].includes(display.toLowerCase());
 
 export const applyDetectedCurrentLocation = ({
     detectedLocation,
@@ -116,7 +110,6 @@ export function StepAddress({
 }: StepAddressProps) {
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
-    const refreshedGenericLocationKeyRef = useRef<string | null>(null);
 
     const hasCurrentLocation = useMemo(
         () => Boolean(asOptionalString(formData.currentLocationDisplay) && formData.coordinates),
@@ -124,69 +117,6 @@ export function StepAddress({
     );
     const currentLocationError = formData.errors?.currentLocationDisplay || formData.errors?.coordinates;
     const sourceLabel = getCurrentLocationSourceLabel(formData.currentLocationSource);
-    const normalizedDetectedDisplay = asOptionalString(formData.currentLocationDisplay);
-    const normalizedDetectedCoordinates = useMemo(
-        () => normalizeCoordinates(formData.coordinates),
-        [formData.coordinates],
-    );
-    const detectedLocationSignature = normalizedDetectedCoordinates
-        ? `${normalizedDetectedCoordinates.coordinates[0]}:${normalizedDetectedCoordinates.coordinates[1]}`
-        : "";
-
-    useEffect(() => {
-        if (
-            !normalizedDetectedCoordinates
-            || !normalizedDetectedDisplay
-            || !isGenericCapturedLocation(normalizedDetectedDisplay)
-        ) {
-            refreshedGenericLocationKeyRef.current = null;
-            return;
-        }
-
-        if (refreshedGenericLocationKeyRef.current === detectedLocationSignature) {
-            return;
-        }
-
-        refreshedGenericLocationKeyRef.current = detectedLocationSignature;
-        let cancelled = false;
-
-        void (async () => {
-            try {
-                const refreshedLocation = await reverseGeocode(
-                    normalizedDetectedCoordinates.coordinates[1],
-                    normalizedDetectedCoordinates.coordinates[0],
-                );
-                if (!refreshedLocation || cancelled) {
-                    return;
-                }
-
-                const refreshedDisplay = buildDetectedLocationDisplay(refreshedLocation);
-                if (!refreshedDisplay || isGenericCapturedLocation(refreshedDisplay)) {
-                    return;
-                }
-
-                applyDetectedCurrentLocation({
-                    detectedLocation: {
-                        ...refreshedLocation,
-                        source: "auto",
-                    },
-                    setFormData,
-                });
-            } catch (error) {
-                logger.warn("Failed to refresh generic detected location label", error);
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [
-        detectedLocationSignature,
-        formData.currentLocationSource,
-        normalizedDetectedCoordinates,
-        normalizedDetectedDisplay,
-        setFormData,
-    ]);
 
     // B4: Clear GPS feedback on unmount to prevent stale error on re-mount
     useEffect(() => {
@@ -198,7 +128,6 @@ export function StepAddress({
     const handleDetectCurrentLocation = async () => {
         setIsDetectingLocation(true);
         setDetectFeedback(null);
-        refreshedGenericLocationKeyRef.current = null;
 
         try {
             const detectionResult = await getCurrentLocationResult({
@@ -208,21 +137,7 @@ export function StepAddress({
             });
 
             if (!detectionResult.location) {
-                // B4: Map known GPS failure reasons to user-friendly messages
-                const failureReason = detectionResult.failure?.reason;
-                let feedbackMsg: string;
-                if (failureReason === "permission_denied") {
-                    feedbackMsg = "Location permission was denied. Please allow location access in your browser or device settings and try again.";
-                } else if (failureReason === "position_unavailable") {
-                    feedbackMsg = "Your location could not be determined. Make sure GPS is enabled on your device.";
-                } else if (failureReason === "timeout") {
-                    feedbackMsg = "Location detection timed out. You may be in a low-signal area — try moving to an open space and retry.";
-                } else if (failureReason === "insecure_context" || failureReason === "unsupported") {
-                    feedbackMsg = "Location is not supported in this browser or connection. Try using Chrome or Safari over HTTPS.";
-                } else {
-                    feedbackMsg = detectionResult.failure?.message || "Use current location to continue.";
-                }
-                setDetectFeedback(feedbackMsg);
+                setDetectFeedback(detectionResult.failure?.message || "Use current location to continue.");
                 return;
             }
 
