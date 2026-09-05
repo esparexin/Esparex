@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { UserPlus, Power, Trash2, Save, XCircle, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
+import { USER_STATUS, Role } from "@esparex/contracts";
+import { normalizeRole } from "@esparex/shared";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
@@ -46,7 +48,6 @@ export default function AdminUsersPage() {
 
     const [editingAdminId, setEditingAdminId] = useState<string | null>(null);
     const [editingAdmin, setEditingAdmin] = useState<ManagedAdmin | null>(null);
-    const [permissionsDraft, setPermissionsDraft] = useState("");
     const [deletingAdminId, setDeletingAdminId] = useState<string | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     
@@ -62,14 +63,12 @@ export default function AdminUsersPage() {
     const onStartEdit = useCallback((admin: ManagedAdmin) => {
         setEditingAdminId(admin.id);
         setEditingAdmin(admin);
-        setPermissionsDraft(admin.permissions.join(", "));
         setShowCreateForm(false);
     }, []);
 
     const onCancelEdit = useCallback(() => {
         setEditingAdminId(null);
         setEditingAdmin(null);
-        setPermissionsDraft("");
     }, []);
 
     const onSaveEdit = useCallback(async (values: AdminEditUserFormValues) => {
@@ -101,66 +100,31 @@ export default function AdminUsersPage() {
             ...ADMIN_IDENTITY_COLUMNS,
             {
                 header: "Permissions",
-                cell: (admin) => {
-                    const isEditing = editingAdminId === admin.id;
-                    if (isEditing) {
-                        return (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    className="flex-1 rounded-lg border border-input bg-background px-2 py-1 text-caption text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                                    value={permissionsDraft}
-                                    placeholder="e.g. users:read, listings:write"
-                                    onChange={(e) => setPermissionsDraft(e.target.value)}
-                                />
-                                <button
-                                    className="inline-flex items-center gap-1 rounded-md bg-foreground px-2 py-1 text-caption font-semibold text-background hover:bg-foreground/90 disabled:opacity-50 cursor-pointer"
-                                    disabled={isMutating}
-                                    onClick={() => {
-                                        if (!editingAdmin) return;
-                                        void onSaveEdit({
-                                            ...toEditableAdminFormState(editingAdmin),
-                                            permissionsText: permissionsDraft,
-                                        });
-                                    }}
-                                >
-                                    <Save size={12} /> Save
-                                </button>
-                                <button
-                                    className="rounded-md border border-border px-2 py-1 text-caption text-foreground-secondary hover:bg-muted/50 cursor-pointer"
-                                    onClick={onCancelEdit}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        );
-                    }
-                    return (
-                        <div className="flex flex-wrap gap-1 max-w-[380px]">
-                            {admin.permissions.length > 0
-                                ? admin.permissions.map((p) => (
-                                    <span key={p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
-                                ))
-                                : <span className="text-caption italic text-foreground-subtle">No explicit permissions</span>
-                            }
-                        </div>
-                    );
-                },
+                cell: (admin) => (
+                    <div className="flex flex-wrap gap-1 max-w-[380px]">
+                        {admin.permissions.length > 0
+                            ? admin.permissions.map((p) => (
+                                <span key={p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
+                            ))
+                            : <span className="text-caption italic text-foreground-subtle">No explicit permissions</span>
+                        }
+                    </div>
+                ),
             },
             {
                 header: "Actions",
                 cell: (admin) => (
-                    editingAdminId === admin.id ? null : (
-                        <button
-                            className="rounded-md border border-border px-2 py-1 text-caption font-medium text-foreground-secondary hover:bg-muted/50 cursor-pointer"
-                            onClick={() => onStartEdit(admin)}
-                        >
-                            Edit Permissions
-                        </button>
-                    )
+                    <button
+                        className="rounded-md border border-border px-2.5 py-1 text-caption font-medium text-foreground-secondary hover:bg-muted/50 transition-colors cursor-pointer"
+                        onClick={() => onStartEdit(admin)}
+                        disabled={isMutating}
+                    >
+                        Edit Permissions
+                    </button>
                 ),
             },
         ],
-        [editingAdmin, editingAdminId, isMutating, permissionsDraft, onSaveEdit, onCancelEdit, onStartEdit]
+        [isMutating, onStartEdit]
     );
 
     const columns: ColumnDef<ManagedAdmin>[] = useMemo(
@@ -220,11 +184,11 @@ export default function AdminUsersPage() {
         [isMutating, onToggleStatus, onStartEdit, confirmDelete]
     );
 
-    const superAdmins = admins.filter(a => a.role === 'superAdmin').length;
-    const adminCount = admins.filter(a => a.role === 'admin').length;
-    const moderators = admins.filter(a => a.role === 'moderator' || a.role === 'content_moderator').length;
-    const support = admins.filter(a => a.role === 'support' || a.role === 'user_manager').length;
-    const finance = admins.filter(a => a.role === 'finance' || a.role === 'finance_manager').length;
+    const superAdmins = admins.filter(a => normalizeRole(a.role) === Role.SUPER_ADMIN).length;
+    const adminCount = admins.filter(a => normalizeRole(a.role) === Role.ADMIN).length;
+    const moderators = admins.filter(a => normalizeRole(a.role) === Role.MODERATOR).length;
+    const activeAdmins = admins.filter(a => a.status === USER_STATUS.LIVE || a.status === 'live' || a.status === 'active').length;
+    const totalAdmins = admins.length;
 
     const deletingAdmin = admins.find(a => a.id === deletingAdminId);
 
@@ -234,10 +198,10 @@ export default function AdminUsersPage() {
             description={isPermissionsView
                 ? "Manage admin roles and explicit permission strings."
                 : "Create, update, deactivate, and review administrator accounts."}
-            actions={!isPermissionsView && !showCreateForm && !editingAdminId && (
+            actions={!showCreateForm && !editingAdminId && (
                 <button 
                     onClick={() => setShowCreateForm(true)}
-                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 text-sm font-bold"
+                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 text-body font-bold cursor-pointer"
                 >
                     <UserPlus size={18} />
                     <span>New Admin</span>
@@ -246,33 +210,31 @@ export default function AdminUsersPage() {
         >
             <AdminModuleTabs tabs={administrationTabs} />
 
-            {!isPermissionsView && (
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5 mt-3 max-w-3xl">
-                    <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-sm">
-                        <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
-                        <p className="mt-0.5 text-lg font-bold text-purple-700">{superAdmins}</p>
-                    </div>
-                    <div className="rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 shadow-sm">
-                        <p className="text-tiny font-semibold uppercase tracking-wide text-blue-700">Admins</p>
-                        <p className="mt-0.5 text-lg font-bold text-blue-700">{adminCount}</p>
-                    </div>
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2 shadow-sm">
-                        <p className="text-tiny font-semibold uppercase tracking-wide text-emerald-700">Moderators</p>
-                        <p className="mt-0.5 text-lg font-bold text-emerald-700">{moderators}</p>
-                    </div>
-                    <div className="rounded-lg border border-amber-200 bg-amber-50/40 px-3 py-2 shadow-sm">
-                        <p className="text-tiny font-semibold uppercase tracking-wide text-amber-700">Support</p>
-                        <p className="mt-0.5 text-lg font-bold text-amber-700">{support}</p>
-                    </div>
-                    <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm">
-                        <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Finance</p>
-                        <p className="mt-0.5 text-lg font-bold text-indigo-700">{finance}</p>
-                    </div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-3 xl:grid-cols-5 mt-3 max-w-4xl">
+                <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-xs">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
+                    <p className="mt-0.5 text-h4 font-bold text-purple-700">{superAdmins}</p>
                 </div>
-            )}
+                <div className="rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 shadow-xs">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-blue-700">Admins</p>
+                    <p className="mt-0.5 text-h4 font-bold text-blue-700">{adminCount}</p>
+                </div>
+                <div className="rounded-lg border border-amber-200 bg-amber-50/40 px-3 py-2 shadow-xs">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-amber-700">Moderators</p>
+                    <p className="mt-0.5 text-h4 font-bold text-amber-700">{moderators}</p>
+                </div>
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2 shadow-xs">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-emerald-700">Active</p>
+                    <p className="mt-0.5 text-h4 font-bold text-emerald-700">{activeAdmins}</p>
+                </div>
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-xs">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Total Accounts</p>
+                    <p className="mt-0.5 text-h4 font-bold text-indigo-700">{totalAdmins}</p>
+                </div>
+            </div>
 
             <div className="space-y-6 mt-6">
-                {!isPermissionsView && showCreateForm && (
+                {showCreateForm && (
                     <AdminUserFormCard
                         mode="create"
                         values={DEFAULT_CREATE_FORM}
@@ -287,7 +249,7 @@ export default function AdminUsersPage() {
                     />
                 )}
 
-                {!isPermissionsView && editingAdminId && editingAdmin && (
+                {editingAdminId && editingAdmin && (
                     <AdminUserFormCard
                         mode="edit"
                         title={`Edit Admin: ${getAdminDisplayName(editingAdmin)}`}
