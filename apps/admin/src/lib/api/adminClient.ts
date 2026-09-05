@@ -89,6 +89,28 @@ type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
+type AuthFailureListener = (error: AdminApiError) => void;
+const authFailureListeners = new Set<AuthFailureListener>();
+
+export function subscribeAdminAuthFailure(listener: AuthFailureListener): () => void {
+  authFailureListeners.add(listener);
+  return () => {
+    authFailureListeners.delete(listener);
+  };
+}
+
+export function notifyAdminAuthFailure(error: AdminApiError): void {
+  setAdminAccessToken(null);
+  cachedCsrfToken = null;
+  authFailureListeners.forEach((listener) => {
+    try {
+      listener(error);
+    } catch {
+      // ignore subscriber errors
+    }
+  });
+}
+
 export class AdminApiError<T = unknown> extends Error {
   status: number;
   payload: AdminEnvelope<T>;
@@ -202,10 +224,6 @@ export async function adminFetch<T>(
       const payload = (await response.json().catch(() => ({}))) as AdminEnvelope<T>;
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setAdminAccessToken(null);
-        }
-
         const errorText = `${payload.message || ""} ${payload.error || ""}`.toLowerCase();
         const isCsrfError = response.status === 403 && errorText.includes("csrf");
         if (isCsrfError && isStateChangingRequest && !csrfRetry) {
@@ -228,6 +246,10 @@ export async function adminFetch<T>(
 
         const message = payload.message || nestedErrorMessage || (typeof payload.error === 'string' ? payload.error : undefined) || detailsMessage || `Request failed (${response.status})`;
         const error = new AdminApiError(String(message), response.status, payload);
+
+        if (response.status === 401 && path !== ADMIN_ROUTES.LOGIN) {
+          notifyAdminAuthFailure(error);
+        }
 
         // Surface unexpected failures (5xx, network) via console. 4xx errors are
         // expected business logic and should be handled by the calling hook.

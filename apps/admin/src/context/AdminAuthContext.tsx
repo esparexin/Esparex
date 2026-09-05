@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AdminApiError, AdminNetworkError, adminFetch, setAdminAccessToken, fetchCsrfToken } from "@/lib/api/adminClient";
+import { AdminApiError, AdminNetworkError, adminFetch, setAdminAccessToken, fetchCsrfToken, subscribeAdminAuthFailure } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { AdminUser } from "@/types/admin";
@@ -95,6 +95,35 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     void (async () => { await refresh(); })();
   }, [refresh]);
+
+  // Subscribe to global 401 auth failures emitted by adminFetch across any feature/page
+  useEffect(() => {
+    const unsubscribe = subscribeAdminAuthFailure(() => {
+      const requestId = ++authRequestSeq.current;
+      if (requestId === authRequestSeq.current) {
+        setState({ admin: null, loading: false, error: null });
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  // Proactively revalidate session when admin tab regains focus or visibility
+  useEffect(() => {
+    if (!state.admin) return;
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    };
+
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    return () => {
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+    };
+  }, [refresh, state.admin]);
 
   const login = useCallback(async (input: LoginInput) => {
     const requestId = ++authRequestSeq.current;
