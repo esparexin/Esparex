@@ -11,8 +11,7 @@ import {
     getDefaultCenterLocation,
     getAreasByCityId,
     getCitiesByStateId,
-    getStateLocations,
-    ingestLocation as ingestLocationService
+    getStateLocations
 } from '@esparex/core/services/location/LocationHierarchyService';
 import {
     lookupLocationByPincode as lookupLocationByPincodeService,
@@ -413,18 +412,6 @@ export const geocode = async (req: Request, res: Response) => {
         logger.error('geocode error', { error: error instanceof Error ? error.message : String(error) });
         const message = error instanceof Error ? error.message : 'Geocode failed';
         const statusCode = /Invalid|range|Null-island/i.test(message) ? 400 : 500;
-        return sendErrorResponse(req, res, statusCode, message);
-    }
-};
-
-export const ingestLocation = async (req: Request, res: Response) => {
-    try {
-        const ingested = await ingestLocationService(req.body as Parameters<typeof ingestLocationService>[0]);
-        return res.json(respond({ success: true, data: ingested }));
-    } catch (error: unknown) {
-        logger.error('ingestLocation error', { error: error instanceof Error ? error.message : String(error) });
-        const message = error instanceof Error ? error.message : 'Failed to ingest location';
-        const statusCode = /Missing required fields|Invalid coordinates/i.test(message) ? 400 : 500;
         return sendErrorResponse(req, res, statusCode, message);
     }
 };

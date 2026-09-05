@@ -1,6 +1,5 @@
 import express from "express";
 import * as locationController from "../controllers/location/locationController";
-import { requireAdmin } from "../middleware/adminAuth";
 import { searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import * as Validators from '@esparex/core/validators/location.validator';
@@ -38,10 +37,5 @@ router.get("/geocode", publicCacheControl(300, 3600), searchLimiter, locationCon
 
 // Analytics
 router.post("/log-event", searchLimiter, validateRequest(Validators.logLocationEventSchema), locationController.logLocationEvent);
-
-// Auto-detect & Ingest — create new location if not found in 2km radius
-// Used by auto-detect feature to create locations when coordinates don't match existing ones
-// 🔒 SECURITY: admin-only — prevents unauthorized location data injection.
-router.post("/ingest", requireAdmin, searchLimiter, validateRequest(Validators.ingestLocationSchema), locationController.ingestLocation);
 
 export default router;
