@@ -1,4 +1,9 @@
-# Esparex AGENTS.md — Architecture Governance
+# Esparex AGENTS.md — Authoritative Architecture Governance (SSOT)
+
+> **AUTHORITY & ENFORCEMENT HIERARCHY:**  
+> This file is the single authoritative source of truth for AI agent and developer architectural governance across the Esparex repository.  
+> **AGENTS.md (Policy)** ──► **Mechanical Guards & Tooling** ──► **Composite `repo:gate`** ──► **CI Gate**.  
+> Parallel duplicate governance documents outside this hierarchy are deprecated.
 
 ## Similarity Threshold Rule
 
