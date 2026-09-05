@@ -1,8 +1,9 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -63,7 +64,10 @@ function LoginForm() {
     },
   });
 
-  const twoFactorCodeValue = form.watch("twoFactorCode");
+  const twoFactorCodeValue = useWatch({
+    control: form.control,
+    name: "twoFactorCode",
+  });
 
   useEffect(() => {
     if (!authLoading) return;
@@ -164,12 +168,25 @@ function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-[420px] space-y-8">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-xl shadow-primary/20 mb-4 animate-in zoom-in duration-500">
-            <Shield className="text-primary-foreground w-8 h-8" />
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-1 animate-in zoom-in duration-500">
+            <Image
+              src="/icons/logo.png"
+              alt="Esparex Logo"
+              width={160}
+              height={40}
+              priority
+              className="h-9 w-auto object-contain"
+            />
           </div>
-          <Heading variant="h1">Esparex Admin</Heading>
-          <Text variant="small" className="text-foreground-tertiary">Secure access to the command center</Text>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-primary">
+              <Shield size={12} />
+              <span>Admin Portal</span>
+            </div>
+            <Heading variant="h1" className="mt-1">Esparex Admin</Heading>
+            <Text variant="small" className="text-foreground-tertiary">Secure access to the command center</Text>
+          </div>
         </div>
 
         <div className="bg-card/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-border isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
