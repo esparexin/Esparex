@@ -121,7 +121,72 @@ function run(val) {
     checkAppFiles(fullDir);
   }
 
-  val.info('Dynamic canonical ownership and import resolution verified across workspace packages and applications');
+  // 3. Structural Directory & Legacy Namespace Enforcement
+  const PROHIBITED_DIRECTORIES = [
+    {
+      dir: 'backend/api/src/models',
+      reason: 'Backend Model Violation: backend/api/src/models is prohibited. Canonical Mongoose models belong in @esparex/core.',
+    },
+    {
+      dir: 'core/src/domain',
+      reason: 'Domain Entity Placement Violation: core/src/domain is prohibited. Domain entities and value objects must reside inside bounded contexts under core/src/domains/<context>/domain/.',
+    },
+    {
+      dir: 'shared/src/contracts',
+      reason: 'Shared Directory Naming Violation: shared/src/contracts is prohibited. Wire DTO contracts belong in @esparex/contracts and route path constants belong in shared/src/routes/.',
+    },
+    {
+      dir: 'core/src/services/notification',
+      reason: 'Deprecated Namespace Violation: core/src/services/notification is prohibited. Notification services belong in core/src/domains/notifications/.',
+    },
+    {
+      dir: '.agents/workflows',
+      reason: 'Workflow Directory Ambiguity: .agents/workflows (plural) is prohibited. Canonical workflow documentation belongs in .agents/workflow/.',
+    },
+  ];
+
+  for (const item of PROHIBITED_DIRECTORIES) {
+    const fullPath = path.join(ROOT, item.dir);
+    if (fs.existsSync(fullPath)) {
+      val.error(item.reason);
+    }
+  }
+
+  // 4. Legacy Core Services and Models Ratchet (ADR-008 DDD Migration)
+  const CORE_SERVICES_DIR = path.join(ROOT, 'core/src/services');
+  const CORE_MODELS_DIR = path.join(ROOT, 'core/src/models');
+  const MAX_SERVICES_COUNT = 121;
+  const MAX_MODELS_COUNT = 64;
+
+  function countSourceFiles(dir) {
+    if (!fs.existsSync(dir)) return 0;
+    let count = 0;
+    function walk(d) {
+      for (const item of fs.readdirSync(d)) {
+        const p = path.join(d, item);
+        const stat = fs.statSync(p);
+        if (stat.isDirectory()) {
+          if (item !== 'node_modules' && !item.startsWith('.')) walk(p);
+        } else if (/\.(ts|tsx)$/.test(item) && !item.endsWith('.d.ts')) {
+          count++;
+        }
+      }
+    }
+    walk(dir);
+    return count;
+  }
+
+  const currentServicesCount = countSourceFiles(CORE_SERVICES_DIR);
+  if (currentServicesCount > MAX_SERVICES_COUNT) {
+    val.error(`DDD Migration Violation: core/src/services contains ${currentServicesCount} files (max allowed: ${MAX_SERVICES_COUNT}). New services must be created within their bounded context under core/src/domains/<context>/ per ADR-008.`);
+  }
+
+  const currentModelsCount = countSourceFiles(CORE_MODELS_DIR);
+  if (currentModelsCount > MAX_MODELS_COUNT) {
+    val.error(`DDD Migration Violation: core/src/models contains ${currentModelsCount} files (max allowed: ${MAX_MODELS_COUNT}). New models must be created as repository adapters in core/src/adapters/outbound/persistence/ per ADR-008 Sprint 3.`);
+  }
+
+  val.info('Dynamic canonical ownership, structural directory boundaries, and DDD migration ratchets verified');
 }
 
 if (require.main === module) {
