@@ -69,13 +69,13 @@ export default function GoogleAdsPage() {
             if (editingPlacement) {
                 await adminFetch(ADMIN_ROUTES.GOOGLE_ADS_PLACEMENT_BY_ID(editingPlacement.id), {
                     method: "PATCH",
-                    body: JSON.stringify(data),
+                    body: data,
                 });
                 showAdminPopup({ type: "success", title: "Saved", message: "Ad placement updated successfully" });
             } else {
                 await adminFetch(ADMIN_ROUTES.GOOGLE_ADS_PLACEMENTS, {
                     method: "POST",
-                    body: JSON.stringify(data),
+                    body: data,
                 });
                 showAdminPopup({ type: "success", title: "Created", message: "Ad placement created successfully" });
             }
@@ -96,7 +96,7 @@ export default function GoogleAdsPage() {
         try {
             await adminFetch(ADMIN_ROUTES.GOOGLE_ADS_PLACEMENT_STATUS(placement.id), {
                 method: "PATCH",
-                body: JSON.stringify({ status: nextStatus }),
+                body: { status: nextStatus },
             });
             showAdminPopup({
                 type: "success",
