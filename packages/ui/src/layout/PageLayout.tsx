@@ -46,7 +46,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
       <div ref={ref} className={cn("flex min-h-screen flex-col bg-background", className)} {...props}>
         {header}
         
-        <div className={cn("flex flex-1", header && "pt-[96px] md:pt-16")}>
+        <div className={cn("flex flex-1", header && !isAdmin && "pt-[96px] md:pt-16")}>
           {hasSidebar && (
             <aside className={cn("shrink-0 border-r border-border", isAdmin ? "" : "hidden w-64 md:block")}>
               {sidebar}
