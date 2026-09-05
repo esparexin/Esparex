@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse, buildLogFn, getActorId } from '../../utils/adminBaseController';
-import { serializeBusinessForAdmin } from './business/shared';
+import { serializeBusinessForAdmin } from '@esparex/core/utils/businessSerializer';
 import * as adminBusinessService from '@esparex/core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@esparex/core/utils/businessStatus';
 import { BUSINESS_STATUS } from "@esparex/contracts";

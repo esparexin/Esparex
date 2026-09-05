@@ -1,7 +1,7 @@
 "use client";
 
 import { uploadBusinessImage } from "@/lib/api/user/businesses";
-import { sanitizeFileName } from "@/lib/error-handler/validation";
+import { sanitizeFileName } from "@/lib/sanitizeFileName";
 import type { SubmissionStatus } from "./types";
 
 /**

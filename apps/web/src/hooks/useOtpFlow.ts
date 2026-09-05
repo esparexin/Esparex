@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { authApi } from "@/lib/api/auth";
 import { useAuth, useBackendReady } from "@/context/AuthContext";
 import { haptics } from "@/lib/haptics";
-import { formatMobileForApi, validateIndianMobile, normalizeTo10Digits } from "@/lib/validation";
+import { formatMobileForApi, validateIndianMobile, normalizeTo10Digits } from "@/lib/mobileUtils";
 import { useStateMachine } from "@/state-machines/useStateMachine";
 import { otpAuthMachine } from "@/state-machines/otpAuthMachine";
 import { useOtpTimers } from "./useOtpTimers";
