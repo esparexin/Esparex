@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge, Bell, Button, Card, CardContent, Crown, Edit2, Eye, Plus, Separator, Trash2 } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
@@ -41,7 +41,9 @@ export function SmartAlertsTab({
 }: SmartAlertsTabProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const isCreateAction = searchParams?.get("action") === "create";
+    const [isInternalOpen, setIsInternalOpen] = useState(false);
+    const isDialogOpen = isInternalOpen || isCreateAction;
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
@@ -50,22 +52,15 @@ export function SmartAlertsTab({
     const freeSlotsLimit = 5;
     const remainingFreeSlots = Math.max(0, freeSlotsLimit - smartAlerts.length);
 
-    useEffect(() => {
-        if (searchParams?.get("action") === "create") {
-            resetAlertForm();
-            setIsDialogOpen(true);
-        }
-    }, [searchParams, resetAlertForm]);
-
     const handleCloseDialog = () => {
-        setIsDialogOpen(false);
-        if (searchParams?.get("action") === "create") {
+        setIsInternalOpen(false);
+        if (isCreateAction) {
             router.replace("/account/alerts", { scroll: false });
         }
     };
 
-    const handleOpenCreateModal = () => { resetAlertForm(); setIsDialogOpen(true); };
-    const handleOpenEditModal = (alert: SmartAlertListItem) => { handleEditAlert(alert); setIsDialogOpen(true); };
+    const handleOpenCreateModal = () => { resetAlertForm(); setIsInternalOpen(true); };
+    const handleOpenEditModal = (alert: SmartAlertListItem) => { handleEditAlert(alert); setIsInternalOpen(true); };
 
     const handleSubmitForm = async (location: SmartAlertSelection | null) => {
         await handleCreateAlert(location);
@@ -221,7 +216,7 @@ export function SmartAlertsTab({
             {/* Dedicated Creation / Edit Modal */}
             <CreateSmartAlertDialog
                 open={isDialogOpen}
-                onOpenChange={(nextOpen) => { if (!nextOpen) handleCloseDialog(); else setIsDialogOpen(true); }}
+                onOpenChange={(nextOpen) => { if (!nextOpen) handleCloseDialog(); else setIsInternalOpen(true); }}
                 formData={smartAlertForm}
                 updateFormData={updateSmartAlertForm}
                 onSubmit={handleSubmitForm}

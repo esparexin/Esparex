@@ -62,7 +62,7 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
 
         expect(fileContent).toContain('searchParams?.get("action") === "create"');
         expect(fileContent).toContain("resetAlertForm()");
-        expect(fileContent).toContain("setIsDialogOpen(true)");
+        expect(fileContent).toContain("isInternalOpen || isCreateAction");
         expect(fileContent).toContain('router.replace("/account/alerts", { scroll: false })');
     });
 
