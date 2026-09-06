@@ -17,6 +17,7 @@ interface SmartAlertCategoryBrandModelFieldsProps {
     formData: SmartAlertFormData;
     updateFormData: (updates: Partial<SmartAlertFormData>) => void;
     errors?: SmartAlertFieldErrors;
+    autoFocusCategory?: boolean;
 }
 
 export function SmartAlertCategoryBrandModelFields({
@@ -29,6 +30,7 @@ export function SmartAlertCategoryBrandModelFields({
     formData,
     updateFormData,
     errors,
+    autoFocusCategory = false,
 }: SmartAlertCategoryBrandModelFieldsProps) {
     return (
         <>
@@ -44,6 +46,7 @@ export function SmartAlertCategoryBrandModelFields({
                     placeholder="Select Category..."
                     title="Category"
                     emptyMessage="No categories found"
+                    autoFocus={autoFocusCategory}
                     onSelect={(cat) => updateFormData({ category: cat.name, brand: "", model: "" })}
                     onClear={() => updateFormData({ category: "", brand: "", model: "" })}
                     getLabel={(cat) => cat.name}

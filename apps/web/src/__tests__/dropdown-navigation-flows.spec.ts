@@ -42,15 +42,15 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("select-option-");
     });
 
-    it("ensures BusinessPostFAB directs Create Smart Alert to ?action=create and auto-closes on click", () => {
+    it("ensures BusinessPostFAB triggers in-app Smart Alert modal without navigating away and auto-closes on click", () => {
         const fabPath = path.resolve(
             __dirname,
             "../components/layout/BusinessPostFAB.tsx"
         );
         const fileContent = fs.readFileSync(fabPath, "utf-8");
 
-        expect(fileContent).toContain('href: "/account/alerts?action=create"');
-        expect(fileContent).toContain("onClick={() => setIsOpen(false)}");
+        expect(fileContent).toContain("openSmartAlertModal({ autoFocusCategory: true })");
+        expect(fileContent).toContain("setIsOpen(false)");
     });
 
     it("ensures SmartAlertsTab observes action=create to auto-open dialog and cleans up URL on close", () => {

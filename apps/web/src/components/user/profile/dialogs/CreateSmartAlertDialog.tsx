@@ -40,6 +40,7 @@ interface CreateSmartAlertDialogProps {
     isMutating?: boolean;
     errors?: SmartAlertFieldErrors;
     globalError?: string | null;
+    autoFocusCategory?: boolean;
 }
 
 export function CreateSmartAlertDialog({
@@ -53,6 +54,7 @@ export function CreateSmartAlertDialog({
     isMutating,
     errors,
     globalError,
+    autoFocusCategory,
 }: CreateSmartAlertDialogProps) {
     const [selectedLocation, setSelectedLocation] = useState<SmartAlertLocationSelection | null>(null);
     const radiusRef = useRef<HTMLDivElement>(null);
@@ -200,6 +202,7 @@ export function CreateSmartAlertDialog({
                             formData={formData}
                             updateFormData={updateFormData}
                             errors={errors}
+                            autoFocusCategory={autoFocusCategory}
                         />
 
                         {/* Search Keywords */}

@@ -24,6 +24,7 @@ export interface EntitySearchComboboxProps<T> {
     onSearchChange?: (search: string) => void;
     onProposeCustom?: (customName: string) => void;
     proposeType?: 'brand' | 'model';
+    autoFocus?: boolean;
     getLabel: (item: T) => string;
     getId: (item: T) => string;
     renderItem?: (item: T, isSelected: boolean) => ReactNode;
@@ -40,6 +41,7 @@ export function EntitySearchCombobox<T>({
     disabled = false,
     isCustom = false,
     className,
+    autoFocus = false,
     onSelect,
     onClear,
     onSearchChange,
@@ -50,7 +52,7 @@ export function EntitySearchCombobox<T>({
     renderItem,
 }: EntitySearchComboboxProps<T>) {
     const [search, setSearch] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(Boolean(autoFocus));
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
 
@@ -88,6 +90,8 @@ export function EntitySearchCombobox<T>({
 
     const activeOptionId = activeIndex >= 0 ? `select-option-${sanitizedTitle}-${activeIndex}` : undefined;
 
+    useEffect(() => { if (autoFocus) setIsEditing(true); }, [autoFocus]);
+
     // Pre-focus matching item on opening when a value is pre-selected
     useEffect(() => {
         if (!isListOpen || !value) return;
@@ -110,12 +114,9 @@ export function EntitySearchCombobox<T>({
             const target = event.target as Node;
             if (container && !container.contains(target) && dropdownEl && !dropdownEl.contains(target)) handleClose();
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("touchstart", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("touchstart", handleClickOutside);
-        };
+        const evts: Array<"mousedown" | "touchstart"> = ["mousedown", "touchstart"];
+        evts.forEach((e) => document.addEventListener(e, handleClickOutside));
+        return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
     }, [isListOpen, isMobile, listboxId]);
 
     const renderOptionsList = (isMobileView: boolean) => {
@@ -181,7 +182,7 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
-                    autoFocus={isEditing}
+                    autoFocus={autoFocus || isEditing}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
                         const val = e.target.value;
@@ -240,13 +241,7 @@ export function EntitySearchCombobox<T>({
             {/* Listbox overlay */}
             {isListOpen && (
                 isMobile ? (
-                    <Drawer
-                        title={title}
-                        open={true}
-                        onOpenChange={(open) => {
-                            if (!open) handleClose();
-                        }}
-                    >
+                    <Drawer title={title} open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
                         <div className="flex flex-col max-h-[70vh] px-2 pb-4">
                             <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">

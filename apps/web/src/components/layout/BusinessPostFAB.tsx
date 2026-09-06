@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Plus, Wrench, CircuitBoard, Bell } from "@esparex/ui";
 import { useAuth } from "@/context/AuthContext";
 import { isApprovedBusiness } from "@/guards/businessGuards";
+import { useSmartAlertModal } from "@/context/SmartAlertModalContext";
 import { cn } from "@/lib/utils";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 
@@ -30,6 +31,7 @@ export function BusinessPostFAB() {
     // Only for authenticated users
     if (status !== "authenticated" || !user) return null;
 
+    const { openSmartAlertModal } = useSmartAlertModal();
     const isApproved = isApprovedBusiness(user);
 
     // Dynamic actions based on role and business verification status
@@ -53,9 +55,11 @@ export function BusinessPostFAB() {
         {
             id: "smart-alert",
             label: "Create Smart Alert",
-            href: "/account/alerts?action=create",
             icon: Bell,
             bg: "bg-amber-600 hover:bg-amber-700",
+            onClick: () => {
+                openSmartAlertModal({ autoFocusCategory: true });
+            },
         },
     ];
 
@@ -88,24 +92,48 @@ export function BusinessPostFAB() {
             {/* Sub-actions — stagger in from bottom */}
             {actions.map((action, i) => {
                 const Icon = action.icon;
+                const actionContent = (
+                    <>
+                        <Icon className="w-4 h-4 shrink-0" />
+                        {action.label}
+                    </>
+                );
+                const actionClass = cn(
+                    "flex items-center gap-3 pl-4 pr-5 h-11 rounded-full shadow-lg text-white text-body font-semibold transition-all duration-200 cursor-pointer",
+                    action.bg,
+                    isOpen
+                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                        : "opacity-0 translate-y-4 pointer-events-none"
+                );
+                if ("onClick" in action && action.onClick) {
+                    return (
+                        <button
+                            key={action.id}
+                            type="button"
+                            onClick={() => {
+                                setIsOpen(false);
+                                action.onClick();
+                            }}
+                            className={actionClass}
+                            style={{ transitionDelay: isOpen ? `${i * 60}ms` : "0ms" }} /* design-token-ignore: dynamic stagger animation */
+                            tabIndex={isOpen ? 0 : -1}
+                            aria-hidden={!isOpen}
+                        >
+                            {actionContent}
+                        </button>
+                    );
+                }
                 return (
                     <Link
                         key={action.id}
-                        href={action.href}
+                        href={("href" in action ? action.href : undefined) || "#"}
                         onClick={() => setIsOpen(false)}
-                        className={cn(
-                            "flex items-center gap-3 pl-4 pr-5 h-11 rounded-full shadow-lg text-white text-sm font-semibold transition-all duration-200",
-                            action.bg,
-                            isOpen
-                                ? "opacity-100 translate-y-0 pointer-events-auto"
-                                : "opacity-0 translate-y-4 pointer-events-none"
-                        )}
-                        style={{ transitionDelay: isOpen ? `${i * 60}ms` : "0ms" }}
+                        className={actionClass}
+                        style={{ transitionDelay: isOpen ? `${i * 60}ms` : "0ms" }} /* design-token-ignore: dynamic stagger animation */
                         tabIndex={isOpen ? 0 : -1}
                         aria-hidden={!isOpen}
                     >
-                        <Icon className="w-4 h-4 shrink-0" />
-                        {action.label}
+                        {actionContent}
                     </Link>
                 );
             })}
