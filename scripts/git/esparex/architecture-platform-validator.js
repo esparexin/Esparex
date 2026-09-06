@@ -4,9 +4,11 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { Validation, runStandalone, ROOT } = require('../shared');
 
-const META = { id: 'ARCH-PLATFORM-001', name: 'Architecture Platform Verification', version: '1.0.0', category: 'Architecture' };
+const META = { id: 'ARCH-PLATFORM-001', name: 'Architecture Platform Verification', version: '2.0.0', category: 'Architecture' };
 
 const BASELINE_PATH = path.join(ROOT, 'scripts/policy/governance-debt-baseline.json');
+const SUMMARY_PATH = path.join(ROOT, '.tooling/check-summary.json');
+
 let baseline = { baselines: {} };
 if (fs.existsSync(BASELINE_PATH)) {
   try {
@@ -16,31 +18,58 @@ if (fs.existsSync(BASELINE_PATH)) {
   }
 }
 
-function run(val) {
+const stripAnsi = (str) =>
+  str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+
+function readCheckSummary() {
+  if (!fs.existsSync(SUMMARY_PATH)) return null;
   try {
-    const out = execSync('npx tsx tooling/architecture/verify-architecture.ts', { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-    if (out.includes('Architecture Score: 100') || !out.includes('FAIL')) {
-      val.info('Architecture platform verification passed (Score 100/100)');
-    } else {
-      const lines = out.split('\n').filter(l => l.trim().startsWith('→'));
-      checkViolations(val, lines);
-    }
-  } catch (e) {
-    const out = (e.stdout || '') + (e.stderr || '');
-    const lines = out.split('\n').filter(l => l.trim().startsWith('→'));
-    checkViolations(val, lines);
+    return JSON.parse(fs.readFileSync(SUMMARY_PATH, 'utf-8'));
+  } catch {
+    return null;
   }
 }
 
-function checkViolations(val, lines) {
+function run(val) {
+  let rawOut = '';
+  let exitFailed = false;
+
+  try {
+    rawOut = execSync('npx tsx tooling/architecture/verify-architecture.ts', {
+      cwd: ROOT,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (e) {
+    exitFailed = true;
+    rawOut = (e.stdout || '') + (e.stderr || '');
+  }
+
+  const cleanOut = stripAnsi(rawOut);
+  const summary = readCheckSummary();
+
+  const lines = cleanOut
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith('→') || l.startsWith('->'));
+
+  if (!exitFailed && summary && summary.passed && summary.score === 100 && lines.length === 0) {
+    val.info(`Architecture platform verification passed (Score 100/100)`);
+    return;
+  }
+
+  checkViolations(val, lines, summary, exitFailed);
+}
+
+function checkViolations(val, lines, summary, exitFailed) {
   const missingBarrels = baseline.baselines.missingPublicBarrels || [];
   const missingManifests = baseline.baselines.missingDomainManifests || [];
 
   let newViolations = [];
 
   for (const line of lines) {
-    const isBarrelGrandfathered = missingBarrels.some(b => line.includes(`Domain "${b}"`) || line.includes(`"${b}"`));
-    const isManifestGrandfathered = missingManifests.some(m => line.includes(`/domains/${m}/manifest.yaml`));
+    const isBarrelGrandfathered = missingBarrels.some((b) => line.includes(`Domain "${b}"`) || line.includes(`"${b}"`));
+    const isManifestGrandfathered = missingManifests.some((m) => line.includes(`/domains/${m}/manifest.yaml`));
 
     if (isBarrelGrandfathered || isManifestGrandfathered) {
       val.warning(`Grandfathered Architectural Debt: ${line.trim()}`);
@@ -54,8 +83,13 @@ function checkViolations(val, lines) {
       val.error(`NEW Architectural Violation: ${v}`);
     }
     val.error(`Architecture Platform Verification failed ratchet check (${newViolations.length} new violations detected)`);
+  } else if (exitFailed || (summary && !summary.passed)) {
+    val.error(
+      `Architecture Platform Verification failed: score ${summary ? summary.score : 'unknown'}/100 is below the threshold of 90`
+    );
   } else {
-    val.info('Architecture Platform Verification passed ratchet check (baseline debt tracked)');
+    const scoreText = summary ? `${summary.score}/100` : 'passed';
+    val.info(`Architecture Platform Verification passed ratchet check (Score: ${scoreText})`);
   }
 }
 
