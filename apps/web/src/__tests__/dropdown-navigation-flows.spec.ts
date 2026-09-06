@@ -78,4 +78,27 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
         expect(fileContent).toContain("onInteractOutside");
     });
+
+    it("ensures EntitySearchCombobox pre-focuses and scrolls to pre-selected value on open", () => {
+        const comboboxPath = path.resolve(
+            __dirname,
+            "../components/user/EntitySearchCombobox.tsx"
+        );
+        const fileContent = fs.readFileSync(comboboxPath, "utf-8");
+
+        expect(fileContent).toContain("if (!isListOpen || !value) return;");
+        expect(fileContent).toContain("setActiveIndex(idx)");
+    });
+
+    it("ensures HeaderAccountMenu configures non-modal dropdown with trigger protection", () => {
+        const accountMenuPath = path.resolve(
+            __dirname,
+            "../components/user/header/HeaderAccountMenu.tsx"
+        );
+        const fileContent = fs.readFileSync(accountMenuPath, "utf-8");
+
+        expect(fileContent).toContain("<DropdownMenu modal={false}>");
+        expect(fileContent).toContain("onPointerDownOutside");
+        expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
+    });
 });

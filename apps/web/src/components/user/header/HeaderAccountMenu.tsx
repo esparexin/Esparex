@@ -36,7 +36,7 @@ export function HeaderAccountMenu({
   const avatarSrc = imgErrPhoto === safeProfilePhoto ? DEFAULT_IMAGE_PLACEHOLDER : (safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -61,7 +61,16 @@ export function HeaderAccountMenu({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-border p-1">
+      <DropdownMenuContent
+        align="end"
+        sideOffset={6}
+        className="w-56 rounded-xl shadow-lg border-border p-1"
+        onPointerDownOutside={(e) => {
+          if ((e.target as HTMLElement | null)?.closest('[data-slot="dropdown-menu-trigger"]')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DropdownMenuLabel className="font-normal p-3 bg-muted/50 rounded-t-xl mb-1">
           <div className="flex flex-col space-y-1">
             <p className="text-body font-semibold leading-none text-foreground">{user?.name || "Esparex User"}</p>
