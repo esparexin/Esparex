@@ -41,7 +41,7 @@ function processAndSaveBaseline(rawJsonOutput) {
         }));
         fs.writeFileSync(BASELINE_FILE, JSON.stringify(normalized, null, 2));
         console.log(`🎉 Baseline saved to: ${BASELINE_FILE}`);
-    } catch (e) {
+    } catch {
         fs.writeFileSync(BASELINE_FILE, rawJsonOutput);
         console.log(`🎉 Raw baseline saved to: ${BASELINE_FILE}`);
     }

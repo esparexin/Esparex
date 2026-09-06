@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { Validation, formatReport, ROOT } = require('./shared');
+const { Validation, formatReport } = require('./shared');
 
 const checks = [
   require('./workspace-check'),
@@ -45,7 +45,7 @@ const hasBlockers = results.some(r => r.errors.length > 0);
 
 try {
   recordTelemetry(results, hasBlockers);
-} catch (_e) {
+} catch {
   // Telemetry recording must be non-blocking
 }
 

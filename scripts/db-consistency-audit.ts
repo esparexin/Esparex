@@ -11,7 +11,6 @@
  */
 
 import mongoose from 'mongoose';
-import { env } from '../core/src/config/env';
 
 // ─── Model imports (adjust paths if running from a different CWD) ─────────────
 import '../core/src/config/db';

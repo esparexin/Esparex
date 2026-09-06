@@ -36,7 +36,7 @@ async function main(): Promise<void> {
 
     // 1. Verify — runs all check plugins, computes score
     process.stdout.write('   ① Verification … ');
-    const { checkResults, score, summary, rules, domains, context } =
+    const { checkResults, score, summary, domains, context } =
         await runVerification({ changed: isChanged, silent: true });
     console.log(`done  (score: ${score})`);
 
@@ -66,9 +66,6 @@ async function main(): Promise<void> {
     // 5. Console scorecard (printed after pipeline summary)
     const elapsedMs = Date.now() - startMs;
     console.log(`\n   Completed in ${(elapsedMs / 1000).toFixed(1)}s\n`);
-
-    // Re-use the verify module's scorecard printer by importing it
-    const { computeScore, buildSummary } = await import('./verify-architecture');
 
     // Scorecard
     const LINE = '─'.repeat(60);
