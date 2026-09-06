@@ -1,6 +1,6 @@
 "use client";
 
-import { getCategoryIcon } from "@/utils/getCategoryIcon";
+import { getCategoryIcon } from "@/lib/browse/getCategoryIcon";
 import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";

@@ -42,6 +42,20 @@ for (const item of PROHIBITED_ROOT_ENTRIES) {
     }
 }
 
+// 1b. Prohibited workspace directories (enforcing canonical SSOT layout)
+const PROHIBITED_WORKSPACE_PATHS = [
+    { path: "apps/web/__tests__", reason: "Web tests must reside in apps/web/src/__tests__ to be discovered by Vitest." },
+    { path: "apps/web/src/utils", reason: "Utility files belong in apps/web/src/lib/ (canonical utility SSOT)." },
+    { path: "backend/api/src/@types", reason: "Ambient declarations belong in backend/api/src/types/express.d.ts." },
+];
+
+for (const item of PROHIBITED_WORKSPACE_PATHS) {
+    const target = path.join(ROOT, item.path);
+    if (fs.existsSync(target)) {
+        violations.push(`Prohibited workspace path found: '${item.path}' — ${item.reason}`);
+    }
+}
+
 // 2. Scan for loose *.log files in root and immediate workspace directories
 const CHECK_DIRS_FOR_LOGS = [
     ROOT,
