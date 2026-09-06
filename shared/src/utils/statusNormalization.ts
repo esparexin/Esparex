@@ -1,3 +1,5 @@
+import { PAYMENT_STATUS, type PaymentStatusValue } from '@esparex/contracts';
+
 /**
  * Centralized Domain-Specific Status Normalization (SSOT)
  * Standardizes lifecycle, approval, and activation state semantics across monorepo domains.
@@ -120,4 +122,19 @@ export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pendin
 
     return fallback;
 }
+
+/**
+ * Normalizes payment / transaction status strings to canonical PaymentStatusValue.
+ */
+export function normalizeTransactionStatus(
+    value: unknown,
+    fallback: PaymentStatusValue = PAYMENT_STATUS.INITIATED
+): PaymentStatusValue {
+    const normalized = typeof value === 'string' ? value.trim().toUpperCase() : '';
+    if (normalized === 'SUCCESS' || normalized === 'COMPLETED') return PAYMENT_STATUS.SUCCESS;
+    if (normalized === 'FAILED' || normalized === 'ERROR') return PAYMENT_STATUS.FAILED;
+    if (normalized === 'INITIATED' || normalized === 'PENDING') return PAYMENT_STATUS.INITIATED;
+    return fallback;
+}
+
 
