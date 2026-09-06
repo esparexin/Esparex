@@ -145,5 +145,40 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("max-w-[500px]");
         expect(fileContent).toContain("pr-2 sm:pr-2.5");
     });
+
+    it("ensures BusinessListingGatePage renders BusinessListingPageBackdrop behind dialogs", () => {
+        const gatePath = path.resolve(
+            __dirname,
+            "../components/user/BusinessListingGatePage.tsx"
+        );
+        const fileContent = fs.readFileSync(gatePath, "utf-8");
+
+        expect(fileContent).toContain("BusinessListingPageBackdrop");
+        expect(fileContent).toContain("<BusinessListingPageBackdrop listingType={listingTypeLabel} />");
+    });
+
+    it("ensures UserAppProviders registers SmartAlertModalProvider", () => {
+        const providersPath = path.resolve(
+            __dirname,
+            "../components/providers/UserAppProviders.tsx"
+        );
+        const fileContent = fs.readFileSync(providersPath, "utf-8");
+
+        expect(fileContent).toContain("SmartAlertModalProvider");
+        expect(fileContent).toContain("<SmartAlertModalProvider>");
+    });
+
+    it("ensures useListingFormOrchestration injects business location and canonical listingType", () => {
+        const orchPath = path.resolve(
+            __dirname,
+            "../components/user/shared/useListingFormOrchestration.ts"
+        );
+        const fileContent = fs.readFileSync(orchPath, "utf-8");
+
+        expect(fileContent).toContain("businessData?.location");
+        expect(fileContent).toContain("LISTING_TYPE.SERVICE");
+        expect(fileContent).toContain("LISTING_TYPE.SPARE_PART");
+        expect(fileContent).toContain("toCanonicalGeoPoint");
+    });
 });
 

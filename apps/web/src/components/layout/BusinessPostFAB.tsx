@@ -19,6 +19,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
  */
 export function BusinessPostFAB() {
     const { user, status } = useAuth();
+    const { openSmartAlertModal } = useSmartAlertModal();
     const pathname = usePathname();
     const policy = getMobileChromePolicy(pathname);
     const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +32,6 @@ export function BusinessPostFAB() {
     // Only for authenticated users
     if (status !== "authenticated" || !user) return null;
 
-    const { openSmartAlertModal } = useSmartAlertModal();
     const isApproved = isApprovedBusiness(user);
 
     // Dynamic actions based on role and business verification status

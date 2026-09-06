@@ -90,8 +90,6 @@ export function EntitySearchCombobox<T>({
 
     const activeOptionId = activeIndex >= 0 ? `select-option-${sanitizedTitle}-${activeIndex}` : undefined;
 
-    useEffect(() => { if (autoFocus) setIsEditing(true); }, [autoFocus]);
-
     // Pre-focus matching item on opening when a value is pre-selected
     useEffect(() => {
         if (!isListOpen || !value) return;
