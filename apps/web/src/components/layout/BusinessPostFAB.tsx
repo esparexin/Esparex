@@ -53,7 +53,7 @@ export function BusinessPostFAB() {
         {
             id: "smart-alert",
             label: "Create Smart Alert",
-            href: "/account/alerts",
+            href: "/account/alerts?action=create",
             icon: Bell,
             bg: "bg-amber-600 hover:bg-amber-700",
         },
@@ -92,6 +92,7 @@ export function BusinessPostFAB() {
                     <Link
                         key={action.id}
                         href={action.href}
+                        onClick={() => setIsOpen(false)}
                         className={cn(
                             "flex items-center gap-3 pl-4 pr-5 h-11 rounded-full shadow-lg text-white text-sm font-semibold transition-all duration-200",
                             action.bg,
