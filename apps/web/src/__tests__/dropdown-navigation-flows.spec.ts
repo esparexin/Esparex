@@ -101,4 +101,49 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("onPointerDownOutside");
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
     });
+
+    it("ensures LocationSelector protects input text from colliding with action buttons via right padding and truncation", () => {
+        const locationPath = path.resolve(
+            __dirname,
+            "../components/location/LocationSelector.tsx"
+        );
+        const fileContent = fs.readFileSync(locationPath, "utf-8");
+
+        expect(fileContent).toContain("pr-28 sm:pr-32");
+        expect(fileContent).toContain("truncate");
+    });
+
+    it("ensures EntitySearchCombobox generates instance-unique listbox IDs and reserves indicator padding", () => {
+        const comboboxPath = path.resolve(
+            __dirname,
+            "../components/user/EntitySearchCombobox.tsx"
+        );
+        const fileContent = fs.readFileSync(comboboxPath, "utf-8");
+
+        expect(fileContent).toContain("select-options-list-${sanitizedTitle}");
+        expect(fileContent).toContain("pr-14");
+    });
+
+    it("ensures SmartAlertCategoryBrandModelFields isolates category and pairs brand/model in responsive grid", () => {
+        const fieldsPath = path.resolve(
+            __dirname,
+            "../components/user/profile/dialogs/SmartAlertCategoryBrandModelFields.tsx"
+        );
+        const fileContent = fs.readFileSync(fieldsPath, "utf-8");
+
+        expect(fileContent).toContain("grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative z-10");
+        expect(fileContent).toContain("relative z-20");
+    });
+
+    it("ensures CreateSmartAlertDialog constrains dialog width and reserves content scroll padding", () => {
+        const dialogPath = path.resolve(
+            __dirname,
+            "../components/user/profile/dialogs/CreateSmartAlertDialog.tsx"
+        );
+        const fileContent = fs.readFileSync(dialogPath, "utf-8");
+
+        expect(fileContent).toContain("max-w-[500px]");
+        expect(fileContent).toContain("pr-2 sm:pr-2.5");
+    });
 });
+
