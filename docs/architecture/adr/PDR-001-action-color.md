@@ -1,4 +1,4 @@
-# ADR-004: Action Color Semantic Promotion
+# PDR-001: Action Color Semantic Promotion (formerly ADR-004)
 
 **Date**: 2026-08-07  
 **Status**: Approved  

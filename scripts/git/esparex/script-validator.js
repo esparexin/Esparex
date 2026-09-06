@@ -124,6 +124,20 @@ function run(val) {
     }
   }
 
+  // 5. In-Source Scripts Folder Blocker
+  // Source scripts must reside outside src/ (e.g., core/scripts/, backend/api/scripts/) to avoid build pollution.
+  const bannedSrcScripts = [
+    path.join(ROOT, 'core/src/scripts'),
+    path.join(ROOT, 'backend/api/src/scripts'),
+    path.join(ROOT, 'packages/contracts/src/scripts'),
+    path.join(ROOT, 'packages/ui/src/scripts')
+  ];
+  for (const dir of bannedSrcScripts) {
+    if (fs.existsSync(dir)) {
+      val.error(`Prohibited in-source script directory detected: ${path.relative(ROOT, dir)}. Scripts must reside outside src/ in <package>/scripts.`);
+    }
+  }
+
   val.info(`Script & Export Parity Verified: ${verifiedExports} exports verified, zero scratch leaks, script graph intact.`);
 }
 

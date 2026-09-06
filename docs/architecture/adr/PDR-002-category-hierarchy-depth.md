@@ -1,4 +1,4 @@
-# ADR-005: CATEGORY HIERARCHY TREE DEPTH CONSTRAINT
+# PDR-002: Category Hierarchy Tree Depth Constraint (formerly ADR-005)
 
 **Status:** Proposed / Under Architectural Review  
 **Date:** 2026-07-27  

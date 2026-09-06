@@ -10,7 +10,7 @@ The Esparex repository maintains two distinct categories of Architectural Decisi
 
 | Category | Location | Scope & Purpose | Examples |
 | :--- | :--- | :--- | :--- |
-| **Product & UI/UX ADRs** | `docs/architecture/adr/` *(This Directory)* | Product features, design system tokens, UI behavior, visual tokens, category hierarchy depth, and frontend feature specifications. | `ADR-004-action-color.md`, `ADR-005-category-hierarchy-depth.md` |
+| **Product & UI/UX PDRs** | `docs/architecture/adr/` *(This Directory)* | Product features, design system tokens, UI behavior, visual tokens, category hierarchy depth, and frontend feature specifications (prefixed with `PDR-*` to avoid numbering collisions with platform ADRs). | `PDR-001-action-color.md`, `PDR-002-category-hierarchy-depth.md` |
 | **Monorepo System & Governance ADRs** | `.agents/decisions/` | Platform-level architecture, bounded context topology, dependency boundary enforcement, policy engine, and package relationships. | `ADR-006-adr-decision-lifecycle.md`, `ADR-007-monorepo-package-topology.md`, `ADR-008-domain-architecture-and-bounded-contexts.md` |
 
 ---

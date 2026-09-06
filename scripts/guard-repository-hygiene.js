@@ -49,6 +49,8 @@ const PROHIBITED_WORKSPACE_PATHS = [
     { path: "backend/api/src/@types", reason: "Ambient declarations belong in backend/api/src/types/express.d.ts." },
     { path: "apps/web/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
     { path: "apps/admin/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
+    { path: "core/src/scripts", reason: "Scripts belong in core/scripts/ outside src/ to prevent dist/scripts build pollution." },
+    { path: "backend/api/src/scripts", reason: "Scripts belong in backend/api/scripts/ outside src/ to prevent dist/scripts build pollution." },
 ];
 
 for (const item of PROHIBITED_WORKSPACE_PATHS) {
