@@ -10,11 +10,11 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         );
         const fileContent = fs.readFileSync(dropdownFilePath, "utf-8");
 
-        // Tailwind v4 syntax 'max-h-(--radix...)' does not compile in Tailwind v3
+        // Tailwind v4 syntax does not compile in Tailwind v3
         expect(fileContent).not.toContain("max-h-(--radix-dropdown-menu-content-available-height)");
         expect(fileContent).not.toContain("origin-(--radix-dropdown-menu-content-transform-origin)");
 
-        // Tailwind v3 requires square brackets 'max-h-[var(--...)]'
+        // Tailwind v3 requires square brackets for arbitrary variables
         expect(fileContent).toContain("max-h-[var(--radix-dropdown-menu-content-available-height)]");
         expect(fileContent).toContain("origin-[var(--radix-dropdown-menu-content-transform-origin)]");
     });
