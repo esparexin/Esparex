@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';
 import { AppText, Center, AppIcon } from '@esparex/mobile-ui';
 import { MAX_AD_IMAGES } from '@esparex/contracts';
@@ -17,8 +17,8 @@ import { services } from '../../../../bootstrap';
  */
 export const StepImages = () => {
   const { state, setPickedImages, setImages } = usePostAdDraft();
-  const images = state.draft.localImages ?? [];
-  const pickedImages = state.draft.pickedImages ?? [];
+  const images = useMemo(() => state.draft.localImages ?? [], [state.draft.localImages]);
+  const pickedImages = useMemo(() => state.draft.pickedImages ?? [], [state.draft.pickedImages]);
   const canAddMore = images.length < MAX_AD_IMAGES;
 
   const processImageResult = useCallback(
