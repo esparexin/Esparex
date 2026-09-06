@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "node ../scripts/clean.js --shared",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc -b --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

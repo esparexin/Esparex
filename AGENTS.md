@@ -1167,6 +1167,24 @@ Developer workstations and CI environments have finite CPU core and memory resou
 4. **Automated Enforcement**:
    - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
 
+---
+
+## 23. CI/CD WORKFLOW CONSOLIDATION & BRANCH PROTECTION SYNCHRONIZATION GOVERNANCE STANDARD (MANDATORY)
+
+### 23.1 Core Architectural Principle
+Branch protection rulesets enforce required status checks that gate merging into integration branches (`develop`, `main`). When workflow jobs are consolidated, renamed, moved, or deleted, branch protection rulesets that reference obsolete job contexts will wait indefinitely for status reports that can never be delivered, causing silent, permanent PR blocks ("Waiting for status to be reported").
+
+### 23.2 Mandatory Rules:
+1. **Atomic Ruleset & Workflow Audit Invariant**:
+   - Whenever a GitHub Actions job/workflow is renamed, removed, merged, or moved between workflows, its corresponding branch-protection/ruleset required status checks MUST be audited and updated in the same change.
+   - No required check may reference a workflow or job that cannot execute for the protected event (e.g. referencing a job from a workflow without `pull_request` triggers on a PR-protected branch).
+2. **Canonical Single-Point Enforcement Invariant**:
+   - CI consolidation MUST NOT leave duplicate workflows or orphaned required checks.
+   - The canonical CI job (`Lint, Test, and Build Monorepo` in `.github/workflows/ci.yml`) is the single authoritative enforcement point for monorepo validation, and branch rulesets MUST reference only checks that are actually emitted by that canonical path.
+3. **No Phantom Job Re-introduction**:
+   - Re-adding dead workflow triggers or empty shim jobs purely to satisfy an orphaned branch protection check is strictly forbidden. The ruleset configuration must be corrected at the source.
+
+
 
 
 
