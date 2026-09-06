@@ -1,16 +1,11 @@
 {
   "dbMutationShadowScripts": [
     "scripts/catalog-index-migration.js",
-    "scripts/catalog-stabilization.js",
-    "scripts/migrate-status-semantics.js"
+    "scripts/catalog-stabilization.js"
   ],
   "lifecycleBypassScripts": [
-    "backend/api/scripts/migrate_index_drift.mongosh.js",
-    "backend/api/scripts/remediate_india_guntur_hierarchy.mongosh.js",
-    "scripts/catalog-stabilization.js",
-    "scripts/migrate-status-semantics.js"
+    "scripts/catalog-stabilization.js"
   ],
-  "migrationShadowScripts": [
-    "scripts/migrate-status-semantics.js"
-  ]
+  "migrationShadowScripts": []
 }
+

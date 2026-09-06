@@ -192,23 +192,16 @@ function run(val) {
     .filter(f => fs.existsSync(f))
     .map(f => ({ path: f, content: fs.readFileSync(f, 'utf8') }));
 
-  const KNOWN_TRANSITIONAL_UNREGISTERED = new Set([
-    'scripts/sweep-expired-listings.ts',
-    'core/scripts/migrate-catalog-decoupling.ts'
-  ]);
-
   let registeredScriptsCount = 0;
   for (const scriptPath of allScripts) {
     const relPath = path.relative(ROOT, scriptPath).replace(/\\/g, '/');
     const baseName = path.basename(scriptPath);
     const baseWithoutExt = path.basename(scriptPath, path.extname(scriptPath));
 
-    const isReferenced =
-      KNOWN_TRANSITIONAL_UNREGISTERED.has(relPath) ||
-      allScanContents.some(entry => {
-        if (entry.path === scriptPath) return false;
-        return entry.content.includes(relPath) || entry.content.includes(baseName) || entry.content.includes(baseWithoutExt);
-      });
+    const isReferenced = allScanContents.some(entry => {
+      if (entry.path === scriptPath) return false;
+      return entry.content.includes(relPath) || entry.content.includes(baseName) || entry.content.includes(baseWithoutExt);
+    });
 
     if (!isReferenced) {
       val.error(`Unregistered/orphaned script detected: ${relPath}. Standalone scripts must be registered in package.json, workflows, or governance allowlists.`);
