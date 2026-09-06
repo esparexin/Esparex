@@ -2,17 +2,10 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, Inbox } from "@esparex/ui";
 import { usePathname, useRouter } from "next/navigation";
-
+import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, Inbox } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
-import {
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from "@esparex/ui";
 import { NotificationItemCard } from "@/components/user/NotificationItemCard";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 
@@ -180,7 +173,7 @@ export function NotificationBellDropdown({
     }
 
     return (
-        <DropdownMenu key={pathname} open={open} onOpenChange={handleOpenChange}>
+        <DropdownMenu key={pathname} modal={false} open={open} onOpenChange={handleOpenChange}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
@@ -201,6 +194,13 @@ export function NotificationBellDropdown({
                 align="end"
                 sideOffset={8}
                 className="w-[min(90vw,17rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-lg"
+                onPointerDownOutside={(e) => {
+                    if ((e.target as HTMLElement | null)?.closest('[data-slot="dropdown-menu-trigger"]')) {
+                        e.preventDefault();
+                    }
+                    setOpen(false);
+                }}
+                onInteractOutside={() => setOpen(false)}
             >
                 <div className="border-b border-border px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
