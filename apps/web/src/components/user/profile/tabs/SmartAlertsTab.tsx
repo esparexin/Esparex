@@ -1,16 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, CardContent } from "@esparex/ui";
-import { Badge } from "@esparex/ui";
-import { Separator } from "@esparex/ui";
-import { Bell, Eye, Edit2, Trash2, Crown, Plus } from "@esparex/ui";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Badge, Bell, Button, Card, CardContent, Crown, Edit2, Eye, Plus, Separator, Trash2 } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
-import type {
-    SmartAlertFieldErrors,
-    SmartAlertFormData,
-    SmartAlertListItem,
-} from "../types";
+import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertListItem } from "../types";
 import { CreateSmartAlertDialog } from "../dialogs/CreateSmartAlertDialog";
 import { SavedSearchesListSection } from "./SavedSearchesListSection";
 import type { Location } from "@/lib/api/user/locations";
@@ -39,25 +33,17 @@ interface SmartAlertsTabProps {
 }
 
 export function SmartAlertsTab({
-    smartAlerts,
-    savedSearches,
-    smartAlertForm,
-    updateSmartAlertForm,
-    handleCreateAlert,
-    handleToggleAlertStatus,
-    handleDeleteAlert,
-    handleDeleteSavedSearch,
-    handleViewAlertMatches,
-    handleEditAlert,
-    editingAlertId,
-    resetAlertForm,
-    setActiveTab,
-    userPlan = "Free",
-    loading,
-    smartAlertErrors,
-    smartAlertGlobalError,
+    smartAlerts, savedSearches, smartAlertForm, updateSmartAlertForm,
+    handleCreateAlert, handleToggleAlertStatus, handleDeleteAlert,
+    handleDeleteSavedSearch, handleViewAlertMatches, handleEditAlert,
+    editingAlertId, resetAlertForm, setActiveTab, userPlan = "Free",
+    loading, smartAlertErrors, smartAlertGlobalError,
 }: SmartAlertsTabProps) {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const isCreateAction = searchParams?.get("action") === "create";
+    const [isInternalOpen, setIsInternalOpen] = useState(false);
+    const isDialogOpen = isInternalOpen || isCreateAction;
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
@@ -66,19 +52,19 @@ export function SmartAlertsTab({
     const freeSlotsLimit = 5;
     const remainingFreeSlots = Math.max(0, freeSlotsLimit - smartAlerts.length);
 
-    const handleOpenCreateModal = () => {
-        resetAlertForm();
-        setIsDialogOpen(true);
+    const handleCloseDialog = () => {
+        setIsInternalOpen(false);
+        if (isCreateAction) {
+            router.replace("/account/alerts", { scroll: false });
+        }
     };
 
-    const handleOpenEditModal = (alert: SmartAlertListItem) => {
-        handleEditAlert(alert);
-        setIsDialogOpen(true);
-    };
+    const handleOpenCreateModal = () => { resetAlertForm(); setIsInternalOpen(true); };
+    const handleOpenEditModal = (alert: SmartAlertListItem) => { handleEditAlert(alert); setIsInternalOpen(true); };
 
     const handleSubmitForm = async (location: SmartAlertSelection | null) => {
         await handleCreateAlert(location);
-        setIsDialogOpen(false);
+        handleCloseDialog();
     };
 
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Alerts...</div>;
@@ -230,13 +216,13 @@ export function SmartAlertsTab({
             {/* Dedicated Creation / Edit Modal */}
             <CreateSmartAlertDialog
                 open={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
+                onOpenChange={(nextOpen) => { if (!nextOpen) handleCloseDialog(); else setIsInternalOpen(true); }}
                 formData={smartAlertForm}
                 updateFormData={updateSmartAlertForm}
                 onSubmit={handleSubmitForm}
                 onCancel={() => {
                     resetAlertForm();
-                    setIsDialogOpen(false);
+                    handleCloseDialog();
                 }}
                 isEditing={isEditing}
                 errors={smartAlertErrors}

@@ -77,12 +77,9 @@ export function EntitySearchCombobox<T>({
         setIsEditing(false);
     };
 
-    const handleClose = () => {
-        setIsEditing(false);
-        setSearch("");
-    };
+    const handleClose = () => { setIsEditing(false); setSearch(""); };
 
-    const { activeIndex, handleKeyDown } = useKeyboardNavigation({
+    const { activeIndex, setActiveIndex, handleKeyDown } = useKeyboardNavigation({
         items: filteredItems,
         isOpen: isListOpen,
         onSelect: handleItemSelect,
@@ -91,24 +88,28 @@ export function EntitySearchCombobox<T>({
 
     const activeOptionId = activeIndex >= 0 ? `select-option-${activeIndex}` : undefined;
 
+    // Pre-focus matching item on opening when a value is pre-selected
+    useEffect(() => {
+        if (!isListOpen || !value) return;
+        const idx = filteredItems.findIndex((item) => getId(item) === value || getLabel(item) === value);
+        if (idx >= 0) setActiveIndex(idx);
+    }, [isListOpen, value, filteredItems, getId, getLabel, setActiveIndex]);
+
+    // Synchronize keyboard focus / activeIndex with auto-scrolling
+    useEffect(() => {
+        if (activeIndex < 0 || !isListOpen) return;
+        document.getElementById(`select-option-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [activeIndex, isListOpen]);
+
     // Close dropdown on click outside for desktop listbox
     useEffect(() => {
         if (!isListOpen || isMobile) return;
-
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             const container = containerRef.current;
             const dropdownEl = document.getElementById("select-options-list");
             const target = event.target as Node;
-            if (
-                container &&
-                !container.contains(target) &&
-                dropdownEl &&
-                !dropdownEl.contains(target)
-            ) {
-                handleClose();
-            }
+            if (container && !container.contains(target) && dropdownEl && !dropdownEl.contains(target)) handleClose();
         };
-
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("touchstart", handleClickOutside);
         return () => {
