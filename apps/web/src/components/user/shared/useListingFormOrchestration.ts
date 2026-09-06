@@ -21,6 +21,8 @@ import {
 } from "@/lib/listings/postingFormNormalization";
 import type { ListingFormConfig } from "./listingFormConfig";
 import { LISTING_TYPE } from "@esparex/contracts";
+import { toCanonicalGeoPoint, sanitizeMongoObjectId } from "@esparex/shared";
+import { getBusinessLocationDisplay } from "./listingFormShared";
 import type { ServiceType } from "@/lib/api/user/masterData";
 
 const ServiceListingEditSchema = ServiceListingPayloadSchema.partial({
@@ -88,6 +90,26 @@ export function useListingFormOrchestration({
     });
 
     const submitFn = React.useCallback(async (payload: Record<string, unknown>, options?: { idempotencyKey?: string }) => {
+        const rawLoc = businessData?.location;
+        const canonicalCoords = rawLoc?.coordinates ? toCanonicalGeoPoint(rawLoc.coordinates) : undefined;
+        const location = rawLoc ? {
+            city: rawLoc.city || "",
+            state: rawLoc.state || "",
+            country: rawLoc.country || "India",
+            display: getBusinessLocationDisplay(rawLoc),
+            address: rawLoc.address || rawLoc.formattedAddress || "",
+            locationId: sanitizeMongoObjectId(rawLoc.locationId || rawLoc.id) || undefined,
+            coordinates: canonicalCoords,
+        } : undefined;
+
+        if (!isEditMode && (!location || !location.coordinates)) {
+            form.setError("location" as Parameters<typeof form.setError>[0], {
+                type: "manual",
+                message: "Valid business location with coordinates is required. Please update your location in Business Hub before publishing.",
+            });
+            throw new Error("Valid business location with coordinates is required.");
+        }
+
         if (config.listingType === LISTING_TYPE.SERVICE) {
             if (isEditMode && editId) {
                 return updateServiceListing(editId, {
@@ -96,10 +118,16 @@ export function useListingFormOrchestration({
                     images: payload.images,
                     serviceTypeIds: payload.serviceTypeIds,
                     priceMin: payload.price,
+                    location,
                 });
             }
             const { price, ...rest } = payload;
-            return createServiceListing({ ...rest, priceMin: price }, { idempotencyKey: options?.idempotencyKey });
+            return createServiceListing({ 
+                ...rest, 
+                listingType: LISTING_TYPE.SERVICE,
+                priceMin: price,
+                location,
+            }, { idempotencyKey: options?.idempotencyKey });
         } else {
             if (isEditMode && editId) {
                 return updateSparePartListing(editId, {
@@ -107,19 +135,22 @@ export function useListingFormOrchestration({
                     description: payload.description,
                     price: payload.price,
                     images: payload.images ?? [],
+                    location,
                 });
             }
             return createSparePartListing({
                 title: payload.title,
+                listingType: LISTING_TYPE.SPARE_PART,
                 categoryId: payload.categoryId,
                 brandId: payload.brandId || undefined,
                 sparePartId: payload.sparePartTypeId,
                 price: payload.price,
                 description: payload.description,
                 images: payload.images ?? [],
-            });
+                location,
+            }, { idempotencyKey: options?.idempotencyKey });
         }
-    }, [config.listingType, editId, isEditMode]);
+    }, [businessData?.location, config.listingType, editId, form, isEditMode]);
 
     const activePartialSchema = config.listingType === LISTING_TYPE.SERVICE 
         ? ServiceListingEditSchema 

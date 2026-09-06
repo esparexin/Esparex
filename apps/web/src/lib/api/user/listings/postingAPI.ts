@@ -28,9 +28,13 @@ export const updateServiceListing = (
     endpoint: API_ROUTES.USER.LISTING_DETAIL(id),
 });
 
-export const createSparePartListing = (payload: Record<string, unknown>) =>
+export const createSparePartListing = (
+    payload: Record<string, unknown>,
+    options?: { idempotencyKey?: string }
+) =>
     createListing(payload as Partial<Listing>, {
         endpoint: API_ROUTES.USER.LISTINGS,
+        idempotencyKey: options?.idempotencyKey,
     });
 
 export const updateSparePartListing = (
