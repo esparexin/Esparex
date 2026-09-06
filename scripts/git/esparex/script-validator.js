@@ -138,7 +138,86 @@ function run(val) {
     }
   }
 
-  val.info(`Script & Export Parity Verified: ${verifiedExports} exports verified, zero scratch leaks, script graph intact.`);
+  // 6. Standalone Script Registration Guard
+  // Ensures every script in scripts/, backend/api/scripts/, and core/scripts/ is registered in package.json, workflows, or governance manifests.
+  const scriptScanRoots = [
+    path.join(ROOT, 'scripts'),
+    path.join(ROOT, 'backend/api/scripts'),
+    path.join(ROOT, 'core/scripts')
+  ];
+
+  function walkScripts(dir) {
+    let list = [];
+    if (!fs.existsSync(dir)) return list;
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (item.name === 'node_modules' || item.name === '__tests__') continue;
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        list = list.concat(walkScripts(full));
+      } else if (/\.(ts|js|mjs|cjs|sh)$/.test(item.name)) {
+        list.push(full);
+      }
+    }
+    return list;
+  }
+
+  const allScripts = scriptScanRoots.flatMap(walkScripts);
+  const scanContentFiles = [
+    rootPkgPath,
+    path.join(ROOT, 'backend/api/package.json'),
+    path.join(ROOT, 'core/package.json'),
+    path.join(ROOT, 'apps/mobile/package.json'),
+    path.join(ROOT, 'scripts/policy/legacy-js-risk-allowlist.json'),
+    path.join(ROOT, 'scripts/git/repo-gate.js'),
+    path.join(ROOT, 'eslint.config.mjs')
+  ];
+
+  const wfDir = path.join(ROOT, '.github/workflows');
+  if (fs.existsSync(wfDir)) {
+    for (const wf of fs.readdirSync(wfDir)) {
+      scanContentFiles.push(path.join(wfDir, wf));
+    }
+  }
+
+  for (const sub of ['scripts', 'scripts/git', 'scripts/git/esparex', 'scripts/governance', 'scripts/policy', 'scripts/eslint-rules']) {
+    const dir = path.join(ROOT, sub);
+    if (fs.existsSync(dir)) {
+      for (const f of fs.readdirSync(dir)) {
+        if (/\.(js|ts)$/.test(f)) scanContentFiles.push(path.join(dir, f));
+      }
+    }
+  }
+
+  const allScanContents = scanContentFiles
+    .filter(f => fs.existsSync(f))
+    .map(f => ({ path: f, content: fs.readFileSync(f, 'utf8') }));
+
+  const KNOWN_TRANSITIONAL_UNREGISTERED = new Set([
+    'scripts/sweep-expired-listings.ts',
+    'core/scripts/migrate-catalog-decoupling.ts'
+  ]);
+
+  let registeredScriptsCount = 0;
+  for (const scriptPath of allScripts) {
+    const relPath = path.relative(ROOT, scriptPath).replace(/\\/g, '/');
+    const baseName = path.basename(scriptPath);
+    const baseWithoutExt = path.basename(scriptPath, path.extname(scriptPath));
+
+    const isReferenced =
+      KNOWN_TRANSITIONAL_UNREGISTERED.has(relPath) ||
+      allScanContents.some(entry => {
+        if (entry.path === scriptPath) return false;
+        return entry.content.includes(relPath) || entry.content.includes(baseName) || entry.content.includes(baseWithoutExt);
+      });
+
+    if (!isReferenced) {
+      val.error(`Unregistered/orphaned script detected: ${relPath}. Standalone scripts must be registered in package.json, workflows, or governance allowlists.`);
+    } else {
+      registeredScriptsCount++;
+    }
+  }
+
+  val.info(`Script & Export Parity Verified: ${verifiedExports} exports verified, ${registeredScriptsCount} scripts registered, zero scratch leaks, script graph intact.`);
 }
 
 module.exports = { meta: META, run };
