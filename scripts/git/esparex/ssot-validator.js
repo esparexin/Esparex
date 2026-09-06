@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'SSOT-001', name: 'SSOT & Canonical Ownership', version: '2.0.0', category: 'Architecture' };
 

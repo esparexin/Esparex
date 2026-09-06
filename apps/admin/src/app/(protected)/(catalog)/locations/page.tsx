@@ -54,6 +54,11 @@ function LocationsPageContent({
     initialPage,
 }: LocationsPageContentProps) {
     const [searchInput, setSearchInput] = useState(initialSearch);
+    const [prevInitialSearch, setPrevInitialSearch] = useState(initialSearch);
+    if (prevInitialSearch !== initialSearch) {
+        setPrevInitialSearch(initialSearch);
+        setSearchInput(initialSearch);
+    }
     const [stateOptions, setStateOptions] = useState<Location[]>([]);
     const [deletingLocation, setDeletingLocation] = useState<Location | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -92,9 +97,6 @@ function LocationsPageContent({
         if (success) setDeletingLocation(null);
     };
 
-    useEffect(() => {
-        setSearchInput(initialSearch);
-    }, [initialSearch]);
 
     const { replaceQueryState } = useCatalogQueryStateSync({
         searchInput,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMounted } from "@esparex/shared";
 import {
     AreaChart,
     Area,
@@ -24,10 +24,7 @@ interface TrendsChartProps {
 }
 
 export function TrendsChart({ data, title }: TrendsChartProps) {
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const mounted = useMounted();
 
     if (!mounted) {
         return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tag, Stack, Grid, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from "@esparex/ui";
 import {
     AD_PLACEMENT_LOCATION, AD_FORMAT, GOOGLE_AD_STATUS, AD_FALLBACK_STRATEGY,
@@ -26,8 +26,11 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
     const [fallbackStrategy, setFallbackStrategy] = useState<AdFallbackStrategyValue>(AD_FALLBACK_STRATEGY.COLLAPSE);
     const [viewports, setViewports] = useState<("desktop" | "tablet" | "mobile")[]>(["desktop", "tablet", "mobile"]);
     const [submitting, setSubmitting] = useState(false);
+    const [prevPlacementSyncKey, setPrevPlacementSyncKey] = useState<string | null>(null);
 
-    useEffect(() => {
+    const currentSyncKey = isOpen ? (editingPlacement ? editingPlacement.id : "__NEW__") : null;
+    if (currentSyncKey !== prevPlacementSyncKey) {
+        setPrevPlacementSyncKey(currentSyncKey);
         if (editingPlacement) {
             setName(editingPlacement.name);
             setPlacementKey(editingPlacement.placementKey);
@@ -47,7 +50,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
             setFallbackStrategy(AD_FALLBACK_STRATEGY.COLLAPSE);
             setViewports(["desktop", "tablet", "mobile"]);
         }
-    }, [editingPlacement, isOpen]);
+    }
 
     if (!isOpen) return null;
 

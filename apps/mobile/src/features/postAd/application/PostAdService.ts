@@ -1,7 +1,5 @@
-import { CreateListingRequest } from '@esparex/contracts';
 import { PostAdDraft } from '../domain/PostAdDraft';
 import { IListingRepository } from '../../listings/application/IListingRepository';
-import { Listing } from '../../listings/domain/Listing';
 import { IImageUploadService } from './IImageUploadService';
 import { PostAdValidator } from './PostAdValidator';
 import { PickedImage } from '../domain/PickedImage';

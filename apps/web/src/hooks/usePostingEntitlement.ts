@@ -12,10 +12,43 @@ export function usePostingEntitlement(moduleType?: ModuleType) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEntitlements = useCallback(async () => {
+  useEffect(() => {
+    let isMounted = true;
+
+    async function load() {
+      try {
+        const res = await apiClient.get<unknown>("entitlements/posting");
+        const unwrapped = unwrapApiPayload<PostingEntitlementMatrixDTO>(res);
+        if (isMounted) {
+          if (unwrapped) {
+            setMatrix(unwrapped);
+          } else {
+            setError("Failed to load posting entitlements");
+          }
+        }
+      } catch (err: unknown) {
+        if (isMounted) {
+          const msg = err instanceof Error ? err.message : "Error fetching entitlements";
+          setError(msg);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const refetch = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
       const res = await apiClient.get<unknown>("entitlements/posting");
       const unwrapped = unwrapApiPayload<PostingEntitlementMatrixDTO>(res);
       if (unwrapped) {
@@ -31,10 +64,6 @@ export function usePostingEntitlement(moduleType?: ModuleType) {
     }
   }, []);
 
-  useEffect(() => {
-    void fetchEntitlements();
-  }, [fetchEntitlements]);
-
   const activeEntitlement: SingleEntitlementState | null =
     matrix && moduleType ? matrix[moduleType] : null;
 
@@ -44,6 +73,6 @@ export function usePostingEntitlement(moduleType?: ModuleType) {
     isAllowed: activeEntitlement ? activeEntitlement.allowed : true,
     isLoading,
     error,
-    refetch: fetchEntitlements,
+    refetch,
   };
 }

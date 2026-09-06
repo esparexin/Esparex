@@ -30,7 +30,28 @@ export function useFormDraftPersistence<TFieldValues extends FieldValues>({
     nonPersistedFields?: Array<keyof TFieldValues | string>;
 }) {
     const storageKey = getBusinessDraftKey(userId);
-    const [idempotencyKey, setIdempotencyKey] = useState<string>(() => generateIdempotencyKey());
+    const [idempotencyKey, setIdempotencyKey] = useState<string>(() => {
+        if (typeof window !== "undefined") {
+            try {
+                const raw = window.sessionStorage.getItem(storageKey);
+                if (raw) {
+                    const envelope = JSON.parse(raw) as DraftStorageEnvelope<Record<string, unknown>>;
+                    if (
+                        envelope &&
+                        envelope.version === DRAFT_VERSION &&
+                        typeof envelope.updatedAt === "number" &&
+                        Date.now() - envelope.updatedAt <= DRAFT_TTL_MS &&
+                        envelope.idempotencyKey
+                    ) {
+                        return envelope.idempotencyKey;
+                    }
+                }
+            } catch {
+                // fallback to generating key
+            }
+        }
+        return generateIdempotencyKey();
+    });
     const isRestoringRef = useRef(false);
 
     const clearDraft = useCallback(() => {
@@ -64,9 +85,6 @@ export function useFormDraftPersistence<TFieldValues extends FieldValues>({
             }
 
             isRestoringRef.current = true;
-            if (envelope.idempotencyKey) {
-                setIdempotencyKey(envelope.idempotencyKey);
-            }
 
             const nonPersistedSet = new Set(nonPersistedFields as string[]);
             Object.entries(envelope.form).forEach(([key, value]) => {
@@ -83,7 +101,7 @@ export function useFormDraftPersistence<TFieldValues extends FieldValues>({
             clearDraft();
             isRestoringRef.current = false;
         }
-    }, [enabled, storageKey, form, clearDraft]);
+    }, [enabled, storageKey, form, clearDraft, nonPersistedFields]);
 
     // Save draft on form values change
     useEffect(() => {

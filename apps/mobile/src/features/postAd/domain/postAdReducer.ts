@@ -1,5 +1,4 @@
 import { LocationMeta } from '@esparex/contracts';
-import { PostAdDraft } from './PostAdDraft';
 import { PickedImage } from './PickedImage';
 import { PostAdState, INITIAL_POST_AD_STATE } from './PostAdState';
 import { WizardStep, TOTAL_WIZARD_STEPS } from './WizardStep';

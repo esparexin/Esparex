@@ -11,7 +11,7 @@ function loadJson(filePath) {
   if (!fs.existsSync(filePath)) return null;
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch (_e) {
+  } catch {
     return null;
   }
 }

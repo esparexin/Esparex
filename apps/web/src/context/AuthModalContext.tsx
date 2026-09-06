@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
@@ -19,14 +19,18 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
 
   // Support ?login=true query parameter (e.g. for server-side unauthenticated redirects)
-  useEffect(() => {
-    if (searchParams?.get("login") === "true") {
-      const raw = searchParams?.get("callbackUrl");
-      const normalized = normalizeAuthCallbackUrl(raw);
-      setCallbackUrl(normalized);
+  const [prevQueryKey, setPrevQueryKey] = useState<string | null>(null);
+  const loginParam = searchParams?.get("login");
+  const callbackUrlParam = searchParams?.get("callbackUrl");
+  const currentQueryKey = loginParam === "true" ? `login=true&cb=${callbackUrlParam || ""}` : null;
+
+  if (currentQueryKey !== prevQueryKey) {
+    setPrevQueryKey(currentQueryKey);
+    if (currentQueryKey) {
+      setCallbackUrl(normalizeAuthCallbackUrl(callbackUrlParam));
       setIsOpen(true);
     }
-  }, [searchParams]);
+  }
 
   const showLogin = useCallback((url?: string) => {
     setCallbackUrl(url ? normalizeAuthCallbackUrl(url) : "/");

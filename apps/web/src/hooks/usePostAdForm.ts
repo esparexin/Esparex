@@ -46,23 +46,23 @@ export function usePostAdForm(isEditMode: boolean = false) {
                 // Keep defaultValues structure but apply draft
                 form.reset((prev) => ({ ...prev, ...parsed }));
             }
-        } catch (e) {
-            console.error("Failed to parse post ad draft", e);
+        } catch {
+            // Ignore corrupted draft
         }
     }, [isEditMode, form]);
 
     // Save draft on change
     useEffect(() => {
         if (isEditMode) return;
-        const subscription = watch((value) => {
+        const subscription = form.watch((value) => {
             try {
                 localStorage.setItem(DRAFT_KEY, JSON.stringify(value));
-            } catch (e) {
-                console.error("Failed to save post ad draft", e);
+            } catch {
+                // Ignore storage errors (quota/private mode)
             }
         });
         return () => subscription.unsubscribe();
-    }, [isEditMode, watch]);
+    }, [isEditMode, form]);
 
     const clearDraft = useCallback(() => {
         if (isEditMode) return;

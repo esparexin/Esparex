@@ -28,7 +28,7 @@ exports.run = (v) => {
         const count = parseInt(parts[parts.length - 1], 10);
         return acc + count;
       }, 0);
-    } catch (e) {
+    } catch {
       return 0;
     }
   };

@@ -44,7 +44,7 @@ export function useChatSocketEngine({
   setMessages,
   latestCreatedAtRef,
 }: UseChatSocketEngineOptions) {
-  const [socketConnected, setSocketConnected] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(() => !!getChatSocket()?.connected);
   const [isOtherTyping, setIsOtherTyping] = useState(false);
   const [isCounterpartyOnline, setIsCounterpartyOnline] = useState(false);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -61,7 +61,6 @@ export function useChatSocketEngine({
     const handleConnect = () => setSocketConnected(true);
     const handleDisconnect = () => setSocketConnected(false);
 
-    if (socket.connected) setSocketConnected(true);
     socket.on('connect', handleConnect);
     socket.on('disconnect', handleDisconnect);
 
