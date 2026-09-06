@@ -73,6 +73,14 @@ if (arg) {
   console.log('Cleaning all workspaces and cache directories...');
   // Clean everything
   Object.values(targets).forEach(paths => cleanPaths(paths));
-  // Clean root cache directories
-  cleanPaths(['.eslintcache', '.tooling/.cache']);
+  // Clean root cache and transient tool directories
+  cleanPaths([
+    '.eslintcache',
+    '.tooling/.cache',
+    '.jscpd-report',
+    '.kombai',
+    'graphify-out',
+    '.venv',
+    'esparex-debug.apk'
+  ]);
 }
