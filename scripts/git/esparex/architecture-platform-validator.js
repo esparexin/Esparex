@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'ARCH-PLATFORM-001', name: 'Architecture Platform Verification', version: '2.0.0', category: 'Architecture' };
 
@@ -18,8 +18,9 @@ if (fs.existsSync(BASELINE_PATH)) {
   }
 }
 
-const stripAnsi = (str) =>
-  str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+const ESC = String.fromCharCode(27);
+const ANSI_PATTERN = new RegExp(ESC + '\\[[0-9;]*[a-zA-Z]', 'g');
+const stripAnsi = (str) => str.replace(ANSI_PATTERN, '');
 
 function readCheckSummary() {
   if (!fs.existsSync(SUMMARY_PATH)) return null;

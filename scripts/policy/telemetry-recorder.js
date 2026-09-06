@@ -22,7 +22,7 @@ function getGitBranch() {
       return head.replace("ref: refs/heads/", "");
     }
     return "detached";
-  } catch (_e) {
+  } catch {
     return "unknown";
   }
 }
@@ -31,7 +31,7 @@ function loadBaseline() {
   if (!fs.existsSync(BASELINE_PATH)) return null;
   try {
     return JSON.parse(fs.readFileSync(BASELINE_PATH, "utf8"));
-  } catch (_e) {
+  } catch {
     return null;
   }
 }
@@ -75,7 +75,7 @@ function recordTelemetry(results, hasBlockers) {
     try {
       history = JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
       if (!Array.isArray(history)) history = [];
-    } catch (_e) {
+    } catch {
       history = [];
     }
   }
@@ -114,7 +114,9 @@ function recordTelemetry(results, hasBlockers) {
     try {
       const ts = JSON.parse(fs.readFileSync(TOOLING_SUMMARY_PATH, "utf8"));
       if (typeof ts.score === "number") liveArchScore = ts.score;
-    } catch (_e) {}
+    } catch {
+      // Non-blocking fallback to default liveArchScore
+    }
   }
 
   const summary = {
