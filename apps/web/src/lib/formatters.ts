@@ -1,121 +1,18 @@
-// ...existing code...
-export { formatPrice, formatDate } from "@esparex/shared";
+export {
+    formatPrice,
+    formatDate,
+    APP_LOCALE,
+    APP_TIME_ZONE,
+    formatStableDate,
+    formatStableTime,
+    formatStableDateTime,
+    formatAppDate,
+    formatAppTime,
+    formatAppDateTime,
+    formatStableNumber,
+    formatShortRelativeTime,
+    decodeHtmlEntities,
+} from "@esparex/shared";
 
-export const APP_LOCALE = "en-IN";
-export const APP_TIME_ZONE = "Asia/Kolkata";
-
-const toDate = (value: string | Date): Date => (typeof value === "string" ? new Date(value) : value);
-
-/**
- * Formats a date in a deterministic way for SSR/client parity.
- * Uses a fixed locale + timezone to avoid server/client locale mismatches.
- */
-export const formatStableDate = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => {
-    const d = toDate(date);
-    return new Intl.DateTimeFormat(APP_LOCALE, {
-        timeZone: "UTC",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        ...options,
-    }).format(d);
-};
-
-export const formatStableTime = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => {
-    const d = toDate(date);
-    return new Intl.DateTimeFormat(APP_LOCALE, {
-        timeZone: "UTC",
-        hour: "2-digit",
-        minute: "2-digit",
-        ...options,
-    }).format(d);
-};
-
-export const formatStableDateTime = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => {
-    const d = toDate(date);
-    return new Intl.DateTimeFormat(APP_LOCALE, {
-        timeZone: "UTC",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        ...options,
-    }).format(d);
-};
-
-export const formatAppDate = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => formatStableDate(date, { timeZone: APP_TIME_ZONE, ...options });
-
-export const formatAppTime = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => formatStableTime(date, { timeZone: APP_TIME_ZONE, ...options });
-
-export const formatAppDateTime = (
-    date: string | Date,
-    options?: Intl.DateTimeFormatOptions
-): string => formatStableDateTime(date, { timeZone: APP_TIME_ZONE, ...options });
-
-export const formatStableNumber = (
-    value: number,
-    options?: Intl.NumberFormatOptions
-): string => new Intl.NumberFormat(APP_LOCALE, options).format(value);
-
-export const formatShortRelativeTime = (
-    value: string | Date,
-    now = Date.now()
-): string => {
-    const date = toDate(value);
-    const diffMs = now - date.getTime();
-    const diffMinutes = Math.floor(diffMs / 60000);
-
-    if (diffMinutes < 1) return "Just now";
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return "1 day ago";
-
-    const dateYear = date.getUTCFullYear();
-    const currentYear = new Date(now).getUTCFullYear();
-
-    if (dateYear !== currentYear) {
-        return formatStableDate(date, { day: "numeric", month: "short", year: "numeric" });
-    }
-
-    return formatStableDate(date, { day: "numeric", month: "short", year: undefined });
-};
-
-const HTML_ENTITIES: Record<string, string> = {
-    "&lt;": "<",
-    "&gt;": ">",
-    "&quot;": '"',
-    "&#39;": "'",
-    "&#x27;": "'",
-    "&nbsp;": " ",
-    "&amp;": "&",
-};
-
-/**
- * Decodes standard HTML entities in strings using a single-pass lookup to prevent double-unescaping vulnerabilities.
- */
-export function decodeHtmlEntities(str: string): string {
-    if (!str || typeof str !== "string") return "";
-    return str.replace(/&(?:lt|gt|quot|#39|#x27|nbsp|amp);/g, (entity) => HTML_ENTITIES[entity] ?? entity);
-}
 
 

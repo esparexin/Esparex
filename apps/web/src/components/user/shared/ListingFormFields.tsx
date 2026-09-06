@@ -1,11 +1,11 @@
 "use client";
 
-import { Field } from "@/components/ui/field";
+import { Field } from "@esparex/ui";
 import { MapPin } from "@esparex/ui";
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/components/ui/utils";
+import { Input } from "@esparex/ui";
+import { Textarea } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 
 export { ListingImagesField } from "./ListingImagesField";
 export { ListingPriceField } from "./ListingPriceField";

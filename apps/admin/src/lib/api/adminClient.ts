@@ -185,7 +185,7 @@ export async function adminFetch<T>(
     try {
       const url = path.startsWith("http://") || path.startsWith("https://")
         ? path
-        : path.startsWith("/api/v1/")
+        : path.startsWith(ADMIN_API_V1_BASE_PATH)
           ? `${ADMIN_API_BASE.replace(new RegExp(`${ADMIN_API_V1_BASE_PATH}$`), "")}${path}`
           : `${ADMIN_API_BASE}${path}`;
       const headers = new Headers(options.headers || {});

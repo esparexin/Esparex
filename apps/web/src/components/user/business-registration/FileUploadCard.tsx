@@ -12,7 +12,7 @@ import {
     useFilePreviewUrl,
 } from "./useFilePreviewUrl";
 
-import { FormError } from "@/components/ui/FormError";
+import { FormError } from "@esparex/ui";
 
 interface FileUploadCardProps {
     title: string;

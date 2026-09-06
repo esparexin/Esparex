@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { usePostAdLocationState, usePostAdAction } from "../../context";
 import { useLocationData } from "@/context/LocationContext";
-import { Field } from "@/components/ui/field";
+import { Field } from "@esparex/ui";
 import type { Location } from "@/lib/api/user/locations";
 import LocationSelector from "@/components/location/LocationSelector";
 import { LocationFacade, adaptLocationInput } from "@esparex/shared";

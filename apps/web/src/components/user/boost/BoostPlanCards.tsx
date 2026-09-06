@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "../../ui/badge";
+import { Badge } from "@esparex/ui";
 import { Zap, Sparkles, CheckCircle2 } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { formatPlanName, type BoostPlan, type PromotionCategory } from "@/hooks/useBoostPlanDialog";

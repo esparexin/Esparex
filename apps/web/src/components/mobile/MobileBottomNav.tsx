@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { PlusCircle } from "@esparex/ui";
 import { usePathname } from "next/navigation";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { useAuth } from "@/context/AuthContext";
 import { useBottomBar } from "@/context/BottomBarContext";

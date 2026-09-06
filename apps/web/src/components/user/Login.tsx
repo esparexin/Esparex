@@ -11,7 +11,7 @@ import { formatSeconds } from "@/lib/otpHelpers";
 import { validateIndianMobile } from "@/lib/mobileUtils";
 
 import { Form } from "@esparex/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
 import { loginFormSchema, type LoginFormValues } from "@/schemas/login.schema";
 import { LoginMobileStep } from "./auth/LoginMobileStep";

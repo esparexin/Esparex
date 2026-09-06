@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button, Card, CardContent } from "@esparex/ui";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@esparex/ui";
+import { Separator } from "@esparex/ui";
 import { Bell, Eye, Edit2, Trash2, Crown, Plus } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type {

@@ -1,6 +1,6 @@
 import { InfoPage } from "@/components/common/InfoPage";
 import Link from "next/link";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@esparex/ui";
 import type { Metadata } from "next";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, CreditCard } from "@esparex/ui";

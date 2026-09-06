@@ -15,7 +15,7 @@ import {
   Button,
   Z_INDEX,
 } from "@esparex/ui";
-import { Input } from "../ui/input";
+import { Input } from "@esparex/ui";
 
 import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";

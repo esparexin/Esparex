@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { SafeImage } from "@/components/ui/SafeImage";
-import { cn } from "@/components/ui/utils";
+import { SafeImage } from "@/components/common/SafeImage";
+import { cn } from "@/lib/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import {
   ListingItemActions,

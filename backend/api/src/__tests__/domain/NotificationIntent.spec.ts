@@ -2,12 +2,12 @@ import { NotificationIntent } from "@esparex/core/domains/notifications";
 import { NOTIFICATION_TYPE } from "@esparex/contracts";
 describe("NotificationIntent", () => {
     it("uses medium priority for admin broadcasts", () => {
-        const intent = NotificationIntent.fromAdminBroadcast(
-            "user-1",
-            "broadcast-1",
-            "Maintenance Window",
-            "We will be briefly offline tonight."
-        );
+        const intent = NotificationIntent.fromAdminBroadcast({
+            userId: "user-1",
+            broadcastId: "broadcast-1",
+            title: "Maintenance Window",
+            body: "We will be briefly offline tonight.",
+        });
 
         expect(intent.priority).toBe("medium");
         expect(intent.type).toBe(NOTIFICATION_TYPE.SYSTEM);

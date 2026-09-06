@@ -1,9 +1,9 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
 import { Shield, CheckCircle, MapPin, Clock, Briefcase, CircuitBoard, Wrench } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 interface AdTitlePriceCardProps {
     ad: Ad;

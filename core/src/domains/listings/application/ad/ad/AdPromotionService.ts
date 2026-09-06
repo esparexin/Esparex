@@ -5,7 +5,7 @@ import { getListingRepository, getListingsCache, getListingUnitOfWork } from '..
 import { LISTING_TYPE } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
-import { consumeCredit } from '../../../../../services/wallet/WalletService';
+import { consumeCredit } from '../../../../payments/application/WalletService';
 import { isValidObjectId } from '../../../../../utils/idUtils';
 
 export interface PromoteAdParams {

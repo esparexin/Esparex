@@ -21,7 +21,7 @@
     "ci:seo": "node scripts/validate-sitemap.cjs",
     "type-check": "tsc --noEmit",
     "seed:locations:full": "echo \"Moved to backend ops; run from backend package.\" && exit 1",
-    "test": "vitest",
+    "test": "vitest run --fileParallelism=false --maxWorkers=1 --maxConcurrency=1",
     "e2e": "playwright test",
     "e2e:listing-edit": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=4",
     "e2e:listing-edit:ci": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=1",

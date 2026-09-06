@@ -6,8 +6,7 @@
  * @module jobs/backup.job
  */
 
-import { backupDatabase, cleanupOldBackups } from '../scripts/backup-database';
-import { verifyBackup } from '../scripts/verify-backup';
+import { backupDatabase, cleanupOldBackups, verifyBackup } from '../db/backup';
 import { env, isProduction } from '../config/env';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';

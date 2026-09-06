@@ -278,7 +278,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
 
                 const intents = batch.map(match => {
                     const channels = Array.isArray(match.notificationChannels) && match.notificationChannels.length > 0 ? match.notificationChannels : ['push', 'in-app']; 
-                    return NotificationIntent.fromSmartAlert(match.userId.toString(), match.name, ad.id, match._id.toString(), channels);
+                    return NotificationIntent.fromSmartAlert({ userId: match.userId.toString(), alertName: match.name, adId: ad.id, alertId: match._id.toString(), channels });
                 });
 
                 await NotificationDispatcher.bulkDispatch(intents, { shadowDispatch: false });

@@ -1,9 +1,9 @@
 "use client";
 
 import { memo } from "react";
-import { CardContent } from "@/components/ui/card";
+import { CardContent } from "@esparex/ui";
 import { AdCardCover, AdCardMeta, AdCardActions, AdCardShell } from "./primitives";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import {
   type AdCardData,
   useAdCardBase,

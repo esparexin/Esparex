@@ -3,15 +3,17 @@ import {
   isBusinessActiveStatus,
   normalizeAdStatus,
   normalizeServiceStatus,
+  normalizeTransactionStatus,
 } from "@esparex/shared";
 import type { 
   ServiceStatus, 
   AdStatusValue as AdStatus,
   TransactionStatusValue,
+  ListingStatus,
 } from "@esparex/contracts";
 import { PAYMENT_STATUS } from "@esparex/contracts";
 
-export type { ServiceStatus, AdStatus, TransactionStatusValue };
+export type { ServiceStatus, AdStatus, TransactionStatusValue, ListingStatus };
 /** Canonical transaction lifecycle status (SSOT: @esparex/contracts) */
 export type TransactionStatus = TransactionStatusValue;
 /** Spare parts use the unified Ad/Listing domain (SSOT: ListingStatus from @esparex/contracts). */
@@ -26,6 +28,7 @@ export {
   isBusinessActiveStatus,
   normalizeAdStatus,
   normalizeServiceStatus,
+  normalizeTransactionStatus,
   PAYMENT_STATUS
 };
 
@@ -46,13 +49,3 @@ export function normalizePartCondition(
   return "new";
 }
 
-export function normalizeTransactionStatus(
-  value: unknown,
-  fallback: TransactionStatus = PAYMENT_STATUS.INITIATED
-): TransactionStatus {
-  const normalized = typeof value === "string" ? value.trim().toUpperCase() : "";
-  if (normalized === "SUCCESS" || normalized === "COMPLETED") return PAYMENT_STATUS.SUCCESS;
-  if (normalized === "FAILED" || normalized === "ERROR") return PAYMENT_STATUS.FAILED;
-  if (normalized === "INITIATED" || normalized === "PENDING") return PAYMENT_STATUS.INITIATED;
-  return fallback;
-}

@@ -1,12 +1,12 @@
 "use client";
 
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { Service } from "@/lib/api/user/businesses";
 import type { Ad } from "@/schemas/ad.schema";
 import { LISTING_TYPE } from "@esparex/contracts";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@esparex/ui";
 
 export type ListingTab = "ads" | "services" | "spare-parts";
 

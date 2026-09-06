@@ -8,11 +8,11 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "@/components/ui/dialog";
+} from "@esparex/ui";
 import { Button } from "@esparex/ui";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { FormError } from "@/components/ui/FormError";
+import { Label } from "@esparex/ui";
+import { Input } from "@esparex/ui";
+import { FormError } from "@esparex/ui";
 import LocationSelector from "@/components/location/LocationSelector";
 import type { Location } from "@/lib/api/user/locations";
 import type { Category } from "@/lib/api/user/categories";

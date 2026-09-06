@@ -14,13 +14,8 @@ jest.mock("@esparex/core/domains/notifications", () => ({
         bulkDispatch: jest.fn().mockResolvedValue({ successCount: 0, skippedCount: 0, failureCount: 0 }),
     },
     NotificationIntent: {
-        fromAdminBroadcast: jest.fn((userId, audienceId, title, body, kind, targetType) => ({
-            userId,
-            audienceId,
-            title,
-            body,
-            kind,
-            targetType,
+        fromAdminBroadcast: jest.fn((params) => ({
+            ...params,
         })),
     },
 }));

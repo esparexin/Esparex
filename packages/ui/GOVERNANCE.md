@@ -24,12 +24,15 @@ To introduce existing duplicated application components into `packages/ui`, you 
 
 ## 3. Folder Structure & Naming
 
-- **Naming Conventions**: Components must use strict semantic PascalCase naming (e.g., `<PrimaryButton>`, `<ActionMenu>`). Avoid generic wrapper names (`<CustomDiv>`).
+- **Naming Conventions**: Components must use strict semantic PascalCase naming (e.g., `<Button>`, `<Input>`, `<Select>`). Avoid generic wrapper names (`<CustomDiv>`).
 - **Structure**:
-  - `src/atoms/`: Indivisible UI primitives (Button, Input, Badge).
-  - `src/molecules/`: Simple compositions of atoms (SearchInput, Card).
-  - `src/organisms/`: Complex, stateful layouts (Header, DataTable).
-  - `src/patterns/`: Reusable UX flows (Form wizards, ConfirmationDialogs).
+  - `src/atoms/`: Discrete typography primitives (`<Heading>`, `<Text>`, `<Icon>`).
+  - `src/forms/`: Form controls and inputs (`Button`, `Input`, `Select`, `Checkbox`, `Textarea`, `Switch`, etc.).
+  - `src/feedback/`: Status and interactive feedback (`Alert`, `Modal`, `Toast`, `Spinner`, `StatusChip`).
+  - `src/data-display/`: Structured display components (`Badge`, `Card`, `Table`).
+  - `src/layout/`: Structural shells and containers (`Container`, `PageContainer`, `Grid`).
+  - `src/navigation/`: Navigation elements (`Tabs`, `Drawer`, `Breadcrumb`).
+  - `src/tokens/`: Canonical design-system token re-exports.
 
 ## 4. Export & Versioning Policy
 

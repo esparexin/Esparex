@@ -1,7 +1,7 @@
 import { Megaphone, LayoutGrid } from "@esparex/ui";
 import { AdCardGrid } from "@/components/user/ad-card";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@esparex/ui";
+import { Card, CardContent } from "@esparex/ui";
 import { Container } from "@esparex/ui";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
@@ -10,7 +10,7 @@ import { LocationFacade } from "@esparex/shared";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { BackButton } from "@/components/common/BackButton";
 
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface SellerProfilePageProps {
     profile: SellerProfilePayload;

@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Input } from "@esparex/ui";
 import { Drawer } from "@esparex/ui";
-import { useIsMobile } from "@/components/ui/useMobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 export interface EntitySearchComboboxProps<T> {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { PlusCircle, ArrowRight } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 export function HomePromoAdCard({ className }: { className?: string }) {
     return (

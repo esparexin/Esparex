@@ -6,9 +6,9 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
-} from "@/components/ui/dialog";
+} from "@esparex/ui";
 import { X } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 
 interface AuthModalProps {

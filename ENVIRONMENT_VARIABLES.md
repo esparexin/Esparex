@@ -175,9 +175,9 @@
 | `S3_IMAGE_LIST_LIMIT` | `scripts/check-s3-images.ts` | Image list page size |
 | `S3_IMAGE_DETAIL_LIMIT` | `scripts/check-s3-images.ts` | Image detail page size |
 | `CATALOG_*` (5) | `scripts/catalog-*.js` | Catalog migration safe-guards |
-| `SMOKE_FIXTURE_REVEAL_EXPECT` | `backend/api/src/scripts/` | Fixture generation config |
-| `SMOKE_FIXTURE_OUTPUT_PATH` | `backend/api/src/scripts/` | Fixture output path |
-| `BACKUP_ENCRYPTION_KEY` | `core/src/scripts/backup-database.ts` | Backup encryption |
+| `SMOKE_FIXTURE_REVEAL_EXPECT` | `backend/api/scripts/` | Fixture generation config |
+| `SMOKE_FIXTURE_OUTPUT_PATH` | `backend/api/scripts/` | Fixture output path |
+| `BACKUP_ENCRYPTION_KEY` | `core/src/db/backup.ts` | Backup encryption |
 | `EXPO_PUBLIC_API_URL` | `apps/mobile/.env.example` | Base Backend API Endpoint URL for Expo native mobile app |
 
 ---

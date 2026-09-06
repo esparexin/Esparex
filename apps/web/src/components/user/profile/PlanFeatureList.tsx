@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "@esparex/ui";
 
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 interface PlanFeatureListProps {
   features: string[];

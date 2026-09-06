@@ -101,10 +101,14 @@ data/
 
 # Logs
 *.log
-logs/
+/logs/
 backend/logs/
+backend/api/logs/
+core/logs/
 backend_stdout.log
 backend_stderr.log
+!/.agents/logs/
+!/.agents/logs/**
 
 # Backups
 backups/

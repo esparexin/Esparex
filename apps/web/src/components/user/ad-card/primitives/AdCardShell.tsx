@@ -1,8 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/components/ui/utils";
+import { Card } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import {
   AdCardLinkWrapper,
   type AdCardData,

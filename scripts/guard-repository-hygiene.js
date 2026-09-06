@@ -26,6 +26,10 @@ const PROHIBITED_ROOT_ENTRIES = [
     { name: "android", reason: "Android project belongs in apps/mobile/android, not in monorepo root." },
     { name: "Esparex.app", reason: "Native iOS/macOS bundle belongs in apps/mobile/ios/build/ or should be ignored." },
     { name: "esparex-release.apk", reason: "Android APK binary must not be placed in root." },
+    { name: "esparex-debug.apk", reason: "Android APK binary must not be placed in root." },
+    { name: ".venv", reason: "Python virtual environments must not be created or stored in repository root." },
+    { name: ".kombai", reason: "Kombai tool cache directories must not be stored in repository root." },
+    { name: "graphify-out", reason: "Graphify knowledge graph outputs must not be stored in repository root." },
     { name: "app.json", reason: "Mobile app configuration belongs in apps/mobile/app.json, not root." },
     { name: "index.js", reason: "Mobile entry forwarder not permitted in root; use workspace script scoping." },
     { name: ".java-version", reason: "Java version config belongs in mobile workspace if needed." },
@@ -35,6 +39,24 @@ for (const item of PROHIBITED_ROOT_ENTRIES) {
     const target = path.join(ROOT, item.name);
     if (fs.existsSync(target)) {
         violations.push(`Prohibited root entry found: '${item.name}' — ${item.reason}`);
+    }
+}
+
+// 1b. Prohibited workspace directories (enforcing canonical SSOT layout)
+const PROHIBITED_WORKSPACE_PATHS = [
+    { path: "apps/web/__tests__", reason: "Web tests must reside in apps/web/src/__tests__ to be discovered by Vitest." },
+    { path: "apps/web/src/utils", reason: "Utility files belong in apps/web/src/lib/ (canonical utility SSOT)." },
+    { path: "backend/api/src/@types", reason: "Ambient declarations belong in backend/api/src/types/express.d.ts." },
+    { path: "apps/web/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
+    { path: "apps/admin/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
+    { path: "core/src/scripts", reason: "Scripts belong in core/scripts/ outside src/ to prevent dist/scripts build pollution." },
+    { path: "backend/api/src/scripts", reason: "Scripts belong in backend/api/scripts/ outside src/ to prevent dist/scripts build pollution." },
+];
+
+for (const item of PROHIBITED_WORKSPACE_PATHS) {
+    const target = path.join(ROOT, item.path);
+    if (fs.existsSync(target)) {
+        violations.push(`Prohibited workspace path found: '${item.path}' — ${item.reason}`);
     }
 }
 

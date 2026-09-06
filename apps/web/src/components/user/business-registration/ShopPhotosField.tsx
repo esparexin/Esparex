@@ -2,8 +2,8 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Upload, X } from "@esparex/ui";
 import { Button } from "@esparex/ui";
-import { FormError } from "@/components/ui/FormError";
-import { cn } from "@/components/ui/utils";
+import { FormError } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import {
     BUSINESS_IMAGE_ACCEPT,
     validateBusinessImageSelection,

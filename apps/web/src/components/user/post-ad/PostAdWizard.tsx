@@ -6,7 +6,7 @@ import { PostAdShell } from "./PostAdShell";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/components/user/shared/ListingModalLayout";
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { EditAdWrapper } from "./EditAdWrapper";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import {
   Button,
   Spinner,

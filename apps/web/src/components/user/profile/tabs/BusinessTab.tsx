@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { PageSection } from "@/components/layout";
 import {

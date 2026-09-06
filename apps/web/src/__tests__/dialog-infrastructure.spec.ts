@@ -29,7 +29,7 @@ describe("Platform Dialog System Governance & Infrastructure Audit", () => {
   });
 
   it("exports useIsMobileDevice for device-aware upload source selection", async () => {
-    const { useIsMobileDevice } = await import("@/components/ui/useMobile");
+    const { useIsMobileDevice } = await import("@/hooks/useMobile");
     expect(typeof useIsMobileDevice).toBe("function");
   });
 });

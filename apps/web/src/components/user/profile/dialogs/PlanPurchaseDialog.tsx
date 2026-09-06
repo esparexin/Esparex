@@ -13,8 +13,8 @@ import {
   DialogTitle,
   Label,
 } from "@esparex/ui";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@esparex/ui";
+import { Separator } from "@esparex/ui";
 import { Crown, AlertCircle } from "@esparex/ui";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { PlanCheckoutGstSection } from "./PlanCheckoutGstSection";

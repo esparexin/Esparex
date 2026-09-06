@@ -4,9 +4,9 @@ import { memo, useState } from "react";
 import { Search, SlidersHorizontal, Check } from "@esparex/ui";
 import type { Category } from "@/lib/api/user/categories";
 import { Button, Drawer } from "@esparex/ui";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@esparex/ui";
+import { Label } from "@esparex/ui";
+import { Checkbox } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
 export interface BrowseFiltersHeaderTriggerProps {

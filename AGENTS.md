@@ -1080,7 +1080,7 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
 2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
 3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
-4. **Tier 4 (Auxiliary Design Guides)**: `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants. Non-compliant generic templates (`ui-styling`, `ui-ux-pro-max`) are prohibited.
+4. **Tier 4 (Auxiliary Design Guides)**: Generic external templates (`design`, `design-system`, `brand`, `slides`, `banner-design`, `ui-styling`, `ui-ux-pro-max`) are deprecated and removed. All visual styling, tokens, and component guidelines are consolidated into Tier 3 `esparex-ui-ux`.
 
 ### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
 All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
@@ -1145,6 +1145,46 @@ The platform strictly standardizes on the **Green + Warm Neutral** design system
 - Hardcoding raw hex values (e.g. `#16a34a`, `#087a3e`, `text-slate-700`, `bg-blue-50`) in UI components is STRICTLY FORBIDDEN.
 - All styling MUST consume semantic design token utilities (`bg-primary`, `bg-card`, `border-border`, `text-foreground`, `text-foreground-secondary`, `bg-primary/10`).
 - Any updates to the palette MUST be executed in `packages/design-tokens/src/colors.ts` and compiled via `generate-css.ts`.
+
+---
+
+## 22. PROCESS CONCURRENCY & SYSTEM RESOURCE SAFETY GOVERNANCE STANDARD (MANDATORY)
+
+### 22.1 Core Architectural Principle
+Developer workstations and CI environments have finite CPU core and memory resources. Multi-process test runners (Jest/Vitest) and build tools by default spawn unconstrained worker pools proportional to `os.cpus().length` (typically 7–8 concurrent Node.js processes). In large monorepos with TypeScript transpilation (`ts-jest`), heavy in-memory database mocks, and active IDE language server watchers (`tsserver`), unconstrained concurrency saturates 100% of all CPU cores, leads to thermal throttling, memory exhaustion (>8 GB RAM), UI freezing, and system crashes.
+
+### 22.2 Mandatory Rules:
+1. **Single-Worker / In-Band Test Execution Invariant**:
+   - All Jest scripts across all workspaces (`packages/*`, `apps/*`, `backend/api`, `core`) MUST enforce single-worker execution via `--runInBand` or `maxWorkers: 1` in their `jest.config.js`.
+   - All Vitest scripts across all workspaces MUST enforce `--fileParallelism=false` and `--maxWorkers=1` / `--maxConcurrency=1`.
+   - Unconstrained worker pools (`jest` without flags, unthrottled Vitest workers) are strictly prohibited.
+2. **Sequential Gate & Validation Invariant**:
+   - Repository gate checks (`repo:gate`), validation suites (`governance:guards`), and linting pipelines MUST execute sequentially (`&&`), never in parallel via `concurrently` or background sub-process spawning.
+   - Child processes in validator scripts MUST use direct local binaries (`./node_modules/.bin/*`) to avoid intermediate `npx` wrapper process overhead.
+3. **Deduplicated Type-Check Invariant**:
+   - Foundational libraries (`design-tokens`, `contracts`, `shared`, `core`) MUST be compiled **once upfront** in root `build:libs`.
+   - Individual workspace `type-check` scripts MUST run pure `tsc --noEmit` and are STRICTLY FORBIDDEN from invoking nested `npm run build` chains of upstream packages.
+4. **Automated Enforcement**:
+   - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
+
+---
+
+## 23. CI/CD WORKFLOW CONSOLIDATION & BRANCH PROTECTION SYNCHRONIZATION GOVERNANCE STANDARD (MANDATORY)
+
+### 23.1 Core Architectural Principle
+Branch protection rulesets enforce required status checks that gate merging into integration branches (`develop`, `main`). When workflow jobs are consolidated, renamed, moved, or deleted, branch protection rulesets that reference obsolete job contexts will wait indefinitely for status reports that can never be delivered, causing silent, permanent PR blocks ("Waiting for status to be reported").
+
+### 23.2 Mandatory Rules:
+1. **Atomic Ruleset & Workflow Audit Invariant**:
+   - Whenever a GitHub Actions job/workflow is renamed, removed, merged, or moved between workflows, its corresponding branch-protection/ruleset required status checks MUST be audited and updated in the same change.
+   - No required check may reference a workflow or job that cannot execute for the protected event (e.g. referencing a job from a workflow without `pull_request` triggers on a PR-protected branch).
+2. **Canonical Single-Point Enforcement Invariant**:
+   - CI consolidation MUST NOT leave duplicate workflows or orphaned required checks.
+   - The canonical CI job (`Lint, Test, and Build Monorepo` in `.github/workflows/ci.yml`) is the single authoritative enforcement point for monorepo validation, and branch rulesets MUST reference only checks that are actually emitted by that canonical path.
+3. **No Phantom Job Re-introduction**:
+   - Re-adding dead workflow triggers or empty shim jobs purely to satisfy an orphaned branch protection check is strictly forbidden. The ruleset configuration must be corrected at the source.
+
+
 
 
 

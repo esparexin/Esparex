@@ -1,8 +1,8 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { FormError } from "@/components/ui/FormError";
-import { cn } from "@/components/ui/utils";
+import { Label } from "@esparex/ui";
+import { FormError } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 
 type ChannelType = "push" | "email" | "sms" | "whatsapp" | "in-app";
 

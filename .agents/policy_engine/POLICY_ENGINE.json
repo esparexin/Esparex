@@ -6,14 +6,53 @@
     "deprecated": false
   },
   "workspaces": {
+    "@esparex/design-tokens": {
+      "path": "packages/design-tokens/**",
+      "owner": "design-system",
+      "dependents": [
+        "@esparex/ui",
+        "@esparex/mobile-ui",
+        "@esparex/apps-web",
+        "@esparex/apps-admin",
+        "@esparex/apps-mobile"
+      ]
+    },
+    "@esparex/contracts": {
+      "path": "packages/contracts/**",
+      "owner": "platform",
+      "dependents": [
+        "@esparex/shared",
+        "@esparex/core",
+        "@esparex/backend-api",
+        "@esparex/apps-web",
+        "@esparex/apps-admin",
+        "@esparex/apps-mobile"
+      ]
+    },
     "@esparex/shared": {
       "path": "shared/**",
       "owner": "platform",
       "dependents": [
         "@esparex/core",
         "@esparex/backend-api",
-        "web",
-        "admin"
+        "@esparex/apps-web",
+        "@esparex/apps-admin",
+        "@esparex/apps-mobile"
+      ]
+    },
+    "@esparex/ui": {
+      "path": "packages/ui/**",
+      "owner": "frontend",
+      "dependents": [
+        "@esparex/apps-web",
+        "@esparex/apps-admin"
+      ]
+    },
+    "@esparex/mobile-ui": {
+      "path": "packages/mobile-ui/**",
+      "owner": "mobile",
+      "dependents": [
+        "@esparex/apps-mobile"
       ]
     },
     "@esparex/core": {
@@ -24,18 +63,23 @@
       ]
     },
     "@esparex/backend-api": {
-      "path": "backend/**",
+      "path": "backend/api/**",
       "owner": "backend",
       "dependents": []
     },
-    "web": {
+    "@esparex/apps-web": {
       "path": "apps/web/**",
       "owner": "frontend",
       "dependents": []
     },
-    "admin": {
+    "@esparex/apps-admin": {
       "path": "apps/admin/**",
       "owner": "frontend",
+      "dependents": []
+    },
+    "@esparex/apps-mobile": {
+      "path": "apps/mobile/**",
+      "owner": "mobile",
       "dependents": []
     }
   },

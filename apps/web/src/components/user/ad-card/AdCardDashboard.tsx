@@ -1,10 +1,10 @@
 "use client";
 
 import { memo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@esparex/ui";
+import { Badge } from "@esparex/ui";
 import { AdCardCover, AdCardMeta } from "./primitives";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
 import {
   AdCardLinkWrapper,

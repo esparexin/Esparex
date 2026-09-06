@@ -7,6 +7,33 @@ export interface EntityRef {
     id: string;
 }
 
+export interface FromSmartAlertParams {
+    userId: string;
+    alertName: string;
+    adId: string;
+    alertId: string;
+    channels?: string[];
+}
+
+export interface FromSchedulerJobParams {
+    userId: string;
+    jobId: string;
+    title: string;
+    body: string;
+    targetType: string;
+    actionUrl?: string;
+}
+
+export interface FromAdminBroadcastParams {
+    userId: string;
+    broadcastId: string;
+    title: string;
+    body: string;
+    kind?: string;
+    targetType?: string;
+    actionUrl?: string;
+}
+
 export class NotificationIntent {
     userId: string;
     type: NotificationTypeValue;
@@ -43,47 +70,35 @@ export class NotificationIntent {
             .digest('hex');
     }
 
-    static fromSmartAlert(
-        userId: string,
-        alertName: string,
-        adId: string,
-        alertId: string,
-        channels: string[] = ['push', 'in-app']
-    ): NotificationIntent {
+    static fromSmartAlert(params: FromSmartAlertParams): NotificationIntent {
+        const channels = params.channels ?? ['push', 'in-app'];
         return new NotificationIntent({
-            userId,
+            userId: params.userId,
             type: NOTIFICATION_TYPE.SMART_ALERT,
-            entityRef: { domain: 'ad', id: adId },
+            entityRef: { domain: 'ad', id: params.adId },
             message: {
                 title: 'New Ad Alert',
-                body: `A new ad matches your alert: ${alertName}`,
-                data: { adId, alertId, type: NOTIFICATION_TYPE.SMART_ALERT }
+                body: `A new ad matches your alert: ${params.alertName}`,
+                data: { adId: params.adId, alertId: params.alertId, type: NOTIFICATION_TYPE.SMART_ALERT }
             },
             priority: 'high',
             channels,
-            metadata: { alertId }
+            metadata: { alertId: params.alertId }
         });
     }
 
-    static fromSchedulerJob(
-        userId: string,
-        jobId: string,
-        title: string,
-        body: string,
-        targetType: string,
-        actionUrl?: string
-    ): NotificationIntent {
+    static fromSchedulerJob(params: FromSchedulerJobParams): NotificationIntent {
         return new NotificationIntent({
-            userId,
+            userId: params.userId,
             type: NOTIFICATION_TYPE.SYSTEM,
-            entityRef: { domain: 'admin_broadcast', id: jobId },
+            entityRef: { domain: 'admin_broadcast', id: params.jobId },
             message: {
-                title,
-                body,
+                title: params.title,
+                body: params.body,
                 data: {
                     kind: 'admin_broadcast_scheduled',
-                    targetType,
-                    ...(actionUrl ? { actionUrl, link: actionUrl } : {}),
+                    targetType: params.targetType,
+                    ...(params.actionUrl ? { actionUrl: params.actionUrl, link: params.actionUrl } : {}),
                 }
             },
             priority: 'medium',
@@ -91,26 +106,19 @@ export class NotificationIntent {
         });
     }
 
-    static fromAdminBroadcast(
-        userId: string,
-        broadcastId: string,
-        title: string,
-        body: string,
-        kind: string = 'admin_broadcast',
-        targetType?: string,
-        actionUrl?: string
-    ): NotificationIntent {
+    static fromAdminBroadcast(params: FromAdminBroadcastParams): NotificationIntent {
+        const kind = params.kind ?? 'admin_broadcast';
         return new NotificationIntent({
-            userId,
+            userId: params.userId,
             type: NOTIFICATION_TYPE.SYSTEM,
-            entityRef: { domain: 'admin_broadcast', id: broadcastId },
+            entityRef: { domain: 'admin_broadcast', id: params.broadcastId },
             message: {
-                title,
-                body,
+                title: params.title,
+                body: params.body,
                 data: {
                     kind,
-                    targetType,
-                    ...(actionUrl ? { actionUrl, link: actionUrl } : {}),
+                    targetType: params.targetType,
+                    ...(params.actionUrl ? { actionUrl: params.actionUrl, link: params.actionUrl } : {}),
                 }
             },
             priority: 'medium',
@@ -118,3 +126,4 @@ export class NotificationIntent {
         });
     }
 }
+
