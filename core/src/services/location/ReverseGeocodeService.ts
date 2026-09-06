@@ -17,132 +17,159 @@ import {
     buildReverseGeocodeCacheKey,
     getPublicCanonicalLocationById
 } from './_shared/locationServiceBase';
-import { haversineDistance } from '@esparex/shared';
 import type {
     LocationInputObject,
     NormalizedLocationResponse,
     HierarchyLevel,
-    GeoJSONPoint
 } from './_shared/locationServiceBase';
+import { resolveSettlementWithNominatim } from './NominatimGeocode';
 export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 
-const resolveBoundaryMatch = async (lat: number, lng: number): Promise<NormalizedLocationResponse | null> => {
+/* -------------------------------------------------------------------------- */
+/* CONSTANTS                                                                  */
+/* -------------------------------------------------------------------------- */
+
+const SETTLEMENT_SELECT_FIELDS =
+    'name country level coordinates isPopular isActive verificationStatus parentId path pincode';
+
+/* -------------------------------------------------------------------------- */
+/* BOUNDARY MATCH (PRIMARY PATH)                                              */
+/* -------------------------------------------------------------------------- */
+
+const resolveBoundaryMatch = async (
+    lat: number,
+    lng: number,
+): Promise<NormalizedLocationResponse | null> => {
     const point = { type: 'Point', coordinates: [lng, lat] as [number, number] };
     const boundaries = await adminBoundaryRepository.findBoundaries({
-        geometry: {
-            $geoIntersects: {
-                $geometry: point
-            }
-        }
+        geometry: { $geoIntersects: { $geometry: point } },
     })
         .select('locationId level')
         .lean<Array<{ locationId: mongoose.Types.ObjectId; level: HierarchyLevel }>>();
 
     if (boundaries.length === 0) {
-        logger.warn('No AdminBoundary found for coordinates; falling back to nearest point search.', { lat, lng });
+        logger.warn('No AdminBoundary found for coordinates; falling back.', { lat, lng });
         return null;
     }
 
     const boundary = [...boundaries].sort(
-        (a, b) => (REVERSE_GEOCODE_LEVEL_PRIORITY[b.level] || 0) - (REVERSE_GEOCODE_LEVEL_PRIORITY[a.level] || 0)
+        (a, b) =>
+            (REVERSE_GEOCODE_LEVEL_PRIORITY[b.level] || 0) -
+            (REVERSE_GEOCODE_LEVEL_PRIORITY[a.level] || 0),
     )[0];
 
     const stateLocation = await getPublicCanonicalLocationById(boundary?.locationId);
     if (!boundary || !stateLocation) {
-        logger.warn('AdminBoundary matched but parent location is missing or inactive.', {
-            boundaryId: boundary?.locationId,
-            coordinates: { lat, lng }
+        logger.warn('AdminBoundary matched but parent location missing.', {
+            boundaryId: boundary?.locationId, coordinates: { lat, lng },
         });
         return null;
     }
 
-    // After identifying the state, find the nearest settlement within it.
-    // Increased distance to 100km and removed strict boundary path requirement 
-    // if a point match is found nearby, as some settlements might have inconsistent parent paths.
-    const nearestCity = await locationRepository.findOne(withPublicCanonicalLocationFilter({
-        level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
-        coordinates: {
-            $near: {
-                $geometry: { type: 'Point', coordinates: [lng, lat] },
-                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS * 2, // 100km
-            }
+    // Use Nominatim to resolve the correct city/mandal, then match in DB.
+    const settlement = await resolveSettlementWithNominatim(
+        lat, lng, REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS * 2,
+    );
+    if (settlement) {
+        const [mapped] = await mapLocationDocsToResponses([settlement]);
+        if (mapped) {
+            return {
+                ...mapped,
+                coordinates: { type: 'Point', coordinates: [lng, lat] },
+                isSnapped: false,
+            } as NormalizedLocationResponse;
         }
-    }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
+    }
+
+    // Fallback: raw $near if Nominatim unavailable
+    const nearestCity = await locationRepository
+        .findOne(withPublicCanonicalLocationFilter({
+            level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
+            coordinates: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates: [lng, lat] },
+                    $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS * 2,
+                },
+            },
+        }))
+        .select(SETTLEMENT_SELECT_FIELDS)
         .lean<LocationInputObject | null>();
 
     if (nearestCity) {
-        const cityCoords = (nearestCity.coordinates as GeoJSONPoint)?.coordinates;
-        if (cityCoords) {
-            const distance = haversineDistance(lat, lng, cityCoords[1], cityCoords[0]);
-            logger.info('Reverse geocode matched nearest settlement in boundary.', { 
-                city: nearestCity.name, 
-                distanceKm: Number(distance.toFixed(2)),
-                inputCoordinates: { lat, lng },
-                settlementCoordinates: { lat: cityCoords[1], lng: cityCoords[0] }
-            });
-        }
-
         const [mappedCity] = await mapLocationDocsToResponses([nearestCity]);
         if (mappedCity) {
             return {
                 ...mappedCity,
                 coordinates: { type: 'Point', coordinates: [lng, lat] },
-                isSnapped: false
+                isSnapped: false,
             } as NormalizedLocationResponse;
         }
     }
 
-    // Fallback to state-level response if no city found within range
+    // Fallback to state-level response
     const [mappedState] = await mapLocationDocsToResponses([stateLocation]);
     if (mappedState) {
         return {
             ...mappedState,
             coordinates: { type: 'Point', coordinates: [lng, lat] },
-            isSnapped: false
+            isSnapped: false,
         };
     }
     return null;
 };
 
-
+/* -------------------------------------------------------------------------- */
+/* NEAREST CANDIDATE FALLBACK (NO BOUNDARY DATA)                              */
+/* -------------------------------------------------------------------------- */
 
 const findNearestReverseGeocodeCandidate = async (
     lat: number,
-    lng: number
+    lng: number,
 ): Promise<LocationInputObject | null> => {
-    const nearestSettlement = await locationRepository.findOne(withPublicCanonicalLocationFilter({
-        level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
-        coordinates: {
-            $near: {
-                $geometry: { type: 'Point', coordinates: [lng, lat] },
-                $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
-            }
-        }
-    }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
+    // Primary: use Nominatim to identify the correct city/mandal
+    const nominatimMatch = await resolveSettlementWithNominatim(
+        lat, lng, REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
+    );
+    if (nominatimMatch) return nominatimMatch;
+
+    // Fallback: raw $near (if Nominatim is down or returns no result)
+    const nearestSettlement = await locationRepository
+        .findOne(withPublicCanonicalLocationFilter({
+            level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
+            coordinates: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates: [lng, lat] },
+                    $maxDistance: REVERSE_GEOCODE_SETTLEMENT_MAX_DISTANCE_METERS,
+                },
+            },
+        }))
+        .select(SETTLEMENT_SELECT_FIELDS)
         .lean<LocationInputObject | null>();
 
-    if (nearestSettlement) {
-        return nearestSettlement;
-    }
+    if (nearestSettlement) return nearestSettlement;
 
-    return locationRepository.findOne(withPublicCanonicalLocationFilter({
-        level: { $in: REVERSE_GEOCODE_REGIONAL_LEVELS },
-        coordinates: {
-            $near: {
-                $geometry: { type: 'Point', coordinates: [lng, lat] },
-                $maxDistance: REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,
-            }
-        }
-    }))
-        .select('name country level coordinates isPopular isActive verificationStatus parentId path pincode')
+    // Regional fallback (state/country level)
+    return locationRepository
+        .findOne(withPublicCanonicalLocationFilter({
+            level: { $in: REVERSE_GEOCODE_REGIONAL_LEVELS },
+            coordinates: {
+                $near: {
+                    $geometry: { type: 'Point', coordinates: [lng, lat] },
+                    $maxDistance: REVERSE_GEOCODE_REGIONAL_MAX_DISTANCE_METERS,
+                },
+            },
+        }))
+        .select(SETTLEMENT_SELECT_FIELDS)
         .lean<LocationInputObject | null>();
 };
 
+/* -------------------------------------------------------------------------- */
+/* PUBLIC API                                                                 */
+/* -------------------------------------------------------------------------- */
+
 export const reverseGeocode = async (
     lat: number,
-    lng: number
+    lng: number,
 ): Promise<NormalizedLocationResponse | null> => {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
         throw new AppError('Invalid coordinates', 400, 'INVALID_COORDINATES');
@@ -175,7 +202,7 @@ export const reverseGeocode = async (
     const finalResponse = {
         ...response,
         coordinates: { type: 'Point', coordinates: [lng, lat] as [number, number] },
-        isSnapped: false
+        isSnapped: false,
     } as NormalizedLocationResponse;
 
     await setCache(cacheKey, finalResponse, CACHE_TTLS.REVERSE_GEOCODE);

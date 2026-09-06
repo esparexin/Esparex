@@ -1184,12 +1184,44 @@ Branch protection rulesets enforce required status checks that gate merging into
 3. **No Phantom Job Re-introduction**:
    - Re-adding dead workflow triggers or empty shim jobs purely to satisfy an orphaned branch protection check is strictly forbidden. The ruleset configuration must be corrected at the source.
 
+---
 
+## 24. GEOSPATIAL QUERY & REVERSE GEOCODE GOVERNANCE STANDARD (MANDATORY)
 
+### 24.1 Core Architectural Principle
+MongoDB `$near` queries return results sorted **purely by point-to-point distance**. When the Location collection contains settlements of varying importance (cities, districts, villages, areas), a raw `findOne()` with `$near` will return whichever settlement has its stored center-point coordinates closest to the input — regardless of whether the user is actually *inside* that settlement's real-world boundary. This causes tiny villages to shadow major cities when their stored coordinates happen to be marginally closer.
 
+### 24.2 Nominatim-Enhanced Reverse Geocode Architecture
+The canonical reverse geocode pipeline uses **OpenStreetMap Nominatim** (`NominatimGeocode.ts`) as the primary city/mandal resolution strategy, with raw `$near` as a degraded fallback only when Nominatim is unavailable.
 
+**Resolution Priority:**
+```text
+1. AdminBoundary $geoIntersects → identify state/region polygon
+2. Nominatim reverse geocode (zoom=10) → resolve correct city/mandal name
+3. Match Nominatim result back to internal Location DB by normalized name
+4. Fallback: raw $near if Nominatim is down or returns no match
+5. Regional fallback: state/country level $near
+```
 
-
-
+### 24.3 Mandatory Rules:
+1. **Nominatim-First City Resolution**:
+   - All reverse geocode queries MUST attempt `resolveSettlementWithNominatim()` from `NominatimGeocode.ts` before falling back to raw `$near`.
+   - `NominatimGeocode.ts` is the canonical SSOT for external geocode integration. Duplicate Nominatim callers are strictly prohibited.
+2. **Zero Raw `$near` + `findOne()` as Primary Reverse Geocoding Strategy**:
+   - Using `locationRepository.findOne()` with `$near` as the **primary** reverse geocode path is strictly prohibited. It is permitted ONLY as a degraded fallback when Nominatim returns `null`.
+3. **Nominatim Graceful Degradation**:
+   - `reverseGeocodeViaNominatim()` MUST resolve to `null` (never throw) on network errors, timeouts (4s ceiling), or unparseable responses.
+   - When Nominatim is unavailable, the pipeline MUST silently degrade to raw `$near` without user-facing errors.
+4. **DB Name Matching After Nominatim**:
+   - After obtaining a city/mandal name from Nominatim, the system MUST match it back to the internal Location DB using normalized name search (`normalizeLocationNameForSearch`) with optional proximity constraint.
+   - If no DB match is found for the Nominatim name, the pipeline falls through to `$near`.
+5. **Diagnostic Logging Invariant**:
+   - Every Nominatim resolution MUST log the resolved city name, county name, and state to enable production debugging of incorrect location matches.
+6. **Cache Invalidation on Location Data Changes**:
+   - When Location documents are created, updated (coordinates or level changed), or deleted, the reverse geocode cache keys (`geo:*`) for affected coordinate regions MUST be invalidated.
+7. **AdminBoundary Polygon Precedence**:
+   - When `AdminBoundary` polygon data exists for a region, `$geoIntersects` containment checks MUST take precedence over `$near` point-distance queries. The `resolveBoundaryMatch()` path is the primary resolution strategy; `findNearestReverseGeocodeCandidate()` is the fallback only when no boundary polygon covers the input coordinates.
+8. **User-Agent Compliance**:
+   - All Nominatim API requests MUST include a descriptive `User-Agent` header (`Esparex/1.0`) per OSM usage policy. Anonymous or generic user agents are prohibited.
 
 
