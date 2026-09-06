@@ -91,24 +91,23 @@ export function EntitySearchCombobox<T>({
 
     const activeOptionId = activeIndex >= 0 ? `select-option-${activeIndex}` : undefined;
 
+    // Synchronize keyboard focus / activeIndex with auto-scrolling
+    useEffect(() => {
+        if (activeIndex < 0 || !isListOpen) return;
+        document.getElementById(`select-option-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [activeIndex, isListOpen]);
+
     // Close dropdown on click outside for desktop listbox
     useEffect(() => {
         if (!isListOpen || isMobile) return;
-
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             const container = containerRef.current;
             const dropdownEl = document.getElementById("select-options-list");
             const target = event.target as Node;
-            if (
-                container &&
-                !container.contains(target) &&
-                dropdownEl &&
-                !dropdownEl.contains(target)
-            ) {
+            if (container && !container.contains(target) && dropdownEl && !dropdownEl.contains(target)) {
                 handleClose();
             }
         };
-
         document.addEventListener("mousedown", handleClickOutside);
         document.addEventListener("touchstart", handleClickOutside);
         return () => {

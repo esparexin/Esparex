@@ -23,7 +23,7 @@ export function HeaderSearchDropdown({
   return (
     <div
       style={{ zIndex: Z_INDEX.userHeaderDropdown }}
-      className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-2"
+      className="absolute top-full left-0 right-0 mt-2 max-h-[min(320px,60vh)] overflow-y-auto overscroll-contain bg-popover border rounded-xl shadow-lg animate-in fade-in zoom-in-95 duration-200 p-2"
     >
       <div className="flex items-center justify-between px-2 mb-1">
         <span className="text-xs font-semibold text-muted-foreground uppercase">
