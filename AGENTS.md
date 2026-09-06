@@ -1146,6 +1146,28 @@ The platform strictly standardizes on the **Green + Warm Neutral** design system
 - All styling MUST consume semantic design token utilities (`bg-primary`, `bg-card`, `border-border`, `text-foreground`, `text-foreground-secondary`, `bg-primary/10`).
 - Any updates to the palette MUST be executed in `packages/design-tokens/src/colors.ts` and compiled via `generate-css.ts`.
 
+---
+
+## 22. PROCESS CONCURRENCY & SYSTEM RESOURCE SAFETY GOVERNANCE STANDARD (MANDATORY)
+
+### 22.1 Core Architectural Principle
+Developer workstations and CI environments have finite CPU core and memory resources. Multi-process test runners (Jest/Vitest) and build tools by default spawn unconstrained worker pools proportional to `os.cpus().length` (typically 7–8 concurrent Node.js processes). In large monorepos with TypeScript transpilation (`ts-jest`), heavy in-memory database mocks, and active IDE language server watchers (`tsserver`), unconstrained concurrency saturates 100% of all CPU cores, leads to thermal throttling, memory exhaustion (>8 GB RAM), UI freezing, and system crashes.
+
+### 22.2 Mandatory Rules:
+1. **Single-Worker / In-Band Test Execution Invariant**:
+   - All Jest scripts across all workspaces (`packages/*`, `apps/*`, `backend/api`, `core`) MUST enforce single-worker execution via `--runInBand` or `maxWorkers: 1` in their `jest.config.js`.
+   - All Vitest scripts across all workspaces MUST enforce `--fileParallelism=false` and `--maxWorkers=1` / `--maxConcurrency=1`.
+   - Unconstrained worker pools (`jest` without flags, unthrottled Vitest workers) are strictly prohibited.
+2. **Sequential Gate & Validation Invariant**:
+   - Repository gate checks (`repo:gate`), validation suites (`governance:guards`), and linting pipelines MUST execute sequentially (`&&`), never in parallel via `concurrently` or background sub-process spawning.
+   - Child processes in validator scripts MUST use direct local binaries (`./node_modules/.bin/*`) to avoid intermediate `npx` wrapper process overhead.
+3. **Deduplicated Type-Check Invariant**:
+   - Foundational libraries (`design-tokens`, `contracts`, `shared`, `core`) MUST be compiled **once upfront** in root `build:libs`.
+   - Individual workspace `type-check` scripts MUST run pure `tsc --noEmit` and are STRICTLY FORBIDDEN from invoking nested `npm run build` chains of upstream packages.
+4. **Automated Enforcement**:
+   - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
+
+
 
 
 

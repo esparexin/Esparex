@@ -48,8 +48,8 @@
   "scripts": {
     "build": "npx tsc --build && npx tsc-alias",
     "clean": "node ../scripts/clean.js --core",
-    "test": "jest",
-    "type-check": "npm run build -w @esparex/shared && tsc --noEmit",
+    "test": "jest --runInBand",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "backup": "npx tsx scripts/backup-database.ts",
     "verify-backup": "npx tsx scripts/verify-backup.ts"

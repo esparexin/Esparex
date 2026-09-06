@@ -44,6 +44,7 @@ const GUARDS = [
   { name: 'Mobile Toolchain', cmd: 'node scripts/guard-mobile-toolchain.js', baselineKey: 'mobileToolchainViolations' },
   { name: 'Repository Hygiene', cmd: 'node scripts/guard-repository-hygiene.js', baselineKey: 'repositoryHygieneViolations' },
   { name: 'No API String Literals', cmd: 'node scripts/enforce-no-api-string-literals.js', baselineKey: 'noApiStringLiteralsViolations' },
+  { name: 'Process Concurrency & Resource Safety', cmd: 'node scripts/guard-process-concurrency.js', baselineKey: 'processConcurrencyViolations' },
 ];
 
 function run(val) {

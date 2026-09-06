@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "node ../scripts/clean.js --shared",
-    "type-check": "npm run build -w @esparex/contracts && tsc --noEmit"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
