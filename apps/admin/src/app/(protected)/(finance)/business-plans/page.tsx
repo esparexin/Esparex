@@ -60,17 +60,10 @@ export default function BusinessPlansPage() {
     }, [fetchPlans, search]);
 
     useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                search: null,
-                q: search,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
+        replaceAdminQueryState(router, pathname, searchParams, {
+            search: null,
+            q: search,
+        });
     }, [pathname, router, search, searchParams]);
 
     const onToggleClick = async (plan: Plan) => {

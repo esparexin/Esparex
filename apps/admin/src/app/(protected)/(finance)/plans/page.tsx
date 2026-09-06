@@ -72,18 +72,11 @@ export default function PlansPage() {
     }, [fetchPlans, search, typeFilter]);
 
     useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                search: null,
-                q: search,
-                type: typeFilter === "all" ? null : typeFilter,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
+        replaceAdminQueryState(router, pathname, searchParams, {
+            search: null,
+            q: search,
+            type: typeFilter === "all" ? null : typeFilter,
+        });
     }, [pathname, router, search, searchParams, typeFilter]);
 
     const onToggleClick = async (plan: Plan) => {
