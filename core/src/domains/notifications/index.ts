@@ -10,5 +10,5 @@ export * from './application/PushGatewayService';
 export * from './application/SmartAlertService';
 export * from './application/PlansWalletNotificationService';
 export * from './domain/NotificationIntent';
-export * from './ports/emailService.port';
+export * from './ports/EmailServicePort';
 
