@@ -6,7 +6,6 @@
  */
 
 const { execSync } = require('child_process');
-const fs = require('fs');
 
 if (process.env.SKIP_MIGRATION_GATE) {
     console.log("[governance] SKIP_MIGRATION_GATE is set; skipping schema migration guard.");
@@ -16,7 +15,7 @@ if (process.env.SKIP_MIGRATION_GATE) {
 function runGit(cmd) {
     try {
         return execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-    } catch (e) {
+    } catch {
         return '';
     }
 }

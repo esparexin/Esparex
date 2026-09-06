@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { Validation, runStandalone, ROOT } = require('./shared');
+const { runStandalone, ROOT } = require('./shared');
 
 const META = { id: 'WORK-001', name: 'Workspace Validation', version: '1.0.0', category: 'Structure' };
 

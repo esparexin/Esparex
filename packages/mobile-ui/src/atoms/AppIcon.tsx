@@ -18,7 +18,6 @@ export const AppIcon: React.FC<AppIconProps> = ({
   const IconComponent = LucideIcons[name] as React.ElementType;
   
   if (!IconComponent) {
-    console.warn(`Icon ${name} not found in lucide-react-native`);
     return null;
   }
   

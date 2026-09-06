@@ -138,7 +138,6 @@ function formatReport(results) {
 
   // GOV-008 Repository Health Summary Card
   const healthScore = totalErrors === 0 ? 100 : Math.max(0, 100 - (totalErrors * 15 + totalWarnings * 2));
-  const summarySep = '─'.repeat(60);
   lines.push(`╔${sep}╗`);
   lines.push(`║                  Repository Health Summary                ║`);
   lines.push(`╠${sep}╣`);

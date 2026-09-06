@@ -28,7 +28,9 @@ export default tseslint.config(
       "**/.venv/**",
       "**/*.spec.ts",
       "**/*.test.ts",
-      "**/*.d.ts"
+      "**/*.d.ts",
+      "**/Pods/**",
+      "**/ios/Pods/**"
     ]
   },
 
@@ -114,6 +116,7 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/incompatible-library": "off",
       "@next/next/no-img-element": "off",
     },
     settings: {
@@ -182,7 +185,17 @@ export default tseslint.config(
     }
   },
 
-  // 9. Scripts, Configs, and Tooling (Allow console)
+  // 9. Jest & Test Setup (Jest Globals)
+  {
+    files: ["**/jest.setup.js", "**/jest.config.js", "**/*.setup.js"],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+
+  // 10. Scripts, Configs, and Tooling (Allow console)
   {
     files: ["**/scripts/**/*.{js,ts}", "tooling/**/*.{js,ts}", "**/*.cjs", "**/*.mjs"],
     rules: {

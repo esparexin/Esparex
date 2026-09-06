@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'GOV-GUARDS-001', name: 'Platform Governance Guards Suite', version: '1.0.0', category: 'Governance' };
 

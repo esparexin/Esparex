@@ -35,13 +35,15 @@ function normalizeFilePath(filePath) {
 function processAndSaveBaseline(rawJsonOutput) {
     try {
         const parsed = JSON.parse(rawJsonOutput);
-        const normalized = parsed.map(file => ({
-            ...file,
-            filePath: normalizeFilePath(file.filePath)
-        }));
+        const normalized = parsed
+            .filter(file => file.messages && file.messages.length > 0)
+            .map(file => ({
+                ...file,
+                filePath: normalizeFilePath(file.filePath)
+            }));
         fs.writeFileSync(BASELINE_FILE, JSON.stringify(normalized, null, 2));
         console.log(`🎉 Baseline saved to: ${BASELINE_FILE}`);
-    } catch (e) {
+    } catch {
         fs.writeFileSync(BASELINE_FILE, rawJsonOutput);
         console.log(`🎉 Raw baseline saved to: ${BASELINE_FILE}`);
     }

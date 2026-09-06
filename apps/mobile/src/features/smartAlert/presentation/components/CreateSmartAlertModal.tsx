@@ -21,7 +21,10 @@ export function CreateSmartAlertModal({
   const [formState, setFormState] = useState<SmartAlertFormState>(INITIAL_SMART_ALERT_FORM_STATE);
   const createMutation = useCreateSmartAlert();
 
-  React.useEffect(() => {
+  const [prevSyncKey, setPrevSyncKey] = useState<string | null>(null);
+  const currentSyncKey = visible ? (initialAlert ? initialAlert.id : '__NEW__') : null;
+  if (currentSyncKey !== prevSyncKey) {
+    setPrevSyncKey(currentSyncKey);
     if (initialAlert) {
       setFormState({
         name: initialAlert.name || '',
@@ -36,7 +39,7 @@ export function CreateSmartAlertModal({
     } else {
       setFormState(INITIAL_SMART_ALERT_FORM_STATE);
     }
-  }, [initialAlert, visible]);
+  }
 
   const handleSubmit = () => {
     if (!formState.name.trim() && !formState.keywords.trim() && !formState.category.trim()) {

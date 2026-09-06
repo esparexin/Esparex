@@ -23,7 +23,6 @@ export default function GoogleAdsPage() {
     const [editingPlacement, setEditingPlacement] = useState<GoogleAdPlacementDTO | null>(null);
 
     const fetchPlacements = useCallback(async () => {
-        setLoading(true);
         try {
             const params = new URLSearchParams({
                 page: String(page),
@@ -51,8 +50,47 @@ export default function GoogleAdsPage() {
     }, [page, statusFilter, searchInput]);
 
     useEffect(() => {
-        fetchPlacements();
-    }, [fetchPlacements]);
+        let isMounted = true;
+
+        async function load() {
+            try {
+                const params = new URLSearchParams({
+                    page: String(page),
+                    limit: "10",
+                    status: statusFilter,
+                });
+                if (searchInput.trim()) {
+                    params.set("q", searchInput.trim());
+                }
+
+                const response = await adminFetch<unknown>(`${ADMIN_ROUTES.GOOGLE_ADS_PLACEMENTS}?${params.toString()}`);
+                const parsed = parseAdminResponse<GoogleAdPlacementDTO>(response);
+
+                if (isMounted) {
+                    setPlacements(parsed.items || []);
+                    setTotal(parsed.pagination?.total ?? parsed.items.length);
+                }
+            } catch (err: unknown) {
+                if (isMounted) {
+                    showAdminPopup({
+                        type: "error",
+                        title: "Error",
+                        message: err instanceof Error ? err.message : "Failed to load Google Ad placements",
+                    });
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void load();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [page, statusFilter, searchInput]);
 
     const handleCreate = () => {
         setEditingPlacement(null);

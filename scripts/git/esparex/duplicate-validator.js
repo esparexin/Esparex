@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'DUP-001', name: 'Duplicate & Dead Code Baseline', version: '2.0.0', category: 'Architecture' };
 

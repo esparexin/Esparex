@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollViewProps } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { ScrollScreen, ScrollScreenProps } from './ScrollScreen';
 
 export interface KeyboardScreenProps extends ScrollScreenProps {

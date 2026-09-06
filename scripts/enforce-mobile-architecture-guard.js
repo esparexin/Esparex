@@ -94,11 +94,6 @@ for (const filePath of allFiles) {
       relPath.endsWith("ImageUploadService.ts") ||
       relPath.endsWith("ExpoImagePicker.ts") ||
       relPath.includes("/infrastructure/");
-    const isPureDomainOrService =
-      relPath.includes("/domain/") ||
-      relPath.endsWith("Service.ts") ||
-      relPath.endsWith("Validator.ts") ||
-      relPath.endsWith("Hook.ts");
 
     if (
       (relPath.includes("/application/") || relPath.includes("/domain/")) &&
