@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Button, Switch } from "@esparex/ui";
 
 export function SettingsSection({
   title,
@@ -47,27 +48,25 @@ export function Field({
 
 export function Toggle({
   checked,
-  onChange
+  onChange,
+  disabled,
+  id,
+  "aria-label": ariaLabel,
 }: {
   checked: boolean;
   onChange: (next: boolean) => void;
+  disabled?: boolean;
+  id?: string;
+  "aria-label"?: string;
 }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer ${
-        checked ? "bg-primary" : "bg-muted"
-      }`}
-    >
-      <span
-        className={`pointer-events-none absolute left-0.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-background shadow-sm transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
-    </button>
+    <Switch
+      checked={checked}
+      onCheckedChange={onChange}
+      disabled={disabled}
+      id={id}
+      aria-label={ariaLabel}
+    />
   );
 }
 
@@ -81,13 +80,13 @@ export function SaveButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       disabled={saving}
-      className="rounded-lg bg-primary px-4 py-2 text-body font-semibold text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+      className="font-semibold"
     >
       {saving ? "Saving..." : label}
-    </button>
+    </Button>
   );
 }

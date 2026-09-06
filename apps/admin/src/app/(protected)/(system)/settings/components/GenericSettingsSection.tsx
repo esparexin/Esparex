@@ -143,6 +143,7 @@ export function GenericSettingsSection({
                   <Toggle
                     checked={Boolean(formData[field.path])}
                     onChange={(val) => updateField(field.path, val)}
+                    aria-label={field.label}
                   />
                 </div>
               </div>
@@ -152,7 +153,7 @@ export function GenericSettingsSection({
                   <select
                     value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
-                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body-lg md:text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   >
                     {field.placeholder && <option value="">{field.placeholder}</option>}
                     {field.options?.map((opt) => (
@@ -166,7 +167,7 @@ export function GenericSettingsSection({
                     value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body-lg md:text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                     rows={3}
                   />
                 ) : (
@@ -183,7 +184,7 @@ export function GenericSettingsSection({
                       )
                     }
                     placeholder={field.placeholder}
-                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body-lg md:text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 )}
               </Field>
