@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { Category } from "@esparex/contracts";
 import { motion } from "framer-motion";
 import { buildCategoryBrowseRoute } from "@/lib/publicBrowseRoutes";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 interface CategoryBrowserProps {
     categories: Category[];

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Plus, Wrench, CircuitBoard, Bell } from "@esparex/ui";
 import { useAuth } from "@/context/AuthContext";
 import { isApprovedBusiness } from "@/guards/businessGuards";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 
 /**

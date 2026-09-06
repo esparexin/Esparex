@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image, { ImageProps } from "next/image";
 import { DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 /**
  * Robust Image Rendering Wrapper

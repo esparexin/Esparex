@@ -7,7 +7,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { ChevronDown, SortAsc } from "@esparex/ui";
 import {

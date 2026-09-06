@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, BellRing, Trash2 } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
-import { FormError } from "@/components/ui/FormError";
-import { Switch } from "@/components/ui/switch";
+import { FormError } from "@esparex/ui";
+import { Switch } from "@esparex/ui";
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
 import {

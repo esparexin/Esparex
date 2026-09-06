@@ -9,7 +9,7 @@ import {
   DialogTitle,
   Spinner,
 } from "@esparex/ui";
-import { Badge } from "../ui/badge";
+import { Badge } from "@esparex/ui";
 import { Zap, Sparkles } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { useBoostPlanDialog } from "@/hooks/useBoostPlanDialog";

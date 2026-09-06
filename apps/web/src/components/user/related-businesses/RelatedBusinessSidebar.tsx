@@ -8,7 +8,7 @@ import {
 } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { Button } from "@esparex/ui";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface RelatedBusinessSidebarProps {
   businesses: Business[];

@@ -3,7 +3,7 @@ import { FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@esparex/ui";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import { Stack } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 export type ListingPriceFieldProps<
   TFieldValues extends FieldValues = FieldValues,

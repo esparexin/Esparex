@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useWatch } from "react-hook-form";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { usePostAdFlow } from "../../context";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 

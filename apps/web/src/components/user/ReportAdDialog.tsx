@@ -9,13 +9,13 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+} from "@esparex/ui";
+import { Label } from "@esparex/ui";
+import { Textarea } from "@esparex/ui";
+import { RadioGroup, RadioGroupItem } from "@esparex/ui";
 import { notify } from "@/lib/feedback";
 import { AlertTriangle } from "@esparex/ui";
-import { FormError } from "../ui/FormError";
+import { FormError } from "@esparex/ui";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { useAuth } from "@/context/AuthContext";
 import { useAuthModal } from "@/context/AuthModalContext";

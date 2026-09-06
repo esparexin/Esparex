@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { Building2, Store, MapPin, Calendar, ExternalLink } from "@esparex/ui";
 import { notify } from "@/lib/feedback";

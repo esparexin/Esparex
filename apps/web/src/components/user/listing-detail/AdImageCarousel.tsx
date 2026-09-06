@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 import { Button } from "@esparex/ui";
 import { Share2, Heart, ChevronLeft, ChevronRight } from "@esparex/ui";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";

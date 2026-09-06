@@ -6,9 +6,9 @@ import {
   toSafeImageSrc,
 } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { Card } from "@esparex/ui";
+import { Badge } from "@esparex/ui";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface RelatedBusinessCardProps {
   business: Business;

@@ -7,12 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../ui/dialog";
-import { Label } from "../ui/label";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+} from "@esparex/ui";
+import { Label } from "@esparex/ui";
+import { RadioGroup, RadioGroupItem } from "@esparex/ui";
 import { CheckCircle, Store, ExternalLink, MoreHorizontal } from "@esparex/ui";
 import { notify } from "@/lib/feedback";
-import { FormError } from "../ui/FormError";
+import { FormError } from "@esparex/ui";
 import logger from "@/lib/logger";
 
 interface SoldOutDialogProps {

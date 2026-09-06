@@ -7,7 +7,7 @@ import { useLocationData, useLocationDispatch, useLocationStatus } from "@/conte
 import { getHeaderLocationText } from "@/lib/location/locationService";
 import { useMounted } from "@/hooks/useMounted";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 interface HeaderLocationProps {
     isOpen?: boolean;

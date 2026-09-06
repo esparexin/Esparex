@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@esparex/ui";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, Loader2 } from "@esparex/ui";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { toCanonicalGeoPoint } from "@esparex/shared";
 import { type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";

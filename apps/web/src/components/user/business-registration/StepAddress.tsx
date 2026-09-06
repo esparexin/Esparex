@@ -2,10 +2,10 @@ import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Loader2, Target } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
-import { Field } from "@/components/ui/field";
-import { FormError } from "@/components/ui/FormError";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Field } from "@esparex/ui";
+import { FormError } from "@esparex/ui";
+import { Input } from "@esparex/ui";
+import { Textarea } from "@esparex/ui";
 import logger from "@/lib/logger";
 import {
     getCurrentLocationResult,

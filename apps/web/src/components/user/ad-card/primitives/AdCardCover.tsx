@@ -1,10 +1,10 @@
 "use client";
 
 import { memo } from "react";
-import { SafeImage } from "@/components/ui/SafeImage";
-import { Badge } from "@/components/ui/badge";
+import { SafeImage } from "@/components/common/SafeImage";
+import { Badge } from "@esparex/ui";
 import { ShieldCheck } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { getPlanBadge, type AdCardData } from "../shared";
 
 interface AdCardCoverProps {

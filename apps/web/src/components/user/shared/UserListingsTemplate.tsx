@@ -1,5 +1,5 @@
 import { Button } from "@esparex/ui";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@esparex/ui";
 
 interface UserListingsTemplateProps<TStatus extends string, TItem> {
     title?: string;

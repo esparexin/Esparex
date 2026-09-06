@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "@esparex/ui";
 import type { User } from "@esparex/contracts";
 import { Button } from "@esparex/ui";
-import { FormError } from "@/components/ui/FormError";
+import { FormError } from "@esparex/ui";
 import { scrollToFirstError } from "@/lib/formHelpers";
 import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";

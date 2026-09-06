@@ -1,7 +1,7 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { FormError } from "@/components/ui/FormError";
+import { Label } from "@esparex/ui";
+import { FormError } from "@esparex/ui";
 import { EntitySearchCombobox } from "@/components/user/EntitySearchCombobox";
 import type { Category } from "@/lib/api/user/categories";
 import type { Brand, DeviceModel } from "@/lib/api/user/masterData";

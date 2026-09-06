@@ -5,7 +5,7 @@ import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context"
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import type { FieldValues } from "react-hook-form";
 import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 export function ModelSection() {
     const { requiresScreenSize } = usePostAdCatalog();

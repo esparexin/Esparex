@@ -18,10 +18,10 @@ import {
   MessageCircle,
 } from "@esparex/ui";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
+import { Badge } from "@esparex/ui";
 import { Button, Container } from "@esparex/ui";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 import { BusinessCatalogTabs } from "./BusinessCatalogTabs";
 import type { ListingTab } from "./BusinessCatalogTabs";
 import type { Business, Service } from "@/lib/api/user/businesses";

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { AlertCircle, Check, MapPin, RefreshCw } from "@esparex/ui";
 import type { Location } from "@/lib/api/user/locations";
 import { Button } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import LocationSkeleton from "../LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS } from "../locationSelectorCore.helpers";
 

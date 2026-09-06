@@ -2,9 +2,9 @@
 
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
-import { Field } from "@/components/ui/field";
+import { Field } from "@esparex/ui";
 import { useStepFieldError } from "../common/Utils";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
 
 import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";

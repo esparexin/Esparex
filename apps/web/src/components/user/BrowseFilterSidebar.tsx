@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { SlidersHorizontal, ChevronDown, ChevronRight, RotateCcw } from "@esparex/ui";
 import { Button } from "@esparex/ui";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@esparex/ui";
+import { Input } from "@esparex/ui";
+import { Label } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/api/user/categories";
 

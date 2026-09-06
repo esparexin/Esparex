@@ -7,9 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { personalProfileSchema, type PersonalProfileValues, MOBILE_VISIBILITY } from "@esparex/contracts";
 
 import { Button, Card, CardContent } from "@esparex/ui";
-import { FormError } from "@/components/ui/FormError";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { FormError } from "@esparex/ui";
+import { Label } from "@esparex/ui";
+import { Input } from "@esparex/ui";
 import { User, Camera, Trash2, Lock } from "@esparex/ui";
 
 import { updateProfile } from "@/lib/api/user/users";

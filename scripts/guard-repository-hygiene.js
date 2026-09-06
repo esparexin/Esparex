@@ -47,6 +47,8 @@ const PROHIBITED_WORKSPACE_PATHS = [
     { path: "apps/web/__tests__", reason: "Web tests must reside in apps/web/src/__tests__ to be discovered by Vitest." },
     { path: "apps/web/src/utils", reason: "Utility files belong in apps/web/src/lib/ (canonical utility SSOT)." },
     { path: "backend/api/src/@types", reason: "Ambient declarations belong in backend/api/src/types/express.d.ts." },
+    { path: "apps/web/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
+    { path: "apps/admin/src/components/ui", reason: "AGENTS.md mandates UI primitives must be imported directly from @esparex/ui; local components/ui is prohibited." },
 ];
 
 for (const item of PROHIBITED_WORKSPACE_PATHS) {
