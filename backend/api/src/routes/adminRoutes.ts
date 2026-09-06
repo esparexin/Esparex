@@ -112,23 +112,12 @@ router.post('/listings/bulk/extend', requirePermission('ads:write'), adminListin
 router.post('/listings/bulk/resend-warnings', requirePermission('ads:write'), adminListings.adminBulkResendListingWarnings);
 router.post('/listings/bulk/resend-spotlight-warnings', requirePermission('ads:write'), adminListings.adminBulkResendSpotlightWarnings);
 
-// Moderation Actions (Support both POST and PATCH for compatibility)
-router.patch('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
+// Moderation Actions (Canonical POST handlers)
 router.post('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
-
-router.patch('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
 router.post('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
-
-router.patch('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
 router.post('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
-
-router.patch('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
 router.post('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
-
-router.patch('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
 router.post('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
-
-router.patch('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.post('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.delete('/listings/:id', requirePermission('ads:write'), adminListings.adminSoftDeleteListing);
 

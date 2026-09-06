@@ -1,7 +1,7 @@
 import { Button } from "@esparex/ui";
 import { AlertCircle, ArrowLeft, SearchX, RefreshCcw } from "@esparex/ui";
 import { AdDetailSkeleton } from "./AdDetailSkeleton";
-import { ROUTES } from "@/lib/logic/routes";
+import { ROUTES } from "@/lib/routeUtils";
 import { useRouter } from "next/navigation";
 
 interface ListingDetailShellProps {

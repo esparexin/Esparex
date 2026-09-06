@@ -108,6 +108,24 @@ export type UserPage =
     | "my-wallet"
     | "account";  // /account root — protects all /account/* paths
 
+export const ROUTES = {
+    HOME: "home",
+    BROWSE: "browse",
+    CATEGORY: "category",
+    POST_AD: "post-ad",
+    LOGIN: "login",
+    AD_DETAIL: "ad-detail",
+    SAVED_ADS: "saved-ads",
+    MESSAGES: "messages",
+    PROFILE_SETTINGS: "profile-settings",
+    PUBLIC_PROFILE: "public-profile",
+    EDIT_AD: "edit-ad",
+    EDIT_SERVICE: "edit-service",
+    EDIT_SPARE_PART: "edit-spare-part",
+} as const satisfies Record<string, UserPage>;
+
+export type RouteKey = typeof ROUTES[keyof typeof ROUTES];
+
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
     browse: buildPublicBrowseRoute({ type: "ad" }),
