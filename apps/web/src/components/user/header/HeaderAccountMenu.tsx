@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { LogOut } from "@/icons/IconRegistry";
-import type { User } from "@/types/User";
+import { LogOut } from "@esparex/ui";
+import type { User } from "@esparex/contracts";
 import { getUserInitials } from "@/lib/headerUtils";
 import { Button } from "@esparex/ui";
 import { DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";

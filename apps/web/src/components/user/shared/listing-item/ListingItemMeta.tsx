@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock } from "@/icons/IconRegistry";
+import { Clock } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 

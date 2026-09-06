@@ -1,17 +1,13 @@
 import React from 'react';
 import type { SubscriptionSummaryDTO } from '@esparex/contracts';
-import { Crown } from '@/icons/IconRegistry';
+import { Crown } from "@esparex/ui";
+import { formatPlanName } from '@esparex/shared';
 
 interface ActiveSubscriptionCardProps {
   subscription: SubscriptionSummaryDTO | null;
   onBrowsePlans?: () => void;
 }
 
-const formatPlanName = (name?: string) => {
-  if (!name) return 'Free Starter Plan';
-  if (name.includes('New_user_Plan') || name.toLowerCase().includes('free')) return 'Free Starter Plan';
-  return name.replace(/_/g, ' ');
-};
 
 export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   subscription,

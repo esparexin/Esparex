@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import type { Category } from "@/lib/api/user/categories";
 import { useLocationData, type LocationData } from "@/context/LocationContext";
-import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { sanitizeLocationLabel } from "@esparex/shared";
 import { shouldApplyLocationFilter } from "@/lib/location/queryMode";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {

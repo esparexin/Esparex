@@ -1,4 +1,4 @@
-import type { LucideIcon } from "@/icons/IconRegistry";
+import type { LucideIcon } from "@esparex/ui";
 import {
   Bell,
   Building2,
@@ -12,12 +12,12 @@ import {
   Sparkles,
   CreditCard,
   ShoppingBag,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import {
   type UserPage,
 } from "@/lib/routeUtils";
 import { isProtectedPath, isProtectedUserPage } from "@/config/protectedRoutes";
-import type { User as AppUser } from "@/types/User";
+import type { User as AppUser } from "@esparex/contracts";
 import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 

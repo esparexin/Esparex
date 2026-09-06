@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
+import { ChevronLeft, ChevronRight } from "@esparex/ui";
 import type { Business } from "@/lib/api/user/businesses";
 import {
   DEFAULT_IMAGE_PLACEHOLDER,

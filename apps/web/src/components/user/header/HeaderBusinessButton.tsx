@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, LayoutDashboard } from "@/icons/IconRegistry";
+import { Building2, LayoutDashboard } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import type { UserPage } from "@/lib/routeUtils";
 

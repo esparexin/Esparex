@@ -2,7 +2,7 @@
 
 import { usePostAdFlow, usePostAdAction } from "../../context";
 import { Textarea, Button, FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Loader2 } from "@esparex/ui";
 import { MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { CharCounter } from "../common/Utils";

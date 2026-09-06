@@ -3,7 +3,7 @@
 import { getCategoryVisual } from "@/config/categoryVisuals";
 import type { CategoryVisual } from "@/config/categoryVisuals";
 import Link from "next/link";
-import type { Category } from "@/schemas";
+import type { Category } from "@esparex/contracts";
 import { motion } from "framer-motion";
 import { buildCategoryBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { cn } from "@/components/ui/utils";

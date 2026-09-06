@@ -9,7 +9,7 @@ import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { formatStableNumber } from '@/lib/formatters';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageCircle } from '@/icons/IconRegistry';
+import { MessageCircle } from "@esparex/ui";
 
 import type { IConversationDTO } from "@esparex/contracts";
 

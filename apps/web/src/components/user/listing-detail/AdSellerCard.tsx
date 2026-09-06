@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Building2, MessageCircle, MessageSquareOff, Phone } from "@/icons/IconRegistry";
+import { Building2, MessageCircle, MessageSquareOff, Phone } from "@esparex/ui";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
 import { Button } from "@esparex/ui";

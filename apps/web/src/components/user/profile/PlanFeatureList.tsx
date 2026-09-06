@@ -1,4 +1,4 @@
-import { CheckCircle2 } from "@/icons/IconRegistry";
+import { CheckCircle2 } from "@esparex/ui";
 
 import { cn } from "@/components/ui/utils";
 

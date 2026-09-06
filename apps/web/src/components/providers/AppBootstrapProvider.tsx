@@ -11,7 +11,7 @@ import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowserPushCache } from "@/lib/notifications/webPush";
 import { isNativeShell } from "@/lib/runtime/nativeShell";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 
 export function AppBootstrapProvider({
     children,

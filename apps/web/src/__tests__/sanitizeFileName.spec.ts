@@ -1,4 +1,4 @@
-import { sanitizeFileName } from "../lib/error-handler/validation";
+import { sanitizeFileName } from "../lib/sanitizeFileName";
 import { isRetryableUploadError } from "../components/user/business-registration/profile-flow/upload";
 
 describe("sanitizeFileName & Upload Retry Policy Specifications", () => {

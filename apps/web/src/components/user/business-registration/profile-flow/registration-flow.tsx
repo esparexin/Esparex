@@ -12,13 +12,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2 } from "@/icons/IconRegistry";
+import { CheckCircle2 } from "@esparex/ui";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { registerBusiness, type CreateBusinessDTO } from "@/lib/api/user/businesses";
 
 import { BusinessProfileWizard } from "../BusinessProfileWizard";
 import { businessRegistrationSchema, type BusinessRegistrationFormData, type BusinessRegistrationFormInput } from "@/schemas/businessRegistration.schema";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, mapBusinessToCreateDefaults } from "./helpers";
 import { processStagedFiles } from "./upload";

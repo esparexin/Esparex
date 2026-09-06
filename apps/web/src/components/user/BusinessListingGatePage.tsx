@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Building2 } from "@/icons/IconRegistry";
+import { Building2 } from "@esparex/ui";
 
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";

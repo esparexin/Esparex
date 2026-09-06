@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getPlans } from "@/lib/api/user/plans";
 import type { ProfilePlan, ProfilePlanType } from "@/components/user/profile/types";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import logger from "@/lib/logger";
 
 export function getPlanEntitlementFeatures(p: {

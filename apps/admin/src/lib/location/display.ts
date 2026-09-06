@@ -1,39 +1,14 @@
-import { normalizeGeoPoint as sharedNormalizeGeoPoint } from "@esparex/shared";
+import {
+    toCanonicalGeoPoint,
+    formatCoordinateLabel,
+} from "@esparex/shared";
 
-export { sharedNormalizeGeoPoint };
-
-type GeoJSONPoint = {
-    type?: unknown;
-    coordinates?: unknown;
-};
+export { toCanonicalGeoPoint as normalizeGeoPoint };
 
 const asString = (value: unknown): string | undefined => {
     if (typeof value !== "string") return undefined;
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : undefined;
-};
-
-export const normalizeGeoPoint = (value: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
-    if (!value || typeof value !== "object") return undefined;
-    const point = value as GeoJSONPoint;
-    if (point.type !== "Point") return undefined;
-    if (!Array.isArray(point.coordinates) || point.coordinates.length !== 2) return undefined;
-
-    const lng = Number(point.coordinates[0]);
-    const lat = Number(point.coordinates[1]);
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return undefined;
-    if (lng < -180 || lng > 180 || lat < -90 || lat > 90) return undefined;
-    if (lng === 0 && lat === 0) return undefined;
-
-    return {
-        type: "Point",
-        coordinates: [lng, lat],
-    };
-};
-
-const formatCoordinateLabel = (point: { type: "Point"; coordinates: [number, number] }): string => {
-    const [lng, lat] = point.coordinates;
-    return `Lng ${lng.toFixed(4)}, Lat ${lat.toFixed(4)}`;
 };
 
 export const buildBusinessFallbackLocationDisplay = (location: unknown): string | undefined => {
@@ -64,9 +39,9 @@ export const resolveLocationDisplay = (params: {
     const explicitLabel = asString(params.locationLabel);
     if (explicitLabel) return explicitLabel;
 
-    const geoPoint = normalizeGeoPoint(params.coordinates);
-    if (geoPoint) {
-        return formatCoordinateLabel(geoPoint);
+    if (params.coordinates) {
+        const formatted = formatCoordinateLabel(params.coordinates);
+        if (formatted) return formatted;
     }
 
     const fallback = asString(params.fallbackDisplay);

@@ -5,7 +5,7 @@ import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context"
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import type { FieldValues } from "react-hook-form";
 import { CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
-import { Tag } from "@/icons/IconRegistry";
+import { Tag } from "@esparex/ui";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();

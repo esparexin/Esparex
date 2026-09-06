@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle, ArrowRight } from "@/icons/IconRegistry";
+import { PlusCircle, ArrowRight } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 
 export function HomePromoAdCard({ className }: { className?: string }) {

@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
-import { Crown, LogOut } from "@/icons/IconRegistry";
+import { Crown, LogOut } from "@esparex/ui";
 import { AccountNavItemList } from "../AccountNavItemList";
 import type { ProfileTabItem, ProfileTabValue } from "@/config/navigation";
 import type { ProfileUser } from "./types";

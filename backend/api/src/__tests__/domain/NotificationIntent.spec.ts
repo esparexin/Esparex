@@ -1,4 +1,4 @@
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NotificationIntent } from "@esparex/core/domains/notifications";
 import { NOTIFICATION_TYPE } from "@esparex/contracts";
 describe("NotificationIntent", () => {
     it("uses medium priority for admin broadcasts", () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Field } from "@/components/ui/field";
-import { MapPin } from "@/icons/IconRegistry";
+import { MapPin } from "@esparex/ui";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Card, CardContent } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Eye, Edit2, Trash2, Crown, Plus } from "@/icons/IconRegistry";
+import { Bell, Eye, Edit2, Trash2, Crown, Plus } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type {
     SmartAlertFieldErrors,

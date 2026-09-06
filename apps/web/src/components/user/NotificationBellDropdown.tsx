@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, Inbox } from "@/icons/IconRegistry";
+import { Bell, Inbox } from "@esparex/ui";
 import { usePathname, useRouter } from "next/navigation";
 
 import { queryKeys } from "@/hooks/queries";

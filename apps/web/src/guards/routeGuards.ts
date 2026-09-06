@@ -1,4 +1,4 @@
-import { User } from "@/types/User";
+import { User } from "@esparex/contracts";
 
 import { can } from "@/permissions/can";
 

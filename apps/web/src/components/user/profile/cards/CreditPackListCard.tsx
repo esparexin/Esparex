@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
 import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
-import { Package } from '@/icons/IconRegistry';
+import { Package } from "@esparex/ui";
 
 interface CreditPackListCardProps {
   creditPacks: CreditPackDTO[];

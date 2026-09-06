@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { MapPin, Clock } from "@/icons/IconRegistry";
+import { MapPin, Clock } from "@esparex/ui";
 import { formatPrice, formatStableDate, formatShortRelativeTime } from "@/lib/formatters";
 import { resolveListingLocationLabel, sanitizeListingTitle } from "@/lib/listings/listingPresentation";
 import { cn } from "@/components/ui/utils";

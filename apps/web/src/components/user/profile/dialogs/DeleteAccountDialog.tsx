@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { AlertTriangle } from "@/icons/IconRegistry";
+import { AlertTriangle } from "@esparex/ui";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
 
 interface DeleteAccountDialogProps {

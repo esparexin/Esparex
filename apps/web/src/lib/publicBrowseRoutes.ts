@@ -1,4 +1,4 @@
-import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { sanitizeLocationLabel } from "@esparex/shared";
 import { parseBrowseTokenList, serializeBrowseTokenList } from "@/lib/browse/browseFilterNormalization";
 
 export type PublicBrowseType = "ad" | "service" | "spare_part";

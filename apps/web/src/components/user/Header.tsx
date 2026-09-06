@@ -7,10 +7,10 @@ import {
   Search,
   LogIn,
   TrendingUp,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import {
   Button,
   Z_INDEX,

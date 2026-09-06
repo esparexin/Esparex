@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, ArrowRight } from "@/icons/IconRegistry";
+import { AlertCircle, ArrowRight } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import type { SingleEntitlementState } from "@esparex/contracts";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle } from "@/icons/IconRegistry";
+import { PlusCircle } from "@esparex/ui";
 import { usePathname } from "next/navigation";
 import { cn } from "@/components/ui/utils";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";

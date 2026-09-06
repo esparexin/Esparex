@@ -1,7 +1,7 @@
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { cn } from "@/lib/utils";
 import { type StepBaseProps } from "./types";
 

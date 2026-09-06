@@ -1,6 +1,6 @@
 import React from 'react';
 import type { WalletSummaryDTO } from '@esparex/contracts';
-import { Package, Bell, Zap } from '@/icons/IconRegistry';
+import { Package, Bell, Zap } from "@esparex/ui";
 import { Card, CardContent } from '@esparex/ui';
 
 interface WalletOverviewCardProps {

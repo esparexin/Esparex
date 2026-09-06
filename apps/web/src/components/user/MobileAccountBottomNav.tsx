@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProfileTabValue } from "@/config/navigation";
-import { User, Package, MessageCircle as MessageSquare, Bell, MoreHorizontal } from "@/icons/IconRegistry";
+import { User, Package, MessageCircle as MessageSquare, Bell, MoreHorizontal } from "@esparex/ui";
 
 interface MobileAccountBottomNavProps {
   activeTab: ProfileTabValue;

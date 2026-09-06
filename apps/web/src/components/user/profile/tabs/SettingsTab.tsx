@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, BellRing, Trash2 } from "@/icons/IconRegistry";
+import { AlertTriangle, BellRing, Trash2 } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
@@ -18,7 +18,7 @@ import {
 } from "@/lib/notifications/webPush";
 import logger from "@/lib/logger";
 import { notificationSettingsSchema, type NotificationSettingsValues } from "@esparex/contracts";
-import type { User as UserType } from "@/types/User";
+import type { User as UserType } from "@esparex/contracts";
 import type { ProfileUser } from "../types";
 
 interface SettingsTabProps {

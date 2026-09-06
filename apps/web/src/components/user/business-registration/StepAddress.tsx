@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { Loader2, Target } from "@/icons/IconRegistry";
+import { Loader2, Target } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
 import { Field } from "@/components/ui/field";

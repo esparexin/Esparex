@@ -63,7 +63,68 @@ function run(val) {
     val.error('Missing mandatory mobile architecture guard: scripts/enforce-mobile-architecture-guard.js');
   }
 
-  val.info(`Script & Export Parity Verified: ${verifiedExports} exports verified, zero scratch leaks.`);
+  // 4. Governance & NPM Script Reference Integrity Check
+  const rootPkgPath = path.join(ROOT, 'package.json');
+  if (fs.existsSync(rootPkgPath)) {
+    const rootPkg = JSON.parse(fs.readFileSync(rootPkgPath, 'utf8'));
+    const scripts = rootPkg.scripts || {};
+    const rootScriptKeys = new Set(Object.keys(scripts));
+
+    const workspacePkgMap = new Map();
+    const workspacePatterns = ['apps/*', 'packages/*', 'backend/api', 'core', 'shared'];
+    for (const pattern of workspacePatterns) {
+      if (pattern.endsWith('/*')) {
+        const base = path.join(ROOT, pattern.slice(0, -2));
+        if (fs.existsSync(base)) {
+          for (const sub of fs.readdirSync(base)) {
+            const pJson = path.join(base, sub, 'package.json');
+            if (fs.existsSync(pJson)) {
+              try {
+                const p = JSON.parse(fs.readFileSync(pJson, 'utf8'));
+                if (p.name) workspacePkgMap.set(p.name, pJson);
+              } catch { /* ignore */ }
+            }
+          }
+        }
+      } else {
+        const pJson = path.join(ROOT, pattern, 'package.json');
+        if (fs.existsSync(pJson)) {
+          try {
+            const p = JSON.parse(fs.readFileSync(pJson, 'utf8'));
+            if (p.name) workspacePkgMap.set(p.name, pJson);
+          } catch { /* ignore */ }
+        }
+      }
+    }
+
+    for (const [scriptName, scriptCmd] of Object.entries(scripts)) {
+      if (typeof scriptCmd !== 'string') continue;
+      const commandParts = scriptCmd.split('&&').map(s => s.trim());
+      for (const part of commandParts) {
+        const match = part.match(/npm\s+run\s+([a-zA-Z0-9:_-]+)(?:\s+(?:-w|--workspace)\s+([@a-zA-Z0-9/_-]+))?/);
+        if (match) {
+          const targetScript = match[1];
+          const workspaceName = match[2];
+
+          if (workspaceName && workspacePkgMap.has(workspaceName)) {
+            try {
+              const targetPkgJson = JSON.parse(fs.readFileSync(workspacePkgMap.get(workspaceName), 'utf8'));
+              const targetScripts = targetPkgJson.scripts || {};
+              if (!targetScripts[targetScript]) {
+                val.error(`Script reference integrity violation in package.json: script "${scriptName}" calls nonexistent script "${targetScript}" in workspace "${workspaceName}".`);
+              }
+            } catch { /* ignore */ }
+          } else if (!workspaceName) {
+            if (!rootScriptKeys.has(targetScript)) {
+              val.error(`Script reference integrity violation in package.json: script "${scriptName}" calls nonexistent npm script "${targetScript}".`);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  val.info(`Script & Export Parity Verified: ${verifiedExports} exports verified, zero scratch leaks, script graph intact.`);
 }
 
 module.exports = { meta: META, run };

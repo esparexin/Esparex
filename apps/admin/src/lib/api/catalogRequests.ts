@@ -95,9 +95,6 @@ export async function listAdminCatalogRequests(filters: CatalogRequestListFilter
     );
 }
 
-export async function getAdminCatalogRequestById(id: string) {
-    return adminFetch<CatalogRequestItem>(ADMIN_ROUTES.CATALOG_REQUEST_BY_ID(id));
-}
 
 export async function approveAdminCatalogRequest(id: string, payload?: { adminNotes?: string }) {
     return adminFetch<{
@@ -145,21 +142,6 @@ export async function bulkDeleteAdminCatalogRequests(payload: { requestIds: stri
     );
 }
 
-export async function getAdminCatalogRequestStats(requestType?: CatalogRequestType) {
-    const query = buildQueryString(requestType ? { requestType } : {});
-    const suffix = query ? `?${query}` : '';
-    return adminFetch<CatalogRequestStats>(`${ADMIN_ROUTES.CATALOG_REQUEST_STATS}${suffix}`);
-}
-
-export async function bulkApproveAdminCatalogRequests(payload: { requestIds: string[] }) {
-    return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
-        ADMIN_ROUTES.CATALOG_REQUEST_BULK_APPROVE,
-        {
-            method: 'POST',
-            body: payload,
-        }
-    );
-}
 
 export async function bulkRejectAdminCatalogRequests(payload: { requestIds: string[]; reason: string }) {
     return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string }> }>(

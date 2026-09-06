@@ -8,7 +8,7 @@ import { useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
-import { validateIndianMobile } from "@/lib/validation";
+import { validateIndianMobile } from "@/lib/mobileUtils";
 
 import { Form } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";

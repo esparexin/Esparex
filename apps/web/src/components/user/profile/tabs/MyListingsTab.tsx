@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Package, Wrench, CircuitBoard } from "@/icons/IconRegistry";
+import { Package, Wrench, CircuitBoard } from "@esparex/ui";
 import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { useProfileListings } from "./useProfileListings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { UserListingsTemplate } from "@/components/user/shared/UserListingsTemplate";

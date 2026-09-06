@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Wrench } from "@/icons/IconRegistry";
+import { MapPin, Wrench } from "@esparex/ui";
 import type { Business } from "@/lib/api/user/businesses";
 import {
   DEFAULT_IMAGE_PLACEHOLDER,

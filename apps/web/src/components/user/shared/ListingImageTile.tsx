@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { X } from "@/icons/IconRegistry";
+import { X } from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 
 export interface ListingImageTileItem {

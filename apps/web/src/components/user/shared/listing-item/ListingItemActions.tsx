@@ -13,7 +13,7 @@ import {
   Share2,
   Sparkles,
   Zap,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import {
   DropdownMenu,

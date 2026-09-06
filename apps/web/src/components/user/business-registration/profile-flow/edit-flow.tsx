@@ -12,7 +12,7 @@ import { getMyBusiness, updateBusiness, type Business as UserBusiness, type Crea
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { BusinessProfileWizard } from "../BusinessProfileWizard";
 import { businessEditSchema, type BusinessEditFormData, type BusinessEditFormInput } from "@/schemas/businessEditPayload.schema";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, asOptionalString, joinAddressParts } from "./helpers";
 import { processStagedFiles } from "./upload";

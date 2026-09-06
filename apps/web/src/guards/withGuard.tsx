@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCurrentUser as useUser } from '@/hooks/useCurrentUser';
-import { User } from '@/types/User';
+import { User } from "@esparex/contracts";
 import logger from "@/lib/logger";
 import { buildAuthCallbackUrl, buildLoginUrl, consumeLogoutRedirectBypass } from "@/lib/authHelpers";
 

@@ -5,7 +5,7 @@ import { Button, FieldRoot, FieldLabel, FieldControl, FormItem } from "@esparex/
 import type { FieldValues } from "react-hook-form";
 import { cn } from "@/components/ui/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
-import { Leaf, Contrast, Zap } from "@/icons/IconRegistry";
+import { Leaf, Contrast, Zap } from "@esparex/ui";
 import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {

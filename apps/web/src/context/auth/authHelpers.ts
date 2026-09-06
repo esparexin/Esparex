@@ -1,5 +1,5 @@
 import type { useRouter } from "next/navigation";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { isAPIError } from "@/lib/api/APIError";
 import { authApi } from "@/lib/api/auth";
 

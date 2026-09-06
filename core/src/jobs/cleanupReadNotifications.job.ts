@@ -1,7 +1,7 @@
 import { jobRunner } from "../utils/jobRunner";
 import logger from "../utils/logger";
 import { runWithDistributedJobLock } from "../utils/distributedJobLock";
-import { purgeExpiredReadNotifications } from "../services/notification/NotificationRetentionService";
+import { purgeExpiredReadNotifications } from "../domains/notifications";
 
 export const runCleanupReadNotificationsJob = async () => {
     await runWithDistributedJobLock(

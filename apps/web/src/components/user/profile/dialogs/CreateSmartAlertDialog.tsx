@@ -18,7 +18,7 @@ import type { Location } from "@/lib/api/user/locations";
 import type { Category } from "@/lib/api/user/categories";
 import { getCategories } from "@/lib/api/user/categories";
 import { getBrands, getModels, type Brand, type DeviceModel } from "@/lib/api/user/masterData";
-import { Bell, Check } from "@/icons/IconRegistry";
+import { Bell, Check } from "@esparex/ui";
 import { DeliveryChannelsSelector } from "./DeliveryChannelsSelector";
 import { LocationRadiusSlider } from "./LocationRadiusSlider";
 import { SmartAlertCategoryBrandModelFields } from "./SmartAlertCategoryBrandModelFields";

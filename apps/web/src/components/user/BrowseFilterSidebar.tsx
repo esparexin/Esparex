@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, ChevronDown, ChevronRight, RotateCcw } from "@/icons/IconRegistry";
+import { SlidersHorizontal, ChevronDown, ChevronRight, RotateCcw } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";

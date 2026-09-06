@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ChevronDown, SortAsc } from "@/icons/IconRegistry";
+import { ChevronDown, SortAsc } from "@esparex/ui";
 import {
     PUBLIC_BROWSE_SORT_LABELS,
     type SortOption,

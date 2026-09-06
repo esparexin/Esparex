@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
-import { Search, Loader2, X, Plus, ChevronDown } from "@/icons/IconRegistry";
+import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Drawer } from "@esparex/ui";

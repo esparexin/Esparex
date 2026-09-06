@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@esparex/ui";
-import { FileText, Download, Printer, Loader2, CheckCircle2 } from "@/icons/IconRegistry";
+import { FileText, Download, Printer, Loader2, CheckCircle2 } from "@esparex/ui";
 import { fetchInvoiceHtml, downloadInvoiceFile } from "@/lib/api/user/payments";
 import { notify } from "@/lib/feedback";
 

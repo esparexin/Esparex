@@ -7,7 +7,7 @@ import {
     DialogPortal,
     DialogTitle,
 } from "@esparex/ui";
-import { ChevronLeft, ChevronRight, X, Maximize } from "@/icons/IconRegistry";
+import { ChevronLeft, ChevronRight, X, Maximize } from "@esparex/ui";
 
 interface AdImageLightboxProps {
     isOpen: boolean;

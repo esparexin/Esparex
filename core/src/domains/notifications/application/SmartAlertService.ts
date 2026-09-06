@@ -273,7 +273,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             const BATCH_SIZE = 100;
             for (let i = 0; i < filteredMatches.length; i += BATCH_SIZE) {
                 const batch = filteredMatches.slice(i, i + BATCH_SIZE);
-                const { NotificationIntent } = await import('../../../domain/NotificationIntent');
+                const { NotificationIntent } = await import('../domain/NotificationIntent');
                 const { NotificationDispatcher } = await import('./NotificationDispatcher');
 
                 const intents = batch.map(match => {

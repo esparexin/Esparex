@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
-import { Search, SlidersHorizontal, Check } from "@/icons/IconRegistry";
+import { Search, SlidersHorizontal, Check } from "@esparex/ui";
 import type { Category } from "@/lib/api/user/categories";
 import { Button, Drawer } from "@esparex/ui";
 import { Input } from "@/components/ui/input";

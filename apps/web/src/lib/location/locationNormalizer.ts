@@ -7,11 +7,11 @@
 import type { AppLocation, AppLocationSource, GeoJSONPoint } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { reverseGeocode as reverseGeocodeApi } from "@/lib/api/user/locations";
-import { toCanonicalGeoPoint } from "@esparex/shared";
 import {
+    toCanonicalGeoPoint,
     normalizeLocationText,
     sanitizeLocationLabel,
-} from "@/lib/location/locationLabels";
+} from "@esparex/shared";
 
 // ── internal helpers ─────────────────────────────────────────────────────────
 

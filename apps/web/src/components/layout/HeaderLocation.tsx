@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ChevronDown, MapPin, Target, X } from "@/icons/IconRegistry";
+import { ChevronDown, MapPin, Target, X } from "@esparex/ui";
 import { Spinner } from "@esparex/ui";
 import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";

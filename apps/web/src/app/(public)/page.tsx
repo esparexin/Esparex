@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import logger from "@/lib/logger";
-import type { Category } from "@/schemas";
+import type { Category } from "@esparex/contracts";
 
 import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";

@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { Button } from "@esparex/ui";
-import { Heart } from "@/icons/IconRegistry";
+import { Heart } from "@esparex/ui";
 import { haptics } from "@/lib/haptics";
 import { cn } from "@/components/ui/utils";
 import { useFavoriteAd } from "@/hooks/listings/useFavoriteAd";

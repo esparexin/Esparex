@@ -1,4 +1,4 @@
-import type { LucideIcon } from "@/icons/IconRegistry";
+import type { LucideIcon } from "@esparex/ui";
 
 export interface ListingImage {
     id: string;
