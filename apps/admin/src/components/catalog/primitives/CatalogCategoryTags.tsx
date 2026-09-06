@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@esparex/ui";
 import type { NamedEntityOption } from "./types";
 
 export function CatalogCategoryTags({
@@ -7,7 +8,13 @@ export function CatalogCategoryTags({
 }: {
     categoryIds: Array<string | { id?: string; _id?: string }>; categories: NamedEntityOption[]; maxVisible?: number; validateId?: (id: string) => boolean;
 }) {
-    if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) return <span className="text-tiny text-red-500 font-medium italic">No Category</span>;
+    if (!categoryIds || !Array.isArray(categoryIds) || categoryIds.length === 0) {
+        return (
+            <Badge variant="outline" className="text-tiny text-destructive font-medium italic border-destructive/20 bg-destructive/10">
+                No Category
+            </Badge>
+        );
+    }
     const visibleIds = categoryIds.slice(0, maxVisible);
     const hiddenCount = categoryIds.length - maxVisible;
     return (
@@ -17,13 +24,21 @@ export function CatalogCategoryTags({
                 const cat = categories.find((c) => c.id === idStr);
                 const isValid = validateId ? validateId(idStr) : true;
                 return (
-                    <span key={`${idStr}-${idx}`} className={`px-2 py-0.5 rounded text-tiny border whitespace-nowrap ${isValid ? "bg-muted text-foreground-secondary border-border" : "bg-destructive/10 text-destructive border-destructive/20 font-bold"}`}
-                        title={!isValid ? "This category link is invalid or inactive for this entity type." : ""}>
+                    <Badge
+                        key={`${idStr}-${idx}`}
+                        variant="outline"
+                        className={`text-tiny whitespace-nowrap ${isValid ? "bg-muted text-foreground-secondary border-border" : "bg-destructive/10 text-destructive border-destructive/20 font-bold"}`}
+                        title={!isValid ? "This category link is invalid or inactive for this entity type." : ""}
+                    >
                         {cat?.name || "Archived"}{!isValid && " (!)"}
-                    </span>
+                    </Badge>
                 );
             })}
-            {hiddenCount > 0 && <span className="px-2 py-0.5 rounded text-tiny bg-muted/40 text-foreground-subtle border border-border/60 whitespace-nowrap">+{hiddenCount} more</span>}
+            {hiddenCount > 0 && (
+                <Badge variant="outline" className="text-tiny bg-muted/40 text-foreground-subtle border-border/60 whitespace-nowrap">
+                    +{hiddenCount} more
+                </Badge>
+            )}
         </div>
     );
 }
