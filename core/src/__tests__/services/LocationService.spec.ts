@@ -56,6 +56,11 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
     CACHE_TTLS: { REVERSE_GEOCODE: 300 },
 }));
 
+jest.mock('../../services/location/NominatimGeocode', () => ({
+    resolveSettlementWithNominatim: jest.fn().mockResolvedValue(null),
+    reverseGeocodeViaNominatim: jest.fn().mockResolvedValue(null),
+}));
+
 import Location from "../../models/Location";
 import AdminBoundary from "../../models/AdminBoundary";
 import {
