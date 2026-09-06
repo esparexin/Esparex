@@ -56,6 +56,12 @@ export function EntitySearchCombobox<T>({
 
     const selectedName = displayValue || value || "";
 
+    const sanitizedTitle = useMemo(
+        () => title.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/(^-|-$)/g, "") || "options",
+        [title]
+    );
+    const listboxId = `select-options-list-${sanitizedTitle}`;
+
     const filteredItems = useMemo(() => {
         if (!search) return items;
         const query = search.toLowerCase().trim();
@@ -64,19 +70,13 @@ export function EntitySearchCombobox<T>({
 
     const isListOpen = Boolean((isEditing || search) && !disabled);
 
-    const handleItemSelect = (item: T) => {
-        onSelect(item);
-        setSearch("");
-        setIsEditing(false);
-    };
-
+    const handleItemSelect = (item: T) => { onSelect(item); setSearch(""); setIsEditing(false); };
     const handleProposeCustom = (customName: string) => {
         if (!onProposeCustom || !customName.trim()) return;
         onProposeCustom(customName.trim());
         setSearch("");
         setIsEditing(false);
     };
-
     const handleClose = () => { setIsEditing(false); setSearch(""); };
 
     const { activeIndex, setActiveIndex, handleKeyDown } = useKeyboardNavigation({
@@ -86,7 +86,7 @@ export function EntitySearchCombobox<T>({
         onClose: handleClose,
     });
 
-    const activeOptionId = activeIndex >= 0 ? `select-option-${activeIndex}` : undefined;
+    const activeOptionId = activeIndex >= 0 ? `select-option-${sanitizedTitle}-${activeIndex}` : undefined;
 
     // Pre-focus matching item on opening when a value is pre-selected
     useEffect(() => {
@@ -98,15 +98,15 @@ export function EntitySearchCombobox<T>({
     // Synchronize keyboard focus / activeIndex with auto-scrolling
     useEffect(() => {
         if (activeIndex < 0 || !isListOpen) return;
-        document.getElementById(`select-option-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    }, [activeIndex, isListOpen]);
+        document.getElementById(`select-option-${sanitizedTitle}-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [activeIndex, isListOpen, sanitizedTitle]);
 
     // Close dropdown on click outside for desktop listbox
     useEffect(() => {
         if (!isListOpen || isMobile) return;
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             const container = containerRef.current;
-            const dropdownEl = document.getElementById("select-options-list");
+            const dropdownEl = document.getElementById(listboxId);
             const target = event.target as Node;
             if (container && !container.contains(target) && dropdownEl && !dropdownEl.contains(target)) handleClose();
         };
@@ -116,7 +116,7 @@ export function EntitySearchCombobox<T>({
             document.removeEventListener("mousedown", handleClickOutside);
             document.removeEventListener("touchstart", handleClickOutside);
         };
-    }, [isListOpen, isMobile]);
+    }, [isListOpen, isMobile, listboxId]);
 
     const renderOptionsList = (isMobileView: boolean) => {
         if (loading) {
@@ -141,7 +141,7 @@ export function EntitySearchCombobox<T>({
             return (
                 <button
                     key={id || label}
-                    id={`select-option-${idx}`}
+                    id={`select-option-${sanitizedTitle}-${idx}`}
                     type="button"
                     role="option"
                     aria-selected={isSelected}
@@ -161,7 +161,7 @@ export function EntitySearchCombobox<T>({
 
     const desktopDropdownContent = (
         <div
-            id="select-options-list"
+            id={listboxId}
             role="listbox"
             className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 py-1.5 overscroll-contain touch-pan-y"
         >
@@ -192,11 +192,14 @@ export function EntitySearchCombobox<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-3 pr-9 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body"
+                    className={cn(
+                        "pl-3 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body",
+                        loading ? "pr-14" : "pr-9"
+                    )}
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
-                    aria-controls={isListOpen ? "select-options-list" : undefined}
+                    aria-controls={isListOpen ? listboxId : undefined}
                     aria-activedescendant={activeOptionId}
                     autoComplete="off"
                 />
@@ -261,17 +264,17 @@ export function EntitySearchCombobox<T>({
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button
-                                            type="button"
-                                            onClick={() => handleProposeCustom(search)}
-                                            title={`Add "${search.trim()}" as custom ${proposeType}`}
-                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
+                                             type="button"
+                                             onClick={() => handleProposeCustom(search)}
+                                             title={`Add "${search.trim()}" as custom ${proposeType}`}
+                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
                                         >
-                                            <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
+                                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                                         </button>
                                     )}
                                 </div>
                             </div>
-                            <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            <div id={listboxId} role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                                 {renderOptionsList(true)}
                             </div>
                         </div>
