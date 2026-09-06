@@ -62,6 +62,7 @@
     "contract:error-envelope": "node scripts/enforce-error-response-contract.js",
     "ci:admin-guardrails": "npm run ci:guardrails -w @esparex/apps-admin",
     "check:s3-images": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' scripts/check-s3-images.ts",
+    "audit:monetization-db": "npx tsx scripts/db-consistency-audit.ts",
     "lint:admin": "eslint apps/admin --cache --cache-location .eslintcache/admin",
     "lint:web": "eslint apps/web --cache --cache-location .eslintcache/web",
     "lint:backend": "eslint backend --cache --cache-location .eslintcache/backend",

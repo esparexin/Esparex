@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env npx tsx
 /**
  * Backup Verification CLI Script
  *
@@ -6,8 +6,8 @@
  * Checks file size, compression, and ability to list contents.
  *
  * Usage:
- *   npx ts-node scripts/verify-backup.ts -- --file=backups/esparex_user_2026-01-31.gz
- *   npx ts-node scripts/verify-backup.ts -- --all  # Verify all backups
+ *   npx tsx scripts/verify-backup.ts -- --file=backups/esparex_user_2026-01-31.gz
+ *   npx tsx scripts/verify-backup.ts -- --all  # Verify all backups
  *
  * @module scripts/verify-backup
  */

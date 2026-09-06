@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env npx tsx
 /**
  * MongoDB Backup CLI Script
  *
@@ -6,9 +6,9 @@
  * Supports both user and admin databases.
  *
  * Usage:
- *   npx ts-node scripts/backup-database.ts              # Backup all databases
- *   npx ts-node scripts/backup-database.ts -- --db=user # Backup user database only
- *   npx ts-node scripts/backup-database.ts -- --db=admin # Backup admin database only
+ *   npx tsx scripts/backup-database.ts              # Backup all databases
+ *   npx tsx scripts/backup-database.ts -- --db=user # Backup user database only
+ *   npx tsx scripts/backup-database.ts -- --db=admin # Backup admin database only
  *
  * @module scripts/backup-database
  */
@@ -41,13 +41,13 @@ async function main() {
 
         // Backup user database
         if (targetDb === 'all' || targetDb === 'user') {
-            const userBackup = backupDatabase(env.MONGODB_URI, 'User Database');
+            const userBackup = await backupDatabase(env.MONGODB_URI, 'User Database');
             backups.push(userBackup);
         }
 
         // Backup admin database
         if (targetDb === 'all' || targetDb === 'admin') {
-            const adminBackup = backupDatabase(env.ADMIN_MONGODB_URI, 'Admin Database');
+            const adminBackup = await backupDatabase(env.ADMIN_MONGODB_URI, 'Admin Database');
             backups.push(adminBackup);
         }
 
