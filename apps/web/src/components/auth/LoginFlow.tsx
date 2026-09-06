@@ -28,6 +28,9 @@ export function LoginFlow({
 
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  const isAutoRedirecting = mode === "page" && status === "authenticated";
+  const showRedirectOverlay = (isRedirecting || isAutoRedirecting) && status !== "unauthenticated";
+
   const handleLoginSuccess = useCallback(
     () => {
       setIsRedirecting(true);
@@ -38,13 +41,11 @@ export function LoginFlow({
   );
 
   useEffect(() => {
-    if (isRedirecting) return;
     // Page mode auto-redirect guard if already authenticated when visiting /login page directly
     if (mode === "page" && status === "authenticated") {
-      setIsRedirecting(true);
       void router.push(safeCallbackUrl);
     }
-  }, [isRedirecting, mode, status, safeCallbackUrl, router]);
+  }, [mode, status, safeCallbackUrl, router]);
 
   return (
     <div className="relative">
@@ -54,7 +55,7 @@ export function LoginFlow({
         onBack={onBack ?? (mode === "page" ? () => void router.push("/") : undefined)}
       />
 
-      {isRedirecting && status !== "unauthenticated" && (
+      {showRedirectOverlay && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <div className="space-y-3 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />

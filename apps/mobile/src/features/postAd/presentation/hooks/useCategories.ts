@@ -20,7 +20,36 @@ export const useCategories = (): UseCategoriesResult => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchCategories = useCallback(async () => {
+  useEffect(() => {
+    let isMounted = true;
+
+    async function load() {
+      try {
+        const data = await services.categoryService.getCategories();
+        if (isMounted) {
+          setCategories(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          const normalised = err instanceof Error ? err : new Error('Failed to load categories');
+          setError(normalised);
+          setCategories([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const refetch = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -35,14 +64,10 @@ export const useCategories = (): UseCategoriesResult => {
     }
   }, []);
 
-  useEffect(() => {
-    void fetchCategories();
-  }, [fetchCategories]);
-
   return {
     categories,
     isLoading,
     error,
-    refetch: fetchCategories,
+    refetch,
   };
 };

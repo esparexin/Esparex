@@ -27,7 +27,6 @@ export default function AIConfigPage() {
     const [saving, setSaving] = useState(false);
 
     const fetchConfig = useCallback(async () => {
-        setLoading(true);
         try {
             const response = await adminFetch<AiConfigData>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
             if (response?.data) {
@@ -42,8 +41,32 @@ export default function AIConfigPage() {
     }, []);
 
     useEffect(() => {
-        fetchConfig();
-    }, [fetchConfig]);
+        let isMounted = true;
+
+        async function load() {
+            try {
+                const response = await adminFetch<AiConfigData>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
+                if (isMounted && response?.data) {
+                    setCapabilities(response.data.capabilities || {});
+                    setProviders(response.data.providers || {});
+                }
+            } catch (err: unknown) {
+                if (isMounted) {
+                    showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to load AI configuration" });
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void load();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const handleCapabilityChange = (key: string, field: keyof CapabilityConfig, value: string | number) => {
         setCapabilities((prev) => {
