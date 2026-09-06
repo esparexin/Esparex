@@ -182,7 +182,17 @@ export default tseslint.config(
     }
   },
 
-  // 9. Scripts, Configs, and Tooling (Allow console)
+  // 9. Jest & Test Setup (Jest Globals)
+  {
+    files: ["**/jest.setup.js", "**/jest.config.js", "**/*.setup.js"],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+
+  // 10. Scripts, Configs, and Tooling (Allow console)
   {
     files: ["**/scripts/**/*.{js,ts}", "tooling/**/*.{js,ts}", "**/*.cjs", "**/*.mjs"],
     rules: {
