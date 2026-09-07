@@ -4,7 +4,6 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent, checkAiStatus } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { MAX_AD_TITLE_CHARS, MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
-import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
@@ -83,7 +82,6 @@ export function usePostAdAiGeneration(
                 const truncated = cachedValue.slice(0, targetField === 'title' ? MAX_AD_TITLE_CHARS : MAX_AD_DESCRIPTION_CHARS);
                 form.setValue(targetField, truncated, { shouldValidate: true });
                 form.trigger(targetField);
-                notify.success(`${targetField === 'title' ? 'Title' : 'Description'} generated from cache!`);
                 trackPostAdEvent({ event: `ai_${targetField}_generated_from_cache` });
                 return;
             }
@@ -124,14 +122,12 @@ export function usePostAdAiGeneration(
                     const truncated = output.title.slice(0, MAX_AD_TITLE_CHARS);
                     form.setValue("title", truncated, { shouldValidate: true });
                     form.trigger("title");
-                    notify.success("Title generated successfully!");
                     trackPostAdEvent({ event: "ai_title_generated" });
                 }
                 if (targetField === 'description' && output.description) {
                     const truncated = output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
                     form.setValue("description", truncated, { shouldValidate: true });
                     form.trigger("description");
-                    notify.success("Description generated successfully!");
                     trackPostAdEvent({ event: "ai_description_generated" });
                 }
             }
@@ -143,7 +139,6 @@ export function usePostAdAiGeneration(
                 const fallbackTitle = (titleParts.length > 0 ? titleParts.join(' - ') : `${context.category} for Sale`).slice(0, MAX_AD_TITLE_CHARS);
                 form.setValue("title", fallbackTitle, { shouldValidate: true });
                 form.trigger("title");
-                notify.success("Title generated successfully!");
             } else {
                 const descLines = [
                     `${context.brand} ${context.model} (${context.category}) for sale.`,
@@ -154,7 +149,6 @@ export function usePostAdAiGeneration(
                 const fallbackDesc = descLines.join(' ').slice(0, MAX_AD_DESCRIPTION_CHARS);
                 form.setValue("description", fallbackDesc, { shouldValidate: true });
                 form.trigger("description");
-                notify.success("Description generated successfully!");
             }
             setFormError(null);
             trackPostAdEvent({ event: "ai_generation_failure", field: targetField, metadata: { fallback: true } });

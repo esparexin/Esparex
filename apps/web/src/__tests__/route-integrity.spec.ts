@@ -31,4 +31,13 @@ describe("Frontend Route Integrity (FIND-001 & FIND-002)", () => {
         expect(content).not.toContain("showCancelConfirmDialog");
         expect(content).not.toContain("Discard Unsaved Changes?");
     });
+
+    it("verifies usePostAdAiGeneration performs inline enhancement without interrupting modal popups", () => {
+        const filePath = path.join(webSrcDir, "components/user/post-ad/hooks/usePostAdAiGeneration.ts");
+        const content = fs.readFileSync(filePath, "utf8");
+
+        expect(content).not.toContain("notify.success");
+        expect(content).not.toContain("@/lib/feedback");
+    });
 });
+
