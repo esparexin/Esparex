@@ -1,17 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, RefreshCcw, Loader2 } from "@esparex/ui";
+import { AlertCircle, RefreshCcw, Button } from "@esparex/ui";
 import { AdsTable } from "@/components/moderation/AdsTable";
-import { RejectAdModal } from "@/components/moderation/RejectAdModal";
-import { ViewAdModal } from "@/components/moderation/ViewAdModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { moderationTabs } from "@/components/layout/adminModuleTabSets";
-import { AdminErrorBoundary } from "@/components/common/AdminErrorBoundary";
 import { getListingPresentation } from "@/components/moderation/listingPresentation";
-import { CatalogModal } from "@/components/catalog/CatalogModal";
 
 import { useAdFilters } from "./hooks/useAdFilters";
 import { useAdSelection } from "./hooks/useAdSelection";
@@ -21,6 +17,8 @@ import { ModerationFilters } from "@/components/moderation/moderationTypes";
 
 import { AdsColumnVisibilityMenu } from "./components/AdsColumnVisibilityMenu";
 import { AdsFilterToolbarExtras } from "./components/AdsFilterToolbarExtras";
+import { AdsBulkActionsBar } from "./components/AdsBulkActionsBar";
+import { AdsModerationModals } from "./components/AdsModerationModals";
 
 const allowed = new Set(["pending", "live", "rejected", "deactivated", "sold", "expired", "all"]);
 
@@ -124,14 +122,16 @@ export default function AdsView({ listingType }: AdsViewProps) {
                         }
                     />
 
-                    <button
+                    <Button
                         type="button"
+                        variant="outline"
+                        size="sm"
                         onClick={refresh}
-                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-all active:scale-95 cursor-pointer"
+                        className="gap-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-all active:scale-95 cursor-pointer"
                     >
                         <RefreshCcw size={14} /> 
                         <span>Refresh</span>
-                    </button>
+                    </Button>
                 </div>
             }
         >
@@ -154,7 +154,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                 />
 
                 {error && (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-body font-medium text-destructive">
                         <AlertCircle size={16} /> {error}
                     </div>
                 )}
@@ -189,200 +189,58 @@ export default function AdsView({ listingType }: AdsViewProps) {
                         hideColumnVisibilityButton={true}
                         bulkActions={
                             selectedCount > 0 ? (
-                                <div className="flex items-center gap-2">
-                                    {normalizedStatus === 'pending' && (
-                                        <>
-                                            <button
-                                                type="button"
-                                                onClick={() => void handleBulkApprove()}
-                                                className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-all shadow-sm"
-                                            >
-                                                Approve Selected
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={openBulkReject}
-                                                className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-all shadow-sm"
-                                            >
-                                                Reject Selected
-                                            </button>
-                                        </>
-                                    )}
-
-                                    {filters.status !== 'pending' && (
-                                        <div className="flex items-center gap-2">
-                                            {filters.status === 'live' && (
-                                                <>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => void handleBulkDeactivate()}
-                                                        className="rounded-lg bg-foreground/80 px-3 py-2 text-caption font-semibold text-background hover:bg-foreground transition-all shadow-xs cursor-pointer"
-                                                    >
-                                                        Deactivate Selected
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => void handleBulkExpire()}
-                                                        className="rounded-lg bg-amber-600 px-3 py-2 text-caption font-semibold text-white hover:bg-amber-700 transition-all shadow-xs cursor-pointer"
-                                                    >
-                                                        Expire Selected
-                                                    </button>
-                                                </>
-                                            )}
-                                            {(filters.status === 'live' || filters.status === 'expired') && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => void handleBulkExtend()}
-                                                    className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-all shadow-sm"
-                                                >
-                                                    Extend Selected
-                                                </button>
-                                            )}
-                                            <button
-                                                type="button"
-                                                onClick={() => void handleBulkResendWarnings()}
-                                                className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 transition-all shadow-sm"
-                                            >
-                                                Resend Warnings
-                                            </button>
-                                            {listingType === 'ad' && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => void handleBulkResendSpotlightWarnings()}
-                                                    className="rounded-lg border border-fuchsia-200 bg-fuchsia-50 px-3 py-2 text-xs font-semibold text-fuchsia-700 hover:bg-fuchsia-100 transition-all shadow-sm"
-                                                >
-                                                    Resend Spotlight
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    <button
-                                        type="button"
-                                        onClick={() => void handleBulkDelete()}
-                                        className="rounded-lg border border-border bg-card px-3 py-2 text-caption font-semibold text-foreground-secondary hover:bg-muted/50 transition-all shadow-xs cursor-pointer"
-                                    >
-                                        Delete Selected
-                                    </button>
-                                </div>
+                                <AdsBulkActionsBar
+                                    status={filters.status}
+                                    normalizedStatus={normalizedStatus}
+                                    listingType={listingType}
+                                    onBulkApprove={() => void handleBulkApprove()}
+                                    onBulkReject={openBulkReject}
+                                    onBulkDeactivate={() => void handleBulkDeactivate()}
+                                    onBulkExpire={() => void handleBulkExpire()}
+                                    onBulkExtend={() => void handleBulkExtend()}
+                                    onBulkResendWarnings={() => void handleBulkResendWarnings()}
+                                    onBulkResendSpotlightWarnings={() => void handleBulkResendSpotlightWarnings()}
+                                    onBulkDelete={() => void handleBulkDelete()}
+                                />
                             ) : undefined
                         }
                     />
                 </div>
 
-                <AdminErrorBoundary fallbackLabel="Moderation Modal Error">
-                    <RejectAdModal
-                        open={rejectModalOpen}
-                        title={rejectTitle}
-                        entityLabel={entityLabel}
-                        affectedCount={rejectTargetIds.length}
-                        isSubmitting={isMutating}
-                        onClose={() => {
-                            setRejectModalOpen(false);
-                            setRejectTargetIds([]);
-                            setRejectTitle(undefined);
-                        }}
-                        onSubmit={handleRejectSubmit}
-                    />
-
-                    {/* Hardened Deletion Modal */}
-                    <CatalogModal
-                        isOpen={deleteModalOpen}
-                        onClose={() => !isMutating && setDeleteModalOpen(false)}
-                        title={`Delete ${entityLabelPlural}`}
-                    >
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-start gap-4 p-4 bg-red-50 rounded-xl border border-red-200">
-                                <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <h3 className="text-sm font-bold text-red-900">Permanent Action</h3>
-                                    <p className="mt-1 text-sm text-red-800 leading-relaxed">
-                                        Are you sure you want to delete {deleteTargetIds.length === 1 ? `"${deleteDisplayTitle || "this " + entityLabel}"` : `${deleteTargetIds.length} selected ${entityLabelPlural}`}? 
-                                        This action cannot be undone and will remove all associated data.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    disabled={isMutating}
-                                    onClick={() => setDeleteModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-border text-body font-semibold text-foreground-secondary hover:bg-muted/50 transition-all cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={isMutating}
-                                    onClick={handleConfirmDelete}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-body font-bold hover:bg-destructive/90 transition-all shadow-sm cursor-pointer"
-                                >
-                                    {isMutating ? <><Loader2 size={16} className="animate-spin" /> Deleting...</> : "Confirm Delete"}
-                                </button>
-                            </div>
-                        </div>
-                    </CatalogModal>
-
-                    {/* Hardened Ban Modal */}
-                    <CatalogModal
-                        isOpen={banModalOpen}
-                        onClose={() => !isMutating && setBanModalOpen(false)}
-                        title="Block Seller"
-                    >
-                        <div className="p-6 space-y-4">
-                            <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <h3 className="text-sm font-bold text-amber-900">Restrict Platform Access</h3>
-                                    <p className="mt-1 text-sm text-amber-800 leading-relaxed">
-                                        You are about to block <strong>{banTargetSellerName || "this seller"}</strong>. 
-                                        They will be unable to post new {entityLabelPlural} or manage existing ones until globally reinstated by an admin.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    disabled={isMutating}
-                                    onClick={() => setBanModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-border text-body font-semibold text-foreground-secondary hover:bg-muted/50 transition-all cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={isMutating}
-                                    onClick={handleConfirmBan}
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-body font-bold hover:bg-amber-700 transition-all shadow-sm cursor-pointer"
-                                >
-                                    {isMutating ? <><Loader2 size={16} className="animate-spin" /> Blocking...</> : "Block Seller"}
-                                </button>
-                            </div>
-                        </div>
-                    </CatalogModal>
-
-                    <ViewAdModal
-                        open={viewModalOpen}
-                        ad={viewAd}
-                        listingType={listingType}
-                        loading={viewLoading}
-                        error={viewError}
-                        onClose={() => {
-                            setViewModalOpen(false);
-                            setViewAd(null);
-                            setViewError("");
-                        }}
-                        onApprove={handleModalApprove}
-                        onReject={(adId) => {
-                            const ad = items.find((item) => item.id === adId) || viewAd;
-                            if (ad) openSingleReject(ad);
-                        }}
-                        onDeactivate={handleModalDeactivate}
-                        onActivate={handleModalActivate}
-                        onBlockSeller={handleModalBlockSeller}
-                        onExtend={handleModalExtend}
-                    />
-                </AdminErrorBoundary>
+                <AdsModerationModals
+                    listingType={listingType}
+                    entityLabel={entityLabel}
+                    entityLabelPlural={entityLabelPlural}
+                    isMutating={isMutating}
+                    rejectModalOpen={rejectModalOpen}
+                    rejectTitle={rejectTitle}
+                    rejectTargetIds={rejectTargetIds}
+                    onCloseReject={() => { setRejectModalOpen(false); setRejectTargetIds([]); setRejectTitle(undefined); }}
+                    onSubmitReject={handleRejectSubmit}
+                    deleteModalOpen={deleteModalOpen}
+                    deleteTargetIds={deleteTargetIds}
+                    deleteDisplayTitle={deleteDisplayTitle}
+                    onCloseDelete={() => setDeleteModalOpen(false)}
+                    onConfirmDelete={handleConfirmDelete}
+                    banModalOpen={banModalOpen}
+                    targetSellerName={banTargetSellerName}
+                    onCloseBan={() => setBanModalOpen(false)}
+                    onConfirmBan={handleConfirmBan}
+                    viewModalOpen={viewModalOpen}
+                    viewAd={viewAd}
+                    viewLoading={viewLoading}
+                    viewError={viewError}
+                    onCloseView={() => { setViewModalOpen(false); setViewAd(null); setViewError(""); }}
+                    onApproveView={handleModalApprove}
+                    onRejectView={(adId) => {
+                        const ad = items.find((item) => item.id === adId) || viewAd;
+                        if (ad) openSingleReject(ad);
+                    }}
+                    onDeactivateView={handleModalDeactivate}
+                    onActivateView={handleModalActivate}
+                    onBlockSellerView={handleModalBlockSeller}
+                    onExtendView={handleModalExtend}
+                />
             </div>
         </AdminPageShell>
     );
