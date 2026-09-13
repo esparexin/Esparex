@@ -17,9 +17,8 @@ import {
     CatalogEditDeleteActions,
     CatalogEntityCell,
     CatalogSelectField,
-    CatalogSelectFilter,
     CatalogTextInputField,
-    CatalogSearchInput,
+    CatalogSearchAndCategoryFilters,
 } from "@/components/catalog/primitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
 import type { ScreenSizeMutationPayload } from "@/lib/api/screenSizes";
@@ -155,24 +154,19 @@ export default function ScreenSizesTab() {
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogSearchInput
-                            value={searchInput}
-                            placeholder="Search screen sizes..."
-                            onChange={setSearchInput}
-                        />
-                        <CatalogSelectFilter
-                            value={initialCategoryId}
-                            onChange={(categoryId) =>
+                        <CatalogSearchAndCategoryFilters
+                            searchValue={searchInput}
+                            searchPlaceholder="Search screen sizes..."
+                            onSearchChange={setSearchInput}
+                            categories={categoryOptions}
+                            categoryValue={initialCategoryId}
+                            onCategoryChange={(categoryId) =>
                                 replaceQueryState({
                                     categoryId: categoryId !== "all" ? categoryId : null,
                                     page: null,
                                 })
                             }
-                            options={[
-                                { value: "all", label: "All Categories" },
-                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
-                            ]}
-                            withFilterIcon
+                            withCategoryFilterIcon
                         />
                         <CatalogActiveStatusFilter
                             value={initialStatus}

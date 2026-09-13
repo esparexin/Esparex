@@ -4,7 +4,12 @@ import { ApiResponse, User as SharedUser } from "@esparex/contracts";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@esparex/core/domains/identity/application/users/UserProfileService';
+import {
+  getUserProfileById as getPublicUserProfileById,
+  getPublicSellers as getPublicSellersList,
+  type SellerProfilePayload,
+  type PublicSellerItem,
+} from '@esparex/core/domains/identity/application/users/UserProfileService';
 import { getUserWithBusiness } from '@esparex/core/domains/identity/application/users/UserService';
 import type { AuthUser } from '../../types/auth.types';
 
@@ -87,6 +92,26 @@ export const getUserProfileById = async (
     res.json(respond<ApiResponse<SellerProfilePayload>>({
       success: true,
       data: profile
+    }));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPublicSellers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const limit = Math.min(1000, Math.max(1, parseInt((req.query.limit as string) || '100', 10)));
+    const page = Math.max(1, parseInt((req.query.page as string) || '1', 10));
+
+    const result = await getPublicSellersList({ limit, page });
+
+    res.json(respond<ApiResponse<{ items: PublicSellerItem[]; total: number }>>({
+      success: true,
+      data: result,
     }));
   } catch (error) {
     next(error);

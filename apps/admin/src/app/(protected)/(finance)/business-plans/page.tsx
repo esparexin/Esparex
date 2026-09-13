@@ -22,9 +22,8 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
-    buildUrlWithSearchParams,
     normalizeSearchParamValue,
-    updateSearchParams,
+    replaceAdminQueryState,
 } from "@/lib/urlSearchParams";
 import { useSubscriptionPlans } from "@/hooks/useSubscriptionPlans";
 import { Button } from "@esparex/ui";
@@ -50,13 +49,8 @@ export default function BusinessPlansPage() {
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const search = normalizeSearchParamValue(rawSearch);
 
-    const replaceQueryState = (updates: Record<string, string | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { search: null, ...updates }));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    };
+    const replaceQueryState = (updates: Record<string, string | null | undefined>) =>
+        replaceAdminQueryState(router, pathname, searchParams, { search: null, ...updates });
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -66,17 +60,10 @@ export default function BusinessPlansPage() {
     }, [fetchPlans, search]);
 
     useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                search: null,
-                q: search,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
+        replaceAdminQueryState(router, pathname, searchParams, {
+            search: null,
+            q: search,
+        });
     }, [pathname, router, search, searchParams]);
 
     const onToggleClick = async (plan: Plan) => {

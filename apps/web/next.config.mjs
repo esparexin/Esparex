@@ -362,6 +362,11 @@ const nextConfig = {
                 permanent: true,
             },
             {
+                source: '/spare-parts/:slug',
+                destination: '/spare-part-listings/:slug',
+                permanent: true,
+            },
+            {
                 source: '/browse-services',
                 destination: '/search?type=service',
                 permanent: true,

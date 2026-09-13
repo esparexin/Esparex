@@ -6,6 +6,7 @@ import { ROUTES, type AdDetailNavigateFn } from "@/lib/routeUtils";
 import type { Ad } from "@/schemas/ad.schema";
 import { formatStableDate } from "@/lib/formatters";
 import { resolveBusinessLocationLabel } from "@/lib/listings/listingPresentation";
+import { generateAdSlug } from "@/lib/slug";
 
 interface AdBusinessCardProps {
     ad: Ad;
@@ -67,7 +68,9 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                 className="w-full gap-2 bg-primary hover:bg-primary/90 border-none text-primary-foreground text-xs sm:text-sm h-10 rounded-xl font-semibold transition-all active:scale-95 shadow-xs cursor-pointer"
                 onClick={() => {
                     if (ad.businessId) {
-                        navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, ad.businessId);
+                        const businessSlug = generateAdSlug(businessName || "business");
+                        const businessParam = `${businessSlug}-${ad.businessId}`;
+                        navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, businessParam);
                     } else {
                         notify.info("Viewing all products from this business...");
                     }

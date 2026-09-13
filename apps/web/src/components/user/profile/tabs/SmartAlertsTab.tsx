@@ -16,7 +16,7 @@ interface SmartAlertsTabProps {
     savedSearches: SavedSearch[];
     smartAlertForm: SmartAlertFormData;
     updateSmartAlertForm: (updates: Partial<SmartAlertFormData>) => void;
-    handleCreateAlert: (location: SmartAlertSelection | null) => Promise<void>;
+    handleCreateAlert: (location: SmartAlertSelection | null) => Promise<{ success: boolean; error?: string } | void>;
     handleToggleAlertStatus: (id: string) => void;
     handleDeleteAlert: (id: string) => void;
     handleDeleteSavedSearch: (id: string) => void;
@@ -63,8 +63,10 @@ export function SmartAlertsTab({
     const handleOpenEditModal = (alert: SmartAlertListItem) => { handleEditAlert(alert); setIsInternalOpen(true); };
 
     const handleSubmitForm = async (location: SmartAlertSelection | null) => {
-        await handleCreateAlert(location);
-        handleCloseDialog();
+        const res = await handleCreateAlert(location);
+        if (res?.success) {
+            handleCloseDialog();
+        }
     };
 
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Alerts...</div>;

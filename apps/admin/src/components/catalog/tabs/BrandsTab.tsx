@@ -30,7 +30,7 @@ import {
     CatalogEditDeleteActionPair,
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
-    CatalogSearchInput,
+    CatalogSearchAndCategoryFilters,
 } from "@/components/catalog/primitives";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
@@ -253,23 +253,18 @@ export default function BrandsTab() {
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogSearchInput
-                            value={searchInput}
-                            placeholder="Search brands..."
-                            onChange={setSearchInput}
-                        />
-                        <CatalogSelectFilter
-                            value={initialCategoryId}
-                            onChange={(categoryId) =>
+                        <CatalogSearchAndCategoryFilters
+                            searchValue={searchInput}
+                            searchPlaceholder="Search brands..."
+                            onSearchChange={setSearchInput}
+                            categories={categoryOptions}
+                            categoryValue={initialCategoryId}
+                            onCategoryChange={(categoryId) =>
                                 replaceQueryState({
                                     categoryId: categoryId !== "all" ? categoryId : null,
                                     page: null,
                                 })
                             }
-                            options={[
-                                { value: "all", label: "All Categories" },
-                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
-                            ]}
                         />
                         <CatalogSelectFilter
                             value={initialStatus}

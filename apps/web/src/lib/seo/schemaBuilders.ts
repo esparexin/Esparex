@@ -6,6 +6,7 @@ import {
     LEGAL_GRIEVANCE_OFFICER,
     LEGAL_GRIEVANCE_EMAIL
 } from "@/lib/legal";
+import { CANONICAL_ORIGIN } from "@/lib/seo/canonicalHost";
 
 export interface WebPageSchemaOptions {
     name: string;
@@ -34,10 +35,10 @@ export function buildWebPageSchema({
         publisher: {
             "@type": "Organization",
             name: LEGAL_COMPANY_NAME,
-            url: "https://esparex.in",
+            url: CANONICAL_ORIGIN,
             logo: {
                 "@type": "ImageObject",
-                url: "https://esparex.in/icons/brand-mark.png"
+                url: `${CANONICAL_ORIGIN}/icons/brand-mark.png`
             }
         }
     };
@@ -49,11 +50,11 @@ export function buildContactPageSchema() {
         "@type": "ContactPage",
         name: "Contact Us & Grievance Redressal | Esparex",
         description: "Official contact details, customer helpline, and statutory Grievance Officer for Esparex.",
-        url: "https://esparex.in/contact",
+        url: `${CANONICAL_ORIGIN}/contact`,
         mainEntity: {
             "@type": "Organization",
             name: LEGAL_COMPANY_NAME,
-            url: "https://esparex.in",
+            url: CANONICAL_ORIGIN,
             address: {
                 "@type": "PostalAddress",
                 addressLocality: "Hyderabad",
@@ -87,11 +88,11 @@ export function buildAboutPageSchema() {
         "@type": "AboutPage",
         name: "About Esparex | India's Electronics & Spare Parts Marketplace",
         description: "Esparex is India's dedicated circular economy marketplace for smartphone spare parts, electronics, and repair services.",
-        url: "https://esparex.in/about",
+        url: `${CANONICAL_ORIGIN}/about`,
         mainEntity: {
             "@type": "Organization",
             name: LEGAL_COMPANY_NAME,
-            url: "https://esparex.in",
+            url: CANONICAL_ORIGIN,
             location: LEGAL_COMPANY_LOCATION,
             sameAs: [
                 "https://twitter.com/esparexin",
@@ -113,7 +114,7 @@ export function buildCollectionPageSchema(name: string, description: string, url
         isPartOf: {
             "@type": "WebSite",
             name: "Esparex",
-            url: "https://esparex.in"
+            url: CANONICAL_ORIGIN
         }
     };
 }

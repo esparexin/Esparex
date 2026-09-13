@@ -9,6 +9,7 @@ import { AppBootstrapProvider } from "@/components/providers/AppBootstrapProvide
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { PostAdModalProvider } from "@/context/PostAdModalContext";
+import { SmartAlertModalProvider } from "@/context/SmartAlertModalContext";
 
 export function UserAppProviders({
     children,
@@ -25,8 +26,10 @@ export function UserAppProviders({
                         <NavigationProvider>
                             <AuthModalProvider>
                                 <PostAdModalProvider>
-                                    <PwaRegister />
-                                    {children}
+                                    <SmartAlertModalProvider>
+                                        <PwaRegister />
+                                        {children}
+                                    </SmartAlertModalProvider>
                                 </PostAdModalProvider>
                             </AuthModalProvider>
                         </NavigationProvider>

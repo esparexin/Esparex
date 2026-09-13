@@ -20,7 +20,7 @@ export function DescriptionSection() {
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between gap-2 mb-1">
                             <FieldLabel required className="text-caption sm:text-body font-semibold leading-snug text-foreground-secondary">
-                                Describe your product
+                                Description
                             </FieldLabel>
                             {isAiAvailable && (
                                 <Button
@@ -31,7 +31,7 @@ export function DescriptionSection() {
                                     disabled={isGeneratingAI !== null}
                                     className="h-7 sm:h-8 px-2.5 sm:px-3 text-caption bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium shrink-0"
                                 >
-                                    {isGeneratingAI === 'description' ? <Loader2 className="w-3 h-3 animate-spin" /> : "AI Enhance"}
+                                    {isGeneratingAI === 'description' ? <Loader2 className="w-3 h-3 animate-spin" /> : "AI Description"}
                                 </Button>
                             )}
                         </div>

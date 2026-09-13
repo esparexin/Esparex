@@ -42,15 +42,15 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("select-option-");
     });
 
-    it("ensures BusinessPostFAB directs Create Smart Alert to ?action=create and auto-closes on click", () => {
+    it("ensures BusinessPostFAB triggers in-app Smart Alert modal without navigating away and auto-closes on click", () => {
         const fabPath = path.resolve(
             __dirname,
             "../components/layout/BusinessPostFAB.tsx"
         );
         const fileContent = fs.readFileSync(fabPath, "utf-8");
 
-        expect(fileContent).toContain('href: "/account/alerts?action=create"');
-        expect(fileContent).toContain("onClick={() => setIsOpen(false)}");
+        expect(fileContent).toContain("openSmartAlertModal({ autoFocusCategory: true })");
+        expect(fileContent).toContain("setIsOpen(false)");
     });
 
     it("ensures SmartAlertsTab observes action=create to auto-open dialog and cleans up URL on close", () => {
@@ -66,17 +66,53 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain('router.replace("/account/alerts", { scroll: false })');
     });
 
-    it("ensures NotificationBellDropdown configures non-modal dropdown and guards against trigger loop", () => {
+    it("ensures NotificationBellDropdown configures non-modal dropdown, safe width, and clean borderless empty state", () => {
         const notificationPath = path.resolve(
             __dirname,
             "../components/user/NotificationBellDropdown.tsx"
         );
         const fileContent = fs.readFileSync(notificationPath, "utf-8");
+        const bodyContent = fs.readFileSync(
+            path.resolve(__dirname, "../components/user/NotificationDropdownBody.tsx"),
+            "utf-8"
+        );
+        const combinedContent = fileContent + bodyContent;
 
         expect(fileContent).toContain("modal={false}");
         expect(fileContent).toContain("onPointerDownOutside");
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
         expect(fileContent).toContain("onInteractOutside");
+        expect(fileContent).toContain("w-[min(90vw,22rem)]");
+        expect(combinedContent).toContain("bg-muted/30");
+        expect(combinedContent).not.toContain("border-dashed");
+    });
+
+    it("ensures NotificationItemCard adheres to design tokens and exports NOTIFICATION_META", () => {
+        const cardPath = path.resolve(
+            __dirname,
+            "../components/user/NotificationItemCard.tsx"
+        );
+        const fileContent = fs.readFileSync(cardPath, "utf-8");
+
+        expect(fileContent).toContain("export const NOTIFICATION_META");
+        expect(fileContent).toContain("bg-card");
+        expect(fileContent).toContain("border-border");
+        expect(fileContent).toContain("bg-primary/5");
+        expect(fileContent).not.toContain("text-slate-900");
+        expect(fileContent).not.toContain("bg-white");
+    });
+
+    it("ensures NotificationDrawer reuses NOTIFICATION_META and maintains borderless empty state", () => {
+        const drawerPath = path.resolve(
+            __dirname,
+            "../components/user/NotificationDrawer.tsx"
+        );
+        const fileContent = fs.readFileSync(drawerPath, "utf-8");
+
+        expect(fileContent).toContain("NOTIFICATION_META");
+        expect(fileContent).toContain("bg-muted/30");
+        expect(fileContent).not.toContain("border-dashed");
+        expect(fileContent).toContain("RelativeTimeText");
     });
 
     it("ensures EntitySearchCombobox pre-focuses and scrolls to pre-selected value on open", () => {
@@ -101,4 +137,84 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("onPointerDownOutside");
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
     });
+
+    it("ensures LocationSelector protects input text from colliding with action buttons via right padding and truncation", () => {
+        const locationPath = path.resolve(
+            __dirname,
+            "../components/location/LocationSelector.tsx"
+        );
+        const fileContent = fs.readFileSync(locationPath, "utf-8");
+
+        expect(fileContent).toContain("pr-28 sm:pr-32");
+        expect(fileContent).toContain("truncate");
+    });
+
+    it("ensures EntitySearchCombobox generates instance-unique listbox IDs and reserves indicator padding", () => {
+        const comboboxPath = path.resolve(
+            __dirname,
+            "../components/user/EntitySearchCombobox.tsx"
+        );
+        const fileContent = fs.readFileSync(comboboxPath, "utf-8");
+
+        expect(fileContent).toContain("select-options-list-${sanitizedTitle}");
+        expect(fileContent).toContain("pr-14");
+    });
+
+    it("ensures SmartAlertCategoryBrandModelFields isolates category and pairs brand/model in responsive grid", () => {
+        const fieldsPath = path.resolve(
+            __dirname,
+            "../components/user/profile/dialogs/SmartAlertCategoryBrandModelFields.tsx"
+        );
+        const fileContent = fs.readFileSync(fieldsPath, "utf-8");
+
+        expect(fileContent).toContain("grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative z-10");
+        expect(fileContent).toContain("relative z-20");
+    });
+
+    it("ensures CreateSmartAlertDialog constrains dialog width and reserves content scroll padding", () => {
+        const dialogPath = path.resolve(
+            __dirname,
+            "../components/user/profile/dialogs/CreateSmartAlertDialog.tsx"
+        );
+        const fileContent = fs.readFileSync(dialogPath, "utf-8");
+
+        expect(fileContent).toContain("max-w-[500px]");
+        expect(fileContent).toContain("pr-2 sm:pr-2.5");
+    });
+
+    it("ensures BusinessListingGatePage renders BusinessListingPageBackdrop behind dialogs", () => {
+        const gatePath = path.resolve(
+            __dirname,
+            "../components/user/BusinessListingGatePage.tsx"
+        );
+        const fileContent = fs.readFileSync(gatePath, "utf-8");
+
+        expect(fileContent).toContain("BusinessListingPageBackdrop");
+        expect(fileContent).toContain("<BusinessListingPageBackdrop listingType={listingTypeLabel} />");
+    });
+
+    it("ensures UserAppProviders registers SmartAlertModalProvider", () => {
+        const providersPath = path.resolve(
+            __dirname,
+            "../components/providers/UserAppProviders.tsx"
+        );
+        const fileContent = fs.readFileSync(providersPath, "utf-8");
+
+        expect(fileContent).toContain("SmartAlertModalProvider");
+        expect(fileContent).toContain("<SmartAlertModalProvider>");
+    });
+
+    it("ensures useListingFormOrchestration injects business location and canonical listingType", () => {
+        const orchPath = path.resolve(
+            __dirname,
+            "../components/user/shared/useListingFormOrchestration.ts"
+        );
+        const fileContent = fs.readFileSync(orchPath, "utf-8");
+
+        expect(fileContent).toContain("businessData?.location");
+        expect(fileContent).toContain("LISTING_TYPE.SERVICE");
+        expect(fileContent).toContain("LISTING_TYPE.SPARE_PART");
+        expect(fileContent).toContain("toCanonicalGeoPoint");
+    });
 });
+

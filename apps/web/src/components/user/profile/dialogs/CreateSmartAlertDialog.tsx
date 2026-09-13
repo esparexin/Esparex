@@ -40,6 +40,7 @@ interface CreateSmartAlertDialogProps {
     isMutating?: boolean;
     errors?: SmartAlertFieldErrors;
     globalError?: string | null;
+    autoFocusCategory?: boolean;
 }
 
 export function CreateSmartAlertDialog({
@@ -53,6 +54,7 @@ export function CreateSmartAlertDialog({
     isMutating,
     errors,
     globalError,
+    autoFocusCategory,
 }: CreateSmartAlertDialogProps) {
     const [selectedLocation, setSelectedLocation] = useState<SmartAlertLocationSelection | null>(null);
     const radiusRef = useRef<HTMLDivElement>(null);
@@ -166,7 +168,7 @@ export function CreateSmartAlertDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md sm:max-w-[480px] w-[94vw] max-h-[min(720px,calc(var(--visual-viewport-height,100dvh)-2rem))] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
+            <DialogContent className="max-w-md sm:max-w-[500px] w-[94vw] max-h-[min(760px,calc(var(--visual-viewport-height,100dvh)-2rem))] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
                 {/* Fixed Header */}
                 <DialogHeader className="space-y-1 text-left pb-3 border-b border-border shrink-0">
                     <DialogTitle className="flex items-center gap-2.5 text-body sm:text-headline font-bold">
@@ -188,7 +190,7 @@ export function CreateSmartAlertDialog({
                     }}
                     className="flex flex-col flex-1 min-h-0"
                 >
-                    <div className="flex-1 overflow-y-auto min-h-0 space-y-4 py-4 pr-4 sm:pr-5 overscroll-contain">
+                    <div className="flex-1 overflow-y-auto min-h-0 space-y-4 py-3 sm:py-4 px-1 pr-2 sm:pr-2.5 overscroll-contain">
                         {/* Category, Brand, Model Sub-Module */}
                         <SmartAlertCategoryBrandModelFields
                             categories={categories}
@@ -200,6 +202,7 @@ export function CreateSmartAlertDialog({
                             formData={formData}
                             updateFormData={updateFormData}
                             errors={errors}
+                            autoFocusCategory={autoFocusCategory}
                         />
 
                         {/* Search Keywords */}

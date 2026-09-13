@@ -1,4 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { generateAdSlug } from "@/lib/slug";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 import {
   buildListingMetadata,
@@ -41,82 +43,94 @@ function createListingDetailRoute(config: ListingDetailRouteConfig) {
 const adListingRouteConfig: ListingDetailRouteConfig = {
   missingTitle: "Listing Not Found | Esparex",
   canonicalBasePath: "/ads",
-  buildStructuredData: (ad) => ({
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: ad.title,
-    description: ad.description,
-    image: ad.images || [],
-    url: ad.id ? `https://esparex.in/ads/${ad.id}` : undefined,
-    offers: {
-      "@type": "Offer",
-      price: ad.price,
-      priceCurrency: ad.currency || "INR",
-      itemCondition: ad.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
-      availability:
-        ad.status === "live"
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      seller: ad.sellerName
-        ? { "@type": "Person", name: ad.sellerName }
-        : undefined,
-    },
-    brand: ad.brandName ? { "@type": "Brand", name: ad.brandName } : undefined,
-  }),
+  buildStructuredData: (ad) => {
+    const slug = ad.seoSlug || generateAdSlug(ad.title || "");
+    const canonicalUrl = ad.id ? toCanonicalUrl(`/ads/${slug}-${ad.id}`) : undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: ad.title,
+      description: ad.description,
+      image: ad.images || [],
+      url: canonicalUrl,
+      offers: {
+        "@type": "Offer",
+        price: ad.price,
+        priceCurrency: ad.currency || "INR",
+        itemCondition: ad.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+        availability:
+          ad.status === "live"
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        seller: ad.sellerName
+          ? { "@type": "Person", name: ad.sellerName }
+          : undefined,
+      },
+      brand: ad.brandName ? { "@type": "Brand", name: ad.brandName } : undefined,
+    };
+  },
 };
 
 const serviceListingRouteConfig: ListingDetailRouteConfig = {
   missingTitle: "Service Not Found | Esparex",
   canonicalBasePath: "/services",
-  buildStructuredData: (service) => ({
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: service.title,
-    description: service.description,
-    image: service.images || [],
-    url: service.id ? `https://esparex.in/services/${service.id}` : undefined,
-    provider: {
-      "@type": "LocalBusiness",
-      name: service.sellerName || "Service Provider",
-    },
-    offers: {
-      "@type": "AggregateOffer",
-      lowPrice: service.priceMin || service.price,
-      highPrice: service.priceMax,
-      priceCurrency: service.currency || "INR",
-      availability:
-        service.status === "live"
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-    },
-  }),
+  buildStructuredData: (service) => {
+    const slug = service.seoSlug || generateAdSlug(service.title || "");
+    const canonicalUrl = service.id ? toCanonicalUrl(`/services/${slug}-${service.id}`) : undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: service.title,
+      description: service.description,
+      image: service.images || [],
+      url: canonicalUrl,
+      provider: {
+        "@type": "LocalBusiness",
+        name: service.sellerName || "Service Provider",
+      },
+      offers: {
+        "@type": "AggregateOffer",
+        lowPrice: service.priceMin || service.price,
+        highPrice: service.priceMax,
+        priceCurrency: service.currency || "INR",
+        availability:
+          service.status === "live"
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+      },
+    };
+  },
 };
 
 const sparePartListingRouteConfig: ListingDetailRouteConfig = {
   missingTitle: "Spare Part Not Found | Esparex",
   canonicalBasePath: "/spare-part-listings",
-  buildStructuredData: (listing) => ({
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: listing.title,
-    description: listing.description,
-    image: listing.images || [],
-    url: listing.id ? `https://esparex.in/spare-part-listings/${listing.id}` : undefined,
-    offers: {
-      "@type": "Offer",
-      price: listing.price,
-      priceCurrency: listing.currency || "INR",
-      itemCondition: listing.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
-      availability:
-        listing.status === "live"
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      seller: listing.sellerName
-        ? { "@type": "Person", name: listing.sellerName }
-        : undefined,
-    },
-    brand: listing.brandName ? { "@type": "Brand", name: listing.brandName } : undefined,
-  }),
+  buildStructuredData: (listing) => {
+    const slug = listing.seoSlug || generateAdSlug(listing.title || "");
+    const canonicalUrl = listing.id ? toCanonicalUrl(`/spare-part-listings/${slug}-${listing.id}`) : undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: listing.title,
+      description: listing.description,
+      image: listing.images || [],
+      url: canonicalUrl,
+      offers: {
+        "@type": "Offer",
+        price: listing.price,
+        priceCurrency: listing.currency || "INR",
+        itemCondition: listing.condition === "new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition",
+        availability:
+          listing.status === "live"
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+        seller: listing.sellerName
+          ? { "@type": "Person", name: listing.sellerName }
+          : undefined,
+      },
+      brand: listing.brandName ? { "@type": "Brand", name: listing.brandName } : undefined,
+    };
+  },
 };
 
 export const generateAdPageMetadata = createListingPageMetadata(

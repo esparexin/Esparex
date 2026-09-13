@@ -104,8 +104,7 @@ export const FORBIDDEN_SITEMAP_PATTERNS: RegExp[] = [
     /^\/_next(\/|$)/i,
     /^\/offline(\/|$)/i,
     /^\/unauthorized(\/|$)/i,
-    // Search & Redirect routes (must not be in sitemap)
-    /^\/search(\/|$)/i,
+    // Redirect-only routes (must not be in sitemap)
     /^\/browse-(services|spare-parts)(\/|$)/i,
     /^\/spare-parts(\/|$)/i, // Canonical path is /spare-part-listings/...
     /^\/business$/i, // Bare /business is a 301 redirect to /
@@ -163,6 +162,10 @@ export function isValidSitemapUrl(urlStr: string): boolean {
     const isAllowedBusiness = /^\/business\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
     const isAllowedService = /^\/services\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
     const isAllowedSparePart = /^\/spare-part-listings\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
+    const isAllowedSeller = /^\/seller\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
+    const isAllowedBrand = /^\/brands\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
+    const isAllowedModel = /^\/models\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
+    const isAllowedSearch = pathname === '/search';
 
     return (
         isRoot ||
@@ -171,7 +174,11 @@ export function isValidSitemapUrl(urlStr: string): boolean {
         isAllowedAd ||
         isAllowedBusiness ||
         isAllowedService ||
-        isAllowedSparePart
+        isAllowedSparePart ||
+        isAllowedSeller ||
+        isAllowedBrand ||
+        isAllowedModel ||
+        isAllowedSearch
     );
 }
 
@@ -282,6 +289,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: toCanonicalUrl(path),
     }));
 
+    // 2b. Base /search route (indexable without filters)
+    staticRoutes.push({ url: toCanonicalUrl('/search') });
+
     // 3. Dynamic Live Ads
     const adRoutes: MetadataRoute.Sitemap = ads.map((ad) => ({
         url: toCanonicalUrl(`/ads/${ad.slug}-${ad.id}`),
@@ -309,6 +319,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: toCanonicalUrl(`/spare-part-listings/${part.slug}-${part.id}`),
     }));
 
+    // 7b. Brand Catalog Pages
+    const brands = await fetchDynamicIds(
+        API_ROUTES.USER.BRANDS_BASE,
+        {},
+        'id',
+        'slug'
+    );
+    const brandRoutes: MetadataRoute.Sitemap = brands.map((brand) => ({
+        url: toCanonicalUrl(`/brands/${brand.slug}-${brand.id}`),
+    }));
+
+    // 7c. Model Catalog Pages
+    const models = await fetchDynamicIds(
+        API_ROUTES.USER.MODELS_BASE,
+        {},
+        'id',
+        'slug'
+    );
+    const modelRoutes: MetadataRoute.Sitemap = models.map((model) => ({
+        url: toCanonicalUrl(`/models/${model.slug}-${model.id}`),
+    }));
+
+    // 7d. Active Seller Profile Pages
+    const sellers = await fetchDynamicIds(
+        API_ROUTES.USER.USERS_SELLERS,
+        {},
+        'id',
+        'slug'
+    );
+    const sellerRoutes: MetadataRoute.Sitemap = sellers.map((seller) => ({
+        url: toCanonicalUrl(`/seller/${seller.slug}-${seller.id}`),
+    }));
+
     // 8. Deduplicate and strictly validate all candidate routes
     const seenUrls = new Set<string>();
     const allRoutes: MetadataRoute.Sitemap = [];
@@ -320,6 +363,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...categoryRoutes,
         ...serviceRoutes,
         ...sparePartRoutes,
+        ...brandRoutes,
+        ...modelRoutes,
+        ...sellerRoutes,
     ]) {
         if (!isValidSitemapUrl(route.url)) {
             logger.warn(`[Sitemap] Dropped invalid URL: ${route.url}`);

@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { CANONICAL_ORIGIN } from '@/lib/seo/canonicalHost';
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -7,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: [
                 // Account namespace & Messaging
+                '/account',
                 '/account/',
                 '/chat',
                 '/chat/',
@@ -20,6 +22,7 @@ export default function robots(): MetadataRoute.Robots {
                 '/business/edit',
                 '/notifications',
                 // Legacy private routes (all have 301 redirects)
+                '/profile',
                 '/profile/',
                 '/my-ads',
                 '/saved-ads',
@@ -32,8 +35,10 @@ export default function robots(): MetadataRoute.Robots {
                 '/api/',
                 '/admin/',
                 '/internal/',
+                '/offline',
+                '/unauthorized',
             ],
         },
-        sitemap: 'https://esparex.in/sitemap.xml',
+        sitemap: `${CANONICAL_ORIGIN}/sitemap.xml`,
     };
 }

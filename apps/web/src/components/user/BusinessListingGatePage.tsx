@@ -9,6 +9,7 @@ import { useBusiness } from "@/hooks/useBusiness";
 import { Button } from "@esparex/ui";
 import { isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canPublishBusiness } from "@/guards/businessGuards";
+import { BusinessListingPageBackdrop } from "./BusinessListingPageBackdrop";
 
 interface BusinessListingGatePageProps {
     listingTypeLabel: string;
@@ -59,5 +60,10 @@ export function BusinessListingGatePage({
         );
     }
 
-    return <div className={contentContainerClassName}>{children}</div>;
+    return (
+        <div className={contentContainerClassName}>
+            <BusinessListingPageBackdrop listingType={listingTypeLabel} />
+            {children}
+        </div>
+    );
 }

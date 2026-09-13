@@ -3,18 +3,15 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent, checkAiStatus } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
-import { MAX_AD_TITLE_CHARS, MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
-import { notify } from "@/lib/feedback";
+import { MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import { AiErrorCode } from "@esparex/contracts/v1/common/enums";
 import type { AiCache } from "../context/types";
+import { createAiContextSignature, buildSmartTitle } from "./aiGenerationHelpers";
 
-export function createAiContextSignature(context: { brand: string, model: string, category: string, condition: string, powerStatus?: string, workingParts: string }) {
-    const parts = context.workingParts.split(',').map(p => p.trim()).filter(Boolean).sort();
-    return `brand:${context.brand}|model:${context.model}|cat:${context.category}|cond:${context.condition}|power:${context.powerStatus || ''}|parts:${parts.join(',')}`;
-}
+export { createAiContextSignature, buildSmartTitle } from "./aiGenerationHelpers";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
@@ -25,6 +22,7 @@ export function usePostAdAiGeneration(
     const [isGeneratingAI, setIsGeneratingAI] = useState<'title' | 'description' | null>(null);
     const [isAiAvailable, setIsAiAvailable] = useState(true);
     const [aiCache, setAiCache] = useState<AiCache | null>(null);
+    const [titleVariantIndex, setTitleVariantIndex] = useState(0);
 
     useEffect(() => {
         if (isAiAvailable) return;
@@ -77,14 +75,28 @@ export function usePostAdAiGeneration(
         };
         const contextSignature = createAiContextSignature(context);
 
+        if (targetField === 'title') {
+            const nextTitle = buildSmartTitle(context, titleVariantIndex);
+            setTitleVariantIndex(prev => prev + 1);
+            form.setValue("title", nextTitle, { shouldValidate: true });
+            form.trigger("title");
+            setAiCache(prev => ({
+                contextSignature,
+                generatedAt: Date.now(),
+                title: nextTitle,
+                description: prev?.description || ""
+            }));
+            trackPostAdEvent({ event: "ai_title_generated" });
+            return;
+        }
+
         if (!options?.forceRegenerate && aiCache && aiCache.contextSignature === contextSignature) {
-            const cachedValue = targetField === 'title' ? aiCache.title : aiCache.description;
+            const cachedValue = aiCache.description;
             if (cachedValue) {
-                const truncated = cachedValue.slice(0, targetField === 'title' ? MAX_AD_TITLE_CHARS : MAX_AD_DESCRIPTION_CHARS);
-                form.setValue(targetField, truncated, { shouldValidate: true });
-                form.trigger(targetField);
-                notify.success(`${targetField === 'title' ? 'Title' : 'Description'} generated from cache!`);
-                trackPostAdEvent({ event: `ai_${targetField}_generated_from_cache` });
+                const truncated = cachedValue.slice(0, MAX_AD_DESCRIPTION_CHARS);
+                form.setValue("description", truncated, { shouldValidate: true });
+                form.trigger("description");
+                trackPostAdEvent({ event: `ai_description_generated_from_cache` });
                 return;
             }
         }
@@ -109,9 +121,9 @@ export function usePostAdAiGeneration(
                 throw error;
             }
 
-            if (output && (output.title || output.description)) {
-                const newTitle = output.title || aiCache?.title || "";
-                const newDescription = output.description || aiCache?.description || "";
+            if (output && output.description) {
+                const newTitle = aiCache?.title || "";
+                const newDescription = output.description;
 
                 setAiCache({
                     contextSignature,
@@ -120,48 +132,29 @@ export function usePostAdAiGeneration(
                     description: newDescription
                 });
 
-                if (targetField === 'title' && output.title) {
-                    const truncated = output.title.slice(0, MAX_AD_TITLE_CHARS);
-                    form.setValue("title", truncated, { shouldValidate: true });
-                    form.trigger("title");
-                    notify.success("Title generated successfully!");
-                    trackPostAdEvent({ event: "ai_title_generated" });
-                }
-                if (targetField === 'description' && output.description) {
-                    const truncated = output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
-                    form.setValue("description", truncated, { shouldValidate: true });
-                    form.trigger("description");
-                    notify.success("Description generated successfully!");
-                    trackPostAdEvent({ event: "ai_description_generated" });
-                }
+                const truncated = output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
+                form.setValue("description", truncated, { shouldValidate: true });
+                form.trigger("description");
+                trackPostAdEvent({ event: "ai_description_generated" });
             }
         } catch {
             // Client-side instant fallback when network or API fails
             const condLabel = context.condition === 'power_on' ? 'Working Condition' : context.condition === 'power_off' ? 'Power Off' : context.condition !== 'device' ? context.condition : '';
-            if (targetField === 'title') {
-                const titleParts = [context.brand, context.model, condLabel].filter(Boolean);
-                const fallbackTitle = (titleParts.length > 0 ? titleParts.join(' - ') : `${context.category} for Sale`).slice(0, MAX_AD_TITLE_CHARS);
-                form.setValue("title", fallbackTitle, { shouldValidate: true });
-                form.trigger("title");
-                notify.success("Title generated successfully!");
-            } else {
-                const descLines = [
-                    `${context.brand} ${context.model} (${context.category}) for sale.`,
-                    condLabel ? `Condition: ${condLabel}.` : '',
-                    context.workingParts ? `Working parts: ${context.workingParts}.` : '',
-                    'Genuine item listed for sale on Esparex marketplace.'
-                ].filter(Boolean);
-                const fallbackDesc = descLines.join(' ').slice(0, MAX_AD_DESCRIPTION_CHARS);
-                form.setValue("description", fallbackDesc, { shouldValidate: true });
-                form.trigger("description");
-                notify.success("Description generated successfully!");
-            }
+            const descLines = [
+                `${context.brand} ${context.model} (${context.category}) for sale.`,
+                condLabel ? `Condition: ${condLabel}.` : '',
+                context.workingParts ? `Working parts: ${context.workingParts}.` : '',
+                'Genuine item listed for sale on Esparex marketplace.'
+            ].filter(Boolean);
+            const fallbackDesc = descLines.join(' ').slice(0, MAX_AD_DESCRIPTION_CHARS);
+            form.setValue("description", fallbackDesc, { shouldValidate: true });
+            form.trigger("description");
             setFormError(null);
             trackPostAdEvent({ event: "ai_generation_failure", field: targetField, metadata: { fallback: true } });
         } finally {
             setIsGeneratingAI(null);
         }
-    }, [categoryMap, availableSpareParts, form, setFormError, isGeneratingAI, isAiAvailable, aiCache]);
+    }, [categoryMap, availableSpareParts, form, setFormError, isGeneratingAI, isAiAvailable, aiCache, titleVariantIndex]);
 
     return { generateDescription, isGeneratingAI, isAiAvailable, aiCache };
 }

@@ -11,15 +11,16 @@ import {
 } from "@/lib/legal";
 import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: 'Terms of Service | Esparex',
     description: 'Review the official Terms of Service, Marketplace User Agreement, and Ad Posting Rules for using Esparex — India\'s electronics and spare parts ecosystem.',
-    alternates: { canonical: 'https://esparex.in/terms' },
+    alternates: { canonical: toCanonicalUrl('/terms') },
     openGraph: {
         title: 'Terms of Service | Esparex',
         description: 'Read the official Terms of Service and user agreement for the Esparex marketplace.',
-        url: 'https://esparex.in/terms',
+        url: toCanonicalUrl('/terms'),
         images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     },
 };
