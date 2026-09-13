@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { base } from '@esparex/design-tokens';
 import { PushToken } from '../domain/PushToken';
 import {
   IPushNotificationService,
@@ -26,7 +27,7 @@ async function ensureAndroidChannel(): Promise<void> {
     description: 'Alerts for messages and listing activity.',
     importance:  Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 250, 250, 250],
-    lightColor: '#0ea5e9', // sky-500
+    lightColor: base.brand[600], // Primary Green (#16A34A)
     showBadge: true,
   });
 }

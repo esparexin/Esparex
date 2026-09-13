@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSection";
 import { ListingDescriptionTab } from "./ListingDescriptionTab";
 import { ListingWorkingSparePartsTab, extractSparePartItems } from "./ListingWorkingSparePartsTab";

@@ -62,7 +62,7 @@ export const getModels = async (req: Request, res: Response) => {
     if (categoryObjectId) Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryObjectId] }).build());
     if (!isAdminView && brandObjectId) { const be = await checkBrandInCategories(brandObjectId, activeCategoryIds); if (!be) return sendEmptyPublicList(res); }
     return handlePaginatedContent(req, res, CatalogModel, {
-        populate: isAdminView ? undefined : 'brandId categoryIds parentModelId variantOfModelId',
+        populate: 'brandId categoryIds parentModelId variantOfModelId',
         adminQuery, publicQuery, searchFields: ['name', 'displayName', 'canonicalName', 'slug', 'aliases', 'synonyms'],
         queryParams: { ...(req.query as QueryRecord) }, transformResponse: includeVariants ? populateModelVariants : undefined,
     });

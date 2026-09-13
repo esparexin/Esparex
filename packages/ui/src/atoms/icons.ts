@@ -147,6 +147,7 @@ export {
   PlusCircle,
   Power,
   PowerOff,
+  Printer,
   Radio,
   Radius,
   RefreshCcw,

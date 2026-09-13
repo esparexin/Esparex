@@ -22,7 +22,7 @@ function getGitBranch() {
       return head.replace("ref: refs/heads/", "");
     }
     return "detached";
-  } catch (_e) {
+  } catch {
     return "unknown";
   }
 }
@@ -31,7 +31,7 @@ function loadBaseline() {
   if (!fs.existsSync(BASELINE_PATH)) return null;
   try {
     return JSON.parse(fs.readFileSync(BASELINE_PATH, "utf8"));
-  } catch (_e) {
+  } catch {
     return null;
   }
 }
@@ -75,7 +75,7 @@ function recordTelemetry(results, hasBlockers) {
     try {
       history = JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
       if (!Array.isArray(history)) history = [];
-    } catch (_e) {
+    } catch {
       history = [];
     }
   }
@@ -108,11 +108,22 @@ function recordTelemetry(results, hasBlockers) {
   const archCheck = results.find((r) => r.meta?.id === "ARCH-PLATFORM-001");
   const ssotCheck = results.find((r) => r.meta?.id === "SSOT-001");
 
+  const TOOLING_SUMMARY_PATH = path.resolve(__dirname, "../../.tooling/check-summary.json");
+  let liveArchScore = 100;
+  if (fs.existsSync(TOOLING_SUMMARY_PATH)) {
+    try {
+      const ts = JSON.parse(fs.readFileSync(TOOLING_SUMMARY_PATH, "utf8"));
+      if (typeof ts.score === "number") liveArchScore = ts.score;
+    } catch {
+      // Non-blocking fallback to default liveArchScore
+    }
+  }
+
   const summary = {
     updatedAt: timestamp,
     status: latestRun.status,
     healthScore,
-    architectureScore: archCheck && archCheck.errors.length === 0 ? 100 : 0,
+    architectureScore: archCheck && archCheck.errors.length === 0 ? liveArchScore : 0,
     ssotStatus: ssotCheck && ssotCheck.errors.length === 0 ? "PASS" : "FAIL",
     ratchet: {
       initialDebtCount: 29, // Historical total baseline count before PR 4B

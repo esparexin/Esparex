@@ -45,6 +45,9 @@ function assertPattern(content, pattern, message) {
 const page = read(pagePath);
 const api = read(apiPath);
 
+const hookPath = path.join(root, "src", "hooks", "useSystemConfig.ts");
+const hook = read(hookPath);
+
 // API contract guard: settings updates must use PATCH.
 assertPattern(
     api,
@@ -52,11 +55,16 @@ assertPattern(
     "Settings API regression: updateSystemConfig must use PATCH /system/config."
 );
 
-// Page connector guards.
+// Hook & Page connector guards.
+assertPattern(
+    hook,
+    /import\s+\{\s*getSystemConfig,\s*updateSystemConfig\s*\}\s+from\s+"@\/lib\/api\/systemConfig"/,
+    "Settings hook regression: canonical systemConfig API connector import missing."
+);
 assertPattern(
     page,
-    /import\s+\{\s*getSystemConfig,\s*updateSystemConfig\s*\}\s+from\s+"@\/lib\/api\/systemConfig"/,
-    "Settings page regression: canonical systemConfig API connector import missing."
+    /useSystemConfig\(\)/,
+    "Settings page regression: useSystemConfig hook invocation missing."
 );
 assertPattern(
     page,

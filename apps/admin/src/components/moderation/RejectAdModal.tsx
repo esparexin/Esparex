@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Button,
 } from "@esparex/ui";
 import { useMemo, useState } from "react";
 
@@ -51,16 +52,16 @@ export function RejectAdModal({
     return (
         <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent className="w-[calc(100%-2rem)] max-w-lg p-0">
-                <DialogHeader className="border-b border-slate-100 px-6 py-4">
+                <DialogHeader className="border-b border-border px-6 py-4">
                     <DialogTitle>{`Reject ${entityLabel.charAt(0).toUpperCase()}${entityLabel.slice(1)}`}</DialogTitle>
-                    <DialogDescription className="text-xs text-foreground-tertiary">
+                    <DialogDescription className="text-caption text-foreground-tertiary">
                         {title ? `${entityLabel}: ${title}` : `${affectedCount} selected ${entityLabel}(s)`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 px-6 py-5">
                     <div className="space-y-1.5">
-                        <label htmlFor="rejection-reason-select" className="block text-sm font-medium text-foreground-secondary">
+                        <label htmlFor="rejection-reason-select" className="block text-body font-medium text-foreground-secondary">
                             Rejection reason
                         </label>
                         <select
@@ -68,7 +69,7 @@ export function RejectAdModal({
                             value={reason}
                             onChange={(event) => setReason(event.target.value as (typeof REJECTION_REASONS)[number])}
                             aria-label="Rejection reason"
-                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-body text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                             {REJECTION_REASONS.map((item) => (
                                 <option key={item} value={item}>
@@ -79,7 +80,7 @@ export function RejectAdModal({
                     </div>
 
                     <div className="space-y-1.5">
-                        <label htmlFor="rejection-comment-textarea" className="block text-sm font-medium text-foreground-secondary">
+                        <label htmlFor="rejection-comment-textarea" className="block text-body font-medium text-foreground-secondary">
                             Comment (optional)
                         </label>
                         <textarea
@@ -88,27 +89,27 @@ export function RejectAdModal({
                             onChange={(event) => setComment(event.target.value)}
                             placeholder="Provide context for moderation history"
                             aria-label="Rejection comment"
-                            className="h-28 w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         />
                     </div>
                 </div>
 
-                <DialogFooter className="border-t border-slate-100 bg-slate-50 px-6 py-4">
-                    <button
+                <DialogFooter className="border-t border-border bg-muted/30 px-6 py-4 flex gap-2">
+                    <Button
                         type="button"
+                        variant="outline"
                         onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
+                        variant="destructive"
                         onClick={() => void onSubmit(finalReason)}
                         disabled={isSubmitting}
-                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/40"
                     >
                         {isSubmitting ? "Rejecting..." : "Reject"}
-                    </button>
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@esparex/ui";
 import dynamic from "next/dynamic";
-import { TrendingUp } from "@/icons/IconRegistry";
+import { TrendingUp } from "@esparex/ui";
 
 import { type Ad } from "@/schemas/ad.schema";
 

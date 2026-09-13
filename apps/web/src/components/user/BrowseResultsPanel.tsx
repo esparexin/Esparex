@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, type ComponentType, type ReactNode } from "react";
-import { RefreshCw } from "@/icons/IconRegistry";
+import { RefreshCw } from "@esparex/ui";
 
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";

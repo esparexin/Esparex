@@ -6,107 +6,15 @@ import {
     formatLocationResponse,
     AppError,
     asString,
-    normalizeLocationInput,
     normalizeLocationLevel,
     withPublicCanonicalLocationFilter,
-    buildNormalizedFromLocationDoc,
     mapLocationDocsToResponses
 } from './_shared/locationServiceBase';
 import type {
-    LocationInputObject,
     GeoJSONPoint,
     NormalizedLocationResponse
 } from './_shared/locationServiceBase';
 export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
-import { mapToLocationResponse } from './LocationNormalizer';
-export const ingestLocation = async (payload: {
-    name: string;
-    city?: string;
-    district?: string;
-    state?: string;
-    country?: string;
-    coordinates: GeoJSONPoint;
-    level?: string;
-    [key: string]: unknown;
-}): Promise<NormalizedLocationResponse> => {
-    if (payload.coordinates?.coordinates) {
-        const [lng, lat] = payload.coordinates.coordinates;
-        if (lng === 0 && lat === 0) {
-            throw new AppError('Invalid null-island coordinate', 400, 'INVALID_COORDINATES');
-        }
-    }
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-        const normalizedPayload = await normalizeLocationInput(payload, {
-            documentId: new mongoose.Types.ObjectId(),
-            resolveHierarchy: true,
-            defaultCountry: 'Unknown'
-        });
-
-        // Dedup by normalizedName + level + parentId (state field removed Sprint 3)
-        let existing = await Location.findOne({
-            isActive: true,
-            normalizedName: normalizedPayload.normalizedName,
-            level: normalizedPayload.level,
-            ...(normalizedPayload.parentId ? { parentId: normalizedPayload.parentId } : {})
-        }).session(session).lean();
-
-        if (existing) {
-            await session.commitTransaction();
-            void session.endSession();
-            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing));
-        }
-
-        const radiusInRadians = 2 / 6378.1; // 2km radius
-        existing = await Location.findOne({
-            isActive: true,
-            level: normalizedPayload.level,
-            coordinates: {
-                $geoWithin: {
-                    $centerSphere: [normalizedPayload.coordinates.coordinates, radiusInRadians]
-                }
-            }
-        }).session(session).lean();
-
-        if (existing) {
-            await session.commitTransaction();
-            void session.endSession();
-            return mapToLocationResponse(buildNormalizedFromLocationDoc(existing));
-        }
-
-        // city/state flat fields omitted — use parentId/path hierarchy (Sprint 3)
-        const [created] = await Location.create([{
-            _id: normalizedPayload.documentId,
-            name: normalizedPayload.name,
-            normalizedName: normalizedPayload.normalizedName,
-            slug: normalizedPayload.slug,
-            country: normalizedPayload.country,
-            level: normalizedPayload.level,
-            parentId: normalizedPayload.parentId,
-            path: normalizedPayload.path,
-            coordinates: normalizedPayload.coordinates,
-            aliases: normalizedPayload.aliases,
-            isActive: true,
-            isPopular: false
-        }], { session });
-
-        await session.commitTransaction();
-        void session.endSession();
-
-        if (created) {
-            const createdDoc = created as { toObject(): LocationInputObject };
-            return mapToLocationResponse(buildNormalizedFromLocationDoc(createdDoc.toObject()));
-        }
-        throw new AppError('Failed to create location document', 500, 'LOCATION_CREATE_FAILED');
-    } catch (error) {
-        await session.abortTransaction();
-        void session.endSession();
-        throw error;
-    }
-};
 
 /** Fetch city+state for a 6-digit Indian pincode via Nominatim (used as fallback) */
 export const getStateLocations = async (): Promise<NormalizedLocationResponse[]> => {

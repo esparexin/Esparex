@@ -1,4 +1,9 @@
-# Esparex AGENTS.md — Architecture Governance
+# Esparex AGENTS.md — Authoritative Architecture Governance (SSOT)
+
+> **AUTHORITY & ENFORCEMENT HIERARCHY:**  
+> This file is the single authoritative source of truth for AI agent and developer architectural governance across the Esparex repository.  
+> **AGENTS.md (Policy)** ──► **Mechanical Guards & Tooling** ──► **Composite `repo:gate`** ──► **CI Gate**.  
+> Parallel duplicate governance documents outside this hierarchy are deprecated.
 
 ## Similarity Threshold Rule
 
@@ -1075,7 +1080,7 @@ Safe-area insets and dynamic positioning concerns must use Tailwind arbitrary br
 1. **Tier 1 (Master SSOT Pillars)**: `AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`. Highest authority.
 2. **Tier 2 (AI Execution & Pre-Commit Gates)**: `AI_WORKFLOW.md`, `skill-orchestrator`, `clean-code`, `code-quality`. Mandatory lifecycle gates.
 3. **Tier 3 (Authoritative Monorepo Skills)**: `esparex-ui-ux`, `esparex_engineering_stack`. Binding constraints for design tokens, Geist font, and library limits.
-4. **Tier 4 (Auxiliary Design Guides)**: `design-system`, `brand`, `slides`, `banner-design`. Subordinate auxiliary guides. Must NEVER override Tier 1–3 invariants. Non-compliant generic templates (`ui-styling`, `ui-ux-pro-max`) are prohibited.
+4. **Tier 4 (Auxiliary Design Guides)**: Generic external templates (`design`, `design-system`, `brand`, `slides`, `banner-design`, `ui-styling`, `ui-ux-pro-max`) are deprecated and removed. All visual styling, tokens, and component guidelines are consolidated into Tier 3 `esparex-ui-ux`.
 
 ### 19.2 Canonical 10-Level Discrete Typography Scale (SSOT)
 All user-facing text across `@esparex/ui`, `apps/web`, `apps/admin`, and `apps/mobile` MUST consume canonical tokens:
@@ -1141,10 +1146,82 @@ The platform strictly standardizes on the **Green + Warm Neutral** design system
 - All styling MUST consume semantic design token utilities (`bg-primary`, `bg-card`, `border-border`, `text-foreground`, `text-foreground-secondary`, `bg-primary/10`).
 - Any updates to the palette MUST be executed in `packages/design-tokens/src/colors.ts` and compiled via `generate-css.ts`.
 
+---
 
+## 22. PROCESS CONCURRENCY & SYSTEM RESOURCE SAFETY GOVERNANCE STANDARD (MANDATORY)
 
+### 22.1 Core Architectural Principle
+Developer workstations and CI environments have finite CPU core and memory resources. Multi-process test runners (Jest/Vitest) and build tools by default spawn unconstrained worker pools proportional to `os.cpus().length` (typically 7–8 concurrent Node.js processes). In large monorepos with TypeScript transpilation (`ts-jest`), heavy in-memory database mocks, and active IDE language server watchers (`tsserver`), unconstrained concurrency saturates 100% of all CPU cores, leads to thermal throttling, memory exhaustion (>8 GB RAM), UI freezing, and system crashes.
 
+### 22.2 Mandatory Rules:
+1. **Single-Worker / In-Band Test Execution Invariant**:
+   - All Jest scripts across all workspaces (`packages/*`, `apps/*`, `backend/api`, `core`) MUST enforce single-worker execution via `--runInBand` or `maxWorkers: 1` in their `jest.config.js`.
+   - All Vitest scripts across all workspaces MUST enforce `--fileParallelism=false` and `--maxWorkers=1` / `--maxConcurrency=1`.
+   - Unconstrained worker pools (`jest` without flags, unthrottled Vitest workers) are strictly prohibited.
+2. **Sequential Gate & Validation Invariant**:
+   - Repository gate checks (`repo:gate`), validation suites (`governance:guards`), and linting pipelines MUST execute sequentially (`&&`), never in parallel via `concurrently` or background sub-process spawning.
+   - Child processes in validator scripts MUST use direct local binaries (`./node_modules/.bin/*`) to avoid intermediate `npx` wrapper process overhead.
+3. **Deduplicated Type-Check Invariant**:
+   - Foundational libraries (`design-tokens`, `contracts`, `shared`, `core`) MUST be compiled **once upfront** in root `build:libs`.
+   - Individual workspace `type-check` scripts MUST run pure `tsc --noEmit` and are STRICTLY FORBIDDEN from invoking nested `npm run build` chains of upstream packages.
+4. **Automated Enforcement**:
+   - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
 
+---
 
+## 23. CI/CD WORKFLOW CONSOLIDATION & BRANCH PROTECTION SYNCHRONIZATION GOVERNANCE STANDARD (MANDATORY)
+
+### 23.1 Core Architectural Principle
+Branch protection rulesets enforce required status checks that gate merging into integration branches (`develop`, `main`). When workflow jobs are consolidated, renamed, moved, or deleted, branch protection rulesets that reference obsolete job contexts will wait indefinitely for status reports that can never be delivered, causing silent, permanent PR blocks ("Waiting for status to be reported").
+
+### 23.2 Mandatory Rules:
+1. **Atomic Ruleset & Workflow Audit Invariant**:
+   - Whenever a GitHub Actions job/workflow is renamed, removed, merged, or moved between workflows, its corresponding branch-protection/ruleset required status checks MUST be audited and updated in the same change.
+   - No required check may reference a workflow or job that cannot execute for the protected event (e.g. referencing a job from a workflow without `pull_request` triggers on a PR-protected branch).
+2. **Canonical Single-Point Enforcement Invariant**:
+   - CI consolidation MUST NOT leave duplicate workflows or orphaned required checks.
+   - The canonical CI job (`Lint, Test, and Build Monorepo` in `.github/workflows/ci.yml`) is the single authoritative enforcement point for monorepo validation, and branch rulesets MUST reference only checks that are actually emitted by that canonical path.
+3. **No Phantom Job Re-introduction**:
+   - Re-adding dead workflow triggers or empty shim jobs purely to satisfy an orphaned branch protection check is strictly forbidden. The ruleset configuration must be corrected at the source.
+
+---
+
+## 24. GEOSPATIAL QUERY & REVERSE GEOCODE GOVERNANCE STANDARD (MANDATORY)
+
+### 24.1 Core Architectural Principle
+MongoDB `$near` queries return results sorted **purely by point-to-point distance**. When the Location collection contains settlements of varying importance (cities, districts, villages, areas), a raw `findOne()` with `$near` will return whichever settlement has its stored center-point coordinates closest to the input — regardless of whether the user is actually *inside* that settlement's real-world boundary. This causes tiny villages to shadow major cities when their stored coordinates happen to be marginally closer.
+
+### 24.2 Nominatim-Enhanced Reverse Geocode Architecture
+The canonical reverse geocode pipeline uses **OpenStreetMap Nominatim** (`NominatimGeocode.ts`) as the primary city/mandal resolution strategy, with raw `$near` as a degraded fallback only when Nominatim is unavailable.
+
+**Resolution Priority:**
+```text
+1. AdminBoundary $geoIntersects → identify state/region polygon
+2. Nominatim reverse geocode (zoom=10) → resolve correct city/mandal name
+3. Match Nominatim result back to internal Location DB by normalized name
+4. Fallback: raw $near if Nominatim is down or returns no match
+5. Regional fallback: state/country level $near
+```
+
+### 24.3 Mandatory Rules:
+1. **Nominatim-First City Resolution**:
+   - All reverse geocode queries MUST attempt `resolveSettlementWithNominatim()` from `NominatimGeocode.ts` before falling back to raw `$near`.
+   - `NominatimGeocode.ts` is the canonical SSOT for external geocode integration. Duplicate Nominatim callers are strictly prohibited.
+2. **Zero Raw `$near` + `findOne()` as Primary Reverse Geocoding Strategy**:
+   - Using `locationRepository.findOne()` with `$near` as the **primary** reverse geocode path is strictly prohibited. It is permitted ONLY as a degraded fallback when Nominatim returns `null`.
+3. **Nominatim Graceful Degradation**:
+   - `reverseGeocodeViaNominatim()` MUST resolve to `null` (never throw) on network errors, timeouts (4s ceiling), or unparseable responses.
+   - When Nominatim is unavailable, the pipeline MUST silently degrade to raw `$near` without user-facing errors.
+4. **DB Name Matching After Nominatim**:
+   - After obtaining a city/mandal name from Nominatim, the system MUST match it back to the internal Location DB using normalized name search (`normalizeLocationNameForSearch`) with optional proximity constraint.
+   - If no DB match is found for the Nominatim name, the pipeline falls through to `$near`.
+5. **Diagnostic Logging Invariant**:
+   - Every Nominatim resolution MUST log the resolved city name, county name, and state to enable production debugging of incorrect location matches.
+6. **Cache Invalidation on Location Data Changes**:
+   - When Location documents are created, updated (coordinates or level changed), or deleted, the reverse geocode cache keys (`geo:*`) for affected coordinate regions MUST be invalidated.
+7. **AdminBoundary Polygon Precedence**:
+   - When `AdminBoundary` polygon data exists for a region, `$geoIntersects` containment checks MUST take precedence over `$near` point-distance queries. The `resolveBoundaryMatch()` path is the primary resolution strategy; `findNearestReverseGeocodeCandidate()` is the fallback only when no boundary polygon covers the input coordinates.
+8. **User-Agent Compliance**:
+   - All Nominatim API requests MUST include a descriptive `User-Agent` header (`Esparex/1.0`) per OSM usage policy. Anonymous or generic user agents are prohibited.
 
 

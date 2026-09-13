@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeTo10Digits, formatMobileForApi, validateIndianMobile } from "@/lib/validation";
+import { normalizeTo10Digits, formatMobileForApi, validateIndianMobile } from "@/lib/mobileUtils";
 
 describe("OTP Lockout & Mobile Normalization Logic", () => {
   it("normalizes Indian mobile numbers into canonical 10-digit format", () => {

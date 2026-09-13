@@ -5,27 +5,35 @@ import { apiClient } from "@/lib/api/client";
 import { AUTH_SESSION_STORAGE_KEY } from "./authHelpers";
 
 export function useBackendReadyPoller(initialHasAuthCookie = false) {
-  const [backendReady, setBackendReady] = useState(false);
-  const [hasAuthHint, setHasAuthHint] = useState(initialHasAuthCookie);
+  const isLocalDevAuth =
+    process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH === "true" &&
+    process.env.NODE_ENV !== "production";
 
-  useEffect(() => {
-    if (initialHasAuthCookie || typeof window === "undefined") return;
+  const [backendReady, setBackendReady] = useState(isLocalDevAuth);
+  const [hasAuthHint, setHasAuthHint] = useState(() => {
+    if (initialHasAuthCookie) return true;
+    if (typeof window !== "undefined") {
+      try {
+        return localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
 
-    if (localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1") {
+  const [prevInitialAuth, setPrevInitialAuth] = useState(initialHasAuthCookie);
+  if (prevInitialAuth !== initialHasAuthCookie) {
+    setPrevInitialAuth(initialHasAuthCookie);
+    if (initialHasAuthCookie) {
       setHasAuthHint(true);
     }
-  }, [initialHasAuthCookie]);
+  }
 
   useEffect(() => {
-    let mounted = true;
+    if (isLocalDevAuth) return;
 
-    if (
-      process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH === "true" &&
-      process.env.NODE_ENV !== "production"
-    ) {
-      setBackendReady(true);
-      return;
-    }
+    let mounted = true;
 
     const BASE_DELAY_MS = 2_000;
     const MAX_DELAY_MS = 30_000;
@@ -63,7 +71,7 @@ export function useBackendReadyPoller(initialHasAuthCookie = false) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isLocalDevAuth]);
 
   return { backendReady, setBackendReady, hasAuthHint, setHasAuthHint };
 }

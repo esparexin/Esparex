@@ -1,8 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Eye, Pencil, Trash2 } from "@esparex/ui";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { Eye, Pencil, Trash2, DataTable, type ColumnDef } from "@esparex/ui";
 import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
 import { Business } from "@esparex/contracts";
@@ -30,8 +29,8 @@ const STATUS_STYLES: Record<
         dot: "bg-red-500",
     },
     deleted: {
-        pill: "bg-slate-100 text-foreground-secondary border-slate-200",
-        dot: "bg-slate-400",
+        pill: "bg-muted text-foreground-secondary border-border",
+        dot: "bg-foreground-tertiary",
     },
 };
 
@@ -43,8 +42,8 @@ export function BusinessStatusBadge({
     glowForLive?: boolean;
 }) {
     const styles = STATUS_STYLES[status] ?? {
-        pill: "bg-slate-100 text-foreground-secondary border-slate-200",
-        dot: "bg-slate-400",
+        pill: "bg-muted text-foreground-secondary border-border",
+        dot: "bg-foreground-tertiary",
     };
 
     return (
@@ -62,11 +61,11 @@ export function BusinessStatusBadge({
 }
 
 const ACTION_TONES: Record<"default" | "primary" | "success" | "danger" | "warning", string> = {
-    default: "hover:bg-slate-100 text-foreground-subtle hover:text-primary",
-    primary: "hover:bg-blue-50 text-foreground-subtle hover:text-blue-600",
+    default: "hover:bg-muted text-foreground-subtle hover:text-primary",
+    primary: "hover:bg-primary/10 text-foreground-subtle hover:text-primary",
     success: "hover:bg-emerald-50 text-foreground-subtle hover:text-emerald-600",
-    danger: "hover:bg-red-50 text-foreground-subtle hover:text-red-500",
-    warning: "hover:bg-orange-50 text-foreground-subtle hover:text-orange-600",
+    danger: "hover:bg-destructive/10 text-foreground-subtle hover:text-destructive",
+    warning: "hover:bg-amber-50 text-foreground-subtle hover:text-amber-600",
 };
 
 export function BusinessActionButton({

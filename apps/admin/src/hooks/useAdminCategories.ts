@@ -101,12 +101,23 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             const response = await deleteCategory(id);
             if (response.success) {
                 setCategories(prev => prev.filter(cat => cat.id !== id));
-                showAdminPopup({ type: "success", title: "Success", message: "Category deleted successfully" });
+                showAdminPopup({ 
+                    type: "success", 
+                    title: "Success", 
+                    message: response.message || "Category deleted successfully" 
+                });
+                void fetchCategories();
             } else {
                 showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to delete category" });
             }
         } catch (err: unknown) {
             const anyErr = err as { status?: number; payload?: { dependencies?: Record<string, number> } };
+            if (anyErr?.status === 404) {
+                setCategories(prev => prev.filter(cat => cat.id !== id));
+                showAdminPopup({ type: "info", title: "Notice", message: "Category was already deleted" });
+                void fetchCategories();
+                return;
+            }
             if (anyErr?.status === 409 && anyErr?.payload?.dependencies) {
                 const deps = anyErr.payload.dependencies;
                 const details = [

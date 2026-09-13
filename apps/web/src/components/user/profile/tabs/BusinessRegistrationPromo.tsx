@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@esparex/ui";
-import { Building2, CheckCircle2 } from "@/icons/IconRegistry";
+import { Building2, CheckCircle2 } from "@esparex/ui";
 
 interface BusinessRegistrationPromoProps {
   onRegister: () => void;

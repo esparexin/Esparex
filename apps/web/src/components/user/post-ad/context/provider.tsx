@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo, ReactNode } from "react";
 import type { Listing } from "@/lib/api/user/listings/normalizer";
 import type { ListingImage, ListingLocation } from "@/types/listing";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 import { useNavigation } from "@/context/NavigationContext";
 import { LISTING_TYPE } from "@esparex/contracts";
@@ -74,7 +73,6 @@ export function PostAdProvider({
     );
     const { setIsDirty } = useNavigation();
 
-    useEffect(() => { const cleanup = suppressGoogleMapsRetryErrors(); return cleanup; }, []);
     useEffect(() => {
         // After a successful submission, the success modal becomes the terminal UI.
         // The navigation guard must remain disabled until resetToCreateMode() starts a fresh session.

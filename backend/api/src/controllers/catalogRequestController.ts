@@ -1,17 +1,17 @@
 import type { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
 import * as CatalogRequestService from '@esparex/core/domains/catalog/application/services/CatalogRequestService';
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
 import { sendErrorResponse } from '../utils/errorResponse';
+import { logAdminAction } from '../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import {
     approveCatalogRequest,
     markCatalogRequestDuplicate,
     rejectCatalogRequest,
 } from '@esparex/core/domains/catalog/application/requests/catalogRequestApprovalService';
-import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
-import { NOTIFICATION_TYPE } from '@esparex/contracts';
-import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
 
 const getAdminActorId = (req: Request): string => {
     const actorId = req.admin?._id ?? req.user?._id ?? req.user?.id;
@@ -40,95 +40,6 @@ const sendControllerError = (req: Request, res: Response, error: unknown) => {
     });
 };
 
-const buildStatusUpdateMessage = (
-    request: ICatalogRequest,
-    status: 'approved' | 'rejected' | 'duplicate' | 'merged',
-    details?: Record<string, unknown>
-): { title: string; body: string; data: Record<string, unknown> } => {
-    const subject = request.requestType === 'brand' ? 'brand' : 'model';
-
-    if (status === 'approved') {
-        return {
-            title: 'Catalog request approved',
-            body: `Your ${subject} request "${request.requestedName}" has been approved.`,
-            data: {
-                kind: 'catalog_request_reviewed',
-                catalogRequestId: String(request._id),
-                requestType: request.requestType,
-                status,
-                ...details,
-            },
-        };
-    }
-
-    if (status === 'duplicate' || status === 'merged') {
-        return {
-            title: 'Catalog request linked to existing entry',
-            body: `Your ${subject} request "${request.requestedName}" matched an existing catalog entry.`,
-            data: {
-                kind: 'catalog_request_reviewed',
-                catalogRequestId: String(request._id),
-                requestType: request.requestType,
-                status,
-                ...details,
-            },
-        };
-    }
-
-    return {
-        title: 'Catalog request rejected',
-        body: `Your ${subject} request "${request.requestedName}" was rejected. Please submit a corrected request.`,
-        data: {
-            kind: 'catalog_request_reviewed',
-            catalogRequestId: String(request._id),
-            requestType: request.requestType,
-            status,
-            ...details,
-        },
-    };
-};
-
-/**
- * Notify ALL users who submitted this suggestion (requestedByUsers[]).
- * Falls back to requestedBy if the array is empty.
- */
-const notifyRequesterReviewOutcome = async (
-    request: ICatalogRequest,
-    status: 'approved' | 'rejected' | 'merged',
-    details?: Record<string, unknown>
-): Promise<void> => {
-    try {
-        const message = buildStatusUpdateMessage(request, status as 'approved' | 'rejected' | 'duplicate', details);
-
-        const userIds: string[] = Array.isArray(request.requestedByUsers) && request.requestedByUsers.length > 0
-            ? request.requestedByUsers.map(id => String(id))
-            : [String(request.requestedBy)];
-
-        // Deduplicate in case requestedBy appears twice
-        const uniqueIds = Array.from(new Set(userIds));
-
-        await Promise.allSettled(
-            uniqueIds.map(userId =>
-                NotificationDispatcher.dispatch(
-                    new NotificationIntent({
-                        userId,
-                        type: NOTIFICATION_TYPE.SYSTEM,
-                        entityRef: {
-                            domain: 'catalog_request',
-                            id: String(request._id),
-                        },
-                        message,
-                        priority: 'medium',
-                        channels: ['in-app'],
-                    })
-                )
-            )
-        );
-    } catch {
-        // Best effort notification only; review flow should not fail.
-    }
-};
-
 export const getAdminCatalogRequests = async (req: Request, res: Response) => {
     try {
         const query = req.query as {
@@ -146,7 +57,13 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
         const filter: Record<string, unknown> = {};
 
         if (query.status && query.status !== 'all') {
-            filter.status = query.status;
+            if (query.status === 'resolved') {
+                filter.status = { $in: ['resolved', 'approved', 'rejected', 'merged'] };
+            } else if (query.status === 'duplicate') {
+                filter.status = { $in: ['duplicate', 'merged'] };
+            } else {
+                filter.status = query.status;
+            }
         }
 
         if (query.requestType) {
@@ -154,10 +71,11 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
         }
 
         if (query.q) {
+            const safeSearch = escapeRegExp(query.q);
             filter.$or = [
-                { requestedName: { $regex: query.q, $options: 'i' } },
-                { canonicalName: { $regex: query.q, $options: 'i' } },
-                { normalizedName: { $regex: query.q, $options: 'i' } },
+                { requestedName: { $regex: safeSearch, $options: 'i' } },
+                { canonicalName: { $regex: safeSearch, $options: 'i' } },
+                { normalizedName: { $regex: safeSearch, $options: 'i' } },
             ];
         }
 
@@ -194,10 +112,6 @@ export const approveCatalogRequestByAdmin = async (req: Request, res: Response) 
             adminNotes: body.adminNotes,
         });
 
-        void notifyRequesterReviewOutcome(result.request, 'approved', {
-            approvedEntityId: String(result.resolvedEntityId),
-        });
-
         return sendSuccessResponse(res, {
             request: result.request,
             approvedEntityId: result.resolvedEntityId,
@@ -220,10 +134,6 @@ export const rejectCatalogRequestByAdmin = async (req: Request, res: Response) =
             adminNotes: body.adminNotes,
         });
 
-        void notifyRequesterReviewOutcome(result.request, 'rejected', {
-            rejectionReason: result.request.rejectionReason,
-        });
-
         return sendSuccessResponse(res, {
             request: result.request,
         }, 'Catalog request rejected successfully');
@@ -235,22 +145,24 @@ export const rejectCatalogRequestByAdmin = async (req: Request, res: Response) =
 export const markCatalogRequestMergedByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const body = req.body as { mergedIntoEntityId: string; adminNotes?: string };
+        const body = req.body as { duplicateOfEntityId?: string; mergedIntoEntityId?: string; adminNotes?: string };
+        const targetEntityId = body.duplicateOfEntityId ?? body.mergedIntoEntityId;
+
+        if (!targetEntityId) {
+            throw new AppError('duplicateOfEntityId or mergedIntoEntityId is required', 400, 'DUPLICATE_TARGET_REQUIRED');
+        }
 
         const result = await markCatalogRequestDuplicate({
             requestId: getParamId(req),
             adminId,
-            duplicateOfEntityId: body.mergedIntoEntityId,
+            duplicateOfEntityId: targetEntityId,
             adminNotes: body.adminNotes,
-        });
-
-        void notifyRequesterReviewOutcome(result.request, 'merged', {
-            mergedIntoEntityId: String(result.resolvedEntityId),
         });
 
         return sendSuccessResponse(res, {
             request: result.request,
             mergedIntoEntityId: result.resolvedEntityId,
+            duplicateOfEntityId: result.resolvedEntityId,
         }, 'Catalog request merged into existing entity successfully');
     } catch (error) {
         return sendControllerError(req, res, error);
@@ -307,15 +219,12 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
 
 const processBulkCatalogAction = async <T extends { request: ICatalogRequest; resolvedEntityId?: unknown }>(
     requestIds: string[],
-    actionFn: (id: string) => Promise<T>,
-    outcomeStatus: 'approved' | 'rejected' | 'merged',
-    getOutcomeDetails?: (result: T) => Record<string, unknown>
+    actionFn: (id: string) => Promise<T>
 ) => {
     const results = [];
     for (const requestId of requestIds) {
         try {
-            const result = await actionFn(requestId);
-            void notifyRequesterReviewOutcome(result.request, outcomeStatus, getOutcomeDetails ? getOutcomeDetails(result) : undefined);
+            await actionFn(requestId);
             results.push({ id: requestId, status: 'success' });
         } catch (err) {
             results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
@@ -331,9 +240,7 @@ export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Respo
         
         const results = await processBulkCatalogAction(
             requestIds,
-            (requestId) => approveCatalogRequest({ requestId, adminId }),
-            'approved',
-            (result) => ({ approvedEntityId: String(result.resolvedEntityId) })
+            (requestId) => approveCatalogRequest({ requestId, adminId })
         );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
@@ -349,9 +256,7 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
         
         const results = await processBulkCatalogAction(
             requestIds,
-            (requestId) => rejectCatalogRequest({ requestId, adminId, rejectionReason: reason }),
-            'rejected',
-            (result) => ({ rejectionReason: result.request.rejectionReason })
+            (requestId) => rejectCatalogRequest({ requestId, adminId, rejectionReason: reason })
         );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
@@ -363,16 +268,63 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
 export const bulkMarkCatalogRequestsMergedByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const { requestIds, mergedIntoEntityId } = req.body as { requestIds: string[]; mergedIntoEntityId: string };
+        const { requestIds, mergedIntoEntityId, duplicateOfId } = req.body as {
+            requestIds: string[];
+            mergedIntoEntityId?: string;
+            duplicateOfId?: string;
+        };
+        const targetEntityId = duplicateOfId ?? mergedIntoEntityId;
+
+        if (!targetEntityId) {
+            throw new AppError('duplicateOfId or mergedIntoEntityId is required', 400, 'DUPLICATE_TARGET_REQUIRED');
+        }
         
         const results = await processBulkCatalogAction(
             requestIds,
-            (requestId) => markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: mergedIntoEntityId }),
-            'merged',
-            (result) => ({ mergedIntoEntityId: String(result.resolvedEntityId) })
+            (requestId) => markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: targetEntityId })
         );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const deleteCatalogRequestByAdmin = async (req: Request, res: Response) => {
+    try {
+        const id = getParamId(req);
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return sendErrorResponse(req, res, 400, 'Invalid catalog request ID');
+        }
+
+        const request = await CatalogRequestService.deleteCatalogRequestById(id);
+        if (!request) {
+            return sendErrorResponse(req, res, 404, 'Catalog request not found');
+        }
+
+        await logAdminAction(req, 'DELETE_CATALOG_REQUEST', 'CatalogRequest', id, {
+            requestedName: request.requestedName,
+            requestType: request.requestType,
+        });
+
+        return sendSuccessResponse(res, { id }, 'Catalog request deleted successfully');
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const bulkDeleteCatalogRequestsByAdmin = async (req: Request, res: Response) => {
+    try {
+        const { requestIds } = req.body as { requestIds: string[] };
+
+        const { deletedCount } = await CatalogRequestService.bulkDeleteCatalogRequests(requestIds);
+
+        await logAdminAction(req, 'BULK_DELETE_CATALOG_REQUESTS', 'CatalogRequest', 'bulk', {
+            deletedCount,
+            requestIds,
+        });
+
+        return sendSuccessResponse(res, { deletedCount }, `Deleted ${deletedCount} catalog requests`);
     } catch (error) {
         return sendControllerError(req, res, error);
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import { RefObject, useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
-import { useIsMobile } from "@/components/ui/useMobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import LocationSelector from "@/components/location/LocationSelector";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, Z_INDEX } from "@esparex/ui";
 import { useDismissableLayer } from "@/hooks/useDismissableLayer";

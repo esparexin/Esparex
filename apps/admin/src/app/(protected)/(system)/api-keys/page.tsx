@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
+import { DataTable, type ColumnDef, StatusChip, Button, Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { ApiKeyItem } from "@/types/adminSession";
-import { Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { useApiKeys } from "@/hooks/useApiKeys";
 
 export default function ApiKeysPage() {
@@ -105,34 +103,34 @@ export default function ApiKeysPage() {
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                     <div className="mb-3 flex items-center gap-2 text-foreground">
                         <Plus size={16} />
-                        <h2 className="text-base font-semibold">Create API Key</h2>
+                        <h2 className="text-body-lg font-semibold">Create API Key</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
                         <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Internal integrations"
                             value={name}
                             disabled={isMutating}
                             onChange={(event) => setName(event.target.value)}
                         />
                         <input
-                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
+                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Scope list, comma separated"
                             value={scopes}
                             disabled={isMutating}
                             onChange={(event) => setScopes(event.target.value)}
                         />
-                        <button
+                        <Button
                             type="button"
+                            variant="primary"
                             disabled={isMutating}
                             onClick={() => void onCreateKey()}
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-70"
                         >
                             {isMutating ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Create
-                        </button>
+                        </Button>
                     </div>
                     {newKey && (
                         <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800 animate-in fade-in slide-in-from-top-2">
@@ -146,9 +144,7 @@ export default function ApiKeysPage() {
                 </div>
 
                 <AdminFilterToolbar
-                    search=""
-                    onSearchChange={() => { }}
-                    searchPlaceholder="API key search not supported"
+                    showSearch={false}
                     status={statusFilter}
                     onStatusChange={(value) => setStatusFilter(value)}
                     statusOptions={[

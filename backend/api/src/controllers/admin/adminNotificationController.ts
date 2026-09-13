@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { NOTIFICATION_TYPE } from "@esparex/contracts";
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import {
+    NotificationIntent,
+    NotificationDispatcher,
+    createAdminNotificationTargetCursor,
+} from "@esparex/core/domains/notifications";
 import {
     createNotificationLog,
     createScheduledNotification,
@@ -14,8 +18,6 @@ import {
     sendSuccessResponse,
 } from '../../utils/adminBaseController';
 import { logAdminAction } from "../../utils/adminLogger";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@esparex/core/models/User";
 import { type INotificationLog } from "@esparex/core/models/NotificationLog";
 import { type IScheduledNotification } from "@esparex/core/models/ScheduledNotification";
@@ -67,15 +69,15 @@ async function dispatchToAudience(params: {
 
     for await (const user of cursor) {
         batch.push(
-            NotificationIntent.fromAdminBroadcast(
-                user._id.toString(),
-                params.audienceId,
-                params.title,
-                params.body,
-                params.kind,
-                params.targetType,
-                params.actionUrl
-            )
+            NotificationIntent.fromAdminBroadcast({
+                userId: user._id.toString(),
+                broadcastId: params.audienceId,
+                title: params.title,
+                body: params.body,
+                kind: params.kind,
+                targetType: params.targetType,
+                actionUrl: params.actionUrl,
+            })
         );
 
         if (batch.length >= BATCH_SIZE) {

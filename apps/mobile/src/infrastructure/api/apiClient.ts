@@ -1,7 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axiosRetry, { isNetworkOrIdempotentRequestError } from 'axios-retry';
 import * as Crypto from 'expo-crypto';
-import { API_V1_BASE_PATH } from '@esparex/shared';
 import { TokenProvider } from './TokenProvider';
 import { SecureStoreAdapter } from '../auth/SecureStoreAdapter';
 import { Platform } from 'react-native';
@@ -98,12 +97,10 @@ apiClient.interceptors.request.use(
     let correlationId: string;
     try {
       correlationId = Crypto.randomUUID();
-    } catch (e) {
+    } catch {
       correlationId = Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
     config.headers.set('X-Correlation-ID', correlationId);
-
-    const fullUrl = `${config.baseURL}${config.url}`;
 
     // 2. Attach Authorization Token if available
     const token = await TokenProvider.getAccessToken();

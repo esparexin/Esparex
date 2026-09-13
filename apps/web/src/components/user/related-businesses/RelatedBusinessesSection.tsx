@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, ChevronRight, RefreshCcw } from "@/icons/IconRegistry";
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCcw } from "@esparex/ui";
 
 import { getBusinesses } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";

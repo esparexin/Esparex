@@ -1,5 +1,4 @@
-import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
-import { LocationFacade } from "@esparex/shared";
+import { sanitizeLocationLabel, LocationFacade } from "@esparex/shared";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;

@@ -103,11 +103,10 @@ Always determine:
 **Flow:**
 1. Esparex UI/UX SSOT (`esparex-ui-ux` — Geist typography, `@esparex/design-tokens`, `@esparex/ui`)
 2. Engineering Stack Boundaries (`esparex_engineering_stack`)
-3. Auxiliary Design Reference (`ui-ux-pro-max`, `ui-styling` — strictly subordinate to Tier 3)
-4. Accessibility (`WCAG 2.2 AA`, visible focus rings, semantic HTML)
-5. Single-Instance Responsive Verification (CSS media queries, no `Desktop*` vs `Mobile*` duplication)
-6. Typography SSOT Guard (`node scripts/enforce-typography-ssot.js`)
-7. Frontend Testing (`npm test -w @esparex/apps-web`)
+3. Accessibility (`WCAG 2.2 AA`, visible focus rings, semantic HTML)
+4. Single-Instance Responsive Verification (CSS media queries, no `Desktop*` vs `Mobile*` duplication)
+5. Typography SSOT Guard (`node scripts/enforce-typography-ssot.js`)
+6. Frontend Testing (`npm test -w @esparex/apps-web`)
 
 ### 11. Security Review
 **Flow:**
@@ -142,15 +141,15 @@ Phase B: Mathematical Platform Gate Closeout (Mandatory)
   ├── 2. `npm run guard:design-token-adoption` (0 raw color/inline style violations)
   ├── 3. `npm run guard:pr-quality` (0 file size/ratchet violations)
   ├── 4. `npm run type-check` (0 TypeScript errors across all workspaces)
-  └── 5. `npm run repo:gate` (18/18 Checks PASS, Health Score 100%)
+  └── 5. `npm run repo:gate` (All Checks PASS, Health Score 100%)
 ```
 
 ---
 
 ## Skill Context Streamlining Principle
 
-- **Auxiliary Design Skills** (`banner-design`, `slides`, `ui-ux-pro-max`) MUST remain dormant during refactoring, technical debt remediation, backend, and bug-fixing tasks to conserve context for architecture invariants and strict type checking.
-- When performing UI work, Tier 3 skills (`esparex-ui-ux`, `esparex_engineering_stack`) strictly govern over Tier 4 auxiliary guides.
+- The canonical Esparex UI/UX skill (`esparex-ui-ux`) strictly governs all UI work alongside `esparex_engineering_stack`.
+- Generic or alien external design templates are deprecated; all components must consume `@esparex/ui` primitives and `@esparex/design-tokens`.
 
 ---
 

@@ -2,7 +2,11 @@
 
 import { useEffect } from "react";
 import type { LocationData, LocationStatus } from "@/types/location";
-import { LOCATION_PROMPT_DISMISSED_KEY } from "./useLocationStorage";
+import {
+    SEARCH_LOCATION_STORAGE_KEY,
+    LOCATION_PROMPT_DISMISSED_KEY,
+} from "./useLocationStorage";
+import { parseStoredAppLocation } from "./locationStorage.helpers";
 
 export function useMultiTabLocationSync({
     setLocation,
@@ -17,13 +21,11 @@ export function useMultiTabLocationSync({
 }) {
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === "esparex_app_location" && e.newValue) {
-                try {
-                    const newLocation = JSON.parse(e.newValue) as LocationData;
-                    setLocation(newLocation);
-                    setStatus(getLocationStatus(newLocation.source));
-                } catch {
-                    // Ignore parse errors
+            if (e.key === SEARCH_LOCATION_STORAGE_KEY && e.newValue) {
+                const storedLocation = parseStoredAppLocation(e.newValue);
+                if (storedLocation) {
+                    setLocation(storedLocation);
+                    setStatus(getLocationStatus(storedLocation.source));
                 }
             } else if (e.key === LOCATION_PROMPT_DISMISSED_KEY) {
                 setPromptDismissed(e.newValue === "true");

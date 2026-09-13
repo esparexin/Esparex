@@ -5,6 +5,7 @@ jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
     default: {
         findOne: jest.fn(),
+        findById: jest.fn(),
         updateOne: jest.fn(),
     },
 }));
@@ -257,6 +258,103 @@ describe(
                 );
             }
         );
+
+        it("returns generic 'Invalid email or password' on non-existent account (anti-user enumeration)", async () => {
+            mockAdmin.findOne.mockReturnValue({
+                select: jest.fn().mockResolvedValue(null),
+            });
+
+            const req = {
+                body: { email: "nonexistent@example.com", password: "Password123" },
+                headers: {},
+                socket: { remoteAddress: "127.0.0.1" },
+                originalUrl: "/api/v1/admin/login",
+            } as any;
+
+            const res = createMockRes(req);
+            await adminLogin(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    error: "Invalid email or password",
+                })
+            );
+        });
+
+        it("returns generic 'Invalid email or password' and records failed login on password mismatch", async () => {
+            const adminDoc = {
+                _id: "507f1f77bcf86cd799439011",
+                email: "ops@example.com",
+                password: "hashed-password",
+                status: USER_STATUS.LIVE,
+            };
+
+            mockAdmin.findOne.mockReturnValue({
+                select: jest.fn().mockResolvedValue(adminDoc),
+            });
+            mockAdmin.findById = jest.fn().mockReturnValue({
+                select: jest.fn().mockResolvedValue({ failedLoginAttempts: 2 }),
+            });
+
+            const { comparePassword } = require("@esparex/core/utils/auth");
+            comparePassword.mockResolvedValueOnce(false);
+
+            const req = {
+                body: { email: "ops@example.com", password: "WrongPassword" },
+                headers: {},
+                socket: { remoteAddress: "127.0.0.1" },
+                originalUrl: "/api/v1/admin/login",
+            } as any;
+
+            const res = createMockRes(req);
+            await adminLogin(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    error: "Invalid email or password",
+                })
+            );
+            expect(mockAdmin.updateOne).toHaveBeenCalledWith(
+                { _id: expect.anything() },
+                { $set: { failedLoginAttempts: 3 } }
+            );
+        });
+
+        it("blocks login and returns 429 when admin account is temporarily locked", async () => {
+            const lockedAdmin = {
+                _id: "507f1f77bcf86cd799439011",
+                email: "ops@example.com",
+                password: "hashed-password",
+                status: USER_STATUS.LIVE,
+                lockUntil: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes in future
+            };
+
+            mockAdmin.findOne.mockReturnValue({
+                select: jest.fn().mockResolvedValue(lockedAdmin),
+            });
+
+            const req = {
+                body: { email: "ops@example.com", password: "Admin@12345" },
+                headers: {},
+                socket: { remoteAddress: "127.0.0.1" },
+                originalUrl: "/api/v1/admin/login",
+            } as any;
+
+            const res = createMockRes(req);
+            await adminLogin(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(429);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    success: false,
+                    error: expect.stringContaining("Account is temporarily locked"),
+                })
+            );
+        });
 
         it(
             "resets password without pre-hashing in controller (model hook handles hashing)",

@@ -1,4 +1,5 @@
 module.exports = {
+    maxWorkers: 1,
     preset: 'ts-jest',
     testEnvironment: 'node',
     testMatch: ['**/__tests__/**/*.spec.ts', '**/tests/**/*.spec.ts', '**/__tests__/**/*.test.ts'],

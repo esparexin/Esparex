@@ -257,12 +257,23 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     return mongoFilter;
 }
 
+interface ChainableQuery {
+    select?: () => unknown;
+    lean?: () => unknown;
+    exec?: () => Promise<unknown>;
+}
+
 async function resolveMongoQuery<T>(q: unknown): Promise<T> {
-    let curr: any = q;
-    if (curr && typeof curr.select === 'function') curr = curr.select();
-    if (curr && typeof curr.lean === 'function') curr = curr.lean();
-    if (curr && typeof curr.exec === 'function') curr = await curr.exec();
-    else curr = await curr;
+    let curr: unknown = q;
+    if (typeof curr === 'object' && curr !== null) {
+        const query = curr as ChainableQuery;
+        if (typeof query.select === 'function') curr = query.select();
+        if (typeof (curr as ChainableQuery).lean === 'function') curr = (curr as ChainableQuery).lean!();
+        if (typeof (curr as ChainableQuery).exec === 'function') curr = await (curr as ChainableQuery).exec!();
+        else curr = await curr;
+    } else {
+        curr = await curr;
+    }
     return curr as T;
 }
 

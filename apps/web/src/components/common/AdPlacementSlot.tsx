@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { InContentPlacementId, AdCampaignItem } from "@esparex/contracts";
 import { useAdPlacement } from "@/hooks/useAdPlacement";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface AdPlacementSlotProps {
   placement: InContentPlacementId;

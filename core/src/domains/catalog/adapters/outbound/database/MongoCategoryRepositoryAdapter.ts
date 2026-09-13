@@ -45,9 +45,10 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
         };
     }
 
-    async findById(id: string, tx?: unknown): Promise<Category | null> {
+    async findById(id: string, includeDeleted?: boolean, tx?: unknown): Promise<Category | null> {
         const safeId = typeof id === 'string' ? id : String(id);
         const query = CategoryModel.findById(safeId).lean<DbCategory | null>();
+        if (includeDeleted) query.setOptions({ withDeleted: true });
         if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;

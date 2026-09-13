@@ -45,7 +45,7 @@ const jscpdFile = path.join(AUDIT_DIR, 'jscpd-report.json');
 if (fs.existsSync(jscpdFile)) {
   try {
     jscpdData = JSON.parse(fs.readFileSync(jscpdFile, 'utf8'));
-  } catch (_e) {
+  } catch {
     /* ignore read error */
   }
 }
@@ -56,7 +56,7 @@ const knipOutput = runCmd('npx knip --reporter json');
 let _knipData = [];
 try {
   _knipData = JSON.parse(knipOutput);
-} catch (_e) {
+} catch {
   /* ignore parse error */
 }
 
@@ -108,7 +108,7 @@ function scanDirectories() {
   function checkEmpty(d) {
     if (d.includes('node_modules') || d.includes('.next') || d.includes('dist') || d.includes('.git') || d.includes('graphify-out') || d.includes('.venv')) return;
     let items = [];
-    try { items = fs.readdirSync(d); } catch (_e) { return; }
+    try { items = fs.readdirSync(d); } catch { return; }
     if (items.length === 0) {
       emptyDirs.push(path.relative(ROOT, d));
       return;
@@ -119,7 +119,7 @@ function scanDirectories() {
         if (fs.statSync(full).isDirectory()) {
           checkEmpty(full);
         }
-      } catch (_e) {
+      } catch {
         /* ignore broken symlinks or unreadable entries */
       }
     }

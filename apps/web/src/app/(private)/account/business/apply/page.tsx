@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Container } from "@esparex/ui";
 import { PageSection } from "@/components/layout";
-import { CheckCircle2, LayoutDashboard, Wrench, Phone } from "@/icons/IconRegistry";
+import { CheckCircle2, LayoutDashboard, Wrench, Phone } from "@esparex/ui";
 import { BusinessProfileFlow } from "@/components/user/business-registration/BusinessProfileFlow";
 import { BusinessApplicationStatus } from "@/components/user/profile/BusinessApplicationStatus";
 import { useCurrentUser as useUser } from "@/hooks/useCurrentUser";

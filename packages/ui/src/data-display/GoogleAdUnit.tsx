@@ -36,7 +36,7 @@ export function GoogleAdUnit({
       if (typeof window !== "undefined") {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       }
-    } catch (err) {
+    } catch {
       setAdFailed(true);
     }
   }, [slot]);

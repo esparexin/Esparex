@@ -44,6 +44,14 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
     metadataBase,
     applicationName: 'Esparex',
+    title: {
+        default: 'Esparex — Buy & Sell Spare Parts & Refurbished Electronics Online',
+        template: '%s | Esparex',
+    },
+    description: "India's marketplace for genuine mobile spare parts, refurbished electronics, and repair services. Buy and sell electronics online across India.",
+    verification: {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    },
     manifest: '/manifest.json',
     icons: {
         icon: [

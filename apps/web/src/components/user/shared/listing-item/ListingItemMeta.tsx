@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Clock } from "@/icons/IconRegistry";
-import { cn } from "@/components/ui/utils";
+import { Clock } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 
 export interface MetaBadge {

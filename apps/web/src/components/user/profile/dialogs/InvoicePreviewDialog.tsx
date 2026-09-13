@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@esparex/ui";
-import { FileText, Download, Printer, Loader2, CheckCircle2 } from "@/icons/IconRegistry";
+import { FileText, Download, Printer, Loader2, CheckCircle2 } from "@esparex/ui";
 import { fetchInvoiceHtml, downloadInvoiceFile } from "@/lib/api/user/payments";
 import { notify } from "@/lib/feedback";
 
@@ -32,14 +32,18 @@ export function InvoicePreviewDialog({
     const [loading, setLoading] = useState<boolean>(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
+    const [prevOrderId, setPrevOrderId] = useState<string | null>(null);
+    const activeOrderId = open ? orderId : null;
+    if (prevOrderId !== activeOrderId) {
+        setPrevOrderId(activeOrderId);
+        setHtml("");
+        setLoading(!!activeOrderId);
+    }
+
     useEffect(() => {
-        if (!open || !orderId) {
-            setHtml("");
-            return;
-        }
+        if (!open || !orderId) return;
 
         let isSubscribed = true;
-        setLoading(true);
 
         fetchInvoiceHtml(orderId)
             .then((data) => {

@@ -41,3 +41,16 @@ export function buildUrlWithSearchParams(pathname: string, params: URLSearchPara
     const query = params.toString();
     return query ? `${pathname}?${query}` : pathname;
 }
+
+export function replaceAdminQueryState(
+    router: { replace: (url: string, options?: { scroll?: boolean }) => void },
+    pathname: string,
+    searchParams: SearchParamSource,
+    updates: Record<string, SearchParamValue>
+): void {
+    const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
+    const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
+    if (nextUrl !== currentUrl) {
+        router.replace(nextUrl, { scroll: false });
+    }
+}

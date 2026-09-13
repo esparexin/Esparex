@@ -9,15 +9,16 @@ import {
 } from "@/lib/legal";
 import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: 'Privacy Policy | Esparex',
     description: 'Understand how Esparex collects, uses, stores, protects, and deletes your personal and business data. Read our complete privacy practices, data retention schedule, and user rights.',
-    alternates: { canonical: 'https://esparex.in/privacy' },
+    alternates: { canonical: toCanonicalUrl('/privacy') },
     openGraph: {
         title: 'Privacy Policy | Esparex',
         description: 'Read the official Esparex Privacy Policy for electronic spare parts and repair services marketplace.',
-        url: 'https://esparex.in/privacy',
+        url: toCanonicalUrl('/privacy'),
         images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     },
 };
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 const privacyPageSchema = buildWebPageSchema({
     name: "Privacy Policy | Esparex",
     description: "Understand how Esparex collects, uses, stores, protects, and deletes your personal and business data under DPDP Act 2023.",
-    url: "https://esparex.in/privacy",
+    url: toCanonicalUrl('/privacy'),
     datePublished: "2026-08-26",
     dateModified: "2026-08-26",
 });

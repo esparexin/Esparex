@@ -1,12 +1,13 @@
 "use client";
 
-import { cn } from "@/components/ui/utils";
+import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { Service } from "@/lib/api/user/businesses";
 import type { Ad } from "@/schemas/ad.schema";
 import { LISTING_TYPE } from "@esparex/contracts";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button, Card, CardContent, LayoutGrid, Search, X } from "@esparex/ui";
 
 export type ListingTab = "ads" | "services" | "spare-parts";
 
@@ -43,63 +44,111 @@ export function BusinessCatalogTabs({
   onTabChange,
   activeItems,
 }: BusinessCatalogTabsProps) {
+  const [query, setQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    if (!query.trim()) return activeItems;
+    const q = query.toLowerCase().trim();
+    return activeItems.filter((item) => {
+      const title = String(item.title || "").toLowerCase();
+      const cat = String(item.category || "").toLowerCase();
+      return title.includes(q) || cat.includes(q);
+    });
+  }, [activeItems, query]);
+
   if (tabs.length === 0) {
     return (
-      <Card className="rounded-2xl border-border shadow-2xs bg-card">
-        <CardContent className="py-8 text-center text-caption text-foreground-subtle font-normal">
-          This business does not have any live public listings yet.
+      <Card className="rounded-2xl border-border shadow-xs bg-card">
+        <CardContent className="py-12 text-center text-caption text-foreground-subtle font-medium">
+          This store does not have any live public listings yet.
         </CardContent>
       </Card>
     );
   }
 
+  const activeTabLabel = tabs.find((t) => t.key === effectiveActiveTab)?.label || "Products";
+
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        role="tablist"
-        aria-label="Business catalog tabs"
-        className="flex gap-1.5 border-b border-border pb-1 overflow-x-auto scrollbar-hide"
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            id={`tab-${tab.key}`}
-            role="tab"
-            type="button"
-            aria-selected={effectiveActiveTab === tab.key}
-            aria-controls={`tabpanel-${tab.key}`}
-            onClick={() => onTabChange(tab.key)}
-            className={cn(
-              "-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-caption font-semibold transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-t-lg",
-              effectiveActiveTab === tab.key
-                ? "border-primary text-primary font-bold"
-                : "border-transparent text-foreground-subtle hover:text-foreground font-normal"
+    <div className="flex flex-col gap-4">
+      {/* Tab Segment Controls & In-Store Search Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div
+          role="tablist"
+          aria-label="Store catalog categories"
+          className="flex items-center gap-1.5 p-1 bg-muted/50 rounded-2xl border border-border/70 overflow-x-auto scrollbar-hide max-w-full"
+        >
+          {tabs.map((tab) => {
+            const isActive = effectiveActiveTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                id={`tab-${tab.key}`}
+                role="tab"
+                type="button"
+                aria-selected={isActive}
+                aria-controls={`tabpanel-${tab.key}`}
+                onClick={() => {
+                  onTabChange(tab.key);
+                  setQuery("");
+                }}
+                className={cn(
+                  "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-caption font-semibold transition-all whitespace-nowrap cursor-pointer select-none",
+                  isActive
+                    ? "bg-card text-foreground shadow-xs border border-border font-bold"
+                    : "text-foreground-secondary hover:text-foreground hover:bg-muted/60"
+                )}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+                <span
+                  className={cn(
+                    "ml-0.5 rounded-full px-1.5 py-0.2 text-tiny font-bold",
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-foreground-subtle"
+                  )}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Quick In-Store Filter */}
+        {activeItems.length > 3 && (
+          <div className="relative w-full sm:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={`Search in ${activeTabLabel.toLowerCase()}...`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full pl-8 pr-7 h-9 text-caption bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                aria-label="Clear search"
+              >
+                <X className="size-3.5" />
+              </button>
             )}
-          >
-            {tab.icon}
-            <span>{tab.label}</span>
-            <span
-              className={cn(
-                "ml-1 rounded-full px-1.5 text-tiny font-bold",
-                effectiveActiveTab === tab.key
-                  ? "bg-primary/10 text-primary"
-                  : "bg-muted text-foreground-subtle"
-              )}
-            >
-              {tab.count}
-            </span>
-          </button>
-        ))}
+          </div>
+        )}
       </div>
 
+      {/* Tab Panel Content */}
       <div
         id={`tabpanel-${effectiveActiveTab}`}
         role="tabpanel"
         aria-labelledby={`tab-${effectiveActiveTab}`}
       >
-        {activeItems.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3">
-            {activeItems.map((item, index) => {
+        {filteredItems.length > 0 ? (
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3.5">
+            {filteredItems.map((item, index) => {
               const record = item as Record<string, unknown>;
               const id = String(record.id || record._id || "");
               return (
@@ -113,15 +162,29 @@ export function BusinessCatalogTabs({
             })}
           </div>
         ) : (
-          <p className="py-8 text-center text-caption text-foreground-subtle font-normal bg-card rounded-2xl border border-border">
-            No{" "}
-            {effectiveActiveTab === "ads"
-              ? "listings"
-              : effectiveActiveTab === "services"
-                ? "services"
-                : "spare parts"}{" "}
-            available.
-          </p>
+          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center rounded-2xl border border-border bg-card shadow-xs">
+            <div className="size-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
+              <LayoutGrid className="size-5" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground text-caption sm:text-body">
+                {query ? `No items found matching "${query}"` : `No ${activeTabLabel.toLowerCase()} currently available.`}
+              </p>
+              <p className="text-caption text-foreground-subtle max-w-xs leading-relaxed">
+                {query ? "Try checking for typos or searching a different keyword." : "Check back later or browse other categories."}
+              </p>
+            </div>
+            {query && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuery("")}
+                className="h-8 rounded-lg text-caption font-semibold mt-1"
+              >
+                Clear filter
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Wrench, AlertTriangle, Loader2 } from "@esparex/ui";
+import { Wrench, AlertTriangle, Loader2, Button } from "@esparex/ui";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
@@ -20,7 +19,7 @@ import {
     validateRequiredCategoryIds,
 } from "@/components/catalog/catalogDomainUtils";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useCatalogTabState } from "@/hooks/useCatalogTabState";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
@@ -54,8 +53,6 @@ export default function SparePartsTab() {
     const initialIsActive = normalizeActiveParam(searchParams.get("isActive"));
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
 
-    const [searchInput, setSearchInput] = useState(initialSearch);
-
     const {
         parts,
         loading,
@@ -84,16 +81,22 @@ export default function SparePartsTab() {
         assignableCategoryIdSet: assignableSpareCategoryIds,
     } = useAssignableCategories(categories, categorySupportsSpareParts);
 
-    const { replaceQueryState } = useCatalogQueryStateSync({
+    const {
         searchInput,
-        initialSearch,
-        loading,
-        initialPage,
+        setSearchInput,
+        deletingItem,
+        setDeletingItem,
+        isDeleting,
+        setIsDeleting,
+        replaceQueryState,
+    } = useCatalogTabState<SparePart>({
         totalPages: pagination.totalPages,
+        loading,
+        initialSearch,
+        initialCategoryId,
+        initialStatus: initialIsActive,
+        initialPage,
     });
-
-    const [deletingItem, setDeletingItem] = useState<SparePart | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     const confirmDelete = async () => {
         if (!deletingItem) return;
@@ -257,10 +260,10 @@ export default function SparePartsTab() {
                             />
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">
+                                <label className="text-tiny font-bold text-foreground-tertiary uppercase tracking-wider">
                                     Visible In
                                 </label>
-                                <div className="flex gap-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div className="flex gap-4 p-3 bg-muted/20 border border-border rounded-lg">
                                     {[
                                         { id: LISTING_TYPE.AD, label: "Device Ad Flow" },
                                         { id: LISTING_TYPE.SPARE_PART, label: "Spare Parts Marketplace" },
@@ -268,7 +271,7 @@ export default function SparePartsTab() {
                                         <label key={listingType.id} className="flex items-center gap-2 cursor-pointer group">
                                             <input
                                                 type="checkbox"
-                                                className="w-4 h-4 rounded text-primary border-slate-300 focus:ring-primary/20"
+                                                className="w-4 h-4 rounded text-primary border-input focus-visible:ring-2 focus-visible:ring-primary/40"
                                                 checked={formData.listingType.includes(listingType.id as "ad" | "spare_part")}
                                                 onChange={() => {
                                                     setFormData((prev) => ({
@@ -279,7 +282,7 @@ export default function SparePartsTab() {
                                                     }));
                                                 }}
                                             />
-                                            <span className="text-sm font-medium text-foreground-secondary group-hover:text-primary transition-colors">
+                                            <span className="text-body font-medium text-foreground-secondary group-hover:text-primary transition-colors">
                                                 {listingType.label}
                                             </span>
                                         </label>
@@ -339,18 +342,18 @@ export default function SparePartsTab() {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
-                        <button
+                        <Button
+                            variant="outline"
                             disabled={isDeleting}
                             onClick={() => setDeletingItem(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-foreground-secondary hover:bg-slate-50 hover:text-foreground transition-all disabled:opacity-50"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             autoFocus
+                            variant="destructive"
                             disabled={isDeleting}
                             onClick={confirmDelete}
-                            className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-all shadow-sm active:transform active:scale-95 disabled:opacity-75"
                         >
                             {isDeleting ? (
                                 <>
@@ -360,7 +363,7 @@ export default function SparePartsTab() {
                             ) : (
                                 "Confirm Delete"
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </CatalogModal>

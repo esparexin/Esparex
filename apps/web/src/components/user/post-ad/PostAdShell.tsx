@@ -3,7 +3,7 @@
 import React, { useCallback } from "react";
 import { usePostAdAction, usePostAdState } from "./context";
 import { PostAdFormSkeleton } from "./loading/PostAdFormSkeleton";
-import { AlertCircle, RefreshCcw, WifiOff } from "@/icons/IconRegistry";
+import { AlertCircle, RefreshCcw, WifiOff } from "@esparex/ui";
 import { useBackendStatus } from "@/context/BackendStatusContext";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { Button } from "@esparex/ui";

@@ -4,7 +4,7 @@ import { useSyncExternalStore, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@esparex/ui";
-import { ShieldCheck, X } from "@/icons/IconRegistry";
+import { ShieldCheck, X } from "@esparex/ui";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { cn } from "@/lib/utils";
 

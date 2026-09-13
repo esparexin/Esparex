@@ -6,9 +6,7 @@ import { PageShell, Search, X } from "@esparex/ui";
 import { AdminGlobalSearch } from "./AdminGlobalSearch";
 
 export { AdminPagination } from "./AdminPagination";
-export { AdminEmptyState } from "./AdminEmptyState";
 export { AdminActionMenu } from "./AdminActionMenu";
-export { MobileRowCard } from "./MobileRowCard";
 
 type AdminPageShellProps = {
     title: string;
@@ -77,7 +75,7 @@ export function AdminPageShell({
                         className="w-full max-w-xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="relative rounded-2xl bg-white shadow-2xl p-2 border border-slate-200">
+                        <div className="relative rounded-2xl bg-card shadow-2xl p-2 border border-border">
                             <AdminGlobalSearch autoFocus onClose={() => setFloatingSearchOpen(false)} />
                             <div className="flex items-center justify-between px-3 pb-1 pt-2">
                                 <p className="text-caption text-foreground-tertiary">Press ESC or click outside to close.</p>

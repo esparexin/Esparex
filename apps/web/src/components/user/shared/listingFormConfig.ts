@@ -1,7 +1,7 @@
 import type { ZodTypeAny } from "zod";
 import type { LISTING_TYPE } from "@esparex/contracts";
 import type { AccountListingSection } from "@/lib/accountListingRoutes";
-import type { LucideIcon } from "@/icons/IconRegistry";
+import type { LucideIcon } from "@esparex/ui";
 
 export interface ListingFormConfig {
     /** Target listing type: SERVICE or SPARE_PART */

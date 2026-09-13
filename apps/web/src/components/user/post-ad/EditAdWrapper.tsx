@@ -4,29 +4,30 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getListingById } from "@/lib/api/user/listings";
 import { usePostAdAction } from "./context";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Loader2 } from "@esparex/ui";
 
 export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     const params = useParams();
     const id = params?.id as string | undefined;
     const { initializeFromListing, setLoadError } = usePostAdAction();
 
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(!!id);
+    const [error, setError] = useState<string | null>(!id ? "No listing ID provided in route" : null);
+
+    const [prevId, setPrevId] = useState(id);
+    if (prevId !== id) {
+        setPrevId(id);
+        setIsLoading(!!id);
+        setError(!id ? "No listing ID provided in route" : null);
+    }
 
     useEffect(() => {
-        if (!id) {
-            setError("No listing ID provided in route");
-            setIsLoading(false);
-            return;
-        }
+        if (!id) return;
 
         let isMounted = true;
 
         async function fetchListing() {
             try {
-                setIsLoading(true);
-                setError(null);
                 const data = await getListingById(id as string);
                 if (!data) {
                     throw new Error("Listing not found or you do not have permission to edit it.");

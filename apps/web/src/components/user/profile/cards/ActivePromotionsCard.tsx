@@ -1,6 +1,6 @@
 import React from 'react';
 import type { PromotionDTO } from '@esparex/contracts';
-import { Zap } from '@/icons/IconRegistry';
+import { Zap } from "@esparex/ui";
 import { Card, CardContent } from '@esparex/ui';
 
 interface ActivePromotionsCardProps {

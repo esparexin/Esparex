@@ -4,143 +4,88 @@
  * Listing Expiry & Cache Invalidation Sweep Script
  * Esparex Monorepo Maintenance Utility
  * 
+ * Delegates directly to the canonical domain lifecycle service:
+ * ListingExpiryService.runSweep()
+ * 
  * Usage:
  *   npx tsx scripts/sweep-expired-listings.ts --dry-run
  *   npx tsx scripts/sweep-expired-listings.ts --apply
  */
 
 import path from 'path';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { LISTING_STATUS } from '@esparex/contracts';
+import { connectDB, closeDB } from '../core/src/config/db';
+import { ListingExpiryService } from '../core/src/services/lifecycle/ListingExpiryService';
+import { getListingRepository } from '../core/src/composition/listings';
+import { client as redisClient } from '../core/src/utils/redisCache';
 
 dotenv.config({ path: path.resolve(__dirname, '../backend/api/.env') });
 dotenv.config({ path: path.resolve(__dirname, '../apps/web/.env.local') });
 
 const isDryRun = process.argv.includes('--dry-run') || !process.argv.includes('--apply');
-const userMongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
-const adminMongoUri = process.env.ADMIN_MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';
-const MS_IN_DAY = 24 * 60 * 60 * 1000;
-const EXPIRY_DAYS = 30;
-const THIRTY_DAYS_AGO = new Date(Date.now() - EXPIRY_DAYS * MS_IN_DAY);
-
-async function sweepDb(mongoUri: string, label: string): Promise<void> {
-    console.log(`\n--- Inspecting Database: ${label} ---`);
-    console.log(`URI: ${mongoUri.replace(/:[^:@]+@/, ':****@')}`);
-    let conn: mongoose.Connection | undefined;
-    try {
-        conn = await mongoose.createConnection(mongoUri, { serverSelectionTimeoutMS: 5000 }).asPromise();
-        const adsCollection = conn.db?.collection('ads');
-        if (!adsCollection) return;
-
-        const pastThirtyDaysFilter = {
-            status: LISTING_STATUS.LIVE,
-            createdAt: { $lt: THIRTY_DAYS_AGO }
-        };
-        const pastThirtyDaysCount = await adsCollection.countDocuments(pastThirtyDaysFilter);
-        console.log(`[1] Live ads created > 30 days ago: ${pastThirtyDaysCount}`);
-        if (pastThirtyDaysCount > 0) {
-            const oldAds = await adsCollection.find(pastThirtyDaysFilter, { projection: { title: 1, listingType: 1, createdAt: 1, approvedAt: 1, expiresAt: 1, status: 1 } }).toArray();
-            console.log('    Details:', JSON.stringify(oldAds, null, 2));
-        }
-
-        const expiredByDateFilter = {
-            status: LISTING_STATUS.LIVE,
-            expiresAt: { $lte: new Date() }
-        };
-        const expiredByDateCount = await adsCollection.countDocuments(expiredByDateFilter);
-        console.log(`[2] Live ads with expiresAt <= now: ${expiredByDateCount}`);
-
-        const missingExpiryFilter = {
-            status: LISTING_STATUS.LIVE,
-            expiresAt: null
-        };
-        const missingExpiryCount = await adsCollection.countDocuments(missingExpiryFilter);
-        console.log(`[3] Live ads with null/missing expiresAt: ${missingExpiryCount}`);
-
-        if (!isDryRun) {
-            const combinedExpireFilter = {
-                status: LISTING_STATUS.LIVE,
-                $or: [
-                    { createdAt: { $lt: THIRTY_DAYS_AGO } },
-                    { expiresAt: { $lte: new Date() } }
-                ]
-            };
-
-            const expireResult = await adsCollection.updateMany(
-                combinedExpireFilter,
-                {
-                    $set: {
-                        status: LISTING_STATUS.EXPIRED,
-                        isSpotlight: false,
-                        isChatLocked: true,
-                        updatedAt: new Date()
-                    }
-                }
-            );
-            console.log(`✅ [${label}] Transitioned ${expireResult.modifiedCount} ads to status: '${LISTING_STATUS.EXPIRED}'`);
-
-            const remainingLiveMissingExpiry = {
-                status: LISTING_STATUS.LIVE,
-                expiresAt: null
-            };
-            const populateResult = await adsCollection.updateMany(
-                remainingLiveMissingExpiry,
-                {
-                    $set: {
-                        expiresAt: new Date(Date.now() + LISTING_LIFECYCLE_CONSTANTS.EXPIRY_DAYS * MS_IN_DAY),
-                        updatedAt: new Date()
-                    }
-                }
-            );
-            if (populateResult.modifiedCount > 0) {
-                console.log(`✅ [${label}] Populated 30-day expiresAt for ${populateResult.modifiedCount} valid live ads`);
-            }
-        }
-    } catch (error) {
-        console.warn(`⚠️ [${label}] Connection/Sweep error: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-        if (conn) await conn.close();
-    }
-}
-
-async function clearRedisCaches(): Promise<void> {
-    const redisUrl = process.env.REDIS_URL;
-    if (!redisUrl) return;
-    try {
-        const { default: Redis } = await import('ioredis');
-        const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1, connectTimeout: 4000 });
-        await redis.connect();
-        const keys = await redis.keys('home_feed:*');
-        const feedKeys = await redis.keys('feed:*');
-        const allKeys = [...keys, ...feedKeys];
-        if (allKeys.length > 0) {
-            await redis.del(...allKeys);
-            console.log(`🧹 Flushed ${allKeys.length} Redis feed cache keys.`);
-        } else {
-            console.log('✅ Redis feed cache was clean (0 stale keys).');
-        }
-        await redis.quit();
-    } catch (e) {
-        console.warn(`⚠️ Redis cache flush note: ${e instanceof Error ? e.message : String(e)}`);
-    }
-}
 
 async function run(): Promise<void> {
     console.log('\n======================================================');
     console.log(`  Esparex Listing Expiry Sweep (${isDryRun ? 'DRY RUN' : 'APPLY MODE'})`);
+    console.log('  SSOT: ListingExpiryService.runSweep()');
     console.log('======================================================\n');
-    console.log(`30-Day Policy Threshold Date: ${THIRTY_DAYS_AGO.toISOString()}`);
 
-    await sweepDb(userMongoUri, 'esparex_user (User Listings)');
-    if (adminMongoUri && adminMongoUri !== userMongoUri) {
-        await sweepDb(adminMongoUri, 'esparex_admin (Admin Listings)');
+    const now = new Date();
+
+    try {
+        await connectDB();
+
+        if (isDryRun) {
+            console.log(`[Dry Run] Inspecting listings expiring on or before ${now.toISOString()}...`);
+            const expiring = await getListingRepository().find({
+                status: LISTING_STATUS.LIVE,
+                expiresAt: { $lte: now },
+                isDeleted: false,
+            });
+
+            console.log(`Found ${expiring.length} live listing(s) eligible for expiry sweep.`);
+            if (expiring.length > 0) {
+                console.log('Sample eligible listings:');
+                expiring.slice(0, 10).forEach((item) => {
+                    const expiresStr = item.expiresAt ? new Date(item.expiresAt).toISOString() : 'null';
+                    console.log(`  - [${item.id}] ${item.title} (expiresAt: ${expiresStr})`);
+                });
+                if (expiring.length > 10) {
+                    console.log(`  ... and ${expiring.length - 10} more.`);
+                }
+            }
+            console.log('\nDry run complete. No database mutations were applied. Run with --apply to execute lifecycle sweep.');
+        } else {
+            console.log('[Apply] Executing canonical ListingExpiryService.runSweep()...');
+            const result = await ListingExpiryService.runSweep(now);
+            console.log('✅ Expiry sweep completed:');
+            console.log(`   - Expired Count: ${result.expiredCount}`);
+            console.log(`   - Touched Count: ${result.touchedCount}`);
+            if (result.listingIds.length > 0) {
+                console.log(`   - Listing IDs: ${result.listingIds.join(', ')}`);
+            }
+        }
+    } catch (err) {
+        console.error('❌ Expiry sweep failed:', err instanceof Error ? err.message : String(err));
+        process.exitCode = 1;
+    } finally {
+        try {
+            await closeDB();
+        } catch {
+            // ignore close errors
+        }
+        if (redisClient && redisClient.status !== 'end') {
+            try {
+                await redisClient.quit();
+            } catch {
+                // ignore redis quit errors
+            }
+        }
     }
-    
-    if (!isDryRun) {
-        await clearRedisCaches();
-    }
+
     console.log('\n======================================================\n');
 }
 
 void run();
+

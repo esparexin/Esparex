@@ -10,8 +10,8 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
 } from "@esparex/ui";
-import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2, type LucideIcon } from "@/icons/IconRegistry";
+import { Separator } from "@esparex/ui";
+import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2, type LucideIcon } from "@esparex/ui";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { type Business, withdrawBusiness } from "@/lib/api/user/businesses";
 import { notify } from "@/lib/feedback";

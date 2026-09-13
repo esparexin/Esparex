@@ -1,8 +1,9 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -12,7 +13,6 @@ import { AdminApiError } from "@/lib/api/adminClient";
 import {
   Lock,
   Mail,
-  Shield,
   Eye,
   EyeOff,
   LogIn,
@@ -20,7 +20,6 @@ import {
   Loader2,
   KeyRound,
   Heading,
-  Text,
   Form,
   FieldRoot,
   FieldControl,
@@ -63,7 +62,10 @@ function LoginForm() {
     },
   });
 
-  const twoFactorCodeValue = form.watch("twoFactorCode");
+  const twoFactorCodeValue = useWatch({
+    control: form.control,
+    name: "twoFactorCode",
+  });
 
   useEffect(() => {
     if (!authLoading) return;
@@ -155,49 +157,60 @@ function LoginForm() {
   const showSpinner = authLoading && !submitting && !authCheckTimedOut;
   if (showSpinner) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-100 via-slate-50 to-white p-4">
-      <div className="w-full max-w-[420px] space-y-8">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-background p-4 overflow-hidden selection:bg-primary/20 selection:text-primary">
+      {/* Decorative ambient background glows */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[360px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-3xl rounded-full" />
+      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-gradient-to-t from-primary/10 via-primary/5 to-transparent blur-3xl rounded-full" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:28px_28px] text-foreground/[0.04]" />
+
+      <div className="relative w-full max-w-[420px] space-y-6">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-xl shadow-primary/20 mb-4 animate-in zoom-in duration-500">
-            <Shield className="text-white w-8 h-8" />
+          <div className="flex justify-center mb-2 animate-in zoom-in duration-500">
+            <Image
+              src="/icons/logo.png"
+              alt="Esparex Logo"
+              width={160}
+              height={40}
+              priority
+              className="h-8 w-auto object-contain"
+            />
           </div>
-          <Heading variant="h1">Esparex Admin</Heading>
-          <Text variant="small" className="text-foreground-tertiary">Secure access to the command center</Text>
+          <Heading variant="h2" className="font-extrabold tracking-tight">Sign In</Heading>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="bg-card/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-xl border border-border isolate animate-in fade-in slide-in-from-bottom-4 duration-500">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FieldRoot<LoginFormValues, "email">
                 name="email"
                 render={({ field }) => (
                   <div className="space-y-1.5">
-                    <FieldLabel className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1">
+                    <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5">
                       Email Address
                     </FieldLabel>
                     <FieldControl animateOnError>
                       <InputGroup>
                         <InputPrefix>
-                          <Mail size={18} />
+                          <Mail size={18} className="text-foreground-subtle" />
                         </InputPrefix>
                         <Input
                           placeholder="Your admin email address"
                           type="email"
                           autoComplete="username"
-                          className="pl-10"
+                          className="pl-10 h-11 text-body-lg md:text-body bg-background/50 focus:bg-background transition-colors"
                           disabled={submitting}
                           {...field}
                         />
                       </InputGroup>
                     </FieldControl>
-                    <FieldMessage className="ml-1 text-xs" />
+                    <FieldMessage className="ml-0.5 text-caption" />
                   </div>
                 )}
               />
@@ -206,19 +219,19 @@ function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <div className="space-y-1.5">
-                    <FieldLabel className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1">
+                    <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5">
                       Password
                     </FieldLabel>
                     <FieldControl animateOnError>
                       <InputGroup>
                         <InputPrefix>
-                          <Lock size={18} />
+                          <Lock size={18} className="text-foreground-subtle" />
                         </InputPrefix>
                         <Input
-                          placeholder="••••••••"
+                          placeholder="••••••••••••"
                           type={showPassword ? "text" : "password"}
                           autoComplete="current-password"
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-10 h-11 text-body-lg md:text-body bg-background/50 focus:bg-background transition-colors"
                           disabled={submitting}
                           {...field}
                         />
@@ -226,7 +239,7 @@ function LoginForm() {
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="flex items-center justify-center h-full w-full rounded-sm hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="flex items-center justify-center h-full w-full rounded-sm text-foreground-subtle hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                           >
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -234,7 +247,7 @@ function LoginForm() {
                         </InputSuffix>
                       </InputGroup>
                     </FieldControl>
-                    <FieldMessage className="ml-1 text-xs" />
+                    <FieldMessage className="ml-0.5 text-caption" />
                   </div>
                 )}
               />
@@ -244,8 +257,8 @@ function LoginForm() {
                   name="twoFactorCode"
                   render={({ field }) => (
                     <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <FieldLabel className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1 flex items-center gap-1.5">
-                        <KeyRound size={12} />
+                      <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5 flex items-center gap-1.5">
+                        <KeyRound size={12} className="text-amber-600" />
                         Two-Factor Authentication Code
                         <span className="text-destructive">*</span>
                       </FieldLabel>
@@ -256,23 +269,23 @@ function LoginForm() {
                             inputMode="numeric"
                             autoComplete="one-time-code"
                             disabled={submitting}
-                            className="text-center tracking-[0.2em] bg-amber-50 border-amber-300 focus-visible:ring-amber-400 focus-visible:border-amber-400"
+                            className="h-11 text-center tracking-[0.25em] text-body-lg md:text-body bg-amber-50/70 border-amber-300 focus-visible:ring-amber-400 focus-visible:border-amber-400 font-mono font-semibold"
                             {...field}
                           />
                         </InputGroup>
                       </FieldControl>
-                      <FieldDescription className="ml-1 text-xs text-amber-700">
+                      <FieldDescription className="ml-0.5 text-tiny text-amber-800">
                         Open your authenticator app and enter the 6-digit code.
                       </FieldDescription>
-                      <FieldMessage className="ml-1 text-xs" />
+                      <FieldMessage className="ml-0.5 text-caption" />
                     </div>
                   )}
                 />
               )}
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 text-red-600 rounded-xl text-xs font-semibold animate-in fade-in duration-200">
-                  <AlertCircle size={14} className="shrink-0" />
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200/80 text-red-700 rounded-xl text-caption font-semibold animate-in fade-in duration-200">
+                  <AlertCircle size={15} className="shrink-0 text-red-600" />
                   <span>{error}</span>
                 </div>
               )}
@@ -280,22 +293,27 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 group"
+                className="w-full h-11 bg-primary text-primary-foreground rounded-xl font-semibold text-body shadow-md shadow-primary/25 hover:bg-primary/90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group cursor-pointer"
               >
                 {submitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
                     <span>Sign In</span>
-                    <LogIn size={18} className="group-hover:translate-x-1 transition-transform" />
+                    <LogIn size={18} className="group-hover:translate-x-0.5 transition-transform" />
                   </>
                 )}
               </button>
             </form>
           </Form>
+
+          <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-center gap-1.5 text-tiny text-foreground-subtle">
+            <Lock size={12} className="text-primary/70" />
+            <span>256-bit Encrypted Admin Session</span>
+          </div>
         </div>
 
-        <p className="text-center text-foreground-subtle text-xs font-medium">
+        <p className="text-center text-foreground-subtle text-caption font-medium">
           &copy; {new Date().getFullYear()} Esparex Master Admin. All rights reserved.
         </p>
       </div>
@@ -307,7 +325,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
       }

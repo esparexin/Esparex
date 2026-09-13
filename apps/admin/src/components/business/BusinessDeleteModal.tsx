@@ -6,10 +6,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Button,
+  Trash2,
 } from "@esparex/ui";
 import { useState, type ReactNode } from "react";
-import { Trash2 } from "@esparex/ui";
-
 import { Business } from "@esparex/contracts";
 
 interface BusinessDeleteModalProps {
@@ -40,14 +40,14 @@ export function BusinessDeleteModal({
     return (
         <Dialog open onOpenChange={(open) => { if (!open && !loading) onClose(); }}>
             <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden">
-                <DialogHeader className="p-6 border-b border-slate-100 bg-red-50/60">
+                <DialogHeader className="p-6 border-b border-border bg-destructive/10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-destructive/20 text-destructive flex items-center justify-center">
                             <Trash2 size={20} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-foreground">Delete Business?</DialogTitle>
-                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
+                            <DialogTitle className="text-body-lg font-bold text-foreground">Delete Business?</DialogTitle>
+                            <DialogDescription className="text-caption text-foreground-tertiary mt-0.5">
                                 {business.name}
                             </DialogDescription>
                         </div>
@@ -55,27 +55,29 @@ export function BusinessDeleteModal({
                 </DialogHeader>
 
                 <div className="p-6">
-                    <div className="text-xs text-foreground-secondary bg-red-50 rounded-lg p-3 border border-red-100">
+                    <div className="text-caption text-foreground-secondary bg-destructive/10 rounded-lg p-3 border border-destructive/20">
                         {description}
                     </div>
                 </div>
 
                 <div className="px-6 pb-6 flex justify-end gap-3">
-                    <button
+                    <Button
+                        type="button"
+                        variant="outline"
                         onClick={onClose}
                         disabled={loading}
-                        className="px-4 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold text-sm hover:bg-slate-50 transition-all"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
                         onClick={handleConfirm}
                         disabled={loading}
-                        className="px-4 py-2 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 shadow-lg shadow-red-200 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Trash2 size={16} />
                         {loading ? "Deleting..." : "Delete"}
-                    </button>
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>

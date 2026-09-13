@@ -99,19 +99,6 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
     };
 }
 
-export async function fetchAdminAdSummary(): Promise<ModerationSummary> {
-    return fetchAdminModerationSummary('ad');
-}
-
-export async function fetchAdminServiceSummary(): Promise<ModerationSummary> {
-    return fetchAdminModerationSummary('service');
-}
-
-export async function fetchAdminSparePartSummary(): Promise<ModerationSummary> {
-    return fetchAdminModerationSummary('spare_part');
-}
-
-
 export async function fetchAdminAdDetail(adId: string): Promise<UnknownRecord> {
     const payload = await adminFetch<unknown>(ADMIN_ROUTES.LISTING_BY_ID(adId));
     const root = toRecord(payload);
@@ -127,13 +114,6 @@ export async function fetchAdminAdDetail(adId: string): Promise<UnknownRecord> {
 
 export async function approveAdminAd(adId: string): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_APPROVE(adId), { method: "POST" });
-}
-
-export async function rejectAdminAd(adId: string, rejectionReason: string): Promise<void> {
-    await adminFetch(ADMIN_ROUTES.LISTING_REJECT(adId), {
-        method: "POST",
-        body: { rejectionReason }
-    });
 }
 
 export async function deactivateAdminAd(adId: string): Promise<void> {
@@ -207,14 +187,14 @@ export async function bulkUpdateAdStatus(
     throw new Error(`Unsupported bulk status transition: ${status}`);
 }
 
-export async function bulkDeactivateAds(ids: string[]): Promise<void> {
+async function bulkDeactivateAds(ids: string[]): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_BULK_DEACTIVATE, {
         method: "POST",
         body: { ids }
     });
 }
 
-export async function bulkExpireAds(ids: string[]): Promise<void> {
+async function bulkExpireAds(ids: string[]): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXPIRE, {
         method: "POST",
         body: { ids }

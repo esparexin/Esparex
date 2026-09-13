@@ -34,4 +34,4 @@ export {
     getSearchLocationLabel,
     isGenericDetectedLocation,
     sanitizeLocationLabel,
-} from "@/lib/location/locationLabels";
+} from "@esparex/shared";

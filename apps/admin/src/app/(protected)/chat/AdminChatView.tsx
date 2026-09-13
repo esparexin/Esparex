@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "@esparex/ui";
+import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import {
@@ -159,7 +159,7 @@ export default function AdminChatView() {
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 cursor-pointer"
         >
           <RefreshCcw size={14} /> Refresh
         </button>
@@ -172,10 +172,10 @@ export default function AdminChatView() {
               key={option.value}
               type="button"
               onClick={() => replaceQueryState({ filter: option.value !== "all" ? option.value : null, page: null })}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-caption font-medium transition-colors cursor-pointer ${
                 filter === option.value
-                  ? "bg-sky-600 text-white"
-                  : "border border-slate-200 bg-white text-foreground-secondary hover:bg-slate-50"
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card text-foreground-secondary hover:bg-muted/50"
               }`}
             >
               {option.icon}
@@ -193,20 +193,20 @@ export default function AdminChatView() {
                 }
               }}
               placeholder="Search buyer, seller, ad, or conversation ID"
-              className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-7 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+              className="rounded-lg border border-input bg-background py-1.5 pl-7 pr-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             />
           </div>
         </div>
 
         {error && (
-          <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-body text-destructive">
             {error}
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50 text-xs font-semibold text-foreground-tertiary">
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <table className="w-full text-body">
+            <thead className="border-b border-border bg-muted/20 text-caption font-semibold text-foreground-tertiary">
               <tr>
                 <th className="px-4 py-3 text-left">Buyer</th>
                 <th className="px-4 py-3 text-left">Seller</th>
@@ -217,13 +217,13 @@ export default function AdminChatView() {
                 <th className="px-4 py-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border/60">
               {isLoading ? (
                 [...Array(5)].map((_, rowIndex) => (
                   <tr key={rowIndex}>
                     {[...Array(7)].map((_, cellIndex) => (
                       <td key={cellIndex} className="px-4 py-3">
-                        <div className="h-4 animate-pulse rounded bg-slate-100" />
+                        <div className="h-4 animate-pulse rounded bg-muted" />
                       </td>
                     ))}
                   </tr>
@@ -236,7 +236,7 @@ export default function AdminChatView() {
                 </tr>
               ) : (
                 items.map((conv) => (
-                  <tr key={conv.id} className="transition-colors hover:bg-slate-50">
+                  <tr key={conv.id} className="transition-colors hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium text-foreground">{conv.buyerName}</td>
                     <td className="px-4 py-3 text-foreground-secondary">{conv.sellerName}</td>
                     <td className="max-w-[160px] truncate px-4 py-3 text-foreground-secondary" title={conv.adTitle}>
@@ -293,14 +293,14 @@ export default function AdminChatView() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between text-sm text-foreground-tertiary">
+          <div className="flex items-center justify-between text-body text-foreground-tertiary">
             <span>{total} total conversations</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 disabled={page <= 1}
                 onClick={() => replaceQueryState({ page: page - 1 > 1 ? page - 1 : null })}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40"
+                className="rounded-lg border border-border px-3 py-1.5 hover:bg-muted/50 disabled:opacity-40 cursor-pointer"
               >
                 Previous
               </button>
@@ -311,7 +311,7 @@ export default function AdminChatView() {
                 type="button"
                 disabled={page >= totalPages}
                 onClick={() => replaceQueryState({ page: page + 1 })}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50 disabled:opacity-40"
+                className="rounded-lg border border-border px-3 py-1.5 hover:bg-muted/50 disabled:opacity-40 cursor-pointer"
               >
                 Next
               </button>
@@ -320,56 +320,54 @@ export default function AdminChatView() {
         )}
       </div>
 
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 transition-all ${
-          mutingChat ? "opacity-100 backdrop-blur-sm" : "pointer-events-none opacity-0"
-        }`}
-      >
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-              <AlertTriangle size={20} />
+      <Dialog open={Boolean(mutingChat)} onOpenChange={(open) => { if (!open) setMutingChat(null); }}>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <DialogHeader className="border-b border-border p-6 bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <DialogTitle className="text-body-lg font-bold text-foreground">Mute Conversation</DialogTitle>
+                <DialogDescription className="text-caption text-foreground-tertiary">Silence this chat for all participants.</DialogDescription>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">Mute Conversation</h3>
-              <p className="text-sm text-foreground-tertiary">Silence this chat for all participants.</p>
-            </div>
-          </div>
+          </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 p-6">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-foreground-subtle">
+              <label className="mb-1.5 block text-tiny font-bold uppercase tracking-wider text-foreground-subtle">
                 Reason for Muting (Optional)
               </label>
               <textarea
                 value={muteReason}
                 onChange={(e) => setMuteReason(e.target.value)}
                 placeholder="e.g. Offensive language, Spam..."
-                className="w-full min-h-[80px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                className="w-full min-h-[80px] rounded-lg border border-input bg-background p-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               />
             </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setMutingChat(null)}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isMuting}
-                onClick={() => mutingChat && handleMute(mutingChat.id, muteReason)}
-                className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
-              >
-                {isMuting && <RefreshCcw size={14} className="animate-spin" />}
-                Confirm Mute
-              </button>
-            </div>
           </div>
-        </div>
-      </div>
+
+          <DialogFooter className="p-4 border-t border-border bg-muted/20 flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setMutingChat(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={isMuting}
+              onClick={() => mutingChat && handleMute(mutingChat.id, muteReason)}
+            >
+              {isMuting && <RefreshCcw size={14} className="animate-spin" />}
+              Confirm Mute
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminPageShell>
   );
 }

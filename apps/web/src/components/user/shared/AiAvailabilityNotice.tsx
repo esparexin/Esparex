@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle } from "@/icons/IconRegistry";
+import { AlertCircle } from "@esparex/ui";
 
 export function AiAvailabilityNotice() {
     return (

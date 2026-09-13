@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import logger from "@/lib/logger";
-import type { Category } from "@/schemas";
+import type { Category } from "@esparex/contracts";
 
 import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/brandEntitySchema";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { Container } from "@esparex/ui";
 import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
@@ -49,12 +50,12 @@ export const metadata: Metadata = {
     title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
     description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services. Buy and sell electronics online across India — free to post.",
     alternates: {
-        canonical: "https://esparex.in/",
+        canonical: toCanonicalUrl('/'),
     },
     openGraph: {
         title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
         description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services.",
-        url: "https://esparex.in/",
+        url: toCanonicalUrl('/'),
         siteName: "Esparex",
         images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Esparex — Buy & Sell Spare Parts" }],
         type: "website",

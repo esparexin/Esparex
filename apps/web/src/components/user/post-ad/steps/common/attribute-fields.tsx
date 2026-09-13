@@ -1,12 +1,12 @@
 "use client";
 
 import type { CategoryFilter } from "@esparex/contracts";
-import { cn } from "@/components/ui/utils";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Field } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
+import { Input } from "@esparex/ui";
+import { Textarea } from "@esparex/ui";
+import { Checkbox } from "@esparex/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@esparex/ui";
+import { Field } from "@esparex/ui";
 import {
   Z_INDEX,
 } from "@esparex/ui";

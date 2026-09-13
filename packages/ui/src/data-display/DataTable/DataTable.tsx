@@ -174,30 +174,38 @@ export function DataTable<T extends { id: string | number }>({
                         <table className="w-full text-left text-sm border-collapse min-w-[600px]">
                             <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 sticky top-0 z-10">
                                 <tr>
-                                    {visibleColumns.map((col, idx) => (
-                                        <th key={idx} className={`px-3.5 py-2.5 sm:px-4 sm:py-2.5 font-semibold uppercase tracking-wider text-tiny ${col.className || ""}`}>
-                                            <button
-                                                type="button"
-                                                disabled={!col.sortable || !onSortChange}
-                                                onClick={() => {
-                                                    const columnId = col.id || String(col.accessorKey || idx);
-                                                    if (col.sortable && onSortChange) onSortChange(columnId);
-                                                }}
-                                                className={`flex items-center gap-2 group transition-colors ${col.sortable && onSortChange ? "cursor-pointer hover:text-slate-900" : "cursor-default"}`}
-                                                aria-label={col.sortable && onSortChange ? `Sort by ${col.header}` : undefined}
-                                            >
-                                                {col.header}
-                                                <ArrowUpDown
-                                                    size={12}
-                                                    className={`transition-opacity ${
-                                                        sortState && (col.id || String(col.accessorKey || idx)) === sortState.columnId
-                                                            ? "opacity-100 text-slate-900"
-                                                            : "opacity-0 group-hover:opacity-100"
-                                                    }`}
-                                                />
-                                            </button>
-                                        </th>
-                                    ))}
+                                    {visibleColumns.map((col, idx) => {
+                                        const isSortable = Boolean(col.sortable && onSortChange);
+                                        const columnId = col.id || String(col.accessorKey || idx);
+                                        const isSorted = Boolean(sortState && columnId === sortState.columnId);
+
+                                        return (
+                                            <th key={idx} className={`px-3.5 py-2.5 sm:px-4 sm:py-2.5 font-semibold uppercase tracking-wider text-tiny ${col.className || ""}`}>
+                                                {isSortable ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onSortChange!(columnId)}
+                                                        className="flex items-center gap-2 group transition-colors cursor-pointer hover:text-foreground"
+                                                        aria-label={typeof col.header === "string" ? `Sort by ${col.header}` : undefined}
+                                                    >
+                                                        {col.header}
+                                                        <ArrowUpDown
+                                                            size={12}
+                                                            className={`transition-opacity ${
+                                                                isSorted
+                                                                    ? "opacity-100 text-foreground"
+                                                                    : "opacity-0 group-hover:opacity-100"
+                                                            }`}
+                                                        />
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex items-center gap-2">
+                                                        {col.header}
+                                                    </div>
+                                                )}
+                                            </th>
+                                        );
+                                    })}
                                 </tr>
                             </thead>
                             <DataTableBody

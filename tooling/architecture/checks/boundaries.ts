@@ -98,6 +98,34 @@ const check: ArchitectureCheck = {
             });
         }
 
+        // Ratchet check for transitional core/src/services
+        const coreServicesDir = path.join(ctx.repoRoot, 'core/src/services');
+        const fsModule = require('node:fs');
+        if (fsModule.existsSync(coreServicesDir)) {
+            const countSourceFiles = (dir: string): number => {
+                let count = 0;
+                for (const item of fsModule.readdirSync(dir)) {
+                    const p = path.join(dir, item);
+                    const stat = fsModule.statSync(p);
+                    if (stat.isDirectory()) {
+                        if (item !== 'node_modules' && !item.startsWith('.')) count += countSourceFiles(p);
+                    } else if (/\.(ts|tsx)$/.test(item) && !item.endsWith('.d.ts')) {
+                        count++;
+                    }
+                }
+                return count;
+            };
+            const MAX_TRANSITIONAL_SERVICES = 121;
+            const currentServicesCount = countSourceFiles(coreServicesDir);
+            if (currentServicesCount > MAX_TRANSITIONAL_SERVICES) {
+                violations.push({
+                    severity,
+                    file: 'core/src/services',
+                    message: `Transitional Services Ratchet Violation: core/src/services contains ${currentServicesCount} files (max allowed: ${MAX_TRANSITIONAL_SERVICES}). New services must be created in core/src/domains/<domain>/ per ADR-008.`,
+                });
+            }
+        }
+
         return {
             checkId: check.id,
             name: check.name,

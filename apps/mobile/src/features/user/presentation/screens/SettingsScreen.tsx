@@ -13,7 +13,7 @@ import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE_SETTINGS>;
 
 export const SettingsScreen = ({ navigation }: Props) => {
-  const { data: profile, isLoading, isError, refetch } = useProfile();
+  const { data: profile, isError, refetch } = useProfile();
   const updateProfileMutation = useUpdateProfile();
   const { logout, status: authStatus } = useAuth();
 

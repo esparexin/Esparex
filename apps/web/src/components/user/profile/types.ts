@@ -1,4 +1,4 @@
-import type { User, UserNotificationSettings } from "@/types/User";
+import type { User, UserNotificationSettings } from "@esparex/contracts";
 import { MobileVisibilityValue } from "@esparex/contracts";
 export type MobileVisibility = MobileVisibilityValue;
 

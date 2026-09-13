@@ -3,9 +3,9 @@
 import React from "react";
 import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field } from "@/components/ui/field";
-import { cn } from "@/components/ui/utils";
-import { Check } from "@/icons/IconRegistry";
+import { Field } from "@esparex/ui";
+import { cn } from "@/lib/utils";
+import { Check } from "@esparex/ui";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid, getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 import { ListingModalLoading } from "@/components/user/shared/ListingModalLayout";

@@ -10,7 +10,7 @@ import {
     getNotificationReadRetentionCutoff,
     getVisibleNotificationWindowQuery,
     purgeExpiredReadNotifications,
-} from "../../services/notification/NotificationRetentionService";
+} from "../../domains/notifications/application/NotificationRetentionService";
 
 const mockedNotification = Notification as any;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 
 export interface UseCurrentUserResult {
     user: User | null;

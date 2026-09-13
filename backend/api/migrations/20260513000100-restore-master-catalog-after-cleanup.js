@@ -159,8 +159,7 @@ module.exports = {
         const referencedCategoryIds = Array.from(referencedCategoryIdsSet).map(id => {
             try {
                 return new (require('mongodb').ObjectId)(id);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-            } catch (_) {
+            } catch {
                 return null;
             }
         }).filter(id => id !== null);

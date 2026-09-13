@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, Settings as SettingsIcon } from "@/icons/IconRegistry";
+import { ChevronLeft, Settings as SettingsIcon } from "@esparex/ui";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@esparex/ui";

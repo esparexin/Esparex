@@ -112,6 +112,12 @@ jobs:
       - name: Run Repository Gate
         run: npm run repo:gate
 
+      - name: Validate Governance Data (Schema, DAG, References)
+        run: npm run governance:validate
+
+      - name: Check Generated Ledger Snapshot Parity
+        run: npm run governance:check
+
       - name: Verify circular dependencies, dead code & package boundaries
         run: |
           npm run guard:circular

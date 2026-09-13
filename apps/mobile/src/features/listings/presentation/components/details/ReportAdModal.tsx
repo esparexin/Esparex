@@ -45,7 +45,7 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
           },
         },
       ]);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Unable to submit report at this time. Please try again.');
     } finally {
       setIsSubmitting(false);

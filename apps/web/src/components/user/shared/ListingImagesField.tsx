@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Upload, AlertCircle } from "@/icons/IconRegistry";
+import { Upload, AlertCircle } from "@esparex/ui";
 import type { ListingImage } from "@/types/listing";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { Stack } from "@esparex/ui";
 
 import { useImageDropzone } from "./useImageDropzone";
 import { UploadSourcePicker } from "./UploadSourcePicker";
-import { useIsMobileDevice } from "@/components/ui/useMobile";
+import { useIsMobileDevice } from "@/hooks/useMobile";
 import { ListingImageTile } from "./ListingImageTile";
 
 interface ListingImagesFieldProps {

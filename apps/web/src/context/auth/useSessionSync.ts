@@ -1,5 +1,5 @@
 import { useEffect, useRef, type Dispatch, type SetStateAction } from "react";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import type { AuthStatus } from "./authTypes";
 
 interface UseSessionSyncParams {

@@ -1,7 +1,7 @@
 "use client";
 
 import { type Ad } from "@/schemas/ad.schema";
-import { CheckCircle2, CircuitBoard, ShieldCheck, Wrench, XCircle } from "@/icons/IconRegistry";
+import { CheckCircle2, CircuitBoard, ShieldCheck, Wrench, XCircle } from "@esparex/ui";
 
 interface ListingDescriptionTabProps {
     ad: Ad;

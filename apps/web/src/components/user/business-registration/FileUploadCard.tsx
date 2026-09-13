@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { FileText, Upload, X } from "@/icons/IconRegistry";
+import { FileText, Upload, X } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
@@ -12,7 +12,7 @@ import {
     useFilePreviewUrl,
 } from "./useFilePreviewUrl";
 
-import { FormError } from "@/components/ui/FormError";
+import { FormError } from "@esparex/ui";
 
 interface FileUploadCardProps {
     title: string;

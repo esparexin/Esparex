@@ -27,15 +27,15 @@ export const Z_INDEX = {
 
   // ── Floating Elements ────────────────────────────────────────────────────
   // Tooltips, popovers, dropdowns
-  dropdown: 100,
-  popover: 110,
-  tooltip: 120,
+  dropdown: 1000,
+  popover: 1000,
+  tooltip: 1200,
 
   // ── User Interface Headers & Fixed Elements ──────────────────────────────
   userHeader: 999,              // Sticky user header
   desktopHeader: 999,
-  userHeaderPopover: 105,       // First visit wrapper under header
-  userHeaderDropdown: 110,      // Location selector, account dropdown
+  userHeaderPopover: 1005,      // First visit wrapper under header
+  userHeaderDropdown: 1000,     // Location selector, account dropdown
 
   // ── Sheet/Drawer System ─────────────────────────────────────────────────
   sheetOverlay: 1050,           // Sheet/drawer backdrop (must be above userHeader: 999)

@@ -203,8 +203,8 @@ Step 1: Listing Information
     └── (Spare parts via chips — partial)
     ↓
 Step 2: Listing Details
-    ├── TitleSection (text input, AI Suggest)
-    ├── DescriptionSection (textarea, AI Enhance)
+    ├── TitleSection (text input, AI Title)
+    ├── DescriptionSection (textarea, AI Description)
     ├── ImageUploadSection (grid, max 5, min 1)
     ├── PriceSection (number input, "Mark as Free" toggle)
     └── LocationSection (auto-detect + manual picker)

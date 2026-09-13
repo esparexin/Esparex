@@ -13,17 +13,19 @@ const revalidationCircuitBreaker = new CircuitBreaker({
     timeoutMs: 3_000,
 });
 
-const triggerNextJsRevalidation = async () => {
+export const triggerNextJsRevalidation = async (options?: { tag?: string; path?: string }) => {
     try {
         const baseUrl = getFrontendInternalUrl();
+        const tag = options?.tag ?? 'homeFeed';
+        const path = options?.path;
         await revalidationCircuitBreaker.execute(async () => {
-            await axios.post(`${baseUrl}/internal/revalidate`, { tag: 'homeFeed' }, { timeout: 3000 });
+            await axios.post(`${baseUrl}/internal/revalidate`, { tag, path }, { timeout: 3000 });
         }, async (error) => {
             logger.warn('[CacheInvalidationListener] Revalidation fallback activated', {
                 error: error instanceof Error ? error.message : String(error)
             });
         });
-        logger.info('[CacheInvalidationListener] Next.js homeFeed cache revalidated successfully.');
+        logger.info(`[CacheInvalidationListener] Next.js ${tag} cache revalidated successfully.`);
     } catch (error) {
         logger.error('[CacheInvalidationListener] Failed to trigger Next.js revalidation webhook', { error: error instanceof Error ? error.message : String(error) });
     }

@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { colors } from '../src/colors';
-import { radius } from '../src/radius';
 import { typography } from '../src/typography';
 
 // Helper to convert hex to HSL (Tailwind format: "H S% L%")

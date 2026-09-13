@@ -13,7 +13,7 @@ async function syncAndVerify() {
         await connectDB();
         console.log('Connected.\n');
 
-        const Ad = (await import('../src/models/Ad')).default;
+        const Ad = (await import('@esparex/core/models/Ad')).default;
 
         console.log('🔄 Sychronizing Indexes for Ad collection...');
         await Ad.syncIndexes();

@@ -273,7 +273,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
         return null;
     }, [
         form, listingImages, isEditMode, schema, partialSchema,
-        submitFn, onSuccess, onError, idempotencyKey, resetIdempotency, setIsDirty
+        submitFn, onSuccess, onError, idempotencyKey, resetIdempotency, setIsDirty, queryClient
     ]);
 
     return {

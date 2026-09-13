@@ -8,7 +8,7 @@ import { ChatList } from './ChatList';
 import { ConversationView } from './ConversationView';
 import type { IConversationDTO } from "@esparex/contracts";
 
-import { MessageSquare, Sparkles } from '@/icons/IconRegistry';
+import { MessageSquare, Sparkles } from "@esparex/ui";
 
 interface AccountMessagesWorkspaceProps {
   currentUserId: string;

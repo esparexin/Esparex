@@ -1,4 +1,5 @@
 import type { Business } from "@esparex/contracts";
+import { formatLocation } from "@esparex/shared";
 
 export type CanonicalCoordinates = Business["location"]["coordinates"] | null;
 
@@ -28,11 +29,5 @@ export function formatLocationLabel(location: {
   state?: string;
   level?: string;
 }) {
-  return (
-    location.display ||
-    [location.name || location.city, location.state].filter(Boolean).join(", ") ||
-    location.name ||
-    location.city ||
-    "Unknown location"
-  );
+  return formatLocation(location) || "Unknown location";
 }

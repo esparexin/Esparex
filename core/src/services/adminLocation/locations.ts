@@ -5,7 +5,6 @@ import { AppError } from '../../utils/AppError';
 import { findLocationById, findLocationByIdLean, findActiveParentById, locationExists, findLocationParent, findDuplicateLocation, getDistinctStateLocations, getLocationsPaginated, countAdsForLocation, countUsersForLocation } from '../location/LocationQueryService';
 import { generateLocationId, createLocationRecord, saveLocation, softDeleteLocation } from '../location/LocationMutationService';
 import { normalizeCoordinates, normalizeLocationResponse } from '../location/LocationNormalizer';
-import { reverseGeocode as getReverseGeocodeMatch } from '../location/ReverseGeocodeService';
 import { buildHierarchyPath, resolveParentLocation, resolveLocationScope, resolveLocationSummary, asString as resolveStringField } from '../../utils/locationHierarchy';
 import type { CanonicalLocationDoc } from '../../utils/locationHierarchy';
 import type { AdminLogFn } from '../AdminListingsService';
@@ -21,12 +20,6 @@ export const adminGetDistinctStates = async () => {
     const sorted = states.map((e) => resolveStringField(e.name)).filter((v): v is string => Boolean(v)).sort((a, b) => a.localeCompare(b));
     await setCache(ADMIN_STATES_CACHE_KEY, sorted, ADMIN_STATES_CACHE_TTL_SECONDS);
     return sorted;
-};
-
-export const adminReverseGeocode = async (latRaw: string, lngRaw: string) => {
-    const lat = parseFloat(latRaw), lng = parseFloat(lngRaw);
-    if (isNaN(lat) || isNaN(lng)) throw new AppError('Coordinates (lat, lng) are required.', 400);
-    return getReverseGeocodeMatch(lat, lng);
 };
 
 export const adminGetAllLocations = async (query: AdminLocationPaginationQuery) => {

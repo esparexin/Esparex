@@ -23,7 +23,26 @@ const readBaseline = () => {
   if (!fs.existsSync(baselinePath)) {
     throw new Error(`Missing baseline allowlist: ${path.relative(repoRoot, baselinePath)}`);
   }
-  return JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+  const parsed = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
+  const allAllowlisted = new Set([
+    ...(parsed.dbMutationShadowScripts || []),
+    ...(parsed.lifecycleBypassScripts || []),
+    ...(parsed.migrationShadowScripts || [])
+  ]);
+  const missingFiles = [];
+  for (const relPath of allAllowlisted) {
+    if (!fs.existsSync(path.join(repoRoot, relPath))) {
+      missingFiles.push(relPath);
+    }
+  }
+  if (missingFiles.length > 0) {
+    throw new Error(
+      `Zombie allowlist entries detected in ${path.relative(repoRoot, baselinePath)}:\n` +
+      missingFiles.map(f => `  - ${f}`).join('\n') +
+      '\nFiles do not exist on disk. Remove dead entries.'
+    );
+  }
+  return parsed;
 };
 
 const SCRIPT_EXTENSIONS = new Set(['.js', '.cjs', '.mjs']);

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "@esparex/ui";
+import { AlertTriangle, Loader2, Button } from "@esparex/ui";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 
 interface ConfirmDeactivateDialogProps {
@@ -32,26 +32,26 @@ export function ConfirmDeactivateDialog({ isOpen, onClose, onConfirm, isMutating
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
-                    <button
+                    <Button
                         type="button"
+                        variant="outline"
                         disabled={isMutating}
                         onClick={onClose}
-                        className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
+                        variant="primary"
                         disabled={isMutating}
                         onClick={onConfirm}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-bold hover:bg-amber-700 transition-all disabled:opacity-70 shadow-lg shadow-amber-200"
                     >
                         {isMutating ? (
                             <><Loader2 size={16} className="animate-spin" /> Updating...</>
                         ) : (
                             "Yes, Deactivate Plan"
                         )}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </CatalogModal>

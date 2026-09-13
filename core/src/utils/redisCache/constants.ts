@@ -15,13 +15,11 @@ export const CACHE_KEYS = {
     CATEGORIES: 'catalog:categories:all',
     metadata: (type: string, id: string) => `meta:${type}:${id}`,
     searchCity: (query: string) => `loc_search:${query.toLowerCase().trim()}`,
-    nearbyCity: (latRounded: number, lngRounded: number) => `location:nearby:city:${latRounded}:${lngRounded}`,
     reverseGeocode: (latRounded: string, lngRounded: string) => `geo:${latRounded}:${lngRounded}`
 };
 
 export const CACHE_TTLS = {
     CITY_SEARCH: 3600,
-    NEARBY_LOOKUP: 21600,
     REVERSE_GEOCODE: 3600,
     DEFAULT_INDIA: 604800,
     CATEGORIES: 3600,

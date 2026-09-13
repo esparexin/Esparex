@@ -3,12 +3,21 @@ import {
   isBusinessActiveStatus,
   normalizeAdStatus,
   normalizeServiceStatus,
+  normalizeTransactionStatus,
 } from "@esparex/shared";
-import type { ServiceStatus, AdStatusValue as AdStatus } from "@esparex/contracts";
+import type { 
+  ServiceStatus, 
+  AdStatusValue as AdStatus,
+  TransactionStatusValue,
+  ListingStatus,
+} from "@esparex/contracts";
+import { PAYMENT_STATUS } from "@esparex/contracts";
 
-export type { ServiceStatus, AdStatus };
+export type { ServiceStatus, AdStatus, TransactionStatusValue, ListingStatus };
+/** Canonical transaction lifecycle status (SSOT: @esparex/contracts) */
+export type TransactionStatus = TransactionStatusValue;
+/** Spare parts use the unified Ad/Listing domain (SSOT: ListingStatus from @esparex/contracts). */
 export type PartStatus = "pending" | "active" | "inactive" | "rejected" | "expired";
-export type TransactionStatus = "INITIATED" | "SUCCESS" | "FAILED";
 
 function normalizeLowercase(value: unknown): string {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -18,7 +27,9 @@ export {
   normalizeBusinessStatus,
   isBusinessActiveStatus,
   normalizeAdStatus,
-  normalizeServiceStatus
+  normalizeServiceStatus,
+  normalizeTransactionStatus,
+  PAYMENT_STATUS
 };
 
 export function normalizePartStatus(
@@ -38,13 +49,3 @@ export function normalizePartCondition(
   return "new";
 }
 
-export function normalizeTransactionStatus(
-  value: unknown,
-  fallback: TransactionStatus = "INITIATED"
-): TransactionStatus {
-  const normalized = typeof value === "string" ? value.trim().toUpperCase() : "";
-  if (normalized === "SUCCESS" || normalized === "COMPLETED") return "SUCCESS";
-  if (normalized === "FAILED" || normalized === "ERROR") return "FAILED";
-  if (normalized === "INITIATED" || normalized === "PENDING") return "INITIATED";
-  return fallback;
-}

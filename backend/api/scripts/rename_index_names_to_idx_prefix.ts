@@ -2,7 +2,7 @@ import 'dotenv/config';
 import type { Collection } from 'mongoose';
 import type { IndexSpecification } from 'mongodb';
 import { connectDB, getAdminConnection, getUserConnection } from '../src/config/db';
-import '../src/models/registry';
+import '@esparex/core/models/registry';
 
 type RenamePlan = {
     dbLabel: 'user' | 'admin';

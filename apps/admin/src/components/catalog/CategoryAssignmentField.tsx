@@ -39,13 +39,13 @@ export function CategoryAssignmentField({
 
     return (
         <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">{label}</label>
+            <label className="text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">{label}</label>
             {notice}
             <div
                 className={cn(
                     isGrid
-                        ? "grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3"
-                        : "max-h-60 space-y-2 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3",
+                        ? "grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3"
+                        : "max-h-60 space-y-2 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3",
                     containerClassName
                 )}
             >
@@ -61,15 +61,15 @@ export function CategoryAssignmentField({
                                 className={cn(
                                     isGrid ? "flex items-center gap-2" : "flex items-center gap-3 rounded-md p-2 transition-all",
                                     "cursor-pointer group",
-                                    isDanger && "bg-red-50/50 hover:bg-red-50",
-                                    !isDanger && !isGrid && "hover:bg-white"
+                                    isDanger && "bg-destructive/10 hover:bg-destructive/20",
+                                    !isDanger && !isGrid && "hover:bg-card"
                                 )}
                             >
                                 <input
                                     type="checkbox"
                                     className={cn(
-                                        "h-4 w-4 rounded focus:ring-primary/20",
-                                        isDanger ? "border-red-300 text-red-500" : "border-slate-300 text-primary"
+                                        "h-4 w-4 rounded focus-visible:ring-2 focus-visible:ring-primary/40",
+                                        isDanger ? "border-destructive/40 text-destructive" : "border-input text-primary"
                                     )}
                                     checked={isSelected}
                                     onChange={(event) => {
@@ -81,9 +81,9 @@ export function CategoryAssignmentField({
                                 />
                                 <span
                                     className={cn(
-                                        "text-sm transition-colors",
+                                        "text-body transition-colors",
                                         isDanger
-                                            ? "font-bold text-red-700"
+                                            ? "font-bold text-destructive"
                                             : "text-foreground-secondary group-hover:text-primary",
                                         !isGrid && !isDanger && "font-medium"
                                     )}
@@ -95,7 +95,7 @@ export function CategoryAssignmentField({
                         );
                     })
                 ) : (
-                    <div className="text-xs italic text-foreground-subtle">{emptyMessage || "No categories available"}</div>
+                    <div className="text-caption italic text-foreground-subtle">{emptyMessage || "No categories available"}</div>
                 )}
             </div>
             {footer}

@@ -3,21 +3,36 @@ import { ADMIN_ROUTES } from '@/lib/api/routes';
 import { buildQueryString } from '@/lib/api/queryParams';
 
 export type CatalogRequestType = 'brand' | 'model';
-export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
+export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'merged' | 'resolved';
 
 export interface CatalogRequestUserRef {
-    id: string;
+    id?: string;
+    _id?: string;
     firstName?: string;
     lastName?: string;
     email?: string;
     mobile?: string;
 }
 
+export interface CatalogRequestCategoryRef {
+    id?: string;
+    _id?: string;
+    name?: string;
+    slug?: string;
+}
+
+export interface CatalogRequestBrandRef {
+    id?: string;
+    _id?: string;
+    name?: string;
+    slug?: string;
+}
+
 export interface CatalogRequestItem {
     id: string;
     requestType: CatalogRequestType;
-    categoryId: string;
-    parentBrandId?: string | null;
+    categoryId: string | CatalogRequestCategoryRef;
+    parentBrandId?: string | CatalogRequestBrandRef | null;
     requestedName: string;
     canonicalName: string;
     normalizedName?: string;
@@ -29,6 +44,7 @@ export interface CatalogRequestItem {
     status: CatalogRequestStatus;
     approvedEntityId?: string | null;
     duplicateOfEntityId?: string | null;
+    mergedIntoEntityId?: string | null;
     rejectionReason?: string | null;
     adminNotes?: string | null;
     approvedBy?: string | null;
@@ -79,9 +95,6 @@ export async function listAdminCatalogRequests(filters: CatalogRequestListFilter
     );
 }
 
-export async function getAdminCatalogRequestById(id: string) {
-    return adminFetch<CatalogRequestItem>(ADMIN_ROUTES.CATALOG_REQUEST_BY_ID(id));
-}
 
 export async function approveAdminCatalogRequest(id: string, payload?: { adminNotes?: string }) {
     return adminFetch<{
@@ -113,21 +126,22 @@ export async function markAdminCatalogRequestDuplicate(id: string, payload: { du
     });
 }
 
-export async function getAdminCatalogRequestStats(requestType?: CatalogRequestType) {
-    const query = buildQueryString(requestType ? { requestType } : {});
-    const suffix = query ? `?${query}` : '';
-    return adminFetch<CatalogRequestStats>(`${ADMIN_ROUTES.CATALOG_REQUEST_STATS}${suffix}`);
+export async function deleteAdminCatalogRequest(id: string) {
+    return adminFetch<{ id: string }>(ADMIN_ROUTES.CATALOG_REQUEST_BY_ID(id), {
+        method: 'DELETE',
+    });
 }
 
-export async function bulkApproveAdminCatalogRequests(payload: { requestIds: string[] }) {
-    return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
-        ADMIN_ROUTES.CATALOG_REQUEST_BULK_APPROVE,
+export async function bulkDeleteAdminCatalogRequests(payload: { requestIds: string[] }) {
+    return adminFetch<{ deletedCount: number }>(
+        ADMIN_ROUTES.CATALOG_REQUEST_BULK_DELETE,
         {
             method: 'POST',
             body: payload,
         }
     );
 }
+
 
 export async function bulkRejectAdminCatalogRequests(payload: { requestIds: string[]; reason: string }) {
     return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string }> }>(

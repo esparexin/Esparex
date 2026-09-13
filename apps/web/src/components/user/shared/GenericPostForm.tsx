@@ -5,7 +5,7 @@ import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
 import { Button, Spinner } from "@esparex/ui";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import type { ListingImage } from "@/types/listing";
 
 type GenericPostFormValues = FieldValues & {

@@ -23,6 +23,8 @@ export interface IAdmin extends Document {
     resetPasswordExpire?: Date;
     twoFactorSecret?: string;
     twoFactorEnabled?: boolean;
+    failedLoginAttempts?: number;
+    lockUntil?: Date | null;
     isDeleted: boolean;
     deletedAt?: Date;
     softDelete(): Promise<this>;
@@ -81,6 +83,14 @@ const AdminSchema = new Schema<IAdmin>(
             type: Boolean,
             default: false,
         },
+        failedLoginAttempts: {
+            type: Number,
+            default: 0,
+        },
+        lockUntil: {
+            type: Date,
+            default: null,
+        },
     },
     { timestamps: true }
 );
@@ -97,6 +107,7 @@ AdminSchema.index({ email: 1 }, { name: 'idx_admin_email_unique', unique: true }
 AdminSchema.index({ mobile: 1 }, { name: 'idx_admin_mobile_unique', unique: true, sparse: true });
 AdminSchema.index({ status: 1 }, { name: 'idx_admin_status' });
 AdminSchema.index({ role: 1, status: 1 }, { name: 'idx_admin_role_status' });
+AdminSchema.index({ lockUntil: 1 }, { name: 'idx_admin_lockUntil' });
 AdminSchema.index({ isDeleted: 1 }, { name: 'idx_admin_isDeleted' });
 
 // 🔒 SECURITY & COMPATIBILITY: Normalize roles and hash password

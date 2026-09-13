@@ -1,9 +1,9 @@
 "use client";
 
-import { AlertCircle, Search, Target, X } from "@/icons/IconRegistry";
+import { AlertCircle, Search, Target, X } from "@esparex/ui";
 import { Button, Spinner } from "@esparex/ui";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/components/ui/utils";
+import { Input } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 
 export function LocationSelectorPanel({
     className,

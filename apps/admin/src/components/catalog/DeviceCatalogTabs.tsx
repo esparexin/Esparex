@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import CategoriesTab from "./tabs/CategoriesTab";
 import BrandsTab from "./tabs/BrandsTab";
-import ModelsTab from "./tabs/ModelsTab";
+import ModelsTab from "./tabs/models-tab/main";
 import ScreenSizesTab from "./tabs/ScreenSizesTab";
 import ServiceTypesTab from "./tabs/ServiceTypesTab";
 import SparePartsTab from "./tabs/SparePartsTab";

@@ -1,7 +1,7 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
-import { ArrowLeft, Loader2 } from "@/icons/IconRegistry";
+import { ArrowLeft, Loader2 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { formatSeconds } from "@/lib/otpHelpers";
 import {
