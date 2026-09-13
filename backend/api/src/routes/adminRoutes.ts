@@ -1,9 +1,7 @@
 import express from 'express';
-
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
 import { authLoginLimiter } from '../middleware/rate-limiter/limiters';
-
 import * as adminSystem from '../controllers/admin/system';
 import * as adminAnalytics from '../controllers/admin/adminAnalyticsController';
 import * as adminAudit from '../controllers/admin/adminAuditController';
@@ -33,10 +31,8 @@ router.get('/csrf-token', setCsrfToken, getCsrfToken);
 router.post('/auth/login', authLoginLimiter, adminSystem.adminLogin);
 router.post('/forgot-password', adminSystem.forgotPassword);
 router.post('/reset-password/:token', adminSystem.resetPassword);
-
 // Protected admin surface
 router.use(requireAdmin);
-
 router.post('/auth/logout', adminSystem.adminLogout);
 router.get('/me', adminSystem.getMe);
 
@@ -88,7 +84,6 @@ router.patch('/businesses/:id/expire', requirePermission('business:approve'), ad
 router.patch('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
 
 router.delete('/businesses/:id', requirePermission('business:approve'), adminBusiness.deleteBusinessAccount);
-
 // Bulk Operations
 router.post('/businesses/bulk/approve', requirePermission('business:approve'), adminBusiness.adminBulkApproveBusinesses);
 router.post('/businesses/bulk/reject', requirePermission('business:approve'), adminBusiness.adminBulkRejectBusinesses);
@@ -96,7 +91,6 @@ router.post('/businesses/bulk/deactivate', requirePermission('business:approve')
 router.post('/businesses/bulk/expire', requirePermission('business:approve'), adminBusiness.adminBulkExpireBusinesses);
 router.post('/businesses/bulk/renew', requirePermission('business:approve'), adminBusiness.adminBulkRenewBusinesses);
 router.post('/businesses/bulk/resend-warnings', requirePermission('business:approve'), adminBusiness.adminBulkResendBusinessWarnings);
-
 
 // Listings and reports
 router.get('/listings', adminListings.adminListListings);
