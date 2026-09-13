@@ -62,6 +62,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
 
     describe("4. isValidSitemapUrl Gatekeeper", () => {
         it("accepts valid canonical HTTPS public routes on esparex.in", () => {
+            expect(isValidSitemapUrl("https://esparex.in")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/about")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/terms")).toBe(true);
@@ -216,7 +217,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const urls = entries.map((e) => e.url);
 
             const expectedStatic = [
-                "https://esparex.in/",
+                "https://esparex.in",
                 "https://esparex.in/about",
                 "https://esparex.in/contact",
                 "https://esparex.in/faq",
@@ -398,7 +399,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(entries.length).toBeGreaterThan(0);
 
             const urls = entries.map((e) => e.url);
-            expect(urls).toContain("https://esparex.in/");
+            expect(urls).toContain("https://esparex.in");
             expect(urls).toContain("https://esparex.in/about");
             expect(urls).toContain("https://esparex.in/privacy");
             expect(urls).toContain("https://esparex.in/category/mobiles");
