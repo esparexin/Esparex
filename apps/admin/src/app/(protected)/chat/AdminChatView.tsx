@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Button } from "@esparex/ui";
-import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X, Button } from "@esparex/ui";
+import { AdminPageShell, AdminPagination } from "@/components/layout/AdminPageShell";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import {
   fetchAdminChats,
@@ -18,6 +18,8 @@ import {
   readPositiveIntParam,
   readStringParam,
 } from "@/lib/adminUiRoutes";
+import { AdminChatTable } from "./components/AdminChatTable";
+import { MuteConversationDialog } from "./components/MuteConversationDialog";
 
 const FILTER_OPTIONS: { value: AdminChatFilter; label: string; icon?: ReactNode }[] = [
   { value: "all", label: "All Chats" },
@@ -26,17 +28,6 @@ const FILTER_OPTIONS: { value: AdminChatFilter; label: string; icon?: ReactNode 
   { value: "blocked", label: "Blocked", icon: <Ban size={14} /> },
   { value: "closed", label: "Closed", icon: <X size={14} /> },
 ];
-
-function timeAgo(iso?: string): string {
-  if (!iso) return "—";
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
 
 function normalizeFilter(value: string | null): AdminChatFilter {
   return FILTER_OPTIONS.some((option) => option.value === value)
@@ -64,39 +55,29 @@ export default function AdminChatView() {
   const [isMuting, setIsMuting] = useState(false);
 
   useEffect(() => {
-    void (async () => {
-      setSearchInput((prev) => (prev === search ? prev : search));
-    })();
+    setSearchInput((prev) => (prev === search ? prev : search));
   }, [search]);
 
   const replaceQueryState = useCallback(
-    (updates: Record<string, string | number | null | undefined>) => {
-      const nextUrl = buildAdminRouteWithMergedQuery(pathname, searchParams, updates);
-      const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-      if (nextUrl !== currentUrl) {
-        void router.replace(nextUrl, { scroll: false });
-      }
+    (updates: {
+      filter?: AdminChatFilter | null;
+      q?: string | null;
+      search?: string | null;
+      page?: number | null;
+    }) => {
+      const nextHref = buildAdminRouteWithMergedQuery(pathname, searchParams, updates);
+      router.replace(nextHref);
     },
     [pathname, router, searchParams]
   );
 
   useEffect(() => {
-    const canonicalUrl = ADMIN_UI_ROUTES.chat({
-      filter: filter !== "all" ? filter : undefined,
-      q: search || undefined,
-      page: page > 1 ? page : undefined,
-    });
-    const currentUrl = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-    if (canonicalUrl !== currentUrl) {
-      void router.replace(canonicalUrl, { scroll: false });
-    }
-  }, [filter, page, pathname, router, search, searchParams]);
+    const trimmedInput = searchInput.trim();
+    if (trimmedInput === search) return;
 
-  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      if (searchInput === search) return;
-      replaceQueryState({ q: searchInput || null, search: null, page: null });
-    }, 250);
+      replaceQueryState({ q: trimmedInput || null, search: null, page: null });
+    }, 300);
 
     return () => window.clearTimeout(timeoutId);
   }, [replaceQueryState, search, searchInput]);
@@ -156,13 +137,15 @@ export default function AdminChatView() {
       headerVariant="compact"
       title="Chat Moderation"
       actions={
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={refresh}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 cursor-pointer"
+          className="gap-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 cursor-pointer"
         >
           <RefreshCcw size={14} /> Refresh
-        </button>
+        </Button>
       }
     >
       <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -204,170 +187,31 @@ export default function AdminChatView() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-body">
-            <thead className="border-b border-border bg-muted/20 text-caption font-semibold text-foreground-tertiary">
-              <tr>
-                <th className="px-4 py-3 text-left">Buyer</th>
-                <th className="px-4 py-3 text-left">Seller</th>
-                <th className="px-4 py-3 text-left">Ad</th>
-                <th className="px-4 py-3 text-left">Last Message</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Updated</th>
-                <th className="px-4 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {isLoading ? (
-                [...Array(5)].map((_, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {[...Array(7)].map((_, cellIndex) => (
-                      <td key={cellIndex} className="px-4 py-3">
-                        <div className="h-4 animate-pulse rounded bg-muted" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : items.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-foreground-subtle">
-                    No chats found for this filter.
-                  </td>
-                </tr>
-              ) : (
-                items.map((conv) => (
-                  <tr key={conv.id} className="transition-colors hover:bg-muted/30">
-                    <td className="px-4 py-3 font-medium text-foreground">{conv.buyerName}</td>
-                    <td className="px-4 py-3 text-foreground-secondary">{conv.sellerName}</td>
-                    <td className="max-w-[160px] truncate px-4 py-3 text-foreground-secondary" title={conv.adTitle}>
-                      {conv.adTitle}
-                    </td>
-                    <td className="max-w-[200px] truncate px-4 py-3 text-foreground-tertiary" title={conv.lastMessage}>
-                      {conv.lastMessage ?? "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {conv.isBlocked ? (
-                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">Blocked</span>
-                      ) : conv.isAdClosed ? (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Closed</span>
-                      ) : (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">Active</span>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-foreground-subtle">{timeAgo(conv.updatedAt)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => void router.push(ADMIN_UI_ROUTES.chat({ q: conv.id }))}
-                          className="text-sky-600 hover:underline text-xs font-medium"
-                        >
-                          Locate
-                        </button>
-                        {!conv.isBlocked && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMuteReason("");
-                              setMutingChat(conv);
-                            }}
-                            className="text-amber-600 hover:underline text-xs font-medium"
-                          >
-                            Mute
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleExport(conv.id)}
-                          className="text-foreground-tertiary hover:underline text-xs font-medium"
-                        >
-                          Export
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminChatTable
+          items={items}
+          isLoading={isLoading}
+          onLocate={(id) => void router.push(ADMIN_UI_ROUTES.chat({ q: id }))}
+          onMute={(conv) => { setMuteReason(""); setMutingChat(conv); }}
+          onExport={handleExport}
+        />
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between text-body text-foreground-tertiary">
-            <span>{total} total conversations</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => replaceQueryState({ page: page - 1 > 1 ? page - 1 : null })}
-                className="rounded-lg border border-border px-3 py-1.5 hover:bg-muted/50 disabled:opacity-40 cursor-pointer"
-              >
-                Previous
-              </button>
-              <span className="font-medium">
-                {page} / {totalPages}
-              </span>
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => replaceQueryState({ page: page + 1 })}
-                className="rounded-lg border border-border px-3 py-1.5 hover:bg-muted/50 disabled:opacity-40 cursor-pointer"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={total}
+          pageSize={20}
+          onPageChange={(nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null })}
+        />
       </div>
 
-      <Dialog open={Boolean(mutingChat)} onOpenChange={(open) => { if (!open) setMutingChat(null); }}>
-        <DialogContent className="max-w-md p-0 overflow-hidden">
-          <DialogHeader className="border-b border-border p-6 bg-muted/20">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-                <AlertTriangle size={20} />
-              </div>
-              <div>
-                <DialogTitle className="text-body-lg font-bold text-foreground">Mute Conversation</DialogTitle>
-                <DialogDescription className="text-caption text-foreground-tertiary">Silence this chat for all participants.</DialogDescription>
-              </div>
-            </div>
-          </DialogHeader>
-
-          <div className="space-y-4 p-6">
-            <div>
-              <label className="mb-1.5 block text-tiny font-bold uppercase tracking-wider text-foreground-subtle">
-                Reason for Muting (Optional)
-              </label>
-              <textarea
-                value={muteReason}
-                onChange={(e) => setMuteReason(e.target.value)}
-                placeholder="e.g. Offensive language, Spam..."
-                className="w-full min-h-[80px] rounded-lg border border-input bg-background p-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="p-4 border-t border-border bg-muted/20 flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setMutingChat(null)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              disabled={isMuting}
-              onClick={() => mutingChat && handleMute(mutingChat.id, muteReason)}
-            >
-              {isMuting && <RefreshCcw size={14} className="animate-spin" />}
-              Confirm Mute
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MuteConversationDialog
+        chat={mutingChat}
+        reason={muteReason}
+        isMuting={isMuting}
+        onReasonChange={setMuteReason}
+        onClose={() => setMutingChat(null)}
+        onConfirm={handleMute}
+      />
     </AdminPageShell>
   );
 }
