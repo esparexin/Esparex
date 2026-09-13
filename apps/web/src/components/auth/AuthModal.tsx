@@ -22,15 +22,9 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideClose
+        variant="mobileSafe"
         className={cn(
-          // Responsive Centered Dialog Card (Mobile & Desktop):
-          // Fits within viewport bounds with backdrop blur, rounded corners, and shadow
-          "fixed left-1/2 top-4 sm:top-1/2 -translate-x-1/2 translate-y-0 sm:-translate-y-1/2 w-[calc(100vw-2rem)] sm:w-full max-w-sm h-auto max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-2rem))] border border-border rounded-2xl sm:rounded-3xl bg-background shadow-xl p-5 sm:p-6 overflow-y-auto outline-none flex flex-col justify-center",
-          // Smooth zoom & fade animations:
-          "duration-200",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out",
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          "max-w-sm h-auto border border-border rounded-2xl sm:rounded-3xl shadow-xl p-5 sm:p-6 overflow-y-auto"
         )}
       >
         {/* Accessible Title & Description for Screen Readers */}
@@ -40,7 +34,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         {/* Close Button */}
         <DialogClose
           className={cn(
-            "absolute right-3.5 top-3.5 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
+            "absolute right-3.5 top-3.5 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground-subtle hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
           )}
           aria-label="Close"
         >
