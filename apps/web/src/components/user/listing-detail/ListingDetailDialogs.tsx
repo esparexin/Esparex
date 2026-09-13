@@ -116,23 +116,23 @@ export function ListingDetailDialogs({
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total views</p>
-              <p className="mt-2 text-2xl font-bold text-foreground">
+            <div className="rounded-2xl border border-border bg-muted/50 p-4">
+              <p className="text-tiny font-semibold uppercase tracking-wide text-muted-foreground">Total views</p>
+              <p className="mt-2 text-h2 font-bold text-foreground">
                 {isAnalyticsLoading ? "..." : analyticsSummary?.total ?? 0}
               </p>
             </div>
-            <div className="rounded-2xl border bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Unique viewers</p>
-              <p className="mt-2 text-2xl font-bold text-foreground">
+            <div className="rounded-2xl border border-border bg-muted/50 p-4">
+              <p className="text-tiny font-semibold uppercase tracking-wide text-muted-foreground">Unique viewers</p>
+              <p className="mt-2 text-h2 font-bold text-foreground">
                 {isAnalyticsLoading ? "..." : analyticsSummary?.unique ?? 0}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last activity</p>
-            <p className="mt-2 text-sm text-foreground-secondary">
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <p className="text-tiny font-semibold uppercase tracking-wide text-muted-foreground">Last activity</p>
+            <p className="mt-2 text-body text-foreground-secondary">
               {isAnalyticsLoading
                 ? "Loading latest activity..."
                 : analyticsSummary?.lastViewedAt
