@@ -11,6 +11,10 @@ const router = express.Router();
 
 // Fallback routing layer for un-prefixed requests
 router.use((req, res, next) => {
+    // Ignore versioned requests (they are handled by /api/v1 routers)
+    if (req.originalUrl.startsWith('/api/v1') || req.path.startsWith('/v1')) {
+        return next();
+    }
     logger.info(`[FALLBACK_ROUTER] Intercepted un-prefixed request: ${req.method} ${req.originalUrl}`);
     next();
 });

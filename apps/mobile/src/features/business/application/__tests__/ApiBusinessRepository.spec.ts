@@ -1,9 +1,9 @@
-import { ApiBusinessRepository } from './ApiBusinessRepository';
-import { apiClient } from '../../../infrastructure/api/apiClient';
+import { ApiBusinessRepository } from '../ApiBusinessRepository';
+import { apiClient } from '../../../../infrastructure/api/apiClient';
 import { Business, BUSINESS_STATUS } from '@esparex/contracts';
-import { INITIAL_BUSINESS_FORM_STATE } from '../domain/BusinessFormState';
+import { INITIAL_BUSINESS_FORM_STATE } from '../../domain/BusinessFormState';
 
-jest.mock('../../../infrastructure/api/apiClient', () => ({
+jest.mock('../../../../infrastructure/api/apiClient', () => ({
   apiClient: {
     get: jest.fn(),
     post: jest.fn(),

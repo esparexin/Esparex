@@ -229,31 +229,29 @@ export function useSmartAlerts(enabled = true) {
         setSmartAlertGlobalError(null);
     }, []);
 
-    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = null): Promise<void> => {
+    const handleCreateAlert = async (selectedLocation: SmartAlertLocationSelection | null = null): Promise<{ success: boolean; error?: string }> => {
         setIsMutating(true);
         const parsedForm = smartAlertFormSchema.safeParse(smartAlertForm);
         if (!parsedForm.success) {
             const nextErrors = emptySmartAlertFieldErrors();
             let nextGlobalError: string | null = null;
             for (const issue of parsedForm.error.issues) {
-                const field = issue.path[0];
-                if (field === "name") nextErrors.name = issue.message;
-                else if (field === "keywords") nextErrors.keywords = issue.message;
-                else if (field === "category") nextErrors.category = issue.message;
-                else if (field === "location") nextErrors.location = issue.message;
-                else if (field === "radiusKm") nextErrors.radiusKm = issue.message;
-                else if (field === "notificationChannels") nextErrors.notificationChannels = issue.message;
+                const field = issue.path[0] as keyof SmartAlertFieldErrors;
+                if (field in nextErrors) nextErrors[field] = issue.message;
                 else if (!nextGlobalError) nextGlobalError = issue.message;
             }
             setSmartAlertErrors(nextErrors);
-            setSmartAlertGlobalError(nextGlobalError || "Please correct the highlighted fields.");
+            const globalErrMsg = nextGlobalError || "Please correct the highlighted fields.";
+            setSmartAlertGlobalError(globalErrMsg);
             setIsMutating(false);
-            return;
+            return { success: false, error: globalErrMsg };
         }
 
         const { keywords, category, brand, model, location, locationId, radiusKm, notificationChannels } = parsedForm.data;
         const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
         const canonicalLocationId = sanitizeMongoObjectId(selectedLocation?.locationId || selectedLocation?.id || locationId);
+        const rawLocationId = selectedLocation?.locationId || selectedLocation?.id || locationId;
+        const locationIdPayload = canonicalLocationId || (typeof rawLocationId === "string" && rawLocationId.trim() !== "" ? rawLocationId.trim() : undefined);
         const locationDisplay = selectedLocation?.display || selectedLocation?.name || selectedLocation?.city || location || "";
 
         setSmartAlertErrors(emptySmartAlertFieldErrors());
@@ -276,7 +274,7 @@ export function useSmartAlerts(enabled = true) {
                 brand: brand || undefined,
                 model: model || undefined,
                 location: locationDisplay || undefined,
-                locationId: canonicalLocationId || undefined,
+                locationId: locationIdPayload || undefined,
             },
             ...(canonicalCoordinates ? { coordinates: canonicalCoordinates } : {}),
             radiusKm,
@@ -284,10 +282,11 @@ export function useSmartAlerts(enabled = true) {
             notificationChannels: Array.from(new Set(["push", ...(notificationChannels || [])])),
         };
 
-        if (!editingAlertId && (!canonicalCoordinates || !canonicalLocationId || !locationDisplay)) {
-            setSmartAlertErrors((prev) => ({ ...prev, location: "Please select a valid location from the location search." }));
+        if (!editingAlertId && (!canonicalCoordinates || !locationDisplay)) {
+            const locErrMsg = "Please select a valid location from the location search.";
+            setSmartAlertErrors((prev) => ({ ...prev, location: locErrMsg }));
             setIsMutating(false);
-            return;
+            return { success: false, error: locErrMsg };
         }
 
         const parsedPayload = editingAlertId ? SmartAlertUpdateSchema.safeParse(basePayload) : SmartAlertCreateSchema.safeParse(basePayload);
@@ -297,18 +296,15 @@ export function useSmartAlerts(enabled = true) {
             let nextGlobalError: string | null = null;
             for (const issue of parsedPayload.error.issues) {
                 const [root, nested] = issue.path;
-                if (root === "name") nextErrors.name = issue.message;
-                else if (root === "criteria" && nested === "keywords") nextErrors.keywords = issue.message;
-                else if (root === "criteria" && nested === "category") nextErrors.category = issue.message;
-                else if (root === "criteria" && (nested === "location" || nested === "locationId")) nextErrors.location = issue.message;
-                else if (root === "radiusKm") nextErrors.radiusKm = issue.message;
-                else if (root === "notificationChannels") nextErrors.notificationChannels = issue.message;
+                const field = (nested === "locationId" ? "location" : (nested || root)) as keyof SmartAlertFieldErrors;
+                if (field in nextErrors) nextErrors[field] = issue.message;
                 else if (!nextGlobalError) nextGlobalError = issue.message;
             }
             setSmartAlertErrors(nextErrors);
-            setSmartAlertGlobalError(nextGlobalError || "Please check alert details and try again.");
+            const globalErrMsg = nextGlobalError || "Please check alert details and try again.";
+            setSmartAlertGlobalError(globalErrMsg);
             setIsMutating(false);
-            return;
+            return { success: false, error: globalErrMsg };
         }
 
         const requestPayload = parsedPayload.data as SmartAlertCreatePayload;
@@ -319,10 +315,14 @@ export function useSmartAlerts(enabled = true) {
         if (result.success) {
             resetAlertForm();
             notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
+            setIsMutating(false);
+            return { success: true };
         } else {
-            setSmartAlertGlobalError(result.error || "Unable to save smart alert. Please refresh and try again.");
+            const resultErrMsg = result.error || "Unable to save smart alert. Please refresh and try again.";
+            setSmartAlertGlobalError(resultErrMsg);
+            setIsMutating(false);
+            return { success: false, error: resultErrMsg };
         }
-        setIsMutating(false);
     };
 
     const handleToggleSmartAlertStatus = useCallback(async (smartAlertId: string) => {

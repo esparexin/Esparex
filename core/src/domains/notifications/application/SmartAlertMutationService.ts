@@ -181,7 +181,10 @@ export const createSmartAlertMutation = async ({
 
     const wallet = await WalletModel.findOne({ userId }).lean();
     const walletSlots = (wallet?.smartAlertSlots as number | undefined) || 0;
-    const planLimit = userRights.smartAlerts || 0;
+    const DEFAULT_FREE_SMART_ALERT_LIMIT = 5;
+    const planLimit = activeUserPlans.length > 0
+        ? (userRights.smartAlerts || 0)
+        : DEFAULT_FREE_SMART_ALERT_LIMIT;
 
     const alertsUsed = await SmartAlertModel.countDocuments({
         userId,

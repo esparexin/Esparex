@@ -12,23 +12,10 @@ import {
 } from "@/lib/api/user/businesses";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
-import { generateAdSlug } from "@/lib/slug";
+import { generateAdSlug, parseSlugIdParam } from "@/lib/slug";
 
 type Props = {
   params: Promise<{ slug: string }>;
-};
-
-const parseSlugWithOptionalId = (param: string) => {
-  const match = param.match(/^(.*)-([0-9a-fA-F]{24})$/);
-  if (!match || !match[2]) {
-    return { identifier: param.trim(), incomingSlug: param.trim(), incomingId: "" };
-  }
-
-  return {
-    identifier: match[2],
-    incomingSlug: match[1] || "",
-    incomingId: match[2],
-  };
 };
 
 const loadBusinessPageData = cache(async (identifier: string, cookieHeader: string) => {
@@ -62,7 +49,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug: rawParam } = await params;
-  const parsed = parseSlugWithOptionalId(rawParam || "");
+  const parsed = parseSlugIdParam(rawParam || "");
   const cookieHeader = (await cookies()).toString();
   const business = await loadBusinessOnly(parsed.identifier, cookieHeader);
 
@@ -97,7 +84,7 @@ export async function generateMetadata(
 
 export default async function BusinessProfilePage({ params }: Props) {
   const { slug: rawParam } = await params;
-  const parsed = parseSlugWithOptionalId(rawParam || "");
+  const parsed = parseSlugIdParam(rawParam || "");
   if (!parsed.identifier) {
     notFound();
   }

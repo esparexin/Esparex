@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import { getCanonicalCategorySlug } from '@/lib/seo/canonicalSlugs';
+import { toCanonicalUrl } from '@/lib/seo/canonicalHost';
 import { resolveBrowseCategorySelection } from '@/lib/browse/browseFilterNormalization';
 import { getAdsPage } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";
@@ -24,7 +25,7 @@ export async function generateMetadata(
         title: `${formattedCategory} | Esparex`,
         description: `Browse ${formattedCategory} on Esparex. Find the best deals on used electronics and spare parts.`,
         alternates: {
-            canonical: `https://esparex.in/category/${canonical}`,
+            canonical: toCanonicalUrl(`/category/${canonical}`),
         },
     };
 }

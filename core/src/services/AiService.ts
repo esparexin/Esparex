@@ -191,12 +191,18 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
                 }
 
                 const prompt = generateListingPromptV1(context);
-                const schema = z.object({
-                    title: z.string().max(MAX_AD_TITLE_CHARS),
-                    description: z.string().max(MAX_AD_DESCRIPTION_CHARS)
-                });
+                const isTitleOnly = context.targetField === 'title';
+                const schema = isTitleOnly
+                    ? z.object({
+                        title: z.string().max(MAX_AD_TITLE_CHARS)
+                    })
+                    : z.object({
+                        title: z.string().max(MAX_AD_TITLE_CHARS),
+                        description: z.string().max(MAX_AD_DESCRIPTION_CHARS)
+                    });
 
-                const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
+                const timeoutForCall = isTitleOnly ? Math.min(AI_REQUEST_TIMEOUT_MS, 3000) : AI_REQUEST_TIMEOUT_MS;
+                const result = await provider.generateStructured(prompt, schema, { timeoutMs: timeoutForCall });
                 const totalMs = Date.now() - t0;
                 logger.info('[AiService] generate telemetry', {
                     type,

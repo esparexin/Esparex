@@ -17,7 +17,7 @@ export const smartAlertCriteriaBaseSchema = z.object({
     maxPrice: z.coerce.number().min(0).optional(),
     condition: optionalTrimmedString,
     location: optionalTrimmedString,
-    locationId: objectIdSchema.optional(),
+    locationId: z.union([objectIdSchema, z.string(), z.literal(""), z.null()]).optional(),
     state: optionalTrimmedString,
     coordinates: coordinatesSchema.optional(),
 });

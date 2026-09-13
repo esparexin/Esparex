@@ -94,4 +94,22 @@ describe("smartAlertFormSchema", () => {
         const result = smartAlertFormSchema.safeParse(gibberishData);
         expect(result.success).toBe(false);
     });
+
+    it("accepts null, empty string, and slug locationId in compliance with Zod empty-string governance", () => {
+        const base = {
+            name: "iPhone Alerts",
+            keywords: "iPhone 14 Pro",
+            category: "mobiles",
+            brand: "Apple",
+            model: "",
+            location: "Hyderabad",
+            radiusKm: 25,
+            notificationChannels: ["email"],
+        };
+
+        expect(smartAlertFormSchema.safeParse({ ...base, locationId: null }).success).toBe(true);
+        expect(smartAlertFormSchema.safeParse({ ...base, locationId: "" }).success).toBe(true);
+        expect(smartAlertFormSchema.safeParse({ ...base, locationId: "hyderabad" }).success).toBe(true);
+        expect(smartAlertFormSchema.safeParse({ ...base, locationId: "507f1f77bcf86cd799439011" }).success).toBe(true);
+    });
 });

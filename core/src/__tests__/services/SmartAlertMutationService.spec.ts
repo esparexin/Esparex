@@ -169,4 +169,26 @@ describe('SmartAlertMutationService', () => {
         expect(alert.save).toHaveBeenCalled();
         expect(updated.isActive).toBe(false);
     });
+
+    it('grants baseline 5 free smart alerts to free users without active plans', async () => {
+        mockedUserPlanFind.mockReturnValue({
+            lean: jest.fn().mockResolvedValue([]),
+        });
+        mockedSmartAlertModel.countDocuments.mockResolvedValue(0);
+
+        const alert = await createSmartAlertMutation({
+            user: makeUser(),
+            body: {
+                name: 'Free alert',
+                criteria: {
+                    category: 'phones',
+                },
+                radiusKm: 10,
+            },
+        });
+
+        expect(mockedConsumeCredit).not.toHaveBeenCalled();
+        expect(mockedSmartAlertModel.create).toHaveBeenCalled();
+        expect(alert).toBeDefined();
+    });
 });

@@ -3,17 +3,18 @@ import Link from "next/link";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@esparex/ui";
 import type { Metadata } from "next";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, CreditCard } from "@esparex/ui";
 import { LEGAL_GRIEVANCE_EMAIL, LEGAL_SUPPORT_PHONE } from "@/lib/legal";
 
 export const metadata: Metadata = {
     title: "Help Center & FAQ | Esparex",
     description: "Find instant answers to frequently asked questions about buying, selling, posting ads, verified business accounts, repair services, payments, and safety on Esparex.",
-    alternates: { canonical: "https://esparex.in/faq" },
+    alternates: { canonical: toCanonicalUrl('/faq') },
     openGraph: {
         title: "Help Center & FAQ | Esparex",
         description: "Find instant answers to frequently asked questions about buying, selling, posting ads, verified business accounts, repair services, payments, and safety on Esparex.",
-        url: "https://esparex.in/faq",
+        url: toCanonicalUrl('/faq'),
         images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };

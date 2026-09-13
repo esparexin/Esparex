@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Loader2, Send, X } from "@esparex/ui";
+import { AlertCircle, Badge, Button, CheckCircle2, Input, Loader2, Send, Textarea, X } from "@esparex/ui";
 import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import type { NotificationRecipient } from "../hooks/useNotifications";
 
@@ -71,7 +71,7 @@ export function BroadcastComposer({
                             onClick={() => setTargetType("all")}
                             className={`rounded-lg border px-3 py-2 text-caption font-bold transition-all cursor-pointer ${
                                 targetType === "all"
-                                    ? "border-primary bg-primary text-primary-foreground"
+                                     ? "border-primary bg-primary text-primary-foreground"
                                     : "border-border bg-muted/30 text-foreground-tertiary hover:bg-muted"
                             }`}
                         >
@@ -134,10 +134,9 @@ export function BroadcastComposer({
                             <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                                 Search Recipients
                             </label>
-                            <input
+                            <Input
                                 type="text"
                                 placeholder="Search by name, email, or mobile..."
-                                className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                 value={recipientQuery}
                                 onChange={(event) => setRecipientQuery(event.target.value)}
                             />
@@ -149,16 +148,22 @@ export function BroadcastComposer({
                         {selectedUsers.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                                 {selectedUsers.map((user) => (
-                                    <button
+                                    <Badge
                                         key={user.id}
-                                        type="button"
-                                        onClick={() => removeRecipient(user.id)}
-                                        className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-caption font-medium text-primary cursor-pointer"
-                                        title="Remove recipient"
+                                        variant="outline"
+                                        className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-caption font-medium text-primary"
                                     >
                                         <span>{user.label}</span>
-                                        <X size={12} />
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeRecipient(user.id)}
+                                            className="hover:text-destructive cursor-pointer"
+                                            title="Remove recipient"
+                                            aria-label={`Remove recipient ${user.label}`}
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </Badge>
                                 ))}
                             </div>
                         ) : null}
@@ -203,10 +208,9 @@ export function BroadcastComposer({
                     <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Notification Title
                     </label>
-                    <input
+                    <Input
                         type="text"
                         placeholder="What’s new today?"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={title}
                         onChange={(event) => setTitle(event.target.value)}
                         required
@@ -217,10 +221,10 @@ export function BroadcastComposer({
                     <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Message Body
                     </label>
-                    <textarea
+                    <Textarea
                         placeholder="Type your message here..."
                         rows={4}
-                        className="w-full resize-none rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="resize-none"
                         value={body}
                         onChange={(event) => setBody(event.target.value)}
                         required
@@ -231,10 +235,9 @@ export function BroadcastComposer({
                     <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Action Link
                     </label>
-                    <input
+                    <Input
                         type="text"
                         placeholder="/plans or https://example.com/offers"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={actionUrl}
                         onChange={(event) => setActionUrl(event.target.value)}
                     />
@@ -247,9 +250,8 @@ export function BroadcastComposer({
                     <label className="mb-1 block text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">
                         Schedule For
                     </label>
-                    <input
+                    <Input
                         type="datetime-local"
-                        className="w-full rounded-lg border border-input bg-background px-4 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={sendAt}
                         onChange={(event) => setSendAt(event.target.value)}
                     />
@@ -267,14 +269,14 @@ export function BroadcastComposer({
                     </div>
                 ) : null}
 
-                <button
+                <Button
                     type="submit"
                     disabled={sending}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                    className="w-full font-bold shadow-lg shadow-primary/20"
                 >
                     {sending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                     {sending ? "Sending..." : sendAt ? "Schedule Broadcast" : "Send Broadcast"}
-                </button>
+                </Button>
             </form>
         </div>
     );

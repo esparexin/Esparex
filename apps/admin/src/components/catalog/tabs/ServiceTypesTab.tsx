@@ -10,8 +10,7 @@ import {
     CatalogActiveToggleButton,
     CatalogEditDeleteActions,
     CatalogActiveStatusFilter,
-    CatalogSelectFilter,
-    CatalogSearchInput,
+    CatalogSearchAndCategoryFilters,
 } from "@/components/catalog/primitives";
 import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
 import { useCatalogTabState } from "@/hooks/useCatalogTabState";
@@ -148,24 +147,19 @@ export default function ServiceTypesTab() {
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogSearchInput
-                            value={searchInput}
-                            placeholder="Search service types..."
-                            onChange={setSearchInput}
-                        />
-                        <CatalogSelectFilter
-                            value={initialCategoryId}
-                            onChange={(categoryId) =>
+                        <CatalogSearchAndCategoryFilters
+                            searchValue={searchInput}
+                            searchPlaceholder="Search service types..."
+                            onSearchChange={setSearchInput}
+                            categories={categoryOptions}
+                            categoryValue={initialCategoryId}
+                            onCategoryChange={(categoryId) =>
                                 replaceQueryState({
                                     categoryId: categoryId !== "all" ? categoryId : null,
                                     page: null,
                                 })
                             }
-                            options={[
-                                { value: "all", label: "All Categories" },
-                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
-                            ]}
-                            withFilterIcon
+                            withCategoryFilterIcon
                         />
                         <CatalogActiveStatusFilter
                             value={initialStatus}

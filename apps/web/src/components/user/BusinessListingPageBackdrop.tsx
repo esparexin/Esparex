@@ -1,0 +1,77 @@
+"use client";
+
+interface BusinessListingPageBackdropProps {
+    listingType?: string;
+}
+
+export function BusinessListingPageBackdrop({ listingType = "listing" }: BusinessListingPageBackdropProps) {
+    return (
+        <div className="fixed inset-0 overflow-hidden bg-muted/90 pointer-events-none select-none z-0" inert>
+            {/* Header Shell */}
+            <header className="w-full bg-card border-b border-border px-4 py-3 sm:px-6 flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-body-lg">
+                        E
+                    </div>
+                    <span className="font-bold text-foreground text-h4 tracking-tight">Esparex</span>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 max-w-md w-full mx-8">
+                    <div className="w-full h-9 rounded-full bg-muted border border-border px-4 flex items-center text-foreground-subtle text-body">
+                        Search {listingType}, spare parts, devices...
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="w-20 h-8 rounded-full bg-muted" />
+                    <div className="w-24 h-9 rounded-xl bg-primary/10 border border-primary/20" />
+                </div>
+            </header>
+
+            {/* Page Body Shell */}
+            <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 space-y-6">
+                {/* Hero / Banner Preview */}
+                <div className="w-full rounded-2xl bg-gradient-to-r from-primary via-primary/80 to-foreground p-6 sm:p-8 text-primary-foreground shadow-md">
+                    <div className="w-48 h-4 rounded bg-primary-foreground/20 mb-3" />
+                    <div className="w-80 max-w-full h-7 rounded bg-primary-foreground/30 mb-4" />
+                    <div className="flex gap-2">
+                        <div className="w-28 h-9 rounded-lg bg-primary-foreground/20" />
+                        <div className="w-28 h-9 rounded-lg bg-primary-foreground/10" />
+                    </div>
+                </div>
+
+                {/* Category Grid Preview */}
+                <div className="space-y-3">
+                    <div className="w-36 h-5 rounded bg-muted-foreground/20" />
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        {["Mobiles", "Laptops", "LED TVs", "Tablets", "Drones", "Audio"].map((cat, i) => (
+                            <div key={i} className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 shadow-xs">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-caption">
+                                    {cat.substring(0, 2).toUpperCase()}
+                                </div>
+                                <span className="text-caption font-semibold text-foreground-secondary">{cat}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Listing Cards Grid Preview */}
+                <div className="space-y-3 pt-2">
+                    <div className="w-44 h-5 rounded bg-muted-foreground/20" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {[1, 2, 3, 4].map((item) => (
+                            <div key={item} className="rounded-2xl border border-border bg-card p-3 space-y-3 shadow-xs">
+                                <div className="w-full h-36 rounded-xl bg-muted flex items-center justify-center text-foreground-subtle text-caption font-medium">
+                                    Listing Preview
+                                </div>
+                                <div className="space-y-1.5">
+                                    <div className="w-3/4 h-4 rounded bg-muted-foreground/20" />
+                                    <div className="w-1/2 h-3 rounded bg-muted" />
+                                    <div className="w-1/3 h-5 rounded bg-primary/15 mt-2" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}

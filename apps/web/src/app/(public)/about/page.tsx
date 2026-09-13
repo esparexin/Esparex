@@ -2,15 +2,16 @@ import { InfoPage } from "@/components/common/InfoPage";
 import { Metadata } from 'next';
 import { buildAboutPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: 'About Us | Esparex',
     description: 'Esparex is India\'s leading marketplace for electronics spare parts and repair services. We connect device owners with trusted technicians and suppliers.',
-    alternates: { canonical: 'https://esparex.in/about' },
+    alternates: { canonical: toCanonicalUrl('/about') },
     openGraph: {
         title: 'About Us | Esparex',
         description: 'Esparex is India\'s leading marketplace for electronics spare parts and repair services.',
-        url: 'https://esparex.in/about',
+        url: toCanonicalUrl('/about'),
         images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     },
 };

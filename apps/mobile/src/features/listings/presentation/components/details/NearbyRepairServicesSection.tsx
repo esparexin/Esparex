@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { AppText, AppIcon, Card, Badge } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { Business } from '@esparex/contracts';
 import { useNearbyBusinesses } from '../../hooks/useNearbyBusinesses';
 
@@ -30,7 +31,7 @@ export const NearbyRepairServicesSection: React.FC<NearbyRepairServicesSectionPr
       <View className="flex-row items-center justify-between mb-1">
         <View className="flex-row items-center">
           <View className="mr-1.5">
-            <AppIcon name="Wrench" size={16} color="#0ea5e9" />
+            <AppIcon name="Wrench" size={16} color={base.brand[600]} />
           </View>
           <AppText variant="h3" className="text-slate-900 dark:text-white font-semibold">
             Nearby Repair Services

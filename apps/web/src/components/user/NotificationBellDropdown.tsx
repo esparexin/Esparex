@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, Inbox } from "@esparex/ui";
+import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
-import { NotificationItemCard } from "@/components/user/NotificationItemCard";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
+import { NotificationDropdownBody } from "./NotificationDropdownBody";
 
 type NotificationBellDropdownProps = {
     notificationsData?: NotificationResponse;
@@ -142,8 +142,8 @@ export function NotificationBellDropdown({
     const triggerClassName =
         variant === "mobile"
             ? "h-11 w-11 rounded-full hover:bg-muted relative"
-            : "h-11 w-11 rounded-full relative text-muted-foreground hover:text-foreground";
-    const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-5 w-5";
+            : "h-9 w-9 rounded-full relative text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer";
+    const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-4.5 w-4.5";
 
     if (variant === "mobile") {
         return (
@@ -183,7 +183,7 @@ export function NotificationBellDropdown({
                 >
                     <Bell className={iconClassName} />
                     {unreadCount > 0 ? (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-destructive px-1 text-tiny font-bold text-destructive-foreground">
+                        <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-destructive px-1 text-tiny font-bold text-destructive-foreground shadow-xs animate-in zoom-in-50">
                             {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                     ) : null}
@@ -193,7 +193,7 @@ export function NotificationBellDropdown({
             <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="w-[min(90vw,17rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-lg"
+                className="z-[50] w-[min(90vw,22rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
                 onPointerDownOutside={(e) => {
                     if ((e.target as HTMLElement | null)?.closest('[data-slot="dropdown-menu-trigger"]')) {
                         e.preventDefault();
@@ -202,47 +202,18 @@ export function NotificationBellDropdown({
                 }}
                 onInteractOutside={() => setOpen(false)}
             >
-                <div className="border-b border-border px-3 py-2">
-                    <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-foreground">Notifications</p>
-                        {unreadCount > 0 ? (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 rounded-full px-2.5 text-tiny font-medium text-foreground-tertiary hover:bg-muted"
-                                onClick={() => markAllReadMutation.mutate()}
-                                disabled={markAllReadMutation.isPending}
-                            >
-                                Mark all read
-                            </Button>
-                        ) : null}
-                    </div>
-                </div>
-
-                <div className="max-h-[18rem] overflow-y-auto px-1.5 py-1.5">
-                    {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/50 px-4 py-6 text-center">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-card shadow-sm">
-                                <Inbox className="h-4 w-4 text-foreground-subtle" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-xs font-semibold text-foreground">No notifications</p>
-                                <p className="text-tiny leading-4 text-muted-foreground">Updates will appear here.</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="space-y-1">
-                            {notifications.map((notification) => (
-                                <NotificationItemCard
-                                    key={notification.id}
-                                    notification={notification}
-                                    onSelect={handleNotificationSelect}
-                                    isProcessing={markReadMutation.isPending}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
+                <NotificationDropdownBody
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    onMarkAllRead={() => markAllReadMutation.mutate()}
+                    isMarkingAllRead={markAllReadMutation.isPending}
+                    onSelectNotification={handleNotificationSelect}
+                    isMarkingRead={markReadMutation.isPending}
+                    onViewAll={() => {
+                        setOpen(false);
+                        void router.push("/notifications");
+                    }}
+                />
             </DropdownMenuContent>
         </DropdownMenu>
     );

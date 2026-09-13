@@ -1,7 +1,7 @@
 /**
  * Spare Part Listing Payload Schema — shared between backend controller and frontend form.
  *
- * Backend controller: validates req.body on POST /api/v1/spare-part-listings
+ * Backend controller: validates req.body on POST /api/v1/listings (unified Listing endpoint)
  * Frontend form: extends BaseSparePartPayloadSchema for UI-only fields before upload
  *
  * Field name SSOT: 'title' (not 'partName' — partPayload.schema.ts was legacy and is now deleted)
