@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@esparex/ui";
 import { useChatActions } from '@/hooks/useChatActions';
 import { CHAT_REPORT_REASON } from "@esparex/contracts";
 

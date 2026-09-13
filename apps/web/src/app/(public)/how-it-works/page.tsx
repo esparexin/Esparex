@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
 import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: "How It Works | Esparex",
     description: "Discover how easy it is to buy, sell, and find professional repair services on Esparex — India's trusted marketplace for mobile spare parts and electronics.",
-    alternates: { canonical: "https://esparex.in/how-it-works" },
+    alternates: { canonical: toCanonicalUrl('/how-it-works') },
     openGraph: {
         title: "How It Works | Esparex",
         description: "Discover how easy it is to buy, sell, and find professional repair services on Esparex.",
-        url: "https://esparex.in/how-it-works",
+        url: toCanonicalUrl('/how-it-works'),
         images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 const howItWorksSchema = buildWebPageSchema({
     name: "How Esparex Works | Buying, Selling & Repair Services",
     description: "Step-by-step guide to finding electronics spare parts, posting classified ads, and hiring verified technicians on Esparex.",
-    url: "https://esparex.in/how-it-works",
+    url: toCanonicalUrl('/how-it-works'),
     datePublished: "2026-08-26",
     dateModified: "2026-08-26",
 });

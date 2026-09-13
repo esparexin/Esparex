@@ -27,7 +27,6 @@ export default function AIConfigPage() {
     const [saving, setSaving] = useState(false);
 
     const fetchConfig = useCallback(async () => {
-        setLoading(true);
         try {
             const response = await adminFetch<AiConfigData>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
             if (response?.data) {
@@ -42,8 +41,32 @@ export default function AIConfigPage() {
     }, []);
 
     useEffect(() => {
-        fetchConfig();
-    }, [fetchConfig]);
+        let isMounted = true;
+
+        async function load() {
+            try {
+                const response = await adminFetch<AiConfigData>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
+                if (isMounted && response?.data) {
+                    setCapabilities(response.data.capabilities || {});
+                    setProviders(response.data.providers || {});
+                }
+            } catch (err: unknown) {
+                if (isMounted) {
+                    showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to load AI configuration" });
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void load();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const handleCapabilityChange = (key: string, field: keyof CapabilityConfig, value: string | number) => {
         setCapabilities((prev) => {
@@ -109,7 +132,7 @@ export default function AIConfigPage() {
 
             await adminFetch(ADMIN_ROUTES.SYSTEM_AI_CONFIG, {
                 method: "PATCH",
-                body: JSON.stringify(payload),
+                body: payload,
             });
 
             showAdminPopup({ type: "success", title: "Saved", message: "AI Configuration and routing rules saved" });
@@ -125,6 +148,18 @@ export default function AIConfigPage() {
         }
     };
 
+    const activeDefaultProvider = capabilities.post_ad_title?.provider || "gemini";
+    const activeDefaultModel = capabilities.post_ad_title?.model || "gemini-2.0-flash";
+    const activeProviderName = activeDefaultProvider === "gemini" ? "Google Gemini" : activeDefaultProvider === "openai" ? "OpenAI" : activeDefaultProvider === "claude" ? "Anthropic Claude" : "DeepSeek AI";
+
+    const enabledFallbacks = Object.entries(providers)
+        .filter(([k, v]) => v.enabled && k !== activeDefaultProvider)
+        .map(([k, v]) => ({
+            name: k === "gemini" ? "Google Gemini" : k === "openai" ? "OpenAI" : k === "claude" ? "Anthropic Claude" : "DeepSeek AI",
+            model: v.defaultModel || (k === "openai" ? "gpt-4o-mini" : k === "claude" ? "claude-3-5-haiku" : "gemini-2.0-flash")
+        }));
+    const fallbackDisplay = enabledFallbacks[0] ? `${enabledFallbacks[0].name} (${enabledFallbacks[0].model})` : "Automatic Failover Chain";
+
     if (loading) {
         return (
             <AdminPageShell
@@ -133,7 +168,7 @@ export default function AIConfigPage() {
                 showGlobalSearch={false}
             >
                 <div className="flex items-center justify-center p-12">
-                    <span className="text-muted-foreground font-medium">Loading AI configuration...</span>
+                    <span className="text-foreground-secondary text-body font-medium">Loading AI configuration...</span>
                 </div>
             </AdminPageShell>
         );
@@ -174,7 +209,7 @@ export default function AIConfigPage() {
                         </div>
                         <div>
                             <p className="text-tiny font-bold uppercase tracking-wider text-foreground-subtle">Active Default Provider</p>
-                            <p className="text-body font-bold text-foreground font-mono">Google Gemini (Flash)</p>
+                            <p className="text-body font-bold text-foreground font-mono">{activeProviderName} ({activeDefaultModel})</p>
                         </div>
                     </div>
 
@@ -184,7 +219,7 @@ export default function AIConfigPage() {
                         </div>
                         <div>
                             <p className="text-tiny font-bold uppercase tracking-wider text-foreground-subtle">Fallback Provider</p>
-                            <p className="text-body font-bold text-foreground font-mono">OpenAI (GPT-4o-mini)</p>
+                            <p className="text-body font-bold text-foreground font-mono">{fallbackDisplay}</p>
                         </div>
                     </div>
                 </Grid>
@@ -196,7 +231,7 @@ export default function AIConfigPage() {
                             <Key className="text-foreground-secondary" size={20} />
                             <div>
                                 <h3 className="text-body font-bold text-foreground">AI Provider Accounts & API Keys</h3>
-                                <p className="text-caption text-foreground-subtle">Configure provider state, default models, and encrypted API credentials (Single Key Operational Guarantee)</p>
+                                <p className="text-caption text-foreground-subtle">Configure provider state, default models, and encrypted API credentials</p>
                             </div>
                         </div>
                     </div>

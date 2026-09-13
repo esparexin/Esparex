@@ -5,7 +5,7 @@ import { logAdminAction } from '../../utils/adminLogger';
 import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from "@esparex/contracts";
 import { AD_STATUS } from "@esparex/contracts";
-import { REPORT_STATUS } from "@esparex/contracts";
+import { REPORT_STATUS, REPORT_STATUS_VALUES, type ReportStatusValue } from "@esparex/contracts";
 import { getSingleParam } from '../../utils/requestParams';
 import {
     getPaginationParams,
@@ -114,8 +114,8 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         const status = typeof reportBody.status === 'string' ? reportBody.status.trim().toLowerCase() : '';
         const note = typeof reportBody.note === 'string' ? reportBody.note.trim() : undefined;
 
-        if (![REPORT_STATUS.RESOLVED as string, REPORT_STATUS.DISMISSED as string].includes(status)) {
-            return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS.RESOLVED}, ${REPORT_STATUS.DISMISSED}`, 400);
+        if (!REPORT_STATUS_VALUES.includes(status as ReportStatusValue)) {
+            return sendAdminError(req, res, `Invalid report status. Allowed: ${REPORT_STATUS_VALUES.join(', ')}`, 400);
         }
 
         const report = await updateReportById(id, {

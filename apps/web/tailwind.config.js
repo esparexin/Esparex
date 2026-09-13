@@ -8,7 +8,11 @@ try {
 const config = {
 	content: [
 		"./src/**/*.{js,ts,jsx,tsx}",
+		"!./src/**/__tests__/**",
+		"!./src/**/*.{spec,test}.{js,ts,jsx,tsx}",
 		"../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
+		"!../../packages/ui/src/**/__tests__/**",
+		"!../../packages/ui/src/**/*.{spec,test}.{js,ts,jsx,tsx}",
 	],
 	darkMode: ["class"],
 	theme: {

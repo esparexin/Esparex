@@ -2,7 +2,7 @@
 import { useLayoutEffect, useMemo, useReducer, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { UserPage } from "@/lib/routeUtils";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import dynamic from "next/dynamic";
@@ -22,7 +22,7 @@ import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
-import { ROUTES } from "../../lib/logic/routes";
+import { ROUTES } from "@/lib/routeUtils";
 import { useListingDetailQuery, useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { useAuth } from "@/context/AuthContext";
 import { useViewTracking } from "./hooks/useViewTracking";

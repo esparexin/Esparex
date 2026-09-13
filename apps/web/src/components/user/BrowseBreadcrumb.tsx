@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "@/icons/IconRegistry";
+import { ChevronRight } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
 interface BrowseBreadcrumbProps {

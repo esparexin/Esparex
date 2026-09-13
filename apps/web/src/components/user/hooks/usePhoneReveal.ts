@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { getListingPhone, type Listing as Ad } from '@/lib/api/user/listings';
-import type { User } from '@/types/User';
+import type { User } from "@esparex/contracts";
 import { notify } from "@/lib/feedback";
 import { useAuthModal } from '@/context/AuthModalContext';
 

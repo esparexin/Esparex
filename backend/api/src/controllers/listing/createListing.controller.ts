@@ -68,6 +68,24 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
             idempotencyKey: req.headers['idempotency-key'] as string
         });
 
+        // Backlink created Ad ID to Catalog Requests if any were generated
+        const pendingRequestIds: string[] = [
+            typeof body.pendingBrandRequestId === 'string' ? body.pendingBrandRequestId : undefined,
+            typeof body.pendingModelRequestId === 'string' ? body.pendingModelRequestId : undefined,
+        ].filter((id): id is string => Boolean(id));
+
+        if (ad && pendingRequestIds.length > 0) {
+            try {
+                const { linkListingToCatalogRequests } = await import('@esparex/core/domains/catalog/application/services/CatalogRequestService');
+                const createdAdId = (ad as { id?: string; _id?: string }).id ?? (ad as { _id?: string })._id;
+                if (createdAdId) {
+                    await linkListingToCatalogRequests(pendingRequestIds, createdAdId);
+                }
+            } catch {
+                // Best-effort backlink; does not fail ad creation
+            }
+        }
+
         return sendSuccessResponse(res, ad, 'Listing created successfully', 201);
     } catch (error) {
         next(error);

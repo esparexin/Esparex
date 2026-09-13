@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@esparex/ui";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
-import { Search, MapPin, Target, Loader2 } from "@/icons/IconRegistry";
+import { Search, MapPin, Target, Loader2 } from "@esparex/ui";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { toCanonicalGeoPoint } from "@esparex/shared";
 import { type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
@@ -312,7 +312,7 @@ export default function LocationSelector({
                         : "Search city, area or district"}
                     title={hasSelection ? "Tap to change location" : undefined}
                     className={cn(
-                        "pl-10 h-11 rounded-xl transition-all text-body-lg md:text-body",
+                        "pl-10 pr-28 sm:pr-32 h-11 rounded-xl transition-all text-body-lg md:text-body truncate",
                         hasSelection ? "bg-primary/5 font-semibold text-primary border-primary/20 cursor-pointer" : "bg-background cursor-text",
                         error ? "border-destructive ring-destructive/50" : "",
                         className

@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@esparex/ui";
+
 interface CatalogFormActionsProps {
     onCancel: () => void;
     isSubmitting?: boolean;
@@ -17,20 +19,22 @@ export function CatalogFormActions({
 }: CatalogFormActionsProps) {
     return (
         <div className="flex gap-3 pt-4">
-            <button
+            <Button
                 type="button"
+                variant="outline"
                 onClick={onCancel}
-                className="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-bold text-foreground-secondary transition-all hover:bg-slate-200"
+                className="flex-1"
             >
                 {cancelLabel}
-            </button>
-            <button
+            </Button>
+            <Button
                 type="submit"
+                variant="primary"
                 disabled={isSubmitting}
-                className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:opacity-50"
+                className="flex-1"
             >
                 {isSubmitting ? loadingLabel : submitLabel}
-            </button>
+            </Button>
         </div>
     );
 }

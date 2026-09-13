@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "@esparex/ui";
+import { AlertTriangle, Loader2, Button } from "@esparex/ui";
 
 export function CatalogRejectSuggestionForm({
     itemName, rejectionReason, onRejectionReasonChange, onCancel, onConfirm, isSubmitting, placeholder,
@@ -20,17 +20,17 @@ export function CatalogRejectSuggestionForm({
                 </div>
             </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Rejection Reason</label>
+                <label className="text-tiny font-bold uppercase tracking-wider text-foreground-tertiary">Rejection Reason</label>
                 <textarea autoFocus value={rejectionReason} onChange={(e) => onRejectionReasonChange(e.target.value)}
-                    placeholder={placeholder} className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                    placeholder={placeholder} className="w-full min-h-[100px] rounded-lg border border-input bg-background p-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all" />
             </div>
             <div className="flex justify-end gap-3 pt-2">
-                <button type="button" disabled={isSubmitting} onClick={onCancel}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors">Cancel</button>
-                <button type="button" disabled={isSubmitting || !rejectionReason.trim()} onClick={onConfirm}
-                    className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors">
+                <Button type="button" variant="outline" disabled={isSubmitting} onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button type="button" variant="destructive" disabled={isSubmitting || !rejectionReason.trim()} onClick={onConfirm}>
                     {isSubmitting ? <><Loader2 size={14} className="animate-spin" /> Submitting&hellip;</> : "Confirm Rejection"}
-                </button>
+                </Button>
             </div>
         </div>
     );

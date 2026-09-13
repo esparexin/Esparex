@@ -2,7 +2,7 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, PackageOpen } from "@/icons/IconRegistry";
+import { Loader2, PackageOpen } from "@esparex/ui";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";

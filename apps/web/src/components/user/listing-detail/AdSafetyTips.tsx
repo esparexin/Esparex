@@ -1,4 +1,4 @@
-import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@/icons/IconRegistry";
+import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@esparex/ui";
 
 interface AdSafetyTipsProps {
     adId?: string | number;

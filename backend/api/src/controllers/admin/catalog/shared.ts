@@ -366,6 +366,11 @@ export async function handleCatalogDelete<T extends Document>(
 
         const item = await model.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
         if (!item) {
+            const alreadyDeletedDoc = await model.findById(id).setOptions({ withDeleted: true }).exec();
+            if (alreadyDeletedDoc && (alreadyDeletedDoc as T & { isDeleted?: boolean }).isDeleted) {
+                if (options.postOp) void options.postOp(alreadyDeletedDoc);
+                return sendSuccessResponse(res, { alreadyDeleted: true }, `${model.modelName} was already deleted`);
+            }
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
@@ -437,6 +442,7 @@ export async function handleCatalogReview<T extends Document>(
 }
 
 import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import { clearCategoryCanonicalCache } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 
 export interface CatalogCacheInvalidationItem {
     categoryIds?: Array<string | Types.ObjectId>;
@@ -444,7 +450,12 @@ export interface CatalogCacheInvalidationItem {
     brandId?: string | Types.ObjectId;
 }
 
-export const invalidateItemCatalogCache = (item: CatalogCacheInvalidationItem) => void CatalogOrchestrator.invalidateCatalogCache({
-    categoryIds: (item.categoryIds as string[] | undefined) || (item.categoryId ? [String(item.categoryId)] : []),
-    brandIds: item.brandId ? [String(item.brandId)] : []
-});
+export const invalidateItemCatalogCache = (item: CatalogCacheInvalidationItem) => {
+    const categoryIds = (item.categoryIds as string[] | undefined) || (item.categoryId ? [String(item.categoryId)] : []);
+    const brandIds = item.brandId ? [String(item.brandId)] : [];
+    clearCategoryCanonicalCache();
+    void CatalogOrchestrator.invalidateCatalogCache({
+        categoryIds,
+        brandIds
+    });
+};

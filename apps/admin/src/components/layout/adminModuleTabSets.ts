@@ -35,10 +35,6 @@ export const catalogManagementTabs: AdminTabItem[] = [
     { label: "Catalog Requests",  href: "/categories?tab=catalog-requests" },
 ];
 
-export const sparePartsMasterTabs: AdminTabItem[] = [
-    { label: "Spare Parts",  href: "/spare-parts-catalog" },
-];
-
 export const moderationTabs: AdminTabItem[] = [
     { label: "Ads", href: "/ads?status=pending", matchPathOnly: true },
     { label: "Services", href: "/services?status=pending", matchPathOnly: true },

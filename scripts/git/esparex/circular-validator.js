@@ -1,12 +1,16 @@
 #!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'CIRC-001', name: 'Circular Dependency Validation', version: '1.0.0', category: 'Architecture' };
 
 function run(val) {
   try {
-    const out = execSync('npx madge --circular --extensions ts,tsx core/src backend/api/src apps/web/src apps/admin/src', {
+    const madgeBin = path.join(ROOT, 'node_modules/.bin/madge');
+    const cmd = fs.existsSync(madgeBin) ? `"${madgeBin}"` : 'npx madge';
+    const out = execSync(`${cmd} --circular --extensions ts,tsx core/src backend/api/src apps/web/src apps/admin/src`, {
       cwd: ROOT,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe']

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useParams, usePathname } from "next/navigation";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import {
   PROFILE_TAB_ITEMS,
   PROFILE_TAB_PAGE_ROUTES,

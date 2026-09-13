@@ -3,15 +3,16 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { buildCollectionPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: "Sitemap | Esparex",
     description: "Explore all marketplace categories, services, support guides, and legal policies on Esparex.",
-    alternates: { canonical: "https://esparex.in/site-map" },
+    alternates: { canonical: toCanonicalUrl('/site-map') },
     openGraph: {
         title: "Sitemap | Esparex",
         description: "Explore all marketplace categories, services, support guides, and legal policies on Esparex.",
-        url: "https://esparex.in/site-map",
+        url: toCanonicalUrl('/site-map'),
         images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 const sitemapSchema = buildCollectionPageSchema(
     "Sitemap | Esparex",
     "Explore all marketplace categories, services, support guides, and legal policies on Esparex.",
-    "https://esparex.in/site-map"
+    toCanonicalUrl('/site-map')
 );
 
 export default function SiteMapPage() {
@@ -41,8 +42,8 @@ export default function SiteMapPage() {
                         <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/" className="text-foreground-secondary hover:text-primary transition-colors block">Home</Link></li>
                             <li><Link href="/search" className="text-foreground-secondary hover:text-primary transition-colors block">Browse All Ads</Link></li>
-                            <li><Link href="/spare-parts" className="text-foreground-secondary hover:text-primary transition-colors block">Spare Parts Catalog</Link></li>
-                            <li><Link href="/services" className="text-foreground-secondary hover:text-primary transition-colors block">Repair Services</Link></li>
+                            <li><Link href="/search?type=spare_part" className="text-foreground-secondary hover:text-primary transition-colors block">Spare Parts Catalog</Link></li>
+                            <li><Link href="/search?type=service" className="text-foreground-secondary hover:text-primary transition-colors block">Repair Services</Link></li>
                             <li><Link href="/search?type=business" className="text-foreground-secondary hover:text-primary transition-colors block">Verified Businesses</Link></li>
                         </ul>
                     </div>
@@ -51,7 +52,7 @@ export default function SiteMapPage() {
                     <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
                         <h2 className="font-bold mb-3 text-body text-foreground">Categories</h2>
                         <ul className="flex flex-col gap-2 text-caption">
-                            <li><Link href="/category/mobile-phones" className="text-foreground-secondary hover:text-primary transition-colors block">Mobile Phones</Link></li>
+                            <li><Link href="/category/mobiles" className="text-foreground-secondary hover:text-primary transition-colors block">Mobile Phones</Link></li>
                             <li><Link href="/category/tablets" className="text-foreground-secondary hover:text-primary transition-colors block">Tablets</Link></li>
                             <li><Link href="/category/laptops" className="text-foreground-secondary hover:text-primary transition-colors block">Laptops &amp; Computers</Link></li>
                             <li><Link href="/category/spare-parts" className="text-foreground-secondary hover:text-primary transition-colors block">Displays &amp; Spare Parts</Link></li>

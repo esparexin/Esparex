@@ -5,7 +5,7 @@ import {
     XCircle, 
     AlertTriangle, 
     ArrowRight
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import { Button } from "@esparex/ui";
 
 import type { BusinessStatusValue } from "@esparex/contracts";

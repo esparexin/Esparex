@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ShieldOff } from "@/icons/IconRegistry";
+import { ShieldOff } from "@esparex/ui";
 import { UnauthorizedActions } from "@/components/common/UnauthorizedActions";
 
 export const metadata: Metadata = {

@@ -1,7 +1,3 @@
-export function normalizeCategoryName(name: string): string {
-    return (name || "").trim();
-}
-
 export function normalizeToken(value: string): string {
     return (value || "")
         .trim()
@@ -10,13 +6,13 @@ export function normalizeToken(value: string): string {
         .replace(/^-+|-+$/g, '');
 }
 
-export function singularize(token: string): string {
+function singularize(token: string): string {
     if (token.endsWith('ies') && token.length > 4) return `${token.slice(0, -3)}y`;
     if (token.endsWith('s') && !token.endsWith('ss') && token.length > 3) return token.slice(0, -1);
     return token;
 }
 
-export function toCanonicalKey(value?: string): string | null {
+function toCanonicalKey(value?: string): string | null {
     if (!value) return null;
     const normalized = normalizeToken(value);
     if (!normalized) return null;

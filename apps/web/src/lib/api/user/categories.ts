@@ -1,9 +1,7 @@
 import { apiClient } from "@/lib/api/client";
-import {
-    API_ROUTES,
-} from "../routes";
+import { API_ROUTES } from "../routes";
 import { toApiResult } from "@/lib/api/result";
-import type { Category } from "@/schemas";
+import type { Category } from "@esparex/contracts";
 import { fetchUserApiJson, type ServerFetchOptions } from "./server";
 
 export type { Category };

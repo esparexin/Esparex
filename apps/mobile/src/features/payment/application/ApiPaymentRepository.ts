@@ -28,10 +28,14 @@ export class ApiPaymentRepository implements IPaymentRepository {
         razorpay_order_id: input.razorpayOrderId,
         razorpay_signature: input.razorpaySignature,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 🛡️ Webhook-Only Fallback: If backend verify endpoint returns 404 (e.g. server running in webhook-only mode),
       // client payment is confirmed asynchronously via gateway webhook to prevent blocking native UI checkout.
-      if (error?.response?.status === 404) {
+      const status =
+        typeof error === 'object' && error !== null && 'response' in error
+          ? (error as { response?: { status?: number } }).response?.status
+          : undefined;
+      if (status === 404) {
         return;
       }
       throw error;
@@ -65,9 +69,10 @@ export class ApiPaymentRepository implements IPaymentRepository {
         razorpay_order_id: data.razorpay_order_id || order.orderId,
         razorpay_signature: data.razorpay_signature || '',
       };
-    } catch (error: any) {
-      const code = error?.code;
-      const description = error?.description || 'Payment failed or was cancelled';
+    } catch (error: unknown) {
+      const err = error as { code?: number; description?: string } | null | undefined;
+      const code = err?.code;
+      const description = err?.description || 'Payment failed or was cancelled';
       if (code === 0) {
         throw new Error('Payment was cancelled by user');
       }

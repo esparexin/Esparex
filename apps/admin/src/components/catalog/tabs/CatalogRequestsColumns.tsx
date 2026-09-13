@@ -8,13 +8,14 @@ import {
   AlertCircle,
   ExternalLink,
   Checkbox,
+  Trash2,
+  type ColumnDef,
 } from "@esparex/ui";
 import {
   CatalogActionsRow,
   CatalogActionIconButton,
   CatalogEntityCell,
 } from "@/components/catalog/primitives";
-import type { ColumnDef } from "@/components/ui/DataTable";
 
 interface GenerateCatalogRequestsColumnsParams {
   headerCheckedState: boolean | "indeterminate";
@@ -23,6 +24,7 @@ interface GenerateCatalogRequestsColumnsParams {
   onToggleSelect: (id: string, checked: boolean) => void;
   handleApprove: (id: string) => Promise<void>;
   onOpenRejectModal: (req: CatalogRequestItem) => void;
+  onOpenDeleteModal: (req: CatalogRequestItem) => void;
 }
 
 export function generateCatalogRequestsColumns({
@@ -32,6 +34,7 @@ export function generateCatalogRequestsColumns({
   onToggleSelect,
   handleApprove,
   onOpenRejectModal,
+  onOpenDeleteModal,
 }: GenerateCatalogRequestsColumnsParams): ColumnDef<CatalogRequestItem>[] {
   return [
     {
@@ -53,26 +56,72 @@ export function generateCatalogRequestsColumns({
       ),
     },
     {
-      header: "Request",
+      header: "Requested By",
       cell: (req) => {
-        const userName =
-          typeof req.requestedBy === "string"
-            ? req.requestedBy
-            : `${req.requestedBy.firstName} ${req.requestedBy.lastName}`;
+        const userObj = typeof req.requestedBy === "object" && req.requestedBy ? req.requestedBy : null;
+        const name = userObj ? `${userObj.firstName || ''} ${userObj.lastName || ''}`.trim() || userObj.email || userObj.id || userObj._id : String(req.requestedBy || 'Unknown User');
+        const contact = userObj?.email || userObj?.mobile || '';
+        const userId = userObj?.id || userObj?._id || String(req.requestedBy);
+
         return (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5 max-w-[200px]">
+            <span className="font-bold text-foreground text-body leading-tight truncate">{name}</span>
+            {contact ? <span className="text-caption text-foreground-tertiary truncate">{contact}</span> : null}
+            <span className="text-tiny font-mono text-foreground-subtle truncate">ID: {userId}</span>
+          </div>
+        );
+      },
+    },
+    {
+      header: "Request Type",
+      cell: (req) => {
+        const isBrandAndModel = req.requestType === "brand";
+        return (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold uppercase tracking-wider ${
+              isBrandAndModel
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-indigo-50 text-indigo-700 border border-indigo-200"
+            }`}
+          >
+            {isBrandAndModel ? "Brand + Model" : "Model Only"}
+          </span>
+        );
+      },
+    },
+    {
+      header: "Category",
+      cell: (req) => {
+        const categoryObj = typeof req.categoryId === "object" && req.categoryId ? req.categoryId : null;
+        const catName = categoryObj?.name || (typeof req.categoryId === "string" ? req.categoryId : "—");
+        return (
+          <div className="flex flex-col">
+            <span className="font-semibold text-foreground text-body truncate">{catName}</span>
+            {categoryObj?.slug ? <span className="text-tiny font-mono text-foreground-tertiary truncate">{categoryObj.slug}</span> : null}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Requested Entity",
+      cell: (req) => {
+        const parentBrandObj = typeof req.parentBrandId === "object" && req.parentBrandId ? req.parentBrandId : null;
+        const parentBrandName = parentBrandObj?.name || (typeof req.parentBrandId === "string" ? req.parentBrandId : null);
+
+        return (
+          <div className="flex flex-col gap-1 min-w-[160px] max-w-[240px]">
             <CatalogEntityCell
-              icon={<ClipboardList size={20} />}
+              icon={<ClipboardList size={18} />}
               iconClassName="bg-amber-50 text-amber-600"
               title={req.requestedName}
-              subtitle={`${req.requestType} • ${userName}`}
+              subtitle={parentBrandName ? `Brand: ${parentBrandName}` : (req.requestType === "brand" ? "New Brand & Model" : undefined)}
             />
             {req.listingId && (
               <a
                 href={`/listing/${req.listingId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 ml-10 text-tiny font-semibold text-primary hover:underline"
+                className="inline-flex items-center gap-1 ml-9 text-tiny font-semibold text-primary hover:underline"
               >
                 <ExternalLink size={10} />
                 View Listing
@@ -91,7 +140,7 @@ export function generateCatalogRequestsColumns({
               ? "bg-emerald-100 text-emerald-700"
               : req.status === "rejected"
               ? "bg-destructive/10 text-destructive"
-              : req.status === "duplicate"
+              : req.status === "duplicate" || req.status === "merged"
               ? "bg-primary/10 text-primary"
               : "bg-amber-100 text-amber-700"
           }`}
@@ -99,6 +148,8 @@ export function generateCatalogRequestsColumns({
           {req.status === "pending" ? (
             <Clock size={10} />
           ) : req.status === "approved" || req.status === "resolved" ? (
+            <CheckCircle size={10} />
+          ) : req.status === "duplicate" || req.status === "merged" ? (
             <CheckCircle size={10} />
           ) : (
             <AlertCircle size={10} />
@@ -148,6 +199,12 @@ export function generateCatalogRequestsColumns({
               />
             </>
           )}
+          <CatalogActionIconButton
+            onClick={() => onOpenDeleteModal(req)}
+            className="p-1.5 text-foreground-subtle hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
+            title="Delete Request"
+            icon={<Trash2 size={18} />}
+          />
         </CatalogActionsRow>
       ),
     },

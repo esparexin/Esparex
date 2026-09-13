@@ -2,7 +2,7 @@
  * NotificationTemplate — Unit Tests
  */
 
-import { getNotificationTemplate } from '../../services/notification/NotificationTemplateService';
+import { getNotificationTemplate } from '../../domains/notifications/application/NotificationTemplateService';
 
 describe('NotificationTemplateService', () => {
     it('should correctly render BUSINESS_APPROVED template', () => {

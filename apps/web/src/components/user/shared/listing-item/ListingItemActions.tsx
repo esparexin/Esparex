@@ -13,15 +13,15 @@ import {
   Share2,
   Sparkles,
   Zap,
-} from "@/icons/IconRegistry";
-import { cn } from "@/components/ui/utils";
+} from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@esparex/ui";
 
 interface ListingItemActionsProps {
   status: string;

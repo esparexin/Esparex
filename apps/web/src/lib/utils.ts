@@ -1,1 +1,1 @@
-export { cn } from "@/components/ui/utils";
+export { cn } from "@esparex/ui";

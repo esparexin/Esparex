@@ -122,18 +122,19 @@ mongoose.plugin((schema) => {
     });
 
     // Aggregations
-    schema.pre('aggregate', function () {
-        const rawCtx: unknown = this;
-        const ctx = rawCtx as MongooseHookContext;
-        ctx._startTime = Date.now();
+    type AggregateContext = mongoose.Aggregate<unknown> & {
+        _startTime?: number;
+        _model?: { modelName: string };
+    };
+
+    schema.pre<AggregateContext>('aggregate', function (this: AggregateContext) {
+        this._startTime = Date.now();
     });
 
-    schema.post('aggregate', function () {
-        const rawCtx: unknown = this;
-        const ctx = rawCtx as MongooseHookContext;
-        if (ctx._startTime) {
-            const time = Date.now() - ctx._startTime;
-            const modelName = ctx._model?.modelName || 'Unknown';
+    schema.post<AggregateContext>('aggregate', function (this: AggregateContext) {
+        if (this._startTime) {
+            const time = Date.now() - this._startTime;
+            const modelName = this._model?.modelName || 'Unknown';
             const isLocationModel = modelName === 'Location';
             const warnThresholdMs = isLocationModel ? 800 : 300;
             const errorThresholdMs = isLocationModel ? 2000 : 1000;

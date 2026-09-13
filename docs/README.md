@@ -21,8 +21,8 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
   - [PLATFORM_CAPABILITY_CATALOG.md](architecture/PLATFORM_CAPABILITY_CATALOG.md) — Capability & hardware integration inventory.
   - [UI_TECHNICAL_SPECIFICATION.md](architecture/UI_TECHNICAL_SPECIFICATION.md) — Living SSOT for UI component & layout rules.
   - [decision-register.md](architecture/decision-register.md) — Master Architecture Decision Register (D-001 .. D-009).
-  - [ADR-004-action-color.md](architecture/adr/ADR-004-action-color.md) — Action color semantic promotion.
-  - [ADR-005-category-hierarchy-depth.md](architecture/adr/ADR-005-category-hierarchy-depth.md) — Category hierarchy depth bounding constraint.
+  - [PDR-001-action-color.md](architecture/adr/PDR-001-action-color.md) — Action color semantic promotion (formerly ADR-004).
+  - [PDR-002-category-hierarchy-depth.md](architecture/adr/PDR-002-category-hierarchy-depth.md) — Category hierarchy depth bounding constraint (formerly ADR-005).
 
 ### 🎨 [Design System](design-system/)
 - **Owner**: Design System Team

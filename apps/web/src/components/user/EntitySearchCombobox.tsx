@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
-import { Search, Loader2, X, Plus, ChevronDown } from "@/icons/IconRegistry";
-import { cn } from "@/components/ui/utils";
-import { Input } from "@/components/ui/input";
+import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
+import { cn } from "@/lib/utils";
+import { Input } from "@esparex/ui";
 import { Drawer } from "@esparex/ui";
-import { useIsMobile } from "@/components/ui/useMobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 export interface EntitySearchComboboxProps<T> {
@@ -24,6 +24,7 @@ export interface EntitySearchComboboxProps<T> {
     onSearchChange?: (search: string) => void;
     onProposeCustom?: (customName: string) => void;
     proposeType?: 'brand' | 'model';
+    autoFocus?: boolean;
     getLabel: (item: T) => string;
     getId: (item: T) => string;
     renderItem?: (item: T, isSelected: boolean) => ReactNode;
@@ -40,6 +41,7 @@ export function EntitySearchCombobox<T>({
     disabled = false,
     isCustom = false,
     className,
+    autoFocus = false,
     onSelect,
     onClear,
     onSearchChange,
@@ -50,11 +52,17 @@ export function EntitySearchCombobox<T>({
     renderItem,
 }: EntitySearchComboboxProps<T>) {
     const [search, setSearch] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(Boolean(autoFocus));
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
 
     const selectedName = displayValue || value || "";
+
+    const sanitizedTitle = useMemo(
+        () => title.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/(^-|-$)/g, "") || "options",
+        [title]
+    );
+    const listboxId = `select-options-list-${sanitizedTitle}`;
 
     const filteredItems = useMemo(() => {
         if (!search) return items;
@@ -64,58 +72,50 @@ export function EntitySearchCombobox<T>({
 
     const isListOpen = Boolean((isEditing || search) && !disabled);
 
-    const handleItemSelect = (item: T) => {
-        onSelect(item);
-        setSearch("");
-        setIsEditing(false);
-    };
-
+    const handleItemSelect = (item: T) => { onSelect(item); setSearch(""); setIsEditing(false); };
     const handleProposeCustom = (customName: string) => {
         if (!onProposeCustom || !customName.trim()) return;
         onProposeCustom(customName.trim());
         setSearch("");
         setIsEditing(false);
     };
+    const handleClose = () => { setIsEditing(false); setSearch(""); };
 
-    const handleClose = () => {
-        setIsEditing(false);
-        setSearch("");
-    };
-
-    const { activeIndex, handleKeyDown } = useKeyboardNavigation({
+    const { activeIndex, setActiveIndex, handleKeyDown } = useKeyboardNavigation({
         items: filteredItems,
         isOpen: isListOpen,
         onSelect: handleItemSelect,
         onClose: handleClose,
     });
 
-    const activeOptionId = activeIndex >= 0 ? `select-option-${activeIndex}` : undefined;
+    const activeOptionId = activeIndex >= 0 ? `select-option-${sanitizedTitle}-${activeIndex}` : undefined;
+
+    // Pre-focus matching item on opening when a value is pre-selected
+    useEffect(() => {
+        if (!isListOpen || !value) return;
+        const idx = filteredItems.findIndex((item) => getId(item) === value || getLabel(item) === value);
+        if (idx >= 0) setActiveIndex(idx);
+    }, [isListOpen, value, filteredItems, getId, getLabel, setActiveIndex]);
+
+    // Synchronize keyboard focus / activeIndex with auto-scrolling
+    useEffect(() => {
+        if (activeIndex < 0 || !isListOpen) return;
+        document.getElementById(`select-option-${sanitizedTitle}-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, [activeIndex, isListOpen, sanitizedTitle]);
 
     // Close dropdown on click outside for desktop listbox
     useEffect(() => {
         if (!isListOpen || isMobile) return;
-
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             const container = containerRef.current;
-            const dropdownEl = document.getElementById("select-options-list");
+            const dropdownEl = document.getElementById(listboxId);
             const target = event.target as Node;
-            if (
-                container &&
-                !container.contains(target) &&
-                dropdownEl &&
-                !dropdownEl.contains(target)
-            ) {
-                handleClose();
-            }
+            if (container && !container.contains(target) && dropdownEl && !dropdownEl.contains(target)) handleClose();
         };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("touchstart", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("touchstart", handleClickOutside);
-        };
-    }, [isListOpen, isMobile]);
+        const evts: Array<"mousedown" | "touchstart"> = ["mousedown", "touchstart"];
+        evts.forEach((e) => document.addEventListener(e, handleClickOutside));
+        return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
+    }, [isListOpen, isMobile, listboxId]);
 
     const renderOptionsList = (isMobileView: boolean) => {
         if (loading) {
@@ -140,7 +140,7 @@ export function EntitySearchCombobox<T>({
             return (
                 <button
                     key={id || label}
-                    id={`select-option-${idx}`}
+                    id={`select-option-${sanitizedTitle}-${idx}`}
                     type="button"
                     role="option"
                     aria-selected={isSelected}
@@ -160,7 +160,7 @@ export function EntitySearchCombobox<T>({
 
     const desktopDropdownContent = (
         <div
-            id="select-options-list"
+            id={listboxId}
             role="listbox"
             className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 py-1.5 overscroll-contain touch-pan-y"
         >
@@ -180,7 +180,7 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
-                    autoFocus={isEditing}
+                    autoFocus={autoFocus || isEditing}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
                         const val = e.target.value;
@@ -191,11 +191,14 @@ export function EntitySearchCombobox<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-3 pr-9 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body"
+                    className={cn(
+                        "pl-3 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body",
+                        loading ? "pr-14" : "pr-9"
+                    )}
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
-                    aria-controls={isListOpen ? "select-options-list" : undefined}
+                    aria-controls={isListOpen ? listboxId : undefined}
                     aria-activedescendant={activeOptionId}
                     autoComplete="off"
                 />
@@ -236,13 +239,7 @@ export function EntitySearchCombobox<T>({
             {/* Listbox overlay */}
             {isListOpen && (
                 isMobile ? (
-                    <Drawer
-                        title={title}
-                        open={true}
-                        onOpenChange={(open) => {
-                            if (!open) handleClose();
-                        }}
-                    >
+                    <Drawer title={title} open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
                         <div className="flex flex-col max-h-[70vh] px-2 pb-4">
                             <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">
@@ -260,17 +257,17 @@ export function EntitySearchCombobox<T>({
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button
-                                            type="button"
-                                            onClick={() => handleProposeCustom(search)}
-                                            title={`Add "${search.trim()}" as custom ${proposeType}`}
-                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
+                                             type="button"
+                                             onClick={() => handleProposeCustom(search)}
+                                             title={`Add "${search.trim()}" as custom ${proposeType}`}
+                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
                                         >
-                                            <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
+                                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                                         </button>
                                     )}
                                 </div>
                             </div>
-                            <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            <div id={listboxId} role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                                 {renderOptionsList(true)}
                             </div>
                         </div>

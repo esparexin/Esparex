@@ -15,10 +15,12 @@ type StatusOption = {
 };
 
 interface AdminFilterToolbarProps {
+    /** Explicitly enable or disable the search input. Defaults to true if onSearchChange is provided. */
+    showSearch?: boolean;
     /** Current search value */
-    search: string;
-    /** Called when search input changes */
-    onSearchChange: (value: string) => void;
+    search?: string;
+    /** Called when search input changes. Omit if search is not supported. */
+    onSearchChange?: (value: string) => void;
     /** Placeholder text for the search input */
     searchPlaceholder?: string;
 
@@ -36,7 +38,8 @@ interface AdminFilterToolbarProps {
 }
 
 export function AdminFilterToolbar({
-    search,
+    showSearch = true,
+    search = "",
     onSearchChange,
     searchPlaceholder = "Search...",
     status,
@@ -45,26 +48,30 @@ export function AdminFilterToolbar({
     extraFilters,
     className = "",
 }: AdminFilterToolbarProps) {
+    const isSearchVisible = showSearch && Boolean(onSearchChange);
+
     return (
         <div
             className={`flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm ${className}`}
         >
             {/* Search */}
-            <div className="relative flex min-w-[180px] flex-1">
-                <Search
-                    className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-subtle"
-                    size={15}
-                    aria-hidden="true"
-                />
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    placeholder={searchPlaceholder}
-                    aria-label={searchPlaceholder}
-                    className="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                />
-            </div>
+            {isSearchVisible && onSearchChange && (
+                <div className="relative flex min-w-[180px] flex-1">
+                    <Search
+                        className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-subtle"
+                        size={15}
+                        aria-hidden="true"
+                    />
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        placeholder={searchPlaceholder}
+                        aria-label={searchPlaceholder}
+                        className="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                    />
+                </div>
+            )}
 
             {/* Status filter */}
             {status !== undefined && statusOptions && onStatusChange && (
@@ -74,7 +81,7 @@ export function AdminFilterToolbar({
                         value={status}
                         onChange={(e) => onStatusChange(e.target.value)}
                         aria-label="Filter by status"
-                        className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                         {statusOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>

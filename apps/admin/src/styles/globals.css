@@ -44,21 +44,6 @@
   --foreground-tertiary: 215.3 19.3% 34.5%;  /* ≈ slate-600 — captions, labels */
   --foreground-subtle: 215.4 16.3% 40%;    /* ≈ slate-500 — placeholder, disabled, secondary metadata */
 
-  /* Semantic enterprise type scale (Geist) */
-  --text-display: 2.25rem;   /* 36px */
-  --text-h1: 1.875rem;       /* 30px */
-  --text-h2: 1.5rem;         /* 24px */
-  --text-h3: 1.25rem;        /* 20px */
-  --text-h4: 1.125rem;       /* 18px */
-  --text-body-lg: 1rem;      /* 16px */
-  --text-body: 0.875rem;     /* 14px */
-  --text-small: 0.8125rem;   /* 13px */
-  --text-caption: 0.75rem;   /* 12px */
-  --text-tiny: 0.6875rem;    /* 11px */
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
 }
 
 .dark {

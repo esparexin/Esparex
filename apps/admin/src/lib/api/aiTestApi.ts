@@ -31,7 +31,7 @@ export interface AiTestResult {
 export async function runAiCapabilityTest(payload: AiTestPayload): Promise<AiTestResult | null> {
     const response = await adminFetch<AiTestResult>(ADMIN_ROUTES.SYSTEM_AI_TEST, {
         method: "POST",
-        body: JSON.stringify(payload),
+        body: payload,
     });
     return response?.data ?? null;
 }

@@ -1,0 +1,22 @@
+id: monetization
+name: Monetization Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Monetization Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.7"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - entitlements
+  - boosts
+public_api:
+  facades:
+    - MonetizationRulesEngine
+  ports: []

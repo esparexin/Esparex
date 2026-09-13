@@ -12,7 +12,7 @@ import {
   MessageCircle,
   Phone,
   Sparkles,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 

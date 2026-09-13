@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-09-05T18:05:30Z",
+  "baseBranch": "develop",
+  "baseCommit": "a8d6c893",
+  "gateStatus": {
+    "status": "PASS",
+    "healthScore": 100,
+    "checksPassed": 18,
+    "checksTotal": 18
+  },
+  "metrics": {
+    "deadCode": {
+      "totalUnusedExports": 441,
+      "totalUnusedTypes": 121,
+      "totalUnusedFiles": 0,
+      "totalIssues": 562,
+      "filesWithDeadCode": 210
+    },
+    "duplication": {
+      "duplicateRatePercentage": 0.09,
+      "cloneCount": 9,
+      "duplicatedLines": 173,
+      "duplicatedTokens": 1767
+    },
+    "governance": {
+      "duplicateRulesFiles": [
+        "AGENTS.md",
+        ".agents/AGENTS.md"
+      ],
+      "brokenScripts": [
+        "governance:guards (references missing guard:hygiene)",
+        "governance:all (references broken governance:guards)"
+      ]
+    }
+  },
+  "verifiedRemediationTargets": {
+    "phase3ZombieCode": [
+      "apps/web/src/lib/validation.ts (19 dead exports)",
+      "apps/web/src/lib/error-handler/index.ts (14 dead exports)",
+      "apps/web/src/schemas/catalog.schema.ts (13 dead exports)",
+      "apps/admin/src/lib/api/catalogRequests.ts (9 dead exports)",
+      "apps/admin/src/lib/api/moderation.ts (6 dead exports)",
+      "backend/api/src/controllers/admin/business/shared.ts (6 dead exports)",
+      "shared/src/catalog/category/normalize.ts (8 dead exports)"
+    ],
+    "phase4Icons": [
+      "apps/web/src/icons/IconRegistry.ts (86 dead exports, canonical: @esparex/ui)"
+    ],
+    "phase5Location": [
+      "apps/web/src/lib/location/locationLabels.ts (anti-pattern formatters)",
+      "apps/admin/src/lib/location/display.ts (re-implemented normalizeGeoPoint)"
+    ],
+    "phase6CatalogTabs": [
+      "apps/admin/src/components/catalog/tabs/BrandsTab.tsx",
+      "apps/admin/src/components/catalog/tabs/ServiceTypesTab.tsx",
+      "apps/admin/src/components/catalog/tabs/ScreenSizesTab.tsx"
+    ]
+  }
+}

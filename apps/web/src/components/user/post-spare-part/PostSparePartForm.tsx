@@ -2,7 +2,7 @@
 
 import { ListingForm } from "@/components/user/shared/ListingForm";
 import { PostSparePartFormSchema } from "@/schemas/postSparePartForm.schema";
-import { CircuitBoard } from "@/icons/IconRegistry";
+import { CircuitBoard } from "@esparex/ui";
 import { LISTING_TYPE } from "@esparex/contracts";
 import type { ListingFormConfig } from "@/components/user/shared/listingFormConfig";
 

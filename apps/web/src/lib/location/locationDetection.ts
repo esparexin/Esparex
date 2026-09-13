@@ -4,14 +4,8 @@
  * Requires browser APIs — not safe for SSR imports.
  */
 
-import { createPoint } from "@esparex/shared";
 import { detectLocationByIP } from "@/lib/api/ipGeolocation";
-import { reverseGeocode as reverseGeocodeApi } from "@/lib/api/user/locations";
-import {
-    LABEL_CURRENT_LOCATION,
-    LABEL_CURRENT_LOCATION_CAPTURED,
-} from "@/lib/location/locationLabels";
-import { buildAppLocation, normalizeToAppLocation } from "./locationNormalizer";
+import { buildAppLocation, reverseGeocode } from "./locationNormalizer";
 import type { AppLocation } from "@/types/location";
 
 // ── types ────────────────────────────────────────────────────────────────────
@@ -70,11 +64,6 @@ const isSecureLocationContext = (): boolean => {
     return /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
 };
 
-const autoDetectLocation = async (latitude: number, longitude: number): Promise<AppLocation | null> => {
-    const existing = await reverseGeocodeApi(latitude, longitude);
-    return existing ? normalizeToAppLocation(existing, "auto") : null;
-};
-
 const buildFailureResult = (failure: LocationDetectFailure): LocationDetectResult =>
     ({ location: null, source: "none", failure });
 
@@ -103,21 +92,8 @@ type CurrentLocationOptions = {
     enableHighAccuracy?: boolean;
 };
 
-async function resolveCoordsToLocation(coords: GeolocationCoordinates): Promise<{ location: AppLocation; isResolved: boolean }> {
-    const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
-    if (resolved) return { location: resolved, isResolved: true };
-    return {
-        location: buildAppLocation({
-            formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
-            city: LABEL_CURRENT_LOCATION,
-            state: "",
-            country: "Unknown",
-            coordinates: createPoint(coords.longitude, coords.latitude),
-            source: "auto",
-            name: LABEL_CURRENT_LOCATION,
-        }),
-        isResolved: false,
-    };
+async function resolveCoordsToLocation(coords: GeolocationCoordinates): Promise<AppLocation | null> {
+    return reverseGeocode(coords.latitude, coords.longitude);
 }
 
 export async function* detectPreciseLocationGenerator(
@@ -158,10 +134,14 @@ export async function* detectPreciseLocationGenerator(
 
             yield "gps_acquired";
             yield "reverse_geocoding";
-            const { location, isResolved } = await resolveCoordsToLocation(coords);
-            if (isResolved) { yield "location_resolved"; return { location, source: "auto" }; }
+            const location = await resolveCoordsToLocation(coords);
+            if (location) {
+                yield "location_resolved";
+                return { location, source: "auto" };
+            }
             yield "reverse_geocode_failed";
-            return { location, source: "auto" };
+            lastFailureReason = "position_unavailable";
+            break;
         } catch (error) {
             lastError = error;
             const failure = mapGeolocationError(error);
@@ -185,16 +165,25 @@ export async function* detectPreciseLocationGenerator(
             });
             yield "gps_acquired";
             yield "reverse_geocoding";
-            const { location, isResolved } = await resolveCoordsToLocation(coords);
-            if (isResolved) { yield "location_resolved"; return { location, source: "auto" }; }
+            const location = await resolveCoordsToLocation(coords);
+            if (location) {
+                yield "location_resolved";
+                return { location, source: "auto" };
+            }
             yield "reverse_geocode_failed";
-            return { location, source: "auto" };
         } catch { /* fall through to IP detection */ }
     }
 
-    const failure = mapGeolocationError(lastError);
+    const failure = lastError
+        ? mapGeolocationError(lastError)
+        : {
+            reason: "position_unavailable" as const,
+            message: "Unable to determine settlement for your GPS position.",
+        };
+
     if (failure.reason === "permission_denied") yield "permission_denied";
     else if (failure.reason === "timeout") yield "gps_timeout";
+    else if (lastFailureReason === "position_unavailable") yield "reverse_geocode_failed";
     else yield "network_error";
 
     if (allowApproximateFallback && failure.reason !== "permission_denied") {

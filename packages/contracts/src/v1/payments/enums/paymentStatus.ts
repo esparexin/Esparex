@@ -16,3 +16,7 @@ export const PAYMENT_STATUS = {
 
 export type PaymentStatusValue = (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS];
 export const PAYMENT_STATUS_VALUES = Object.values(PAYMENT_STATUS) as [PaymentStatusValue, ...PaymentStatusValue[]];
+
+/** Canonical Transaction Status Alias (SSOT: PAYMENT_STATUS) */
+export const TRANSACTION_STATUS = PAYMENT_STATUS;
+export type TransactionStatusValue = PaymentStatusValue;

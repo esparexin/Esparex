@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { type Ad } from "@/schemas/ad.schema";
-import { Check, CircuitBoard } from "@/icons/IconRegistry";
+import { Check, CircuitBoard } from "@esparex/ui";
 import { getSpareParts } from "@/lib/api/user/masterData";
 
 export interface NormalizedSparePartItem {

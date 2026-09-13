@@ -11,7 +11,7 @@ import {
 import { fetchCatalogRecordServer } from "@/lib/api/user/masterData";
 import { getAdsPage } from "@/lib/api/user/listings";
 import { buildCatalogLinkedBrowseRoute } from "@/lib/publicBrowseRoutes";
-import { generateAdSlug } from "@/lib/slug";
+import { generateAdSlug, parseSlugIdParam } from "@/lib/slug";
 
 type CatalogSlugRouteProps = {
   params: Promise<{ slug: string }>;
@@ -29,18 +29,6 @@ const extractId = (value: unknown): string | null => {
     return extractId(record.id ?? record._id);
   }
   return null;
-};
-
-const parseOptionalSlugId = (param: string) => {
-  const match = param.match(/^(.*)-([0-9a-fA-F]{24})$/);
-  if (!match || !match[2]) {
-    return { identifier: param.trim(), incomingSlug: param.trim(), incomingId: "" };
-  }
-  return {
-    identifier: match[2],
-    incomingSlug: match[1] || "",
-    incomingId: match[2],
-  };
 };
 
 const normalizeCatalogRecord = (
@@ -125,11 +113,11 @@ function createCatalogSlugMetadata(entity: CatalogSlugEntity) {
       };
     }
 
-    const parsed = parseOptionalSlugId(slug);
+    const parsed = parseSlugIdParam(slug);
     const record = await resolveCatalogRecord(
       entity,
-      parsed.identifier || parsed.incomingSlug,
-      Boolean(parsed.incomingId)
+      parsed.identifier || parsed.slug,
+      Boolean(parsed.id)
     );
 
     return record
@@ -148,11 +136,11 @@ function createCatalogSlugPage(entity: CatalogSlugEntity) {
       notFound();
     }
 
-    const parsed = parseOptionalSlugId(slug);
+    const parsed = parseSlugIdParam(slug);
     const pageData = await resolveCatalogPageData(
       entity,
-      parsed.identifier || parsed.incomingSlug,
-      Boolean(parsed.incomingId)
+      parsed.identifier || parsed.slug,
+      Boolean(parsed.id)
     );
 
     if (!pageData) {

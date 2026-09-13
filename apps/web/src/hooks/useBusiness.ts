@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { isAPIError } from "@/lib/api/APIError";
 import { ErrorCategory, EsparexError } from "@/lib/errorHandler";
 import { type Business, type BusinessStats } from "@/lib/api/user/businesses";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import logger from "@/lib/logger";
 
 interface UseBusinessOptions {

@@ -2,6 +2,7 @@ import express from 'express';
 
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
+import { authLoginLimiter } from '../middleware/rate-limiter/limiters';
 
 import * as adminSystem from '../controllers/admin/system';
 import * as adminAnalytics from '../controllers/admin/adminAnalyticsController';
@@ -29,7 +30,7 @@ const router = express.Router();
 
 // Public admin auth surface
 router.get('/csrf-token', setCsrfToken, getCsrfToken);
-router.post('/auth/login', adminSystem.adminLogin);
+router.post('/auth/login', authLoginLimiter, adminSystem.adminLogin);
 router.post('/forgot-password', adminSystem.forgotPassword);
 router.post('/reset-password/:token', adminSystem.resetPassword);
 
@@ -111,23 +112,12 @@ router.post('/listings/bulk/extend', requirePermission('ads:write'), adminListin
 router.post('/listings/bulk/resend-warnings', requirePermission('ads:write'), adminListings.adminBulkResendListingWarnings);
 router.post('/listings/bulk/resend-spotlight-warnings', requirePermission('ads:write'), adminListings.adminBulkResendSpotlightWarnings);
 
-// Moderation Actions (Support both POST and PATCH for compatibility)
-router.patch('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
+// Moderation Actions (Canonical POST handlers)
 router.post('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
-
-router.patch('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
 router.post('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
-
-router.patch('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
 router.post('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
-
-router.patch('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
 router.post('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
-
-router.patch('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
 router.post('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
-
-router.patch('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.post('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.delete('/listings/:id', requirePermission('ads:write'), adminListings.adminSoftDeleteListing);
 
@@ -163,7 +153,6 @@ router.get('/locations', adminLocations.getAllLocations);
 router.post('/locations', adminLocations.createLocation);
 router.get('/locations/analytics', adminSystem.getLocationAnalytics);
 router.get('/locations/states', adminLocations.getDistinctStates);
-router.get('/locations/reverse-geocode', adminLocations.reverseGeocode);
 router.get('/locations/moderation-queue', adminLocations.getModerationQueue);
 router.post('/locations/refresh-stats', adminLocations.refreshLocationStats);
 router.patch('/locations/:id', adminLocations.updateLocation);

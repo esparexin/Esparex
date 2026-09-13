@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@esparex/ui";
 
 export function BrowseGridSkeleton({ count = 9 }: { count?: number }) {
   return (

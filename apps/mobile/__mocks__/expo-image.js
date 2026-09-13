@@ -6,7 +6,6 @@
  * with the standard react-native Image component so that component tests continue
  * to render correctly without requiring a native runtime.
  */
-const React = require('react');
 const { Image } = require('react-native');
 
 module.exports = {

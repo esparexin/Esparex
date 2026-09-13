@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { LocationData } from "@/context/LocationContext";
-import { getDisplayLocationLabel } from "@/lib/location/locationLabels";
+import { getDisplayLocationLabel } from "@esparex/shared";
 import { isUserSelectedLocation } from "@/lib/location/queryMode";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";

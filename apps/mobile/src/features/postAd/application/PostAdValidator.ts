@@ -68,7 +68,7 @@ export class PostAdValidator {
         }
         break;
 
-      case WizardStep.PHOTOS:
+      case WizardStep.PHOTOS: {
         const imgCount = (draft.localImages || draft.pickedImages || []).length;
         if (imgCount < MIN_AD_IMAGES) {
           errors.push({ field: 'localImages', message: 'Add at least one photo.' });
@@ -79,6 +79,7 @@ export class PostAdValidator {
           });
         }
         break;
+      }
 
       default:
         break;

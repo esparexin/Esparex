@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import { notify } from "@/lib/feedback";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import logger from "@/lib/logger";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 

@@ -15,6 +15,8 @@ export const catalogRequestStatusSchema = z.enum([
     'approved',
     'rejected',
     'duplicate',
+    'merged',
+    'resolved',
 ]);
 
 export const createCatalogRequestSchema = z
@@ -105,3 +107,5 @@ export const bulkRejectCatalogRequestSchema = bulkApproveCatalogRequestSchema.ex
 export const bulkMarkCatalogRequestDuplicateSchema = bulkApproveCatalogRequestSchema.extend({
     duplicateOfId: objectIdSchema,
 });
+
+export const bulkDeleteCatalogRequestSchema = bulkApproveCatalogRequestSchema;

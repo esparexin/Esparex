@@ -42,12 +42,12 @@ export class AdminErrorBoundary extends Component<Props, State> {
                     </p>
                     <button
                         onClick={() => this.setState({ hasError: false })}
-                        className="mt-6 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+                        className="mt-6 rounded-lg bg-foreground px-4 py-2 text-body font-medium text-background transition-colors hover:bg-foreground/90 cursor-pointer"
                     >
                         Try Again
                     </button>
                     {process.env.NODE_ENV !== "production" && (
-                        <pre className="mt-4 max-w-full overflow-auto rounded bg-slate-900 p-4 text-left text-tiny text-red-400">
+                        <pre className="mt-4 max-w-full overflow-auto rounded bg-foreground text-background p-4 text-left text-tiny text-destructive-foreground">
                             {this.state.error?.message}
                         </pre>
                     )}

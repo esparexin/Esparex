@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage } from "@/components/common/InfoPage";
-import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@/icons/IconRegistry";
+import { Mail, MapPin, Phone, ShieldCheck, HelpCircle } from "@esparex/ui";
 import { LegalGrievanceCard } from "@/components/common/LegalGrievanceCard";
 import {
     LEGAL_COMPANY_LOCATION,
@@ -11,15 +11,16 @@ import {
 } from "@/lib/legal";
 import { buildContactPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: "Contact Us & Grievance Redressal | Esparex",
     description: "Get in touch with the Esparex customer support, B2B wholesale partnerships, or statutory Grievance Redressal desk.",
-    alternates: { canonical: "https://esparex.in/contact" },
+    alternates: { canonical: toCanonicalUrl('/contact') },
     openGraph: {
         title: "Contact Us & Grievance Redressal | Esparex",
         description: "Official contact information, customer support phone, B2B business inquiries, and Grievance Officer details for Esparex.",
-        url: "https://esparex.in/contact",
+        url: toCanonicalUrl('/contact'),
         images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };

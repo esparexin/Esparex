@@ -1,6 +1,6 @@
 import React from "react";
-import { X } from "@/icons/IconRegistry";
-import { cn } from "@/components/ui/utils";
+import { X } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import {
   Button,
   Dialog,

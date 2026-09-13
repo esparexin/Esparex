@@ -11,13 +11,12 @@ import { chatApi } from "@/lib/api/chatApi";
 import { notify } from "@/lib/feedback";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import logger from "@/lib/logger";
-import { ROUTES } from "@/lib/logic/routes";
+import { ROUTES, type UserPage } from "@/lib/routeUtils";
 import { buildOwnerMissingListingRoute, DEFAULT_LISTING_UNAVAILABLE_MESSAGE, isListingUnavailableError } from "@/lib/listings/listingUnavailable";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { buildChatConversationRoute } from "@/lib/chatUiRoutes";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { formatPrice } from "@/lib/formatters";
-import type { UserPage } from "@/lib/routeUtils";
 
 export type UseListingDetailActionsProps = {
     ad: Ad | undefined;

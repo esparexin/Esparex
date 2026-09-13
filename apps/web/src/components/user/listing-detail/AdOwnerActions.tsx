@@ -1,5 +1,5 @@
 import { Button } from "@esparex/ui";
-import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp, Zap } from "@/icons/IconRegistry";
+import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp, Zap } from "@esparex/ui";
 
 interface AdOwnerActionsProps {
     isSold: boolean;

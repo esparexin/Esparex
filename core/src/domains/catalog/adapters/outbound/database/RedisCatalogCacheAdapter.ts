@@ -19,12 +19,22 @@ export class RedisCatalogCacheAdapter implements CatalogCachePort {
                         patterns.add(`catalog:models:*category=${id}*`);
                         patterns.add(`catalog:spare-parts:${id}:*`);
                     });
+                    patterns.add('catalog:list:category:*');
+                    patterns.add('catalog:categories:*');
+                    patterns.add('catalog:list:brand:*');
+                    patterns.add('catalog:list:model:*');
+                    patterns.add('catalog:list:sparepart:*');
+                    patterns.add('catalog:list:*');
                 }
                 
                 if (opts.brandIds) {
                     opts.brandIds.forEach(id => {
                         patterns.add(`catalog:models:*brand=${id}*`);
                     });
+                    patterns.add('catalog:list:brand:*');
+                    patterns.add('catalog:list:model:*');
+                    patterns.add('catalog:list:sparepart:*');
+                    patterns.add('catalog:list:*');
                 }
 
                 // ALWAYS clear "all" caches, because adding a brand/model affects the global unfiltered views
@@ -32,6 +42,7 @@ export class RedisCatalogCacheAdapter implements CatalogCachePort {
                 patterns.add('catalog:models:*category=all*');
                 patterns.add('catalog:spare-parts:all:*');
                 patterns.add('catalog:counts:*');
+                patterns.add('catalog:list:*');
 
                 await Promise.all(Array.from(patterns).map(p => clearCachePattern(p)));
             }

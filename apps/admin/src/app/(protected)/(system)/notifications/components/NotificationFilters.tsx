@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "@esparex/ui";
+import { Input, Search } from "@esparex/ui";
 
 interface NotificationFiltersProps {
     searchInput: string;
@@ -24,16 +24,16 @@ export function NotificationFilters({
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle"
                     size={16}
                 />
-                <input
+                <Input
                     type="text"
                     placeholder="Search title or body..."
-                    className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                    className="pl-9"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
                 />
             </div>
             <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-lg border border-input bg-background px-3 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 value={status}
                 onChange={(event) =>
                     onFilterChange({ status: event.target.value === "all" ? null : event.target.value, page: null })
@@ -45,7 +45,7 @@ export function NotificationFilters({
                 <option value="scheduled">Scheduled</option>
             </select>
             <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-black outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-lg border border-input bg-background px-3 py-2 text-body-lg md:text-body text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 value={historyTargetType}
                 onChange={(event) =>
                     onFilterChange({

@@ -9,8 +9,8 @@ import {
   DialogTitle,
   Spinner,
 } from "@esparex/ui";
-import { Badge } from "../ui/badge";
-import { Zap, Sparkles } from "@/icons/IconRegistry";
+import { Badge } from "@esparex/ui";
+import { Zap, Sparkles } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { useBoostPlanDialog } from "@/hooks/useBoostPlanDialog";
 import { WalletCreditCard, CatalogPlanCard } from "./boost/BoostPlanCards";

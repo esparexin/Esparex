@@ -1,7 +1,13 @@
 "use client";
 
-import { X } from "@esparex/ui";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@esparex/ui";
 
 interface CatalogModalProps {
     isOpen: boolean;
@@ -12,43 +18,15 @@ interface CatalogModalProps {
 }
 
 export function CatalogModal({ isOpen, onClose, title, children, maxWidth = "max-w-md" }: CatalogModalProps) {
-    // Prevent scrolling when modal is open
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
-        }
-        return () => {
-            document.body.style.overflow = "unset";
-        };
-    }, [isOpen]);
-
-    if (!isOpen) return null;
-
     return (
-        <div 
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
-            onClick={(e) => {
-                if (e.target === e.currentTarget) onClose();
-            }}
-        >
-            <div className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-200`}>
-                <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                    <h2 className="text-xl font-bold text-foreground">
-                        {title}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-slate-100 rounded-full text-foreground-subtle hover:text-foreground-secondary transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent className={`w-full ${maxWidth} p-0 overflow-hidden rounded-2xl`}>
+                <DialogHeader className="px-6 py-4 border-b border-border bg-muted/20">
+                    <DialogTitle className="text-body-lg font-bold text-foreground">{title}</DialogTitle>
+                    <DialogDescription className="sr-only">{title}</DialogDescription>
+                </DialogHeader>
                 {children}
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

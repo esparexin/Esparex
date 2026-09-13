@@ -67,6 +67,7 @@ const upload = createUploadMiddleware({
 });
 
 router.get('/me', searchLimiter, protect, userController.getMe);
+router.get('/sellers', searchLimiter, userController.getPublicSellers);
 router.get('/:id/profile', searchLimiter, validateObjectId, userController.getUserProfileById);
 router.post('/:id/block', mutationLimiter, protect, validateObjectId, userController.blockUser);
 router.delete('/:id/block', mutationLimiter, protect, validateObjectId, userController.unblockUser);

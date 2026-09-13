@@ -25,3 +25,4 @@ public_api:
     - SmartAlertMutationService
   ports:
     - NotificationRepositoryPort
+    - EmailServicePort

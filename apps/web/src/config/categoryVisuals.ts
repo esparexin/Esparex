@@ -19,7 +19,7 @@ import {
     Watch,
     Tv,
     LucideIcon
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 
 export interface CategoryVisual {
     icon: LucideIcon;

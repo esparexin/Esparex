@@ -3,11 +3,13 @@ import type { Types } from "mongoose";
 import ScheduledNotification from "../models/ScheduledNotification";
 import NotificationLog from "../models/NotificationLog";
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
-import { NotificationIntent } from "../domain/NotificationIntent";
-import { NotificationDispatcher } from "./notification/NotificationDispatcher";
+import {
+    NotificationIntent,
+    NotificationDispatcher,
+    createAdminNotificationTargetCursor,
+} from "../domains/notifications";
 import logger from "../utils/logger";
 import { runWithDistributedJobLock } from "../utils/distributedJobLock";
-import { createAdminNotificationTargetCursor } from "./notification/AdminNotificationTargetingService";
 
 interface ScheduledJobLike {
     _id: unknown;
@@ -59,7 +61,14 @@ const processJob = async (job: ScheduledJobLike) => {
 
         if (job.targetType === "users") {
             const intents = (job.userIds ?? []).map((uid) =>
-                NotificationIntent.fromSchedulerJob(String(uid), jobId, job.title, job.body, job.targetType, job.actionUrl)
+                NotificationIntent.fromSchedulerJob({
+                    userId: String(uid),
+                    jobId,
+                    title: job.title,
+                    body: job.body,
+                    targetType: job.targetType,
+                    actionUrl: job.actionUrl,
+                })
             );
             const result = await NotificationDispatcher.bulkDispatch(intents);
             successCount += result.successCount;
@@ -75,14 +84,14 @@ const processJob = async (job: ScheduledJobLike) => {
 
             for await (const user of cursor) {
                 batch.push(
-                    NotificationIntent.fromSchedulerJob(
-                        user._id.toString(),
+                    NotificationIntent.fromSchedulerJob({
+                        userId: user._id.toString(),
                         jobId,
-                        job.title,
-                        job.body,
-                        job.targetType,
-                        job.actionUrl
-                    )
+                        title: job.title,
+                        body: job.body,
+                        targetType: job.targetType,
+                        actionUrl: job.actionUrl,
+                    })
                 );
 
                 if (batch.length >= BATCH_SIZE) {

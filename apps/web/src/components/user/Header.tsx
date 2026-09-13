@@ -7,15 +7,15 @@ import {
   Search,
   LogIn,
   TrendingUp,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 import {
   Button,
   Z_INDEX,
 } from "@esparex/ui";
-import { Input } from "../ui/input";
+import { Input } from "@esparex/ui";
 
 import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
@@ -198,8 +198,8 @@ export function Header({
         <div className="flex items-center gap-3 ml-auto">
           {!isMounted || isAuthLoading ? (
             <>
-              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
+              <div className="hidden lg:flex h-9 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
+              <div className="h-9 w-9 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
             </>
           ) : isLoggedIn ? (
             <>

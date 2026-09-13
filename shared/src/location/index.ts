@@ -16,10 +16,6 @@ export const LocationFacade = {
     resolveId: resolveCanonicalLocationId,
 };
 
-// Also export the functions individually if consumers want to tree-shake
-export {
-    normalizeLocation,
-    formatLocation,
-    validateLocation,
-    resolveCanonicalLocationId,
-};
+export { normalizeLocation, resolveCanonicalLocationId } from "./location.normalize";
+export { validateLocation } from "./location.validate";
+export * from "./location.format";

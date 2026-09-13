@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
 import { useAuth } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
@@ -77,7 +78,7 @@ export const ListingDetailsScreen = () => {
     return (
       <Screen className="flex-1 bg-white dark:bg-slate-950">
         <Center className="flex-1">
-          <ActivityIndicator size="large" color="#0ea5e9" />
+          <ActivityIndicator size="large" color={base.brand[500]} />
         </Center>
       </Screen>
     );

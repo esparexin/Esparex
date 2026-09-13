@@ -15,6 +15,11 @@ export class ApiLocationRepository implements ILocationRepository {
     return response.data?.success && Array.isArray(response.data.data) ? response.data.data : [];
   }
 
+  /**
+   * Detects location using IP geolocation with fallback to default-center.
+   * NOTE: Mobile GPS auto-detection (expo-location) is planned for native app parity,
+   * while this repository method handles baseline IP-based detection and fallback.
+   */
   async detectLocation(): Promise<LocationMeta> {
     try {
       const response = await this.client.get<{ success: boolean; data: LocationMeta }>(

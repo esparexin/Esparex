@@ -19,7 +19,7 @@ function formatRatchetMatrix() {
     try {
       const data = JSON.parse(fs.readFileSync(BASELINE_PATH, "utf8"));
       baselines = data.baselines || {};
-    } catch (_e) {
+    } catch {
       baselines = {};
     }
   }

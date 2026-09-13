@@ -90,8 +90,8 @@ const ACTION_PRESENTATION: Record<UserActionType, ActionPresentation> = {
         confirmLabel: "Revoke Verification",
         submittingLabel: "Updating...",
         icon: Shield,
-        headerClassName: "border-slate-200 bg-slate-50 text-foreground",
-        actionClassName: "bg-slate-900 hover:bg-slate-800",
+        headerClassName: "border-border bg-muted/40 text-foreground",
+        actionClassName: "bg-foreground hover:bg-foreground/90 text-background",
         requiresReason: false,
     },
 };
@@ -143,17 +143,17 @@ export function UserActionDialog({
                 </DialogHeader>
 
                 <div className="space-y-4 p-6">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-foreground-secondary">
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 text-caption text-foreground-secondary">
                         {presentation.helper}
                     </div>
 
                     {presentation.requiresReason ? (
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-foreground-secondary">
-                                Reason for Action <span className="text-red-500">*</span>
+                            <label className="mb-2 block text-body font-semibold text-foreground-secondary">
+                                Reason for Action <span className="text-destructive">*</span>
                             </label>
                             <textarea
-                                className="min-h-[100px] w-full rounded-lg border border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                className="min-h-[100px] w-full rounded-lg border border-input bg-background p-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                 placeholder="Explain why this account is being actioned to maintain the audit log..."
                                 value={reason}
                                 onChange={(event) => setReason(event.target.value)}
@@ -162,7 +162,7 @@ export function UserActionDialog({
                         </div>
                     ) : null}
 
-                    <p className="text-sm text-foreground-tertiary">
+                    <p className="text-body text-foreground-tertiary">
                         Are you sure you wish to proceed? This will be logged permanently in the
                         system audit trail.
                     </p>
@@ -170,7 +170,7 @@ export function UserActionDialog({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={onClose}
-                            className="flex-1 rounded-lg bg-slate-100 px-4 py-2 font-bold text-foreground-secondary transition-colors hover:bg-slate-200"
+                            className="flex-1 rounded-lg bg-muted px-4 py-2 font-bold text-foreground-secondary transition-colors hover:bg-muted/80 cursor-pointer"
                             disabled={isSubmitting}
                         >
                             Cancel
@@ -178,7 +178,7 @@ export function UserActionDialog({
                         <button
                             onClick={() => void onConfirm(reason.trim())}
                             disabled={isSubmitting || !canSubmit}
-                            className={`flex-1 rounded-lg px-4 py-2 font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${presentation.actionClassName}`}
+                            className={`flex-1 rounded-lg px-4 py-2 font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${presentation.actionClassName}`}
                         >
                             {isSubmitting ? presentation.submittingLabel : presentation.confirmLabel}
                         </button>

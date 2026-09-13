@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse, buildLogFn, getActorId } from '../../utils/adminBaseController';
-import { serializeBusinessForAdmin } from './business/shared';
+import { serializeBusinessForAdmin } from '@esparex/core/utils/businessSerializer';
 import * as adminBusinessService from '@esparex/core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@esparex/core/utils/businessStatus';
 import { BUSINESS_STATUS } from "@esparex/contracts";
@@ -27,6 +27,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         const expiringIn3Days = typeof req.query.expiringIn3Days === 'string' ? req.query.expiringIn3Days : undefined;
         const warningSent = typeof req.query.warningSent === 'string' ? req.query.warningSent : undefined;
         const warningNotSent = typeof req.query.warningNotSent === 'string' ? req.query.warningNotSent : undefined;
+        const includeDeleted = typeof req.query.includeDeleted === 'string' ? req.query.includeDeleted : undefined;
 
         const { items, total } = await adminBusinessService.getAdminBusinessAccounts({
             status,
@@ -35,6 +36,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
             expiringIn3Days,
             warningSent,
             warningNotSent,
+            includeDeleted,
             skip,
             limit,
         });

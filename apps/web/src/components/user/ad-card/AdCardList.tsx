@@ -1,11 +1,11 @@
 "use client";
 
 import { memo } from "react";
-import { SafeImage } from "@/components/ui/SafeImage";
-import { CardContent } from "@/components/ui/card";
+import { SafeImage } from "@/components/common/SafeImage";
+import { CardContent } from "@esparex/ui";
 import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
 import { AdCardShell, AdCardMeta, AdCardActions } from "./primitives";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import {
   type AdCardData,
   useAdCardBase,

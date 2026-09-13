@@ -11,10 +11,10 @@ import {
     normalizeManagedUser,
     type ManagedUser,
 } from "@/components/system/users/userManagement";
-import { StatusChip } from "@/components/ui/StatusChip";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { User } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@esparex/shared";
-import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "@esparex/ui";
+import { ArrowLeft, Mail, Phone, Shield, User as UserIcon, StatusChip } from "@esparex/ui";
 
 type Props = {
     params: Promise<{
@@ -85,27 +85,31 @@ export default function UserDetailsPage({ params }: Props) {
     const statusPresentation = user ? getUserStatusPresentation(user.status) : null;
 
     return (
-        <div className="space-y-6">
-            <Link
-                href={ADMIN_UI_ROUTES.users()}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
-            >
-                <ArrowLeft size={14} /> Back to Users
-            </Link>
-
-            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                {loading && <p className="text-sm text-foreground-tertiary">Loading user details...</p>}
-                {error && !loading && <p className="text-sm text-red-600">{error}</p>}
+        <AdminPageShell
+            title={user?.name || "User Details"}
+            description="Inspect user profile, account status, contact details, and activity records."
+            actions={
+                <Link
+                    href={ADMIN_UI_ROUTES.users()}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors"
+                >
+                    <ArrowLeft size={14} /> Back to Users
+                </Link>
+            }
+        >
+            <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
+                {loading && <p className="text-body text-foreground-tertiary">Loading user details...</p>}
+                {error && !loading && <p className="text-body text-destructive">{error}</p>}
 
                 {!loading && !error && user && (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-foreground-tertiary">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-foreground-tertiary">
                                 <UserIcon size={20} />
                             </div>
                             <div>
-                                <h1 className="text-xl font-semibold text-foreground">{user.name}</h1>
-                                <p className="text-sm text-foreground-tertiary">User ID: {user.id}</p>
+                                <h1 className="text-h3 font-semibold text-foreground">{user.name}</h1>
+                                <p className="text-caption text-foreground-tertiary">User ID: {user.id}</p>
                                 {statusPresentation ? (
                                     <StatusChip
                                         status={statusPresentation.status}
@@ -117,31 +121,31 @@ export default function UserDetailsPage({ params }: Props) {
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="rounded-lg border border-slate-200 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Contact</p>
-                                <p className="mt-2 flex items-center gap-2 text-sm text-foreground-secondary"><Mail size={14} /> {user.email}</p>
-                                <p className="mt-1 flex items-center gap-2 text-sm text-foreground-secondary"><Phone size={14} /> {user.mobile || "N/A"}</p>
+                            <div className="rounded-lg border border-border bg-muted/20 p-4">
+                                <p className="text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">Contact</p>
+                                <p className="mt-2 flex items-center gap-2 text-body text-foreground-secondary"><Mail size={14} /> {user.email}</p>
+                                <p className="mt-1 flex items-center gap-2 text-body text-foreground-secondary"><Phone size={14} /> {user.mobile || "N/A"}</p>
                             </div>
 
-                            <div className="rounded-lg border border-slate-200 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Account</p>
-                                <p className="mt-2 flex items-center gap-2 text-sm text-foreground-secondary"><Shield size={14} /> Role: {user.role}</p>
-                                <p className="mt-1 text-sm text-foreground-secondary">Status: {statusPresentation?.label || "Active"}</p>
-                                <p className="mt-1 text-sm text-foreground-secondary">Verified: {user.isVerified ? "Yes" : "No"}</p>
-                                <p className="mt-1 text-sm text-foreground-secondary">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
+                            <div className="rounded-lg border border-border bg-muted/20 p-4">
+                                <p className="text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">Account</p>
+                                <p className="mt-2 flex items-center gap-2 text-body text-foreground-secondary"><Shield size={14} /> Role: {user.role}</p>
+                                <p className="mt-1 text-body text-foreground-secondary">Status: {statusPresentation?.label || "Active"}</p>
+                                <p className="mt-1 text-body text-foreground-secondary">Verified: {user.isVerified ? "Yes" : "No"}</p>
+                                <p className="mt-1 text-body text-foreground-secondary">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
                             </div>
                         </div>
 
-                        <div className="rounded-lg border border-slate-200 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Quick Access</p>
-                            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-                                <Link href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
+                        <div className="rounded-lg border border-border bg-muted/20 p-4">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">Quick Access</p>
+                            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-3">
+                                <Link href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })} className="rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center">
                                     View User Ads
                                 </Link>
-                                <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center">
                                     View Reports Queue
                                 </Link>
-                                <Link href={ADMIN_UI_ROUTES.finance({ q: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.finance({ q: user.id })} className="rounded-lg border border-border bg-card px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted/50 transition-colors text-center">
                                     View User Payments
                                 </Link>
                             </div>
@@ -149,6 +153,6 @@ export default function UserDetailsPage({ params }: Props) {
                     </div>
                 )}
             </section>
-        </div>
+        </AdminPageShell>
     );
 }

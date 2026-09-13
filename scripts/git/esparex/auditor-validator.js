@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'AUDIT-001', name: 'Repository Auditor Baseline', version: '1.0.0', category: 'Governance' };
 
@@ -13,7 +13,7 @@ function run(val) {
   if (fs.existsSync(AUDIT_REPORT)) {
     try {
       data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
-    } catch (e) {
+    } catch {
       data = null;
     }
   }

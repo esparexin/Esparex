@@ -8,7 +8,7 @@ export { CatalogActiveStatusFilter } from "./CatalogActiveStatusFilter";
 export { CatalogActiveToggleButton } from "./CatalogActiveToggleButton";
 export { CatalogActionIconButton, CatalogActionsRow } from "./CatalogActionsRow";
 export { CatalogEditDeleteActions, CatalogEditDeleteActionPair } from "./CatalogEditDeleteActions";
-export { CatalogSearchAndCategoryFilters, CatalogBoundSearchCategoryFilters } from "./CatalogSearchAndCategoryFilters";
+export { CatalogSearchAndCategoryFilters } from "./CatalogSearchAndCategoryFilters";
 export { CatalogEntityCell } from "./CatalogEntityCell";
 export { CatalogTextInputField } from "./CatalogTextInputField";
 export { CatalogCheckboxCard, CatalogActiveCheckboxField } from "./CatalogCheckboxCard";

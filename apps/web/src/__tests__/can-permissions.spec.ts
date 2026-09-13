@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { can } from "@/permissions/can";
-import type { User } from "@/types/User";
+import type { User } from "@esparex/contracts";
 
 describe("can() Permission Governance Test Suite", () => {
     const baseUser: User = {

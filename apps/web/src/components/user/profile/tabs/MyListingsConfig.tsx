@@ -1,5 +1,5 @@
 import React from "react";
-import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "@/icons/IconRegistry";
+import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "@esparex/ui";
 import type { Listing } from "@/lib/api/user/listings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { ListingItem } from "@/components/user/shared/ListingItem";

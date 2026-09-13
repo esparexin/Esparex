@@ -62,11 +62,15 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(isValidSitemapUrl("https://esparex.in/")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/about")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/terms")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/category/mobiles")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/ads/iphone-13-ad-12345")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/business/repair-hub-biz-99")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/services/screen-repair-srv-1")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/spare-part-listings/oled-part-2")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/brands/apple-brand1")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/models/iphone-15-model1")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/seller/john-doe-user1")).toBe(true);
         });
 
         it("rejects non-HTTPS and insecure protocols", () => {
@@ -111,6 +115,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(isValidSitemapUrl("https://esparex.in/spare-parts/screen")).toBe(false);
             expect(isValidSitemapUrl("https://esparex.in/business")).toBe(false); // bare 301
             expect(isValidSitemapUrl("https://esparex.in/category/mobile-phones")).toBe(false); // 301 redirect
+            expect(isValidSitemapUrl("https://esparex.in/search?q=test")).toBe(false); // filtered search has query params
         });
     });
 
@@ -162,6 +167,39 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                         }),
                     };
                 }
+                if (url.includes("catalog/brands")) {
+                    return {
+                        ok: true,
+                        json: async () => ({
+                            data: [
+                                { id: "brand-1", slug: "apple", name: "Apple" },
+                            ],
+                        }),
+                    };
+                }
+                if (url.includes("catalog/models")) {
+                    return {
+                        ok: true,
+                        json: async () => ({
+                            data: [
+                                { id: "model-1", slug: "iphone-15", name: "iPhone 15" },
+                            ],
+                        }),
+                    };
+                }
+                if (url.includes("users/sellers")) {
+                    return {
+                        ok: true,
+                        json: async () => ({
+                            data: {
+                                items: [
+                                    { id: "user-1", slug: "john-doe", status: "active" },
+                                ],
+                                total: 1,
+                            },
+                        }),
+                    };
+                }
                 return { ok: false, status: 404 };
             });
         });
@@ -184,6 +222,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                 "https://esparex.in/safety-tips",
                 "https://esparex.in/site-map",
                 "https://esparex.in/terms",
+                "https://esparex.in/search",
             ];
 
             for (const expected of expectedStatic) {
@@ -225,6 +264,16 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(urls.some((u) => u.includes("/browse-spare-parts"))).toBe(false);
             expect(urls.some((u) => u.includes("/spare-parts/"))).toBe(false);
             expect(urls.some((u) => u.includes("/search?"))).toBe(false);
+
+            // /search base route (no query params) should be included
+            expect(urls).toContain("https://esparex.in/search");
+
+            // Brand and model catalog pages should be included
+            expect(urls).toContain("https://esparex.in/brands/apple-brand-1");
+            expect(urls).toContain("https://esparex.in/models/iphone-15-model-1");
+
+            // Seller profile pages should be included
+            expect(urls).toContain("https://esparex.in/seller/john-doe-user-1");
         });
 
         it("excludes private, account, and internal routes", async () => {
@@ -406,8 +455,13 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const pagePath = path.join(repoRoot, "apps/admin/src/app/(protected)/(system)/admin-users/page.tsx");
             const content = fs.readFileSync(pagePath, "utf8");
 
-            expect(content).not.toContain('placeholder="users:read, ads:write, ..."');
-            expect(content).toContain('placeholder="e.g. users:read, listings:write"');
+            expect(content).not.toContain('ads:write');
+            expect(content).toContain('permissionsPlaceholder="Comma-separated permission scopes (e.g. users:read, listings:write)"');
+
+            const schemaPath = path.join(repoRoot, "apps/admin/src/schemas/admin.schemas.ts");
+            const schemaContent = fs.readFileSync(schemaPath, "utf8");
+            expect(schemaContent).not.toContain('ads:write');
+            expect(schemaContent).toContain('users:read or listings:write');
         });
 
         it("campaign settings modal uses safe example.com domain", () => {

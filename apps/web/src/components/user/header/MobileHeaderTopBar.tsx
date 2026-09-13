@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { MapPin, ChevronDown, Menu } from "@/icons/IconRegistry";
+import { MapPin, ChevronDown, Menu } from "@esparex/ui";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 
 interface MobileHeaderTopBarProps {

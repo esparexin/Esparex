@@ -22,8 +22,8 @@
 | `apps/web` context/hooks | UI state sync | domain transforms | Vol-3 §21 |
 | `backend/api` controllers | validation, HTTP status, session auth | direct DB queries, business math | Vol-4 §41 (20/91 import mongoose = minor violation A-1) |
 | `core` domains | business rules, invariants, canonical formatters | React, HTTP concerns | Vol-1 §3 |
-| `core/src/services` (legacy) | — deprecated shim tree | — | F05 (migration Wave 2) |
-| `packages/contracts` | DTOs, validation schemas, SSOT | duplicate local schemas | F08 |
+| `core/src/services` (legacy) | — deprecated shim tree | — | Core domain migration target |
+| `packages/contracts` | DTOs, validation schemas, SSOT | duplicate local schemas | Contracts SSOT |
 | `packages/ui` | primitives, tokens | app-local duplicates | AGENTS §3 |
 
 **Gate:** `guard:component-api-boundary`, `guard:buildgraph` (0 circles), `repo:architecture`.
@@ -32,7 +32,7 @@
 
 - Allowed: `web → shared → contracts`; `web → ui → tokens`; `core → shared → kernel`; `backend/api → core`, `backend/api → contracts`.
 - Disallowed: `apps/* → core` (web verified 0 imports), `core → backend`, reverse edges, cycles.
-- Cross-domain edges inside core (catalog→reviews, listings→wallet etc.) are allowed **only** one-directional and listed (Vol-3 §32.2, 34 edges legacy — Wave 2 target).
+- Cross-domain edges inside core (catalog→reviews, listings→wallet etc.) are allowed **only** one-directional and listed (tracked in dependency-cruiser).
 - New cross-domain edge → ARB review (§14 manual).
 
 ## 4. Package creation policy
@@ -59,10 +59,10 @@ Canonical matrix: `.github/CODEOWNERS` (38 lines, 7 groups). Orphan rule: zero f
 
 1. **Migration before creation** — extend the SSOT; no parallel implementations.
 2. Ship small; each refactor = one wave item; rollback = revert PR.
-3. Legacy → domain (F05) must preserve behavior via contract-compat tests before cutover (verify mappers).
+3. Legacy → domain must preserve behavior via contract-compat tests before cutover (verify mappers).
 4. No refactor without passing `repo:gate` on the same PR (guard).
 5. Dead code: `guard:dead-code` must stay 0 new per PR.
 
 ---
 
-*Owner: ARGB · Reviews: quarterly re-cert (Manual §8).*
+*Owner: ARB · Reviews: quarterly re-cert (Manual §8).*

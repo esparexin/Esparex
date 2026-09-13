@@ -1,7 +1,7 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
-import { Loader2, Pencil } from "@/icons/IconRegistry";
+import { Loader2, Pencil } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
 import {
   Button,

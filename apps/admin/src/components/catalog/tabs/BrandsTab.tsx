@@ -30,7 +30,7 @@ import {
     CatalogEditDeleteActionPair,
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
-    CatalogSearchInput,
+    CatalogSearchAndCategoryFilters,
 } from "@/components/catalog/primitives";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
@@ -195,7 +195,7 @@ export default function BrandsTab() {
                         cell: (brand) => {
                             if (brand.isDeleted) {
                                 return (
-                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider bg-slate-200 text-foreground-secondary">
+                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider bg-muted text-foreground-secondary">
                                         Deleted
                                     </span>
                                );
@@ -253,23 +253,18 @@ export default function BrandsTab() {
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogSearchInput
-                            value={searchInput}
-                            placeholder="Search brands..."
-                            onChange={setSearchInput}
-                        />
-                        <CatalogSelectFilter
-                            value={initialCategoryId}
-                            onChange={(categoryId) =>
+                        <CatalogSearchAndCategoryFilters
+                            searchValue={searchInput}
+                            searchPlaceholder="Search brands..."
+                            onSearchChange={setSearchInput}
+                            categories={categoryOptions}
+                            categoryValue={initialCategoryId}
+                            onCategoryChange={(categoryId) =>
                                 replaceQueryState({
                                     categoryId: categoryId !== "all" ? categoryId : null,
                                     page: null,
                                 })
                             }
-                            options={[
-                                { value: "all", label: "All Categories" },
-                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
-                            ]}
                         />
                         <CatalogSelectFilter
                             value={initialStatus}

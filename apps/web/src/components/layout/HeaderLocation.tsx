@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ChevronDown, MapPin, Target, X } from "@/icons/IconRegistry";
+import { ChevronDown, MapPin, Target, X } from "@esparex/ui";
 import { Spinner } from "@esparex/ui";
 import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
 import { useMounted } from "@/hooks/useMounted";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 
 interface HeaderLocationProps {
     isOpen?: boolean;

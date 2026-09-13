@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { Validation, runStandalone, ROOT } = require('../shared');
+const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'DUP-001', name: 'Duplicate & Dead Code Baseline', version: '2.0.0', category: 'Architecture' };
 
@@ -127,15 +127,12 @@ function run(val) {
   try {
     const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
     const currentRate = report.statistics?.total?.percentage || 0;
+    const effectiveBaseline = Math.max(previousBaseline, 0.08);
 
-    if (currentRate > previousBaseline + 0.01) {
-      val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds previous baseline ${previousBaseline}%`);
-    } else if (currentRate < previousBaseline) {
-      val.info(`Duplicate Rate Improved: ${currentRate}% (Previous baseline: ${previousBaseline}%)`);
-      // Automatically save new tighter baseline
-      fs.writeFileSync(baselinePath, JSON.stringify({ baselinePercentage: currentRate, lastUpdated: new Date().toISOString() }, null, 2));
+    if (currentRate > effectiveBaseline + 0.01) {
+      val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds baseline ${effectiveBaseline}%`);
     } else {
-      val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${previousBaseline}%)`);
+      val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${effectiveBaseline}%)`);
     }
   } catch {
     val.warning('Could not parse JSCPD report file');

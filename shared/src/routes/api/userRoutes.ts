@@ -1,0 +1,143 @@
+/**
+ * User/Public API routes mounted under `/api/v1`.
+ * Keep path strings prefix-free (no `/api/v1`).
+ */
+export const USER_ROUTES = {
+  // Root
+  HEALTH: "health",
+  CSRF_TOKEN: "csrf-token",
+
+  // Auth
+  SEND_OTP: "auth/send-otp",
+  VERIFY_OTP: "auth/verify-otp",
+  CANCEL_OTP: "auth/cancel-otp",
+  LOGOUT: "auth/logout",
+
+  // Catalog
+  CATEGORIES: "catalog/categories",
+  BRANDS_BASE: "catalog/brands",
+  BRAND_BY_SLUG: (slug: string) => `catalog/brands/slug/${encodeURIComponent(String(slug))}`,
+  MODELS_BASE: "catalog/models",
+  MODEL_BY_SLUG: (slug: string) => `catalog/models/slug/${encodeURIComponent(String(slug))}`,
+  SPARE_PARTS_BASE: "catalog/spare-parts",
+  SPARE_PARTS: (categoryId: string) => `catalog/spare-parts?categoryId=${categoryId}`,
+  SERVICE_TYPES: "catalog/service-types",
+  SCREEN_SIZES: "catalog/screen-sizes",
+
+  // Listings (Unified SSOT)
+  LISTINGS: "listings",
+  LISTINGS_NEARBY: "listings/nearby",
+  LISTINGS_SUGGESTIONS: "listings/suggestions",
+  LISTINGS_TRENDING: "listings/trending",
+  LISTINGS_UPLOAD_IMAGE: "listings/upload-image",
+  LISTINGS_UPLOAD_PRESIGN: "listings/upload-presign",
+  HOME_FEED: "listings/home",
+  MY_LISTINGS: "listings/mine",
+  MY_LISTINGS_STATS: "listings/mine/stats",
+  LISTING_DETAIL: (id: string | number) => `listings/${id}`,
+  LISTING_EDIT: (id: string | number) => `listings/${id}/edit`,
+  LISTING_SOLD: (id: string | number) => `listings/${id}/sold`,
+  LISTING_DEACTIVATE: (id: string | number) => `listings/${id}/deactivate`,
+  LISTING_ACTIVATE: (id: string | number) => `listings/${id}/activate`,
+  LISTING_PROMOTE: (id: string | number) => `listings/${id}/promote`,
+  LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
+  LISTING_VIEW: (id: string | number) => `listings/${id}/view`,
+  LISTING_PHONE: (id: string | number) => `listings/${id}/phone`,
+  LISTING_REPOST: (id: string | number) => `listings/${id}/repost`,
+
+  // Locations
+  LOCATIONS: "locations",
+  LOCATIONS_PINCODE: (pincode: string) => `locations/pincode/${encodeURIComponent(String(pincode))}`,
+  LOCATIONS_STATES: "locations/states",
+  LOCATIONS_CITIES: "locations/cities",
+  LOCATIONS_AREAS: "locations/areas",
+  LOCATIONS_DEFAULT_CENTER: "locations/default-center",
+  LOCATIONS_IP_LOCATE: "locations/ip-locate",
+  LOCATIONS_GEOCODE: "locations/geocode",
+  LOG_LOCATION_EVENT: "locations/log-event",
+
+  // Smart Alerts
+  SMART_ALERTS: "smart-alerts",
+  SMART_ALERT_DETAIL: (id: string | number) => `smart-alerts/${encodeURIComponent(String(id))}`,
+  SMART_ALERT_TOGGLE_STATUS: (id: string | number) =>
+    `smart-alerts/${encodeURIComponent(String(id))}/toggle-status`,
+  SMART_ALERTS_SAVED_SEARCHES: "smart-alerts/saved-searches",
+  SMART_ALERTS_SAVED_SEARCH_DETAIL: (id: string | number) =>
+    `smart-alerts/saved-searches/${encodeURIComponent(String(id))}`,
+
+  // AI
+  AI_GENERATE: "ai/generate",
+
+  // Businesses
+  BUSINESSES_PUBLIC: "businesses",
+  BUSINESSES_UPLOAD: "businesses/upload",
+  BUSINESS_ME: "businesses/me",
+  BUSINESS_ME_STATS: "businesses/me/stats",
+  BUSINESS_DEACTIVATE: "businesses/me/deactivate",
+  BUSINESS_REACTIVATE: "businesses/me/reactivate",
+  BUSINESS_CLOSE: "businesses/me/close",
+  BUSINESS_RENEW: (id: string) => `businesses/${id}/renew`,
+
+  BUSINESS_DETAIL: (id: string) => `businesses/${id}`,
+  BUSINESS_STATS: (id: string) => `businesses/${id}/stats`,
+  BUSINESS_SERVICES: (id: string) => `businesses/${id}/services`,
+  BUSINESS_ADS: (id: string) => `businesses/${id}/ads`,
+  BUSINESS_SPARE_PARTS: (id: string) => `businesses/${id}/spare-parts`,
+  BUSINESS_LISTINGS: (id: string) => `businesses/${id}/listings`,
+
+  // Users
+  USERS: "users",
+  USERS_SELLERS: "users/sellers",
+  USERS_ME: "users/me",
+  USERS_PROFILE: (id: string | number) => `users/${encodeURIComponent(String(id))}/profile`,
+  USERS_BLOCK: (id: string | number) => `users/${encodeURIComponent(String(id))}/block`,
+  USERS_WALLET: "users/me/wallet",
+  USERS_POSTING_BALANCE: "users/me/posting-balance",
+  USERS_TRANSACTIONS: "users/me/transactions",
+  USERS_MY_BOOSTS: "users/me/boosts",
+  USERS_SAVED_ADS: "users/saved-ads",
+  USERS_SAVED_AD_DETAIL: (id: string) => `users/saved-ads/${id}`,
+
+  // Payments
+  PURCHASE_HISTORY: "payments/history",
+  PAYMENT_PLANS: "payments/plans",
+  PAYMENT_ORDERS: "payments/orders",
+  PAYMENT_VERIFY: "payments/verify",
+  INVOICE_DETAIL: (id: string) => `payments/invoice/${id}`,
+
+  // Categories
+  CATEGORY_DETAIL: (id: string) => `catalog/categories/${id}`,
+  CATEGORY_SCHEMA: (id: string) => `catalog/categories/${id}/schema`,
+
+  // Notifications
+  NOTIFICATIONS: "notifications",
+  NOTIF_MARK_READ: (id: string) => `notifications/${id}/read`,
+  NOTIF_MARK_ALL_READ: "notifications/all/read",
+  NOTIF_DELETE: (id: string) => `notifications/${id}`,
+  NOTIF_REGISTER: "notifications/register",
+
+  // Chat / Messaging (v2 — polling-based)
+  CHAT_START: "chat/start",
+  CHAT_LIST: "chat/list",
+  CHAT_CONVERSATION: (id: string) => `chat/${encodeURIComponent(id)}`,
+  CHAT_MESSAGES: (id: string) => `chat/${encodeURIComponent(id)}/messages`,
+  CHAT_SEND: "chat/send",
+  CHAT_READ: "chat/read",
+  CHAT_BLOCK: "chat/block",
+  CHAT_REPORT: "chat/report",
+  CHAT_HIDE: "chat/hide",
+  CHAT_UNHIDE: "chat/unhide",
+  CHAT_UPLOAD_URL: "chat/upload-url",
+
+  // Reports
+  REPORTS: "reports",
+
+  // Analytics
+  ANALYTICS_POST_AD_EVENT: "analytics/post-ad-event",
+} as const;
+
+export const API_ROUTES = {
+  USER: USER_ROUTES,
+} as const;
+
+export type UserRoutePath = typeof USER_ROUTES[keyof typeof USER_ROUTES] | (string & {});

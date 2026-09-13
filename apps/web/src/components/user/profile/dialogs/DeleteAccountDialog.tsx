@@ -8,18 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@esparex/ui";
-import { FormError } from "@/components/ui/FormError";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FormError } from "@esparex/ui";
+import { Input } from "@esparex/ui";
+import { Label } from "@esparex/ui";
+import { Textarea } from "@esparex/ui";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { AlertTriangle } from "@/icons/IconRegistry";
+} from "@esparex/ui";
+import { AlertTriangle } from "@esparex/ui";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
 
 interface DeleteAccountDialogProps {

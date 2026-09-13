@@ -1,6 +1,5 @@
 "use client";
 
-import type { Ref } from "react";
 import { useRouter } from "next/navigation";
 import { Ban, Eye, PlayCircle, Search, Shield, User as UserIcon } from "@esparex/ui";
 import { AdminActionMenu, type ActionMenuItem } from "@/components/layout/AdminActionMenu";
@@ -13,10 +12,6 @@ import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 
 interface UserActionMenuProps {
     user: ManagedUser;
-    isOpen?: boolean;
-    menuRef?: Ref<HTMLDivElement>;
-    onToggle?: () => void;
-    onClose?: () => void;
     onOpenDetails: (user: ManagedUser) => void;
     onOpenAction: (type: UserActionType, user: ManagedUser) => void;
 }

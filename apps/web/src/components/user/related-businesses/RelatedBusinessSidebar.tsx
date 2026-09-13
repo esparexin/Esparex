@@ -1,14 +1,15 @@
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
+import { ChevronLeft, ChevronRight } from "@esparex/ui";
 import type { Business } from "@/lib/api/user/businesses";
 import {
   DEFAULT_IMAGE_PLACEHOLDER,
   toSafeImageSrc,
 } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
+import { generateAdSlug } from "@/lib/slug";
 import { Button } from "@esparex/ui";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface RelatedBusinessSidebarProps {
   businesses: Business[];
@@ -101,8 +102,11 @@ export function RelatedBusinessSidebar({
             const distanceLabel = formatDistance(business.distanceKm);
             const locationLabel = resolveListingLocationLabel(business.location, "brief") || "Nearby";
             const imageSrc = toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER);
-            const businessIdentifier = (business.slug || business.id || "").toString().trim();
-            const businessHref = businessIdentifier ? `/business/${encodeURIComponent(businessIdentifier)}` : "/account/business";
+            const businessId = String(business.id || "").trim();
+            const canonicalSlug = business.slug || generateAdSlug(business.name || "");
+            const businessHref = businessId && canonicalSlug
+              ? `/business/${encodeURIComponent(`${canonicalSlug}-${businessId}`)}`
+              : (businessId ? `/business/${encodeURIComponent(businessId)}` : "/account/business");
 
             return (
               <Link
@@ -140,7 +144,7 @@ export function RelatedBusinessSidebar({
 
       <div className="text-center pt-1">
         <Link
-          href="/services"
+          href="/search?type=service"
           className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
         >
           <span>View more services</span>

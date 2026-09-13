@@ -25,6 +25,7 @@ export {
     hasValidCoordinateArray, isValidGeoPoint, normalizeGeoPoint,
     getLatitude, getLongitude, hasCoordinates, createPoint, toCanonicalGeoPoint
 } from './utils/geoUtils';
+export { formatCoordinateLabel } from './utils/geoDisplay';
 export {
     LOCATION_LEVELS,
     normalizeLocationLevel,
@@ -37,8 +38,8 @@ export * from './utils/planEntitlements';
 export { sanitizeMongoObjectId, normalizeObjectIdLike } from './validators/mongo';
 export * from './listingUtils/imageUtils';
 
+export * from './location';
 export { adaptLocationInput } from './location/location.normalize';
-export { LocationFacade } from './location';
 
 export { CatalogFacade, validateCatalogName, hasCatalogPollution } from './catalog';
 export {
@@ -58,10 +59,10 @@ export * from './popup/popupEvents';
 export * from './popup/popupQueue';
 
 // API ROUTE CONSTANTS (remain in @esparex/shared — not wire types)
-export * from './contracts/api/basePaths';
-export * from './contracts/api/userRoutes';
-export * from './contracts/api/adminRoutes';
-export * from './contracts/api/resourceNames';
+export * from './routes/api/basePaths';
+export * from './routes/api/userRoutes';
+export * from './routes/api/adminRoutes';
+export * from './routes/api/resourceNames';
 // Note: chat.contracts migrated to @esparex/contracts — covered by export * above
 
 // OBSERVABILITY (remain in @esparex/shared)

@@ -75,5 +75,12 @@
       "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/ui"],
       "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-web"]
     }
+  },
+  "prohibitedDirectories": {
+    "backend/api/src/models": "Prohibited. Mongoose models belong in @esparex/core.",
+    "core/src/domain": "Prohibited. Domain models and value objects belong inside core/src/domains/<context>/domain/.",
+    "shared/src/contracts": "Prohibited. DTO contracts belong in @esparex/contracts; route path constants belong in shared/src/routes/.",
+    "core/src/services/notification": "Prohibited. Notification services belong in core/src/domains/notifications/.",
+    ".agents/workflows": "Prohibited. Canonical AI workflows belong in .agents/workflow/."
   }
 }

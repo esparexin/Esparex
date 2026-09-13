@@ -15,7 +15,7 @@ import {
     getPostingBalanceByUserId,
     getTransactionHistoryByUserId,
     getWalletSummaryByUserId,
-} from '@esparex/core/services/wallet/WalletQueryService';
+} from '@esparex/core/domains/payments';
 
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';

@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/components/ui/utils";
+import { Skeleton } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 
 interface AdCardSkeletonProps {
   className?: string;

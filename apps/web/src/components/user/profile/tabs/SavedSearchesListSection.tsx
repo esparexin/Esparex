@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@esparex/ui";
-import { Trash2 } from "@/icons/IconRegistry";
+import { Trash2 } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 
 interface SavedSearchesListSectionProps {

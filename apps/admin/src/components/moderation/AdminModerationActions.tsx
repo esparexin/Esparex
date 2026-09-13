@@ -33,7 +33,7 @@ function ActionButton({ label, ariaLabel, className, onClick, children }: Action
             >
                 {children}
             </button>
-            <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-tiny font-medium text-white opacity-0 transition-opacity group-hover/btn:opacity-100">
+            <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-tiny font-medium text-background opacity-0 transition-opacity group-hover/btn:opacity-100">
                 {label}
             </span>
         </div>
@@ -65,7 +65,7 @@ export function AdminModerationActions({
                     label="View Details"
                     ariaLabel="View details"
                     onClick={onView}
-                    className="text-foreground-secondary hover:bg-slate-100"
+                    className="text-foreground-secondary hover:bg-muted"
                 >
                     <Eye size={16} />
                 </ActionButton>
@@ -120,7 +120,7 @@ export function AdminModerationActions({
                     label="Delete"
                     ariaLabel="Delete"
                     onClick={onDelete!}
-                    className="text-foreground-secondary hover:bg-slate-100"
+                    className="text-foreground-secondary hover:bg-muted"
                 >
                     <Trash2 size={16} />
                 </ActionButton>
@@ -142,7 +142,7 @@ export function AdminModerationActions({
                     href={publicUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 text-foreground-subtle hover:bg-slate-50 hover:text-primary rounded-md transition-colors"
+                    className="p-2 text-foreground-subtle hover:bg-muted/50 hover:text-primary rounded-md transition-colors"
                     title="View Public Page"
                 >
                     <ExternalLink size={16} />

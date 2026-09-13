@@ -103,38 +103,6 @@ export const verifyUser = async (req: Request, res: Response) => {
 
 // ADMIN MANAGEMENT
 
-export const createUser = async (req: Request, res: Response) => {
-    try {
-        const userObj = await adminUsersService.createAdminUser(
-            req.body as Record<string, unknown>,
-            getActorId(req),
-            buildLogFn(req)
-        );
-        sendSuccessResponse(res, userObj, 'User created successfully');
-    } catch (error: unknown) {
-        sendAdminError(req, res, error);
-    }
-};
-
-export const updateUser = async (req: Request, res: Response) => {
-    try {
-        const userId = req.params.id as string;
-        if (!userId || !isValidObjectId(userId)) {
-            return sendAdminError(req, res, 'Invalid user id', 400);
-        }
-        const user = await adminUsersService.updateAdminUser(
-            userId,
-            req.body as Record<string, unknown>,
-            getActorId(req),
-            buildLogFn(req)
-        );
-        sendSuccessResponse(res, user, 'User updated successfully');
-    } catch (error: unknown) {
-        sendAdminError(req, res, error);
-    }
-};
-
-
 export const updateUserStatus = async (req: Request, res: Response) => {
     try {
         const { status, reason } = req.body as { status: string; reason?: string };

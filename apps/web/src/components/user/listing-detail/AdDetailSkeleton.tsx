@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@esparex/ui";
+import { Card, CardContent } from "@esparex/ui";
 
 function TitleAndMetricsSkeleton({ isDesktop = false }: { isDesktop?: boolean }) {
     return (

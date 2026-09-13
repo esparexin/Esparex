@@ -1,28 +1,25 @@
 "use client";
 
-import { AlertCircle } from "@esparex/ui";
-import { useCallback, useEffect, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { AdminLog } from "@/types/audit";
 import {
+    AlertCircle,
+    DataTable,
+    type ColumnDef,
     Shield,
     User,
     Activity,
     Database,
     Calendar,
-    Terminal
+    Terminal,
 } from "@esparex/ui";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { AdminLog } from "@/types/audit";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
-import {
-    buildUrlWithSearchParams,
-    normalizeSearchParamValue,
-    parsePositiveIntParam,
-    updateSearchParams,
-} from "@/lib/urlSearchParams";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
 
 const ACTION_OPTIONS = [
@@ -51,8 +48,6 @@ const TARGET_TYPE_OPTIONS = [
 ];
 
 export default function AuditLogsPage() {
-    const router = useRouter();
-    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const {
@@ -73,13 +68,11 @@ export default function AuditLogsPage() {
     const targetTypeFilter = normalizeSearchParamValue(rawTargetType) || "all";
     const page = parsePositiveIntParam(rawPage, 1);
 
-    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [pathname, router, searchParams]);
+    const { replaceQueryState } = useAdminQuerySync({
+        loading,
+        initialPage: page,
+        totalPages: pagination.pages,
+    });
 
     const statusOptions = useMemo(() => {
         if (actionFilter === "all" || ACTION_OPTIONS.some((option) => option.value === actionFilter)) {
@@ -105,30 +98,6 @@ export default function AuditLogsPage() {
         return () => clearTimeout(timer);
     }, [actionFilter, targetTypeFilter, page, search, getAuditLogs]);
 
-    useEffect(() => {
-        const nextUrl = buildUrlWithSearchParams(
-            pathname,
-            updateSearchParams(searchParams, {
-                q: search || null,
-                search: null,
-                action: actionFilter === "all" ? null : actionFilter,
-                targetType: targetTypeFilter === "all" ? null : targetTypeFilter,
-                page: page > 1 ? page : null,
-            })
-        );
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [actionFilter, targetTypeFilter, page, pathname, router, search, searchParams]);
-
-    useEffect(() => {
-        if (!loading && page > pagination.pages) {
-            replaceQueryState({ page: pagination.pages > 1 ? pagination.pages : null });
-        }
-    }, [loading, page, pagination.pages, replaceQueryState]);
-
     const columns: ColumnDef<AdminLog>[] = [
         {
             header: "Admin",
@@ -136,7 +105,7 @@ export default function AuditLogsPage() {
                 const admin = (log.adminId && typeof log.adminId === 'object') ? log.adminId : null;
                 return (
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground-subtle">
                             <User size={14} />
                         </div>
                         <div>
@@ -171,7 +140,7 @@ export default function AuditLogsPage() {
         {
             header: "Details",
             cell: (log) => (
-                <div className="max-w-[300px] truncate text-tiny text-foreground-tertiary italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
+                <div className="max-w-[300px] truncate text-tiny text-foreground-tertiary italic bg-muted/40 p-1 rounded border border-border overflow-hidden">
                     {log.metadata ? JSON.stringify(log.metadata) : 'No extra data'}
                 </div>
             )
@@ -218,12 +187,12 @@ export default function AuditLogsPage() {
                 onStatusChange={(value) => replaceQueryState({ action: value === "all" ? null : value, page: null })}
                 statusOptions={statusOptions}
                 extraFilters={
-                    <div className="flex items-center gap-1.5 ml-2 border-l border-slate-100 pl-4">
+                    <div className="flex items-center gap-1.5 ml-2 border-l border-border pl-4">
                         <Database className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                         <select
                             value={targetTypeFilter}
                             onChange={(e) => replaceQueryState({ targetType: e.target.value === "all" ? null : e.target.value, page: null })}
-                            className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-7 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                            className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                             {TARGET_TYPE_OPTIONS.map((opt) => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -240,8 +209,8 @@ export default function AuditLogsPage() {
                 </div>
             ) : null}
 
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2 text-black">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-border bg-muted/20 flex items-center gap-2 text-foreground">
                     <Activity size={18} className="text-foreground-subtle" />
                     <h2 className="text-sm font-bold text-foreground-secondary">Audit Trail</h2>
                 </div>

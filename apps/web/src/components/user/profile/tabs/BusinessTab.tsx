@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { PageSection } from "@/components/layout";
 import {
@@ -14,7 +14,7 @@ import {
     LogOut,
     RefreshCw,
     Plus,
-} from "@/icons/IconRegistry";
+} from "@esparex/ui";
 
 import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";

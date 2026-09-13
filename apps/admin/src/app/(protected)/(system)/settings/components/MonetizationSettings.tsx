@@ -44,7 +44,6 @@ export function MonetizationSettings() {
   });
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
       const [fetchedConfig, fetchedCampaigns] = await Promise.all([
         getAdminMonetizationConfig(),
@@ -61,8 +60,36 @@ export function MonetizationSettings() {
   }, []);
 
   useEffect(() => {
-    void loadData();
-  }, [loadData]);
+    let isMounted = true;
+
+    async function load() {
+      try {
+        const [fetchedConfig, fetchedCampaigns] = await Promise.all([
+          getAdminMonetizationConfig(),
+          getAdminCampaigns(),
+        ]);
+        if (isMounted) {
+          setConfig(fetchedConfig);
+          setCampaigns(fetchedCampaigns);
+        }
+      } catch (err: unknown) {
+        if (isMounted) {
+          const msg = err instanceof Error ? err.message : "Failed to load monetization data";
+          setFeedback({ type: "error", text: msg });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSaveConfig = async () => {
     setSaving(true);

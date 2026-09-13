@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { MapPin, Wrench } from "@/icons/IconRegistry";
+import { MapPin, Wrench } from "@esparex/ui";
 import type { Business } from "@/lib/api/user/businesses";
 import {
   DEFAULT_IMAGE_PLACEHOLDER,
   toSafeImageSrc,
 } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { SafeImage } from "@/components/ui/SafeImage";
+import { generateAdSlug } from "@/lib/slug";
+import { Card } from "@esparex/ui";
+import { Badge } from "@esparex/ui";
+import { SafeImage } from "@/components/common/SafeImage";
 
 interface RelatedBusinessCardProps {
   business: Business;
@@ -20,8 +21,11 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
   const activeServicesCount = business.activeServicesCount || 0;
   const locationLabel = resolveListingLocationLabel(business.location, "full") || "Nearby";
   const imageSrc = toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER);
-  const businessIdentifier = (business.slug || business.id || "").toString().trim();
-  const businessHref = businessIdentifier ? `/business/${encodeURIComponent(businessIdentifier)}` : "/account/business";
+  const businessId = String(business.id || "").trim();
+  const canonicalSlug = business.slug || generateAdSlug(business.name || "");
+  const businessHref = businessId && canonicalSlug
+    ? `/business/${encodeURIComponent(`${canonicalSlug}-${businessId}`)}`
+    : (businessId ? `/business/${encodeURIComponent(businessId)}` : "/account/business");
 
   return (
     <Link href={businessHref} className="block shrink-0 group">
@@ -44,7 +48,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
                 {business.name}
               </h3>
               {business.status === "live" && (
-                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-tiny font-semibold border-none">
+                <Badge className="shrink-0 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-tiny font-semibold border-none">
                   Verified
                 </Badge>
               )}
@@ -60,7 +64,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <div className="flex flex-wrap gap-1">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-tiny font-medium text-blue-700 border-none">
+              <Badge variant="secondary" className="rounded-md bg-primary/10 px-1.5 py-0.5 text-tiny font-medium text-primary border-none">
                 {matchingServicesCount} matching
               </Badge>
             ) : activeServicesCount > 0 ? (
@@ -70,7 +74,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
             ) : null}
           </div>
 
-          <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-semibold text-tiny shrink-0 transition-colors">
+          <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-primary group-hover:bg-primary/90 text-primary-foreground font-semibold text-tiny shrink-0 transition-colors">
             <Wrench className="mr-1 h-3 w-3" />
             View
           </span>
