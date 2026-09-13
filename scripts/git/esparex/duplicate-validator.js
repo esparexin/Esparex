@@ -55,7 +55,7 @@ function run(val) {
   // Flagging them as orphans is a false positive regardless of environment.
   const NEXTJS_CONVENTION_BASENAMES = new Set([
     'not-found', 'error', 'global-error', 'loading',
-    'layout', 'page', 'route', 'middleware', 'template',
+    'layout', 'page', 'route', 'middleware', 'proxy', 'template',
     'default', 'instrumentation', 'opengraph-image', 'twitter-image',
   ]);
 
