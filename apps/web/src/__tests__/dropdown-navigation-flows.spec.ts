@@ -72,14 +72,19 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
             "../components/user/NotificationBellDropdown.tsx"
         );
         const fileContent = fs.readFileSync(notificationPath, "utf-8");
+        const bodyContent = fs.readFileSync(
+            path.resolve(__dirname, "../components/user/NotificationDropdownBody.tsx"),
+            "utf-8"
+        );
+        const combinedContent = fileContent + bodyContent;
 
         expect(fileContent).toContain("modal={false}");
         expect(fileContent).toContain("onPointerDownOutside");
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
         expect(fileContent).toContain("onInteractOutside");
         expect(fileContent).toContain("w-[min(90vw,22rem)]");
-        expect(fileContent).toContain("bg-muted/30");
-        expect(fileContent).not.toContain("border-dashed");
+        expect(combinedContent).toContain("bg-muted/30");
+        expect(combinedContent).not.toContain("border-dashed");
     });
 
     it("ensures NotificationItemCard adheres to design tokens and exports NOTIFICATION_META", () => {
