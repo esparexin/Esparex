@@ -35,10 +35,10 @@ export async function generateMetadata(
     );
 
     const titleMap: Record<string, string> = {
-        service: 'Repair Services Near Me | Esparex',
-        spare_part: 'Buy Mobile Spare Parts Online India | Esparex',
+        service: 'Repair Services Near Me',
+        spare_part: 'Buy Mobile Spare Parts Online India',
     };
-    const titleDefault = 'Buy Used Electronics & Spare Parts Online India | Esparex';
+    const titleDefault = 'Buy Used Electronics & Spare Parts Online India';
 
     const canonicalPath = parsed.type === 'ad'
         ? '/search'

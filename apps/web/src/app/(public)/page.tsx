@@ -47,7 +47,9 @@ async function getHomeCategories(): Promise<Category[]> {
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-    title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+    title: {
+        absolute: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+    },
     description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services. Buy and sell electronics online across India — free to post.",
     alternates: {
         canonical: toCanonicalUrl('/'),

@@ -8,7 +8,7 @@ import { HelpCircle, ShieldCheck, Tag, ShoppingBag, Store, Wrench, ShieldAlert, 
 import { LEGAL_GRIEVANCE_EMAIL, LEGAL_SUPPORT_PHONE } from "@/lib/legal";
 
 export const metadata: Metadata = {
-    title: "Help Center & FAQ | Esparex",
+    title: "Help Center & FAQ",
     description: "Find instant answers to frequently asked questions about buying, selling, posting ads, verified business accounts, repair services, payments, and safety on Esparex.",
     alternates: { canonical: toCanonicalUrl('/faq') },
     openGraph: {

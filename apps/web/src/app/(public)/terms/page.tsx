@@ -14,7 +14,7 @@ import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
-    title: 'Terms of Service | Esparex',
+    title: 'Terms of Service',
     description: 'Review the official Terms of Service, Marketplace User Agreement, and Ad Posting Rules for using Esparex — India\'s electronics and spare parts ecosystem.',
     alternates: { canonical: toCanonicalUrl('/terms') },
     openGraph: {

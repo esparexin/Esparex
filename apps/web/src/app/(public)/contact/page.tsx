@@ -14,7 +14,7 @@ import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
-    title: "Contact Us & Grievance Redressal | Esparex",
+    title: "Contact Us & Grievance Redressal",
     description: "Get in touch with the Esparex customer support, B2B wholesale partnerships, or statutory Grievance Redressal desk.",
     alternates: { canonical: toCanonicalUrl('/contact') },
     openGraph: {
