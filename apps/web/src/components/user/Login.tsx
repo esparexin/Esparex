@@ -109,11 +109,17 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       return () => clearTimeout(id);
     }
     if (step === "enterOtp") {
-      const id = setTimeout(() => {
-        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
-        firstOtpInput?.focus();
-      }, 50);
-      return () => clearTimeout(id);
+      let raf2: number | null = null;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+          firstOtpInput?.focus();
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        if (raf2 !== null) cancelAnimationFrame(raf2);
+      };
     }
     return undefined;
   }, [step, form]);
