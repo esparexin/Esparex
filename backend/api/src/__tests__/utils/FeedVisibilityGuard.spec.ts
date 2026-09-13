@@ -122,6 +122,8 @@ describe('FeedVisibilityGuard', () => {
                 })
             ).toBe(false);
         });
+
+        it('returns true for active, approved, or published statuses with future expiry', () => {
             const future = new Date(Date.now() + 3600_000);
             expect(isPublicAdVisible({ status: 'active', isDeleted: false, expiresAt: future })).toBe(true);
             expect(isPublicAdVisible({ status: 'approved', isDeleted: false, expiresAt: future })).toBe(true);
