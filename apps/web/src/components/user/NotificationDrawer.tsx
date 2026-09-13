@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, CheckCheck, Trash2, Inbox } from "@esparex/ui";
+import { Button, CheckCheck, Drawer, Inbox, Trash2 } from "@esparex/ui";
 import { type Notification } from "@/lib/api/user/notifications";
-
-import {
-  Button,
-  Drawer,
-} from "@esparex/ui";
+import { NOTIFICATION_META } from "@/components/user/NotificationItemCard";
+import { RelativeTimeText } from "@/components/common/RelativeTimeText";
+import { cn } from "@/lib/utils";
 
 export interface NotificationDrawerProps {
   notifications: Notification[];
@@ -89,12 +87,14 @@ export function NotificationDrawer({
 
         {/* Notifications List */}
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/50 p-8 text-center">
+          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-muted/30 p-8 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-card shadow-sm">
-              <Inbox className="h-5 w-5 text-muted-foreground" />
+              <Inbox className="h-5 w-5 text-foreground-subtle" />
             </div>
-            <p className="text-sm font-semibold text-foreground">No notifications</p>
-            <p className="text-xs text-muted-foreground">You are all caught up!</p>
+            <div className="space-y-0.5">
+              <p className="text-body font-semibold text-foreground">No notifications</p>
+              <p className="text-caption text-muted-foreground">Updates will appear here.</p>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
@@ -103,6 +103,8 @@ export function NotificationDrawer({
               const titleId = `notif-title-${notification.id}`;
               const descId = `notif-desc-${notification.id}`;
               const dateId = `notif-date-${notification.id}`;
+              const meta = NOTIFICATION_META[notification.type] || NOTIFICATION_META.SYSTEM;
+              const Icon = meta.icon;
 
               return (
                 <div
@@ -151,12 +153,14 @@ export function NotificationDrawer({
                     }}
                     aria-labelledby={titleId}
                     aria-describedby={`${descId} ${dateId}`}
-                    className={`relative z-10 flex w-full text-left cursor-pointer items-start gap-3 bg-card p-3.5 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1 ${
-                      isSwiped ? "-translate-x-24" : "translate-x-0"
-                    } ${!notification.isRead ? "bg-accent/40" : ""}`}
+                    className={cn(
+                      "relative z-10 flex w-full text-left cursor-pointer items-start gap-3 bg-card p-3.5 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
+                      isSwiped ? "-translate-x-24" : "translate-x-0",
+                      !notification.isRead ? "bg-primary/5" : "bg-card"
+                    )}
                   >
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-foreground-secondary">
-                      <Bell className="h-4 w-4" />
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-xs">
+                      <Icon className={cn(meta.iconTone, "h-4 w-4")} />
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1">
@@ -172,12 +176,7 @@ export function NotificationDrawer({
                         {notification.message}
                       </p>
                       <span id={dateId} className="inline-block text-tiny text-foreground-subtle">
-                        {new Date(notification.createdAt).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        <RelativeTimeText value={notification.createdAt} />
                       </span>
                     </div>
                   </button>

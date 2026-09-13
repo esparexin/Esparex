@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { ListingSparePart } from '../../../domain/Listing';
 
 interface AvailableSparePartsSectionProps {
@@ -16,7 +17,7 @@ export const AvailableSparePartsSection = ({ spareParts }: AvailableSparePartsSe
     <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
       <View className="flex-row items-center mb-2.5">
         <View className="mr-1.5">
-          <AppIcon name="Cpu" size={16} color="#0ea5e9" />
+          <AppIcon name="Cpu" size={16} color={base.brand[600]} />
         </View>
         <AppText variant="h4" className="text-slate-900 dark:text-white font-semibold">
           Available Spare Parts

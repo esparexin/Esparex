@@ -66,7 +66,7 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain('router.replace("/account/alerts", { scroll: false })');
     });
 
-    it("ensures NotificationBellDropdown configures non-modal dropdown and guards against trigger loop", () => {
+    it("ensures NotificationBellDropdown configures non-modal dropdown, safe width, and clean borderless empty state", () => {
         const notificationPath = path.resolve(
             __dirname,
             "../components/user/NotificationBellDropdown.tsx"
@@ -77,6 +77,37 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("onPointerDownOutside");
         expect(fileContent).toContain('closest(\'[data-slot="dropdown-menu-trigger"]\')');
         expect(fileContent).toContain("onInteractOutside");
+        expect(fileContent).toContain("w-[min(90vw,22rem)]");
+        expect(fileContent).toContain("bg-muted/30");
+        expect(fileContent).not.toContain("border-dashed");
+    });
+
+    it("ensures NotificationItemCard adheres to design tokens and exports NOTIFICATION_META", () => {
+        const cardPath = path.resolve(
+            __dirname,
+            "../components/user/NotificationItemCard.tsx"
+        );
+        const fileContent = fs.readFileSync(cardPath, "utf-8");
+
+        expect(fileContent).toContain("export const NOTIFICATION_META");
+        expect(fileContent).toContain("bg-card");
+        expect(fileContent).toContain("border-border");
+        expect(fileContent).toContain("bg-primary/5");
+        expect(fileContent).not.toContain("text-slate-900");
+        expect(fileContent).not.toContain("bg-white");
+    });
+
+    it("ensures NotificationDrawer reuses NOTIFICATION_META and maintains borderless empty state", () => {
+        const drawerPath = path.resolve(
+            __dirname,
+            "../components/user/NotificationDrawer.tsx"
+        );
+        const fileContent = fs.readFileSync(drawerPath, "utf-8");
+
+        expect(fileContent).toContain("NOTIFICATION_META");
+        expect(fileContent).toContain("bg-muted/30");
+        expect(fileContent).not.toContain("border-dashed");
+        expect(fileContent).toContain("RelativeTimeText");
     });
 
     it("ensures EntitySearchCombobox pre-focuses and scrolls to pre-selected value on open", () => {

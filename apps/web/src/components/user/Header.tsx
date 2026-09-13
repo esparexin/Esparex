@@ -198,8 +198,8 @@ export function Header({
         <div className="flex items-center gap-3 ml-auto">
           {!isMounted || isAuthLoading ? (
             <>
-              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
-              <div className="h-8 w-8 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
+              <div className="hidden lg:flex h-9 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
+              <div className="h-9 w-9 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
             </>
           ) : isLoggedIn ? (
             <>

@@ -7,6 +7,7 @@ import { AdCardGrid } from "@/components/user/ad-card";
 import { Button } from "@esparex/ui";
 import type { ListingPageResult } from "@/lib/api/user/listings";
 import { generateAdSlug } from "@/lib/slug";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export type CatalogSlugEntity = "brand" | "model";
 
@@ -63,7 +64,7 @@ export function buildCatalogSlugMetadata(
     title: config.metadataTitle(record.name),
     description: config.metadataDescription(record.name, record.contextLabel),
     alternates: {
-      canonical: `https://esparex.in/${basePath}/${canonicalParam}`,
+      canonical: toCanonicalUrl(`/${basePath}/${canonicalParam}`),
     },
   };
 }

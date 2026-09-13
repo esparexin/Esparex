@@ -87,6 +87,7 @@ export const USER_ROUTES = {
 
   // Users
   USERS: "users",
+  USERS_SELLERS: "users/sellers",
   USERS_ME: "users/me",
   USERS_PROFILE: (id: string | number) => `users/${encodeURIComponent(String(id))}/profile`,
   USERS_BLOCK: (id: string | number) => `users/${encodeURIComponent(String(id))}/block`,

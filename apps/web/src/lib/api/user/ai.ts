@@ -18,11 +18,13 @@ export interface AIOutput {
 }
 
 export const generateAIContent = async (payload: AIInput): Promise<ApiResult<AIOutput>> => {
+    const isTitle = payload.context?.targetField === 'title';
     return await toApiResult<AIOutput>(
         apiClient.post(API_ROUTES.USER.AI_GENERATE, payload, {
             silent: true,
             maxRetries: 0,
-            timeout: 8000,
+            skipHealthCheck: true,
+            timeout: isTitle ? 3000 : 5000,
         })
     );
 };

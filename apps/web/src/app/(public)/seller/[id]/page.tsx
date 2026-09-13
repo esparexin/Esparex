@@ -5,22 +5,13 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { SellerProfilePage } from "@/components/user/SellerProfilePage";
 import { getUserProfile } from "@/lib/api/user/users";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
-import { generateAdSlug } from "@/lib/slug";
+import { generateAdSlug, parseSlugIdParam } from "@/lib/slug";
 
 type SellerProfileRouteProps = {
   params: Promise<{ id: string }>;
 };
 
 export const revalidate = 60;
-
-const parseSellerProfileParam = (param: string): string => {
-  const match = param.match(/^(.*)-([0-9a-fA-F]{24})$/);
-  if (!match || !match[2]) {
-    return param.trim();
-  }
-
-  return match[2];
-};
 
 const loadSellerProfile = cache(async (identifier: string) =>
   getUserProfile(identifier, {
@@ -32,7 +23,7 @@ export async function generateMetadata({
   params,
 }: SellerProfileRouteProps): Promise<Metadata> {
   const { id: rawParam } = await params;
-  const identifier = parseSellerProfileParam(rawParam || "");
+  const { identifier } = parseSlugIdParam(rawParam || "");
   const profile = await loadSellerProfile(identifier);
 
   if (!profile) {
@@ -55,7 +46,7 @@ export default async function SellerProfileRoute({
   params,
 }: SellerProfileRouteProps) {
   const { id: rawParam } = await params;
-  const identifier = parseSellerProfileParam(rawParam || "");
+  const { identifier } = parseSlugIdParam(rawParam || "");
   if (!identifier) {
     notFound();
   }

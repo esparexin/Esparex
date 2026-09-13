@@ -16,15 +16,16 @@ import {
 } from "@/lib/legal";
 import { buildWebPageSchema } from "@/lib/seo/schemaBuilders";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
+import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
     title: "Trust & Safety Guidelines | Esparex",
     description: "Essential safety guidelines, scam prevention tips, meetup checklists, and reporting procedures for buying and selling electronics on Esparex.",
-    alternates: { canonical: "https://esparex.in/safety-tips" },
+    alternates: { canonical: toCanonicalUrl('/safety-tips') },
     openGraph: {
         title: "Trust & Safety Guidelines | Esparex",
         description: "Stay secure on Esparex. Learn how to verify sellers, avoid online payment scams, inspect spare parts safely, and report suspicious listings.",
-        url: "https://esparex.in/safety-tips",
+        url: toCanonicalUrl('/safety-tips'),
         images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
 };
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 const safetyTipsSchema = buildWebPageSchema({
     name: "Trust & Safety Guidelines | Esparex",
     description: "Essential safety guidelines, scam prevention tips, meetup checklists, and reporting procedures for buying and selling electronics on Esparex.",
-    url: "https://esparex.in/safety-tips",
+    url: toCanonicalUrl('/safety-tips'),
     datePublished: "2026-08-26",
     dateModified: "2026-08-26",
 });
