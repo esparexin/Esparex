@@ -62,11 +62,17 @@ export function buildSitemapApiUrl(
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
     const urlObj = new URL(cleanEndpoint, base);
 
-    // Set default pagination parameters
-    urlObj.searchParams.set('limit', '1000');
-    urlObj.searchParams.set('page', '1');
+    // Contract-safe defaults: /businesses max 50 (no page), others max 100
+    const isBusiness = cleanEndpoint.startsWith('businesses');
+    const defaultLimit = isBusiness ? '50' : '100';
+
+    urlObj.searchParams.set('limit', params.limit || defaultLimit);
+    if (!isBusiness && !params.page) {
+        urlObj.searchParams.set('page', '1');
+    }
 
     for (const [key, value] of Object.entries(params)) {
+        if (key === 'page' && isBusiness) continue;
         urlObj.searchParams.set(key, value);
     }
     return urlObj.toString();
@@ -308,8 +314,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // 6. Canonical Categories (Always map to canonical slug to prevent 301 redirects)
-    const rawCategories = ['mobiles', 'tablets', 'laptops', 'spare-parts', 'accessories', 'wearables', 'led-tvs'];
-    const canonicalCategories = Array.from(new Set(rawCategories.map((cat) => getCanonicalCategorySlug(cat))));
+    const canonicalCategories = Array.from(new Set(['mobiles', 'tablets', 'laptops', 'spare-parts', 'accessories', 'wearables', 'led-tvs'].map(getCanonicalCategorySlug)));
     const categoryRoutes: MetadataRoute.Sitemap = canonicalCategories.map((cat) => ({
         url: toCanonicalUrl(`/category/${cat}`),
     }));
@@ -319,13 +324,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: toCanonicalUrl(`/spare-part-listings/${part.slug}-${part.id}`),
     }));
 
-    // 7b. Brand Catalog Pages
-    const brands = await fetchDynamicIds(
-        API_ROUTES.USER.BRANDS_BASE,
-        {},
-        'id',
-        'slug'
+    // 7b. Brand Catalog Pages (Query per category since /catalog/brands requires categoryId)
+    const brandGroups = await Promise.all(
+        canonicalCategories.map((cat) =>
+            fetchDynamicIds(API_ROUTES.USER.BRANDS_BASE, { categoryId: cat }, 'id', 'slug')
+        )
     );
+    const brands = Array.from(new Map(brandGroups.flat().map((b) => [String(b.id), b])).values());
     const brandRoutes: MetadataRoute.Sitemap = brands.map((brand) => ({
         url: toCanonicalUrl(`/brands/${brand.slug}-${brand.id}`),
     }));
@@ -355,18 +360,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 8. Deduplicate and strictly validate all candidate routes
     const seenUrls = new Set<string>();
     const allRoutes: MetadataRoute.Sitemap = [];
+    const allCandidates = [
+        ...staticRoutes, ...adRoutes, ...businessRoutes, ...categoryRoutes,
+        ...serviceRoutes, ...sparePartRoutes, ...brandRoutes, ...modelRoutes, ...sellerRoutes,
+    ];
 
-    for (const route of [
-        ...staticRoutes,
-        ...adRoutes,
-        ...businessRoutes,
-        ...categoryRoutes,
-        ...serviceRoutes,
-        ...sparePartRoutes,
-        ...brandRoutes,
-        ...modelRoutes,
-        ...sellerRoutes,
-    ]) {
+    for (const route of allCandidates) {
         if (!isValidSitemapUrl(route.url)) {
             logger.warn(`[Sitemap] Dropped invalid URL: ${route.url}`);
             continue;

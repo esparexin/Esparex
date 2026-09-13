@@ -38,7 +38,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const parsed = new URL(url);
             expect(parsed.searchParams.get("listingType")).toBe("ad");
             expect(parsed.searchParams.get("status")).toBe("live");
-            expect(parsed.searchParams.get("limit")).toBe("1000");
+            expect(parsed.searchParams.get("limit")).toBe("100");
             expect(parsed.searchParams.get("page")).toBe("1");
         });
 
@@ -46,6 +46,9 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const url = buildSitemapApiUrl("https://api.esparex.in/api/v1/", "/businesses", {});
             expect(url).toContain("https://api.esparex.in/api/v1/businesses?");
             expect(url).not.toContain("v1//businesses");
+            const parsed = new URL(url);
+            expect(parsed.searchParams.get("limit")).toBe("50");
+            expect(parsed.searchParams.has("page")).toBe(false);
         });
     });
 
