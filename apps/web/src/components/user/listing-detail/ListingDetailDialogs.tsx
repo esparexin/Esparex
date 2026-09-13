@@ -31,8 +31,8 @@ const BoostPlanDialog = dynamic(
   () => import("../BoostPlanDialog").then((mod) => mod.BoostPlanDialog),
   { ssr: false }
 );
-const SoldOutDialog = dynamic(
-  () => import("../SoldOutDialog").then((mod) => mod.SoldOutDialog),
+const MarkAsSoldDialog = dynamic(
+  () => import("../shared/MarkAsSoldDialog").then((mod) => mod.MarkAsSoldDialog),
   { ssr: false }
 );
 
@@ -96,7 +96,7 @@ export function ListingDetailDialogs({
         onListingUnavailable={onListingUnavailable}
       />
 
-      <SoldOutDialog
+      <MarkAsSoldDialog
         adTitle={ad.title}
         open={showSoldDialog}
         onOpenChange={setShowSoldDialog}

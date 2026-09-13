@@ -99,9 +99,9 @@ export function useListingDetailActions({
         if (!ad) return false;
 
         try {
-            const soldReason = platform === "on_platform"
+            const soldReason = (platform === "on_platform" || platform === "sold_on_platform")
                 ? "sold_on_platform"
-                : platform === "outside"
+                : (platform === "outside" || platform === "sold_outside")
                 ? "sold_outside"
                 : "no_longer_available";
             const result = await markListingAsSold(ad.id, soldReason);
