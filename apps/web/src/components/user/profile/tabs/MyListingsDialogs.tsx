@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@esparex/ui";
 import type { Listing } from "@/lib/api/user/listings";
-import { SoldReasonDialog, type SoldReason } from "@/components/user/shared/SoldReasonDialog";
+import { MarkAsSoldDialog, type SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import { BoostPlanDialog } from "@/components/user/BoostPlanDialog";
 
 interface MyListingsDialogsProps {
@@ -137,7 +137,7 @@ export function MyListingsDialogs({
         </AlertDialogContent>
       </AlertDialog>
 
-      <SoldReasonDialog
+      <MarkAsSoldDialog
         open={isSoldOpen}
         onOpenChange={setIsSoldOpen}
         description="How was this ad sold?"
@@ -148,7 +148,7 @@ export function MyListingsDialogs({
         onConfirm={confirmSold}
       />
 
-      <SoldReasonDialog
+      <MarkAsSoldDialog
         open={isSparesSoldOpen}
         onOpenChange={setIsSparesSoldOpen}
         description="How was this spare part sold?"
