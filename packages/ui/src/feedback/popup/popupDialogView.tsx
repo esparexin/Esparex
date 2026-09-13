@@ -4,6 +4,7 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
 import { popupTypeConfig, type RenderablePopup, usePopupDialogState } from "./popupDialog";
+import { zIndexStyle } from "../../tokens/zIndex";
 
 function joinClasses(...classes: (string | undefined | false | null)[]) {
   return classes.filter(Boolean).join(" ");
@@ -33,10 +34,11 @@ export function PopupDialogView({
       modal={true}
     >
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-[12000] bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200" />
+        <RadixDialog.Overlay style={zIndexStyle("popupOverlay")} className="fixed inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200" />
         <RadixDialog.Content
+          style={zIndexStyle("popupContent")}
           className={joinClasses(
-            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[12010] w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
+            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
             config.cardClass
           )}
           onInteractOutside={() => onClose()}
