@@ -1525,4 +1525,48 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run lint:ci` ──► PASS (0 new violations)
 - ✅ `npm run build` ──► PASS (All packages, admin, and web compiled cleanly)
 
+---
+
+### EA-044
+**Date**: 2026-09-13  
+**Description**: Mobile Overlay, OTP, Smart Alert & Duplicate Consolidation  
+**Root Cause**: Pre-design-token implementations, parallel duplicate "mark as sold" dialogs (`SoldOutDialog` vs `SoldReasonDialog`), independent dual-render points for `CreateSmartAlertDialog`, hardcoded z-index in popup system, and drawer-to-dialog transition animation overlap on mobile.  
+**Action**:
+1. **Z-Index Token Compliance**: Migrated `PopupDialogView` from hardcoded `z-[12000]`/`z-[12010]` to canonical `Z_INDEX.popupOverlay`/`Z_INDEX.popupContent` tokens using `zIndexStyle`.
+2. **AuthModal Variant Migration**: Migrated `AuthModal` to use canonical `DialogContent` `variant="mobileSafe"`, eliminating custom positioning overrides that bypassed the centralized Dialog system. Replaced raw palette classes on close button with semantic tokens.
+3. **Drawer-to-Dialog Timing**: Deferred AuthModal and logout trigger until Sheet exit animation completes (320ms), eliminating double-overlay flicker. Removed redundant manual `overflow-hidden` scroll lock from `MobileNavDrawerProvider`.
+4. **Smart Alert Dual-Render Consolidation**: Coordinated `SmartAlertsTab` with `SmartAlertModalContext` via tab handler registration, ensuring exactly one modal instance is mounted at all times and auto-closing global modal on navigation.
+5. **Mark as Sold Consolidation**: Merged `SoldOutDialog` (208 lines) and `SoldReasonDialog` (84 lines) into canonical `MarkAsSoldDialog` (218 lines) with unified API, RadioGroup from `@esparex/ui`, and semantic design tokens. Deleted deprecated `SoldOutDialog.tsx`.
+6. **Design Token Adoption**: Replaced 39 raw palette classes across `BoostPlanDialog`, `BoostPlanCards`, `UploadSourcePicker`, and `ListingDetailDialogs`. Extracted `SpotlightActiveNotice` to bring `BoostPlanDialog` down to 235 lines (<=250 limit).
+7. **OTP Focus Timing**: Replaced arbitrary 50ms setTimeout with double-`requestAnimationFrame` pattern in `LoginForm` auto-focus to eliminate layout shifts on mobile keyboard open.
+
+**Files Modified / Created / Deleted**:
+```
+apps/web/src/components/auth/AuthModal.tsx
+apps/web/src/components/mobile/MobileNavDrawer.tsx
+apps/web/src/components/mobile/MobileNavDrawerProvider.tsx
+apps/web/src/components/user/BoostPlanDialog.tsx
+apps/web/src/components/user/Login.tsx
+apps/web/src/components/user/SoldOutDialog.tsx (DELETED)
+apps/web/src/components/user/boost/BoostPlanCards.tsx
+apps/web/src/components/user/listing-detail/ListingDetailDialogs.tsx
+apps/web/src/components/user/profile/tabs/SmartAlertsTab.tsx
+apps/web/src/components/user/shared/MarkAsSoldDialog.tsx (CREATED)
+apps/web/src/components/user/shared/SoldReasonDialog.tsx
+apps/web/src/components/user/shared/UploadSourcePicker.tsx
+apps/web/src/context/SmartAlertModalContext.tsx
+apps/web/src/hooks/listings/useListingDetailActions.ts
+docs/tracking/engineering-action-register.md
+packages/ui/src/feedback/popup/popupDialogView.tsx
+packages/ui/src/tokens/zIndex.ts
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across all workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 new violations)
+- ✅ `npm run guard:pr-quality` ──► PASS (all file size limits and ratchet baselines satisfied)
+- ✅ `npm run guard:duplicate-code` ──► PASS (duplication rate strictly within baseline)
+
+
 
