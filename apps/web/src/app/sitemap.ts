@@ -115,6 +115,7 @@ export const FORBIDDEN_SITEMAP_PATTERNS: RegExp[] = [
     /^\/spare-parts(\/|$)/i, // Canonical path is /spare-part-listings/...
     /^\/business$/i, // Bare /business is a 301 redirect to /
     /^\/category\/mobile-phones(\/|$)/i, // Canonical is /category/mobiles
+    /^\/search(\/|$)/i, // Internal search results must not be in sitemap
 ];
 
 /** Allowed static canonical public routes */
@@ -171,7 +172,6 @@ export function isValidSitemapUrl(urlStr: string): boolean {
     const isAllowedSeller = /^\/seller\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
     const isAllowedBrand = /^\/brands\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
     const isAllowedModel = /^\/models\/[a-z0-9-]+-[a-zA-Z0-9_-]+$/.test(pathname);
-    const isAllowedSearch = pathname === '/search';
 
     return (
         isRoot ||
@@ -183,8 +183,7 @@ export function isValidSitemapUrl(urlStr: string): boolean {
         isAllowedSparePart ||
         isAllowedSeller ||
         isAllowedBrand ||
-        isAllowedModel ||
-        isAllowedSearch
+        isAllowedModel
     );
 }
 
@@ -294,9 +293,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const staticRoutes: MetadataRoute.Sitemap = STATIC_CANONICAL_PATHS.map((path) => ({
         url: toCanonicalUrl(path),
     }));
-
-    // 2b. Base /search route (indexable without filters)
-    staticRoutes.push({ url: toCanonicalUrl('/search') });
 
     // 3. Dynamic Live Ads
     const adRoutes: MetadataRoute.Sitemap = ads.map((ad) => ({

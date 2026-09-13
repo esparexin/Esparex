@@ -30,9 +30,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const searchParams = await props.searchParams;
     const parsed = parsePublicBrowseParams(searchParams);
-    const hasFilters = Object.keys(searchParams).some((k) =>
-        ['q', 'page', 'sort', 'category', 'categoryId', 'modelId', 'minPrice', 'maxPrice', 'location', 'locationId', 'brands', 'radiusKm'].includes(k)
-    );
 
     const titleMap: Record<string, string> = {
         service: 'Repair Services Near Me',
@@ -50,7 +47,7 @@ export async function generateMetadata(
         alternates: {
             canonical: toCanonicalUrl(canonicalPath),
         },
-        robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
+        robots: { index: false, follow: true },
     };
 }
 

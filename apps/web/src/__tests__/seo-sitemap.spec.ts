@@ -66,7 +66,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(isValidSitemapUrl("https://esparex.in/")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/about")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/terms")).toBe(true);
-            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(false); // Internal search excluded
             expect(isValidSitemapUrl("https://esparex.in/category/mobiles")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/ads/iphone-13-ad-12345")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/business/repair-hub-biz-99")).toBe(true);
@@ -119,6 +119,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(isValidSitemapUrl("https://esparex.in/spare-parts/screen")).toBe(false);
             expect(isValidSitemapUrl("https://esparex.in/business")).toBe(false); // bare 301
             expect(isValidSitemapUrl("https://esparex.in/category/mobile-phones")).toBe(false); // 301 redirect
+            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(false); // internal search excluded from sitemap
             expect(isValidSitemapUrl("https://esparex.in/search?q=test")).toBe(false); // filtered search has query params
         });
     });
@@ -226,7 +227,6 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                 "https://esparex.in/safety-tips",
                 "https://esparex.in/site-map",
                 "https://esparex.in/terms",
-                "https://esparex.in/search",
             ];
 
             for (const expected of expectedStatic) {
@@ -269,8 +269,8 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(urls.some((u) => u.includes("/spare-parts/"))).toBe(false);
             expect(urls.some((u) => u.includes("/search?"))).toBe(false);
 
-            // /search base route (no query params) should be included
-            expect(urls).toContain("https://esparex.in/search");
+            // /search route should not be in sitemap per Google guidelines
+            expect(urls).not.toContain("https://esparex.in/search");
 
             // Brand and model catalog pages should be included
             expect(urls).toContain("https://esparex.in/brands/apple-brand-1");
