@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import { CommonLayout } from '@/components/layout/CommonLayout';
 
 export const metadata: Metadata = {
@@ -11,13 +10,11 @@ export const metadata: Metadata = {
     description: 'Buy and sell electronics, smartphones, laptops, tablets, and spare parts.',
 };
 
-export default async function PublicLayout({ children }: { children: ReactNode }) {
-    const cookieStore = await cookies();
-    const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
+export default function PublicLayout({ children }: { children: ReactNode }) {
     const currentYear = new Date().getUTCFullYear();
 
     return (
-        <CommonLayout initialHasAuthCookie={initialHasAuthCookie} currentYear={currentYear}>
+        <CommonLayout currentYear={currentYear}>
             {children}
         </CommonLayout>
     );

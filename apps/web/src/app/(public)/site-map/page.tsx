@@ -6,7 +6,7 @@ import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
-    title: "Sitemap | Esparex",
+    title: "Sitemap",
     description: "Explore all marketplace categories, services, support guides, and legal policies on Esparex.",
     alternates: { canonical: toCanonicalUrl('/site-map') },
     openGraph: {
@@ -57,6 +57,9 @@ export default function SiteMapPage() {
                             <li><Link href="/category/laptops" className="text-foreground-secondary hover:text-primary transition-colors block">Laptops &amp; Computers</Link></li>
                             <li><Link href="/category/spare-parts" className="text-foreground-secondary hover:text-primary transition-colors block">Displays &amp; Spare Parts</Link></li>
                             <li><Link href="/category/accessories" className="text-foreground-secondary hover:text-primary transition-colors block">Accessories &amp; Tools</Link></li>
+                            <li><Link href="/category/wearables" className="text-foreground-secondary hover:text-primary transition-colors block">Wearables &amp; Smartwatches</Link></li>
+                            <li><Link href="/category/led-tvs" className="text-foreground-secondary hover:text-primary transition-colors block">LED TVs &amp; Smart Displays</Link></li>
+                            <li><Link href="/category/drones" className="text-foreground-secondary hover:text-primary transition-colors block">Drones &amp; Cameras</Link></li>
                         </ul>
                     </div>
 

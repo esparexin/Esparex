@@ -30,15 +30,12 @@ export async function generateMetadata(
 ): Promise<Metadata> {
     const searchParams = await props.searchParams;
     const parsed = parsePublicBrowseParams(searchParams);
-    const hasFilters = Object.keys(searchParams).some((k) =>
-        ['q', 'page', 'sort', 'category', 'categoryId', 'modelId', 'minPrice', 'maxPrice', 'location', 'locationId', 'brands', 'radiusKm'].includes(k)
-    );
 
     const titleMap: Record<string, string> = {
-        service: 'Repair Services Near Me | Esparex',
-        spare_part: 'Buy Mobile Spare Parts Online India | Esparex',
+        service: 'Repair Services Near Me',
+        spare_part: 'Buy Mobile Spare Parts Online India',
     };
-    const titleDefault = 'Buy Used Electronics & Spare Parts Online India | Esparex';
+    const titleDefault = 'Buy Used Electronics & Spare Parts Online India';
 
     const canonicalPath = parsed.type === 'ad'
         ? '/search'
@@ -50,7 +47,7 @@ export async function generateMetadata(
         alternates: {
             canonical: toCanonicalUrl(canonicalPath),
         },
-        robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
+        robots: { index: false, follow: true },
     };
 }
 

@@ -98,7 +98,7 @@ export async function buildListingMetadata({
     const ogDescription = seoDescription.slice(0, 300);
 
     return {
-        title: `${listingTitle} | Esparex`,
+        title: listingTitle,
         description: metaDescription,
         alternates: { canonical: canonicalUrl },
         robots: isIndexable ? undefined : { index: false, follow: false },

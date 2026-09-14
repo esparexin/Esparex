@@ -11,13 +11,13 @@ export const CANONICAL_HOSTNAME = "esparex.in";
  * Trailing slashes are stripped (except for the root path "/").
  */
 export function toCanonicalUrl(pathnameOrPath: string): string {
-  if (!pathnameOrPath || pathnameOrPath === "/") {
-    return `${CANONICAL_ORIGIN}/`;
+  if (!pathnameOrPath || pathnameOrPath === "/" || pathnameOrPath === "") {
+    return CANONICAL_ORIGIN;
   }
   const cleanPath = pathnameOrPath.startsWith("/")
     ? pathnameOrPath
     : `/${pathnameOrPath}`;
-  // Strip redundant trailing slash if present (except root)
+  // Strip redundant trailing slash if present
   const normalized = cleanPath.length > 1 && cleanPath.endsWith("/")
     ? cleanPath.slice(0, -1)
     : cleanPath;

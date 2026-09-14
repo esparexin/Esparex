@@ -34,7 +34,7 @@ export async function generateMetadata({
 
   const sellerSlug = generateAdSlug(profile.user.name || "seller");
   return {
-    title: `${profile.user.name || "Seller"} | Esparex`,
+    title: profile.user.name || "Seller",
     description: "View seller profile and active listings on Esparex.",
     alternates: {
       canonical: toCanonicalUrl(`/seller/${sellerSlug}-${profile.user.id}`),
