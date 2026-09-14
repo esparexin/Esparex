@@ -40,6 +40,7 @@ const BLOCKED_PRODUCTION_FLAGS = [
     'ALLOW_BOOT_AUTO_INDEX',
     'SENTRY_ENABLE_DEV',
     'FEED_DEBUG',
+    'ENABLE_LOCAL_AUTO_APPROVE',
 ] as const;
 
 const hasValue = (value: string | undefined): boolean =>

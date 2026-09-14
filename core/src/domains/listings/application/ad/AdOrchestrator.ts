@@ -19,6 +19,7 @@ import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import type { AdContext } from '../../../../types/ad.types';
+import { isLocalAutoApproveEnabled } from '../../../../config/env';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)
@@ -161,8 +162,17 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             // Image optimization is dispatched below after the Ad document is created.
 
             // 7. Persistence
-            const shouldAutoApprove = context.actor === 'ADMIN' && payload.moderationStatus !== 'held_for_review';
+            const isLocalAutoApprove = isLocalAutoApproveEnabled();
+            const shouldAutoApprove = (context.actor === 'ADMIN' || isLocalAutoApprove) && payload.moderationStatus !== 'held_for_review';
             if (shouldAutoApprove) {
+                payload.status = LISTING_STATUS.LIVE;
+                payload.moderationStatus = 'auto_approved';
+                if (!payload.expiresAt) {
+                    payload.expiresAt = await computeActiveExpiry(listingType as ListingTypeValue);
+                }
+                payload.approvedAt = new Date();
+                payload.approvedBy = context.authUserId;
+            } else {
                 payload.status = LISTING_STATUS.PENDING;
                 payload.moderationStatus = 'held_for_review';
                 payload.expiresAt = undefined;
@@ -171,43 +181,49 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             const createdListing = await getListingRepository().insert(payload, session);
             createdAd = createdListing;
 
-            // 8. Final Approval (Only if actor is ADMIN and not held for review)
+            // 8. Final Approval (Only if actor is ADMIN or local auto-approve is enabled, and not held for review)
             if (createdAd && shouldAutoApprove) {
-                const approvedAt = new Date();
-                await mutateStatus({
-                    domain: 'ad',
-                    entityId: createdAd.id,
-                    toStatus: LISTING_STATUS.LIVE,
-                    actor: {
-                        type: 'admin',
-                        id: context.authUserId,
-                    },
-                    reason: 'Approved during admin create flow',
-                    metadata: {
-                        action: 'moderation_approve',
-                        sourceRoute: 'AdOrchestrator.createAd',
-                        listingType: createdAd.listingType || 'ad',
-                    },
-                    patch: {
-                        moderatorId: context.authUserId,
-                        approvedAt,
-                        approvedBy: context.authUserId,
-                        expiresAt: await computeActiveExpiry(listingType as ListingTypeValue),
-                        moderationStatus: 'manual_approved',
-                        rejectionReason: undefined,
-                        $push: {
-                            timeline: {
-                                status: LISTING_STATUS.LIVE,
-                                timestamp: approvedAt,
-                                reason: 'Approved during admin create flow',
+                try {
+                    const approvedAt = new Date();
+                    const actorType = context.actor === 'ADMIN' ? 'admin' : 'system';
+                    const reason = context.actor === 'ADMIN' ? 'Approved during admin create flow' : 'Local test auto-approval';
+                    await mutateStatus({
+                        domain: 'ad',
+                        entityId: createdAd.id,
+                        toStatus: LISTING_STATUS.LIVE,
+                        actor: {
+                            type: actorType,
+                            id: context.authUserId,
+                        },
+                        reason,
+                        metadata: {
+                            action: 'moderation_approve',
+                            sourceRoute: 'AdOrchestrator.createAd',
+                            listingType: createdAd.listingType || 'ad',
+                        },
+                        patch: {
+                            moderatorId: context.authUserId,
+                            approvedAt,
+                            approvedBy: context.authUserId,
+                            expiresAt: createdAd.expiresAt || await computeActiveExpiry(listingType as ListingTypeValue),
+                            moderationStatus: 'auto_approved',
+                            rejectionReason: undefined,
+                            $push: {
+                                timeline: {
+                                    status: LISTING_STATUS.LIVE,
+                                    timestamp: approvedAt,
+                                    reason,
+                                },
                             },
                         },
-                    },
-                    session,
-                });
+                        session,
+                    });
 
-                const updatedListing = await getListingRepository().findById(createdAd.id);
-                createdAd = updatedListing || createdAd;
+                    const updatedListing = await getListingRepository().findById(createdAd.id);
+                    createdAd = updatedListing || createdAd;
+                } catch (mutationErr) {
+                    logger.warn('AdOrchestrator: mutateStatus timeline recording skipped', { error: mutationErr });
+                }
             }
 
             // 9. Dispatch Image Optimization
