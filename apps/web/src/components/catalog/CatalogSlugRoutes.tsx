@@ -2,12 +2,12 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
+import { CatalogSlugPage } from "@/components/catalog/CatalogSlugPage";
 import {
-  CatalogSlugPage,
   buildCatalogSlugMetadata,
   type CatalogSlugEntity,
   type CatalogSlugRecord,
-} from "@/components/catalog/CatalogSlugPage";
+} from "@/components/catalog/catalogMetadata";
 import { fetchCatalogRecordServer } from "@/lib/api/user/masterData";
 import { getAdsPage } from "@/lib/api/user/listings";
 import { buildCatalogLinkedBrowseRoute } from "@/lib/publicBrowseRoutes";

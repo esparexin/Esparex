@@ -1525,4 +1525,132 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run lint:ci` ──► PASS (0 new violations)
 - ✅ `npm run build` ──► PASS (All packages, admin, and web compiled cleanly)
 
+---
 
+### EA-044
+**Date**: 2026-09-13  
+**Description**: Mobile Overlay, OTP, Smart Alert & Duplicate Consolidation  
+**Root Cause**: Pre-design-token implementations, parallel duplicate "mark as sold" dialogs (`SoldOutDialog` vs `SoldReasonDialog`), independent dual-render points for `CreateSmartAlertDialog`, hardcoded z-index in popup system, and drawer-to-dialog transition animation overlap on mobile.  
+**Action**:
+1. **Z-Index Token Compliance**: Migrated `PopupDialogView` from hardcoded `z-[12000]`/`z-[12010]` to canonical `Z_INDEX.popupOverlay`/`Z_INDEX.popupContent` tokens using `zIndexStyle`.
+2. **AuthModal Variant Migration**: Migrated `AuthModal` to use canonical `DialogContent` `variant="mobileSafe"`, eliminating custom positioning overrides that bypassed the centralized Dialog system. Replaced raw palette classes on close button with semantic tokens.
+3. **Drawer-to-Dialog Timing**: Deferred AuthModal and logout trigger until Sheet exit animation completes (320ms), eliminating double-overlay flicker. Removed redundant manual `overflow-hidden` scroll lock from `MobileNavDrawerProvider`.
+4. **Smart Alert Dual-Render Consolidation**: Coordinated `SmartAlertsTab` with `SmartAlertModalContext` via tab handler registration, ensuring exactly one modal instance is mounted at all times and auto-closing global modal on navigation.
+5. **Mark as Sold Consolidation**: Merged `SoldOutDialog` (208 lines) and `SoldReasonDialog` (84 lines) into canonical `MarkAsSoldDialog` (218 lines) with unified API, RadioGroup from `@esparex/ui`, and semantic design tokens. Deleted deprecated `SoldOutDialog.tsx`.
+6. **Design Token Adoption**: Replaced 39 raw palette classes across `BoostPlanDialog`, `BoostPlanCards`, `UploadSourcePicker`, and `ListingDetailDialogs`. Extracted `SpotlightActiveNotice` to bring `BoostPlanDialog` down to 235 lines (<=250 limit).
+7. **OTP Focus Timing**: Replaced arbitrary 50ms setTimeout with double-`requestAnimationFrame` pattern in `LoginForm` auto-focus to eliminate layout shifts on mobile keyboard open.
+
+**Files Modified / Created / Deleted**:
+```
+apps/web/src/components/auth/AuthModal.tsx
+apps/web/src/components/mobile/MobileNavDrawer.tsx
+apps/web/src/components/mobile/MobileNavDrawerProvider.tsx
+apps/web/src/components/user/BoostPlanDialog.tsx
+apps/web/src/components/user/Login.tsx
+apps/web/src/components/user/SoldOutDialog.tsx (DELETED)
+apps/web/src/components/user/boost/BoostPlanCards.tsx
+apps/web/src/components/user/listing-detail/ListingDetailDialogs.tsx
+apps/web/src/components/user/profile/tabs/SmartAlertsTab.tsx
+apps/web/src/components/user/shared/MarkAsSoldDialog.tsx (CREATED)
+apps/web/src/components/user/shared/SoldReasonDialog.tsx (DELETED)
+apps/web/src/components/user/shared/UploadSourcePicker.tsx
+apps/web/src/context/SmartAlertModalContext.tsx
+apps/web/src/hooks/listings/useListingDetailActions.ts
+docs/tracking/engineering-action-register.md
+packages/ui/src/feedback/popup/popupDialogView.tsx
+packages/ui/src/tokens/zIndex.ts
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across all workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 new violations)
+- ✅ `npm run guard:pr-quality` ──► PASS (all file size limits and ratchet baselines satisfied)
+- ✅ `npm run guard:duplicate-code` ──► PASS (duplication rate strictly within baseline)
+
+---
+
+### EA-045
+**Date**: 2026-09-13  
+**Description**: SEO Sitemap, Indexing Hardening & Canonical Pipeline  
+**Root Cause**: Sitemap API queries failed silently with HTTP 400 due to contract limit violations (1000 vs 100/50 ceilings), catalog metadata was exported from a client component breaking SSR tags on model/brand pages, root layout cookies() disabled public edge caching, and double brand suffixes degraded title quality.  
+**Action**:
+1. **Sitemap Contract Compliance**: Updated `buildSitemapApiUrl` to respect backend schema limits (max 100 for listings, max 50 for businesses). Queried brands per category to satisfy `categoryId` requirement. Populated real ads, services, spare parts, businesses, and brands.
+2. **Catalog Metadata Server Extraction**: Extracted `buildCatalogSlugMetadata` and `ENTITY_CONFIG` into pure server module `catalogMetadata.ts`, restoring `<title>`, `<meta description>`, and `<link rel="canonical">` to model and brand landing pages.
+3. **HTML Sitemap Category Expansion**: Added all canonical categories (`wearables`, `led-tvs`, `drones`) to `/site-map`.
+4. **Title Double-Branding Elimination**: Removed redundant `| Esparex` suffix across public pages, allowing root template `%s | Esparex` to append brand exactly once.
+5. **Apex Canonical Trailing Slash Normalization**: Standardized `toCanonicalUrl('/')` to return `https://esparex.in`, matching Next.js root canonical tag.
+6. **Public Edge Caching Enablement**: Removed `await cookies()` from `RootLayout` and `PublicLayout`, isolating request-time cookies to `PrivateLayout` and removing `no-store` headers from public marketing pages.
+7. **Internal Search Exclusion**: Excluded `/search` from `sitemap.xml` and enforced `robots: { index: false, follow: true }` per Google Search Essentials.
+8. **Edge Proxy Verification**: Next.js 16 natively uses `apps/web/src/proxy.ts` as the edge proxy handler (activating canonical apex host redirects `www.esparex.in` -> `esparex.in` and category alias 308 redirects at the edge). Eliminated redundant `apps/web/src/middleware.ts` to prevent Next.js 16 dual-entry build collision.
+
+**Files Modified / Created / Deleted**:
+```
+apps/web/src/app/(public)/about/page.tsx
+apps/web/src/app/(public)/category/[category]/page.tsx
+apps/web/src/app/(public)/contact/page.tsx
+apps/web/src/app/(public)/faq/page.tsx
+apps/web/src/app/(public)/how-it-works/page.tsx
+apps/web/src/app/(public)/layout.tsx
+apps/web/src/app/(public)/page.tsx
+apps/web/src/app/(public)/privacy/page.tsx
+apps/web/src/app/(public)/safety-tips/page.tsx
+apps/web/src/app/(public)/search/page.tsx
+apps/web/src/app/(public)/seller/[id]/page.tsx
+apps/web/src/app/(public)/site-map/page.tsx
+apps/web/src/app/(public)/terms/page.tsx
+apps/web/src/app/layout.tsx
+apps/web/src/app/sitemap.ts
+apps/web/src/components/catalog/CatalogSlugPage.tsx
+apps/web/src/components/catalog/CatalogSlugRoutes.tsx
+apps/web/src/components/catalog/catalogMetadata.ts
+apps/web/src/lib/listings/listingDetailPage.tsx
+apps/web/src/lib/seo/canonicalHost.ts
+apps/web/src/proxy.ts
+apps/web/src/__tests__/seo-sitemap.spec.ts
+docs/tracking/engineering-action-register.md
+knip.json
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 new violations)
+- ✅ `npm run guard:pr-quality` ──► PASS (all file size limits satisfied)
+- ✅ `npm run guard:duplicate-code` ──► PASS (duplication rate preserved at baseline)
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-046
+**Date**: 2026-09-14  
+**Description**: Local Testing Temporary Auto-Approval & 9-Flow Verification  
+**Root Cause**: Local development and testing of user onboarding workflows required manual administrative intervention to approve businesses and listings, creating friction during non-production validation while ensuring production safeguards remain uncompromised.  
+**Action**:
+1. **Production Safety Guard**: Registered `ENABLE_LOCAL_AUTO_APPROVE` in `BLOCKED_PRODUCTION_FLAGS` (`validateEnv.ts`). Attempting to start the application with this flag in production throws a fatal startup exception. Exported `isLocalAutoApproveEnabled()` (`env.ts`), hardcoding `false` for `NODE_ENV === 'production'` or `APP_ENV === 'production'`.
+2. **Business Registration Auto-Approval**: In `BusinessCoreService.registerBusiness`, conditionally auto-approves via existing `approveBusiness` and `assignDefaultPlan` when `isLocalAutoApproveEnabled()` is true, establishing `status: 'live'` and granting verified business status locally.
+3. **Listing Auto-Approval**: In `AdCreationService` and `AdOrchestrator`, enabled auto-approval to `LIVE` only when `isLocalAutoApproveEnabled()` is true AND `moderationStatus !== 'held_for_review'`.
+4. **Preserved Platform Safeguards**: Zero bypass of OTP authentication, duplicate detection (`AdDuplicateService` SHA-256 fingerprint), image perceptual dHash (`DuplicateImageService`), spam/content validation (`detectSpam`), monthly slot quotas, or verified business gating (`requireVerifiedBusinessForServiceParts`).
+5. **Catalog Service Type Query Fix**: Resolved schema mismatch in `serviceTypeResolver.ts` by checking `categoryIds` (array) alongside `categoryId`.
+6. **Service Location ID Passthrough**: Ensured extracted business `locationId` is forwarded into `payload.location` in `AdCreationService` for valid location normalization.
+7. **Comprehensive Test Suite**: Added `core/src/__tests__/services/LocalAutoApprove.spec.ts` covering all 9 required verification flows.
+
+**Files Modified / Created**:
+```
+core/src/config/env.ts
+core/src/config/validateEnv.ts
+core/src/domains/listings/application/ad/AdCreationService.ts
+core/src/domains/listings/application/ad/AdOrchestrator.ts
+core/src/services/business/BusinessCoreService.ts
+core/src/utils/serviceTypeResolver.ts
+core/src/__tests__/services/LocalAutoApprove.spec.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/core` ──► PASS (72 suites, 409 tests)
+- ✅ `npm test -w @esparex/backend-api` ──► PASS (75 suites, 385 tests)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:platform-governance` ──► PASS
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)

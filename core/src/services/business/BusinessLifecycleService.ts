@@ -7,6 +7,22 @@ import { BUSINESS_STATUS, LIFECYCLE_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/contracts';
 
 
+export const tryLocalAutoApproveBusiness = async <T extends { _id?: unknown }>(business: T | null, userId: string): Promise<T | null> => {
+    const { isLocalAutoApproveEnabled } = await import('../../config/env');
+    if (!business?._id || !isLocalAutoApproveEnabled()) return business;
+    try {
+        const approved = await approveBusiness(String(business._id), 'SYSTEM');
+        if (approved) {
+            const { assignDefaultPlan } = await import('./BusinessSubscriptionService');
+            await assignDefaultPlan(userId);
+            return (await Business.findById(business._id)) as T | null;
+        }
+    } catch {
+        // Non-blocking local test fallback
+    }
+    return business;
+};
+
 export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM') => {
     const existing = await Business.findById(id).lean();
     if (!existing) return null;

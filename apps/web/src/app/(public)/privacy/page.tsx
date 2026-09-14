@@ -12,7 +12,7 @@ import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | Esparex',
+    title: 'Privacy Policy',
     description: 'Understand how Esparex collects, uses, stores, protects, and deletes your personal and business data. Read our complete privacy practices, data retention schedule, and user rights.',
     alternates: { canonical: toCanonicalUrl('/privacy') },
     openGraph: {

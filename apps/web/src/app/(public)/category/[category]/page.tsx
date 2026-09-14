@@ -22,7 +22,7 @@ export async function generateMetadata(
     const formattedCategory = canonical.charAt(0).toUpperCase() + canonical.slice(1).replace(/-/g, ' ');
 
     return {
-        title: `${formattedCategory} | Esparex`,
+        title: formattedCategory,
         description: `Browse ${formattedCategory} on Esparex. Find the best deals on used electronics and spare parts.`,
         alternates: {
             canonical: toCanonicalUrl(`/category/${canonical}`),

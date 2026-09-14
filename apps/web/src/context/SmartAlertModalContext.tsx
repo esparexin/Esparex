@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { CreateSmartAlertDialog } from "@/components/user/profile/dialogs/CreateSmartAlertDialog";
 import type { Location as AppLocation } from "@/lib/api/user/locations";
@@ -18,13 +19,16 @@ interface SmartAlertModalContextType {
     isSmartAlertOpen: boolean;
     openSmartAlertModal: (options?: SmartAlertModalOptions) => void;
     closeSmartAlertModal: () => void;
+    registerTabHandler: (handler: ((options?: SmartAlertModalOptions) => void) | null) => void;
 }
 
 const SmartAlertModalContext = createContext<SmartAlertModalContextType | undefined>(undefined);
 
 export function SmartAlertModalProvider({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [autoFocusCategory, setAutoFocusCategory] = useState(false);
+    const tabHandlerRef = useRef<((options?: SmartAlertModalOptions) => void) | null>(null);
 
     const {
         smartAlertForm,
@@ -36,16 +40,31 @@ export function SmartAlertModalProvider({ children }: { children: React.ReactNod
         smartAlertGlobalError,
     } = useSmartAlerts(false);
 
-    const openSmartAlertModal = useCallback((options?: SmartAlertModalOptions) => {
-        resetAlertForm();
-        setAutoFocusCategory(Boolean(options?.autoFocusCategory));
-        setIsOpen(true);
-    }, [resetAlertForm]);
-
     const closeSmartAlertModal = useCallback(() => {
         setIsOpen(false);
         setAutoFocusCategory(false);
         resetAlertForm();
+    }, [resetAlertForm]);
+
+    // Close global modal on navigation to avoid orphaned overlays
+    useEffect(() => {
+        closeSmartAlertModal();
+    }, [pathname, closeSmartAlertModal]);
+
+    const registerTabHandler = useCallback((handler: ((options?: SmartAlertModalOptions) => void) | null) => {
+        tabHandlerRef.current = handler;
+    }, []);
+
+    const openSmartAlertModal = useCallback((options?: SmartAlertModalOptions) => {
+        // If a tab has registered a dedicated handler (e.g. SmartAlertsTab), delegate to it
+        // to prevent duplicate modal instances in the DOM.
+        if (tabHandlerRef.current) {
+            tabHandlerRef.current(options);
+            return;
+        }
+        resetAlertForm();
+        setAutoFocusCategory(Boolean(options?.autoFocusCategory));
+        setIsOpen(true);
     }, [resetAlertForm]);
 
     const handleOpenChange = useCallback((open: boolean) => {
@@ -66,8 +85,9 @@ export function SmartAlertModalProvider({ children }: { children: React.ReactNod
             isSmartAlertOpen: isOpen,
             openSmartAlertModal,
             closeSmartAlertModal,
+            registerTabHandler,
         }),
-        [isOpen, openSmartAlertModal, closeSmartAlertModal]
+        [isOpen, openSmartAlertModal, closeSmartAlertModal, registerTabHandler]
     );
 
     return (

@@ -87,11 +87,11 @@
   ],
   "workspaces": {
     "apps/admin": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/proxy.ts", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/proxy.ts", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/mobile": {

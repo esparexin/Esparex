@@ -38,7 +38,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const parsed = new URL(url);
             expect(parsed.searchParams.get("listingType")).toBe("ad");
             expect(parsed.searchParams.get("status")).toBe("live");
-            expect(parsed.searchParams.get("limit")).toBe("1000");
+            expect(parsed.searchParams.get("limit")).toBe("100");
             expect(parsed.searchParams.get("page")).toBe("1");
         });
 
@@ -46,6 +46,9 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const url = buildSitemapApiUrl("https://api.esparex.in/api/v1/", "/businesses", {});
             expect(url).toContain("https://api.esparex.in/api/v1/businesses?");
             expect(url).not.toContain("v1//businesses");
+            const parsed = new URL(url);
+            expect(parsed.searchParams.get("limit")).toBe("50");
+            expect(parsed.searchParams.has("page")).toBe(false);
         });
     });
 
@@ -59,10 +62,11 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
 
     describe("4. isValidSitemapUrl Gatekeeper", () => {
         it("accepts valid canonical HTTPS public routes on esparex.in", () => {
+            expect(isValidSitemapUrl("https://esparex.in")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/about")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/terms")).toBe(true);
-            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(true);
+            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(false); // Internal search excluded
             expect(isValidSitemapUrl("https://esparex.in/category/mobiles")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/ads/iphone-13-ad-12345")).toBe(true);
             expect(isValidSitemapUrl("https://esparex.in/business/repair-hub-biz-99")).toBe(true);
@@ -115,6 +119,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(isValidSitemapUrl("https://esparex.in/spare-parts/screen")).toBe(false);
             expect(isValidSitemapUrl("https://esparex.in/business")).toBe(false); // bare 301
             expect(isValidSitemapUrl("https://esparex.in/category/mobile-phones")).toBe(false); // 301 redirect
+            expect(isValidSitemapUrl("https://esparex.in/search")).toBe(false); // internal search excluded from sitemap
             expect(isValidSitemapUrl("https://esparex.in/search?q=test")).toBe(false); // filtered search has query params
         });
     });
@@ -213,7 +218,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             const urls = entries.map((e) => e.url);
 
             const expectedStatic = [
-                "https://esparex.in/",
+                "https://esparex.in",
                 "https://esparex.in/about",
                 "https://esparex.in/contact",
                 "https://esparex.in/faq",
@@ -222,7 +227,6 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                 "https://esparex.in/safety-tips",
                 "https://esparex.in/site-map",
                 "https://esparex.in/terms",
-                "https://esparex.in/search",
             ];
 
             for (const expected of expectedStatic) {
@@ -265,8 +269,8 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(urls.some((u) => u.includes("/spare-parts/"))).toBe(false);
             expect(urls.some((u) => u.includes("/search?"))).toBe(false);
 
-            // /search base route (no query params) should be included
-            expect(urls).toContain("https://esparex.in/search");
+            // /search route should not be in sitemap per Google guidelines
+            expect(urls).not.toContain("https://esparex.in/search");
 
             // Brand and model catalog pages should be included
             expect(urls).toContain("https://esparex.in/brands/apple-brand-1");
@@ -395,7 +399,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             expect(entries.length).toBeGreaterThan(0);
 
             const urls = entries.map((e) => e.url);
-            expect(urls).toContain("https://esparex.in/");
+            expect(urls).toContain("https://esparex.in");
             expect(urls).toContain("https://esparex.in/about");
             expect(urls).toContain("https://esparex.in/privacy");
             expect(urls).toContain("https://esparex.in/category/mobiles");
