@@ -72,6 +72,10 @@ export const Z_INDEX = {
   backendStatusBanner: 10000,   // Backend status
   appErrorBanner: 12000,        // App-wide error banner
 
+  // ── Popup System (popupBus / notify) ────────────────────────────────────
+  popupOverlay: 12000,          // Popup dialog backdrop (above all dialogs/drawers)
+  popupContent: 12010,          // Popup dialog content card
+
   // ── Debugging/Special ────────────────────────────────────────────────────
   debugLayer: 99999,            // For development only
 } as const;

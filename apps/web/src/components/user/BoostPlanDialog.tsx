@@ -8,12 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
   Spinner,
+  Zap,
+  Sparkles,
 } from "@esparex/ui";
-import { Badge } from "@esparex/ui";
-import { Zap, Sparkles } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { useBoostPlanDialog } from "@/hooks/useBoostPlanDialog";
-import { WalletCreditCard, CatalogPlanCard } from "./boost/BoostPlanCards";
+import { WalletCreditCard, CatalogPlanCard, SpotlightActiveNotice } from "./boost/BoostPlanCards";
 
 interface BoostPlanDialogProps {
   open: boolean;
@@ -38,29 +38,12 @@ export function BoostPlanDialog({
   onListingUnavailable,
 }: BoostPlanDialogProps) {
   const {
-    activeCategory,
-    setActiveCategory,
-    boostPlans,
-    selectedPlanId,
-    setSelectedPlanId,
-    selectedPlan,
-    setSelectedPlan,
-    isLoadingPlans,
-    isProcessing,
-    isWalletCreditSelected,
-    availableCredits,
-    spotlightCredits,
-    topAdCredits,
-    displayAdTitle,
-    handleUseCredits,
-    handlePurchase,
+    activeCategory, setActiveCategory, boostPlans,
+    selectedPlanId, setSelectedPlanId, selectedPlan, setSelectedPlan,
+    isLoadingPlans, isProcessing, isWalletCreditSelected, availableCredits,
+    spotlightCredits, topAdCredits, displayAdTitle, handleUseCredits, handlePurchase,
   } = useBoostPlanDialog({
-    open,
-    adId,
-    adTitle,
-    onOpenChange,
-    onPlanPurchased,
-    onListingUnavailable,
+    open, adId, adTitle, onOpenChange, onPlanPurchased, onListingUnavailable,
   });
 
   const isPromotionBlocked =
@@ -68,57 +51,31 @@ export function BoostPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6 rounded-2xl bg-white shadow-xl border border-slate-100">
+      <DialogContent className="max-w-md p-6 rounded-2xl bg-card shadow-xl border border-border">
         <DialogHeader className="space-y-1 text-center sm:text-left">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-              <Zap className="h-4 w-4 text-amber-600 fill-amber-500" />
+            <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
+              <Zap className="h-4 w-4 text-warning fill-warning" />
             </div>
-            <DialogTitle className="text-lg font-bold text-slate-900">
+            <DialogTitle className="text-body-lg font-bold text-foreground">
               Promote Listing
             </DialogTitle>
           </div>
-          <DialogDescription className="text-xs text-slate-500 line-clamp-1">
+          <DialogDescription className="text-caption text-foreground-subtle line-clamp-1">
             Promote &ldquo;{displayAdTitle}&rdquo; for maximum buyer visibility.
           </DialogDescription>
         </DialogHeader>
 
         {isSpotlight ? (
-          <div className="py-6 px-4 space-y-4 text-center">
-            <div className="mx-auto h-16 w-16 rounded-full bg-amber-100 border-4 border-amber-200 flex items-center justify-center">
-              <Sparkles className="h-8 w-8 text-amber-600 animate-pulse" />
-            </div>
-            <div className="space-y-1">
-              <Badge className="bg-amber-500 text-white font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wide">
-                Spotlight Active
-              </Badge>
-              <h3 className="text-base font-bold text-slate-900 pt-2">
-                This listing is in Spotlight!
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">
-                Spotlight is the highest promotion tier. Your listing is receiving
-                prioritized top-of-search placement and amber badge highlighting
-                across category feeds.
-              </p>
-            </div>
-            <div className="pt-2">
-              <Button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="w-full h-10 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-              >
-                Close Window
-              </Button>
-            </div>
-          </div>
+          <SpotlightActiveNotice onClose={() => onOpenChange(false)} />
         ) : (
           <>
             {isBoosted && activeCategory === "BOOST_AD" && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5 my-2">
-                <Zap className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-2.5 my-2">
+                <Zap className="h-4 w-4 text-link shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold text-blue-900">⚡ Top Ad Currently Active</p>
-                  <p className="text-tiny text-blue-700 mt-0.5">
+                  <p className="text-caption font-bold text-link-dark">⚡ Top Ad Currently Active</p>
+                  <p className="text-tiny text-link mt-0.5">
                     This listing has an active Top Ad promotion. Switch to the
                     Spotlight Ad tab above to upgrade this listing to Spotlight!
                   </p>
@@ -127,7 +84,7 @@ export function BoostPlanDialog({
             )}
 
             <div
-              className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl my-2"
+              className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-xl my-2"
               role="tablist"
             >
               <button
@@ -135,16 +92,16 @@ export function BoostPlanDialog({
                 role="tab"
                 aria-selected={activeCategory === "SPOTLIGHT"}
                 onClick={() => setActiveCategory("SPOTLIGHT")}
-                className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "SPOTLIGHT"
-                    ? "bg-white text-amber-600 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-card text-warning shadow-xs"
+                    : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 Spotlight Ad
                 {spotlightCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-amber-500 text-white font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-warning text-primary-foreground font-extrabold">
                     {spotlightCredits}
                   </span>
                 )}
@@ -155,16 +112,16 @@ export function BoostPlanDialog({
                 role="tab"
                 aria-selected={activeCategory === "BOOST_AD"}
                 onClick={() => setActiveCategory("BOOST_AD")}
-                className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "BOOST_AD"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                    ? "bg-card text-link shadow-xs"
+                    : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
                 <Zap className="h-3.5 w-3.5 fill-current" />
                 Top Ad
                 {topAdCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-blue-600 text-white font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-link text-primary-foreground font-extrabold">
                     {topAdCredits}
                   </span>
                 )}
@@ -172,7 +129,7 @@ export function BoostPlanDialog({
             </div>
 
             {isLoadingPlans ? (
-              <div className="py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+              <div className="py-8 text-center text-caption text-foreground-subtle flex items-center justify-center gap-2">
                 <Spinner size="sm" /> Loading options...
               </div>
             ) : (
@@ -193,8 +150,8 @@ export function BoostPlanDialog({
 
                 {availableCredits > 0 && boostPlans.length > 0 && (
                   <div className="relative flex items-center justify-center py-1">
-                    <div className="w-full border-t border-slate-200" />
-                    <span className="absolute bg-white px-2 text-tiny uppercase font-bold text-slate-400 tracking-wider">
+                    <div className="w-full border-t border-border" />
+                    <span className="absolute bg-card px-2 text-tiny uppercase font-bold text-foreground-subtle tracking-wider">
                       or Purchase Additional Packs
                     </span>
                   </div>
@@ -227,12 +184,12 @@ export function BoostPlanDialog({
                   isPromotionBlocked ||
                   (!isWalletCreditSelected && !selectedPlan)
                 }
-                className={`w-full h-10 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
+                className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
                   isPromotionBlocked
-                    ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                    ? "bg-muted text-foreground-subtle cursor-not-allowed"
                     : activeCategory === "SPOTLIGHT"
-                    ? "bg-amber-500 hover:bg-amber-600 focus-visible:ring-amber-400"
-                    : "bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-400"
+                    ? "bg-warning hover:bg-warning/90 focus-visible:ring-warning"
+                    : "bg-link hover:bg-link/90 focus-visible:ring-link"
                 }`}
               >
                 {isProcessing ? (
@@ -265,7 +222,7 @@ export function BoostPlanDialog({
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="w-full text-center text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors py-1 cursor-pointer"
+                className="w-full text-center text-caption font-medium text-foreground-subtle hover:text-foreground transition-colors py-1 cursor-pointer"
               >
                 Cancel
               </button>

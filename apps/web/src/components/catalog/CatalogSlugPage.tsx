@@ -1,73 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import type { Metadata } from "next";
 
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Button } from "@esparex/ui";
 import type { ListingPageResult } from "@/lib/api/user/listings";
-import { generateAdSlug } from "@/lib/slug";
-import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
+import {
+  ENTITY_CONFIG,
+  type CatalogSlugEntity,
+  type CatalogSlugRecord,
+} from "./catalogMetadata";
 
-export type CatalogSlugEntity = "brand" | "model";
-
-export interface CatalogSlugRecord {
-  id: string;
-  name: string;
-  slug?: string;
-  contextLabel?: string | null;
-}
-
-const ENTITY_CONFIG: Record<
-  CatalogSlugEntity,
-  {
-    metadataTitle: (name: string) => string;
-    metadataDescription: (name: string, contextLabel?: string | null) => string;
-    heading: (name: string) => string;
-    description: (name: string, contextLabel?: string | null) => string;
-    browseLabel: string;
-  }
-> = {
-  brand: {
-    metadataTitle: (name) => `${name} Listings | Esparex`,
-    metadataDescription: (name) =>
-      `Browse live ads, services, and spare parts for the ${name} brand on Esparex.`,
-    heading: (name) => `${name} Marketplace`,
-    description: (name) =>
-      `Real live listings for ${name} devices, repairs, and spare parts.`,
-    browseLabel: "Browse all brand listings",
-  },
-  model: {
-    metadataTitle: (name) => `${name} Listings | Esparex`,
-    metadataDescription: (name, contextLabel) =>
-      contextLabel
-        ? `Browse live ${contextLabel} ${name} ads, repairs, and spare parts on Esparex.`
-        : `Browse live ${name} ads, repairs, and spare parts on Esparex.`,
-    heading: (name) => `${name} Listings`,
-    description: (name, contextLabel) =>
-      contextLabel
-        ? `Live marketplace listings for ${contextLabel} ${name}.`
-        : `Live marketplace listings for ${name}.`,
-    browseLabel: "Browse all model listings",
-  },
-};
-
-export function buildCatalogSlugMetadata(
-  entity: CatalogSlugEntity,
-  record: CatalogSlugRecord
-): Metadata {
-  const config = ENTITY_CONFIG[entity];
-  const canonicalSlug = record.slug || generateAdSlug(record.name);
-  const canonicalParam = `${canonicalSlug}-${record.id}`;
-  const basePath = entity === "brand" ? "brands" : "models";
-  return {
-    title: config.metadataTitle(record.name),
-    description: config.metadataDescription(record.name, record.contextLabel),
-    alternates: {
-      canonical: toCanonicalUrl(`/${basePath}/${canonicalParam}`),
-    },
-  };
-}
+export type { CatalogSlugEntity, CatalogSlugRecord };
 
 interface CatalogSlugPageProps {
   entity: CatalogSlugEntity;

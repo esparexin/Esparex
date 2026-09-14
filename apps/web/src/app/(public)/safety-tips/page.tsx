@@ -19,7 +19,7 @@ import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 
 export const metadata: Metadata = {
-    title: "Trust & Safety Guidelines | Esparex",
+    title: "Trust & Safety Guidelines",
     description: "Essential safety guidelines, scam prevention tips, meetup checklists, and reporting procedures for buying and selling electronics on Esparex.",
     alternates: { canonical: toCanonicalUrl('/safety-tips') },
     openGraph: {
