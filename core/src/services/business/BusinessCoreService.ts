@@ -11,6 +11,7 @@ import logger from '../../utils/logger';
 import { normalizeLocation } from "../location/LocationNormalizer";
 import { BUSINESS_STATUS } from '@esparex/contracts';
 import { processImages } from '../../utils/imageProcessor';
+import { tryLocalAutoApproveBusiness } from './BusinessLifecycleService';
 
 import {
     asBusinessDocView,
@@ -132,7 +133,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     }
 
     await User.findByIdAndUpdate(userId, { $set: { businessId: business?._id } });
-    return business;
+    return tryLocalAutoApproveBusiness(business, userId);
 };
 
 export const getBusinessByUserId = async (userId: string) => {

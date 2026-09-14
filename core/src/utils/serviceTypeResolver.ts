@@ -42,13 +42,13 @@ export const resolveServiceTypes = async (
         explicitIds.length > 0
             ? ServiceType.find({
                 _id: { $in: explicitIds.map((id) => new mongoose.Types.ObjectId(id)) },
-                ...(categoryObjectId ? { categoryId: categoryObjectId } : {}),
+                ...(categoryObjectId ? { $or: [{ categoryIds: categoryObjectId }, { categoryId: categoryObjectId }] } : {}),
                 isDeleted: { $ne: true }
             }).select('_id').lean()
             : Promise.resolve([]),
         nameTokens.length > 0
             ? ServiceType.find({
-                ...(categoryObjectId ? { categoryId: categoryObjectId } : {}),
+                ...(categoryObjectId ? { $or: [{ categoryIds: categoryObjectId }, { categoryId: categoryObjectId }] } : {}),
                 isDeleted: { $ne: true },
                 $or: nameTokens.map((name) => ({ name: new RegExp(`^${escapeRegExp(name)}$`, 'i') }))
             }).select('_id').lean()

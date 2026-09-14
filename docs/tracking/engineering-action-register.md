@@ -1619,3 +1619,38 @@ knip.json
 - ✅ `npm run guard:pr-quality` ──► PASS (all file size limits satisfied)
 - ✅ `npm run guard:duplicate-code` ──► PASS (duplication rate preserved at baseline)
 - ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-046
+**Date**: 2026-09-14  
+**Description**: Local Testing Temporary Auto-Approval & 9-Flow Verification  
+**Root Cause**: Local development and testing of user onboarding workflows required manual administrative intervention to approve businesses and listings, creating friction during non-production validation while ensuring production safeguards remain uncompromised.  
+**Action**:
+1. **Production Safety Guard**: Registered `ENABLE_LOCAL_AUTO_APPROVE` in `BLOCKED_PRODUCTION_FLAGS` (`validateEnv.ts`). Attempting to start the application with this flag in production throws a fatal startup exception. Exported `isLocalAutoApproveEnabled()` (`env.ts`), hardcoding `false` for `NODE_ENV === 'production'` or `APP_ENV === 'production'`.
+2. **Business Registration Auto-Approval**: In `BusinessCoreService.registerBusiness`, conditionally auto-approves via existing `approveBusiness` and `assignDefaultPlan` when `isLocalAutoApproveEnabled()` is true, establishing `status: 'live'` and granting verified business status locally.
+3. **Listing Auto-Approval**: In `AdCreationService` and `AdOrchestrator`, enabled auto-approval to `LIVE` only when `isLocalAutoApproveEnabled()` is true AND `moderationStatus !== 'held_for_review'`.
+4. **Preserved Platform Safeguards**: Zero bypass of OTP authentication, duplicate detection (`AdDuplicateService` SHA-256 fingerprint), image perceptual dHash (`DuplicateImageService`), spam/content validation (`detectSpam`), monthly slot quotas, or verified business gating (`requireVerifiedBusinessForServiceParts`).
+5. **Catalog Service Type Query Fix**: Resolved schema mismatch in `serviceTypeResolver.ts` by checking `categoryIds` (array) alongside `categoryId`.
+6. **Service Location ID Passthrough**: Ensured extracted business `locationId` is forwarded into `payload.location` in `AdCreationService` for valid location normalization.
+7. **Comprehensive Test Suite**: Added `core/src/__tests__/services/LocalAutoApprove.spec.ts` covering all 9 required verification flows.
+
+**Files Modified / Created**:
+```
+core/src/config/env.ts
+core/src/config/validateEnv.ts
+core/src/domains/listings/application/ad/AdCreationService.ts
+core/src/domains/listings/application/ad/AdOrchestrator.ts
+core/src/services/business/BusinessCoreService.ts
+core/src/utils/serviceTypeResolver.ts
+core/src/__tests__/services/LocalAutoApprove.spec.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/core` ──► PASS (72 suites, 409 tests)
+- ✅ `npm test -w @esparex/backend-api` ──► PASS (75 suites, 385 tests)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:platform-governance` ──► PASS
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)

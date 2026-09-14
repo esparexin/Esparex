@@ -23,6 +23,7 @@ import {
     validateListingCategoryCapability
 } from '../../../catalog/application/services/CatalogValidationService';
 import { isBusinessPublishedStatus } from '../../../../utils/businessStatus';
+import { isLocalAutoApproveEnabled } from '../../../../config/env';
 
 export interface PreparedPayload {
     categoryId?: string;
@@ -250,7 +251,10 @@ export class AdCreationService {
                 }
                 payload.locationId = locId;
                 if (business.location && typeof business.location === 'object') {
-                    payload.location = business.location as Record<string, unknown>;
+                    payload.location = {
+                        ...(business.location as Record<string, unknown>),
+                        locationId: locId.toString(),
+                    };
                 }
             } else if (!partial) {
                 throw new AppError(
@@ -415,11 +419,12 @@ export class AdCreationService {
             payload.createdAt = payload.updatedAt = new Date();
 
             // All listings enter the standard pending → moderation flow.
-            payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
-            payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
+            const isLocalAutoApprove = isLocalAutoApproveEnabled();
+            payload.status = (context.actor === 'ADMIN' || isLocalAutoApprove) ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
+            payload.moderationStatus = (context.actor === 'ADMIN' || isLocalAutoApprove) ? 'auto_approved' : 'held_for_review';
 
             payload.isFree = payload.price === 0 || payload.isFree === true;
-            payload.expiresAt = context.actor === 'ADMIN' ? await computeActiveExpiry(listingType) : undefined;
+            payload.expiresAt = (context.actor === 'ADMIN' || isLocalAutoApprove) ? await computeActiveExpiry(listingType) : undefined;
         }
 
         // --- Compute Lightweight Listing Quality Score ---

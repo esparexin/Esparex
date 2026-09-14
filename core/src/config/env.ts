@@ -69,6 +69,7 @@ const envSchema = z.object({
     AUTH_BYPASS_OTP_LOCK: z.string().optional(),
     USE_DEFAULT_OTP: z.string().transform(val => val === 'true').default('false'),
     DEV_STATIC_OTP: z.string().default('123456'),
+    ENABLE_LOCAL_AUTO_APPROVE: z.string().transform(val => val === 'true').default('false'),
 
     // 6. Cookies & Security
     COOKIE_DOMAIN: z.string().optional(),
@@ -262,6 +263,17 @@ export const isDevelopment = env.NODE_ENV === 'development';
  * Check if running in test
  */
 export const isTest = env.NODE_ENV === 'test';
+
+/**
+ * Check if local testing auto-approval is enabled.
+ * Strictly blocked in production environments.
+ */
+export const isLocalAutoApproveEnabled = (): boolean => {
+    if ((process.env.NODE_ENV || env.NODE_ENV) === 'production') return false;
+    const runtimeEnv = (process.env.APP_ENV || process.env.NEXT_PUBLIC_APP_ENV || process.env.VERCEL_ENV || process.env.RENDER_ENV || '').trim().toLowerCase();
+    if (runtimeEnv === 'production' || runtimeEnv === 'prod') return false;
+    return env.ENABLE_LOCAL_AUTO_APPROVE === true || process.env.ENABLE_LOCAL_AUTO_APPROVE === 'true';
+};
 
 // Log startup configuration (non-sensitive)
 if (!isTest) {
