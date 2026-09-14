@@ -90,7 +90,10 @@ export function MobileNavDrawer({
                   <Button
                     variant="secondary"
                     className="w-full justify-start gap-2 h-11 font-semibold text-foreground bg-white hover:bg-muted rounded-xl cursor-pointer"
-                    onClick={() => { close(); onShowLogin(); }}
+                    onClick={() => {
+                      close();
+                      setTimeout(() => onShowLogin(), 320);
+                    }}
                   >
                     <LogIn className="h-4 w-4" /> Login / Sign Up
                   </Button>
@@ -126,7 +129,10 @@ export function MobileNavDrawer({
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-3 h-11 text-body font-medium text-destructive hover:bg-destructive/10 rounded-xl cursor-pointer"
-                  onClick={() => { close(); onLogout(); }}
+                  onClick={() => {
+                    close();
+                    setTimeout(() => onLogout(), 320);
+                  }}
                 >
                   <LogOut className="h-4 w-4 flex-shrink-0" /> Logout
                 </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@esparex/ui";
+import { Badge, Button } from "@esparex/ui";
 import { Zap, Sparkles, CheckCircle2 } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { formatPlanName, type BoostPlan, type PromotionCategory } from "@/hooks/useBoostPlanDialog";
@@ -173,6 +173,42 @@ export function CatalogPlanCard({
             }`}
           />
         )}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Spotlight active notice                                                    */
+/* -------------------------------------------------------------------------- */
+
+export function SpotlightActiveNotice({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="py-6 px-4 space-y-4 text-center">
+      <div className="mx-auto h-16 w-16 rounded-full bg-warning/10 border-4 border-warning/20 flex items-center justify-center">
+        <Sparkles className="h-8 w-8 text-warning animate-pulse" />
+      </div>
+      <div className="space-y-1">
+        <Badge className="bg-warning text-primary-foreground font-extrabold text-caption px-3 py-1 rounded-full uppercase tracking-wide">
+          Spotlight Active
+        </Badge>
+        <h3 className="text-body-lg font-bold text-foreground pt-2">
+          This listing is in Spotlight!
+        </h3>
+        <p className="text-caption text-foreground-subtle leading-relaxed max-w-xs mx-auto">
+          Spotlight is the highest promotion tier. Your listing is receiving
+          prioritized top-of-search placement and amber badge highlighting
+          across category feeds.
+        </p>
+      </div>
+      <div className="pt-2">
+        <Button
+          type="button"
+          onClick={onClose}
+          className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-semibold text-caption rounded-xl transition-colors cursor-pointer"
+        >
+          Close Window
+        </Button>
       </div>
     </div>
   );

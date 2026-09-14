@@ -6,7 +6,7 @@ import type { User } from "@esparex/contracts";
 import { useProfileListings } from "./useProfileListings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { UserListingsTemplate } from "@/components/user/shared/UserListingsTemplate";
-import { type SoldReason } from "@/components/user/shared/SoldReasonDialog";
+import { type SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import {
   ACCOUNT_LISTING_STATUS_TABS,
   buildAccountListingRoute,

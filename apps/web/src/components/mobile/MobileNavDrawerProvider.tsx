@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 interface DrawerContextType {
   isOpen: boolean;
@@ -18,18 +18,6 @@ export const useMobileNavDrawer = () => {
 
 export const MobileNavDrawerProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Body scroll lock strategy
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
-    }
-    return () => {
-      document.body.classList.remove("overflow-hidden");
-    };
-  }, [isOpen]);
 
   return (
     <DrawerContext.Provider value={{ isOpen, setIsOpen, close: () => setIsOpen(false) }}>

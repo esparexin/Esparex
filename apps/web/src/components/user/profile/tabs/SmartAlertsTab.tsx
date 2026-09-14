@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge, Bell, Button, Card, CardContent, Crown, Edit2, Eye, Plus, Separator, Trash2 } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
@@ -8,6 +8,7 @@ import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertListItem } fr
 import { CreateSmartAlertDialog } from "../dialogs/CreateSmartAlertDialog";
 import { SavedSearchesListSection } from "./SavedSearchesListSection";
 import type { Location } from "@/lib/api/user/locations";
+import { useSmartAlertModal } from "@/context/SmartAlertModalContext";
 
 type SmartAlertSelection = Pick<Location, "id" | "locationId" | "name" | "display" | "city" | "coordinates">;
 
@@ -41,10 +42,23 @@ export function SmartAlertsTab({
 }: SmartAlertsTabProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { registerTabHandler, isSmartAlertOpen, closeSmartAlertModal } = useSmartAlertModal();
     const isCreateAction = searchParams?.get("action") === "create";
     const [isInternalOpen, setIsInternalOpen] = useState(false);
     const isDialogOpen = isInternalOpen || isCreateAction;
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+    // Register tab handler with global modal context so that FAB clicks on this page
+    // delegate to this tab's instance instead of spawning a duplicate modal.
+    useEffect(() => {
+        registerTabHandler(() => { resetAlertForm(); setIsInternalOpen(true); });
+        return () => registerTabHandler(null);
+    }, [registerTabHandler, resetAlertForm]);
+
+    // Ensure global context modal is closed if tab modal becomes active
+    useEffect(() => {
+        if (isDialogOpen && isSmartAlertOpen) closeSmartAlertModal();
+    }, [isDialogOpen, isSmartAlertOpen, closeSmartAlertModal]);
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
     const isEditing = Boolean(editingAlertId);
