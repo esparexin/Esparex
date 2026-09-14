@@ -1582,9 +1582,9 @@ packages/ui/src/tokens/zIndex.ts
 5. **Apex Canonical Trailing Slash Normalization**: Standardized `toCanonicalUrl('/')` to return `https://esparex.in`, matching Next.js root canonical tag.
 6. **Public Edge Caching Enablement**: Removed `await cookies()` from `RootLayout` and `PublicLayout`, isolating request-time cookies to `PrivateLayout` and removing `no-store` headers from public marketing pages.
 7. **Internal Search Exclusion**: Excluded `/search` from `sitemap.xml` and enforced `robots: { index: false, follow: true }` per Google Search Essentials.
-8. **Middleware Activation**: Created `apps/web/src/middleware.ts` to activate edge redirects (www -> apex, category alias 308 redirects).
+8. **Edge Proxy Verification**: Next.js 16 natively uses `apps/web/src/proxy.ts` as the edge proxy handler (activating canonical apex host redirects `www.esparex.in` -> `esparex.in` and category alias 308 redirects at the edge). Eliminated redundant `apps/web/src/middleware.ts` to prevent Next.js 16 dual-entry build collision.
 
-**Files Modified / Created**:
+**Files Modified / Created / Deleted**:
 ```
 apps/web/src/app/(public)/about/page.tsx
 apps/web/src/app/(public)/category/[category]/page.tsx
@@ -1606,9 +1606,10 @@ apps/web/src/components/catalog/CatalogSlugRoutes.tsx
 apps/web/src/components/catalog/catalogMetadata.ts
 apps/web/src/lib/listings/listingDetailPage.tsx
 apps/web/src/lib/seo/canonicalHost.ts
-apps/web/src/middleware.ts
+apps/web/src/proxy.ts
 apps/web/src/__tests__/seo-sitemap.spec.ts
 docs/tracking/engineering-action-register.md
+knip.json
 ```
 
 **Verification**:
