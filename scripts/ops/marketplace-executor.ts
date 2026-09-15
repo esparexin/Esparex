@@ -265,8 +265,9 @@ export async function executeValidatedManifest(
         }
 
         let alertUserId = ctx.curatorUserId;
-        if (i >= 5) {
-            const bizInfo = Array.from(bizIdMap.values())[i % bizIdMap.size];
+        const bizList = Array.from(bizIdMap.values());
+        if (bizList.length > 0) {
+            const bizInfo = bizList[i % bizList.length];
             if (bizInfo) alertUserId = bizInfo.userId;
         }
 
