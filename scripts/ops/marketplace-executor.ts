@@ -138,7 +138,7 @@ export async function executeValidatedManifest(
             actor: 'USER',
             authUserId: bizInfo.userId,
             sellerId: bizInfo.userId,
-            business: biz as unknown as import('../../core/src/types/ad.types').AdContext['business']
+            business: biz ? (biz as Record<string, unknown>) : null
         });
 
         if (createdService) {
@@ -185,7 +185,7 @@ export async function executeValidatedManifest(
             actor: 'USER',
             authUserId: bizInfo.userId,
             sellerId: bizInfo.userId,
-            business: biz as unknown as import('../../core/src/types/ad.types').AdContext['business']
+            business: biz ? (biz as Record<string, unknown>) : null
         });
 
         if (createdPart) {

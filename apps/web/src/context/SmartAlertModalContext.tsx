@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo, useRef, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { CreateSmartAlertDialog } from "@/components/user/profile/dialogs/CreateSmartAlertDialog";
@@ -40,16 +40,21 @@ export function SmartAlertModalProvider({ children }: { children: React.ReactNod
         smartAlertGlobalError,
     } = useSmartAlerts(false);
 
+    const [prevPathname, setPrevPathname] = useState(pathname);
+    if (prevPathname !== pathname) {
+        setPrevPathname(pathname);
+        if (isOpen) {
+            setIsOpen(false);
+            setAutoFocusCategory(false);
+            resetAlertForm();
+        }
+    }
+
     const closeSmartAlertModal = useCallback(() => {
         setIsOpen(false);
         setAutoFocusCategory(false);
         resetAlertForm();
     }, [resetAlertForm]);
-
-    // Close global modal on navigation to avoid orphaned overlays
-    useEffect(() => {
-        closeSmartAlertModal();
-    }, [pathname, closeSmartAlertModal]);
 
     const registerTabHandler = useCallback((handler: ((options?: SmartAlertModalOptions) => void) | null) => {
         tabHandlerRef.current = handler;
