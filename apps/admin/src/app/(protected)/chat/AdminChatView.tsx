@@ -45,6 +45,13 @@ export default function AdminChatView() {
   const page = readPositiveIntParam(searchParams.get("page"), 1);
 
   const [searchInput, setSearchInput] = useState(search);
+  const [prevSearch, setPrevSearch] = useState(search);
+
+  if (prevSearch !== search) {
+    setPrevSearch(search);
+    setSearchInput(search);
+  }
+
   const [items, setItems] = useState<AdminConvSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,10 +60,6 @@ export default function AdminChatView() {
   const [mutingChat, setMutingChat] = useState<AdminConvSummary | null>(null);
   const [muteReason, setMuteReason] = useState("");
   const [isMuting, setIsMuting] = useState(false);
-
-  useEffect(() => {
-    setSearchInput((prev) => (prev === search ? prev : search));
-  }, [search]);
 
   const replaceQueryState = useCallback(
     (updates: {

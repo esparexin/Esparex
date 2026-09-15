@@ -45,6 +45,19 @@ type DbListing = {
     sellerType?: 'user' | 'business';
     businessId?: unknown;
     deviceCondition?: 'power_on' | 'power_off';
+    sparePartIds?: unknown[];
+    spareParts?: unknown[];
+    sparePartsSnapshot?: Array<{
+        _id: unknown;
+        name: string;
+        brand?: string;
+    }>;
+    serviceTypeIds?: unknown[];
+    sparePartId?: unknown;
+    priceMin?: number;
+    priceMax?: number;
+    diagnosticFee?: number;
+    onsiteService?: boolean;
 
     spotlightExpiresAt?: Date;
     expiresAt?: Date;
@@ -64,7 +77,9 @@ const PUBLIC_LISTING_PROJECTION = {
     brandId: 1, brandName: 1, modelId: 1, modelName: 1, screenSize: 1,
     location: 1, sellerId: 1, status: 1, sellerType: 1, createdAt: 1,
     updatedAt: 1, views: 1, isFeatured: 1, isSpotlight: 1, isBoosted: 1,
-    isBusiness: 1, verified: 1, businessName: 1, businessId: 1, sellerName: 1, expiresAt: 1
+    isBusiness: 1, verified: 1, businessName: 1, businessId: 1, sellerName: 1, expiresAt: 1,
+    sparePartIds: 1, spareParts: 1, sparePartsSnapshot: 1, serviceTypeIds: 1,
+    sparePartId: 1, priceMin: 1, priceMax: 1, diagnosticFee: 1, onsiteService: 1
 };
 
 function toDomain(doc: DbListing): Listing {
@@ -112,6 +127,18 @@ function toDomain(doc: DbListing): Listing {
         sellerType: doc.sellerType,
         businessId: doc.businessId ? String(doc.businessId) : undefined,
         deviceCondition: doc.deviceCondition,
+        sparePartIds: Array.isArray(doc.sparePartIds) ? doc.sparePartIds.map(id => String(id)) : (Array.isArray(doc.spareParts) ? doc.spareParts.map(id => String(id)) : undefined),
+        sparePartsSnapshot: Array.isArray(doc.sparePartsSnapshot) ? doc.sparePartsSnapshot.map(p => ({
+            _id: String(p._id),
+            name: String(p.name),
+            brand: p.brand ? String(p.brand) : undefined,
+        })) : undefined,
+        serviceTypeIds: Array.isArray(doc.serviceTypeIds) ? doc.serviceTypeIds.map(id => String(id)) : undefined,
+        sparePartId: doc.sparePartId ? String(doc.sparePartId) : undefined,
+        priceMin: typeof doc.priceMin === 'number' ? doc.priceMin : undefined,
+        priceMax: typeof doc.priceMax === 'number' ? doc.priceMax : undefined,
+        diagnosticFee: typeof doc.diagnosticFee === 'number' ? doc.diagnosticFee : undefined,
+        onsiteService: typeof doc.onsiteService === 'boolean' ? doc.onsiteService : undefined,
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
     };

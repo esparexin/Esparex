@@ -179,7 +179,7 @@ function run(val) {
     }
   }
 
-  for (const sub of ['scripts', 'scripts/git', 'scripts/git/esparex', 'scripts/governance', 'scripts/policy', 'scripts/eslint-rules']) {
+  for (const sub of ['scripts', 'scripts/ops', 'scripts/git', 'scripts/git/esparex', 'scripts/governance', 'scripts/policy', 'scripts/eslint-rules']) {
     const dir = path.join(ROOT, sub);
     if (fs.existsSync(dir)) {
       for (const f of fs.readdirSync(dir)) {

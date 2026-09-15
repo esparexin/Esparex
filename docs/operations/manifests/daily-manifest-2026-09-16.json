@@ -1,0 +1,1041 @@
+{
+  "date": "2026-09-16",
+  "environment": "development",
+  "curatorName": "Esparex Operations South",
+  "curatorMobile": "9848012346",
+  "businesses": [
+    {
+      "code": "SKLM-B01",
+      "name": "Srikakulam Mobile Care & Touch Screen Lab",
+      "publicMobile": "9848900001",
+      "address": "GT Road Near Seven Road Junction Srikakulam 532001 Andhra Pradesh India",
+      "pincode": "532001",
+      "district": "Srikakulam",
+      "mandal": "Srikakulam Mandal",
+      "city": "Srikakulam",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Srikakulam Mobile Care, Seven Road Junction"
+    },
+    {
+      "code": "VZM-B01",
+      "name": "Vizianagaram Laptop Solutions & Chip Care",
+      "publicMobile": "9848900002",
+      "address": "Station Road Near Clock Tower Vizianagaram 535001 Andhra Pradesh India",
+      "pincode": "535001",
+      "district": "Vizianagaram",
+      "mandal": "Vizianagaram Mandal",
+      "city": "Vizianagaram",
+      "state": "Andhra Pradesh",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Vizianagaram Laptop Solutions, Station Road"
+    },
+    {
+      "code": "AKP-B01",
+      "name": "Anakapalle Smartphone Service & Display Hub",
+      "publicMobile": "9848900003",
+      "address": "Main Road Near RTC Complex Anakapalle 531001 Andhra Pradesh India",
+      "pincode": "531001",
+      "district": "Anakapalle",
+      "mandal": "Anakapalle Mandal",
+      "city": "Anakapalle",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Anakapalle Smartphone Service, RTC Complex"
+    },
+    {
+      "code": "BVMR-B01",
+      "name": "Bhimavaram Port Mobile Tech & AMOLED Center",
+      "publicMobile": "9848900004",
+      "address": "PP Road Near Someswara Temple Bhimavaram 534201 Andhra Pradesh India",
+      "pincode": "534201",
+      "district": "West Godavari",
+      "mandal": "Bhimavaram Mandal",
+      "city": "Bhimavaram",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual GBP verification: Bhimavaram Port Mobile Tech, PP Road"
+    },
+    {
+      "code": "TDP-B01",
+      "name": "Tadepalligudem IT Systems & Laptop Hardware Hub",
+      "publicMobile": "9848900005",
+      "address": "KN Road Near Railway Station Tadepalligudem 534101 Andhra Pradesh India",
+      "pincode": "534101",
+      "district": "West Godavari",
+      "mandal": "Tadepalligudem Mandal",
+      "city": "Tadepalligudem",
+      "state": "Andhra Pradesh",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tech-lab-1.webp"],
+      "referenceSource": "Manual GBP verification: Tadepalligudem IT Systems, KN Road"
+    },
+    {
+      "code": "TNK-B01",
+      "name": "Tanuku Smartphone Lab & Fast Charging Repair",
+      "publicMobile": "9848900006",
+      "address": "Rashtrapathi Road Near Old Bus Stand Tanuku 534211 Andhra Pradesh India",
+      "pincode": "534211",
+      "district": "West Godavari",
+      "mandal": "Tanuku Mandal",
+      "city": "Tanuku",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Tanuku Smartphone Lab, Rashtrapathi Road"
+    },
+    {
+      "code": "NRT-B01",
+      "name": "Narasaraopet Digital Mobile Care & Spares",
+      "publicMobile": "9848900007",
+      "address": "Arundelpet Main Road Narasaraopet 522601 Andhra Pradesh India",
+      "pincode": "522601",
+      "district": "Palnadu",
+      "mandal": "Narasaraopet Mandal",
+      "city": "Narasaraopet",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Narasaraopet Digital Mobile Care, Arundelpet"
+    },
+    {
+      "code": "CRL-B01",
+      "name": "Chirala Smart LED TV & Electronics Hub",
+      "publicMobile": "9848900008",
+      "address": "Trunk Road Near Clock Tower Chirala 523155 Andhra Pradesh India",
+      "pincode": "523155",
+      "district": "Bapatla",
+      "mandal": "Chirala Mandal",
+      "city": "Chirala",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d9",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tv-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Chirala Smart LED TV Hub, Trunk Road"
+    },
+    {
+      "code": "BPT-B01",
+      "name": "Bapatla Coastal Mobile Care & Display Center",
+      "publicMobile": "9848900009",
+      "address": "College Road Near Bus Stand Bapatla 522101 Andhra Pradesh India",
+      "pincode": "522101",
+      "district": "Bapatla",
+      "mandal": "Bapatla Mandal",
+      "city": "Bapatla",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual GBP verification: Bapatla Coastal Mobile Care, College Road"
+    },
+    {
+      "code": "ONG-B01",
+      "name": "Ongole Smart LED TV Panel & Power Lab",
+      "publicMobile": "9848900010",
+      "address": "Kurnool Road Near Old RIMS Ongole 523001 Andhra Pradesh India",
+      "pincode": "523001",
+      "district": "Prakasam",
+      "mandal": "Ongole Mandal",
+      "city": "Ongole",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d9",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tv-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Ongole Smart LED TV Lab, Kurnool Road"
+    },
+    {
+      "code": "KVL-B01",
+      "name": "Kavali Mobile Zone & Chip Level Care",
+      "publicMobile": "9848900011",
+      "address": "Trunk Road Near RTC Bus Stand Kavali 524201 Andhra Pradesh India",
+      "pincode": "524201",
+      "district": "SPSR Nellore",
+      "mandal": "Kavali Mandal",
+      "city": "Kavali",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Kavali Mobile Zone, Trunk Road"
+    },
+    {
+      "code": "GDR-B01",
+      "name": "Gudur Laptop Care & Motherboard Diagnostics",
+      "publicMobile": "9848900012",
+      "address": "Station Road Near Railway Junction Gudur 524101 Andhra Pradesh India",
+      "pincode": "524101",
+      "district": "Tirupati",
+      "mandal": "Gudur Mandal",
+      "city": "Gudur",
+      "state": "Andhra Pradesh",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Gudur Laptop Care, Station Road"
+    },
+    {
+      "code": "MDP-B01",
+      "name": "Madanapalle Mobile Hub & Curved Display Lab",
+      "publicMobile": "9848900013",
+      "address": "CTM Road Near Clock Tower Madanapalle 517325 Andhra Pradesh India",
+      "pincode": "517325",
+      "district": "Annamayya",
+      "mandal": "Madanapalle Mandal",
+      "city": "Madanapalle",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Madanapalle Mobile Hub, CTM Road"
+    },
+    {
+      "code": "CTR-B01",
+      "name": "Chittoor IT Solutions & Laptop Hardware Hub",
+      "publicMobile": "9848900014",
+      "address": "High Road Near District Court Chittoor 517001 Andhra Pradesh India",
+      "pincode": "517001",
+      "district": "Chittoor",
+      "mandal": "Chittoor Mandal",
+      "city": "Chittoor",
+      "state": "Andhra Pradesh",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Chittoor IT Solutions, High Road"
+    },
+    {
+      "code": "PDT-B01",
+      "name": "Proddatur Gold City Mobile Care & Spares",
+      "publicMobile": "9848900015",
+      "address": "Gandhi Road Near Old Bus Stand Proddatur 516360 Andhra Pradesh India",
+      "pincode": "516360",
+      "district": "YSR Kadapa",
+      "mandal": "Proddatur Mandal",
+      "city": "Proddatur",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual GBP verification: Proddatur Mobile Care, Gandhi Road"
+    },
+    {
+      "code": "NDL-B01",
+      "name": "Nandyal Smart LED TV Panel & Electronics Works",
+      "publicMobile": "9848900016",
+      "address": "Sanjeeva Nagar Near Clock Tower Nandyal 518501 Andhra Pradesh India",
+      "pincode": "518501",
+      "district": "Nandyal",
+      "mandal": "Nandyal Mandal",
+      "city": "Nandyal",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d9",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tv-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Nandyal Smart LED TV Works, Sanjeeva Nagar"
+    },
+    {
+      "code": "ADN-B01",
+      "name": "Adoni Mobile World & Touch Glass Solutions",
+      "publicMobile": "9848900017",
+      "address": "Municipal Complex Near Bus Stand Adoni 518301 Andhra Pradesh India",
+      "pincode": "518301",
+      "district": "Kurnool",
+      "mandal": "Adoni Mandal",
+      "city": "Adoni",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Adoni Mobile World, Municipal Complex"
+    },
+    {
+      "code": "HDP-B01",
+      "name": "Hindupur Laptop Systems & Board Diagnostics",
+      "publicMobile": "9848900018",
+      "address": "Main Road Near Railway Station Hindupur 515201 Andhra Pradesh India",
+      "pincode": "515201",
+      "district": "Sri Sathya Sai",
+      "mandal": "Hindupur Mandal",
+      "city": "Hindupur",
+      "state": "Andhra Pradesh",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Hindupur Laptop Systems, Main Road"
+    },
+    {
+      "code": "GTK-B01",
+      "name": "Guntakal Junction Mobile Hub & Battery Care",
+      "publicMobile": "9848900019",
+      "address": "Station Road Near Railway Junction Guntakal 515801 Andhra Pradesh India",
+      "pincode": "515801",
+      "district": "Anantapur",
+      "mandal": "Guntakal Mandal",
+      "city": "Guntakal",
+      "state": "Andhra Pradesh",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Guntakal Junction Mobile Hub, Station Road"
+    },
+    {
+      "code": "SDP-B01",
+      "name": "Siddipet IT Solutions & Laptop Rework Center",
+      "publicMobile": "9848900020",
+      "address": "Collectorate Road Near Old Bus Stand Siddipet 502103 Telangana India",
+      "pincode": "502103",
+      "district": "Siddipet",
+      "mandal": "Siddipet Mandal",
+      "city": "Siddipet",
+      "state": "Telangana",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tech-lab-1.webp"],
+      "referenceSource": "Manual GBP verification: Siddipet IT Solutions, Collectorate Road"
+    },
+    {
+      "code": "SRC-B01",
+      "name": "Sircilla Textile City Mobile Care & Spares",
+      "publicMobile": "9848900021",
+      "address": "Ambedkar Chowk Near Bus Stand Sircilla 505301 Telangana India",
+      "pincode": "505301",
+      "district": "Rajanna Sircilla",
+      "mandal": "Sircilla Mandal",
+      "city": "Sircilla",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual GBP verification: Sircilla Textile City Mobile Care, Ambedkar Chowk"
+    },
+    {
+      "code": "JGT-B01",
+      "name": "Jagtial Mobile Zone & Display Glass Center",
+      "publicMobile": "9848900022",
+      "address": "Tower Circle Near Old Bus Stand Jagtial 505327 Telangana India",
+      "pincode": "505327",
+      "district": "Jagtial",
+      "mandal": "Jagtial Mandal",
+      "city": "Jagtial",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Jagtial Mobile Zone, Tower Circle"
+    },
+    {
+      "code": "MCL-B01",
+      "name": "Mancherial Coal Belt Laptop Diagnostics Hub",
+      "publicMobile": "9848900023",
+      "address": "IB Chowk Near Railway Station Mancherial 504208 Telangana India",
+      "pincode": "504208",
+      "district": "Mancherial",
+      "mandal": "Mancherial Mandal",
+      "city": "Mancherial",
+      "state": "Telangana",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Mancherial Laptop Diagnostics, IB Chowk"
+    },
+    {
+      "code": "RGD-B01",
+      "name": "Ramagundam Smart LED TV Care & SMPS Repair",
+      "publicMobile": "9848900024",
+      "address": "NTPC Complex Near Clock Tower Ramagundam 505208 Telangana India",
+      "pincode": "505208",
+      "district": "Peddapalli",
+      "mandal": "Ramagundam Mandal",
+      "city": "Ramagundam",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d9",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tv-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Ramagundam Smart LED TV Care, NTPC Complex"
+    },
+    {
+      "code": "ADB-B01",
+      "name": "Adilabad Frontier Mobile Care & Chip Solutions",
+      "publicMobile": "9848900025",
+      "address": "Cinema Road Near Gandhi Chowk Adilabad 504001 Telangana India",
+      "pincode": "504001",
+      "district": "Adilabad",
+      "mandal": "Adilabad Mandal",
+      "city": "Adilabad",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Adilabad Frontier Mobile Care, Cinema Road"
+    },
+    {
+      "code": "NRM-B01",
+      "name": "Nirmal Toy City Mobile Lab & Spares",
+      "publicMobile": "9848900026",
+      "address": "Mancherial Road Near Bus Stand Nirmal 504106 Telangana India",
+      "pincode": "504106",
+      "district": "Nirmal",
+      "mandal": "Nirmal Mandal",
+      "city": "Nirmal",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual GBP verification: Nirmal Toy City Mobile Lab, Mancherial Road"
+    },
+    {
+      "code": "KMR-B01",
+      "name": "Kamareddy Computer Systems & Laptop Rework",
+      "publicMobile": "9848900027",
+      "address": "Station Road Near Clock Tower Kamareddy 503111 Telangana India",
+      "pincode": "503111",
+      "district": "Kamareddy",
+      "mandal": "Kamareddy Mandal",
+      "city": "Kamareddy",
+      "state": "Telangana",
+      "categoryId": "69896257820e62e091a7c2f3",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-2.webp"],
+      "referenceSource": "Manual GBP verification: Kamareddy Computer Systems, Station Road"
+    },
+    {
+      "code": "SNG-B01",
+      "name": "Sangareddy District Mobile Hub & Combo Care",
+      "publicMobile": "9848900028",
+      "address": "Collectorate Chowk Near Old Bus Stand Sangareddy 502001 Telangana India",
+      "pincode": "502001",
+      "district": "Sangareddy",
+      "mandal": "Sangareddy Mandal",
+      "city": "Sangareddy",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Sangareddy District Mobile Hub, Collectorate Chowk"
+    },
+    {
+      "code": "SRP-B01",
+      "name": "Suryapet Smart LED TV & Main Board Center",
+      "publicMobile": "9848900029",
+      "address": "MG Road Near Clock Tower Center Suryapet 508213 Telangana India",
+      "pincode": "508213",
+      "district": "Suryapet",
+      "mandal": "Suryapet Mandal",
+      "city": "Suryapet",
+      "state": "Telangana",
+      "categoryId": "69c24a14a58d20c75c6b09d9",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/tv-shop-1.webp"],
+      "referenceSource": "Manual GBP verification: Suryapet Smart LED TV Center, MG Road"
+    }
+  ],
+  "services": [
+    {
+      "code": "SVC-SKLM-01", "businessCode": "SKLM-B01",
+      "title": "Srikakulam Curved AMOLED Combo Glass Replacement",
+      "description": "Original curved AMOLED display combo replacement with frame alignment and touch calibration in Srikakulam.",
+      "priceMin": 2800, "priceMax": 4800, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c1",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/mobile-screen-replacement.webp"]
+    },
+    {
+      "code": "SVC-VZM-01", "businessCode": "VZM-B01",
+      "title": "Vizianagaram Laptop Logic Board Power Section Repair",
+      "description": "Micro-soldering diagnostics for dead laptop motherboards, charging IC short circuits, and VRM power rail repair in Vizianagaram.",
+      "priceMin": 2400, "priceMax": 4200, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a366fce599a87cb09cd",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-AKP-01", "businessCode": "AKP-B01",
+      "title": "Anakapalle Smartphone Fast Charging Port PCB Repair",
+      "description": "Micro-soldering replacement of damaged USB Type-C fast charging sub-boards and microphone flex cables in Anakapalle.",
+      "priceMin": 450, "priceMax": 1100, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a386fce599a87cb0a09",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-BVMR-01", "businessCode": "BVMR-B01",
+      "title": "Bhimavaram Smartphone Battery Replacement & Power Care",
+      "description": "Certified OEM high-capacity battery installation with battery health calibration and charging tests in Bhimavaram.",
+      "priceMin": 1100, "priceMax": 2200, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c4",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/battery-replacement.webp"]
+    },
+    {
+      "code": "SVC-TDP-01", "businessCode": "TDP-B01",
+      "title": "Tadepalligudem Laptop Screen Replacement & Hinge Fix",
+      "description": "Full HD and IPS laptop display panel replacement along with broken hinge bracket rebuilding in Tadepalligudem.",
+      "priceMin": 2200, "priceMax": 4600, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a386fce599a87cb09fa",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/circuit-board-diagnostics.webp"]
+    },
+    {
+      "code": "SVC-TNK-01", "businessCode": "TNK-B01",
+      "title": "Tanuku Smartphone Water Damage Ultrasonic Cleanup",
+      "description": "Ultrasonic PCB cleaning, corrosion remediation, and component level short circuit testing for water-damaged phones in Tanuku.",
+      "priceMin": 750, "priceMax": 2100, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c7",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/circuit-board-diagnostics.webp"]
+    },
+    {
+      "code": "SVC-NRT-01", "businessCode": "NRT-B01",
+      "title": "Narasaraopet Touch Screen Glass Separation & Lamination",
+      "description": "Professional optical clear adhesive glass lamination for smartphones in Narasaraopet with original display preservation.",
+      "priceMin": 1200, "priceMax": 3400, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c1",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/mobile-screen-replacement.webp"]
+    },
+    {
+      "code": "SVC-CRL-01", "businessCode": "CRL-B01",
+      "title": "Chirala Smart LED TV Backlight Array Replacement",
+      "description": "Diagnosis and replacement of burned backlight LED strips for 32 to 55 inch Smart LED TVs in Chirala.",
+      "priceMin": 1400, "priceMax": 3200, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "serviceTypeId": "69c24a3a6fce599a87cb0a27",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/tv-panel-repair.webp"]
+    },
+    {
+      "code": "SVC-BPT-01", "businessCode": "BPT-B01",
+      "title": "Bapatla Smartphone Earpiece & Audio Codec Repair",
+      "description": "Acoustic mesh cleaning, micro-soldering microphone replacement, and audio codec IC repair for phones in Bapatla.",
+      "priceMin": 400, "priceMax": 950, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a366fce599a87cb09d6",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-ONG-01", "businessCode": "ONG-B01",
+      "title": "Ongole Smart LED TV Power Supply (SMPS) Board Repair",
+      "description": "Capacitor replacement, MOSFET rework, and standby voltage stabilization for LED TV power boards in Ongole.",
+      "priceMin": 1300, "priceMax": 2900, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "serviceTypeId": "69c24a3a6fce599a87cb0a24",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/tv-panel-repair.webp"]
+    },
+    {
+      "code": "SVC-KVL-01", "businessCode": "KVL-B01",
+      "title": "Kavali Smartphone Camera Sensor & Lens Glass Care",
+      "description": "Replacement of cracked rear camera glass lenses and blurry optical image stabilization camera modules in Kavali.",
+      "priceMin": 650, "priceMax": 1900, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a366fce599a87cb09d0",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/mobile-screen-replacement.webp"]
+    },
+    {
+      "code": "SVC-GDR-01", "businessCode": "GDR-B01",
+      "title": "Gudur Laptop RAM & PCIe NVMe SSD Storage Upgrade",
+      "description": "High speed DDR4/DDR5 memory and PCIe NVMe solid state drive installation with OS migration in Gudur.",
+      "priceMin": 550, "priceMax": 1400, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a396fce599a87cb0a18",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/laptop-hardware-repair.webp"]
+    },
+    {
+      "code": "SVC-MDP-01", "businessCode": "MDP-B01",
+      "title": "Madanapalle Smartphone AMOLED Combo Glass Replacement",
+      "description": "High refresh rate AMOLED display combo and touch glass replacement for smartphones in Madanapalle.",
+      "priceMin": 1400, "priceMax": 3600, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c1",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/mobile-screen-replacement.webp"]
+    },
+    {
+      "code": "SVC-CTR-01", "businessCode": "CTR-B01",
+      "title": "Chittoor Laptop Internal Battery Replacement & Cycle Test",
+      "description": "Original manufacturer specification internal lithium-polymer battery installation and power cycle calibration in Chittoor.",
+      "priceMin": 1700, "priceMax": 3600, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a386fce599a87cb09fd",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/battery-replacement.webp"]
+    },
+    {
+      "code": "SVC-PDT-01", "businessCode": "PDT-B01",
+      "title": "Proddatur Smartphone Dead Logic Board Power IC Reballing",
+      "description": "BGA rework station reballing and replacement of PMIC power management integrated circuits in Proddatur.",
+      "priceMin": 1700, "priceMax": 3900, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a366fce599a87cb09cd",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/micro-soldering-lab.webp"]
+    },
+    {
+      "code": "SVC-NDL-01", "businessCode": "NDL-B01",
+      "title": "Nandyal Smart LED TV HDMI Port Replacement Service",
+      "description": "Surface mount HDMI port socket desoldering and replacement on smart LED TV main logic boards in Nandyal.",
+      "priceMin": 800, "priceMax": 1700, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "serviceTypeId": "69c24a3a6fce599a87cb0a2d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/tv-panel-repair.webp"]
+    },
+    {
+      "code": "SVC-ADN-01", "businessCode": "ADN-B01",
+      "title": "Adoni Smartphone Type-C Fast Charging Sub-Board Repair",
+      "description": "Replacement dock connector charging board with microphone and antenna contact points for Android phones in Adoni.",
+      "priceMin": 400, "priceMax": 1050, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a386fce599a87cb0a09",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-HDP-01", "businessCode": "HDP-B01",
+      "title": "Hindupur Laptop Backlit Keyboard Replacement Service",
+      "description": "Riveted inner palmrest keyboard replacement for Dell, HP, Lenovo, and Asus laptops in Hindupur.",
+      "priceMin": 1350, "priceMax": 3100, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a386fce599a87cb0a00",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/laptop-hardware-repair.webp"]
+    },
+    {
+      "code": "SVC-GTK-01", "businessCode": "GTK-B01",
+      "title": "Guntakal Smartphone Battery Replacement & Power Fix",
+      "description": "High capacity 5000mAh internal replacement battery with multi-protection PCB flex for phones in Guntakal.",
+      "priceMin": 1050, "priceMax": 2100, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c4",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/battery-replacement.webp"]
+    },
+    {
+      "code": "SVC-SDP-01", "businessCode": "SDP-B01",
+      "title": "Siddipet Laptop Motherboard Micro-Soldering Repair",
+      "description": "Component-level power IC micro-soldering, short circuit diagnostics, and schematic tracing for laptop motherboards in Siddipet.",
+      "priceMin": 2200, "priceMax": 4100, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a366fce599a87cb09cd",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-SRC-01", "businessCode": "SRC-B01",
+      "title": "Sircilla Smartphone AMOLED Display Combo Replacement",
+      "description": "Original curved AMOLED display combo replacement with frame alignment and touch calibration in Sircilla.",
+      "priceMin": 1400, "priceMax": 3700, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c1",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/mobile-screen-replacement.webp"]
+    },
+    {
+      "code": "SVC-JGT-01", "businessCode": "JGT-B01",
+      "title": "Jagtial Smartphone USB Type-C Charging Flex Fix",
+      "description": "Micro-soldering replacement of damaged USB Type-C fast charging sub-boards and microphone flex cables in Jagtial.",
+      "priceMin": 420, "priceMax": 1000, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a386fce599a87cb0a09",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-MCL-01", "businessCode": "MCL-B01",
+      "title": "Mancherial Laptop Thermal Compound Repasting Service",
+      "description": "High thermal conductivity compound repasting and cooling fan bearing lubrication for overheating laptops in Mancherial.",
+      "priceMin": 400, "priceMax": 900, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a396fce599a87cb0a15",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/laptop-hardware-repair.webp"]
+    },
+    {
+      "code": "SVC-RGD-01", "businessCode": "RGD-B01",
+      "title": "Ramagundam Smart LED TV Backlight Strip Array Fix",
+      "description": "Full backlight strip array replacement for 32 to 55 inch Smart LED TVs experiencing dim display or black screen in Ramagundam.",
+      "priceMin": 1450, "priceMax": 3300, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "serviceTypeId": "69c24a3a6fce599a87cb0a27",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/tv-panel-repair.webp"]
+    },
+    {
+      "code": "SVC-ADB-01", "businessCode": "ADB-B01",
+      "title": "Adilabad Smartphone Water Damage Remediation",
+      "description": "Ultrasonic PCB cleaning, corrosion remediation, and component level short circuit testing for water-damaged phones in Adilabad.",
+      "priceMin": 700, "priceMax": 2000, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c7",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/circuit-board-diagnostics.webp"]
+    },
+    {
+      "code": "SVC-NRM-01", "businessCode": "NRM-B01",
+      "title": "Nirmal Smartphone Battery Replacement & Power Care",
+      "description": "Certified OEM high-capacity battery installation with battery health calibration and charging tests in Nirmal.",
+      "priceMin": 1050, "priceMax": 2150, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a356fce599a87cb09c4",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/battery-replacement.webp"]
+    },
+    {
+      "code": "SVC-KMR-01", "businessCode": "KMR-B01",
+      "title": "Kamareddy Laptop Screen Replacement & Display Fix",
+      "description": "Full HD and IPS laptop display panel replacement along with broken hinge bracket rebuilding in Kamareddy.",
+      "priceMin": 2100, "priceMax": 4400, "categoryId": "69896257820e62e091a7c2f3",
+      "serviceTypeId": "69c24a386fce599a87cb09fa",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/circuit-board-diagnostics.webp"]
+    },
+    {
+      "code": "SVC-SNG-01", "businessCode": "SNG-B01",
+      "title": "Sangareddy Smartphone Earpiece Speaker & Mic Fix",
+      "description": "Acoustic mesh cleaning, micro-soldering microphone replacement, and audio codec IC repair for phones in Sangareddy.",
+      "priceMin": 380, "priceMax": 900, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "serviceTypeId": "69c24a366fce599a87cb09d6",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/chip-level-soldering.webp"]
+    },
+    {
+      "code": "SVC-SRP-01", "businessCode": "SRP-B01",
+      "title": "Suryapet Smart LED TV Power Supply Board Repair",
+      "description": "Capacitor replacement, MOSFET rework, and standby voltage stabilization for LED TV power boards in Suryapet.",
+      "priceMin": 1350, "priceMax": 2950, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "serviceTypeId": "69c24a3a6fce599a87cb0a24",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/services/tv-panel-repair.webp"]
+    }
+  ],
+  "spareParts": [
+    {
+      "code": "PART-SKLM-01", "businessCode": "SKLM-B01",
+      "title": "Original AMOLED Touch Screen Panel Assembly",
+      "description": "Grade-A tested high sensitivity AMOLED screen replacement assembly unit with frame in Srikakulam.",
+      "price": 3100, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb0933",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/amoled-display-panel.webp"]
+    },
+    {
+      "code": "PART-VZM-01", "businessCode": "VZM-B01",
+      "title": "NVMe M.2 512GB High Speed Laptop Internal SSD",
+      "description": "PCIe Gen3x4 NVMe solid state drive with up to 3200MB/s read speeds for laptop storage expansion in Vizianagaram.",
+      "price": 2850, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a336fce599a87cb0992",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/nvme-m2-ssd.webp"]
+    },
+    {
+      "code": "PART-AKP-01", "businessCode": "AKP-B01",
+      "title": "Universal Smartphone USB Type-C Fast Charging PCB",
+      "description": "Replacement dock connector charging board with microphone and antenna contact points for Android phones in Anakapalle.",
+      "price": 370, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0941",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/charging-flex-pcb.webp"]
+    },
+    {
+      "code": "PART-BVMR-01", "businessCode": "BVMR-B01",
+      "title": "Original 5000mAh Smartphone Replacement Li-Po Battery",
+      "description": "High capacity 5000mAh internal replacement battery with multi-protection PCB flex for Android in Bhimavaram.",
+      "price": 1100, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb092d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/phone-battery.webp"]
+    },
+    {
+      "code": "PART-TDP-01", "businessCode": "TDP-B01",
+      "title": "Dell Inspiron 15.6 Inch Full HD IPS Replacement Screen",
+      "description": "1920x1080 resolution 30-pin eDP connector slim LED backlight replacement panel for laptops in Tadepalligudem.",
+      "price": 3550, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a2f6fce599a87cb0933",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/amoled-display-panel.webp"]
+    },
+    {
+      "code": "PART-TNK-01", "businessCode": "TNK-B01",
+      "title": "Smartphone 64MP OIS Primary Rear Camera Module",
+      "description": "Tested original 64-megapixel rear camera sensor with optical image stabilization flex cable in Tanuku.",
+      "price": 1600, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0947",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/charging-flex-pcb.webp"]
+    },
+    {
+      "code": "PART-NRT-01", "businessCode": "NRT-B01",
+      "title": "Curved AMOLED Outer Touch Glass Lens Replacement",
+      "description": "Tempered high-resistance front glass lens for optical bonding on curved smartphone displays in Narasaraopet.",
+      "price": 820, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb0933",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/amoled-display-panel.webp"]
+    },
+    {
+      "code": "PART-CRL-01", "businessCode": "CRL-B01",
+      "title": "Universal Smart LED TV Backlight Strip Array 32-43 Inch",
+      "description": "Aluminum base high brightness LED backlight strip replacement kit for 32 to 43 inch LED TV repair in Chirala.",
+      "price": 920, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "sparePartId": "69c24a346fce599a87cb09b5",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/tv-backlight-array.webp"]
+    },
+    {
+      "code": "PART-BPT-01", "businessCode": "BPT-B01",
+      "title": "Smartphone Earpiece Speaker Replacement Unit",
+      "description": "Clear high-definition replacement earpiece speaker for Android smartphones in Bapatla.",
+      "price": 270, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0953",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/electronic-connectors.webp"]
+    },
+    {
+      "code": "PART-ONG-01", "businessCode": "ONG-B01",
+      "title": "Universal Smart LED TV T-Con Logic Board 43 Inch",
+      "description": "Timing controller T-Con logic board replacement for 43 inch Full HD LED TV display panels in Ongole.",
+      "price": 1600, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "sparePartId": "69c24a356fce599a87cb09ba",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/microcontroller-board.webp"]
+    },
+    {
+      "code": "PART-KVL-01", "businessCode": "KVL-B01",
+      "title": "Qualcomm PMIC Power Management IC Chip (BGA)",
+      "description": "Original reballed BGA power management IC for dead Android smartphone logic board rework in Kavali.",
+      "price": 730, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb093a",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/microcontroller-board.webp"]
+    },
+    {
+      "code": "PART-GDR-01", "businessCode": "GDR-B01",
+      "title": "DDR4 16GB 3200MHz SODIMM Laptop Memory Module",
+      "description": "Tested 16GB DDR4 3200MHz CL22 1.2V low power laptop RAM module for workstation upgrade in Gudur.",
+      "price": 2800, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a336fce599a87cb098d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/laptop-ram-ddr4.webp"]
+    },
+    {
+      "code": "PART-MDP-01", "businessCode": "MDP-B01",
+      "title": "Samsung Galaxy A-Series AMOLED Display Combo Assembly",
+      "description": "Grade-A tested original curved AMOLED display panel with middle frame for Samsung Galaxy phones in Madanapalle.",
+      "price": 4300, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb0933",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/amoled-display-panel.webp"]
+    },
+    {
+      "code": "PART-CTR-01", "businessCode": "CTR-B01",
+      "title": "HP Pavilion 15 Series Backlit Laptop Keyboard Assembly",
+      "description": "Original US layout black backlit keyboard replacement for HP Pavilion 15 series notebooks in Chittoor.",
+      "price": 1800, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a336fce599a87cb0988",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/electronic-connectors.webp"]
+    },
+    {
+      "code": "PART-PDT-01", "businessCode": "PDT-B01",
+      "title": "Xiaomi Redmi 5000mAh High Capacity Li-Polymer Battery",
+      "description": "Certified OEM replacement battery for Redmi Note series with safe temperature control in Proddatur.",
+      "price": 980, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb092d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/phone-battery.webp"]
+    },
+    {
+      "code": "PART-NDL-01", "businessCode": "NDL-B01",
+      "title": "LG 43 Inch Smart LED TV Display Panel Replacement",
+      "description": "Tested 4K UHD IPS liquid crystal display glass panel replacement unit for 43 inch smart TVs in Nandyal.",
+      "price": 7400, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "sparePartId": "69c24a346fce599a87cb09a6",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/tv-backlight-array.webp"]
+    },
+    {
+      "code": "PART-ADN-01", "businessCode": "ADN-B01",
+      "title": "Universal Smartphone USB Type-C Fast Charging Port",
+      "description": "Micro-soldering replacement dock connector charging board for Android smartphones in Adoni.",
+      "price": 360, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0941",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/charging-flex-pcb.webp"]
+    },
+    {
+      "code": "PART-HDP-01", "businessCode": "HDP-B01",
+      "title": "Dell 42Wh 3-Cell Internal Laptop Battery (WDX0R)",
+      "description": "Grade-A tested 11.4V 42Wh internal replacement battery for Dell Inspiron and Vostro in Hindupur.",
+      "price": 2350, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a2f6fce599a87cb092d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/laptop-internal-battery.webp"]
+    },
+    {
+      "code": "PART-GTK-01", "businessCode": "GTK-B01",
+      "title": "Original 5000mAh Replacement Smartphone Li-Po Battery",
+      "description": "Tested lithium polymer battery with protective flex circuitry for Android smartphones in Guntakal.",
+      "price": 1050, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb092d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/phone-battery.webp"]
+    },
+    {
+      "code": "PART-SDP-01", "businessCode": "SDP-B01",
+      "title": "NVMe M.2 1TB PCIe Gen4 Ultra-Speed Laptop SSD",
+      "description": "High-speed PCIe Gen4 NVMe M.2 1TB internal solid state drive with up to 5000MB/s speeds in Siddipet.",
+      "price": 4850, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a336fce599a87cb0992",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/nvme-m2-ssd.webp"]
+    },
+    {
+      "code": "PART-SRC-01", "businessCode": "SRC-B01",
+      "title": "Curved AMOLED Touch Screen Assembly with Frame",
+      "description": "Tested original AMOLED display combo replacement assembly unit with middle frame in Sircilla.",
+      "price": 3150, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb0933",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/amoled-display-panel.webp"]
+    },
+    {
+      "code": "PART-JGT-01", "businessCode": "JGT-B01",
+      "title": "Android Smartphone Type-C Fast Charging Sub-Board",
+      "description": "Replacement dock connector charging board with microphone and antenna contact points in Jagtial.",
+      "price": 370, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0941",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/charging-flex-pcb.webp"]
+    },
+    {
+      "code": "PART-MCL-01", "businessCode": "MCL-B01",
+      "title": "Laptop Ultra-Thin CPU Cooling Fan (4-Pin PWM)",
+      "description": "Low-noise replacement CPU cooling fan assembly for HP and Dell ultrabooks in Mancherial.",
+      "price": 840, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a346fce599a87cb099c",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/electronic-connectors.webp"]
+    },
+    {
+      "code": "PART-RGD-01", "businessCode": "RGD-B01",
+      "title": "Universal Smart LED TV Backlight Strip Array 32-43 Inch",
+      "description": "Aluminum base high brightness LED backlight strip replacement kit for 32 to 43 inch LED TV repair in Ramagundam.",
+      "price": 930, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "sparePartId": "69c24a346fce599a87cb09b5",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/tv-backlight-array.webp"]
+    },
+    {
+      "code": "PART-ADB-01", "businessCode": "ADB-B01",
+      "title": "Smartphone Earpiece Speaker Replacement Unit",
+      "description": "Clear high-definition replacement earpiece speaker for Android smartphones in Adilabad.",
+      "price": 260, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a306fce599a87cb0953",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/electronic-connectors.webp"]
+    },
+    {
+      "code": "PART-NRM-01", "businessCode": "NRM-B01",
+      "title": "Certified OEM 5000mAh Smartphone Internal Battery",
+      "description": "Original capacity 5000mAh replacement lithium polymer battery for Android phones in Nirmal.",
+      "price": 1050, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb092d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/phone-battery.webp"]
+    },
+    {
+      "code": "PART-KMR-01", "businessCode": "KMR-B01",
+      "title": "DDR4 8GB 2666MHz Low Voltage Laptop RAM Module",
+      "description": "Tested 8GB DDR4 SODIMM laptop RAM module for speed and multitasking upgrade in Kamareddy.",
+      "price": 1420, "categoryId": "69896257820e62e091a7c2f3",
+      "sparePartId": "69c24a336fce599a87cb098d",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/laptop-ram-ddr4.webp"]
+    },
+    {
+      "code": "PART-SNG-01", "businessCode": "SNG-B01",
+      "title": "Qualcomm PMIC Power Management IC Chip (BGA)",
+      "description": "Original reballed BGA power management IC for dead Android smartphone logic board rework in Sangareddy.",
+      "price": 740, "categoryId": "69c24a14a58d20c75c6b09d8",
+      "sparePartId": "69c24a2f6fce599a87cb093a",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/microcontroller-board.webp"]
+    },
+    {
+      "code": "PART-SRP-01", "businessCode": "SRP-B01",
+      "title": "Samsung 43-55 Inch LED TV Main Logic Motherboard",
+      "description": "Tested working smart LED TV main processing board with Wi-Fi module and tuner circuit in Suryapet.",
+      "price": 3750, "categoryId": "69c24a14a58d20c75c6b09d9",
+      "sparePartId": "69c24a346fce599a87cb09b0",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/parts/microcontroller-board.webp"]
+    }
+  ],
+  "ads": [
+    {
+      "code": "AD-011",
+      "title": "Dell Inspiron 15 Core i5 16GB RAM 512GB SSD Laptop",
+      "description": "Excellent working Dell Inspiron 15 with 15.6 inch anti-glare screen, original charger, and 4 hour battery backup in Srikakulam.",
+      "price": 25500,
+      "categoryId": "69896257820e62e091a7c2f3",
+      "brandId": "6989625a820e62e091a7c321",
+      "modelId": "69c24a22a58d20c75c6b0a3e",
+      "locationName": "Srikakulam",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-1.webp"],
+      "referenceSource": "Manual verified inventory from Srikakulam Mobile Care"
+    },
+    {
+      "code": "AD-012",
+      "title": "Apple iPhone 14 Pro 256GB Deep Purple Pristine Condition",
+      "description": "Flawless Indian retail Apple iPhone 14 Pro 256GB with 89% battery health, bill, box, and lightning cable in Vizianagaram.",
+      "price": 66000,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896258820e62e091a7c2f5",
+      "modelId": "69896258820e62e091a7c2fa",
+      "locationName": "Vizianagaram",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual verified listing from Vizianagaram Laptop Solutions"
+    },
+    {
+      "code": "AD-013",
+      "title": "OnePlus 12 5G 256GB Silky Black 12GB RAM Super Fast",
+      "description": "Flagship Snapdragon 8 Gen 3 OnePlus 12 with Hasselblad cameras, 100W charger, and warranty in Anakapalle.",
+      "price": 48000,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896259820e62e091a7c307",
+      "modelId": "69896259820e62e091a7c308",
+      "locationName": "Anakapalle",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual verified listing from Anakapalle Smartphone Service"
+    },
+    {
+      "code": "AD-014",
+      "title": "HP Pavilion 15 Core i5 8GB RAM 512GB SSD Laptop",
+      "description": "Crisp Full HD display HP Pavilion notebook with original 65W charger, backlit keyboard, and clean body in Bhimavaram.",
+      "price": 27000,
+      "categoryId": "69896257820e62e091a7c2f3",
+      "brandId": "6989625a820e62e091a7c323",
+      "modelId": "69c24a23a58d20c75c6b0a41",
+      "locationName": "Bhimavaram",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-2.webp"],
+      "referenceSource": "Manual verified listing from Bhimavaram Tech"
+    },
+    {
+      "code": "AD-015",
+      "title": "Xiaomi 14 5G 512GB White Leica Professional Optics",
+      "description": "Compact powerhouse Xiaomi 14 with 50MP triple Leica cameras, 90W fast charger, original box in Tadepalligudem.",
+      "price": 49000,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896259820e62e091a7c30b",
+      "modelId": "69896259820e62e091a7c30d",
+      "locationName": "Tadepalligudem",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual verified listing from Tadepalligudem IT"
+    },
+    {
+      "code": "AD-016",
+      "title": "Apple iPhone 15 Pro Max 256GB Black Titanium Clean",
+      "description": "Grade-A condition iPhone 15 Pro Max with Action Button, 94% battery health, bill and box in Tanuku.",
+      "price": 96000,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896258820e62e091a7c2f5",
+      "modelId": "69896258820e62e091a7c2f6",
+      "locationName": "Tanuku",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-2.webp"],
+      "referenceSource": "Manual verified listing from Tanuku Lab"
+    },
+    {
+      "code": "AD-017",
+      "title": "Dell XPS 13 Core i7 16GB RAM 1TB SSD Touchscreen",
+      "description": "Flagship Dell XPS 13 laptop with 4K UHD display, carbon fiber palmrest, and high speed NVMe storage in Narasaraopet.",
+      "price": 44000,
+      "categoryId": "69896257820e62e091a7c2f3",
+      "brandId": "6989625a820e62e091a7c321",
+      "modelId": "6989625a820e62e091a7c322",
+      "locationName": "Narasaraopet",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-1.webp"],
+      "referenceSource": "Manual verified listing from Narasaraopet Digital"
+    },
+    {
+      "code": "AD-018",
+      "title": "OnePlus 12R 128GB Iron Gray 8GB RAM 100W SUPERVOOC",
+      "description": "Smooth 120Hz AMOLED display phone with 5500mAh battery, 100W charger, and box in Chirala.",
+      "price": 32500,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896259820e62e091a7c307",
+      "modelId": "69896259820e62e091a7c309",
+      "locationName": "Chirala",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-4.webp"],
+      "referenceSource": "Manual verified listing from Chirala Hub"
+    },
+    {
+      "code": "AD-019",
+      "title": "HP Envy 13 Core i5 8GB RAM 512GB SSD Metal Ultrabook",
+      "description": "Thin and light HP Envy 13 laptop with micro-edge display, Bang and Olufsen sound, and charger in Bapatla.",
+      "price": 27500,
+      "categoryId": "69896257820e62e091a7c2f3",
+      "brandId": "6989625a820e62e091a7c323",
+      "modelId": "69c24a22a58d20c75c6b0a40",
+      "locationName": "Bapatla",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/laptop-shop-2.webp"],
+      "referenceSource": "Manual verified listing from Bapatla Coastal"
+    },
+    {
+      "code": "AD-020",
+      "title": "Apple iPhone 15 256GB Black Pristine Dynamic Island",
+      "description": "256GB storage Apple iPhone 15 with 48MP main camera, 95% battery health, bill and box in Ongole.",
+      "price": 57000,
+      "categoryId": "69c24a14a58d20c75c6b09d8",
+      "brandId": "69896258820e62e091a7c2f5",
+      "modelId": "69896258820e62e091a7c2f9",
+      "locationName": "Ongole",
+      "state": "Andhra Pradesh",
+      "deviceCondition": "power_on",
+      "images": ["https://esparexdev.s3.ap-south-1.amazonaws.com/shops/mobile-shop-1.webp"],
+      "referenceSource": "Manual verified listing from Ongole Lab"
+    }
+  ],
+  "smartAlerts": [
+    { "code": "ALERT-011", "name": "Srikakulam Display & Touch Spares", "locationName": "Srikakulam", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-012", "name": "Vizianagaram Laptop Boards & Spares", "locationName": "Vizianagaram", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69896257820e62e091a7c2f3" },
+    { "code": "ALERT-013", "name": "Anakapalle Smartphone Fast Charging Ports", "locationName": "Anakapalle", "state": "Andhra Pradesh", "radiusKm": 12, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-014", "name": "Bhimavaram Smartphone Battery Spares", "locationName": "Bhimavaram", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-015", "name": "Tadepalligudem Laptop Screens & Hinges", "locationName": "Tadepalligudem", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69896257820e62e091a7c2f3" },
+    { "code": "ALERT-016", "name": "Tanuku Smartphone Camera Sensors", "locationName": "Tanuku", "state": "Andhra Pradesh", "radiusKm": 10, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-017", "name": "Narasaraopet Glass & Display Spares", "locationName": "Narasaraopet", "state": "Andhra Pradesh", "radiusKm": 12, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-018", "name": "Chirala LED TV Backlight & Boards", "locationName": "Chirala", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d9" },
+    { "code": "ALERT-019", "name": "Ongole Smart LED TV Power Boards", "locationName": "Ongole", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d9" },
+    { "code": "ALERT-020", "name": "Gudur Laptop NVMe SSDs & RAM", "locationName": "Gudur", "state": "Andhra Pradesh", "radiusKm": 15, "categoryId": "69896257820e62e091a7c2f3" },
+    { "code": "ALERT-021", "name": "Siddipet Laptop Motherboards & Spares", "locationName": "Siddipet", "state": "Telangana", "radiusKm": 15, "categoryId": "69896257820e62e091a7c2f3" },
+    { "code": "ALERT-022", "name": "Sircilla Smartphone Display Combos", "locationName": "Sircilla", "state": "Telangana", "radiusKm": 12, "categoryId": "69c24a14a58d20c75c6b09d8" },
+    { "code": "ALERT-023", "name": "Mancherial Laptop Fans & Keyboards", "locationName": "Mancherial", "state": "Telangana", "radiusKm": 15, "categoryId": "69896257820e62e091a7c2f3" },
+    { "code": "ALERT-024", "name": "Ramagundam Smart TV Backlights", "locationName": "Ramagundam", "state": "Telangana", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d9" },
+    { "code": "ALERT-025", "name": "Suryapet Smart LED TV Motherboards", "locationName": "Suryapet", "state": "Telangana", "radiusKm": 15, "categoryId": "69c24a14a58d20c75c6b09d9" }
+  ]
+}

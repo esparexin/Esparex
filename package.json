@@ -141,6 +141,7 @@
     "architecture:changed": "npx tsx tooling/architecture/index.ts --changed",
     "generate:domain": "npx tsx tooling/architecture/generate-domain.ts",
     "verify:architecture": "npx tsx tooling/architecture/verify-architecture.ts",
+    "ops:daily-marketplace": "npx tsx scripts/ops/daily-marketplace-runner.ts",
     "android": "npm run android -w @esparex/apps-mobile",
     "ios": "npm run ios -w @esparex/apps-mobile"
   },

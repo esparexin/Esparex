@@ -53,6 +53,14 @@ export function AdTitlePriceCard({
                     </Badge>
                 )}
 
+                {/* Working Spare Parts Badge for Ads */}
+                {!isService && !isSparePart && Array.isArray(ad.spareParts) && ad.spareParts.length > 0 && (
+                    <Badge className="flex-shrink-0 text-tiny font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg inline-flex items-center gap-1">
+                        <CircuitBoard className="size-3 text-emerald-600" />
+                        {ad.spareParts.length} Working Parts
+                    </Badge>
+                )}
+
                 {/* Device Power Condition Badge */}
                 {ad.deviceCondition && (
                     <Badge className={cn(
@@ -102,8 +110,19 @@ export function AdTitlePriceCard({
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
-                <div className="flex items-baseline gap-1">
-                    {ad.price === 0 ? (
+                <div className="flex flex-wrap items-baseline gap-2">
+                    {isService && typeof ad.priceMin === "number" && typeof ad.priceMax === "number" && ad.priceMin !== ad.priceMax ? (
+                        <div className="flex flex-col">
+                            <span className="text-h3 md:text-h2 font-bold text-foreground tracking-tight">
+                                {formatPrice(ad.priceMin)} – {formatPrice(ad.priceMax)}
+                            </span>
+                            {typeof ad.diagnosticFee === "number" && ad.diagnosticFee > 0 && (
+                                <span className="text-tiny text-foreground-secondary font-medium">
+                                    +{formatPrice(ad.diagnosticFee)} Diagnostic Fee
+                                </span>
+                            )}
+                        </div>
+                    ) : ad.price === 0 ? (
                         <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1 text-caption md:text-caption font-bold uppercase tracking-wide">
                             {isService ? "Contact for Quote" : "Free"}
                         </span>
