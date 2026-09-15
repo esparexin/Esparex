@@ -31,27 +31,28 @@ export function extractSparePartItems(ad: Ad): NormalizedSparePartItem[] {
         }
     }
 
-    if (Array.isArray(ad.spareParts) && ad.spareParts.length > 0) {
-        for (const part of ad.spareParts) {
-            if (typeof part === "string") {
-                const name = part.trim();
-                if (name && !/^[a-f\d]{24}$/i.test(name) && !seenNames.has(name.toLowerCase())) {
-                    seenNames.add(name.toLowerCase());
-                    items.push({
-                        id: name,
-                        name,
-                    });
-                }
-            } else if (part && typeof part === "object") {
-                const name = String(part.name || "").trim();
-                if (name && !seenNames.has(name.toLowerCase())) {
-                    seenNames.add(name.toLowerCase());
-                    items.push({
-                        id: String(part.id || part._id || name),
-                        name,
-                        type: part.type ? String(part.type).trim() : undefined,
-                    });
-                }
+    const rawSpareParts = (Array.isArray(ad.spareParts) ? ad.spareParts : []) as Array<unknown>;
+    for (const part of rawSpareParts) {
+        if (typeof part === "string") {
+            const name = part.trim();
+            if (name && !/^[a-f\d]{24}$/i.test(name) && !seenNames.has(name.toLowerCase())) {
+                seenNames.add(name.toLowerCase());
+                items.push({
+                    id: name,
+                    name,
+                });
+            }
+        } else if (part && typeof part === "object") {
+            const record = part as Record<string, unknown>;
+            const name = String(record.name || record.displayName || record.title || "").trim();
+            if (name && !seenNames.has(name.toLowerCase())) {
+                seenNames.add(name.toLowerCase());
+                items.push({
+                    id: String(record.id || record._id || name),
+                    name,
+                    type: record.type ? String(record.type).trim() : undefined,
+                    brand: record.brand ? String(record.brand).trim() : undefined,
+                });
             }
         }
     }
@@ -67,8 +68,8 @@ interface ListingWorkingSparePartsTabProps {
 export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorkingSparePartsTabProps) {
     const categoryId = String(ad.categoryId || "");
     const { data: catalogSpareParts = [] } = useQuery({
-        queryKey: ["spare-parts-catalog", categoryId, ad.listingType],
-        queryFn: () => getSpareParts(categoryId, ad.listingType),
+        queryKey: ["spare-parts-catalog", categoryId],
+        queryFn: () => getSpareParts(categoryId),
         enabled: Boolean(categoryId),
         staleTime: 10 * 60 * 1000,
     });
@@ -87,9 +88,22 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
         const resolved: NormalizedSparePartItem[] = [...sparePartItems];
         const seenNames = new Set(resolved.map(r => r.name.toLowerCase()));
 
-        if (Array.isArray(ad.spareParts)) {
-            for (const item of ad.spareParts) {
-                const idStr = typeof item === "string" ? item : (item && typeof item === "object" ? String(item.id || item._id || "") : "");
+        const rawList = [
+            ...(Array.isArray(ad.spareParts) ? ad.spareParts : []),
+            ...(Array.isArray(ad.sparePartIds) ? ad.sparePartIds : [])
+        ];
+
+        for (const item of rawList) {
+            if (item && typeof item === "object") {
+                const record = item as Record<string, unknown>;
+                const name = String(record.name || record.displayName || "").trim();
+                const idStr = String(record.id || record._id || "");
+                if (name && !seenNames.has(name.toLowerCase())) {
+                    seenNames.add(name.toLowerCase());
+                    resolved.push({ id: idStr || name, name });
+                }
+            } else if (typeof item === "string") {
+                const idStr = item.trim();
                 if (idStr && catalogMap.has(idStr)) {
                     const catalogName = catalogMap.get(idStr)!;
                     if (!seenNames.has(catalogName.toLowerCase())) {
@@ -103,7 +117,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
             }
         }
         return resolved;
-    }, [sparePartItems, ad.spareParts, catalogMap]);
+    }, [sparePartItems, ad.spareParts, ad.sparePartIds, catalogMap]);
 
     return (
         <div

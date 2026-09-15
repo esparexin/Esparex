@@ -61,6 +61,7 @@ export const AdSchema = z.object({
             type: z.string().optional()
         }).passthrough()
     ])).optional(),
+    sparePartIds: z.array(z.string()).optional(),
     sparePartsSnapshot: z.array(z.object({
         _id: z.string(),
         id: z.string().optional(),

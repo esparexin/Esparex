@@ -1654,3 +1654,54 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
 - ✅ `npm run guard:platform-governance` ──► PASS
 - ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-047
+**Date**: 2026-09-15  
+**Description**: All-India Location Query Bug Fix, Spare Parts Data Flow Restoration, Ad Details UI/UX Enhancement & Daily Activity Engine  
+**Root Cause**: 
+1. **All-India Query Bug**: When "All India" (country level) was selected, `pipeline.ts` copied `canonicalLocation.state` (`'India'`) into `effectiveFilters.state`, causing `adFilterHelper.ts` to attach `match['location.state'] = 'India'`. Since all ads have actual state names (Andhra Pradesh, Telangana, etc.), this filtered out 100% of ads.
+2. **Spare Parts Data Flow Drop**: `MongoListingRepositoryAdapter.ts` omitted `sparePartIds`, `spareParts`, `sparePartsSnapshot`, `serviceTypeIds`, `priceMin`, `priceMax`, and `diagnosticFee` from `PUBLIC_LISTING_PROJECTION` and `toDomain(doc)`, stripping them before hydration.
+3. **Metadata Hydration Omission**: `metadata.ts` only checked `ad.sparePartIds`, failing to collect IDs stored in `ad.spareParts`.
+4. **Frontend Regex Exclusion**: `ListingWorkingSparePartsTab.tsx` discarded 24-character hexadecimal ObjectId strings (`!/^[a-f\d]{24}$/i.test(name)`).
+5. **Ad Details Tab Priority**: `ListingDescriptionCard.tsx` defaulted `activeTab` to `"repair-shops"` instead of `"description"`.  
+**Action**:
+1. **All-India Query Resolution**: Guarded `pipeline.ts` and `adFilterHelper.ts` so country-level locations never attach state equality filters. Unlocked all 138 live listings on pan-India queries.
+2. **Repository & Mapper Restoration**: Added `sparePartIds`, `spareParts`, `sparePartsSnapshot`, `serviceTypeIds`, `sparePartId`, `priceMin`, `priceMax`, `diagnosticFee`, `onsiteService` to `PUBLIC_LISTING_PROJECTION`, `DbListing`, and `toDomain` in `MongoListingRepositoryAdapter.ts`.
+3. **Metadata Hydration**: Updated `hydrateAdMetadata` (`metadata.ts`) to inspect both `ad.sparePartIds` and `ad.spareParts`, populating `ad.spareParts: [{ _id, name }]`.
+4. **Frontend Extractor & Resolution**: Upgraded `ListingWorkingSparePartsTab.tsx` to handle hydrated objects, catalog mappings (`getSpareParts(categoryId)`), and raw IDs.
+5. **Ad Details UX Modernization**: Set default `activeTab` to `"description"`, reordered tabs (`["description", "spare-parts", "repair-shops"]`), bound tab badge to exact part count, and added an inline "Working Spare Parts Included" preview section in `ListingDescriptionTab.tsx`.
+6. **Service & Ad Price Presentation**: In `AdTitlePriceCard.tsx`, added service price range display (`formatPrice(priceMin)} – {formatPrice(priceMax)}`), diagnostic fee chip, and a working spare parts badge for classified ads.
+7. **Daily Activity Engine**: Built modular CLI runner (`scripts/ops/`) with pre-flight validation, identity decoupling, 1-image rule, and shortage accounting. Executed 83 verified records on `develop` with 192 documented shortage.
+
+**Files Modified / Created**:
+```
+apps/web/src/components/user/listing-detail/AdTitlePriceCard.tsx
+apps/web/src/components/user/listing-detail/ListingDescriptionCard.tsx
+apps/web/src/components/user/listing-detail/ListingDescriptionTab.tsx
+apps/web/src/components/user/listing-detail/ListingWorkingSparePartsTab.tsx
+core/src/adapters/outbound/database/listings/MongoListingRepositoryAdapter.ts
+core/src/domains/listings/application/aggregation/adAggregation/metadata.ts
+core/src/domains/listings/application/aggregation/adAggregation/pipeline.ts
+core/src/utils/adFilterHelper.ts
+docs/operations/manifests/daily-manifest-2026-09-15.json
+docs/operations/manifests/execution-2026-09-15.json
+docs/tracking/engineering-action-register.md
+package.json
+scripts/git/esparex/script-validator.js
+scripts/ops/daily-marketplace-runner.ts
+scripts/ops/marketplace-executor.ts
+scripts/ops/marketplace-types.ts
+scripts/ops/marketplace-validator.ts
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/core` ──► PASS (72 suites, 409 tests)
+- ✅ `npm test -w @esparex/backend-api` ──► PASS (75 suites, 385 tests)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (69 suites, 316 tests)
+- ✅ `npm run guard:pr-quality` ──► PASS
+- ✅ `npm run guard:design-token-adoption` ──► PASS
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+

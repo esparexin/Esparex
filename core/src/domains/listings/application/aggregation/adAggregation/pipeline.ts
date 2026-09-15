@@ -34,7 +34,7 @@ export const getAds = async (
                     effectiveFilters.lat = canonicalLocation.lat;
                     effectiveFilters.lng = canonicalLocation.lng;
                 }
-                if (!effectiveFilters.state && canonicalLocation.state) {
+                if (!effectiveFilters.state && canonicalLocation.state && canonicalLocation.level !== 'country' && canonicalLocation.state.toLowerCase() !== 'india') {
                     effectiveFilters.state = canonicalLocation.state;
                 }
                 if (!effectiveFilters.level && canonicalLocation.level) {

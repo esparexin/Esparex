@@ -100,15 +100,15 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
     const explicitCountry = typeof criteria.country === 'string' ? criteria.country.trim() : '';
     const locationName = typeof criteria.location === 'string' ? criteria.location.trim() : '';
 
-    if (explicitState || normalizedLevel === 'state') {
+    if (normalizedLevel !== 'country' && (explicitState || normalizedLevel === 'state')) {
         const stateFilter = explicitState || locationName;
-        if (stateFilter) {
+        if (stateFilter && stateFilter.toLowerCase() !== 'india') {
             match['location.state'] = stateFilter;
         }
     }
 
     if (explicitCountry || normalizedLevel === 'country') {
-        const countryFilter = explicitCountry || locationName;
+        const countryFilter = explicitCountry || (normalizedLevel === 'country' ? 'India' : locationName);
         if (countryFilter) {
             match['location.country'] = countryFilter;
         }

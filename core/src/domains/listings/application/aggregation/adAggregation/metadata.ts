@@ -66,7 +66,8 @@ export async function hydrateAdMetadata(ads: HydratedAd[]): Promise<HydratedAd[]
         const bId = extractId(ad.brandId || ad.brand); if (bId) brandIds.add(bId);
         const mId = extractId(ad.modelId || ad.model); if (mId) modelIds.add(mId);
         const spId = extractId(ad.sparePartId || ad.sparePart); if (spId) sparePartIds.add(spId);
-        if (Array.isArray(ad.sparePartIds)) ad.sparePartIds.forEach((id) => { const sid = extractId(id); if (sid) sparePartIds.add(sid); });
+        const rawPartIds = Array.isArray(ad.sparePartIds) ? ad.sparePartIds : (Array.isArray(ad.spareParts) ? ad.spareParts : []);
+        rawPartIds.forEach((id) => { const sid = extractId(id); if (sid) sparePartIds.add(sid); });
         if (Array.isArray(ad.serviceTypeIds)) ad.serviceTypeIds.forEach((id) => { const sid = extractId(id); if (sid) serviceTypeIds.add(sid); });
     });
     const [categories, brands, models, spareParts, serviceTypes] = await Promise.all([
@@ -88,7 +89,10 @@ export async function hydrateAdMetadata(ads: HydratedAd[]): Promise<HydratedAd[]
         const mId = extractId(ad.modelId || ad.model); if (mId) { ad.modelId = mId; const model = modelMap.get(mId); if (model?.name) ad.modelName = model.name; }
         if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) { const m = ad.model as { name?: string }; if (m.name) ad.modelName = m.name; }
         const spId = extractId(ad.sparePartId || ad.sparePart); if (spId) ad.sparePart = sparePartMap.get(spId);
-        if (Array.isArray(ad.sparePartIds)) ad.spareParts = ad.sparePartIds.map((id) => { const sid = extractId(id); return sid ? sparePartMap.get(sid) : null; }).filter(Boolean) as MetadataEntity[];
+        const rawPartIds = Array.isArray(ad.sparePartIds) ? ad.sparePartIds : (Array.isArray(ad.spareParts) ? ad.spareParts : []);
+        if (rawPartIds.length > 0) {
+            ad.spareParts = rawPartIds.map((id) => { const sid = extractId(id); return sid ? sparePartMap.get(sid) : null; }).filter(Boolean) as MetadataEntity[];
+        }
         if (Array.isArray(ad.serviceTypeIds)) ad.serviceTypes = ad.serviceTypeIds.map((id) => { const sid = extractId(id); return sid ? serviceTypeMap.get(sid) : null; }).filter(Boolean) as MetadataEntity[];
     });
     return ads;
