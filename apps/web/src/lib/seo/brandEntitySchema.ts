@@ -43,11 +43,6 @@ export function buildOrganizationSchema() {
                 availableLanguage: ["en", "hi", "te"],
             },
         ],
-        sameAs: [
-            "https://twitter.com/esparexin",
-            "https://facebook.com/esparexin",
-            "https://instagram.com/esparexin",
-        ],
     };
 }
 
