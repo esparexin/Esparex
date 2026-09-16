@@ -1,0 +1,1250 @@
+{
+  "date": "2026-09-15",
+  "environment": "development",
+  "targets": {
+    "ads": 100,
+    "businesses": 50,
+    "services": 50,
+    "spareParts": 50,
+    "smartAlerts": 25,
+    "total": 275
+  },
+  "verified": {
+    "ads": 10,
+    "businesses": 21,
+    "services": 21,
+    "spareParts": 21,
+    "smartAlerts": 10,
+    "total": 83
+  },
+  "rejected": {
+    "ads": 0,
+    "businesses": 0,
+    "services": 0,
+    "spareParts": 0,
+    "smartAlerts": 0,
+    "total": 0
+  },
+  "shortages": {
+    "ads": 90,
+    "businesses": 29,
+    "services": 29,
+    "spareParts": 29,
+    "smartAlerts": 15,
+    "total": 192,
+    "reasons": []
+  },
+  "createdSummary": {
+    "businesses": 21,
+    "services": 21,
+    "spareParts": 21,
+    "ads": 10,
+    "smartAlerts": 10,
+    "total": 83
+  },
+  "results": [
+    {
+      "code": "SEC-B01",
+      "type": "business",
+      "nameOrTitle": "Ramesh Babu Computer Systems & Laptop Motherboard Lab",
+      "isValid": true,
+      "resolvedLocationId": "69468f68b6afae337af478bb",
+      "resolvedCoordinates": [
+        78.5028,
+        17.4399
+      ],
+      "imageCount": 2
+    },
+    {
+      "code": "WGL-B01",
+      "type": "business",
+      "nameOrTitle": "Nagaraju Mobile Zone & AMOLED Display Lab",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c795",
+      "resolvedCoordinates": [
+        79.58333,
+        18
+      ],
+      "imageCount": 2
+    },
+    {
+      "code": "KRN-B01",
+      "type": "business",
+      "nameOrTitle": "Karimnagar Digital Tech Services",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c797",
+      "resolvedCoordinates": [
+        78.50513,
+        17.97695
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "VJA-B01",
+      "type": "business",
+      "nameOrTitle": "Krishna Digital Communications & Smartphone Lab",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945f4",
+      "resolvedCoordinates": [
+        80.64,
+        16.5
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "VSKP-B01",
+      "type": "business",
+      "nameOrTitle": "Vizag Tech Care Laptop Chip-Level Solutions",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945db",
+      "resolvedCoordinates": [
+        83.20161,
+        17.68009
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "TPT-B01",
+      "type": "business",
+      "nameOrTitle": "Srinivas IT Solutions & Laptop Service Center",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b944f8",
+      "resolvedCoordinates": [
+        82.15208,
+        17.15014
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "KNL-B01",
+      "type": "business",
+      "nameOrTitle": "Basha Electronics & LED TV Repair Works",
+      "isValid": true,
+      "resolvedLocationId": "69464c1514759c4fa9b94d81",
+      "resolvedCoordinates": [
+        78.03602,
+        15.82887
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "KKD-B01",
+      "type": "business",
+      "nameOrTitle": "Kakinada Port City Electronics & TV Panel Lab",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94e26",
+      "resolvedCoordinates": [
+        82.23809,
+        16.96036
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "MCH-B01",
+      "type": "business",
+      "nameOrTitle": "Sri Venkateswara Mobile Service & Spares Hub",
+      "isValid": true,
+      "resolvedLocationId": "69464c1414759c4fa9b94b64",
+      "resolvedCoordinates": [
+        79.29,
+        16.48
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "PID-B01",
+      "type": "business",
+      "nameOrTitle": "Sri Raghavendra Mobile Care & Chip Solutions",
+      "isValid": true,
+      "resolvedLocationId": "69464c1314759c4fa9b9481f",
+      "resolvedCoordinates": [
+        79.88632,
+        16.47926
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "TNL-B01",
+      "type": "business",
+      "nameOrTitle": "Tenali Smart Vision LED TV Repair Center",
+      "isValid": true,
+      "resolvedLocationId": "69468f67b6afae337af478b4",
+      "resolvedCoordinates": [
+        80.64,
+        16.243
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "GNT-B01",
+      "type": "business",
+      "nameOrTitle": "Amaravati Mobile Solutions & Display Care",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94edd",
+      "resolvedCoordinates": [
+        80.45729,
+        16.29974
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "RJY-B01",
+      "type": "business",
+      "nameOrTitle": "Godavari Laptop Hub & Motherboard Diagnostics",
+      "isValid": true,
+      "resolvedLocationId": "6946540914759c4fa9b99cb8",
+      "resolvedCoordinates": [
+        81.36903,
+        17.18144
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "ELR-B01",
+      "type": "business",
+      "nameOrTitle": "Eluru Digital Mobile Care & Touch Screen Lab",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94f9e",
+      "resolvedCoordinates": [
+        79.77874,
+        15.56433
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "ATP-B01",
+      "type": "business",
+      "nameOrTitle": "Royal IT & Laptop Hardware Lab",
+      "isValid": true,
+      "resolvedLocationId": "69464c1814759c4fa9b95399",
+      "resolvedCoordinates": [
+        87.96843,
+        24.24569
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "KDP-B01",
+      "type": "business",
+      "nameOrTitle": "Pavan Kumar Mobile World & Accessories Hub",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b950a5",
+      "resolvedCoordinates": [
+        78.82346,
+        14.47995
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "NLR-B01",
+      "type": "business",
+      "nameOrTitle": "Simhapuri Electronics & LED TV Care",
+      "isValid": true,
+      "resolvedLocationId": "69464c1414759c4fa9b9495b",
+      "resolvedCoordinates": [
+        79.98697,
+        14.44992
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "NZB-B01",
+      "type": "business",
+      "nameOrTitle": "Nizamabad Mobile Care & Touch Screen Lab",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c796",
+      "resolvedCoordinates": [
+        78.73277,
+        18.4818
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "KHM-B01",
+      "type": "business",
+      "nameOrTitle": "Khammam Computer Systems & Motherboard Rework",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c798",
+      "resolvedCoordinates": [
+        80.14368,
+        17.24767
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "NLG-B01",
+      "type": "business",
+      "nameOrTitle": "Nalgonda Smartphone Chip Solutions",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c79b",
+      "resolvedCoordinates": [
+        78.94325,
+        18.53409
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "MBN-B01",
+      "type": "business",
+      "nameOrTitle": "Palamuru Tech Laptop Solutions",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c79a",
+      "resolvedCoordinates": [
+        77.98597,
+        16.74385
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-001",
+      "type": "ad",
+      "nameOrTitle": "Dell Inspiron 15 Core i5 8GB RAM 512GB SSD Laptop",
+      "isValid": true,
+      "resolvedLocationId": "69468f68b6afae337af478bb",
+      "resolvedCoordinates": [
+        78.5028,
+        17.4399
+      ],
+      "imageCount": 2
+    },
+    {
+      "code": "AD-002",
+      "type": "ad",
+      "nameOrTitle": "Apple iPhone 14 Pro 128GB Space Black Excellent Condition",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c795",
+      "resolvedCoordinates": [
+        79.58333,
+        18
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-003",
+      "type": "ad",
+      "nameOrTitle": "OnePlus 12R 256GB Cool Blue 16GB RAM Like New",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945f4",
+      "resolvedCoordinates": [
+        80.64,
+        16.5
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-004",
+      "type": "ad",
+      "nameOrTitle": "HP Pavilion 15 Core i5 16GB RAM 512GB SSD Laptop",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945db",
+      "resolvedCoordinates": [
+        83.20161,
+        17.68009
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-005",
+      "type": "ad",
+      "nameOrTitle": "Apple iPhone 15 128GB Blue Pristine Battery 94%",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b944f8",
+      "resolvedCoordinates": [
+        82.15208,
+        17.15014
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-006",
+      "type": "ad",
+      "nameOrTitle": "Xiaomi 14 5G 256GB Jade Green Leica Optics",
+      "isValid": true,
+      "resolvedLocationId": "69464c1514759c4fa9b94d81",
+      "resolvedCoordinates": [
+        78.03602,
+        15.82887
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-007",
+      "type": "ad",
+      "nameOrTitle": "Dell XPS 13 Core i7 16GB RAM 512GB SSD Ultrabook",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94e26",
+      "resolvedCoordinates": [
+        82.23809,
+        16.96036
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-008",
+      "type": "ad",
+      "nameOrTitle": "OnePlus Nord 3 5G 128GB Tempest Gray 8GB RAM",
+      "isValid": true,
+      "resolvedLocationId": "69464c1414759c4fa9b94b64",
+      "resolvedCoordinates": [
+        79.29,
+        16.48
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-009",
+      "type": "ad",
+      "nameOrTitle": "HP Envy 13 Core i5 8GB RAM 256GB SSD Metal Body",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94edd",
+      "resolvedCoordinates": [
+        80.45729,
+        16.29974
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "AD-010",
+      "type": "ad",
+      "nameOrTitle": "Apple iPhone 15 Pro Max 256GB Natural Titanium",
+      "isValid": true,
+      "resolvedLocationId": "6946540914759c4fa9b99cb8",
+      "resolvedCoordinates": [
+        81.36903,
+        17.18144
+      ],
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-001",
+      "type": "service",
+      "nameOrTitle": "Laptop Motherboard Chip-Level Power Section Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-002",
+      "type": "service",
+      "nameOrTitle": "Karimnagar Laptop Motherboard Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-003",
+      "type": "service",
+      "nameOrTitle": "Curved AMOLED Display Glass & Combo Replacement",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-004",
+      "type": "service",
+      "nameOrTitle": "Smartphone Battery Replacement & Power Diagnostics",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-005",
+      "type": "service",
+      "nameOrTitle": "MacBook & Windows Laptop Logic Board Diagnostics",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-006",
+      "type": "service",
+      "nameOrTitle": "Laptop Screen Replacement & Hinge Reconstruction",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-007",
+      "type": "service",
+      "nameOrTitle": "Smart LED TV Backlight Array Replacement Service",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-008",
+      "type": "service",
+      "nameOrTitle": "Smart LED TV Power Supply Board (SMPS) Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-009",
+      "type": "service",
+      "nameOrTitle": "Smartphone Type-C Charging Port PCB Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-010",
+      "type": "service",
+      "nameOrTitle": "AMOLED Screen & Combo Glass Replacement Service",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-011",
+      "type": "service",
+      "nameOrTitle": "LED TV COF Bonding & Display Panel Gate Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-012",
+      "type": "service",
+      "nameOrTitle": "Smartphone Water Damage Clean & Short Circuit Fix",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-013",
+      "type": "service",
+      "nameOrTitle": "Laptop RAM & NVMe SSD Performance Upgrade",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-014",
+      "type": "service",
+      "nameOrTitle": "Smartphone Camera Sensor & Lens Glass Replacement",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-015",
+      "type": "service",
+      "nameOrTitle": "Laptop Internal Battery Replacement & Calibration",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-016",
+      "type": "service",
+      "nameOrTitle": "Smartphone Earpiece Speaker & Microphone Servicing",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-017",
+      "type": "service",
+      "nameOrTitle": "LED TV HDMI Port Replacement & Audio Jack Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-018",
+      "type": "service",
+      "nameOrTitle": "Smartphone Broken Touch Glass Separation & OCA Lamination",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-019",
+      "type": "service",
+      "nameOrTitle": "Laptop Backlit Keyboard Replacement & Spill Repair",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-020",
+      "type": "service",
+      "nameOrTitle": "Smartphone Dead Motherboard Power IC Reballing",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "SVC-021",
+      "type": "service",
+      "nameOrTitle": "Laptop Thermal Paste Repasting & Fan Deep Cleaning",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-001",
+      "type": "spare_part",
+      "nameOrTitle": "NVMe M.2 1TB PCIe Gen4 Ultra-Speed Laptop SSD",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-002",
+      "type": "spare_part",
+      "nameOrTitle": "Samsung Galaxy A-Series AMOLED Display Combo Assembly",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-003",
+      "type": "spare_part",
+      "nameOrTitle": "DDR4 16GB 3200MHz SODIMM Laptop Memory Module",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-004",
+      "type": "spare_part",
+      "nameOrTitle": "Original 5000mAh Smartphone Replacement Li-Po Battery",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-005",
+      "type": "spare_part",
+      "nameOrTitle": "NVMe M.2 512GB High Speed Laptop Internal SSD",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-006",
+      "type": "spare_part",
+      "nameOrTitle": "Dell Inspiron 15.6 Inch Full HD IPS Replacement Screen",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-007",
+      "type": "spare_part",
+      "nameOrTitle": "Universal Smart LED TV Backlight Strip Array 32-43 Inch",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-008",
+      "type": "spare_part",
+      "nameOrTitle": "Universal Smart LED TV T-Con Logic Board 43 Inch",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-009",
+      "type": "spare_part",
+      "nameOrTitle": "Universal Smartphone USB Type-C Fast Charging Port PCB",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-010",
+      "type": "spare_part",
+      "nameOrTitle": "Original AMOLED Touch Screen Panel Assembly",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-011",
+      "type": "spare_part",
+      "nameOrTitle": "LG 43 Inch Smart LED TV Display Panel Replacement",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-012",
+      "type": "spare_part",
+      "nameOrTitle": "Xiaomi Redmi 5000mAh High Capacity Li-Polymer Battery",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-013",
+      "type": "spare_part",
+      "nameOrTitle": "HP Pavilion 15 Series Backlit Laptop Keyboard Assembly",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-014",
+      "type": "spare_part",
+      "nameOrTitle": "Smartphone 64MP OIS Primary Rear Camera Module",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-015",
+      "type": "spare_part",
+      "nameOrTitle": "Dell 42Wh 3-Cell Internal Laptop Battery (WDX0R)",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-016",
+      "type": "spare_part",
+      "nameOrTitle": "Smartphone Earpiece Speaker Replacement Unit",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-017",
+      "type": "spare_part",
+      "nameOrTitle": "Samsung 43-55 Inch LED TV Main Logic Motherboard",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-018",
+      "type": "spare_part",
+      "nameOrTitle": "Curved AMOLED Outer Touch Glass Lens Replacement",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-019",
+      "type": "spare_part",
+      "nameOrTitle": "DDR4 8GB 2666MHz Low Voltage Laptop RAM",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-020",
+      "type": "spare_part",
+      "nameOrTitle": "Qualcomm PMIC Power Management IC Chip (BGA)",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "PART-021",
+      "type": "spare_part",
+      "nameOrTitle": "Laptop Ultra-Thin CPU Cooling Fan (4-Pin PWM)",
+      "isValid": true,
+      "imageCount": 1
+    },
+    {
+      "code": "ALERT-001",
+      "type": "smart_alert",
+      "nameOrTitle": "Secunderabad Laptop Motherboards & Spares",
+      "isValid": true,
+      "resolvedLocationId": "69468f68b6afae337af478bb",
+      "resolvedCoordinates": [
+        78.5028,
+        17.4399
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-002",
+      "type": "smart_alert",
+      "nameOrTitle": "Warangal Display & AMOLED Panels",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c795",
+      "resolvedCoordinates": [
+        79.58333,
+        18
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-003",
+      "type": "smart_alert",
+      "nameOrTitle": "Vijayawada Smartphone Spares & Batteries",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945f4",
+      "resolvedCoordinates": [
+        80.64,
+        16.5
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-004",
+      "type": "smart_alert",
+      "nameOrTitle": "Visakhapatnam Laptop Logic Board Repairs",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b945db",
+      "resolvedCoordinates": [
+        83.20161,
+        17.68009
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-005",
+      "type": "smart_alert",
+      "nameOrTitle": "Tirupati Laptop Parts & Display Screens",
+      "isValid": true,
+      "resolvedLocationId": "69464c1214759c4fa9b944f8",
+      "resolvedCoordinates": [
+        82.15208,
+        17.15014
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-006",
+      "type": "smart_alert",
+      "nameOrTitle": "Kurnool LED TV Backlight & Power Boards",
+      "isValid": true,
+      "resolvedLocationId": "69464c1514759c4fa9b94d81",
+      "resolvedCoordinates": [
+        78.03602,
+        15.82887
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-007",
+      "type": "smart_alert",
+      "nameOrTitle": "Kakinada TV Panel & Electronics Repairs",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94e26",
+      "resolvedCoordinates": [
+        82.23809,
+        16.96036
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-008",
+      "type": "smart_alert",
+      "nameOrTitle": "Macherla Smartphone Spares & Charging Ports",
+      "isValid": true,
+      "resolvedLocationId": "69464c1414759c4fa9b94b64",
+      "resolvedCoordinates": [
+        79.29,
+        16.48
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-009",
+      "type": "smart_alert",
+      "nameOrTitle": "Guntur Smartphone Glass & Battery Spares",
+      "isValid": true,
+      "resolvedLocationId": "69464c1614759c4fa9b94edd",
+      "resolvedCoordinates": [
+        80.45729,
+        16.29974
+      ],
+      "imageCount": 0
+    },
+    {
+      "code": "ALERT-010",
+      "type": "smart_alert",
+      "nameOrTitle": "Karimnagar Laptop Parts & Motherboards",
+      "isValid": true,
+      "resolvedLocationId": "6948f67d14759c4fa9b9c797",
+      "resolvedCoordinates": [
+        78.50513,
+        17.97695
+      ],
+      "imageCount": 0
+    }
+  ],
+  "createdIds": [
+    {
+      "code": "SEC-B01",
+      "type": "business",
+      "id": "6aa7f33359f01a6ce8c9cc33"
+    },
+    {
+      "code": "WGL-B01",
+      "type": "business",
+      "id": "6aa7f33559f01a6ce8c9cc38"
+    },
+    {
+      "code": "KRN-B01",
+      "type": "business",
+      "id": "6aa7f33659f01a6ce8c9cc3d"
+    },
+    {
+      "code": "VJA-B01",
+      "type": "business",
+      "id": "6aa7f33759f01a6ce8c9cc42"
+    },
+    {
+      "code": "VSKP-B01",
+      "type": "business",
+      "id": "6aa7f33959f01a6ce8c9cc47"
+    },
+    {
+      "code": "TPT-B01",
+      "type": "business",
+      "id": "6aa7f33e59f01a6ce8c9cc4c"
+    },
+    {
+      "code": "KNL-B01",
+      "type": "business",
+      "id": "6aa7f34559f01a6ce8c9cc51"
+    },
+    {
+      "code": "KKD-B01",
+      "type": "business",
+      "id": "6aa7f34759f01a6ce8c9cc56"
+    },
+    {
+      "code": "MCH-B01",
+      "type": "business",
+      "id": "6aa7f34959f01a6ce8c9cc5b"
+    },
+    {
+      "code": "PID-B01",
+      "type": "business",
+      "id": "6aa7f34b59f01a6ce8c9cc60"
+    },
+    {
+      "code": "TNL-B01",
+      "type": "business",
+      "id": "6aa7f34e59f01a6ce8c9cc65"
+    },
+    {
+      "code": "GNT-B01",
+      "type": "business",
+      "id": "6aa7f35059f01a6ce8c9cc6a"
+    },
+    {
+      "code": "RJY-B01",
+      "type": "business",
+      "id": "6aa7f35159f01a6ce8c9cc6f"
+    },
+    {
+      "code": "ELR-B01",
+      "type": "business",
+      "id": "6aa7f35359f01a6ce8c9cc74"
+    },
+    {
+      "code": "ATP-B01",
+      "type": "business",
+      "id": "6aa7f35559f01a6ce8c9cc79"
+    },
+    {
+      "code": "KDP-B01",
+      "type": "business",
+      "id": "6aa7f35759f01a6ce8c9cc7e"
+    },
+    {
+      "code": "NLR-B01",
+      "type": "business",
+      "id": "6aa7f35a59f01a6ce8c9cc83"
+    },
+    {
+      "code": "NZB-B01",
+      "type": "business",
+      "id": "6aa7f35b59f01a6ce8c9cc88"
+    },
+    {
+      "code": "KHM-B01",
+      "type": "business",
+      "id": "6aa7f36059f01a6ce8c9cc8d"
+    },
+    {
+      "code": "NLG-B01",
+      "type": "business",
+      "id": "6aa7f36459f01a6ce8c9cc92"
+    },
+    {
+      "code": "MBN-B01",
+      "type": "business",
+      "id": "6aa7f36659f01a6ce8c9cc97"
+    },
+    {
+      "code": "SVC-001",
+      "type": "service",
+      "id": "6aa7f36759f01a6ce8c9cc99"
+    },
+    {
+      "code": "SVC-002",
+      "type": "service",
+      "id": "6aa7f36a59f01a6ce8c9cc9c"
+    },
+    {
+      "code": "SVC-003",
+      "type": "service",
+      "id": "6aa7f36b59f01a6ce8c9cc9f"
+    },
+    {
+      "code": "SVC-004",
+      "type": "service",
+      "id": "6aa7f36d59f01a6ce8c9cca2"
+    },
+    {
+      "code": "SVC-005",
+      "type": "service",
+      "id": "6aa7f36f59f01a6ce8c9cca5"
+    },
+    {
+      "code": "SVC-006",
+      "type": "service",
+      "id": "6aa7f37159f01a6ce8c9cca8"
+    },
+    {
+      "code": "SVC-007",
+      "type": "service",
+      "id": "6aa7f37459f01a6ce8c9ccab"
+    },
+    {
+      "code": "SVC-008",
+      "type": "service",
+      "id": "6aa7f37659f01a6ce8c9ccae"
+    },
+    {
+      "code": "SVC-009",
+      "type": "service",
+      "id": "6aa7f37859f01a6ce8c9ccb1"
+    },
+    {
+      "code": "SVC-010",
+      "type": "service",
+      "id": "6aa7f37959f01a6ce8c9ccb4"
+    },
+    {
+      "code": "SVC-011",
+      "type": "service",
+      "id": "6aa7f37b59f01a6ce8c9ccb7"
+    },
+    {
+      "code": "SVC-012",
+      "type": "service",
+      "id": "6aa7f37d59f01a6ce8c9ccba"
+    },
+    {
+      "code": "SVC-013",
+      "type": "service",
+      "id": "6aa7f38259f01a6ce8c9ccbd"
+    },
+    {
+      "code": "SVC-014",
+      "type": "service",
+      "id": "6aa7f38659f01a6ce8c9ccc0"
+    },
+    {
+      "code": "SVC-015",
+      "type": "service",
+      "id": "6aa7f38959f01a6ce8c9ccc3"
+    },
+    {
+      "code": "SVC-016",
+      "type": "service",
+      "id": "6aa7f38c59f01a6ce8c9ccc6"
+    },
+    {
+      "code": "SVC-017",
+      "type": "service",
+      "id": "6aa7f39259f01a6ce8c9ccc9"
+    },
+    {
+      "code": "SVC-018",
+      "type": "service",
+      "id": "6aa7f39659f01a6ce8c9cccc"
+    },
+    {
+      "code": "SVC-019",
+      "type": "service",
+      "id": "6aa7f39859f01a6ce8c9cccf"
+    },
+    {
+      "code": "SVC-020",
+      "type": "service",
+      "id": "6aa7f39c59f01a6ce8c9ccd2"
+    },
+    {
+      "code": "SVC-021",
+      "type": "service",
+      "id": "6aa7f39e59f01a6ce8c9ccd5"
+    },
+    {
+      "code": "PART-001",
+      "type": "spare_part",
+      "id": "6aa7f4f76b34eb5f7217a552"
+    },
+    {
+      "code": "PART-002",
+      "type": "spare_part",
+      "id": "6aa7f4f96b34eb5f7217a555"
+    },
+    {
+      "code": "PART-003",
+      "type": "spare_part",
+      "id": "6aa7f4fb6b34eb5f7217a558"
+    },
+    {
+      "code": "PART-004",
+      "type": "spare_part",
+      "id": "6aa7f4fd6b34eb5f7217a55b"
+    },
+    {
+      "code": "PART-005",
+      "type": "spare_part",
+      "id": "6aa7f4ff6b34eb5f7217a55e"
+    },
+    {
+      "code": "PART-006",
+      "type": "spare_part",
+      "id": "6aa7f5016b34eb5f7217a561"
+    },
+    {
+      "code": "PART-007",
+      "type": "spare_part",
+      "id": "6aa7f5036b34eb5f7217a564"
+    },
+    {
+      "code": "PART-008",
+      "type": "spare_part",
+      "id": "6aa7f5056b34eb5f7217a567"
+    },
+    {
+      "code": "PART-009",
+      "type": "spare_part",
+      "id": "6aa7f5086b34eb5f7217a56a"
+    },
+    {
+      "code": "PART-010",
+      "type": "spare_part",
+      "id": "6aa7f50c6b34eb5f7217a56d"
+    },
+    {
+      "code": "PART-011",
+      "type": "spare_part",
+      "id": "6aa7f50f6b34eb5f7217a570"
+    },
+    {
+      "code": "PART-012",
+      "type": "spare_part",
+      "id": "6aa7f5126b34eb5f7217a573"
+    },
+    {
+      "code": "PART-013",
+      "type": "spare_part",
+      "id": "6aa7f5146b34eb5f7217a576"
+    },
+    {
+      "code": "PART-014",
+      "type": "spare_part",
+      "id": "6aa7f5166b34eb5f7217a579"
+    },
+    {
+      "code": "PART-015",
+      "type": "spare_part",
+      "id": "6aa7f5186b34eb5f7217a57c"
+    },
+    {
+      "code": "PART-016",
+      "type": "spare_part",
+      "id": "6aa7f51a6b34eb5f7217a57f"
+    },
+    {
+      "code": "PART-017",
+      "type": "spare_part",
+      "id": "6aa7f51d6b34eb5f7217a582"
+    },
+    {
+      "code": "PART-018",
+      "type": "spare_part",
+      "id": "6aa7f51f6b34eb5f7217a585"
+    },
+    {
+      "code": "PART-019",
+      "type": "spare_part",
+      "id": "6aa7f5226b34eb5f7217a588"
+    },
+    {
+      "code": "PART-020",
+      "type": "spare_part",
+      "id": "6aa7f5246b34eb5f7217a58b"
+    },
+    {
+      "code": "PART-021",
+      "type": "spare_part",
+      "id": "6aa7f5276b34eb5f7217a58e"
+    },
+    {
+      "code": "AD-001",
+      "type": "ad",
+      "id": "6aa7f52a6b34eb5f7217a591"
+    },
+    {
+      "code": "AD-002",
+      "type": "ad",
+      "id": "6aa7f52d6b34eb5f7217a595"
+    },
+    {
+      "code": "AD-003",
+      "type": "ad",
+      "id": "6aa7f5306b34eb5f7217a599"
+    },
+    {
+      "code": "AD-004",
+      "type": "ad",
+      "id": "6aa7f5336b34eb5f7217a59d"
+    },
+    {
+      "code": "AD-005",
+      "type": "ad",
+      "id": "6aa7f5356b34eb5f7217a5a1"
+    },
+    {
+      "code": "AD-006",
+      "type": "ad",
+      "id": "6aa7f6592731a274084f55d9"
+    },
+    {
+      "code": "AD-007",
+      "type": "ad",
+      "id": "6aa7f65c2731a274084f55dd"
+    },
+    {
+      "code": "AD-008",
+      "type": "ad",
+      "id": "6aa7f65e2731a274084f55e1"
+    },
+    {
+      "code": "AD-009",
+      "type": "ad",
+      "id": "6aa7f6602731a274084f55e5"
+    },
+    {
+      "code": "AD-010",
+      "type": "ad",
+      "id": "6aa7f6632731a274084f55e9"
+    },
+    {
+      "code": "ALERT-001",
+      "type": "smart_alert",
+      "id": "6aa7f6662731a274084f55ed"
+    },
+    {
+      "code": "ALERT-002",
+      "type": "smart_alert",
+      "id": "6aa7f6672731a274084f55ee"
+    },
+    {
+      "code": "ALERT-003",
+      "type": "smart_alert",
+      "id": "6aa7f6672731a274084f55ef"
+    },
+    {
+      "code": "ALERT-004",
+      "type": "smart_alert",
+      "id": "6aa7f6682731a274084f55f0"
+    },
+    {
+      "code": "ALERT-005",
+      "type": "smart_alert",
+      "id": "6aa7f6692731a274084f55f1"
+    },
+    {
+      "code": "ALERT-006",
+      "type": "smart_alert",
+      "id": "6aa7f66a2731a274084f55f3"
+    },
+    {
+      "code": "ALERT-007",
+      "type": "smart_alert",
+      "id": "6aa7f66b2731a274084f55f5"
+    },
+    {
+      "code": "ALERT-008",
+      "type": "smart_alert",
+      "id": "6aa7f66c2731a274084f55f7"
+    },
+    {
+      "code": "ALERT-009",
+      "type": "smart_alert",
+      "id": "6aa7f66c2731a274084f55f9"
+    },
+    {
+      "code": "ALERT-010",
+      "type": "smart_alert",
+      "id": "6aa7f66e2731a274084f55fb"
+    }
+  ]
+}

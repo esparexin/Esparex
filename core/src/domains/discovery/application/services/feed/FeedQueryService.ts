@@ -38,7 +38,6 @@ export const buildHomeFeed = async (
     let effectiveLevel = input.level;
 
     if (typeof input.locationId === 'string' && mongoose.Types.ObjectId.isValid(input.locationId)) {
-        baseFilter.locationId = input.locationId;
         if (effectiveLat === undefined && effectiveLng === undefined) {
             try {
                 const canonicalLocation = await resolveCanonicalLocationForQuery(input.locationId);
@@ -60,6 +59,14 @@ export const buildHomeFeed = async (
                     error: err instanceof Error ? err.message : String(err)
                 });
             }
+        }
+
+        // Country-level locations (e.g. "India") must NOT set locationId filter.
+        // No ad stores the country ObjectId in `location.locationId`; all ads
+        // store their city/area ID. Setting it returns 0 results.
+        const resolvedLevel = (effectiveLevel || input.level || '').toLowerCase();
+        if (resolvedLevel !== 'country') {
+            baseFilter.locationId = input.locationId;
         }
     } else if (typeof input.location === 'string' && input.location.trim().length > 0) {
         const safeLoc = input.location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -192,7 +199,9 @@ export const buildHomeFeed = async (
 
     // 5. Fallback Logic
     let isFallbackResult = false;
-    const isStrictLocation = Boolean(input.locationId || input.location || shouldUseGeo);
+    const isStrictLocation = Boolean(
+        (input.locationId && normalizedLevel !== 'country') || input.location || shouldUseGeo
+    );
 
     if (!cursor && merged.ads.length < 4 && isStrictLocation) {
         isFallbackResult = true;

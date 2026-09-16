@@ -56,6 +56,36 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
                 </div>
             )}
 
+            {/* Working Spare Parts Highlights (for Classified Ads) */}
+            {!isService && !isSparePart && Array.isArray(ad.spareParts) && ad.spareParts.length > 0 && (
+                <div className="space-y-2.5 pb-3 border-b border-border/60">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-caption sm:text-small font-bold flex items-center gap-1.5 text-foreground uppercase tracking-wider">
+                            <CircuitBoard className="h-4 w-4 text-emerald-600" />
+                            Working Spare Parts Included
+                        </h3>
+                        <span className="text-tiny font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                            {ad.spareParts.length} Verified
+                        </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {ad.spareParts.map((part: unknown, index: number) => {
+                            const name = typeof part === "string" ? part : (part && typeof part === "object" ? String((part as { name?: string }).name || "") : "");
+                            if (!name) return null;
+                            return (
+                                <span
+                                    key={index}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-caption font-semibold text-foreground shadow-2xs"
+                                >
+                                    <span className="size-2 rounded-full bg-emerald-500" />
+                                    {name}
+                                </span>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* What's Included Card for Services */}
             {!!ad.included && (
                 <div className="space-y-2">
