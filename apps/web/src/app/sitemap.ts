@@ -8,7 +8,7 @@ import {
 import { CANONICAL_ORIGIN, toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { getCanonicalCategorySlug } from "@/lib/seo/canonicalSlugs";
 
-export const dynamic = 'force-dynamic';
+// Enable Incremental Static Regeneration (ISR) with 1-hour edge caching
 export const revalidate = 3600; // Cache for 1 hour to reduce latency
 
 /** Canonical base URL: strictly https://esparex.in across all environments */
@@ -194,7 +194,7 @@ export async function fetchDynamicIds(
     slugKey?: string
 ): Promise<SitemapItem[]> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
         const fullUrl = buildSitemapApiUrl(API_URL, endpoint, params);
         const res = await fetch(fullUrl, {
