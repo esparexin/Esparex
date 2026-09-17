@@ -12,8 +12,7 @@ export const getBusinessAccountsQuery = (status?: string) => {
     const adminQuery: Record<string, unknown> = {};
     const ns = status === 'approved' || status === 'active' ? BUSINESS_STATUS.LIVE : status;
     if (ns && ns !== 'all') {
-        if (ns === 'expiring') { const seven = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); adminQuery.status = publishedBusinessStatusQuery; adminQuery.expiresAt = { $lte: seven, $gte: new Date() }; }
-        else if (ns === BUSINESS_STATUS.DELETED) adminQuery.isDeleted = true;
+        if (ns === BUSINESS_STATUS.DELETED) adminQuery.isDeleted = true;
         else adminQuery.status = ns;
     }
     return adminQuery;

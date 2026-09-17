@@ -82,6 +82,20 @@ export default function BusinessesView() {
         });
     };
 
+    const handleCardClick = (cardKey: string) => {
+        if (cardKey === "expiringIn3Days") {
+            replaceQueryState({
+                expiringIn3Days: rawExpiringIn3Days === "true" ? null : "true",
+                page: null,
+                warningSent: null,
+                warningNotSent: null,
+            });
+            return;
+        }
+
+        handleStatusCardClick(cardKey);
+    };
+
     const hasActiveFilters = Boolean(
         search ||
         locationIdFilter ||
@@ -105,11 +119,11 @@ export default function BusinessesView() {
     };
 
     const overviewCards = [
-        { label: "All", value: overview.total, status: "all", color: "text-foreground-secondary" },
-        { label: "Live", value: overview.live, status: "live", color: "text-emerald-600" },
-        { label: "Pending", value: overview.pending, status: "pending", color: "text-amber-600" },
-        { label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, status: "expiring", color: "text-rose-600" },
-        { label: "Suspended", value: overview.suspended, status: "suspended", color: "text-red-600" },
+        { key: "all", label: "All", value: overview.total, isActive: !rawExpiringIn3Days && statusParam === "all", color: "text-foreground-secondary" },
+        { key: "live", label: "Live", value: overview.live, isActive: !rawExpiringIn3Days && statusParam === "live", color: "text-emerald-600" },
+        { key: "pending", label: "Pending", value: overview.pending, isActive: !rawExpiringIn3Days && statusParam === "pending", color: "text-amber-600" },
+        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-rose-600" },
+        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: !rawExpiringIn3Days && statusParam === "suspended", color: "text-red-600" },
     ];
 
     const bulkActions = (
@@ -132,27 +146,24 @@ export default function BusinessesView() {
         <AdminPageShell title="Business Master" description="Manage all business accounts" headerVariant="compact">
             <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-3xl">
-                    {overviewCards.map(({ label, value, status, color }) => {
-                        const isActive = statusParam === status;
-                        return (
-                            <button
-                                type="button"
-                                key={label}
-                                onClick={() => handleStatusCardClick(status)}
-                                className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
-                                    isActive
-                                        ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
-                                        : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
-                                }`}
-                            >
-                                <ChartBar size={14} className={isActive ? "text-primary shrink-0" : "text-foreground-subtle shrink-0"} />
-                                <div>
-                                    <div className={`text-body font-bold leading-tight ${color}`}>{value}</div>
-                                    <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider leading-none">{label}</div>
-                                </div>
-                            </button>
-                        );
-                    })}
+                    {overviewCards.map(({ key, label, value, isActive, color }) => (
+                        <button
+                            type="button"
+                            key={key}
+                            onClick={() => handleCardClick(key)}
+                            className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
+                                isActive
+                                    ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
+                                    : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
+                            }`}
+                        >
+                            <ChartBar size={14} className={isActive ? "text-primary shrink-0" : "text-foreground-subtle shrink-0"} />
+                            <div>
+                                <div className={`text-body font-bold leading-tight ${color}`}>{value}</div>
+                                <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider leading-none">{label}</div>
+                            </div>
+                        </button>
+                    ))}
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
