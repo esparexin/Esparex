@@ -225,6 +225,7 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
                 "https://esparex.in/how-it-works",
                 "https://esparex.in/privacy",
                 "https://esparex.in/safety-tips",
+                "https://esparex.in/services",
                 "https://esparex.in/site-map",
                 "https://esparex.in/terms",
             ];
@@ -272,12 +273,10 @@ describe("SEO & Sitemap Hardening Regression Suite", () => {
             // /search route should not be in sitemap per Google guidelines
             expect(urls).not.toContain("https://esparex.in/search");
 
-            // Brand and model catalog pages should be included
-            expect(urls).toContain("https://esparex.in/brands/apple-brand-1");
-            expect(urls).toContain("https://esparex.in/models/iphone-15-model-1");
-
-            // Seller profile pages should be included
-            expect(urls).toContain("https://esparex.in/seller/john-doe-user-1");
+            // Brand, model, and seller profile pages are excluded from sitemap to prevent thin/empty content and curator exposure
+            expect(urls.some((u) => u.includes("/brands/"))).toBe(false);
+            expect(urls.some((u) => u.includes("/models/"))).toBe(false);
+            expect(urls.some((u) => u.includes("/seller/"))).toBe(false);
         });
 
         it("excludes private, account, and internal routes", async () => {

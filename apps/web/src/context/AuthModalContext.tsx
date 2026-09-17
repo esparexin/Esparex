@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
@@ -13,12 +13,12 @@ interface AuthModalContextType {
 
 const AuthModalContext = createContext<AuthModalContextType | undefined>(undefined);
 
-export function AuthModalProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+function AuthModalQueryWatcher({
+  onLoginParam,
+}: {
+  onLoginParam: (callbackUrlParam: string | null) => void;
+}) {
   const searchParams = useSearchParams();
-
-  // Support ?login=true query parameter (e.g. for server-side unauthenticated redirects)
   const [prevQueryKey, setPrevQueryKey] = useState<string | null>(null);
   const loginParam = searchParams?.get("login");
   const callbackUrlParam = searchParams?.get("callbackUrl");
@@ -27,10 +27,21 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   if (currentQueryKey !== prevQueryKey) {
     setPrevQueryKey(currentQueryKey);
     if (currentQueryKey) {
-      setCallbackUrl(normalizeAuthCallbackUrl(callbackUrlParam));
-      setIsOpen(true);
+      onLoginParam(callbackUrlParam);
     }
   }
+
+  return null;
+}
+
+export function AuthModalProvider({ children }: { children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+
+  const handleLoginParam = useCallback((callbackUrlParam: string | null) => {
+    setCallbackUrl(normalizeAuthCallbackUrl(callbackUrlParam));
+    setIsOpen(true);
+  }, []);
 
   const showLogin = useCallback((url?: string) => {
     setCallbackUrl(url ? normalizeAuthCallbackUrl(url) : "/");
@@ -67,6 +78,9 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthModalContext.Provider value={value}>
+      <Suspense fallback={null}>
+        <AuthModalQueryWatcher onLoginParam={handleLoginParam} />
+      </Suspense>
       {children}
       <AuthModal
         open={isOpen}

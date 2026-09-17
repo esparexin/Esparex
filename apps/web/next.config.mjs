@@ -349,12 +349,6 @@ const nextConfig = {
                 destination: '/',
                 permanent: true,
             },
-            // Exact /services match only — /services/[slug] continues to work
-            {
-                source: '/services',
-                destination: '/search?type=service',
-                permanent: true,
-            },
             // Exact /spare-parts match
             {
                 source: '/spare-parts',

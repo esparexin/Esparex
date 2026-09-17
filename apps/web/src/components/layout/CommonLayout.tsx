@@ -28,7 +28,7 @@ interface CommonLayoutProps {
 export function CommonLayout({
     children,
     initialHasAuthCookie = false,
-    suspenseHeader = false,
+    suspenseHeader = true,
     currentYear,
 }: CommonLayoutProps) {
     const activeYear = currentYear ?? new Date().getUTCFullYear();
@@ -58,7 +58,9 @@ export function CommonLayout({
                 >
                     <ScrollSentinel />
                     <ClientChromeLoader apiUnavailable={false} />
-                    <RouteScrollReset />
+                    <Suspense fallback={null}>
+                        <RouteScrollReset />
+                    </Suspense>
 
                     {children}
 
