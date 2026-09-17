@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   Button,
@@ -13,73 +14,72 @@ import { useState, type ReactNode } from "react";
 import { Business } from "@esparex/contracts";
 
 interface BusinessDeleteModalProps {
-    business: Business;
-    description: ReactNode;
-    onClose: () => void;
-    onConfirm: (id: string) => Promise<void> | void;
+  business: Business;
+  description: ReactNode;
+  onClose: () => void;
+  onConfirm: (id: string) => Promise<void> | void;
 }
 
 export function BusinessDeleteModal({
-    business,
-    description,
-    onClose,
-    onConfirm,
+  business,
+  description,
+  onClose,
+  onConfirm,
 }: BusinessDeleteModalProps) {
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleConfirm = async () => {
-        setLoading(true);
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      await onConfirm(business.id);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            await onConfirm(business.id);
-        } finally {
-            setLoading(false);
-        }
-    };
+  return (
+    <Dialog open onOpenChange={(open) => { if (!open && !loading) onClose(); }}>
+      <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-6 border-b border-border bg-destructive/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-destructive/20 text-destructive flex items-center justify-center">
+              <Trash2 size={20} />
+            </div>
+            <div>
+              <DialogTitle className="text-body-lg font-bold text-foreground">Delete Business?</DialogTitle>
+              <DialogDescription className="text-caption text-foreground-tertiary mt-0.5">
+                {business.name}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-    return (
-        <Dialog open onOpenChange={(open) => { if (!open && !loading) onClose(); }}>
-            <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden">
-                <DialogHeader className="p-6 border-b border-border bg-destructive/10">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-destructive/20 text-destructive flex items-center justify-center">
-                            <Trash2 size={20} />
-                        </div>
-                        <div>
-                            <DialogTitle className="text-body-lg font-bold text-foreground">Delete Business?</DialogTitle>
-                            <DialogDescription className="text-caption text-foreground-tertiary mt-0.5">
-                                {business.name}
-                            </DialogDescription>
-                        </div>
-                    </div>
-                </DialogHeader>
+        <div className="p-6">
+          <div className="text-caption text-foreground-secondary bg-destructive/10 rounded-lg p-3 border border-destructive/20">
+            {description}
+          </div>
+        </div>
 
-                <div className="p-6">
-                    <div className="text-caption text-foreground-secondary bg-destructive/10 rounded-lg p-3 border border-destructive/20">
-                        {description}
-                    </div>
-                </div>
-
-                <div className="px-6 pb-6 flex justify-end gap-3">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={handleConfirm}
-                        disabled={loading}
-                    >
-                        <Trash2 size={16} />
-                        {loading ? "Deleting..." : "Delete"}
-                    </Button>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+        <DialogFooter className="px-6 pb-6 pt-0 border-0 flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={loading}
+          >
+            <Trash2 size={16} />
+            {loading ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
