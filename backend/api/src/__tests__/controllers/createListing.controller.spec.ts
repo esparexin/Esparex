@@ -30,10 +30,6 @@ jest.mock('@esparex/core/domains/catalog/application/services/CatalogRequestServ
     linkListingToCatalogRequests: (...args: unknown[]) => mockLinkListingToCatalogRequests(...args),
 }));
 
-jest.mock('@esparex/core/domains/listings/application/ad/AdImageService', () => ({
-    uploadAdImage: jest.fn(),
-    getUploadPresignedUrl: jest.fn(),
-}));
 
 jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),

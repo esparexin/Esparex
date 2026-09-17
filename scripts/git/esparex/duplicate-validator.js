@@ -96,8 +96,6 @@ function run(val) {
     'adminModeration.validator',
     'loadEnv',
     'mongoosePlugins',
-    'AdImageService',
-    'ListingMutationService',
   ]);
 
   const orphans = [];
