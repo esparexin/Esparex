@@ -71,7 +71,7 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         key: "businessMaster",
         label: "Business Master",
         icon: ShieldAlert,
-        href: "/businesses?status=pending",
+        href: "/businesses",
         roles: ["admin", "superAdmin", "moderator"],
         section: "Directory",
         counterKey: "businesses",
