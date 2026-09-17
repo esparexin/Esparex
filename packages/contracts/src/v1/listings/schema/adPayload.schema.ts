@@ -6,15 +6,8 @@ import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
 
 
-const objectId = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId');
-const optionalObjectId = z.preprocess(
-    (value) => {
-        if (typeof value !== 'string') return value;
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-    },
-    objectId.optional()
-);
+const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId');
+const optionalObjectId = z.union([objectId, z.literal('')]).optional();
 
 
 

@@ -1,9 +1,8 @@
 "use client";
 
 import { ListingForm } from "@/components/user/shared/ListingForm";
-import { ServiceListingPayloadSchema } from "@/schemas/serviceListingPayload.schema";
 import { Wrench } from "@esparex/ui";
-import { LISTING_TYPE } from "@esparex/contracts";
+import { LISTING_TYPE, ServiceListingPayloadSchema } from "@esparex/contracts";
 import type { ListingFormConfig } from "@/components/user/shared/listingFormConfig";
 
 export const serviceFormConfig: ListingFormConfig = {

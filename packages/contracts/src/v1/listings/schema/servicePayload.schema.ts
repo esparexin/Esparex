@@ -31,8 +31,8 @@ const servicePayloadShape = {
         .optional(),
 
     categoryId: ObjectIdSchema,
-    brandId: ObjectIdSchema.optional(),
-    modelId: ObjectIdSchema.optional(),
+    brandId: z.union([ObjectIdSchema, z.literal('')]).optional(),
+    modelId: z.union([ObjectIdSchema, z.literal('')]).optional(),
 
     priceMin: z.number()
         .min(0, 'Minimum price must be at least 0')
@@ -107,3 +107,28 @@ export const PartialServicePayloadSchema = withLegacyServiceTypeAliasGuard(
  */
 export type ServicePayload = z.infer<typeof ServicePayloadSchema>;
 export type PartialServicePayload = z.infer<typeof PartialServicePayloadSchema>;
+
+/**
+ * Frontend Form Schema for Service Listings (SSOT)
+ * Consumed by user UI forms (PostServiceForm, etc.).
+ * Guarantees schema contract compliance with empty-string optional handling.
+ */
+export const ServiceListingPayloadSchema = BaseServicePayloadSchema
+    .omit({
+        categoryId: true,
+        brandId: true,
+        modelId: true,
+        serviceTypeIds: true,
+        priceMin: true,
+    })
+    .merge(z.object({
+        categoryId: z.string().min(1, 'Required'),
+        brandId: z.union([ObjectIdSchema, z.literal('')]).optional(),
+        modelId: z.union([ObjectIdSchema, z.literal('')]).optional(),
+        serviceTypeIds: z.array(z.string()).min(1, 'Select at least one service type'),
+        price: z.number({ message: 'Enter a valid price' })
+            .min(0, 'Price must be at least 0')
+            .max(10_000_000, 'Price cannot exceed ₹1 crore'),
+    }));
+
+export type ServiceListingFormData = z.infer<typeof ServiceListingPayloadSchema>;
