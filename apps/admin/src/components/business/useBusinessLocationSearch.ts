@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CHAT_STATUS } from "@esparex/contracts";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
 import type { Location } from "@/types/location";
@@ -75,7 +74,7 @@ export function useBusinessLocationSearch({
       try {
         const nextResults = await getLocationOptions({
           search: nextQuery,
-          status: CHAT_STATUS.ACTIVE,
+          status: "active",
           limit: 8,
         });
 
