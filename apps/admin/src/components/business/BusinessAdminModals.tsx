@@ -5,7 +5,7 @@ import { BusinessDetailsModal } from "@/components/business/BusinessDetailsModal
 import { BusinessDeleteModal } from "@/components/business/BusinessDeleteModal";
 import { BusinessModifyModal } from "@/components/business/BusinessModifyModal";
 import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
-import { XCircle } from "@esparex/ui";
+import { XCircle, Ban } from "@esparex/ui";
 import { Business } from "@esparex/contracts";
 
 export interface BusinessAdminModalController {
@@ -14,13 +14,16 @@ export interface BusinessAdminModalController {
     rejectTarget: Business | null;
     modifyTarget: Business | null;
     deleteTarget: Business | null;
+    suspendTarget?: Business | null;
     setSelectedBusiness: Dispatch<SetStateAction<Business | null>>;
     setRejectTarget: Dispatch<SetStateAction<Business | null>>;
     setModifyTarget: Dispatch<SetStateAction<Business | null>>;
     setDeleteTarget: Dispatch<SetStateAction<Business | null>>;
+    setSuspendTarget?: Dispatch<SetStateAction<Business | null>>;
     handleReject: (id: string, reason: string) => Promise<void>;
     handleModify: (id: string, patch: Partial<Business>) => Promise<void>;
     handleDelete: (id: string) => Promise<void> | void;
+    handleSuspend?: (id: string, reason: string) => Promise<void>;
 }
 
 interface BusinessAdminModalsProps extends BusinessAdminModalController {
@@ -40,13 +43,16 @@ export function BusinessAdminModals({
     rejectTarget,
     modifyTarget,
     deleteTarget,
+    suspendTarget,
     setSelectedBusiness,
     setRejectTarget,
     setModifyTarget,
     setDeleteTarget,
+    setSuspendTarget,
     handleReject,
     handleModify,
     handleDelete,
+    handleSuspend,
     onApproveFromDetails,
     deleteDescription,
     onSuspendFromDetails,
@@ -73,6 +79,26 @@ export function BusinessAdminModals({
             )}
 
             {extraDialogs}
+
+            {suspendTarget && handleSuspend && setSuspendTarget && (
+                <BusinessReasonModal
+                    businessName={suspendTarget.name}
+                    title="Suspend Business"
+                    description="Temporarily suspend"
+                    notice='Suspension is reversible. Use "Activate" to restore the business.'
+                    label="Suspension Reason"
+                    placeholder="e.g. Violation of terms of service, fraudulent reports, pending investigation..."
+                    requiredMessage="Suspension reason is required."
+                    submitLabel="Confirm Suspension"
+                    submittingLabel="Suspending..."
+                    failureMessage="Failed to suspend business"
+                    icon={Ban}
+                    tone="warning"
+                    rows={3}
+                    onClose={() => setSuspendTarget(null)}
+                    onConfirm={(reason) => handleSuspend(suspendTarget.id, reason)}
+                />
+            )}
 
             {rejectTarget && (
                 <BusinessReasonModal
