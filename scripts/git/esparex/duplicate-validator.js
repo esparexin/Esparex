@@ -86,8 +86,6 @@ function run(val) {
   const KNOWN_ALLOWLIST = new Set([
     'promotion.validator',
     'wallet.validator',
-    'ServiceMutationService', // Transitional: target of Phase 2 elimination
-    'ServiceMutationRepository', // Transitional: target of Phase 2 elimination
     'FEFOEntitlementConsumptionEngine',
     'CatalogNotificationService',
     'listingTypeIntegrity',
