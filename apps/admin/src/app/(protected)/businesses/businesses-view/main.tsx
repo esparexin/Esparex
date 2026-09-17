@@ -13,7 +13,7 @@ import { BusinessListTable, BusinessSearchToolbar } from "@/components/business/
 import { buildColumns } from "./columns";
 
 const DEFAULT_STATUS = "all";
-const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "deleted"]);
+const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "expired", "deactivated", "deleted"]);
 
 const normalizeStatus = (status: string | null): string => {
     if (!status || status === "all") return DEFAULT_STATUS;
@@ -22,7 +22,7 @@ const normalizeStatus = (status: string | null): string => {
     return DEFAULT_STATUS;
 };
 
-const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), deleted: Number(data.deleted || 0) });
+const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), expired: Number(data.expired || 0), deactivated: Number(data.deactivated || 0), deleted: Number(data.deleted || 0) });
 
 const COLOR_VARIANTS: Record<string, string> = {
     emerald: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200",
@@ -59,7 +59,7 @@ export default function BusinessesView() {
     }, [pathname, router, searchParams]);
 
     const businessList = useAdminBusinessList({
-        activeTab, search, page, initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, deleted: 0 },
+        activeTab, search, page, initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, expired: 0, deactivated: 0, deleted: 0 },
         mapOverview,
         extraQueryParams: { locationId: locationIdFilter, expiringIn3Days: rawExpiringIn3Days || undefined, warningSent: rawWarningSent || undefined, warningNotSent: rawWarningNotSent || undefined, includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined },
     });
@@ -118,12 +118,15 @@ export default function BusinessesView() {
         });
     };
 
+    const isStatActive = (key: string) => !rawExpiringIn3Days && statusParam === key;
     const overviewCards = [
-        { key: "all", label: "All", value: overview.total, isActive: !rawExpiringIn3Days && statusParam === "all", color: "text-foreground-secondary" },
-        { key: "live", label: "Live", value: overview.live, isActive: !rawExpiringIn3Days && statusParam === "live", color: "text-emerald-600" },
-        { key: "pending", label: "Pending", value: overview.pending, isActive: !rawExpiringIn3Days && statusParam === "pending", color: "text-amber-600" },
+        { key: "all", label: "All", value: overview.total, isActive: isStatActive("all"), color: "text-foreground-secondary" },
+        { key: "live", label: "Live", value: overview.live, isActive: isStatActive("live"), color: "text-emerald-600" },
+        { key: "pending", label: "Pending", value: overview.pending, isActive: isStatActive("pending"), color: "text-amber-600" },
         { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-rose-600" },
-        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: !rawExpiringIn3Days && statusParam === "suspended", color: "text-red-600" },
+        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-red-600" },
+        { key: "expired", label: "Expired", value: (overview as Record<string, number>).expired ?? 0, isActive: isStatActive("expired"), color: "text-amber-700" },
+        { key: "deactivated", label: "Deactivated", value: (overview as Record<string, number>).deactivated ?? 0, isActive: isStatActive("deactivated"), color: "text-foreground-secondary" },
     ];
 
     const bulkActions = (

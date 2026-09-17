@@ -30,6 +30,14 @@ const STATUS_STYLES: Record<
         pill: "bg-muted text-foreground-secondary border-border",
         dot: "bg-foreground-tertiary",
     },
+    expired: {
+        pill: "bg-amber-100 text-amber-800 border-amber-200",
+        dot: "bg-amber-600",
+    },
+    deactivated: {
+        pill: "bg-muted text-foreground-secondary border-border",
+        dot: "bg-foreground-tertiary",
+    },
 };
 
 export function BusinessStatusBadge({

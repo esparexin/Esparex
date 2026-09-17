@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { ADMIN_NAV_MODULES, getAdminModuleByPath } from "../components/layout/adminNavigation";
 
 const DEFAULT_STATUS = "all";
-const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "deleted"]);
+const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "expired", "deactivated", "deleted"]);
 
 const normalizeStatus = (status?: string | null): string => {
     if (!status || status === "all") return DEFAULT_STATUS;
@@ -69,6 +69,8 @@ describe("Business Master Integrity — Canonical Navigation & State Transitions
             expect(normalizeStatus("live")).toBe("live");
             expect(normalizeStatus("pending")).toBe("pending");
             expect(normalizeStatus("suspended")).toBe("suspended");
+            expect(normalizeStatus("expired")).toBe("expired");
+            expect(normalizeStatus("deactivated")).toBe("deactivated");
             expect(normalizeStatus("deleted")).toBe("deleted");
         });
 
