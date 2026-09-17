@@ -12,8 +12,15 @@ import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntPa
 import { BusinessListModals, buildBusinessModalController, BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
 import { buildColumns } from "./columns";
 
-const DEFAULT_STATUS = "live";
-const BUSINESS_MASTER_STATUSES = new Set(["live", "suspended", "pending", "deleted", "all"]);
+const DEFAULT_STATUS = "all";
+const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "deleted"]);
+
+const normalizeStatus = (status: string | null): string => {
+    if (!status || status === "all") return DEFAULT_STATUS;
+    if (status === "approved" || status === "active") return "live";
+    if (BUSINESS_MASTER_STATUSES.has(status)) return status;
+    return DEFAULT_STATUS;
+};
 
 const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), deleted: Number(data.deleted || 0) });
 
@@ -41,7 +48,7 @@ export default function BusinessesView() {
     const rawWarningSent = searchParams.get("warningSent");
     const rawWarningNotSent = searchParams.get("warningNotSent");
     const rawPage = searchParams.get("page");
-    const activeTab = rawStatus === "approved" || rawStatus === "active" ? DEFAULT_STATUS : rawStatus && BUSINESS_MASTER_STATUSES.has(rawStatus) ? rawStatus : DEFAULT_STATUS;
+    const activeTab = normalizeStatus(rawStatus);
     const search = normalizeSearchParamValue(rawSearch);
     const locationIdFilter = normalizeSearchParamValue(rawLocationId);
     const page = parsePositiveIntParam(rawPage, 1);
@@ -63,7 +70,39 @@ export default function BusinessesView() {
 
     const columns = buildColumns({ onView: businessList.setSelectedBusiness, onEdit: businessList.setModifyTarget, onDelete: businessList.setDeleteTarget, toggleSelect, toggleSelectAll, selectedIds, allCount: businesses.length, setSuspendTarget, handleActivate });
 
-    const statusParam = searchParams.get("status") || "all";
+    const statusParam = activeTab;
+
+    const handleStatusCardClick = (status: string) => {
+        replaceQueryState({
+            status: status === "all" ? null : status,
+            page: null,
+            expiringIn3Days: null,
+            warningSent: null,
+            warningNotSent: null,
+        });
+    };
+
+    const hasActiveFilters = Boolean(
+        search ||
+        locationIdFilter ||
+        rawExpiringIn3Days ||
+        rawWarningSent ||
+        rawWarningNotSent ||
+        (rawStatus && rawStatus !== "all")
+    );
+
+    const handleClearAllFilters = () => {
+        replaceQueryState({
+            status: null,
+            q: null,
+            search: null,
+            locationId: null,
+            expiringIn3Days: null,
+            warningSent: null,
+            warningNotSent: null,
+            page: null,
+        });
+    };
 
     const overviewCards = [
         { label: "All", value: overview.total, status: "all", color: "text-foreground-secondary" },
@@ -94,12 +133,12 @@ export default function BusinessesView() {
             <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-3xl">
                     {overviewCards.map(({ label, value, status, color }) => {
-                        const isActive = statusParam === status || (status === "all" && !statusParam);
+                        const isActive = statusParam === status;
                         return (
                             <button
                                 type="button"
                                 key={label}
-                                onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
+                                onClick={() => handleStatusCardClick(status)}
                                 className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
                                     isActive
                                         ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
@@ -129,6 +168,15 @@ export default function BusinessesView() {
                                     {label}
                                 </button>
                             ))}
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearAllFilters}
+                                    className="px-2.5 py-2 text-caption font-semibold text-foreground-subtle hover:text-foreground transition-colors cursor-pointer"
+                                >
+                                    Clear filters
+                                </button>
+                            )}
                         </div></>
                     } />
                 <BusinessListTable data={businesses} columns={columns} isLoading={loading} page={page} setPage={(np) => replaceQueryState({ page: np > 1 ? np : null })} pagination={pagination} onRowClick={(b) => businessList.setSelectedBusiness(b)} emptyMessage={error || "No businesses found."} selectedCount={selectedIds.size} bulkActions={bulkActions} />
