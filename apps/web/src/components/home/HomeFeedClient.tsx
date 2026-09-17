@@ -2,12 +2,11 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, PackageOpen } from "@esparex/ui";
+import { Button, ChevronDown, Loader2, PackageOpen } from "@esparex/ui";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
-import { Button } from "@esparex/ui";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
@@ -179,8 +178,10 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         </div>
 
                         {canLoadMore && (
-                            <div className="mt-5 md:mt-8 flex justify-center">
+                            <div className="mt-6 md:mt-10 flex justify-center px-4 sm:px-0">
                                 <Button
+                                    variant="outline"
+                                    size="lg"
                                     onClick={() => {
                                         if (!nextCursor?.createdAt) return;
                                         startTransition(() => {
@@ -188,15 +189,20 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 h-10 text-caption font-semibold shadow-2xs transition-all active:scale-95"
+                                    aria-label="Load more recommended ads"
+                                    aria-busy={isFetching}
+                                    className="group w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Loading...
+                                            <Loader2 className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
+                                            <span>Loading more ads...</span>
                                         </>
                                     ) : (
-                                        "Load More"
+                                        <>
+                                            <span>Load More Ads</span>
+                                            <ChevronDown className="h-4 w-4 text-foreground-secondary transition-transform duration-200 group-hover:translate-y-0.5" aria-hidden="true" />
+                                        </>
                                     )}
                                 </Button>
                             </div>
