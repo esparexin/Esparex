@@ -2,14 +2,14 @@
 
 import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "@esparex/ui";
+import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock, Ban } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
+import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import { Business } from "@esparex/contracts";
 import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
-import { BusinessListModals, buildBusinessModalController, BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
+import { BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
 import { buildColumns } from "./columns";
 
 const DEFAULT_STATUS = "all";
@@ -216,8 +216,46 @@ export default function BusinessesView() {
                     }}
                 />
             )}
-            <BusinessListModals controller={buildBusinessModalController(businesses, businessList)} onApproveFromDetails={(b) => void handleActivate(b.id)} onSuspendFromDetails={(b) => setSuspendTarget(b)} onActivateFromDetails={(id) => void handleActivate(id)} deleteDescription={<>Soft-deletes the business and expires all listings.</>}
-                extraDialogs={suspendTarget && <BusinessSuspendModal businessName={suspendTarget.name} onClose={() => setSuspendTarget(null)} onConfirm={async (reason) => { await handleSuspend(suspendTarget.id, reason); setSuspendTarget(null); }} />} />
+            <BusinessAdminModals
+                businesses={businesses}
+                selectedBusiness={businessList.selectedBusiness}
+                rejectTarget={businessList.rejectTarget}
+                modifyTarget={businessList.modifyTarget}
+                deleteTarget={businessList.deleteTarget}
+                setSelectedBusiness={businessList.setSelectedBusiness}
+                setRejectTarget={businessList.setRejectTarget}
+                setModifyTarget={businessList.setModifyTarget}
+                setDeleteTarget={businessList.setDeleteTarget}
+                handleReject={businessList.handleReject}
+                handleModify={businessList.handleModify}
+                handleDelete={businessList.handleDelete}
+                onApproveFromDetails={(b) => void handleActivate(b.id)}
+                onSuspendFromDetails={(b) => setSuspendTarget(b)}
+                onActivateFromDetails={(id) => void handleActivate(id)}
+                deleteDescription={<>Soft-deletes the business and expires all listings.</>}
+                extraDialogs={suspendTarget && (
+                    <BusinessReasonModal
+                        businessName={suspendTarget.name}
+                        title="Suspend Business"
+                        description="Temporarily suspend"
+                        notice='Suspension is reversible. Use "Activate" to restore the business.'
+                        label="Suspension Reason"
+                        placeholder="e.g. Violation of terms of service, fraudulent reports, pending investigation..."
+                        requiredMessage="Suspension reason is required."
+                        submitLabel="Confirm Suspension"
+                        submittingLabel="Suspending..."
+                        failureMessage="Failed to suspend business"
+                        icon={Ban}
+                        tone="warning"
+                        rows={3}
+                        onClose={() => setSuspendTarget(null)}
+                        onConfirm={async (reason) => {
+                            await handleSuspend(suspendTarget.id, reason);
+                            setSuspendTarget(null);
+                        }}
+                    />
+                )}
+            />
         </AdminPageShell>
     );
 }
