@@ -2,7 +2,7 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Button, ChevronDown, Loader2, PackageOpen } from "@esparex/ui";
+import { Button, Loader2, PackageOpen } from "@esparex/ui";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
@@ -191,7 +191,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                     disabled={isFetching}
                                     aria-label="Load more recommended ads"
                                     aria-busy={isFetching}
-                                    className="group w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>
@@ -199,10 +199,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                             <span>Loading more ads...</span>
                                         </>
                                     ) : (
-                                        <>
-                                            <span>Load More Ads</span>
-                                            <ChevronDown className="h-4 w-4 text-foreground-secondary transition-transform duration-200 group-hover:translate-y-0.5" aria-hidden="true" />
-                                        </>
+                                        "Load More"
                                     )}
                                 </Button>
                             </div>
