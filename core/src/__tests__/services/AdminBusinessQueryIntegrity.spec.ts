@@ -19,7 +19,7 @@ describe('AdminBusinessQueryIntegrity — Backend Query Generation', () => {
             expect(getBusinessAccountsQuery('live')).toEqual({ status: BUSINESS_STATUS.LIVE });
         });
 
-        it('normalizes legacy "approved" and "active" to status=live', () => {
+        it('normalizes historical "approved" and "active" to status=live', () => {
             expect(getBusinessAccountsQuery('approved')).toEqual({ status: BUSINESS_STATUS.LIVE });
             expect(getBusinessAccountsQuery('active')).toEqual({ status: BUSINESS_STATUS.LIVE });
         });

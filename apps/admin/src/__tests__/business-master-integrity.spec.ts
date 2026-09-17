@@ -60,7 +60,7 @@ describe("Business Master Integrity — Canonical Navigation & State Transitions
             expect(normalizeStatus("all")).toBe("all");
         });
 
-        it('normalizes legacy "approved" and "active" to "live"', () => {
+        it('normalizes historical "approved" and "active" to "live"', () => {
             expect(normalizeStatus("approved")).toBe("live");
             expect(normalizeStatus("active")).toBe("live");
         });
