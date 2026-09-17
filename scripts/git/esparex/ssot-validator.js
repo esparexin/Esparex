@@ -154,7 +154,7 @@ function run(val) {
   // 4. Legacy Core Services and Models Ratchet (ADR-008 DDD Migration)
   const CORE_SERVICES_DIR = path.join(ROOT, 'core/src/services');
   const CORE_MODELS_DIR = path.join(ROOT, 'core/src/models');
-  const MAX_SERVICES_COUNT = 121;
+  const MAX_SERVICES_COUNT = 113;
   const MAX_MODELS_COUNT = 64;
 
   function countSourceFiles(dir) {
