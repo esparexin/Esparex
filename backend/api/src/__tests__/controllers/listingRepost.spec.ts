@@ -3,7 +3,7 @@
  * Verifies the unified repostListing controller.
  */
 
-jest.mock('@esparex/core/services/AdMutationService', () => ({
+jest.mock('@esparex/core/domains/listings/application/mutations/AdMutationService', () => ({
     repostAd: jest.fn(),
 }));
 
@@ -40,7 +40,7 @@ jest.mock('../../utils/requestParams', () => ({
 }));
 
 import { Request, Response } from 'express';
-import AdMutationService from '@esparex/core/services/AdMutationService';
+import AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
 import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 

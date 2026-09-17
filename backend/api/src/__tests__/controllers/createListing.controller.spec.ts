@@ -21,7 +21,7 @@ const mockSendErrorResponse = jest.fn();
 const mockResolveCatalogRequestsForSubmission = jest.fn();
 const mockLinkListingToCatalogRequests = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('@esparex/core/services/AdOrchestrator', () => ({
+jest.mock('@esparex/core/domains/listings/application/ad/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
 }));
 
@@ -30,7 +30,7 @@ jest.mock('@esparex/core/domains/catalog/application/services/CatalogRequestServ
     linkListingToCatalogRequests: (...args: unknown[]) => mockLinkListingToCatalogRequests(...args),
 }));
 
-jest.mock('@esparex/core/services/AdImageService', () => ({
+jest.mock('@esparex/core/domains/listings/application/ad/AdImageService', () => ({
     uploadAdImage: jest.fn(),
     getUploadPresignedUrl: jest.fn(),
 }));
