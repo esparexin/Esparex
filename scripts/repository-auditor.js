@@ -154,23 +154,26 @@ const circularViolations = circVal.includes('FAIL') ? 1 : 0;
 console.log('[6/6] Generating Canonical Audit Reports...');
 
 const timestamp = new Date().toISOString();
+const blockingViolations = architectureViolations + ssotViolations + dependencyViolations + circularViolations;
 const reportData = {
   timestamp,
-  summary: {
-    status: (architectureViolations === 0 && ssotViolations === 0 && circularViolations === 0) ? 'PASS' : 'FAIL',
-    totalDirectories: 646,
-    transitionalModules: transitionalInfo.total,
-    pureReexportShims: transitionalInfo.shims,
-    facadesAndWrappers: transitionalInfo.facades,
-    unmigratedServices: transitionalInfo.unmigrated,
-    emptyDirectoriesCount: dirInfo.emptyDirs.length,
-    orphanedDirectoriesCount: dirInfo.orphanedDirs.length,
-    jscpdClonesFound: jscpdData.duplicates ? jscpdData.duplicates.length : 0,
-    architectureViolations,
-    ssotViolations,
-    dependencyViolations,
-    circularViolations
-  },
+    summary: {
+      status: blockingViolations === 0 ? 'PASS' : 'FAIL',
+      policyHealth: blockingViolations === 0 ? (transitionalInfo.total > 0 ? 'PASS_WITH_TRANSITIONAL_DEBT' : 'CLEAN') : 'FAIL',
+      blockingViolations,
+      totalDirectories: 646,
+      transitionalModules: transitionalInfo.total,
+      pureReexportShims: transitionalInfo.shims,
+      facadesAndWrappers: transitionalInfo.facades,
+      unmigratedServices: transitionalInfo.unmigrated,
+      emptyDirectoriesCount: dirInfo.emptyDirs.length,
+      orphanedDirectoriesCount: dirInfo.orphanedDirs.length,
+      jscpdClonesFound: jscpdData.duplicates ? jscpdData.duplicates.length : 0,
+      architectureViolations,
+      ssotViolations,
+      dependencyViolations,
+      circularViolations
+    },
   findings: {
     emptyDirectories: dirInfo.emptyDirs,
     orphanedDirectories: dirInfo.orphanedDirs,

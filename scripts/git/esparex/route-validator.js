@@ -44,6 +44,49 @@ function run(val) {
       }
     }
   }
+
+  // 2. Next.js App Router: Detect and reject redirect-only page.tsx stubs
+  // Redirects belong in next.config.mjs redirects() rather than physical page components
+  function scanAppPages(dir, out = []) {
+    if (!fs.existsSync(dir)) return out;
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (item.name === 'node_modules' || item.name === '.next') continue;
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        scanAppPages(full, out);
+      } else if (item.name === 'page.tsx') {
+        out.push(full);
+      }
+    }
+    return out;
+  }
+
+  // Transitional redirect-only pages scheduled for deletion in Phase 3
+  const TRANSITIONAL_REDIRECT_PAGES = new Set([
+    'apps/web/src/app/(private)/account/page.tsx',
+    'apps/web/src/app/(private)/chat/[conversationId]/page.tsx',
+    'apps/web/src/app/(private)/chat/page.tsx',
+  ]);
+
+  const appPages = [
+    ...scanAppPages(path.join(ROOT, 'apps/web/src/app')),
+    ...scanAppPages(path.join(ROOT, 'apps/admin/src/app')),
+  ];
+
+  for (const pagePath of appPages) {
+    const relPath = path.relative(ROOT, pagePath).replace(/\\/g, '/');
+    if (TRANSITIONAL_REDIRECT_PAGES.has(relPath)) continue;
+    try {
+      const content = fs.readFileSync(pagePath, 'utf-8');
+      const hasRedirect = content.includes('redirect(');
+      const hasJsx = /return\s*\(?\s*</.test(content) || /<[A-Z][A-Za-z0-9]*\b/.test(content);
+      if (hasRedirect && !hasJsx) {
+        val.error(
+          `Redirect-Only Page Violation: ${relPath} is a pure redirect stub. Move this redirect to next.config.mjs redirects() instead of creating a Next.js page.`
+        );
+      }
+    } catch { /* ignore */ }
+  }
 }
 
 if (require.main === module) {

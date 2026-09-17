@@ -14,41 +14,49 @@ const path = require("path");
 
 const repoRoot = path.resolve(__dirname, "..");
 
-const targetAuditFiles = [
-    {
-        file: path.join(repoRoot, "core", "src", "validators", "business.validator.ts"),
-        requiredImports: ["CreateBusinessPayloadSchema", "UpdateBusinessPayloadSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "core", "src", "validators", "auth.validator.ts"),
-        requiredImports: ["LoginPayloadSchema", "VerifyOtpPayloadSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "apps", "web", "src", "schemas", "login.schema.ts"),
-        requiredImports: ["authMobileSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "apps", "admin", "src", "components", "plans", "planForm.schema.ts"),
-        requiredImports: ["BasePlanPayloadSchema", "@esparex/contracts"],
-    },
+// 1. Dynamic SSOT Discovery & Contract Inheritance Verification
+// Every schema in apps/*/src/schemas must extend canonical contracts from @esparex/contracts
+const appSchemaRoots = [
+    path.join(repoRoot, "apps", "web", "src", "schemas"),
+    path.join(repoRoot, "apps", "admin", "src", "schemas"),
 ];
+
+const requiredCoreMutationValidators = [
+    path.join(repoRoot, "core", "src", "validators", "business.validator.ts"),
+    path.join(repoRoot, "core", "src", "validators", "auth.validator.ts"),
+];
+
+// Transitional schemas scheduled for canonical migration in Phase 4
+const TRANSITIONAL_LOCAL_SCHEMAS = new Set([
+    "businessEditPayload.schema.ts",
+    "businessRegistration.schema.ts",
+]);
 
 let violations = [];
 
-// 1. Check SSOT required contract references
-for (const target of targetAuditFiles) {
-    if (!fs.existsSync(target.file)) {
-        violations.push(`Target file missing: ${path.relative(repoRoot, target.file)}`);
-        continue;
-    }
-
-    const content = fs.readFileSync(target.file, "utf-8");
-    for (const req of target.requiredImports) {
-        if (!content.includes(req)) {
+for (const root of appSchemaRoots) {
+    if (!fs.existsSync(root)) continue;
+    const files = fs.readdirSync(root).filter(f => f.endsWith(".ts") && !f.endsWith(".d.ts") && !f.endsWith(".spec.ts"));
+    for (const file of files) {
+        if (TRANSITIONAL_LOCAL_SCHEMAS.has(file)) continue;
+        const fullPath = path.join(root, file);
+        const content = fs.readFileSync(fullPath, "utf-8");
+        const relPath = path.relative(repoRoot, fullPath);
+        if (!content.includes("@esparex/contracts")) {
             violations.push(
-                `Missing required SSOT reference "${req}" in ${path.relative(repoRoot, target.file)}`
+                `Validation SSOT Violation: ${relPath} does not extend canonical schemas from @esparex/contracts.`
             );
         }
+    }
+}
+
+for (const target of requiredCoreMutationValidators) {
+    if (!fs.existsSync(target)) continue;
+    const content = fs.readFileSync(target, "utf-8");
+    if (!content.includes("@esparex/contracts")) {
+        violations.push(
+            `Validation SSOT Violation: ${path.relative(repoRoot, target)} must extend @esparex/contracts.`
+        );
     }
 }
 

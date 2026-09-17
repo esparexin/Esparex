@@ -5,9 +5,9 @@
     "dependencies": "error",
     "devDependencies": "off",
     "unlisted": "off",
-    "exports": "off",
-    "types": "off",
-    "duplicates": "off"
+    "exports": "error",
+    "types": "error",
+    "duplicates": "error"
   },
   "ignoreBinaries": ["eslint", "tsc", "expo"],
   "ignoreDependencies": [
@@ -105,8 +105,6 @@
     "core": {
       "entry": [
         "src/index.ts",
-        "src/services/**/*.ts",
-        "src/utils/**/*.ts",
         "src/domains/**/index.ts",
         "src/domains/**/ports/*.ts",
         "src/scripts/**/*.ts"

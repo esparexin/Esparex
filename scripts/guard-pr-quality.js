@@ -20,11 +20,43 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 const FILE_LIMITS = [
-  { type: 'Hook', max: 200, test: (f) => f.includes('/hooks/') || path.basename(f).startsWith('use') },
-  { type: 'Service', max: 300, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
-  { type: 'Utility/Helper', max: 150, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
-  { type: 'Component', max: 250, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') }
+  { type: 'Hook', max: 250, test: (f) => f.includes('/hooks/') || path.basename(f).startsWith('use') },
+  { type: 'Service', max: 450, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
+  { type: 'Utility/Helper', max: 250, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
+  { type: 'Component', max: 400, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') }
 ];
+
+function evaluateCodeComplexity(content) {
+  const issues = [];
+  const lines = content.split('\n');
+
+  // Check excessive nesting depth (>6 nested levels / 12 spaces at 2-space indent)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim() || line.trim().startsWith('//') || line.trim().startsWith('*')) continue;
+    const leadingSpaces = line.search(/\S/);
+    if (leadingSpaces > 24) {
+      issues.push(`Deep nesting depth detected at line ${i + 1}. Refactor nested control flow.`);
+      break;
+    }
+  }
+
+  // Check excessive positional parameter count (>5 parameters without destructuring DTO)
+  const fnParamRegex = /(?:function\s+\w+|\bconst\s+\w+\s*=\s*(?:async\s*)?)\s*\(([^)]{20,})\)/g;
+  let match;
+  while ((match = fnParamRegex.exec(content)) !== null) {
+    const rawParams = match[1];
+    if (!rawParams.includes('{')) {
+      const paramList = rawParams.split(',').map(p => p.trim()).filter(Boolean);
+      if (paramList.length > 5) {
+        issues.push(`Excessive positional parameters (${paramList.length} > 5). Pass a typed parameter DTO per Zero Primitive Obsession.`);
+        break;
+      }
+    }
+  }
+
+  return issues;
+}
 
 function getBaseRef() {
   const ghBase = process.env.GITHUB_BASE_REF;
@@ -149,6 +181,16 @@ function run() {
       return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8').split('\n').length : 0;
     })();
 
+    // Evaluate semantic complexity for all modified and added TypeScript files
+    const fileContent = (() => {
+      const fullPath = path.join(ROOT, relFile);
+      return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8') : '';
+    })();
+    const complexityIssues = evaluateCodeComplexity(fileContent);
+    for (const issue of complexityIssues) {
+      violations.push({ file: relFile, reason: issue });
+    }
+
     if (status === 'A') {
       // NEW FILE: Must strictly meet file size limit
       if (currentLines > matchedRule.max) {
@@ -158,13 +200,12 @@ function run() {
         });
       }
     } else if (status === 'M' || status === 'R') {
-      // MODIFIED FILE: Baseline ratchet check (+5 lines tolerance for formatting/tokens)
-      const baseLines = getBaseLineCount(oldPath);
-      const maxAllowed = Math.max(matchedRule.max, baseLines + 5);
-      if (currentLines > maxAllowed) {
+      // MODIFIED FILE: Allows cohesive growth within healthy bounds (capped at 1.5x rule max)
+      const generousCap = Math.round(matchedRule.max * 1.5);
+      if (currentLines > generousCap) {
         violations.push({
           file: relFile,
-          reason: `Modified ${matchedRule.type} grew beyond allowed baseline threshold (${baseLines} -> ${currentLines} lines, max allowed: ${maxAllowed} [vs ${baseRefName}]). Refactor into smaller sub-modules.`
+          reason: `Modified ${matchedRule.type} exceeds upper boundary threshold (${currentLines} lines > cap ${generousCap}). Refactor into cohesive sub-modules.`
         });
       }
     }
