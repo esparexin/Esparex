@@ -11,6 +11,8 @@ export interface IAdMetrics extends Document {
     favorites: number;
     chats: number;
     impressions: number;
+    score: number;
+    createdAt: Date;
     updatedAt: Date;
 }
 
@@ -23,7 +25,8 @@ const AdMetricsSchema: Schema = new Schema({
     },
     favorites: { type: Number, default: 0 },
     chats: { type: Number, default: 0 },
-    impressions: { type: Number, default: 0 }
+    impressions: { type: Number, default: 0 },
+    score: { type: Number, default: 0, min: 0 }
 }, {
     timestamps: true
 });
@@ -33,6 +36,9 @@ AdMetricsSchema.index({ adId: 1 }, { unique: true, name: 'idx_metrics_adId_uniqu
 
 // Compound index for engagement reports
 AdMetricsSchema.index({ views: -1, favorites: -1 }, { name: 'idx_metrics_engagement' });
+
+// Compound index for trending discovery rankings
+AdMetricsSchema.index({ score: -1, updatedAt: -1 }, { name: 'idx_admetrics_score_updatedAt' });
 
 export const AdMetrics: Model<IAdMetrics> = (getUserConnection().models.AdMetrics as Model<IAdMetrics> | undefined) || getUserConnection().model<IAdMetrics>('AdMetrics', AdMetricsSchema);
 

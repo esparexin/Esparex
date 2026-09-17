@@ -7,7 +7,7 @@ import { isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';
-import * as trendingService from '@esparex/core/services/TrendingService';
+import * as trendingService from '@esparex/core/domains/discovery';
 
 import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';

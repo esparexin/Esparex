@@ -93,7 +93,6 @@
   "core/src/services/SmartAlertQueryService.ts": 1,
   "core/src/services/ad/AdAggregationService.ts": 2,
   "core/src/services/ad/AdDetailService.ts": 2,
-  "core/src/services/ad/AdMetricsService.ts": 2,
   "core/src/services/lifecycle/AdStatusService.ts": 1,
   "core/src/services/lifecycle/LifecycleGuard.ts": 1,
   "core/src/services/location/_shared/hierarchyLoader.ts": 3,

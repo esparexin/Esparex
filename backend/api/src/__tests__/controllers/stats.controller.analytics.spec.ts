@@ -8,7 +8,7 @@ jest.mock('@esparex/core/models/Ad', () => ({
     default: { index: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn(), aggregate: jest.fn() }
 }));
 
-jest.mock('@esparex/core/services/ad/AdMetricsService');
+jest.mock('@esparex/core/domains/listings/application/ad/ad/AdMetricsService');
 jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
     ListingExpiryService: {
         runSweep: jest.fn().mockResolvedValue(undefined),
@@ -24,7 +24,7 @@ jest.mock('../../utils/errorResponse', () => ({
 
 // Use dynamic require to ensure mocks are in place before controller imports its dependencies
 const statsController = require('../../controllers/listing/stats.controller');
-const AdMetricsService = require('@esparex/core/services/ad/AdMetricsService');
+const AdMetricsService = require('@esparex/core/domains/listings/application/ad/ad/AdMetricsService');
 const controllerUtils = require('../../utils/controllerUtils');
 
 const mockGetSellerListingStats = AdMetricsService.getSellerListingStats;

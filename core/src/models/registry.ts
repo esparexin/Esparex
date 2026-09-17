@@ -36,7 +36,7 @@ import './Entitlement';
 
 import './User';
 import './Ad';
-import './AdAnalytics';
+import './AdMetrics';
 import './Business';
 import './Location';
 import './AdminBoundary';
