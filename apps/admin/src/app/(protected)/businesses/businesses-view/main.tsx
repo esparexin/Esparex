@@ -4,18 +4,25 @@ import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
+import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import { Business } from "@esparex/contracts";
 import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
-import { BusinessListModals, buildBusinessModalController, BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
+import { BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
 import { buildColumns } from "./columns";
 
-const DEFAULT_STATUS = "live";
-const BUSINESS_MASTER_STATUSES = new Set(["live", "suspended", "pending", "deleted", "all"]);
+const DEFAULT_STATUS = "all";
+const BUSINESS_MASTER_STATUSES = new Set(["all", "live", "suspended", "pending", "expired", "deactivated", "deleted"]);
 
-const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), deleted: Number(data.deleted || 0) });
+const normalizeStatus = (status: string | null): string => {
+    if (!status || status === "all") return DEFAULT_STATUS;
+    if (status === "approved" || status === "active") return "live";
+    if (BUSINESS_MASTER_STATUSES.has(status)) return status;
+    return DEFAULT_STATUS;
+};
+
+const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), expired: Number(data.expired || 0), deactivated: Number(data.deactivated || 0), deleted: Number(data.deleted || 0) });
 
 const COLOR_VARIANTS: Record<string, string> = {
     emerald: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200",
@@ -41,7 +48,7 @@ export default function BusinessesView() {
     const rawWarningSent = searchParams.get("warningSent");
     const rawWarningNotSent = searchParams.get("warningNotSent");
     const rawPage = searchParams.get("page");
-    const activeTab = rawStatus === "approved" || rawStatus === "active" ? DEFAULT_STATUS : rawStatus && BUSINESS_MASTER_STATUSES.has(rawStatus) ? rawStatus : DEFAULT_STATUS;
+    const activeTab = normalizeStatus(rawStatus);
     const search = normalizeSearchParamValue(rawSearch);
     const locationIdFilter = normalizeSearchParamValue(rawLocationId);
     const page = parsePositiveIntParam(rawPage, 1);
@@ -52,7 +59,7 @@ export default function BusinessesView() {
     }, [pathname, router, searchParams]);
 
     const businessList = useAdminBusinessList({
-        activeTab, search, page, initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, deleted: 0 },
+        activeTab, search, page, initialOverview: { total: 0, pending: 0, live: 0, suspended: 0, expired: 0, deactivated: 0, deleted: 0 },
         mapOverview,
         extraQueryParams: { locationId: locationIdFilter, expiringIn3Days: rawExpiringIn3Days || undefined, warningSent: rawWarningSent || undefined, warningNotSent: rawWarningNotSent || undefined, includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined },
     });
@@ -63,14 +70,63 @@ export default function BusinessesView() {
 
     const columns = buildColumns({ onView: businessList.setSelectedBusiness, onEdit: businessList.setModifyTarget, onDelete: businessList.setDeleteTarget, toggleSelect, toggleSelectAll, selectedIds, allCount: businesses.length, setSuspendTarget, handleActivate });
 
-    const statusParam = searchParams.get("status") || "all";
+    const statusParam = activeTab;
 
+    const handleStatusCardClick = (status: string) => {
+        replaceQueryState({
+            status: status === "all" ? null : status,
+            page: null,
+            expiringIn3Days: null,
+            warningSent: null,
+            warningNotSent: null,
+        });
+    };
+
+    const handleCardClick = (cardKey: string) => {
+        if (cardKey === "expiringIn3Days") {
+            replaceQueryState({
+                expiringIn3Days: rawExpiringIn3Days === "true" ? null : "true",
+                page: null,
+                warningSent: null,
+                warningNotSent: null,
+            });
+            return;
+        }
+
+        handleStatusCardClick(cardKey);
+    };
+
+    const hasActiveFilters = Boolean(
+        search ||
+        locationIdFilter ||
+        rawExpiringIn3Days ||
+        rawWarningSent ||
+        rawWarningNotSent ||
+        (rawStatus && rawStatus !== "all")
+    );
+
+    const handleClearAllFilters = () => {
+        replaceQueryState({
+            status: null,
+            q: null,
+            search: null,
+            locationId: null,
+            expiringIn3Days: null,
+            warningSent: null,
+            warningNotSent: null,
+            page: null,
+        });
+    };
+
+    const isStatActive = (key: string) => !rawExpiringIn3Days && statusParam === key;
     const overviewCards = [
-        { label: "All", value: overview.total, status: "all", color: "text-foreground-secondary" },
-        { label: "Live", value: overview.live, status: "live", color: "text-emerald-600" },
-        { label: "Pending", value: overview.pending, status: "pending", color: "text-amber-600" },
-        { label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, status: "expiring", color: "text-rose-600" },
-        { label: "Suspended", value: overview.suspended, status: "suspended", color: "text-red-600" },
+        { key: "all", label: "All", value: overview.total, isActive: isStatActive("all"), color: "text-foreground-secondary" },
+        { key: "live", label: "Live", value: overview.live, isActive: isStatActive("live"), color: "text-emerald-600" },
+        { key: "pending", label: "Pending", value: overview.pending, isActive: isStatActive("pending"), color: "text-amber-600" },
+        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-rose-600" },
+        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-red-600" },
+        { key: "expired", label: "Expired", value: (overview as Record<string, number>).expired ?? 0, isActive: isStatActive("expired"), color: "text-amber-700" },
+        { key: "deactivated", label: "Deactivated", value: (overview as Record<string, number>).deactivated ?? 0, isActive: isStatActive("deactivated"), color: "text-foreground-secondary" },
     ];
 
     const bulkActions = (
@@ -93,27 +149,24 @@ export default function BusinessesView() {
         <AdminPageShell title="Business Master" description="Manage all business accounts" headerVariant="compact">
             <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-3xl">
-                    {overviewCards.map(({ label, value, status, color }) => {
-                        const isActive = statusParam === status || (status === "all" && !statusParam);
-                        return (
-                            <button
-                                type="button"
-                                key={label}
-                                onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
-                                className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
-                                    isActive
-                                        ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
-                                        : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
-                                }`}
-                            >
-                                <ChartBar size={14} className={isActive ? "text-primary shrink-0" : "text-foreground-subtle shrink-0"} />
-                                <div>
-                                    <div className={`text-body font-bold leading-tight ${color}`}>{value}</div>
-                                    <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider leading-none">{label}</div>
-                                </div>
-                            </button>
-                        );
-                    })}
+                    {overviewCards.map(({ key, label, value, isActive, color }) => (
+                        <button
+                            type="button"
+                            key={key}
+                            onClick={() => handleCardClick(key)}
+                            className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
+                                isActive
+                                    ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
+                                    : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
+                            }`}
+                        >
+                            <ChartBar size={14} className={isActive ? "text-primary shrink-0" : "text-foreground-subtle shrink-0"} />
+                            <div>
+                                <div className={`text-body font-bold leading-tight ${color}`}>{value}</div>
+                                <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider leading-none">{label}</div>
+                            </div>
+                        </button>
+                    ))}
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
@@ -129,6 +182,15 @@ export default function BusinessesView() {
                                     {label}
                                 </button>
                             ))}
+                            {hasActiveFilters && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearAllFilters}
+                                    className="px-2.5 py-2 text-caption font-semibold text-foreground-subtle hover:text-foreground transition-colors cursor-pointer"
+                                >
+                                    Clear filters
+                                </button>
+                            )}
                         </div></>
                     } />
                 <BusinessListTable data={businesses} columns={columns} isLoading={loading} page={page} setPage={(np) => replaceQueryState({ page: np > 1 ? np : null })} pagination={pagination} onRowClick={(b) => businessList.setSelectedBusiness(b)} emptyMessage={error || "No businesses found."} selectedCount={selectedIds.size} bulkActions={bulkActions} />
@@ -157,8 +219,27 @@ export default function BusinessesView() {
                     }}
                 />
             )}
-            <BusinessListModals controller={buildBusinessModalController(businesses, businessList)} onApproveFromDetails={(b) => void handleActivate(b.id)} onSuspendFromDetails={(b) => setSuspendTarget(b)} onActivateFromDetails={(id) => void handleActivate(id)} deleteDescription={<>Soft-deletes the business and expires all listings.</>}
-                extraDialogs={suspendTarget && <BusinessSuspendModal businessName={suspendTarget.name} onClose={() => setSuspendTarget(null)} onConfirm={async (reason) => { await handleSuspend(suspendTarget.id, reason); setSuspendTarget(null); }} />} />
+            <BusinessAdminModals
+                businesses={businesses}
+                selectedBusiness={businessList.selectedBusiness}
+                rejectTarget={businessList.rejectTarget}
+                modifyTarget={businessList.modifyTarget}
+                deleteTarget={businessList.deleteTarget}
+                suspendTarget={suspendTarget}
+                setSelectedBusiness={businessList.setSelectedBusiness}
+                setRejectTarget={businessList.setRejectTarget}
+                setModifyTarget={businessList.setModifyTarget}
+                setDeleteTarget={businessList.setDeleteTarget}
+                setSuspendTarget={setSuspendTarget}
+                handleReject={businessList.handleReject}
+                handleModify={businessList.handleModify}
+                handleDelete={businessList.handleDelete}
+                handleSuspend={handleSuspend}
+                onApproveFromDetails={(b) => void handleActivate(b.id)}
+                onSuspendFromDetails={(b) => setSuspendTarget(b)}
+                onActivateFromDetails={(id) => void handleActivate(id)}
+                deleteDescription={<>Soft-deletes the business and expires all listings.</>}
+            />
         </AdminPageShell>
     );
 }
