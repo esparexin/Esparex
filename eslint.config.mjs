@@ -75,6 +75,30 @@ export default tseslint.config(
             {
               "group": ["@esparex/shared/*", "@shared/*", "../shared/*", "**/shared/src/*"],
               "message": "Please use the clean '@esparex/shared' entry point instead of internal paths."
+            },
+            {
+              "group": [
+                "@esparex/core/services/AdMutationService*",
+                "@esparex/core/services/ListingMutationService*",
+                "@esparex/core/services/AdImageService*",
+                "@esparex/core/services/AdOrchestrator*",
+                "@esparex/core/services/ListingSubmissionPolicy*",
+                "@esparex/core/services/ad/AdMetricsService*",
+                "@esparex/core/services/TrendingService*",
+                "@esparex/core/services/ServiceMutationService*",
+                "@esparex/core/services/service/*",
+                "**/services/service/ServiceMutationService*",
+                "**/services/AdMutationService*",
+                "**/services/ListingMutationService*",
+                "**/services/AdImageService*",
+                "**/services/AdOrchestrator*",
+                "**/services/ListingSubmissionPolicy*",
+                "**/services/ad/AdMetricsService*",
+                "**/services/TrendingService*",
+                "**/models/AdAnalytics*",
+                "@esparex/core/models/AdAnalytics*"
+              ],
+              "message": "This module has been retired or migrated to domain SSOT. Import from canonical domain (@esparex/core/domains/...) or AdMetrics model instead."
             }
           ]
         }
@@ -118,6 +142,17 @@ export default tseslint.config(
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/incompatible-library": "off",
       "@next/next/no-img-element": "off",
+      "no-restricted-imports": [
+        "error",
+        {
+          "patterns": [
+            {
+              "group": ["@esparex/core*", "@esparex/core/**"],
+              "message": "Frontend applications must not import from @esparex/core. Consume contracts, shared utilities, or API client endpoints."
+            }
+          ]
+        }
+      ],
     },
     settings: {
       react: {

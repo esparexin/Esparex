@@ -6,6 +6,38 @@ const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'ROUTE-001', name: 'Route Validation', version: '1.0.0', category: 'API' };
 
+const ts = require('typescript');
+
+function isRedirectOnlyPage(filePath, content) {
+  try {
+    const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+    let hasRedirectCall = false;
+    let hasJsx = false;
+
+    function visit(node) {
+      if (ts.isCallExpression(node)) {
+        const text = node.expression.getText(sourceFile);
+        if (text === 'redirect' || text.endsWith('.redirect')) {
+          hasRedirectCall = true;
+        }
+      }
+      if (
+        ts.isJsxElement(node) ||
+        ts.isJsxSelfClosingElement(node) ||
+        ts.isJsxFragment(node)
+      ) {
+        hasJsx = true;
+      }
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+    return hasRedirectCall && !hasJsx;
+  } catch {
+    return false;
+  }
+}
+
 function run(val) {
   const changedFiles = (() => {
     try {
@@ -74,11 +106,9 @@ function run(val) {
     if (TRANSITIONAL_REDIRECT_PAGES.has(relPath)) continue;
     try {
       const content = fs.readFileSync(pagePath, 'utf-8');
-      const hasRedirect = content.includes('redirect(');
-      const hasJsx = /return\s*\(?\s*</.test(content) || /<[A-Z][A-Za-z0-9]*\b/.test(content);
-      if (hasRedirect && !hasJsx) {
+      if (isRedirectOnlyPage(pagePath, content)) {
         val.error(
-          `Redirect-Only Page Violation: ${relPath} is a pure redirect stub. Move this redirect to next.config.mjs redirects() instead of creating a Next.js page.`
+          `Redirect-Only Page Violation: ${relPath} is a pure redirect stub (AST verified redirect() with 0 JSX elements). Move this redirect to next.config.mjs redirects() instead of creating a physical Next.js page component.`
         );
       }
     } catch { /* ignore */ }

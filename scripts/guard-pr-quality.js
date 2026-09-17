@@ -142,12 +142,12 @@ function run() {
 
   let statusMap;
   let baseRefName = '';
-  let getBaseLineCount;
+  let _getBaseLineCount;
 
   if (isStagedMode) {
     statusMap = getStagedFileStatus();
     baseRefName = 'HEAD';
-    getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
+    _getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
   } else {
     const baseRef = getBaseRef();
     const baseSha = getMergeBase(baseRef);
@@ -159,7 +159,7 @@ function run() {
 
     baseRefName = baseRef;
     statusMap = getBranchFileStatus(baseSha);
-    getBaseLineCount = (relFile) => getGitFileLineCount(baseSha, relFile);
+    const _getBaseLineCount = (relFile) => getGitFileLineCount(baseSha, relFile);
   }
 
   let auditedCount = 0;
@@ -167,7 +167,7 @@ function run() {
 
   for (const [relFile, entry] of statusMap.entries()) {
     const status = typeof entry === 'string' ? entry : entry.status;
-    const oldPath = typeof entry === 'string' ? relFile : entry.oldPath;
+    const _oldPath = typeof entry === 'string' ? relFile : entry.oldPath;
     if (status === 'D') continue; // Deleted files are ignored
     if (!/\.(ts|tsx)$/.test(relFile) || relFile.endsWith('.d.ts') || relFile.includes('node_modules')) continue;
 

@@ -154,8 +154,8 @@ function run(val) {
   // 4. Legacy Core Services and Models Ratchet (ADR-008 DDD Migration)
   const CORE_SERVICES_DIR = path.join(ROOT, 'core/src/services');
   const CORE_MODELS_DIR = path.join(ROOT, 'core/src/models');
-  const MAX_SERVICES_COUNT = 111;
-  const MAX_MODELS_COUNT = 63;
+  let MAX_SERVICES_COUNT = 111;
+  let MAX_MODELS_COUNT = 63;
 
   function countSourceFiles(dir) {
     if (!fs.existsSync(dir)) return 0;
@@ -178,11 +178,41 @@ function run(val) {
   const currentServicesCount = countSourceFiles(CORE_SERVICES_DIR);
   if (currentServicesCount > MAX_SERVICES_COUNT) {
     val.error(`DDD Migration Violation: core/src/services contains ${currentServicesCount} files (max allowed: ${MAX_SERVICES_COUNT}). New services must be created within their bounded context under core/src/domains/<context>/ per ADR-008.`);
+  } else if (currentServicesCount < MAX_SERVICES_COUNT) {
+    try {
+      const selfContent = fs.readFileSync(__filename, 'utf-8');
+      const updated = selfContent.replace(
+        new RegExp(`let MAX_SERVICES_COUNT = ${MAX_SERVICES_COUNT};`),
+        `let MAX_SERVICES_COUNT = ${currentServicesCount};`
+      );
+      if (updated !== selfContent) {
+        fs.writeFileSync(__filename, updated, 'utf-8');
+        val.info(`SSOT Ratchet Lowered: core/src/services limit lowered from ${MAX_SERVICES_COUNT} to ${currentServicesCount}`);
+        MAX_SERVICES_COUNT = currentServicesCount;
+      }
+    } catch {
+      val.info(`SSOT Ratchet improved: core/src/services count reduced to ${currentServicesCount}`);
+    }
   }
 
   const currentModelsCount = countSourceFiles(CORE_MODELS_DIR);
   if (currentModelsCount > MAX_MODELS_COUNT) {
     val.error(`DDD Migration Violation: core/src/models contains ${currentModelsCount} files (max allowed: ${MAX_MODELS_COUNT}). New models must be created as repository adapters in core/src/adapters/outbound/persistence/ per ADR-008 Sprint 3.`);
+  } else if (currentModelsCount < MAX_MODELS_COUNT) {
+    try {
+      const selfContent = fs.readFileSync(__filename, 'utf-8');
+      const updated = selfContent.replace(
+        new RegExp(`let MAX_MODELS_COUNT = ${MAX_MODELS_COUNT};`),
+        `let MAX_MODELS_COUNT = ${currentModelsCount};`
+      );
+      if (updated !== selfContent) {
+        fs.writeFileSync(__filename, updated, 'utf-8');
+        val.info(`SSOT Ratchet Lowered: core/src/models limit lowered from ${MAX_MODELS_COUNT} to ${currentModelsCount}`);
+        MAX_MODELS_COUNT = currentModelsCount;
+      }
+    } catch {
+      val.info(`SSOT Ratchet improved: core/src/models count reduced to ${currentModelsCount}`);
+    }
   }
 
   val.info('Dynamic canonical ownership, structural directory boundaries, and DDD migration ratchets verified');
