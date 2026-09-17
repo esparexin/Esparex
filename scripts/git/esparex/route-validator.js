@@ -61,12 +61,8 @@ function run(val) {
     return out;
   }
 
-  // Transitional redirect-only pages scheduled for deletion in Phase 3
-  const TRANSITIONAL_REDIRECT_PAGES = new Set([
-    'apps/web/src/app/(private)/account/page.tsx',
-    'apps/web/src/app/(private)/chat/[conversationId]/page.tsx',
-    'apps/web/src/app/(private)/chat/page.tsx',
-  ]);
+  // Zero redirect-only pages allowed in Next.js App Router
+  const TRANSITIONAL_REDIRECT_PAGES = new Set();
 
   const appPages = [
     ...scanAppPages(path.join(ROOT, 'apps/web/src/app')),

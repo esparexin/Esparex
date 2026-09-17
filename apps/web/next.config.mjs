@@ -334,8 +334,28 @@ const nextConfig = {
                 permanent: true,
             },
             {
+                source: '/account',
+                destination: '/account/profile',
+                permanent: true,
+            },
+            {
                 source: '/messages',
-                destination: '/chat',
+                destination: '/account/messages',
+                permanent: true,
+            },
+            {
+                source: '/messages/:conversationId',
+                destination: '/account/messages/:conversationId',
+                permanent: true,
+            },
+            {
+                source: '/chat',
+                destination: '/account/messages',
+                permanent: true,
+            },
+            {
+                source: '/chat/:conversationId',
+                destination: '/account/messages/:conversationId',
                 permanent: true,
             },
             {
