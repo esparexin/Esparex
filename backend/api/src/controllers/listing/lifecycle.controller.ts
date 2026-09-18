@@ -5,7 +5,7 @@ import { getSingleParam } from '../../utils/requestParams';
 import { LISTING_STATUS } from "@esparex/contracts";
 import { ACTOR_TYPE } from "@esparex/contracts";
 import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
-import * as AdMutationService from '@esparex/core/services/AdMutationService';
+import * as AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
 import { PromotionPolicyService } from '@esparex/core/services/PromotionPolicyService';
 import type { AuthUser } from '../../types/auth.types';
 

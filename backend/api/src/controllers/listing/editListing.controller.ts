@@ -3,7 +3,7 @@ import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
 import { LISTING_STATUS } from "@esparex/contracts";
-import * as AdMutationService from '@esparex/core/services/AdMutationService';
+import * as AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
 import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
 import type { AuthUser } from '../../types/auth.types';
 

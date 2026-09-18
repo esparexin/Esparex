@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { sendSuccessResponse } from "../../utils/respond";
-import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
+import * as AdOrchestrator from '@esparex/core/domains/listings/application/ad/AdOrchestrator';
 
 import { LocationFacade } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';

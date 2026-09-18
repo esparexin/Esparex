@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 import SavedAd from '../../../../models/SavedAd';
+import AdMetrics from '../../../../models/AdMetrics';
 import type { ListingUpdate } from '../../ports/ListingRepositoryPort';
 import { getListingRepository } from '../../../../composition/listings';
 import { hydrateAdMetadata, type HydratedAd } from '../ad/ad/AdAggregationService';
 import { sanitizePersistedImageUrls } from '../../../../utils/s3';
 import { serializeDoc } from '../../../../utils/serialize';
-import { recordAdAnalyticsEvent } from '../../../../services/TrendingService';
+import { recordAdAnalyticsEvent } from '../../../discovery';
 
 export const getSavedAds = async (userId: string, page: number, limit: number) => {
     const skip = (page - 1) * limit;
@@ -95,5 +96,11 @@ export const unsaveAd = async (userId: string, adId: string) => {
             { ids: [adId], favoritesGreaterThan: 0 },
             { $inc: { 'views.favorites': -1 } } as ListingUpdate
         );
+        if (mongoose.Types.ObjectId.isValid(adId)) {
+            void AdMetrics.updateOne(
+                { adId: new mongoose.Types.ObjectId(adId), favorites: { $gt: 0 } },
+                { $inc: { favorites: -1, score: -3 } }
+            ).catch(() => {});
+        }
     }
 };

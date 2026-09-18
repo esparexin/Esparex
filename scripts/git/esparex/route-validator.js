@@ -6,6 +6,38 @@ const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'ROUTE-001', name: 'Route Validation', version: '1.0.0', category: 'API' };
 
+const ts = require('typescript');
+
+function isRedirectOnlyPage(filePath, content) {
+  try {
+    const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+    let hasRedirectCall = false;
+    let hasJsx = false;
+
+    function visit(node) {
+      if (ts.isCallExpression(node)) {
+        const text = node.expression.getText(sourceFile);
+        if (text === 'redirect' || text.endsWith('.redirect')) {
+          hasRedirectCall = true;
+        }
+      }
+      if (
+        ts.isJsxElement(node) ||
+        ts.isJsxSelfClosingElement(node) ||
+        ts.isJsxFragment(node)
+      ) {
+        hasJsx = true;
+      }
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+    return hasRedirectCall && !hasJsx;
+  } catch {
+    return false;
+  }
+}
+
 function run(val) {
   const changedFiles = (() => {
     try {
@@ -43,6 +75,43 @@ function run(val) {
         }
       }
     }
+  }
+
+  // 2. Next.js App Router: Detect and reject redirect-only page.tsx stubs
+  // Redirects belong in next.config.mjs redirects() rather than physical page components
+  function scanAppPages(dir, out = []) {
+    if (!fs.existsSync(dir)) return out;
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (item.name === 'node_modules' || item.name === '.next') continue;
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        scanAppPages(full, out);
+      } else if (item.name === 'page.tsx') {
+        out.push(full);
+      }
+    }
+    return out;
+  }
+
+  // Zero redirect-only pages allowed in Next.js App Router
+  const TRANSITIONAL_REDIRECT_PAGES = new Set();
+
+  const appPages = [
+    ...scanAppPages(path.join(ROOT, 'apps/web/src/app')),
+    ...scanAppPages(path.join(ROOT, 'apps/admin/src/app')),
+  ];
+
+  for (const pagePath of appPages) {
+    const relPath = path.relative(ROOT, pagePath).replace(/\\/g, '/');
+    if (TRANSITIONAL_REDIRECT_PAGES.has(relPath)) continue;
+    try {
+      const content = fs.readFileSync(pagePath, 'utf-8');
+      if (isRedirectOnlyPage(pagePath, content)) {
+        val.error(
+          `Redirect-Only Page Violation: ${relPath} is a pure redirect stub (AST verified redirect() with 0 JSX elements). Move this redirect to next.config.mjs redirects() instead of creating a physical Next.js page component.`
+        );
+      }
+    } catch { /* ignore */ }
   }
 }
 

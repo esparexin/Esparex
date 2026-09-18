@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { getListingRepository } from '../../../../composition/listings';
 import type { ListingFilter } from '../../../../domains/listings/ports/ListingRepositoryPort';
-import AdAnalytics from '../../../../models/AdAnalytics';
+import AdMetrics, { IAdMetrics } from '../../../../models/AdMetrics';
 import Category from '../../../../models/Category';
 import { getCache, setCache } from '../../../../utils/redisCache';
 import { LISTING_STATUS } from '@esparex/contracts';
@@ -25,12 +25,6 @@ type TrendingCounterState = {
     favorites: number;
 };
 
-type AnalyticsSnapshot = TrendingCounterState & {
-    _id?: unknown;
-    adId: mongoose.Types.ObjectId;
-    score?: number;
-    updatedAt?: Date;
-};
 
 const TRENDING_LIMIT_DEFAULT = 20;
 const TRENDING_LIMIT_MAX = 20;
@@ -132,21 +126,22 @@ export const recordAdAnalyticsEvent = async (
 
     const incrementPath =
         eventType === 'view'
-            ? 'views'
+            ? 'views.total'
             : 'favorites';
 
     try {
         const ad = await getListingRepository().findById(objectId.toString());
         if (!ad || ad.isDeleted || ad.status !== LISTING_STATUS.LIVE) return;
 
-        const snapshot = await AdAnalytics.findOneAndUpdate(
+        const snapshot = await AdMetrics.findOneAndUpdate(
             { adId: objectId },
             {
                 $inc: { [incrementPath]: 1 },
                 $setOnInsert: {
                     adId: objectId,
-                    views: 0,
-                    favorites: 0,
+                    'views.unique': 0,
+                    chats: 0,
+                    impressions: 0,
                     score: 0,
                 }
             },
@@ -155,19 +150,19 @@ export const recordAdAnalyticsEvent = async (
                 new: true,
                 setDefaultsOnInsert: true,
             }
-        ).lean<AnalyticsSnapshot | null>();
+        ).lean<IAdMetrics | null>();
 
         if (!snapshot) return;
 
         const score = calculateTrendingScore(
             {
-                views: toFiniteNumber(snapshot.views),
+                views: toFiniteNumber(snapshot.views?.total),
                 favorites: toFiniteNumber(snapshot.favorites),
             },
             ad.createdAt || null
         );
 
-        await AdAnalytics.updateOne(
+        await AdMetrics.updateOne(
             { adId: objectId },
             { $set: { score } }
         );
@@ -195,15 +190,15 @@ export const getTrendingAds = async (input: TrendingInput): Promise<{ ads: Recor
         const batchSize = Math.max(limit * 2, 20);
 
         while (mergedAds.length < limit && skip < 1000) {
-            const analyticsBatch = await AdAnalytics.find()
+            const metricsBatch = await AdMetrics.find()
                 .sort({ score: -1, updatedAt: -1 })
                 .skip(skip)
                 .limit(batchSize)
-                .lean<AnalyticsSnapshot[]>();
+                .lean<IAdMetrics[]>();
 
-            if (analyticsBatch.length === 0) break;
+            if (metricsBatch.length === 0) break;
 
-            const adIds = analyticsBatch.map((a) => String(a.adId));
+            const adIds = metricsBatch.map((a) => String(a.adId));
             const filter = await buildDirectAdFilter(input);
             filter.ids = adIds;
 
@@ -215,10 +210,10 @@ export const getTrendingAds = async (input: TrendingInput): Promise<{ ads: Recor
 
             const listingMap = new Map(listings.map((l) => [l.id, l]));
 
-            for (const analytics of analyticsBatch) {
-                const l = listingMap.get(String(analytics.adId));
+            for (const metrics of metricsBatch) {
+                const l = listingMap.get(String(metrics.adId));
                 if (l) {
-                    mergedAds.push({ ...l, _id: l.id, rankScore: analytics.score });
+                    mergedAds.push({ ...l, _id: l.id, rankScore: metrics.score ?? 0 });
                     if (mergedAds.length >= limit) break;
                 }
             }

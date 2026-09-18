@@ -9,33 +9,39 @@ const META = { id: 'AUDIT-001', name: 'Repository Auditor Baseline', version: '1
 function run(val) {
   const AUDIT_REPORT = path.join(ROOT, 'audit-reports/repository-audit.json');
 
+  // Verify against current working tree: re-run auditor if report is missing, stale (>5 mins), or previous FAIL
   let data = null;
-  if (fs.existsSync(AUDIT_REPORT)) {
+  const isStale = (() => {
+    if (!fs.existsSync(AUDIT_REPORT)) return true;
     try {
-      data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
+      const stat = fs.statSync(AUDIT_REPORT);
+      return Date.now() - stat.mtimeMs > 300000; // Stale if older than 5 minutes
     } catch {
-      data = null;
+      return true;
     }
-  }
+  })();
 
-  // If report missing or previously reported FAIL, re-run auditor to verify against current state
-  if (!data || (data.summary && data.summary.status === 'FAIL')) {
+  if (isStale) {
     try {
       execSync('node scripts/repository-auditor.js', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, CI: 'true' } });
-      if (fs.existsSync(AUDIT_REPORT)) {
-        data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
-      }
     } catch (e) {
       val.error(`Repository Auditor Execution Failure: ${e.message}`);
       return;
     }
   }
 
-  if (data) {
-    if (data.summary && data.summary.status === 'FAIL') {
-      val.error('Repository Auditor Report Status: FAIL. Resolve violations in audit-reports/repository-audit.json.');
+  try {
+    data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
+  } catch {
+    val.error('Repository Auditor Report missing or corrupted: audit-reports/repository-audit.json');
+    return;
+  }
+
+  if (data && data.summary) {
+    if (data.summary.status === 'FAIL' || (data.summary.blockingViolations && data.summary.blockingViolations > 0)) {
+      val.error('Repository Auditor Report Status: FAIL. Resolve blocking violations in audit-reports/repository-audit.json.');
     } else {
-      val.info(`Repository Auditor Verified: ${data.summary ? data.summary.transitionalModules : 0} transitional modules, 0 boundary errors.`);
+      val.info(`Repository Auditor Verified: ${data.summary.transitionalModules} transitional modules, ${data.summary.blockingViolations || 0} blocking boundary errors [Health: ${data.summary.policyHealth || 'PASS'}].`);
     }
   } else {
     val.error('Repository Auditor Report missing: audit-reports/repository-audit.json');

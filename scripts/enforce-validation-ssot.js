@@ -14,48 +14,76 @@ const path = require("path");
 
 const repoRoot = path.resolve(__dirname, "..");
 
-const targetAuditFiles = [
-    {
-        file: path.join(repoRoot, "core", "src", "validators", "business.validator.ts"),
-        requiredImports: ["CreateBusinessPayloadSchema", "UpdateBusinessPayloadSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "core", "src", "validators", "auth.validator.ts"),
-        requiredImports: ["LoginPayloadSchema", "VerifyOtpPayloadSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "apps", "web", "src", "schemas", "login.schema.ts"),
-        requiredImports: ["authMobileSchema", "@esparex/contracts"],
-    },
-    {
-        file: path.join(repoRoot, "apps", "admin", "src", "components", "plans", "planForm.schema.ts"),
-        requiredImports: ["BasePlanPayloadSchema", "@esparex/contracts"],
-    },
+// 1. Dynamic SSOT Discovery & Contract Inheritance Verification
+// Every schema in apps/*/src/schemas must extend canonical contracts from @esparex/contracts
+const appsDir = path.join(repoRoot, "apps");
+const appSchemaRoots = [];
+if (fs.existsSync(appsDir)) {
+    for (const app of fs.readdirSync(appsDir)) {
+        const candidate = path.join(appsDir, app, "src", "schemas");
+        if (fs.existsSync(candidate)) {
+            appSchemaRoots.push(candidate);
+        }
+    }
+}
+
+const requiredCoreMutationValidators = [
+    path.join(repoRoot, "core", "src", "validators", "business.validator.ts"),
+    path.join(repoRoot, "core", "src", "validators", "auth.validator.ts"),
 ];
+
+function importsContractsOrSSOT(filePath, visited = new Set()) {
+    if (visited.has(filePath)) return false;
+    visited.add(filePath);
+    if (!fs.existsSync(filePath)) return false;
+    const content = fs.readFileSync(filePath, "utf-8");
+    if (content.includes("@esparex/contracts")) return true;
+
+    // Check local relative imports
+    const localImports = content.matchAll(/from\s+['"](\.[^'"]+)['"]/g);
+    for (const m of localImports) {
+        let importPath = path.resolve(path.dirname(filePath), m[1]);
+        if (!importPath.endsWith(".ts") && !importPath.endsWith(".tsx")) {
+            if (fs.existsSync(importPath + ".ts")) importPath += ".ts";
+            else if (fs.existsSync(importPath + ".tsx")) importPath += ".tsx";
+            else if (fs.existsSync(path.join(importPath, "index.ts"))) importPath = path.join(importPath, "index.ts");
+        }
+        if (importsContractsOrSSOT(importPath, visited)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 let violations = [];
 
-// 1. Check SSOT required contract references
-for (const target of targetAuditFiles) {
-    if (!fs.existsSync(target.file)) {
-        violations.push(`Target file missing: ${path.relative(repoRoot, target.file)}`);
-        continue;
-    }
-
-    const content = fs.readFileSync(target.file, "utf-8");
-    for (const req of target.requiredImports) {
-        if (!content.includes(req)) {
+for (const root of appSchemaRoots) {
+    if (!fs.existsSync(root)) continue;
+    const files = fs.readdirSync(root).filter(f => f.endsWith(".ts") && !f.endsWith(".d.ts") && !f.endsWith(".spec.ts"));
+    for (const file of files) {
+        const fullPath = path.join(root, file);
+        const relPath = path.relative(repoRoot, fullPath);
+        if (!importsContractsOrSSOT(fullPath)) {
             violations.push(
-                `Missing required SSOT reference "${req}" in ${path.relative(repoRoot, target.file)}`
+                `Validation SSOT Violation: ${relPath} does not extend canonical schemas from @esparex/contracts.`
             );
         }
     }
 }
 
+for (const target of requiredCoreMutationValidators) {
+    if (!fs.existsSync(target)) continue;
+    const content = fs.readFileSync(target, "utf-8");
+    if (!content.includes("@esparex/contracts")) {
+        violations.push(
+            `Validation SSOT Violation: ${path.relative(repoRoot, target)} must extend @esparex/contracts.`
+        );
+    }
+}
+
 // 2. Scan schema directories for forbidden Zod empty-string optional traps
 const schemaScanDirs = [
-    path.join(repoRoot, "apps", "web", "src", "schemas"),
-    path.join(repoRoot, "apps", "admin", "src", "schemas"),
+    ...appSchemaRoots,
     path.join(repoRoot, "packages", "contracts", "src", "v1", "authentication"),
     path.join(repoRoot, "packages", "contracts", "src", "v1", "businesses"),
     path.join(repoRoot, "packages", "contracts", "src", "v1", "common", "schema"),

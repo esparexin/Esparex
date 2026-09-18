@@ -10,14 +10,14 @@ import type { ListingFilter, ListingUpdate } from '../../ports/ListingRepository
 import { getListingRepository } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
 import { touchLocationAnalytics } from '../../../../services/location/LocationAnalyticsService';
-import { recordAdAnalyticsEvent } from '../../../../services/TrendingService';
+import { recordAdAnalyticsEvent } from '../../../discovery';
 import { LISTING_STATUS } from '@esparex/contracts';
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING
 // ─────────────────────────────────────────────────
 
-import { ViewBufferingService } from '../../../../services/ViewBufferingService';
+import { ViewBufferingService } from '../../../analytics/application/services/ViewBufferingService';
 
 export const incrementAdView = async (
     adId: string | mongoose.Types.ObjectId,
@@ -36,7 +36,6 @@ export const incrementAdView = async (
         await ViewBufferingService.recordView(id);
 
         void touchLocationAnalytics(id.toString(), 'ad_view', 1).catch(() => {});
-        void recordAdAnalyticsEvent(id, 'view');
     } catch (error) {
         logger.error('Failed to increment ad view', {
             error: error instanceof Error ? error.message : String(error),
