@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { getListingById } from "@/lib/api/user/listings";
 import { usePostAdAction } from "./context";
@@ -14,15 +14,18 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(!!id);
     const [error, setError] = useState<string | null>(!id ? "No listing ID provided in route" : null);
 
+    const initializedIdRef = useRef<string | null>(null);
     const [prevId, setPrevId] = useState(id);
     if (prevId !== id) {
         setPrevId(id);
+        initializedIdRef.current = null;
         setIsLoading(!!id);
         setError(!id ? "No listing ID provided in route" : null);
     }
 
     useEffect(() => {
         if (!id) return;
+        if (initializedIdRef.current === id) return;
 
         let isMounted = true;
 
@@ -33,6 +36,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
                     throw new Error("Listing not found or you do not have permission to edit it.");
                 }
                 if (isMounted) {
+                    initializedIdRef.current = id ?? null;
                     await initializeFromListing(data);
                     // Ensure loading state clears in the component regardless
                     // of what initializeFromListing does to context state.
@@ -53,8 +57,6 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
         return () => {
             isMounted = false;
         };
-        // Now that initializeFromListing is stable (uses setListingImages, not imagesHook),
-        // this effect will only re-run if id changes — no more infinite loop.
     }, [id, initializeFromListing, setLoadError]);
 
     if (isLoading) {

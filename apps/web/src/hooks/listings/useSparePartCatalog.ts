@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import logger from "@/lib/logger";
 import {
@@ -84,7 +84,7 @@ export function useSparePartCatalog({ listingType, onError }: UseSparePartCatalo
      * activeCategoryId. It sets the query key, which React Query uses to
      * fetch, cache, and serve the correct category's spare parts in isolation.
      */
-    const loadSparePartsForCategory = (categoryId: string): Promise<void> => {
+    const loadSparePartsForCategory = useCallback((categoryId: string): Promise<void> => {
         const normalizedCategoryId = sanitizeMongoObjectId(categoryId);
         if (!normalizedCategoryId) {
             setActiveCategoryId("");
@@ -92,17 +92,17 @@ export function useSparePartCatalog({ listingType, onError }: UseSparePartCatalo
         }
         setActiveCategoryId(normalizedCategoryId);
         return Promise.resolve();
-    };
+    }, []);
 
     /**
      * Manual refresh — invalidates the current category's cache entry.
      */
-    const refreshSpareParts = async () => {
+    const refreshSpareParts = useCallback(async () => {
         if (!activeCategoryId) return;
         await queryClient.invalidateQueries({
             queryKey: ["catalog", "spare-parts", activeCategoryId, resolvedListingType],
         });
-    };
+    }, [activeCategoryId, queryClient, resolvedListingType]);
 
     const availableSpareParts = sparePartsQuery.data ?? [];
     const isLoadingSpareParts = sparePartsQuery.isLoading || sparePartsQuery.isFetching;
