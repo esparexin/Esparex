@@ -126,6 +126,7 @@ export const buildPostAdEditPayload = (
         price: payload.price,
         images: payload.images,
         isFree: payload.isFree,
+        spareParts: normalizeObjectIdList(payload.spareParts),
     };
 
     if (!isLocationLocked && payload.location) {
