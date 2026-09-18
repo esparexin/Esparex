@@ -52,10 +52,18 @@ if (fs.existsSync(jscpdFile)) {
 
 // 2. Run Knip for dead code & unused export scanning
 console.log('[2/6] Running Knip Unused Export & Orphan Scanner...');
-const knipOutput = runCmd('npx knip --reporter json');
+const knipBin = path.join(ROOT, 'node_modules/.bin/knip');
+const knipCmd = fs.existsSync(knipBin)
+  ? `"${knipBin}" --reporter json --no-exit-code`
+  : 'npx --no-install knip --reporter json --no-exit-code';
+const knipOutput = runCmd(knipCmd);
 let _knipData = [];
 try {
-  _knipData = JSON.parse(knipOutput);
+  const start = knipOutput.indexOf('{');
+  const end = knipOutput.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) {
+    _knipData = JSON.parse(knipOutput.slice(start, end + 1));
+  }
 } catch {
   /* ignore parse error */
 }

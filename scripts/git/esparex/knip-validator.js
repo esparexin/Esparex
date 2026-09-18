@@ -7,6 +7,21 @@ const { runStandalone, ROOT } = require('../shared');
 const META = { id: 'KNIP-001', name: 'Knip Unused & Duplicate Export Baseline', version: '1.0.0', category: 'Architecture' };
 const BASELINE_PATH = path.join(ROOT, 'scripts/policy/knip-baseline.json');
 
+function extractJsonPayload(raw) {
+  if (!raw) return null;
+  const str = typeof raw === 'string' ? raw : raw.toString('utf8');
+  const start = str.indexOf('{');
+  const end = str.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) {
+    try {
+      return JSON.parse(str.slice(start, end + 1));
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function run(val) {
   let baseline = {
     maxUnusedExports: 262,
@@ -23,20 +38,25 @@ function run(val) {
     }
   }
 
+  const knipBin = path.join(ROOT, 'node_modules/.bin/knip');
+  const cmd = fs.existsSync(knipBin)
+    ? `"${knipBin}" --reporter json --no-exit-code`
+    : 'npx --no-install knip --reporter json --no-exit-code';
+
   let data = null;
   try {
-    const raw = execSync('npx knip --reporter json', {
+    const raw = execSync(cmd, {
       cwd: ROOT,
       encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: 50 * 1024 * 1024,
+      stdio: ['pipe', 'pipe', 'ignore'],
       env: { ...process.env, CI: 'true' }
     });
-    data = JSON.parse(raw);
+    data = extractJsonPayload(raw);
   } catch (err) {
-    try {
-      data = JSON.parse(err.stdout || '{}');
-    } catch {
-      val.error(`Knip Execution Failure: ${err.message}`);
+    data = extractJsonPayload(err.stdout);
+    if (!data) {
+      val.error(`Knip Execution Failure: ${err.message || String(err)}`);
       return;
     }
   }
