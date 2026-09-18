@@ -18,7 +18,6 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     const [prevId, setPrevId] = useState(id);
     if (prevId !== id) {
         setPrevId(id);
-        initializedIdRef.current = null;
         setIsLoading(!!id);
         setError(!id ? "No listing ID provided in route" : null);
     }
