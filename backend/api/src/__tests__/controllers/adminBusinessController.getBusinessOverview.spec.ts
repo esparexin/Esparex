@@ -24,6 +24,8 @@ describe("getBusinessOverview", () => {
                 pending: [],
                 suspended: [],
                 rejected: [],
+                expired: [{ count: 2 }],
+                deactivated: [{ count: 1 }],
                 deleted: [{ count: 3 }],
                 expiringSoon: [],
                 expiringIn3Days: [],
@@ -56,6 +58,8 @@ describe("getBusinessOverview", () => {
         expect(overview.live).toBe(6);
         expect(overview.pending).toBe(0);
         expect(overview.suspended).toBe(0);
+        expect(overview.expired).toBe(2);
+        expect(overview.deactivated).toBe(1);
         expect(overview.deleted).toBe(3);
     });
 });

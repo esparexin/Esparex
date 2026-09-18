@@ -2,12 +2,11 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, PackageOpen } from "@esparex/ui";
+import { Button, Loader2, PackageOpen } from "@esparex/ui";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
-import { Button } from "@esparex/ui";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
@@ -18,6 +17,40 @@ const HOME_FEED_PAGE_SIZE = 12;
 
 interface HomeFeedProps {
     initialData?: HomeAdsPayload;
+}
+
+function FeedSkeletonGrid() {
+    return (
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
+            {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
+                <AdCardSkeleton key={index} />
+            ))}
+        </div>
+    );
+}
+
+function FeedErrorState({ onRetry }: { onRetry: () => void }) {
+    return (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
+            <p className="text-caption text-destructive mb-3">
+                Failed to load recommended ads. Please try again.
+            </p>
+            <Button variant="outline" onClick={onRetry}>
+                Retry
+            </Button>
+        </div>
+    );
+}
+
+function FeedEmptyState() {
+    return (
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
+            <p className="mt-2 text-caption font-medium text-foreground-secondary">
+                No ads available right now.
+            </p>
+        </div>
+    );
 }
 
 /**
@@ -129,32 +162,14 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     </h2>
                 </div>
 
-                {isLoading && recommendedAds.length === 0 && (
-                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
-                        {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
-                            <AdCardSkeleton key={index} />
-                        ))}
-                    </div>
-                )}
+                {isLoading && recommendedAds.length === 0 && <FeedSkeletonGrid />}
 
                 {isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
-                        <p className="text-caption text-destructive mb-3">
-                            Failed to load recommended ads. Please try again.
-                        </p>
-                        <Button variant="outline" onClick={() => refetch()}>
-                            Retry
-                        </Button>
-                    </div>
+                    <FeedErrorState onRetry={() => refetch()} />
                 )}
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-border bg-card p-8 text-center">
-                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
-                        <p className="mt-2 text-caption font-medium text-foreground-secondary">
-                            No ads available right now.
-                        </p>
-                    </div>
+                    <FeedEmptyState />
                 )}
 
                 {recommendedAds.length > 0 && (
@@ -179,8 +194,10 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         </div>
 
                         {canLoadMore && (
-                            <div className="mt-5 md:mt-8 flex justify-center">
+                            <div className="mt-6 md:mt-10 flex justify-center px-4 sm:px-0">
                                 <Button
+                                    variant="outline"
+                                    size="lg"
                                     onClick={() => {
                                         if (!nextCursor?.createdAt) return;
                                         startTransition(() => {
@@ -188,12 +205,14 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-6 h-10 text-caption font-semibold shadow-2xs transition-all active:scale-95"
+                                    aria-label="Load more recommended ads"
+                                    aria-busy={isFetching}
+                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Loading...
+                                            <Loader2 className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
+                                            <span>Loading more ads...</span>
                                         </>
                                     ) : (
                                         "Load More"

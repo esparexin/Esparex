@@ -73,11 +73,14 @@ export class ViewBufferingService {
 
             const delta = current - lastFlushed;
 
-            // 3. Atomically update AdMetrics with the delta
+            // 3. Atomically update AdMetrics with the delta and trending score
             await AdMetrics.updateOne(
                 { adId: new mongoose.Types.ObjectId(adId) },
                 { 
-                    $inc: { 'views.total': delta },
+                    $inc: { 
+                        'views.total': delta,
+                        score: delta * 2
+                    },
                     $set: { 'views.lastViewedAt': new Date() }
                 },
                 { upsert: true }
@@ -106,7 +109,10 @@ export class ViewBufferingService {
             await AdMetrics.updateOne(
                 { adId: new mongoose.Types.ObjectId(adId) },
                 { 
-                    $inc: { 'views.total': count },
+                    $inc: { 
+                        'views.total': count,
+                        score: count * 2
+                    },
                     $set: { 'views.lastViewedAt': new Date() }
                 },
                 { upsert: true }

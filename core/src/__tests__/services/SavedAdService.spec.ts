@@ -29,7 +29,14 @@ jest.mock("@esparex/core/utils/serialize", () => ({
     serializeDoc: jest.fn((doc: unknown) => ({ ...(doc as object) })),
 }));
 
-jest.mock("@esparex/core/services/TrendingService", () => ({
+jest.mock("@esparex/core/models/AdMetrics", () => ({
+    __esModule: true,
+    default: {
+        updateOne: jest.fn(),
+    },
+}));
+
+jest.mock("@esparex/core/domains/discovery", () => ({
     recordAdAnalyticsEvent: jest.fn(),
 }));
 

@@ -36,7 +36,7 @@ jest.mock('@esparex/core/utils/immutableFieldErrors', () => ({
     hasOwnField: (obj: Record<string, unknown>, field: string) => mockHasOwnField(obj, field),
 }));
 
-jest.mock('@esparex/core/services/AdMutationService', () => ({
+jest.mock('@esparex/core/domains/listings/application/mutations/AdMutationService', () => ({
     updateAd: (...args: unknown[]) => mockUpdateAd(...args),
 }));
 

@@ -15,6 +15,7 @@ const checks = [
   require('./esparex/governance-guards-validator'),
   require('./esparex/architecture-platform-validator'),
   require('./esparex/duplicate-validator'),
+  require('./esparex/knip-validator'),
   require('./esparex/circular-validator'),
   require('./esparex/dependency-validator'),
   require('./esparex/auditor-validator'),

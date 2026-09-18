@@ -28,6 +28,8 @@ export const getBusinessOverview = async () => {
                     pending: [{ $match: { status: BUSINESS_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: 'count' }],
                     suspended: [{ $match: { status: BUSINESS_STATUS.SUSPENDED, isDeleted: { $ne: true } } }, { $count: 'count' }],
                     rejected: [{ $match: { status: BUSINESS_STATUS.REJECTED, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    expired: [{ $match: { status: BUSINESS_STATUS.EXPIRED, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    deactivated: [{ $match: { status: BUSINESS_STATUS.DEACTIVATED, isDeleted: { $ne: true } } }, { $count: 'count' }],
                     deleted: [{ $match: { isDeleted: true } }, { $count: 'count' }],
                     expiringSoon: [
                         {
@@ -75,6 +77,8 @@ export const getBusinessOverview = async () => {
         live: extractCount(res.live),
         suspended: extractCount(res.suspended),
         rejected: extractCount(res.rejected),
+        expired: extractCount(res.expired),
+        deactivated: extractCount(res.deactivated),
         deleted: extractCount(res.deleted),
         expiringSoon: extractCount(res.expiringSoon),
         expiringIn3Days: extractCount(res.expiringIn3Days),

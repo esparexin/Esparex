@@ -2,8 +2,6 @@
 
 import type { ReactNode } from "react";
 import { Eye, Pencil, Trash2, DataTable, type ColumnDef } from "@esparex/ui";
-import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
-import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
 import { Business } from "@esparex/contracts";
 const STATUS_STYLES: Record<
     string,
@@ -29,6 +27,14 @@ const STATUS_STYLES: Record<
         dot: "bg-red-500",
     },
     deleted: {
+        pill: "bg-muted text-foreground-secondary border-border",
+        dot: "bg-foreground-tertiary",
+    },
+    expired: {
+        pill: "bg-amber-100 text-amber-800 border-amber-200",
+        dot: "bg-amber-600",
+    },
+    deactivated: {
         pill: "bg-muted text-foreground-secondary border-border",
         dot: "bg-foreground-tertiary",
     },
@@ -229,52 +235,4 @@ export function createBusinessActionsColumn({
             );
         },
     };
-}
-
-export function buildBusinessModalController(
-    businesses: Business[],
-    controller: Omit<BusinessAdminModalController, "businesses">
-): BusinessAdminModalController {
-    return {
-        businesses,
-        ...controller,
-    };
-}
-
-export function BusinessListModals({
-    controller,
-    onApproveFromDetails,
-    deleteDescription,
-    extraDialogs,
-    onSuspendFromDetails,
-    onActivateFromDetails,
-}: {
-    controller: BusinessAdminModalController;
-    onApproveFromDetails: (business: Business) => void;
-    deleteDescription: ReactNode;
-    extraDialogs?: ReactNode;
-    onSuspendFromDetails?: (business: Business) => void;
-    onActivateFromDetails?: (id: string) => void;
-}) {
-    return (
-        <BusinessAdminModals
-            businesses={controller.businesses}
-            selectedBusiness={controller.selectedBusiness}
-            rejectTarget={controller.rejectTarget}
-            modifyTarget={controller.modifyTarget}
-            deleteTarget={controller.deleteTarget}
-            setSelectedBusiness={controller.setSelectedBusiness}
-            setRejectTarget={controller.setRejectTarget}
-            setModifyTarget={controller.setModifyTarget}
-            setDeleteTarget={controller.setDeleteTarget}
-            handleReject={controller.handleReject}
-            handleModify={controller.handleModify}
-            handleDelete={controller.handleDelete}
-            onApproveFromDetails={onApproveFromDetails}
-            deleteDescription={deleteDescription}
-            extraDialogs={extraDialogs}
-            onSuspendFromDetails={onSuspendFromDetails}
-            onActivateFromDetails={onActivateFromDetails}
-        />
-    );
 }

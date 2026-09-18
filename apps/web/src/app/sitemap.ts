@@ -127,6 +127,7 @@ export const STATIC_CANONICAL_PATHS = [
     '/how-it-works',
     '/privacy',
     '/safety-tips',
+    '/services',
     '/site-map',
     '/terms',
 ] as const;
@@ -281,7 +282,7 @@ export async function fetchDynamicIds(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    // 1. Parallel Fetch all dynamic live listings
+    // 1. Parallel Fetch all dynamic live marketplace inventory
     const [ads, businesses, services, spareParts] = await Promise.all([
         fetchDynamicIds(API_ROUTES.USER.LISTINGS, { listingType: 'ad', status: 'live' }, 'id', 'seoSlug'),
         fetchDynamicIds(API_ROUTES.USER.BUSINESSES_PUBLIC, {}, 'id', 'slug'),
@@ -320,45 +321,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: toCanonicalUrl(`/spare-part-listings/${part.slug}-${part.id}`),
     }));
 
-    // 7b. Brand Catalog Pages (Query per category since /catalog/brands requires categoryId)
-    const brandGroups = await Promise.all(
-        canonicalCategories.map((cat) =>
-            fetchDynamicIds(API_ROUTES.USER.BRANDS_BASE, { categoryId: cat }, 'id', 'slug')
-        )
-    );
-    const brands = Array.from(new Map(brandGroups.flat().map((b) => [String(b.id), b])).values());
-    const brandRoutes: MetadataRoute.Sitemap = brands.map((brand) => ({
-        url: toCanonicalUrl(`/brands/${brand.slug}-${brand.id}`),
-    }));
-
-    // 7c. Model Catalog Pages
-    const models = await fetchDynamicIds(
-        API_ROUTES.USER.MODELS_BASE,
-        {},
-        'id',
-        'slug'
-    );
-    const modelRoutes: MetadataRoute.Sitemap = models.map((model) => ({
-        url: toCanonicalUrl(`/models/${model.slug}-${model.id}`),
-    }));
-
-    // 7d. Active Seller Profile Pages
-    const sellers = await fetchDynamicIds(
-        API_ROUTES.USER.USERS_SELLERS,
-        {},
-        'id',
-        'slug'
-    );
-    const sellerRoutes: MetadataRoute.Sitemap = sellers.map((seller) => ({
-        url: toCanonicalUrl(`/seller/${seller.slug}-${seller.id}`),
-    }));
-
     // 8. Deduplicate and strictly validate all candidate routes
+    // High-Quality Standard: Exclude empty catalog models, brands, and private curator accounts
     const seenUrls = new Set<string>();
     const allRoutes: MetadataRoute.Sitemap = [];
     const allCandidates = [
-        ...staticRoutes, ...adRoutes, ...businessRoutes, ...categoryRoutes,
-        ...serviceRoutes, ...sparePartRoutes, ...brandRoutes, ...modelRoutes, ...sellerRoutes,
+        ...staticRoutes,
+        ...categoryRoutes,
+        ...adRoutes,
+        ...businessRoutes,
+        ...serviceRoutes,
+        ...sparePartRoutes,
     ];
 
     for (const route of allCandidates) {

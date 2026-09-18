@@ -93,12 +93,7 @@ export function buildAboutPageSchema() {
             "@type": "Organization",
             name: LEGAL_COMPANY_NAME,
             url: CANONICAL_ORIGIN,
-            location: LEGAL_COMPANY_LOCATION,
-            sameAs: [
-                "https://twitter.com/esparexin",
-                "https://facebook.com/esparexin",
-                "https://instagram.com/esparexin"
-            ]
+            location: LEGAL_COMPANY_LOCATION
         }
     };
 }

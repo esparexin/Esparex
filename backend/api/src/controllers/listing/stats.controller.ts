@@ -4,7 +4,7 @@ import { sendSuccessResponse } from "../../utils/respond";
 import logger from '@esparex/core/utils/logger';
 import { LISTING_TYPE } from "@esparex/contracts";
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
-import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
+import * as AdMetricsService from '@esparex/core/domains/listings/application/ad/ad/AdMetricsService';
 
 import { ListingExpiryService } from '@esparex/core/services/lifecycle/ListingExpiryService';
 
