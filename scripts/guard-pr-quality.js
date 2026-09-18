@@ -26,35 +26,59 @@ const FILE_LIMITS = [
   { type: 'Component', max: 400, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') }
 ];
 
-function evaluateCodeComplexity(content) {
-  const issues = [];
-  const lines = content.split('\n');
+const ts = require('typescript');
 
-  // Check excessive nesting depth (>6 nested levels / 12 spaces at 2-space indent)
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line.trim() || line.trim().startsWith('//') || line.trim().startsWith('*')) continue;
-    const leadingSpaces = line.search(/\S/);
-    if (leadingSpaces > 24) {
-      issues.push(`Deep nesting depth detected at line ${i + 1}. Refactor nested control flow.`);
-      break;
-    }
+function evaluateCodeComplexity(relFile, content) {
+  const issues = [];
+  let sourceFile;
+  try {
+    sourceFile = ts.createSourceFile(relFile, content, ts.ScriptTarget.Latest, true);
+  } catch {
+    return issues;
   }
 
-  // Check excessive positional parameter count (>5 parameters without destructuring DTO)
-  const fnParamRegex = /(?:function\s+\w+|\bconst\s+\w+\s*=\s*(?:async\s*)?)\s*\(([^)]{20,})\)/g;
-  let match;
-  while ((match = fnParamRegex.exec(content)) !== null) {
-    const rawParams = match[1];
-    if (!rawParams.includes('{')) {
-      const paramList = rawParams.split(',').map(p => p.trim()).filter(Boolean);
-      if (paramList.length > 5) {
-        issues.push(`Excessive positional parameters (${paramList.length} > 5). Pass a typed parameter DTO per Zero Primitive Obsession.`);
-        break;
+  function isControlFlow(node) {
+    return ts.isIfStatement(node) ||
+      ts.isForStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isForOfStatement(node) ||
+      ts.isWhileStatement(node) ||
+      ts.isDoStatement(node) ||
+      ts.isSwitchStatement(node) ||
+      ts.isCatchClause(node);
+  }
+
+  const MAX_CONTROL_FLOW_DEPTH = 5;
+  let maxReported = false;
+
+  function walk(node, depth) {
+    const nextDepth = isControlFlow(node) ? depth + 1 : depth;
+    if (nextDepth > MAX_CONTROL_FLOW_DEPTH && isControlFlow(node) && !maxReported) {
+      const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      issues.push(`Deep control-flow nesting depth (${nextDepth} levels) detected at line ${line + 1}. Refactor nested control flow.`);
+      maxReported = true;
+    }
+
+    // Check excessive positional parameter count (>5 parameters without destructuring DTO)
+    if (
+      ts.isFunctionDeclaration(node) ||
+      ts.isFunctionExpression(node) ||
+      ts.isArrowFunction(node) ||
+      ts.isMethodDeclaration(node)
+    ) {
+      if (node.parameters && node.parameters.length > 5) {
+        const hasDestructuring = node.parameters.some((p) => ts.isObjectBindingPattern(p.name));
+        if (!hasDestructuring) {
+          const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+          issues.push(`Excessive positional parameters (${node.parameters.length} > 5) at line ${line + 1}. Pass a typed parameter DTO per Zero Primitive Obsession.`);
+        }
       }
     }
+
+    ts.forEachChild(node, (child) => walk(child, nextDepth));
   }
 
+  walk(sourceFile, 0);
   return issues;
 }
 
@@ -186,7 +210,7 @@ function run() {
       const fullPath = path.join(ROOT, relFile);
       return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8') : '';
     })();
-    const complexityIssues = evaluateCodeComplexity(fileContent);
+    const complexityIssues = evaluateCodeComplexity(relFile, fileContent);
     for (const issue of complexityIssues) {
       violations.push({ file: relFile, reason: issue });
     }

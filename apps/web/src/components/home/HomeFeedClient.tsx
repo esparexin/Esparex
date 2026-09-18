@@ -19,6 +19,40 @@ interface HomeFeedProps {
     initialData?: HomeAdsPayload;
 }
 
+function FeedSkeletonGrid() {
+    return (
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
+            {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
+                <AdCardSkeleton key={index} />
+            ))}
+        </div>
+    );
+}
+
+function FeedErrorState({ onRetry }: { onRetry: () => void }) {
+    return (
+        <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
+            <p className="text-caption text-destructive mb-3">
+                Failed to load recommended ads. Please try again.
+            </p>
+            <Button variant="outline" onClick={onRetry}>
+                Retry
+            </Button>
+        </div>
+    );
+}
+
+function FeedEmptyState() {
+    return (
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
+            <p className="mt-2 text-caption font-medium text-foreground-secondary">
+                No ads available right now.
+            </p>
+        </div>
+    );
+}
+
 /**
  * HomeFeedClient - Handles the state and rendering for the recommended ads feed.
  * This component is keyed by location in the parent (HomeFeed), so it automatically 
@@ -128,32 +162,14 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     </h2>
                 </div>
 
-                {isLoading && recommendedAds.length === 0 && (
-                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
-                        {Array.from({ length: HOME_FEED_PAGE_SIZE }).map((_, index) => (
-                            <AdCardSkeleton key={index} />
-                        ))}
-                    </div>
-                )}
+                {isLoading && recommendedAds.length === 0 && <FeedSkeletonGrid />}
 
                 {isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
-                        <p className="text-caption text-destructive mb-3">
-                            Failed to load recommended ads. Please try again.
-                        </p>
-                        <Button variant="outline" onClick={() => refetch()}>
-                            Retry
-                        </Button>
-                    </div>
+                    <FeedErrorState onRetry={() => refetch()} />
                 )}
 
                 {!isLoading && !isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-border bg-card p-8 text-center">
-                        <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
-                        <p className="mt-2 text-caption font-medium text-foreground-secondary">
-                            No ads available right now.
-                        </p>
-                    </div>
+                    <FeedEmptyState />
                 )}
 
                 {recommendedAds.length > 0 && (

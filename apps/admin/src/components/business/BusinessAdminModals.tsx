@@ -59,6 +59,10 @@ export function BusinessAdminModals({
     onActivateFromDetails,
     extraDialogs,
 }: BusinessAdminModalsProps) {
+    const handleSuspendFromDetails = onSuspendFromDetails && selectedBusiness
+        ? (id: string) => onSuspendFromDetails(resolveBusiness(businesses, id, selectedBusiness))
+        : undefined;
+
     return (
         <>
             {selectedBusiness && (
@@ -69,11 +73,7 @@ export function BusinessAdminModals({
                     onReject={(id) => setRejectTarget(resolveBusiness(businesses, id, selectedBusiness))}
                     onModify={(business) => setModifyTarget(business)}
                     onDelete={(id) => setDeleteTarget(resolveBusiness(businesses, id, selectedBusiness))}
-                    onSuspend={
-                        onSuspendFromDetails
-                            ? (id) => onSuspendFromDetails(resolveBusiness(businesses, id, selectedBusiness))
-                            : undefined
-                    }
+                    onSuspend={handleSuspendFromDetails}
                     onActivate={onActivateFromDetails}
                 />
             )}
