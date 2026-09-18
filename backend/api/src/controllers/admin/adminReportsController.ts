@@ -19,7 +19,7 @@ import {
     saveReport,
     updateReportById,
 } from '@esparex/core/services/ReportService';
-import { getReportedAdsAggregation } from '@esparex/core/services/ad/AdDetailService';
+import { getReportedAdsAggregation } from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {

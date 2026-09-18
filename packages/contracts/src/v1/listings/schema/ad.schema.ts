@@ -66,7 +66,7 @@ export const AdSchema = z.object({
         _id: z.string(),
         id: z.string().optional(),
         name: z.string(),
-        brand: z.string()
+        brand: z.string().optional()
     })).optional(),
     image: z.string().optional(), // Often derived from images[0]
     time: z.string().optional(), // Often derived

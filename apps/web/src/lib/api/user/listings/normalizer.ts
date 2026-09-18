@@ -212,6 +212,87 @@ function toListingSchemaCompatible(data: unknown): unknown {
     normalizeHydratedNameField("categoryName", "category");
     normalizeHydratedNameField("brandName", "brand");
     normalizeHydratedNameField("modelName", "model");
+
+    if (record.location && typeof record.location === 'object' && !Array.isArray(record.location)) {
+        const loc = { ...(record.location as Record<string, unknown>) };
+        if (loc.coordinates) {
+            let coords: [number, number] | null = null;
+            if (Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
+                const lng = Number(loc.coordinates[0]);
+                const lat = Number(loc.coordinates[1]);
+                if (Number.isFinite(lng) && Number.isFinite(lat)) {
+                    coords = [lng, lat];
+                }
+            } else if (typeof loc.coordinates === 'object' && loc.coordinates !== null) {
+                const pointObj = loc.coordinates as Record<string, unknown>;
+                if (Array.isArray(pointObj.coordinates) && pointObj.coordinates.length === 2) {
+                    const lng = Number(pointObj.coordinates[0]);
+                    const lat = Number(pointObj.coordinates[1]);
+                    if (Number.isFinite(lng) && Number.isFinite(lat)) {
+                        coords = [lng, lat];
+                    }
+                }
+            }
+
+            if (
+                coords &&
+                !(coords[0] === 0 && coords[1] === 0) &&
+                coords[0] >= -180 && coords[0] <= 180 &&
+                coords[1] >= -90 && coords[1] <= 90
+            ) {
+                loc.coordinates = {
+                    type: 'Point',
+                    coordinates: coords,
+                };
+            } else {
+                delete loc.coordinates;
+            }
+        }
+        record.location = loc;
+    }
+
+    if (Array.isArray(record.sparePartsSnapshot)) {
+        record.sparePartsSnapshot = record.sparePartsSnapshot
+            .map((item) => {
+                if (!item || typeof item !== 'object') return null;
+                const rec = item as Record<string, unknown>;
+                const id = extractId(rec._id) ?? extractId(rec.id);
+                const name = typeof rec.name === 'string' ? rec.name.trim() : '';
+                if (!id || !name) return null;
+                const brand = typeof rec.brand === 'string' && rec.brand.trim() ? rec.brand.trim() : undefined;
+                return {
+                    _id: id,
+                    id,
+                    name,
+                    ...(brand ? { brand } : {}),
+                };
+            })
+            .filter(Boolean);
+    }
+
+    if (Array.isArray(record.sparePartIds)) {
+        record.sparePartIds = record.sparePartIds
+            .map(extractId)
+            .filter((id): id is string => typeof id === 'string' && id.length > 0);
+    }
+
+    if (Array.isArray(record.spareParts)) {
+        record.spareParts = record.spareParts
+            .map((part) => {
+                if (typeof part === 'string') return part;
+                if (part && typeof part === 'object') {
+                    const rec = part as Record<string, unknown>;
+                    const id = extractId(rec.id) ?? extractId(rec._id);
+                    return {
+                        ...rec,
+                        ...(id ? { id, _id: id } : {}),
+                    };
+                }
+                return null;
+            })
+            .filter(Boolean);
+    }
+
     return record;
 }
 
@@ -233,6 +314,24 @@ function coerceListingFallback(data: unknown): Listing {
         country: typeof rawLocation.country === 'string' ? rawLocation.country : undefined,
     };
 
+    const sparePartIds = Array.isArray(record.sparePartIds)
+        ? record.sparePartIds.map(extractId).filter((pId): pId is string => typeof pId === 'string' && pId.length > 0)
+        : undefined;
+
+    const sparePartsSnapshot = Array.isArray(record.sparePartsSnapshot)
+        ? record.sparePartsSnapshot
+            .map((item) => {
+                if (!item || typeof item !== 'object') return null;
+                const rec = item as Record<string, unknown>;
+                const pId = extractId(rec._id) ?? extractId(rec.id);
+                const name = typeof rec.name === 'string' ? rec.name : '';
+                const brand = typeof rec.brand === 'string' ? rec.brand : undefined;
+                if (!pId || !name) return null;
+                return { _id: pId, id: pId, name, brand };
+            })
+            .filter((item): item is NonNullable<typeof item> => Boolean(item))
+        : undefined;
+
     return {
         id, title, description,
         price: Number.isFinite(price) ? price : 0,
@@ -244,6 +343,17 @@ function coerceListingFallback(data: unknown): Listing {
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
         spareParts: Array.isArray(record.spareParts) ? (record.spareParts as (string | Record<string, unknown>)[]) : undefined,
+        sparePartIds,
+        sparePartsSnapshot,
+        categoryId: extractId(record.categoryId),
+        categoryName: typeof record.categoryName === 'string' ? record.categoryName : undefined,
+        brandId: extractId(record.brandId),
+        brandName: typeof record.brandName === 'string' ? record.brandName : undefined,
+        modelId: extractId(record.modelId),
+        modelName: typeof record.modelName === 'string' ? record.modelName : undefined,
+        deviceCondition: (record.deviceCondition === 'power_on' || record.deviceCondition === 'power_off') ? record.deviceCondition : undefined,
+        warranty: typeof record.warranty === 'string' ? record.warranty : undefined,
+        sparePartId: extractId(record.sparePartId),
     } as Listing;
 }
 

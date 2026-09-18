@@ -8,6 +8,7 @@ import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSecti
 import { ListingDescriptionTab } from "./ListingDescriptionTab";
 import { ListingWorkingSparePartsTab, extractSparePartItems } from "./ListingWorkingSparePartsTab";
 import type { UserPage } from "@/lib/routeUtils";
+import { resolveListingSparePartsCount } from "@/lib/listings/listingPresentation";
 
 interface ListingDescriptionCardProps {
     ad: Ad;
@@ -31,11 +32,7 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
     const sectionRef = useRef<HTMLElement>(null);
     const description = cleanupListingDescription(String(ad.description || ""));
     const sparePartItems = extractSparePartItems(ad);
-    const sparePartsCount = Math.max(
-        sparePartItems.length,
-        Array.isArray(ad.spareParts) ? ad.spareParts.length : 0,
-        Array.isArray(ad.sparePartIds) ? ad.sparePartIds.length : 0
-    );
+    const sparePartsCount = resolveListingSparePartsCount(ad);
 
     const scrollToSection = () => {
         if (sectionRef.current && typeof window !== "undefined") {

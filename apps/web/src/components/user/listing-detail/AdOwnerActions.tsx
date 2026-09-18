@@ -10,7 +10,6 @@ interface AdOwnerActionsProps {
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
-    onViewAnalytics?: () => void;
 }
 
 export function AdOwnerActions({
