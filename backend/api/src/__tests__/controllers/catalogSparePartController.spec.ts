@@ -1,7 +1,7 @@
 import { getSpareParts } from "../../controllers/admin/catalog/catalogSparePartController";
 import { SparePartModel } from "@esparex/core/domains/catalog/application/services/CatalogSparePartService";
 import { getCache, setCache } from "@esparex/core/utils/redisCache";
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 // Mock the Redis Cache
@@ -21,10 +21,9 @@ jest.mock("@esparex/core/domains/catalog/application/services/CatalogSparePartSe
     };
 });
 
-// Mock category canonical equivalent resolver
-jest.mock('@esparex/core/domains/catalog/application/services/CatalogCategoryService', () => ({
-    resolveEquivalentActiveCategoryIds: jest.fn().mockImplementation(async (id) => [id])
-}));
+// resolveEquivalentActiveCategoryIds is NOT mocked because it is no longer
+// called in getSparePartsPublic (Phase 2: strict category isolation).
+// The controller now uses [categoryObjectId] directly.
 
 // Mock shared catalog controller helper functions
 jest.mock("../../controllers/admin/catalog/shared", () => {

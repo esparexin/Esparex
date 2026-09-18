@@ -101,11 +101,20 @@ export function useBrandCatalog({
      * Preserve existing imperative API contract.
      * Consumers still call loadModelsForBrand().
      * React Query handles the actual fetching and caching.
+     *
+     * CATEGORY OWNERSHIP RULE: activeCategoryId is owned exclusively by
+     * loadBrandsForCategory(). This function MUST NOT override activeCategoryId
+     * even when a categoryId param is provided. The model query key already
+     * includes activeCategoryId, ensuring models are always scoped to the
+     * category that was last set by loadBrandsForCategory.
+     *
+     * The categoryId param is accepted for callers that pass it
+     * (such as ModelSearchSelect), but it is ignored for state mutation purposes.
      */
     const loadModelsForBrand = useCallback(
         async (
             brandId?: string,
-            categoryId?: string,
+            _categoryId?: string,
             search?: string
         ) => {
             const normalizedBrandId =
@@ -115,16 +124,6 @@ export function useBrandCatalog({
                 setSelectedBrandId("");
                 setModelSearch("");
                 return;
-            }
-
-            // Keep category synchronized if provided.
-            if (categoryId) {
-                const normalizedCategoryId =
-                    sanitizeMongoObjectId(categoryId) || categoryId?.trim() || "";
-
-                if (normalizedCategoryId) {
-                    setActiveCategoryId(normalizedCategoryId);
-                }
             }
 
             setSelectedBrandId(normalizedBrandId);
