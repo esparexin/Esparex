@@ -1,5 +1,5 @@
-const CACHE_NAME = 'temporary-v3-static';
-const DYNAMIC_CACHE_NAME = 'temporary-v3-dynamic';
+const CACHE_NAME = 'temporary-v4-static';
+const DYNAMIC_CACHE_NAME = 'temporary-v4-dynamic';
 
 // Static assets to cache immediately
 const OFFLINE_URL = '/offline.html';

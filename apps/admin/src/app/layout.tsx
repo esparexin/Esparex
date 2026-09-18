@@ -8,6 +8,15 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Esparex Admin",
   description: "Admin control plane for Esparex",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   robots: {
     index: false,
     follow: false,
