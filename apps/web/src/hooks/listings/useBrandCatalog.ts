@@ -108,9 +108,8 @@ export function useBrandCatalog({
      * includes activeCategoryId, ensuring models are always scoped to the
      * category that was last set by loadBrandsForCategory.
      *
-     * The categoryId param is accepted for API backward-compatibility only
-     * (callers such as ModelSearchSelect pass it), but it is ignored for
-     * state mutation purposes.
+     * The categoryId param is accepted for callers that pass it
+     * (such as ModelSearchSelect), but it is ignored for state mutation purposes.
      */
     const loadModelsForBrand = useCallback(
         async (
