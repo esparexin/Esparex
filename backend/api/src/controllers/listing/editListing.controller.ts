@@ -12,7 +12,6 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     brandId: 'Brand cannot be changed while editing a listing.',
     modelId: 'Model cannot be changed while editing a listing.',
     screenSize: 'Screen size cannot be changed while editing a listing.',
-    spareParts: 'Spare-part mapping cannot be changed while editing a listing.',
     deviceCondition: 'Device condition cannot be changed while editing a listing.',
     listingType: 'Listing type cannot be changed while editing a listing.',
     sellerId: 'Seller cannot be changed while editing a listing.',

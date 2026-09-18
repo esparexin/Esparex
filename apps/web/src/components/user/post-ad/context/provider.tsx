@@ -113,6 +113,30 @@ export function PostAdProvider({
         if (categoryId) { const p: Promise<unknown>[] = [loadBrandsForCategory(categoryId), loadSparePartsForCategory(categoryId)]; if (data.brandId) p.push(loadModelsForBrand(data.brandId, categoryId)); await Promise.all(p); }
         if (data.location) setValue("location", { city: data.location.city, state: data.location.state, display: data.location.display, coordinates: data.location.coordinates, locationId: (data.location.locationId as string) || (data.location as { id?: string }).id || undefined });
         if (Array.isArray(data.images)) { const mappedIds = data.images.map((url: string) => ({ id: crypto.randomUUID(), preview: url, isRemote: true })); setListingImages(mappedIds); setValue("images", mappedIds.map((i) => i.preview)); }
+
+        // Pre-populate selected spare parts from the persisted listing data
+        const resolvedSparePartIds: string[] = (() => {
+            if (Array.isArray(data.sparePartIds) && data.sparePartIds.length > 0) {
+                return data.sparePartIds.filter((id): id is string => typeof id === 'string' && id.length > 0);
+            }
+            if (Array.isArray(data.spareParts) && data.spareParts.length > 0) {
+                return data.spareParts
+                    .map((part) => {
+                        if (typeof part === 'string') return part;
+                        if (part && typeof part === 'object') {
+                            const rec = part as Record<string, unknown>;
+                            return typeof rec.id === 'string' ? rec.id : typeof rec._id === 'string' ? rec._id : null;
+                        }
+                        return null;
+                    })
+                    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+            }
+            return [];
+        })();
+        if (resolvedSparePartIds.length > 0) {
+            setValue("spareParts", resolvedSparePartIds, { shouldDirty: false });
+        }
+
         setIsLoading(false);
     }, [clearCategoryDependents, setValue, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
