@@ -40,7 +40,6 @@ interface ListingBottomActionsProps {
   onDeleteClick?: () => void;
   onMarkSoldClick?: () => void;
   onPromoteClick?: () => void;
-  onAnalyticsClick?: () => void;
   onChatClick?: () => void;
   onRevealPhone?: () => void;
   isPhoneLoading?: boolean;

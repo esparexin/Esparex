@@ -42,7 +42,6 @@ interface ListingDetailSidebarProps {
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
-    onViewAnalytics: () => void;
     onReport: () => void;
 }
 
@@ -63,7 +62,6 @@ export function ListingDetailSidebar({
     onDelete,
     onMarkSold,
     onPromote,
-    onViewAnalytics,
     onReport,
 }: ListingDetailSidebarProps) {
     const ctaPolicy = {
@@ -113,7 +111,6 @@ export function ListingDetailSidebar({
                     onDelete={onDelete}
                     onMarkSold={onMarkSold}
                     onPromote={onPromote}
-                    onViewAnalytics={onViewAnalytics}
                 />
             )}
             {!isOwner && (
