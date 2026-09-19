@@ -193,7 +193,7 @@ export function BrowseFilterSidebar({
                   placeholder="₹ Min"
                   value={minInput}
                   onChange={(e) => setMinInput(e.target.value)}
-                  className="h-9 text-small rounded-xl border-border bg-background"
+                  className="h-10 text-body-lg md:text-body font-normal rounded-xl border-border bg-background"
                 />
               </div>
               <span className="text-foreground-secondary pt-4">-</span>
@@ -205,7 +205,7 @@ export function BrowseFilterSidebar({
                   placeholder="₹ Max"
                   value={maxInput}
                   onChange={(e) => setMaxInput(e.target.value)}
-                  className="h-9 text-small rounded-xl border-border bg-background"
+                  className="h-10 text-body-lg md:text-body font-normal rounded-xl border-border bg-background"
                 />
               </div>
             </div>
