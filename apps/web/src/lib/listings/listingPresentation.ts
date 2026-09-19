@@ -64,22 +64,25 @@ export function resolveListingTypeBadge(
         return {
             type: listingType,
             label: "Service",
-            className: "bg-emerald-50 text-emerald-700 border-emerald-100",
+            icon: "wrench" as const,
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
         };
     }
 
     if (listingType === "spare_part") {
         return {
             type: listingType,
-            label: "Spare Part",
-            className: "bg-violet-50 text-violet-700 border-violet-100",
+            label: "Parts",
+            icon: "cpu" as const,
+            className: "bg-purple-50 text-purple-700 border-purple-200",
         };
     }
 
     return {
         type: listingType,
-        label: "Device",
-        className: "bg-blue-50 text-link-dark border-blue-100",
+        label: "Ad",
+        icon: "device" as const,
+        className: "bg-blue-50 text-blue-700 border-blue-200",
     };
 }
 
