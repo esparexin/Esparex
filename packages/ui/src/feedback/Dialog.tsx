@@ -111,8 +111,8 @@ const DialogContent = React.forwardRef<
         ];
       case "mobileSafe":
         return [
-          "fixed left-[50%] top-4 bottom-auto right-auto w-[calc(100vw-2rem)] max-w-lg outline-none -translate-x-1/2 translate-y-0 sm:top-[50%] sm:-translate-y-1/2",
-          "flex h-full max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-2rem))] flex-col overflow-hidden rounded-2xl bg-background shadow-lg",
+          "fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] bottom-auto right-auto w-[calc(100vw-2rem)] max-w-lg outline-none -translate-x-1/2 translate-y-0 sm:top-[50%] sm:-translate-y-1/2",
+          "flex h-full max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))] flex-col overflow-hidden overscroll-contain rounded-2xl bg-background shadow-lg",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -122,8 +122,8 @@ const DialogContent = React.forwardRef<
       case "centered":
       default:
         return [
-          "fixed left-[50%] top-4 sm:top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
-          "bg-background rounded-2xl shadow-xl p-5 max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-2rem))] overflow-y-auto border border-border",
+          "fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] sm:top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
+          "bg-background rounded-2xl shadow-xl p-5 max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))] overflow-y-auto overscroll-contain border border-border",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
