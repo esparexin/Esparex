@@ -182,7 +182,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                 </div>
             )}
 
-            <Field label="1. Select Category" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.categoryId)}>
+            <Field label="Category" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.categoryId)}>
                 <CategorySelectorGrid
                     categories={dynamicCategories}
                     selectedCategoryId={categoryId}
@@ -194,15 +194,15 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
 
             {categoryId && (
                 <Field
-                    label={`2. Select ${config.catalogLabel}`}
-                    labelClassName="text-sm font-medium"
+                    label={config.catalogLabel}
+                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
                     error={catalogError}
                 >
-                    <p className="mb-2 text-xs text-slate-500">
+                    <p className="mb-2 text-caption text-muted-foreground">
                         {config.catalogMultiSelect ? "Choose all that apply" : "Select one option"}
                     </p>
                     {availableItems.length === 0 ? (
-                        <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-caption text-amber-800">
                             {config.catalogEmptyErrorMessage}
                         </div>
                     ) : (
@@ -216,10 +216,10 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                                         disabled={isEditMode}
                                         onClick={() => handleCatalogToggle(item.id || (item._id as string))}
                                         className={cn(
-                                            "flex items-center gap-2.5 rounded hover:border-blue-400 p-2.5 text-left text-xs transition-all border sm:text-sm",
+                                            "flex items-center gap-2.5 rounded-xl p-2.5 text-left text-caption transition-all border sm:text-body",
                                             isSelected
-                                                ? "border-blue-600 bg-blue-50/50 font-medium text-blue-900 shadow-sm"
-                                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+                                                ? "border-primary bg-primary/10 font-medium text-primary shadow-2xs"
+                                                : "border-border bg-card text-foreground-secondary hover:bg-muted hover:border-border",
                                             isEditMode && "cursor-not-allowed opacity-60"
                                         )}
                                     >
@@ -228,11 +228,11 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                                                 "flex h-4 w-4 shrink-0 items-center justify-center border transition-colors",
                                                 config.catalogMultiSelect ? "rounded" : "rounded-full",
                                                 isSelected
-                                                    ? "border-blue-600 bg-blue-600 text-white"
-                                                    : "border-slate-300 bg-white"
+                                                    ? "border-primary bg-primary text-primary-foreground"
+                                                    : "border-border bg-card"
                                             )}
                                         >
-                                            {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                                            {isSelected && <Check className="h-3 w-3 stroke-2" />}
                                         </div>
                                         <span className="line-clamp-2 leading-tight">{item.name}</span>
                                     </button>
@@ -244,7 +244,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <Field label="3. Brand / Manufacturer (Optional)" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.brandId)}>
+                <Field label="Brand / Manufacturer (Optional)" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.brandId)}>
                     <BrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
