@@ -83,15 +83,17 @@ export function MultiBrandSearchSelect({
         };
     }, [isOpen]);
 
-    const handleSelectBrand = (brandName: string) => {
+    const handleToggleBrand = (brandName: string) => {
         const idOrName = brandMap[brandName]?.id ?? brandMap[brandName]?._id ?? brandName;
-        if (!values.includes(idOrName)) {
+        if (values.includes(idOrName)) {
+            // If already selected, clicking it unselects it
+            handleRemoveBrand(idOrName);
+        } else {
+            // If not selected, select it
             const nextIds = [...values, idOrName];
             const nextNames = [...selectedBrandEntries.map((b) => b.name), brandName];
             onChange(nextIds, nextNames);
         }
-        setSearch("");
-        setIsOpen(false);
         inputRef.current?.focus();
     };
 
@@ -192,7 +194,7 @@ export function MultiBrandSearchSelect({
                                     type="button"
                                     role="option"
                                     aria-selected={isSelected}
-                                    onClick={() => handleSelectBrand(brandName)}
+                                    onClick={() => handleToggleBrand(brandName)}
                                     className={cn(
                                         "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-body transition-colors select-none",
                                         isSelected
