@@ -26,6 +26,8 @@ export interface Listing extends Ad {
     deviceType?: string;
     locationId?: string;
     warranty?: string;
+    /** Resolved service type objects from the backend aggregation pipeline (serviceTypeIds → name). */
+    serviceTypes?: Array<{ _id?: string; name?: string; slug?: string; }>;
 }
 
 export interface ListingFilters {
