@@ -27,6 +27,7 @@ interface GenericPostFormProps<TFormValues extends GenericPostFormValues> {
     children: ReactNode;
     submitLabel?: string;
     formId: string;
+    priceSlot?: ReactNode;
 }
 
 export function GenericPostForm<TFormValues extends GenericPostFormValues>({
@@ -43,6 +44,7 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
     children,
     submitLabel,
     formId,
+    priceSlot,
 }: GenericPostFormProps<TFormValues>) {
     const imagesError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).images);
     const locationError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).location);
@@ -67,12 +69,24 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                                     helperText="Add clear product photos. The first photo will be used as the cover image."
                                 />
 
-                                <ListingLocationField 
-                                    display={locationDisplay || ''} 
-                                    fixedLabel="Fixed" 
-                                    error={locationError}
-                                    helperText={locationHelperText}
-                                />
+                                {priceSlot ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+                                        {priceSlot}
+                                        <ListingLocationField 
+                                            display={locationDisplay || ''} 
+                                            fixedLabel="Fixed" 
+                                            error={locationError}
+                                            helperText={locationHelperText}
+                                        />
+                                    </div>
+                                ) : (
+                                    <ListingLocationField 
+                                        display={locationDisplay || ''} 
+                                        fixedLabel="Fixed" 
+                                        error={locationError}
+                                        helperText={locationHelperText}
+                                    />
+                                )}
                             </div>
                         </ListingModalBody>
 

@@ -171,6 +171,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             {...sharedProps}
             title={isEditMode ? `Edit ${config.entityLabel}` : `Post ${config.entityLabel}`}
             formId={config.formId}
+            priceSlot={categoryId ? <ListingPriceField name="price" /> : null}
         >
             {isEditMode && (
                 <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -236,10 +237,6 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                     valueLength={titleVal.length}
                     maxLength={config.titleProps.maxLength}
                 />
-            )}
-
-            {categoryId && (
-                <ListingPriceField name="price" />
             )}
 
             {categoryId && (
