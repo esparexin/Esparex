@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 import { Path, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { CategoryFilter } from "@esparex/contracts";
+import type { SparePart } from "@/lib/api/user/masterData";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import { getStepFields } from "../config/postAdStepFields";
 
@@ -14,6 +15,7 @@ interface UsePostAdStepNavigationProps {
     categoryFilters?: CategoryFilter[];
     trigger: UseFormReturn<PostAdFormData>["trigger"];
     maxStep?: number;
+    availableSpareParts?: SparePart[];
 }
 
 export function usePostAdStepNavigation({
@@ -25,6 +27,7 @@ export function usePostAdStepNavigation({
     categoryFilters = [],
     trigger,
     maxStep = 2,
+    availableSpareParts = [],
 }: UsePostAdStepNavigationProps) {
     const nextStep = useCallback(async () => {
         setStepValidationAttempts((prev) =>
@@ -47,6 +50,15 @@ export function usePostAdStepNavigation({
                 form.setError("brand" as Path<PostAdFormData>, {
                     type: "manual",
                     message: "Please select a brand",
+                });
+                hasErrors = true;
+            }
+
+            const spareParts = (form.getValues("spareParts") || []) as string[];
+            if (availableSpareParts.length > 0 && spareParts.length === 0) {
+                form.setError("spareParts" as Path<PostAdFormData>, {
+                    type: "manual",
+                    message: "Please select at least one working spare part",
                 });
                 hasErrors = true;
             }
@@ -134,6 +146,7 @@ export function usePostAdStepNavigation({
         form,
         maxStep,
         requiresScreenSize,
+        availableSpareParts,
         setCurrentStep,
         setStepValidationAttempts,
         trigger,

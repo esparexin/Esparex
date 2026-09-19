@@ -13,12 +13,13 @@ import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 export function DeviceConditionSection() {
     const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
     const { watch, loadSparePartsForCategory } = usePostAdAction();
-    const { form } = usePostAdFlow();
+    const { form, errors } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const spareParts = (watch("spareParts") || []) as string[];
     const deviceCondition = watch("deviceCondition");
     const hasSelection = deviceCondition === "power_on" || deviceCondition === "power_off";
+    const sparePartsErrorMsg = errors.spareParts?.message as string | undefined;
 
     const handleSparePartsChange = useCallback((selectedIds: string | string[]) => {
         const ids = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
@@ -27,18 +28,21 @@ export function DeviceConditionSection() {
             shouldDirty: true,
             shouldTouch: true,
         });
+        if (ids.length > 0) {
+            form.clearErrors("spareParts");
+        }
         clearStep2GeneratedDetails(form);
     }, [form]);
 
     return (
         <div className="space-y-4">
             {categoryId && (
-                <section className="space-y-2">
+                <section className="space-y-2" data-field="spareParts">
                     <label 
                         htmlFor="working-spare-parts-select" 
                         className="text-caption sm:text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
                     >
-                        Working Spare Parts
+                        Working Spare Parts <span className="text-destructive">*</span>
                     </label>
                     {isLoadingSpareParts ? (
                         <div className="h-11 rounded-xl bg-muted animate-pulse border border-border" />
@@ -56,14 +60,20 @@ export function DeviceConditionSection() {
                             </Button>
                         </div>
                     ) : availableSpareParts.length > 0 ? (
-                        <CatalogSelectDropdown
-                            id="working-spare-parts-select"
-                            items={availableSpareParts}
-                            value={spareParts}
-                            onChange={handleSparePartsChange}
-                            multiSelect={true}
-                            placeholder="Search or select working spare parts..."
-                        />
+                        <>
+                            <CatalogSelectDropdown
+                                id="working-spare-parts-select"
+                                items={availableSpareParts}
+                                value={spareParts}
+                                onChange={handleSparePartsChange}
+                                multiSelect={true}
+                                error={sparePartsErrorMsg}
+                                placeholder="Search or select working spare parts..."
+                            />
+                            {sparePartsErrorMsg && (
+                                <p className="text-caption text-destructive mt-1.5">{sparePartsErrorMsg}</p>
+                            )}
+                        </>
                     ) : null}
                 </section>
             )}
