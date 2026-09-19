@@ -153,7 +153,7 @@ export function BusinessProfileWizard({
                 {/* Header & Step progress */}
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center justify-between">
-                        <span className="text-caption font-bold uppercase tracking-wider text-primary">
+                        <span className="text-caption font-semibold uppercase tracking-wider text-primary">
                             Step {safeCurrentStep + 1} of {steps.length} • {activeStep.label}
                         </span>
                         <div className="flex gap-1.5" aria-hidden="true">
@@ -174,7 +174,7 @@ export function BusinessProfileWizard({
                     <h1
                         ref={headingRef}
                         tabIndex={-1}
-                        className="text-xl font-bold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+                        className="text-h4 sm:text-h3 font-semibold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
                     >
                         {title}
                     </h1>
