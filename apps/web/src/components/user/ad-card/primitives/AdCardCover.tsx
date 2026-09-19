@@ -2,8 +2,6 @@
 
 import { memo } from "react";
 import { SafeImage } from "@/components/common/SafeImage";
-import { Badge } from "@esparex/ui";
-import { ShieldCheck } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { getPlanBadge, ListingTypeBadge, type AdCardData } from "../shared";
 
@@ -22,7 +20,7 @@ export const AdCardCover = memo(function AdCardCover({
   imageUrl,
   priority = false,
   className,
-  showBusinessBadge = true,
+  showBusinessBadge: _showBusinessBadge = true,
   customStatus,
   children,
 }: AdCardCoverProps) {
@@ -36,12 +34,6 @@ export const AdCardCover = memo(function AdCardCover({
 
   // Resolve promotion badge once — hide on sold items per business rules
   const planBadge = isSold ? null : getPlanBadge(ad);
-
-  // Business verification badge
-  const showVerifiedBadge =
-    Boolean(adRecord?.isBusiness) &&
-    Boolean(adRecord?.verified) &&
-    showBusinessBadge;
 
   return (
     <div className={cn("relative overflow-hidden bg-muted/20", className)}>
@@ -85,20 +77,17 @@ export const AdCardCover = memo(function AdCardCover({
         </div>
       )}
 
-      {/* Top-Left Overlay Badges (Listing Type / Spotlight / Verified / Custom Status) */}
-      <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
+      {/* Top-Left Overlay Badge (Spotlight / Custom Status) */}
+      {(planBadge || customStatus) && (
+        <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
+          {planBadge}
+          {customStatus}
+        </div>
+      )}
+
+      {/* Bottom-Left Overlay Badge (Listing Type: Ad / Service / Parts) */}
+      <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-10 flex items-center pointer-events-none">
         <ListingTypeBadge ad={ad} />
-        {planBadge}
-        {showVerifiedBadge && (
-          <Badge
-            className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center gap-1 shadow-2xs"
-            aria-label="Verified Business"
-          >
-            <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
-            Verified
-          </Badge>
-        )}
-        {customStatus}
       </div>
 
       {children}
