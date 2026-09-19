@@ -38,6 +38,22 @@ describe("route helpers", () => {
                 radiusKm: 25,
             })
         ).toBe("/search?type=service&q=screen+replacement&category=services&sort=price_low_high");
+
+        expect(
+            buildPublicBrowseRoute({
+                type: "all",
+                q: "iphone",
+            })
+        ).toBe("/search?q=iphone");
+    });
+
+    it("defaults to type 'all' when type is missing or explicitly 'all'", () => {
+        const withoutType = parsePublicBrowseParams(new URLSearchParams("q=iphone"));
+        expect(withoutType.type).toBe("all");
+        expect(withoutType.q).toBe("iphone");
+
+        const withAllType = parsePublicBrowseParams(new URLSearchParams("type=all&q=iphone"));
+        expect(withAllType.type).toBe("all");
     });
 
     it("builds category and catalog browse links through shared route helpers", () => {

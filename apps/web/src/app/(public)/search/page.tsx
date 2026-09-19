@@ -32,12 +32,14 @@ export async function generateMetadata(
     const parsed = parsePublicBrowseParams(searchParams);
 
     const titleMap: Record<string, string> = {
+        all: 'Buy Used Electronics, Spare Parts & Repair Services Online India',
+        ad: 'Buy Used Electronics Online India',
         service: 'Repair Services Near Me',
         spare_part: 'Buy Mobile Spare Parts Online India',
     };
     const titleDefault = 'Buy Used Electronics & Spare Parts Online India';
 
-    const canonicalPath = parsed.type === 'ad'
+    const canonicalPath = parsed.type === 'all' || parsed.type === 'ad'
         ? '/search'
         : `/search?type=${parsed.type}`;
 
@@ -76,7 +78,8 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
     const searchParams = await props.searchParams;
     const parsed = parsePublicBrowseParams(searchParams);
     const rawType = Array.isArray(searchParams.type) ? searchParams.type[0] : searchParams.type;
-    if (normalizePublicBrowseType(rawType) !== parsed.type || typeof rawType !== "string" || rawType.trim().length === 0) {
+    const normalizedType = normalizePublicBrowseType(rawType);
+    if (typeof rawType === "string" && rawType.trim().length > 0 && rawType !== normalizedType) {
         redirect(buildPublicBrowseRoute(parsed));
     }
 
