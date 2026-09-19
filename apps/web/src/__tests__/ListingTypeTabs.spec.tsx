@@ -20,7 +20,7 @@ describe("ListingTypeTabs SSOT & Accessibility Specifications", () => {
     const labels = LISTING_TYPE_TABS.map((t) => t.label);
     expect(labels).toEqual(["All Listings", "Devices", "Services", "Spare Parts"]);
 
-    // Ensure verbose legacy phrases are avoided
+    // Ensure verbose phrases are avoided
     expect(labels).not.toContain("General Devices");
     expect(labels).not.toContain("Repair Services");
     expect(labels).not.toContain("Hardware Spare Parts");
