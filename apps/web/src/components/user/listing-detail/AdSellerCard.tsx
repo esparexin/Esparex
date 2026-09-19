@@ -1,4 +1,4 @@
-import { Badge } from "@esparex/ui";
+import { CheckCircle } from "@esparex/ui";
 import { Building2, MessageCircle, MessageSquareOff, Phone } from "@esparex/ui";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
@@ -76,12 +76,24 @@ export function AdSellerCard({
                 avatar={renderAvatar()}
                 name={sellerDisplayName}
                 subtitle={
-                    <p className="text-xs text-foreground-subtle font-medium">
-                        {ad.isBusiness ? "Verified Business Account" : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
+                    <p className="text-caption text-foreground-subtle font-medium">
+                        {ad.listingType === "service"
+                            ? "Verified Service Center"
+                            : ad.listingType === "spare_part"
+                            ? "Verified Parts Supplier"
+                            : ad.isBusiness
+                            ? "Verified Business Account"
+                            : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
                     </p>
                 }
-                badge={ad.isBusiness && ad.verified ? (
-                    <Badge className="bg-primary text-primary-foreground text-tiny h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                badge={ad.isBusiness || ad.verified ? (
+                    <span
+                        title={ad.listingType === "service" ? "Verified Service Center" : ad.listingType === "spare_part" ? "Verified Parts Supplier" : "Verified Business"}
+                        aria-label={ad.listingType === "service" ? "Verified Service Center" : ad.listingType === "spare_part" ? "Verified Parts Supplier" : "Verified Business"}
+                        className="inline-flex items-center justify-center shrink-0"
+                    >
+                        <CheckCircle className="h-4 w-4 text-primary" />
+                    </span>
                 ) : undefined}
                 trailing={undefined}
             />

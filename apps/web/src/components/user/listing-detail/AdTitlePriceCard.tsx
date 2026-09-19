@@ -2,7 +2,7 @@ import { Badge } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
-import { Shield, CheckCircle, MapPin, Clock } from "@esparex/ui";
+import { MapPin, Clock } from "@esparex/ui";
 
 interface AdTitlePriceCardProps {
     ad: Ad;
@@ -14,7 +14,6 @@ interface AdTitlePriceCardProps {
 export function AdTitlePriceCard({
     ad,
     categoryLabel,
-    viewCount: _viewCount,
 }: AdTitlePriceCardProps) {
     const locationLabel = resolveListingLocationLabel(ad.location, "full");
     const isService = ad.listingType === "service";
@@ -43,21 +42,6 @@ export function AdTitlePriceCard({
                 )}
             </div>
 
-            {ad.isBusiness && ad.businessName && (
-                <div className="flex items-center gap-2 text-caption text-link-dark bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
-                    <div className="h-6 w-6 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <Shield className="h-3.5 w-3.5 text-white" />
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                        <span className="font-bold block truncate">{ad.businessName}</span>
-                        <span className="text-tiny text-blue-500 font-medium flex items-center gap-1">
-                            <CheckCircle className="h-2.5 w-2.5" />
-                            {isService ? "Verified Service Center" : isSparePart ? "Verified Parts Supplier" : "Verified Business"}
-                        </span>
-                    </div>
-                </div>
-            )}
-
             <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h1 className="text-body-lg sm:text-h4 md:text-h3 font-bold text-foreground leading-snug tracking-tight">
                     {ad.title || "Ad Title"}
@@ -82,14 +66,27 @@ export function AdTitlePriceCard({
                                 </span>
                             )}
                         </div>
-                    ) : ad.price === 0 ? (
-                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1 text-caption md:text-caption font-bold uppercase tracking-wide">
-                            {isService ? "Contact for Quote" : "Free"}
-                        </span>
                     ) : (
-                        <span className="text-h3 md:text-h2 font-bold text-foreground tracking-tight">
-                            {formatPrice(ad.price)}
-                        </span>
+                        <div className="flex flex-col">
+                            {isService && typeof ad.priceMin === "number" && (!ad.price || ad.price === 0) ? (
+                                <span className="text-h3 md:text-h2 font-bold text-foreground tracking-tight">
+                                    {formatPrice(ad.priceMin)}
+                                </span>
+                            ) : ad.price === 0 ? (
+                                <span className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 text-primary rounded-xl px-3 py-1 text-caption font-bold uppercase tracking-wide">
+                                    {isService ? "Contact for Quote" : "Free"}
+                                </span>
+                            ) : (
+                                <span className="text-h3 md:text-h2 font-bold text-foreground tracking-tight">
+                                    {formatPrice(ad.price)}
+                                </span>
+                            )}
+                            {isService && typeof ad.diagnosticFee === "number" && ad.diagnosticFee > 0 && (
+                                <span className="text-tiny text-foreground-secondary font-medium">
+                                    +{formatPrice(ad.diagnosticFee)} Diagnostic Fee
+                                </span>
+                            )}
+                        </div>
                     )}
                 </div>
 

@@ -99,7 +99,12 @@ export function ListingDetailSidebar({
                 />
             ) : null}
 
-            {!isOwner && <AdSafetyTips adId={ad.id} />}
+            {!isOwner && (
+                <AdSafetyTips
+                    adId={ad.id}
+                    listingType={ad.listingType === "service" ? "service" : ad.listingType === "spare_part" ? "spare_part" : "ad"}
+                />
+            )}
 
             {isOwner && (
                 <AdOwnerActions
