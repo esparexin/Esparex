@@ -167,9 +167,6 @@ export function MultiBrandSearchSelect({
                             )}
                         </span>
                     ))}
-                    <span className="text-tiny font-normal text-muted-foreground ml-1">
-                        ({selectedBrandEntries.length} brand{selectedBrandEntries.length > 1 ? "s" : ""} selected)
-                    </span>
                 </div>
             )}
 

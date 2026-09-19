@@ -49,7 +49,7 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
     const imagesError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).images);
     const locationError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).location);
     const locationHelperText = locationDisplay
-        ? "This listing uses your Business profile location. Update it in Business Hub if needed."
+        ? undefined
         : "Add a Business profile location in Business Hub before publishing.";
 
     return (
