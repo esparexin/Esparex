@@ -248,6 +248,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                     error={getFirstFormErrorMessage(errors.description)}
                     registerProps={register("description")}
                     placeholder={config.descriptionProps.placeholder}
+                    helperText={config.descriptionProps.helperText}
                     valueLength={descVal.length}
                     maxLength={config.descriptionProps.maxLength}
                 />

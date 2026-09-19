@@ -23,8 +23,9 @@ export const serviceFormConfig: ListingFormConfig = {
         maxLength: 100,
     },
     descriptionProps: {
-        label: "Description",
-        placeholder: "Describe your service...",
+        label: "Description & Supported Devices",
+        placeholder: "Describe supported device models, turnaround time, warranty terms, and service scope...",
+        helperText: "List supported device models and what is included in your repair or servicing.",
         maxLength: 2000,
     },
     defaultValues: {

@@ -93,25 +93,31 @@ interface ListingDescriptionFieldProps {
     required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
+    helperText?: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
+export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, helperText, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
         <Field label={label} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={error} required={required}>
-            <div className="relative">
-                <Textarea
-                    {...registerProps}
-                    placeholder={placeholder}
-                    maxLength={maxLength}
-                    className="min-h-[120px] pb-6 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle leading-relaxed border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
-                />
-                <span className={cn(
-                    "pointer-events-none absolute right-3 bottom-2 text-tiny font-normal tabular-nums",
-                    valueLength > (maxLength - 100) ? "text-destructive" : "text-foreground-subtle"
-                )}>
-                    {valueLength}/{maxLength}
-                </span>
+            <div className="space-y-1.5">
+                <div className="relative">
+                    <Textarea
+                        {...registerProps}
+                        placeholder={placeholder}
+                        maxLength={maxLength}
+                        className="min-h-[120px] pb-6 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle leading-relaxed border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
+                    />
+                    <span className={cn(
+                        "pointer-events-none absolute right-3 bottom-2 text-tiny font-normal tabular-nums",
+                        valueLength > (maxLength - 100) ? "text-destructive" : "text-foreground-subtle"
+                    )}>
+                        {valueLength}/{maxLength}
+                    </span>
+                </div>
+                {helperText && !error ? (
+                    <p className="text-caption text-muted-foreground">{helperText}</p>
+                ) : null}
             </div>
         </Field>
     );
