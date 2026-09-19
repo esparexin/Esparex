@@ -6,6 +6,8 @@ import { RefreshCw } from "@esparex/ui";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button, cn } from "@esparex/ui";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
+import { ListingTypeTabs } from "./ListingTypeTabs";
 import { BrowseGridSkeleton } from "./BrowseGridSkeleton";
 import { BrowseEmptyState } from "./BrowseEmptyState";
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
@@ -37,6 +39,8 @@ export interface BrowseResultsPanelProps<TItem>
   query: string;
   filterNode?: ReactNode;
   sidebarNode?: ReactNode;
+  browseType?: PublicBrowseType;
+  onTypeChange?: (value: PublicBrowseType) => void;
   categoryName?: string | null;
   locationLabel?: string | null;
   activeFilterCount?: number;
@@ -59,6 +63,8 @@ export function BrowseResultsPanel<TItem>({
   query,
   filterNode,
   sidebarNode,
+  browseType,
+  onTypeChange,
   categoryName,
   locationLabel,
   activeFilterCount = 0,
@@ -104,6 +110,15 @@ export function BrowseResultsPanel<TItem>({
             onSortChange={onSortChange}
             onViewChange={onViewChange}
           />
+
+          {onTypeChange && (
+            <ListingTypeTabs
+              activeType={browseType ?? "all"}
+              onTypeChange={onTypeChange}
+              compact
+              className="pb-0.5"
+            />
+          )}
 
           <AdPlacementSlot placement="search_results_header" />
 

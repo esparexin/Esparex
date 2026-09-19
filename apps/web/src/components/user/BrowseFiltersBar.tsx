@@ -8,6 +8,8 @@ import { Input } from "@esparex/ui";
 import { Label } from "@esparex/ui";
 import { Checkbox } from "@esparex/ui";
 import { cn } from "@/lib/utils";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
+import { LISTING_TYPE_TABS } from "./ListingTypeTabs";
 
 export interface BrowseFiltersHeaderTriggerProps {
   inputId?: string;
@@ -21,6 +23,8 @@ export interface BrowseFiltersHeaderTriggerProps {
   onReset: () => void;
   getCategoryValue?: (category: Category) => string;
   activeFilterCount?: number;
+  browseType?: PublicBrowseType;
+  onTypeChange?: (type: PublicBrowseType) => void;
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
@@ -28,7 +32,7 @@ export interface BrowseFiltersHeaderTriggerProps {
   onDeviceConditionChange?: (condition: string) => void;
 }
 
-type FilterTab = "category" | "budget" | "condition";
+type FilterTab = "type" | "category" | "budget" | "condition";
 
 export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigger({
   inputId,
@@ -42,6 +46,8 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
   onReset,
   getCategoryValue = (category) => category.slug || category.id,
   activeFilterCount = 0,
+  browseType,
+  onTypeChange,
   minPrice,
   maxPrice,
   onPriceChange,
@@ -113,6 +119,21 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Left Vertical Navigation Tabs */}
           <div className="w-[125px] shrink-0 bg-muted/50 border-r border-border overflow-y-auto">
+            {onTypeChange && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("type")}
+                className={cn(
+                  "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
+                  activeTab === "type"
+                    ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                    : "text-muted-foreground border-transparent hover:text-foreground"
+                )}
+              >
+                Listing Type
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => setActiveTab("category")}
@@ -155,6 +176,37 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
 
           {/* Right Content Panel */}
           <div className="flex-1 p-4 overflow-y-auto bg-card">
+            {activeTab === "type" && onTypeChange && (
+              <div className="space-y-1.5">
+                {LISTING_TYPE_TABS.map((tab) => {
+                  const isSelected = (browseType ?? "all") === tab.id;
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        onTypeChange(tab.id);
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between p-3 rounded-xl text-small font-medium transition-colors border",
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs"
+                          : "border-border/80 bg-background text-foreground-secondary hover:bg-muted"
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon className="size-4 shrink-0" aria-hidden="true" />
+                        <span>{tab.label}</span>
+                      </div>
+                      {isSelected && <Check className="size-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {activeTab === "category" && (
               <div className="space-y-1">
                 <button
