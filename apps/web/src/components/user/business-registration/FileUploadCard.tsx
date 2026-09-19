@@ -79,7 +79,7 @@ export function FileUploadCard({
             </p>
 
             {file ? (
-                <div className="group relative h-24 sm:h-28 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                <div className="group relative h-24 sm:h-28 w-full overflow-hidden rounded-2xl border border-border bg-muted/40">
                     {showImagePreview && previewUrl ? (
                         <Image
                             src={previewUrl}
@@ -91,17 +91,17 @@ export function FileUploadCard({
                         />
                     ) : (
                         <div className="flex h-full w-full flex-col items-center justify-center p-2 text-center">
-                            <FileText className="h-6 w-6 text-slate-400 mb-0.5" />
-                            <span className="truncate text-xs font-semibold text-foreground max-w-full px-2">
+                            <FileText className="h-6 w-6 text-foreground-subtle mb-0.5" />
+                            <span className="truncate text-caption font-semibold text-foreground max-w-full px-2">
                                 {getBusinessFileName(file)}
                             </span>
-                            <span className="text-tiny text-muted-foreground mt-0.5">
+                            <span className="text-tiny text-foreground-subtle mt-0.5">
                                 {getBusinessFileMeta(file)}
                             </span>
                         </div>
                     )}
-                    <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/60 via-slate-900/0 to-slate-900/0 p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-tiny font-bold text-white shadow-sm">
+                    <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-black/60 via-transparent to-transparent p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-tiny font-bold text-white shadow-xs">
                             Attached
                         </span>
                         <Button
@@ -113,9 +113,9 @@ export function FileUploadCard({
                                 onRemove();
                             }}
                             aria-label={`Remove ${title}`}
-                            className="h-7 w-7 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-primary"
+                            className="h-7 w-7 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary"
                         >
-                            <X className="h-3.5 w-3.5 text-rose-500" />
+                            <X className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                     </div>
                 </div>
@@ -125,13 +125,13 @@ export function FileUploadCard({
                     onClick={handleOpenPicker}
                     aria-label={`Upload ${title}`}
                     className={cn(
-                        "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 text-center transition-all hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation",
-                        effectiveError && "border-red-300 bg-red-50/30"
+                        "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 px-3 text-center transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation",
+                        effectiveError && "border-destructive/40 bg-destructive/5"
                     )}
                 >
                     <Upload className="mb-1.5 h-5 w-5 text-foreground-subtle" />
-                    <span className="text-xs font-semibold text-foreground-secondary">Choose file</span>
-                    <span className="mt-0.5 text-tiny text-muted-foreground">PDF, JPG up to 10MB</span>
+                    <span className="text-caption font-semibold text-foreground-secondary">Choose file</span>
+                    <span className="mt-0.5 text-tiny text-foreground-subtle">PDF, JPG up to 10MB</span>
                 </button>
             )}
 
