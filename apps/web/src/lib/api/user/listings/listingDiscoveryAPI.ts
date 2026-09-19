@@ -64,6 +64,7 @@ export interface HomeAdsRequestParams {
     lng?: number;
     radiusKm?: number;
     limit?: number;
+    listingType?: string;
 }
 
 export interface TrendingAdsPayload {
@@ -221,6 +222,9 @@ export const getHomeAds = async (
         if (typeof effectiveParams.lat === 'number' && Number.isFinite(effectiveParams.lat)) params.append('lat', String(effectiveParams.lat));
         if (typeof effectiveParams.lng === 'number' && Number.isFinite(effectiveParams.lng)) params.append('lng', String(effectiveParams.lng));
         if (typeof effectiveParams.radiusKm === 'number' && Number.isFinite(effectiveParams.radiusKm)) params.append('radiusKm', String(effectiveParams.radiusKm));
+        if (effectiveParams.listingType && effectiveParams.listingType !== 'all') {
+            params.append('listingType', effectiveParams.listingType);
+        }
         const url = withQueryParams(API_ROUTES.USER.HOME_FEED, params);
         const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
 

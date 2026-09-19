@@ -98,8 +98,20 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             prevLocationIdentityRef.current = locationIdentity;
             setCursor(undefined);
             setNextCursor(null);
+            setFeedAds([]);
         }
     }, [locationIdentity]);
+
+    // Soft-reset pagination cursor and feed state when active listing tab changes
+    const prevSelectedTypeRef = useRef(selectedType);
+    useEffect(() => {
+        if (prevSelectedTypeRef.current !== selectedType) {
+            prevSelectedTypeRef.current = selectedType;
+            setCursor(undefined);
+            setNextCursor(null);
+            setFeedAds([]);
+        }
+    }, [selectedType]);
     
     const requestParams = useMemo(() => {
         const rawLocationId = hasUserLocation ? (location.locationId || location.id) : undefined;
@@ -113,10 +125,11 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
             lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
             radiusKm: shouldUseGeoSearch ? 50 : undefined,
+            listingType: selectedType !== "all" ? selectedType : undefined,
         };
-    }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, shouldUseGeoSearch]);
+    }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    const shouldUseInitialData = !cursor && !hasUserLocation;
+    const shouldUseInitialData = !cursor && !hasUserLocation && selectedType === "all";
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
@@ -153,11 +166,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         })();
     }, [data]);
 
-    const recommendedAds = feedAds;
-    const displayedAds = useMemo(() => {
-        if (selectedType === "all") return recommendedAds;
-        return recommendedAds.filter((ad) => (ad.listingType || "ad") === selectedType);
-    }, [recommendedAds, selectedType]);
+    const displayedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
 
     return (
@@ -181,13 +190,13 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     />
                 </div>
 
-                {isLoading && displayedAds.length === 0 && <FeedSkeletonGrid />}
+                {(isLoading || isFetching) && displayedAds.length === 0 && <FeedSkeletonGrid />}
 
                 {isError && displayedAds.length === 0 && (
                     <FeedErrorState onRetry={() => refetch()} />
                 )}
 
-                {!isLoading && !isError && displayedAds.length === 0 && (
+                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && (
                     <FeedEmptyState selectedType={selectedType} />
                 )}
 
