@@ -12,6 +12,8 @@ import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/locati
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 import { HomePromoAdCard } from "./HomePromoAdCard";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
+import { ListingTypeTabs } from "@/components/user/ListingTypeTabs";
 
 const HOME_FEED_PAGE_SIZE = 12;
 
@@ -42,12 +44,20 @@ function FeedErrorState({ onRetry }: { onRetry: () => void }) {
     );
 }
 
-function FeedEmptyState() {
+function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
+    const typeLabel =
+        selectedType === "service"
+            ? "services"
+            : selectedType === "spare_part"
+            ? "spare parts"
+            : selectedType === "ad"
+            ? "devices"
+            : "listings";
     return (
         <div className="rounded-xl border border-border bg-card p-8 text-center">
             <PackageOpen className="mx-auto h-9 w-9 text-foreground-secondary" />
             <p className="mt-2 text-caption font-medium text-foreground-secondary">
-                No ads available right now.
+                No {typeLabel} available right now.
             </p>
         </div>
     );
@@ -63,6 +73,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
     const [hasMore, setHasMore] = useState<boolean>(initialData?.hasMore === true);
+    const [selectedType, setSelectedType] = useState<PublicBrowseType>("all");
     
     const { location, isLoaded } = useLocationData();
     const latitude = getLatitude(location);
@@ -143,39 +154,47 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     }, [data]);
 
     const recommendedAds = feedAds;
+    const displayedAds = useMemo(() => {
+        if (selectedType === "all") return recommendedAds;
+        return recommendedAds.filter((ad) => (ad.listingType || "ad") === selectedType);
+    }, [recommendedAds, selectedType]);
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
 
     return (
         <section
             role="region"
-            aria-label="Explore Ads"
+            aria-label="Explore Marketplace"
             aria-labelledby="home-feed-heading"
             className="pt-2 pb-8 md:pt-3 md:pb-12"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="mb-2.5 md:mb-3.5">
+                <div className="mb-4 space-y-3">
                     <h2
                         id="home-feed-heading"
                         className="text-body sm:text-body-lg md:text-h4 font-bold text-foreground tracking-tight"
                     >
-                        Explore Ads
+                        Explore Marketplace
                     </h2>
+                    <ListingTypeTabs
+                        activeType={selectedType}
+                        onTypeChange={setSelectedType}
+                    />
                 </div>
 
-                {isLoading && recommendedAds.length === 0 && <FeedSkeletonGrid />}
+                {isLoading && displayedAds.length === 0 && <FeedSkeletonGrid />}
 
-                {isError && recommendedAds.length === 0 && (
+                {isError && displayedAds.length === 0 && (
                     <FeedErrorState onRetry={() => refetch()} />
                 )}
 
-                {!isLoading && !isError && recommendedAds.length === 0 && (
-                    <FeedEmptyState />
+                {!isLoading && !isError && displayedAds.length === 0 && (
+                    <FeedEmptyState selectedType={selectedType} />
                 )}
 
-                {recommendedAds.length > 0 && (
+                {displayedAds.length > 0 && (
                     <>
                         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
-                            {recommendedAds.map((ad, index) => (
+                            {displayedAds.map((ad, index) => (
                                 <Fragment key={ad.id}>
                                     <AdCardGrid
                                         ad={ad}
@@ -190,7 +209,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                     {index === 2 && <HomePromoAdCard key="home-promo-card" />}
                                 </Fragment>
                             ))}
-                            {recommendedAds.length < 3 && <HomePromoAdCard key="home-promo-card" />}
+                            {displayedAds.length < 3 && <HomePromoAdCard key="home-promo-card" />}
                         </div>
 
                         {canLoadMore && (

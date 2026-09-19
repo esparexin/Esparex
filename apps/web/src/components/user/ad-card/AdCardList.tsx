@@ -12,6 +12,7 @@ import {
   getPlanBadge,
   getConditionBadge,
   isSpotlightAd,
+  ListingTypeBadge,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -42,7 +43,8 @@ function areAdCardListPropsEqual(
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
     prevProps.href === nextProps.href &&
-    prevProps.className === nextProps.className
+    prevProps.className === nextProps.className &&
+    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType
   );
 }
 
@@ -99,11 +101,10 @@ export const AdCardList = memo(function AdCardList({
                 <span className="text-tiny text-foreground-tertiary">No Image</span>
               </div>
             )}
-            {planBadge && (
-              <div className="absolute top-1.5 left-1.5 z-10">
-                {planBadge}
-              </div>
-            )}
+            <div className="absolute top-1.5 left-1.5 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
+              <ListingTypeBadge ad={ad} />
+              {planBadge}
+            </div>
           </div>
 
           {/* List View Content */}

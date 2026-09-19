@@ -5,59 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { type Ad } from "@/schemas/ad.schema";
 import { Check, CircuitBoard } from "@esparex/ui";
 import { getSpareParts } from "@/lib/api/user/masterData";
+import { resolveListingSpareParts, type ResolvedSparePart } from "@/lib/listings/listingPresentation";
 
-export interface NormalizedSparePartItem {
-    id: string;
-    name: string;
-    brand?: string;
-    type?: string;
-}
+export type NormalizedSparePartItem = ResolvedSparePart;
 
 export function extractSparePartItems(ad: Ad): NormalizedSparePartItem[] {
-    const items: NormalizedSparePartItem[] = [];
-    const seenNames = new Set<string>();
-
-    if (Array.isArray(ad.sparePartsSnapshot) && ad.sparePartsSnapshot.length > 0) {
-        for (const part of ad.sparePartsSnapshot) {
-            const name = String(part.name || "").trim();
-            if (name && !seenNames.has(name.toLowerCase())) {
-                seenNames.add(name.toLowerCase());
-                items.push({
-                    id: String(part.id || part._id || name),
-                    name,
-                    brand: part.brand ? String(part.brand).trim() : undefined,
-                });
-            }
-        }
-    }
-
-    const rawSpareParts = (Array.isArray(ad.spareParts) ? ad.spareParts : []) as Array<unknown>;
-    for (const part of rawSpareParts) {
-        if (typeof part === "string") {
-            const name = part.trim();
-            if (name && !/^[a-f\d]{24}$/i.test(name) && !seenNames.has(name.toLowerCase())) {
-                seenNames.add(name.toLowerCase());
-                items.push({
-                    id: name,
-                    name,
-                });
-            }
-        } else if (part && typeof part === "object") {
-            const record = part as Record<string, unknown>;
-            const name = String(record.name || record.displayName || record.title || "").trim();
-            if (name && !seenNames.has(name.toLowerCase())) {
-                seenNames.add(name.toLowerCase());
-                items.push({
-                    id: String(record.id || record._id || name),
-                    name,
-                    type: record.type ? String(record.type).trim() : undefined,
-                    brand: record.brand ? String(record.brand).trim() : undefined,
-                });
-            }
-        }
-    }
-
-    return items;
+    return resolveListingSpareParts(ad);
 }
 
 interface ListingWorkingSparePartsTabProps {
@@ -66,8 +19,8 @@ interface ListingWorkingSparePartsTabProps {
 }
 
 export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorkingSparePartsTabProps) {
-    const categoryId = String(ad.categoryId || "");
-    const { data: catalogSpareParts = [] } = useQuery({
+    const categoryId = String(ad.categoryId || (ad as { category?: unknown }).category || "");
+    const { data: catalogSpareParts = [], isLoading: isCatalogLoading } = useQuery({
         queryKey: ["spare-parts-catalog", categoryId],
         queryFn: () => getSpareParts(categoryId),
         enabled: Boolean(categoryId),
@@ -96,11 +49,12 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
         for (const item of rawList) {
             if (item && typeof item === "object") {
                 const record = item as Record<string, unknown>;
-                const name = String(record.name || record.displayName || "").trim();
+                const name = String(record.name || record.displayName || record.title || record.canonicalName || "").trim();
                 const idStr = String(record.id || record._id || "");
+                const brand = typeof record.brand === "string" && record.brand.trim() ? record.brand.trim() : undefined;
                 if (name && !seenNames.has(name.toLowerCase())) {
                     seenNames.add(name.toLowerCase());
-                    resolved.push({ id: idStr || name, name });
+                    resolved.push({ id: idStr || name, name, brand });
                 }
             } else if (typeof item === "string") {
                 const idStr = item.trim();
@@ -118,6 +72,9 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
         }
         return resolved;
     }, [sparePartItems, ad.spareParts, ad.sparePartIds, catalogMap]);
+
+    const hasRawParts = (Array.isArray(ad.sparePartIds) && ad.sparePartIds.length > 0) ||
+        (Array.isArray(ad.spareParts) && ad.spareParts.length > 0);
 
     return (
         <div
@@ -160,6 +117,18 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                                 <Check className="size-3" />
                                 Available
                             </span>
+                        </div>
+                    ))}
+                </div>
+            ) : (isCatalogLoading && hasRawParts) ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {[1, 2].map((n) => (
+                        <div key={n} className="p-3.5 rounded-2xl border border-border bg-card animate-pulse flex items-center gap-3">
+                            <div className="size-9 rounded-xl bg-muted" />
+                            <div className="space-y-2 flex-1">
+                                <div className="h-4 bg-muted rounded w-3/4" />
+                                <div className="h-3 bg-muted rounded w-1/2" />
+                            </div>
                         </div>
                     ))}
                 </div>

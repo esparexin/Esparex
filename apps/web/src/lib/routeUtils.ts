@@ -34,6 +34,7 @@ export type UserPage =
     | "home"
     | "browse"
     | "browse-service-listings"
+    | "browse-spare-part-listings"
     | "category"
     | "post-ad"
     | "business-register"  // Business registration page
@@ -111,6 +112,8 @@ export type UserPage =
 export const ROUTES = {
     HOME: "home",
     BROWSE: "browse",
+    BROWSE_SERVICES: "browse-service-listings",
+    BROWSE_SPARE_PARTS: "browse-spare-part-listings",
     CATEGORY: "category",
     POST_AD: "post-ad",
     LOGIN: "login",
@@ -130,6 +133,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
     browse: buildPublicBrowseRoute({ type: "ad" }),
     "browse-service-listings": buildPublicBrowseRoute({ type: "service" }),
+    "browse-spare-part-listings": buildPublicBrowseRoute({ type: "spare_part" }),
     "post-ad": "/post-ad",
     login: "/?login=true",
     // ── /account/* namespace (SSOT for all private account pages) ──

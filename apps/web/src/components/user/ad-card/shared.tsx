@@ -3,12 +3,12 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Zap } from "@esparex/ui";
+import { Zap, Badge, Smartphone, Wrench, Cpu } from "@esparex/ui";
 import { Power } from "lucide-react";
-import { Badge } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import { resolveListingTypeBadge } from "@/lib/listings/listingPresentation";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
@@ -228,6 +228,40 @@ export function isSpotlightAd(ad: AdCardData): boolean {
   );
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* Listing type badge (Ad, Service, Parts)                                   */
+/* -------------------------------------------------------------------------- */
+
+export function ListingTypeBadge({
+  ad,
+  className,
+}: {
+  ad: AdCardData;
+  className?: string;
+}): ReactNode | null {
+  const adRecord = toAdRecord(ad);
+  const typeBadge = resolveListingTypeBadge(adRecord);
+  if (!typeBadge) {
+    return null;
+  }
+
+  return (
+    <Badge
+      className={cn(
+        "border text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center gap-1 shadow-2xs select-none backdrop-blur-xs",
+        typeBadge.className,
+        className
+      )}
+      aria-label={`Listing type: ${typeBadge.label}`}
+    >
+      {typeBadge.icon === "wrench" && <Wrench className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
+      {typeBadge.icon === "cpu" && <Cpu className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
+      {typeBadge.icon === "device" && <Smartphone className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
+      <span>{typeBadge.label}</span>
+    </Badge>
+  );
+}
 
 export function getPlanBadge(
   ad: AdCardData,

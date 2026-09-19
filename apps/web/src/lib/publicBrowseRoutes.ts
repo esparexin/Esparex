@@ -1,7 +1,7 @@
 import { sanitizeLocationLabel } from "@esparex/shared";
 import { parseBrowseTokenList, serializeBrowseTokenList } from "@/lib/browse/browseFilterNormalization";
 
-export type PublicBrowseType = "ad" | "service" | "spare_part";
+export type PublicBrowseType = "all" | "ad" | "service" | "spare_part";
 
 export interface PublicBrowseRouteParams {
     type?: unknown;
@@ -44,7 +44,7 @@ type BrowseCategoryRecord = {
 type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
 const PUBLIC_BROWSE_PATH = "/search";
-const PUBLIC_BROWSE_TYPES = new Set<PublicBrowseType>(["ad", "service", "spare_part"]);
+const PUBLIC_BROWSE_TYPES = new Set<PublicBrowseType>(["all", "ad", "service", "spare_part"]);
 const PUBLIC_SORTS = new Set(["relevance", "newest", "price_low_high", "price_high_low"]);
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
@@ -113,7 +113,7 @@ export const normalizePublicBrowseType = (value: unknown): PublicBrowseType => {
     const normalized = readString(value)?.toLowerCase();
     return normalized && PUBLIC_BROWSE_TYPES.has(normalized as PublicBrowseType)
         ? (normalized as PublicBrowseType)
-        : "ad";
+        : "all";
 };
 
 export const inferPublicBrowseTypeFromPathname = (pathname?: string | null): PublicBrowseType => {
@@ -168,7 +168,9 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
             ? resolvedCategory
             : undefined;
 
-    params.set("type", type);
+    if (type !== "all") {
+        params.set("type", type);
+    }
     appendIfPresent(params, "q", input.q);
     if (resolvedCategoryId) {
         params.set("categoryId", resolvedCategoryId);
@@ -208,7 +210,8 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
         params.set("page", String(page));
     }
 
-    return `${PUBLIC_BROWSE_PATH}?${params.toString()}`;
+    const query = params.toString();
+    return query ? `${PUBLIC_BROWSE_PATH}?${query}` : PUBLIC_BROWSE_PATH;
 };
 
 import { getCanonicalCategorySlug } from "@/lib/seo/canonicalSlugs";

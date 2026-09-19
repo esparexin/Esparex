@@ -121,7 +121,9 @@ export const getAdsPage = async (
                             params.append('category', String(value));
                         }
                     } else if (key === 'type') {
-                        params.append('listingType', String(value));
+                        if (value && value !== 'all') {
+                            params.append('listingType', String(value));
+                        }
                     } else {
                         params.append(key, String(value));
                     }

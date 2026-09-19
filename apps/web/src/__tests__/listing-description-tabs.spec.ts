@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ListingDescriptionCard } from "@/components/user/listing-detail/ListingDescriptionCard";
+import { ListingDescriptionCard, TAB_KEYS } from "@/components/user/listing-detail/ListingDescriptionCard";
 import { extractSparePartItems } from "@/components/user/listing-detail/ListingWorkingSparePartsTab";
 import { ListingDescriptionTab } from "@/components/user/listing-detail/ListingDescriptionTab";
 import { ListingWorkingSparePartsTab } from "@/components/user/listing-detail/ListingWorkingSparePartsTab";
@@ -10,6 +10,13 @@ describe("ListingDescriptionCard 3-Tab Architecture & Structure", () => {
     expect(typeof ListingDescriptionCard).toBe("function");
     expect(typeof ListingDescriptionTab).toBe("function");
     expect(typeof ListingWorkingSparePartsTab).toBe("function");
+  });
+
+  it("enforces canonical tab sequence: Repair Shops -> Description -> Working Spare Parts", () => {
+    expect(TAB_KEYS).toEqual(["repair-shops", "description", "spare-parts"]);
+    expect(TAB_KEYS[0]).toBe("repair-shops");
+    expect(TAB_KEYS[1]).toBe("description");
+    expect(TAB_KEYS[2]).toBe("spare-parts");
   });
 
   it("extracts spare parts from snapshot and array correctly", () => {

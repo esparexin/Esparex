@@ -2,6 +2,7 @@ import type { LocationData } from "@/context/LocationContext";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { getLatitude, getLongitude } from "@esparex/shared";
 import type { Category } from "@/lib/api/user/categories";
+import { isUserSelectedLocation, shouldUseGeoRadiusLocation } from "@/lib/location/queryMode";
 
 interface BaseBrowseFilterShape {
   page?: number;
@@ -15,14 +16,13 @@ interface BaseBrowseFilterShape {
 
 interface ProximityFilterShape {
   locationId?: string;
+  level?: string;
   lat?: number;
   lng?: number;
   radiusKm?: number;
 }
 
-interface ServiceLocationFilterShape extends ProximityFilterShape {
-  level?: string;
-}
+interface ServiceLocationFilterShape extends ProximityFilterShape {}
 
 type RequestedLocationFilterShape = ProximityFilterShape;
 
@@ -107,47 +107,30 @@ export function applyProximityLocationFilters<TFilter extends ProximityFilterSha
   location: LocationData;
   radiusKm: number;
 }) {
-  if (!location) return;
-
-  const isRegionLevel = location.level === "state" || location.level === "country";
-  if (location.locationId) {
-    filters.locationId = location.locationId;
-  }
-
-  const latitude = getLatitude(location);
-  const longitude = getLongitude(location);
-  if (!isRegionLevel && latitude != undefined && longitude != undefined) {
-    filters.lat = latitude;
-    filters.lng = longitude;
-    filters.radiusKm = radiusKm;
-  }
-}
-
-export function applyServiceLocationFilters<TFilter extends ServiceLocationFilterShape>({
-  filters,
-  location,
-  radiusKm,
-}: {
-  filters: TFilter;
-  location: LocationData;
-  radiusKm: number;
-}) {
-  if (!location) return;
-
-  const isRegionLevel = location.level === "state" || location.level === "country";
+  if (!location || !isUserSelectedLocation(location)) return;
 
   if (location.locationId) {
     filters.locationId = location.locationId;
-    if (location.level === "state" || location.level === "country" || location.level === "city") {
+    if (location.level) {
       filters.level = location.level;
     }
   }
 
-  const latitude = getLatitude(location);
-  const longitude = getLongitude(location);
-  if (!isRegionLevel && latitude != undefined && longitude != undefined) {
-    filters.lat = latitude;
-    filters.lng = longitude;
-    filters.radiusKm = radiusKm;
+  if (shouldUseGeoRadiusLocation(location)) {
+    const latitude = getLatitude(location);
+    const longitude = getLongitude(location);
+    if (latitude !== undefined && longitude !== undefined) {
+      filters.lat = latitude;
+      filters.lng = longitude;
+      filters.radiusKm = radiusKm;
+    }
   }
+}
+
+export function applyServiceLocationFilters<TFilter extends ServiceLocationFilterShape>(args: {
+  filters: TFilter;
+  location: LocationData;
+  radiusKm: number;
+}) {
+  applyProximityLocationFilters(args);
 }

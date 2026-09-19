@@ -8,6 +8,8 @@ import { Input } from "@esparex/ui";
 import { Label } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/api/user/categories";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
+import { LISTING_TYPE_TABS } from "./ListingTypeTabs";
 
 export interface BrowseFilterSidebarProps {
   categories: Category[];
@@ -15,6 +17,8 @@ export interface BrowseFilterSidebarProps {
   onCategoryChange: (categorySlugOrId: string) => void;
   brandId?: string;
   onBrandChange?: (brandId: string) => void;
+  browseType?: PublicBrowseType;
+  onTypeChange?: (type: PublicBrowseType) => void;
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
@@ -34,6 +38,8 @@ export function BrowseFilterSidebar({
   categories,
   selectedCategory,
   onCategoryChange,
+  browseType,
+  onTypeChange,
   deviceCondition,
   onDeviceConditionChange,
   minPrice,
@@ -81,6 +87,37 @@ export function BrowseFilterSidebar({
           </Button>
         )}
       </div>
+
+      {/* 0. Listing Type Section */}
+      {onTypeChange && (
+        <div className="space-y-2.5 border-b border-border/60 pb-4">
+          <span className="text-caption font-bold uppercase tracking-wider text-foreground-secondary">
+            Listing Type
+          </span>
+          <div className="grid grid-cols-2 gap-1.5 pt-1">
+            {LISTING_TYPE_TABS.map((tab) => {
+              const isSelected = (browseType ?? "all") === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => onTypeChange(tab.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-caption font-semibold transition-all border text-left cursor-pointer",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                      : "border-border/80 bg-background text-foreground-secondary hover:bg-muted/80 hover:text-foreground"
+                  )}
+                >
+                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 1. Category Tree Section */}
       <div className="space-y-2.5 border-b border-border/60 pb-4">

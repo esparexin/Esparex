@@ -64,22 +64,25 @@ export function resolveListingTypeBadge(
         return {
             type: listingType,
             label: "Service",
-            className: "bg-emerald-50 text-emerald-700 border-emerald-100",
+            icon: "wrench" as const,
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
         };
     }
 
     if (listingType === "spare_part") {
         return {
             type: listingType,
-            label: "Spare Part",
-            className: "bg-violet-50 text-violet-700 border-violet-100",
+            label: "Parts",
+            icon: "cpu" as const,
+            className: "bg-purple-50 text-purple-700 border-purple-200",
         };
     }
 
     return {
         type: listingType,
-        label: "Device",
-        className: "bg-blue-50 text-link-dark border-blue-100",
+        label: "Ad",
+        icon: "device" as const,
+        className: "bg-blue-50 text-blue-700 border-blue-200",
     };
 }
 
@@ -301,7 +304,7 @@ export function resolveListingSpareParts(ad: SparePartLike | null | undefined): 
                 items.push({ id: name, name });
             } else if (part && typeof part === "object") {
                 const rec = part as Record<string, unknown>;
-                const rawName = rec.name ?? rec.displayName ?? rec.title ?? "";
+                const rawName = rec.name ?? rec.displayName ?? rec.title ?? rec.canonicalName ?? "";
                 const name = typeof rawName === "string" ? rawName.trim() : "";
                 if (!name || isHexId(name)) continue;
                 const key = name.toLowerCase();
@@ -316,7 +319,7 @@ export function resolveListingSpareParts(ad: SparePartLike | null | undefined): 
     }
 
     // 3. sparePartIds — raw IDs with no names; skip silently, cannot display without catalog
-    //    (Tab 2 / ListingWorkingSparePartsTab resolves these via catalog lookup separately)
+    //    (Tab 3 / ListingWorkingSparePartsTab resolves these via catalog lookup separately)
 
     return items;
 }
@@ -326,5 +329,19 @@ export function resolveListingSpareParts(ad: SparePartLike | null | undefined): 
  * Always use this instead of ad.spareParts.length to avoid counting raw hex IDs.
  */
 export function resolveListingSparePartsCount(ad: SparePartLike | null | undefined): number {
-    return resolveListingSpareParts(ad).length;
+    if (!ad) return 0;
+    const resolved = resolveListingSpareParts(ad);
+    if (resolved.length > 0) return resolved.length;
+
+    // Fallback: If readable names are not yet hydrated in the ad object,
+    // count tagged sparePartIds / spareParts so UI badges accurately reflect
+    // the working spare parts selected on the device.
+    if (Array.isArray(ad.sparePartIds) && ad.sparePartIds.length > 0) {
+        return ad.sparePartIds.length;
+    }
+    if (Array.isArray(ad.spareParts) && ad.spareParts.length > 0) {
+        return ad.spareParts.length;
+    }
+
+    return 0;
 }

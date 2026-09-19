@@ -152,7 +152,7 @@ export async function renderListingDetailPage({
                     __html: toSafeJsonLd(buildStructuredData(listing)),
                 }}
             />
-            <ListingPageClient ad={listing} />
+            <ListingPageClient ad={listing} canonicalBasePath={canonicalBasePath} />
         </>
     );
 }

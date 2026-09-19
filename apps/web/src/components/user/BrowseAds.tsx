@@ -21,11 +21,12 @@ import {
 import { API_ROUTES } from "@/lib/api/routes";
 import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 
 const DEFAULT_RADIUS_KM = 50;
 
 interface BrowseAdsProps {
-  browseType?: "ad" | "service" | "spare_part";
+  browseType?: PublicBrowseType;
   initialCategory?: string;
   initialSearchQuery?: string;
   initialResults?: ListingPageResult;
@@ -78,8 +79,48 @@ const buildAdFilters = ({
   return filters;
 };
 
+const TYPE_CONFIG: Record<
+  PublicBrowseType,
+  {
+    plural: string;
+    placeholder: string;
+    ariaLabel: string;
+    emptyTitle: string;
+    logScope: string;
+  }
+> = {
+  all: {
+    plural: "listings",
+    placeholder: "Search devices, services, spare parts...",
+    ariaLabel: "Search marketplace listings",
+    emptyTitle: "No listings found",
+    logScope: "BrowseAll",
+  },
+  ad: {
+    plural: "devices",
+    placeholder: "Search devices...",
+    ariaLabel: "Search marketplace devices",
+    emptyTitle: "No devices found",
+    logScope: "BrowseAds",
+  },
+  service: {
+    plural: "services",
+    placeholder: "Search repair services...",
+    ariaLabel: "Search services",
+    emptyTitle: "No services found",
+    logScope: "BrowseServices",
+  },
+  spare_part: {
+    plural: "spare parts",
+    placeholder: "Search spare parts...",
+    ariaLabel: "Search spare parts",
+    emptyTitle: "No spare parts found",
+    logScope: "BrowseSpareParts",
+  },
+};
+
 export function BrowseAds({
-  browseType = "ad",
+  browseType = "all",
   initialCategory,
   initialSearchQuery = "",
   initialResults,
@@ -94,29 +135,8 @@ export function BrowseAds({
     [browseType]
   );
 
-  const typeConfig = {
-    ad: {
-      plural: "ads",
-      placeholder: "Search for mobiles, parts, services...",
-      ariaLabel: "Search marketplace ads",
-      emptyTitle: "No ads found",
-      logScope: "BrowseAds",
-    },
-    service: {
-      plural: "services",
-      placeholder: "Search repair services...",
-      ariaLabel: "Search services",
-      emptyTitle: "No services found",
-      logScope: "BrowseServices",
-    },
-    spare_part: {
-      plural: "spare parts",
-      placeholder: "Search spare parts...",
-      ariaLabel: "Search spare parts",
-      emptyTitle: "No spare parts found",
-      logScope: "BrowseSpareParts",
-    },
-  }[browseType];
+  const resolvedBrowseType: PublicBrowseType = browseType ?? "all";
+  const typeConfig = TYPE_CONFIG[resolvedBrowseType];
 
   const handleGetEmptyDescription = useCallback(
     (searchQuery: string) =>
