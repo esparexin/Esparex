@@ -84,7 +84,7 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
     };
 
     const handleTabKeyDown = (e: React.KeyboardEvent, currentTab: TabKey) => {
-        const currentIndex = tabKeys.indexOf(currentTab as never);
+        const currentIndex = tabKeys.indexOf(currentTab);
         let nextIndex = currentIndex;
 
         if (e.key === "ArrowRight") {
