@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from "@esparex/ui";
 import { AlertTriangle } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
 
 interface DeleteAccountDialogProps {
@@ -70,11 +71,12 @@ export function DeleteAccountDialog({
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="delete-account-reason">Reason</Label>
+                            <Label htmlFor="delete-account-reason" className="text-caption sm:text-small font-medium text-foreground-secondary">Reason</Label>
                             <Select value={deleteReason} onValueChange={(value) => setDeleteReason(value as DeleteAccountReason)}>
                                 <SelectTrigger
                                     id="delete-account-reason"
                                     aria-invalid={!!deleteAccountErrors?.reason}
+                                    className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card"
                                 >
                                     <SelectValue placeholder="Select a reason" />
                                 </SelectTrigger>
@@ -90,8 +92,8 @@ export function DeleteAccountDialog({
                         </div>
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="delete-account-feedback">Optional feedback</Label>
-                                <span className={`text-caption font-medium ${deleteFeedback.length >= 500 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                <Label htmlFor="delete-account-feedback" className="text-caption sm:text-small font-medium text-foreground-secondary">Optional feedback</Label>
+                                <span className={cn("text-tiny font-normal tabular-nums", deleteFeedback.length >= 500 ? "text-destructive" : "text-foreground-subtle")}>
                                     {deleteFeedback.length}/500
                                 </span>
                             </div>
@@ -100,22 +102,23 @@ export function DeleteAccountDialog({
                                 value={deleteFeedback}
                                 onChange={(e) => setDeleteFeedback(e.target.value.slice(0, 500))}
                                 placeholder="Tell us what went wrong or what we could improve"
-                                rows={4}
                                 maxLength={500}
+                                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                                 aria-invalid={!!deleteAccountErrors?.feedback}
                             />
                             <FormError message={deleteAccountErrors?.feedback} />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="delete-account-confirm">
-                                Type <span className="font-bold">delete</span> to confirm
+                            <Label htmlFor="delete-account-confirm" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                                Type <span className="font-semibold text-foreground">delete</span> to confirm
                             </Label>
                             <Input
                                 id="delete-account-confirm"
                                 placeholder="Type 'delete' to confirm"
                                 value={deleteConfirmText}
                                 onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                                 aria-invalid={!!deleteAccountErrors?.confirmText}
                             />
                             <FormError message={deleteAccountErrors?.confirmText} />
@@ -125,14 +128,14 @@ export function DeleteAccountDialog({
                     </div>
                 </div>
                 <DialogFooter className="!mt-0 shrink-0 gap-2 border-t bg-card px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto h-11 rounded-xl border-border font-semibold text-small">
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
                         onClick={onDelete}
                         disabled={!confirmReady}
-                        className="w-full sm:w-auto"
+                        className="w-full sm:w-auto h-11 rounded-xl font-semibold text-small"
                     >
                         Delete Account
                     </Button>

@@ -14,15 +14,15 @@ export function PersonalProfileBusinessSection({
     businessNameError,
 }: PersonalProfileBusinessSectionProps) {
     return (
-        <div className="space-y-1">
-            <Label htmlFor="profile-business-name" className="text-caption font-semibold text-foreground-secondary">
-                Business Name <span className="text-muted-foreground font-normal">(Optional)</span>
+        <div className="flex flex-col gap-1.5">
+            <Label htmlFor="profile-business-name" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                Business Name <span className="text-foreground-subtle font-normal">(Optional)</span>
             </Label>
             <Input
                 id="profile-business-name"
                 type="text"
                 placeholder="e.g. Acme Spares Pvt Ltd"
-                className="h-10 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-medium focus-visible:ring-2 focus-visible:ring-primary"
+                className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary"
                 {...register("businessName")}
             />
             <FormError id="profile-business-name-error" message={businessNameError} />

@@ -208,10 +208,10 @@ export function CreateSmartAlertDialog({
                         {/* Search Keywords */}
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
-                                <Label htmlFor="alert-keywords" className="text-caption font-semibold text-foreground">
+                                <Label htmlFor="alert-keywords" className="text-caption sm:text-small font-medium text-foreground-secondary">
                                     Search Keywords {!formData.model && <span className="text-destructive">*</span>}
                                 </Label>
-                                <span className="text-tiny font-medium text-foreground-subtle">
+                                <span className="text-tiny font-normal tabular-nums text-foreground-subtle">
                                     {(formData.keywords || "").length}/150
                                 </span>
                             </div>
@@ -223,7 +223,7 @@ export function CreateSmartAlertDialog({
                                         ? "Derived from selected Model"
                                         : "Enter keywords (e.g., LED TV 55, OLED)"
                                 }
-                                className="h-10.5 rounded-xl text-body-lg md:text-body border-border shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-muted-foreground/60 disabled:cursor-not-allowed"
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal text-foreground border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-foreground-subtle disabled:cursor-not-allowed"
                                 value={formData.keywords || ""}
                                 maxLength={150}
                                 onChange={(e) => updateFormData({ keywords: e.target.value })}
@@ -233,7 +233,7 @@ export function CreateSmartAlertDialog({
 
                         {/* Location */}
                         <div ref={locationWrapperRef} onFocusCapture={handleLocationFocus}>
-                            <Label htmlFor="alert-location" className="text-caption font-semibold text-foreground mb-1.5 block">
+                            <Label htmlFor="alert-location" className="text-caption sm:text-small font-medium text-foreground-secondary mb-1.5 block">
                                 Location <span className="text-destructive">*</span>
                             </Label>
                             <LocationSelector
