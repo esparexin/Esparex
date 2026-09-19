@@ -11,7 +11,7 @@ import type { HomeFeedResponse } from "@esparex/contracts";
 import logger from '../../../../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
-import { LISTING_TYPE } from '@esparex/contracts';
+import type { ListingTypeValue } from '@esparex/contracts';
 import { resolveCanonicalLocationForQuery } from '../../../../../services/location/LocationQueryService';
 import { 
     filterBeforeCursor, 
@@ -28,9 +28,10 @@ export const buildHomeFeed = async (
     const startedAt = Date.now();
     
     // 1. Resolve Match Criteria
-    const baseFilter: ListingFilter = {
-        listingType: LISTING_TYPE.AD,
-    };
+    const baseFilter: ListingFilter = {};
+    if (input.listingType && input.listingType !== 'all') {
+        baseFilter.listingType = input.listingType as ListingTypeValue;
+    }
 
     let effectiveLat = input.lat;
     let effectiveLng = input.lng;
@@ -111,8 +112,14 @@ export const buildHomeFeed = async (
 
     // 2. Fetch Active Boosts (Fast Indexed Query)
     const now = new Date();
+    const boostEntityType: 'ad' | 'service' | 'part' | { $in: ('ad' | 'service' | 'part')[] } =
+        !input.listingType || input.listingType === 'all'
+            ? { $in: ['ad', 'service', 'part'] }
+            : input.listingType === 'spare_part'
+                ? 'part'
+                : (input.listingType as 'ad' | 'service');
     const boostCandidates = await Boost.find({
-        entityType: 'ad',
+        entityType: boostEntityType,
         isActive: true,
         startsAt: { $lte: now },
         endsAt: { $gt: now }
@@ -217,7 +224,8 @@ export const buildHomeFeed = async (
             },
             Array.from(seenIds),
             limit - merged.ads.length,
-            input.categoryId
+            input.categoryId,
+            input.listingType
         );
 
         const sortedBucket = engineResult.ads;

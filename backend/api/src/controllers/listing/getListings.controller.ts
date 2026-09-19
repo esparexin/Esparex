@@ -312,6 +312,7 @@ export const getHomeFeed = async (req: Request, res: Response, next: NextFunctio
             lng: query.lng,
             radiusKm: query.radiusKm,
             categoryId: query.categoryId,
+            listingType: query.listingType,
         });
 
         const payload = respond<ApiResponse<HomeFeedResponse>>({
