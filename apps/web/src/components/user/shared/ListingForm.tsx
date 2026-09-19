@@ -4,7 +4,7 @@ import React from "react";
 import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "@esparex/ui";
-import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+import { MultiBrandSearchSelect } from "@/components/user/shared/MultiBrandSearchSelect";
 import { CatalogSelectDropdown } from "@/components/user/shared/CatalogSelectDropdown";
 import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid, getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 import { ListingModalLoading } from "@/components/user/shared/ListingModalLayout";
@@ -38,6 +38,14 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
 
     const categoryId = useWatch({ control, name: "categoryId" }) || "";
     const brandId = useWatch({ control, name: "brandId" }) || "";
+    const [selectedBrandIds, setSelectedBrandIds] = React.useState<string[]>(() => (brandId ? [brandId] : []));
+
+    React.useEffect(() => {
+        if (brandId && !selectedBrandIds.includes(brandId)) {
+            setSelectedBrandIds((prev) => (prev.length === 0 ? [brandId] : prev));
+        }
+    }, [brandId, selectedBrandIds]);
+
     const catalogValue = useWatch({ control, name: config.catalogFieldName });
     const selectedCatalogIds = React.useMemo(() => {
         if (Array.isArray(catalogValue)) return catalogValue;
@@ -121,6 +129,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
     const handleCategorySelect = (selectedCategoryId: string) => {
         setValue("categoryId", selectedCategoryId, { shouldValidate: true, shouldDirty: true });
         setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        setSelectedBrandIds([]);
         setValue(config.catalogFieldName, config.catalogMultiSelect ? [] : "", { shouldValidate: true, shouldDirty: true });
         void loadBrandsForCategory(selectedCategoryId);
         void loadCatalogItems(selectedCategoryId);
@@ -204,13 +213,15 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <Field label="Brand / Manufacturer (Optional)" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.brandId)}>
-                    <BrandSearchSelect
+                <Field label="Compatible Brand(s) (Optional)" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.brandId)}>
+                    <MultiBrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
-                        categoryId={categoryId}
-                        value={brandId}
-                        onChange={(bId) => setValue("brandId", bId, { shouldValidate: true, shouldDirty: true })}
+                        values={selectedBrandIds}
+                        onChange={(selectedIds) => {
+                            setSelectedBrandIds(selectedIds);
+                            setValue("brandId", selectedIds[0] || "", { shouldValidate: true, shouldDirty: true });
+                        }}
                         disabled={isEditMode}
                     />
                 </Field>
