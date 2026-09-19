@@ -2,7 +2,7 @@
 
 import { type Ad } from "@/schemas/ad.schema";
 import { CheckCircle2, CircuitBoard, ShieldCheck, Wrench, XCircle } from "@esparex/ui";
-import { resolveListingSpareParts } from "@/lib/listings/listingPresentation";
+import { resolveListingSpareParts, resolveListingSparePartsCount } from "@/lib/listings/listingPresentation";
 
 interface ListingDescriptionTabProps {
     ad: Ad;
@@ -14,6 +14,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
     const isSparePart = ad.listingType === 'spare_part';
     const hasAttributes = isService || isSparePart || !!ad.warranty;
     const resolvedSpareParts = resolveListingSpareParts(ad);
+    const sparePartsCount = resolveListingSparePartsCount(ad);
 
     return (
         <div
@@ -59,7 +60,7 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
             )}
 
             {/* Working Spare Parts Highlights (for Classified Ads) */}
-            {!isService && !isSparePart && resolvedSpareParts.length > 0 && (
+            {!isService && !isSparePart && sparePartsCount > 0 && (
                 <div className="space-y-2.5 pb-3 border-b border-border/60">
                     <div className="flex items-center justify-between">
                         <h3 className="text-caption sm:text-small font-bold flex items-center gap-1.5 text-foreground uppercase tracking-wider">
@@ -67,20 +68,26 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
                             Working Spare Parts Included
                         </h3>
                         <span className="text-tiny font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                            {resolvedSpareParts.length} Verified
+                            {sparePartsCount} Verified
                         </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {resolvedSpareParts.map((part) => (
-                            <span
-                                key={part.id}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-caption font-semibold text-foreground shadow-2xs"
-                            >
-                                <span className="size-2 rounded-full bg-emerald-500" />
-                                {part.name}
-                            </span>
-                        ))}
-                    </div>
+                    {resolvedSpareParts.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {resolvedSpareParts.map((part) => (
+                                <span
+                                    key={part.id}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-caption font-semibold text-foreground shadow-2xs"
+                                >
+                                    <span className="size-2 rounded-full bg-emerald-500" />
+                                    {part.name}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-caption text-muted-foreground">
+                            {sparePartsCount} working component{sparePartsCount === 1 ? "" : "s"} cataloged with this device. View the Working Spare Parts tab for full details.
+                        </p>
+                    )}
                 </div>
             )}
 

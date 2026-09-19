@@ -1,6 +1,6 @@
 import { Badge } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
-import { resolveListingLocationLabel, resolveListingSpareParts } from "@/lib/listings/listingPresentation";
+import { resolveListingLocationLabel, resolveListingSparePartsCount } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
 import { Shield, CheckCircle, MapPin, Clock, Briefcase, CircuitBoard, Wrench } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ export function AdTitlePriceCard({
     const isService = ad.listingType === "service";
     const isSparePart = ad.listingType === "spare_part";
     const isActiveSpotlight = Boolean(ad.isSpotlight);
-    const resolvedSpareParts = resolveListingSpareParts(ad);
+    const sparePartsCount = resolveListingSparePartsCount(ad);
 
     return (
         <div className="space-y-3 pb-4 border-b border-border">
@@ -55,10 +55,10 @@ export function AdTitlePriceCard({
                 )}
 
                 {/* Working Spare Parts Badge for Ads */}
-                {!isService && !isSparePart && resolvedSpareParts.length > 0 && (
+                {!isService && !isSparePart && sparePartsCount > 0 && (
                     <Badge className="flex-shrink-0 text-tiny font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg inline-flex items-center gap-1">
                         <CircuitBoard className="size-3 text-emerald-600" />
-                        {resolvedSpareParts.length} Working Parts
+                        {sparePartsCount} Working Parts
                     </Badge>
                 )}
 

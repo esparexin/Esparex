@@ -38,14 +38,14 @@ const getSectionCopy = (listingType?: string) => {
       };
     case "spare_part":
       return {
-        title: "Nearby Repair Shops",
-        empty: "No nearby repair shops matched this spare-part category yet.",
+        title: "Repair Shops",
+        empty: "No repair shops matched this spare-part category yet.",
       };
     case "ad":
     default:
       return {
-        title: "Nearby Repair Shops",
-        empty: "No nearby repair shops matched this category yet.",
+        title: "Repair Shops",
+        empty: "No repair shops matched this category yet.",
       };
   }
 };
@@ -86,6 +86,16 @@ export function RelatedBusinessesSection({
     staleTime: 5 * 60 * 1000,
   });
 
+  const uniqueBusinesses = useMemo(() => {
+    const seen = new Set<string>();
+    return businesses.filter((b) => {
+      const id = String(b.id || "").trim();
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, [businesses]);
+
   const scrollCarousel = (direction: "left" | "right") => {
     if (!carouselRef.current) return;
     const scrollAmount = 320;
@@ -98,7 +108,7 @@ export function RelatedBusinessesSection({
   if (variant === "sidebar") {
     return (
       <RelatedBusinessSidebar
-        businesses={businesses}
+        businesses={uniqueBusinesses}
         isLoading={isLoading}
         isError={isError}
         title={sectionCopy.title}
@@ -115,7 +125,7 @@ export function RelatedBusinessesSection({
         <div>
           <h3 className="text-base font-bold md:text-lg text-foreground">{sectionCopy.title}</h3>
         </div>
-        {!isLoading && businesses.length > 0 ? (
+        {!isLoading && uniqueBusinesses.length > 0 ? (
           <div className="flex items-center gap-1.5 md:gap-2">
             <Button
               size="icon"
@@ -151,10 +161,10 @@ export function RelatedBusinessesSection({
         <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-5 py-4 text-sm text-amber-900">
           <div className="flex items-center gap-2 font-semibold">
             <AlertCircle className="h-4 w-4 text-amber-600" />
-            Unable to load nearby repair shops
+            Unable to load repair shops
           </div>
           <p className="mt-1 text-xs text-amber-800">
-            Try again to check nearby businesses with matching live services.
+            Try again to check repair shops with matching live services.
           </p>
           <Button
             type="button"
@@ -171,23 +181,23 @@ export function RelatedBusinessesSection({
 
       {!isLoading && !isError && !normalizedContext.canSearch ? (
         <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
-          Nearby repair shop suggestions are unavailable because this listing is missing location details.
+          Repair shop suggestions are unavailable because this listing is missing location details.
         </div>
       ) : null}
 
-      {!isLoading && !isError && normalizedContext.canSearch && businesses.length === 0 ? (
+      {!isLoading && !isError && normalizedContext.canSearch && uniqueBusinesses.length === 0 ? (
         <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
           {sectionCopy.empty}
         </div>
       ) : null}
 
-      {!isLoading && !isError && businesses.length > 0 ? (
+      {!isLoading && !isError && uniqueBusinesses.length > 0 ? (
         <div
           ref={carouselRef}
           className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {businesses.map((business) => (
+          {uniqueBusinesses.map((business) => (
             <RelatedBusinessCard
               key={business.id}
               business={business}

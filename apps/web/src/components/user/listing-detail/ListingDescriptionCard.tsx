@@ -24,11 +24,11 @@ interface ListingDescriptionCardProps {
     ) => void;
 }
 
-const TAB_KEYS = ["description", "spare-parts", "repair-shops"] as const;
-type TabKey = typeof TAB_KEYS[number];
+export const TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
+export type TabKey = typeof TAB_KEYS[number];
 
 export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCardProps) {
-    const [activeTab, setActiveTab] = useState<TabKey>("description");
+    const [activeTab, setActiveTab] = useState<TabKey>("repair-shops");
     const sectionRef = useRef<HTMLElement>(null);
     const description = cleanupListingDescription(String(ad.description || ""));
     const sparePartItems = extractSparePartItems(ad);
@@ -75,12 +75,31 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
 
     return (
         <section ref={sectionRef} className="space-y-4 pt-3 sm:pt-4 pb-3 sm:pb-4 border-b border-border/80">
-            {/* Accessible 3-Tab Controls: Description | Spare Parts | Repair Shops */}
+            {/* Accessible 3-Tab Controls: Repair Shops | Description | Working Spare Parts */}
             <div
                 role="tablist"
                 aria-label="Listing content sections"
                 className="flex items-center gap-1.5 border-b border-border pb-px overflow-x-auto scrollbar-hide"
             >
+                <button
+                    type="button"
+                    role="tab"
+                    id="tab-repair-shops"
+                    aria-controls="tabpanel-repair-shops"
+                    aria-selected={activeTab === "repair-shops"}
+                    tabIndex={activeTab === "repair-shops" ? 0 : -1}
+                    onClick={() => handleTabSelect("repair-shops")}
+                    onKeyDown={(e) => handleTabKeyDown(e, "repair-shops")}
+                    className={cn(
+                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                        activeTab === "repair-shops"
+                            ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
+                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                >
+                    <span>Repair Shops</span>
+                </button>
+
                 <button
                     type="button"
                     role="tab"
@@ -126,38 +145,9 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                         </span>
                     )}
                 </button>
-
-                <button
-                    type="button"
-                    role="tab"
-                    id="tab-repair-shops"
-                    aria-controls="tabpanel-repair-shops"
-                    aria-selected={activeTab === "repair-shops"}
-                    tabIndex={activeTab === "repair-shops" ? 0 : -1}
-                    onClick={() => handleTabSelect("repair-shops")}
-                    onKeyDown={(e) => handleTabKeyDown(e, "repair-shops")}
-                    className={cn(
-                        "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
-                        activeTab === "repair-shops"
-                            ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
-                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    )}
-                >
-                    <span>Nearby Repair Shops</span>
-                </button>
             </div>
 
-            {/* Tab 1 Panel: Description */}
-            {activeTab === "description" && (
-                <ListingDescriptionTab ad={ad} description={description} />
-            )}
-
-            {/* Tab 2 Panel: Spare Parts */}
-            {activeTab === "spare-parts" && (
-                <ListingWorkingSparePartsTab ad={ad} sparePartItems={sparePartItems} />
-            )}
-
-            {/* Tab 3 Panel: Repair Shops */}
+            {/* Tab 1 Panel: Repair Shops */}
             {activeTab === "repair-shops" && (
                 <div
                     role="tabpanel"
@@ -172,6 +162,16 @@ export function ListingDescriptionCard({ ad, navigateTo }: ListingDescriptionCar
                         variant="default"
                     />
                 </div>
+            )}
+
+            {/* Tab 2 Panel: Description */}
+            {activeTab === "description" && (
+                <ListingDescriptionTab ad={ad} description={description} />
+            )}
+
+            {/* Tab 3 Panel: Spare Parts */}
+            {activeTab === "spare-parts" && (
+                <ListingWorkingSparePartsTab ad={ad} sparePartItems={sparePartItems} />
             )}
         </section>
     );
