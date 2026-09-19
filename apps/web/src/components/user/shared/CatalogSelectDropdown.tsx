@@ -14,7 +14,7 @@ import {
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
-export interface CatalogItem {
+interface CatalogItem {
     id?: string;
     _id?: string;
     name?: string;
