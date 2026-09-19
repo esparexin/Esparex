@@ -65,7 +65,8 @@ export const getAds = async (
     if (!shouldUseGeo) { delete effectiveFilters.lat; delete effectiveFilters.lng; delete effectiveFilters.radiusKm; delete effectiveFilters.coordinates; }
     const allowLegacyListingTypeNullCompat = await isEnabled(FeatureFlag.ENABLE_AD_LISTINGTYPE_NULL_COMPAT);
     const pipeline: AggregationStage[] = [];
-    let match: UnknownRecord = { ...(await buildAdMatchStage(effectiveFilters, { allowLegacyListingTypeNullCompat, trackListingTypeCompatMetrics: options.trackListingTypeCompatMetrics, metricContext: 'getAds' })) };
+    const matchFilters = shouldUseGeo ? { ...effectiveFilters, search: undefined } : effectiveFilters;
+    let match: UnknownRecord = { ...(await buildAdMatchStage(matchFilters, { allowLegacyListingTypeNullCompat, trackListingTypeCompatMetrics: options.trackListingTypeCompatMetrics, metricContext: 'getAds' })) };
     if (match.__isUnresolvableCategory) {
         logger.info('[AdAggregation] Short-circuiting getAds for unresolvable category', { category: filters.category, categoryId: filters.categoryId });
         return {
@@ -94,7 +95,20 @@ export const getAds = async (
         match = Object.keys(match).length > 0 ? { $and: [match, cursorMatch] } : cursorMatch;
     }
     if (shouldUseGeo) {
-        if (textSearch) match.$text = { $search: textSearch };
+        const stripTextOperator = (obj: UnknownRecord) => {
+            delete obj.$text;
+            if (Array.isArray(obj.$and)) {
+                for (const item of obj.$and) {
+                    if (item && typeof item === 'object') stripTextOperator(item as UnknownRecord);
+                }
+            }
+            if (Array.isArray(obj.$or)) {
+                for (const item of obj.$or) {
+                    if (item && typeof item === 'object') stripTextOperator(item as UnknownRecord);
+                }
+            }
+        };
+        stripTextOperator(match);
         delete match['location.city']; delete match['location.state']; delete match['location.country']; delete match['location.display']; delete match['location.district']; delete match['location.locationId']; delete match.locationId; delete match.locationPath;
         if (Array.isArray(match.$or)) {
             const currentOr = match.$or as UnknownRecord[];
@@ -102,6 +116,18 @@ export const getAds = async (
             if (filteredOr.length === 0) delete match.$or; else match.$or = filteredOr;
         }
         pipeline.push(buildGeoNearStage({ lng, lat, radiusKm: safeRadius, query: match }));
+        if (textSearch) {
+            const escaped = textSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const searchRegex = new RegExp(escaped, 'i');
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { title: { $regex: searchRegex } },
+                        { description: { $regex: searchRegex } }
+                    ]
+                }
+            });
+        }
     } else {
         if (textSearch) match.$text = { $search: textSearch };
         pipeline.push({ $match: match });

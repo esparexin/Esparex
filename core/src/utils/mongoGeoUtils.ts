@@ -85,6 +85,22 @@ export const buildGeoNearStage = (options: GeoNearOptions): PipelineStage.GeoNea
         MAX_RADIUS_KM
     );
 
+    const sanitizedQuery = { ...query };
+    const stripTextOperator = (obj: Record<string, unknown>) => {
+        delete obj.$text;
+        if (Array.isArray(obj.$and)) {
+            for (const item of obj.$and) {
+                if (item && typeof item === 'object') stripTextOperator(item as Record<string, unknown>);
+            }
+        }
+        if (Array.isArray(obj.$or)) {
+            for (const item of obj.$or) {
+                if (item && typeof item === 'object') stripTextOperator(item as Record<string, unknown>);
+            }
+        }
+    };
+    stripTextOperator(sanitizedQuery);
+
     return {
         $geoNear: {
             near: { type: 'Point', coordinates: [lng, lat] },
@@ -92,7 +108,7 @@ export const buildGeoNearStage = (options: GeoNearOptions): PipelineStage.GeoNea
             distanceField,
             spherical: true,
             maxDistance: safeRadius * 1000, // MongoDB uses meters
-            query
+            query: sanitizedQuery
         }
     };
 };
