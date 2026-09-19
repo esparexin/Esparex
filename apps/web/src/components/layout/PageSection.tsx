@@ -55,7 +55,7 @@ export function PageSection({
   );
 }
 
-export interface ListRowProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ListRowProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   active?: boolean;
   clickable?: boolean;
