@@ -240,7 +240,8 @@ export function ListingTypeBadge({
   ad: AdCardData;
   className?: string;
 }): ReactNode | null {
-  const typeBadge = resolveListingTypeBadge(ad);
+  const adRecord = toAdRecord(ad);
+  const typeBadge = resolveListingTypeBadge(adRecord);
   if (!typeBadge) {
     return null;
   }
