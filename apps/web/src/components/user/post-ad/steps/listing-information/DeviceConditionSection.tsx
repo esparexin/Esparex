@@ -38,7 +38,7 @@ export function DeviceConditionSection() {
                         htmlFor="working-spare-parts-select" 
                         className="text-caption sm:text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
                     >
-                        Working Spare Parts (Optional)
+                        Working Spare Parts
                     </label>
                     {isLoadingSpareParts ? (
                         <div className="h-11 rounded-xl bg-muted animate-pulse border border-border" />

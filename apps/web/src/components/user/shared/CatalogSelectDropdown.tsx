@@ -118,12 +118,24 @@ function MultiSelectCatalogDropdown({
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const containerRef = useRef<HTMLDivElement>(null);
+    const listboxRef = useRef<HTMLDivElement>(null);
 
     const filteredItems = React.useMemo(() => {
         if (!search.trim()) return items;
         const query = search.toLowerCase().trim();
         return items.filter((item) => (item.name || "").toLowerCase().includes(query));
     }, [items, search]);
+
+    useEffect(() => {
+        if (!open) return;
+        const timer = setTimeout(() => {
+            listboxRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            });
+        }, 60);
+        return () => clearTimeout(timer);
+    }, [open]);
 
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {
@@ -218,9 +230,10 @@ function MultiSelectCatalogDropdown({
             {/* Dropdown Options List */}
             {open && (
                 <div
+                    ref={listboxRef}
                     role="listbox"
                     aria-multiselectable="true"
-                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
+                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 scroll-mb-6"
                 >
                     {items.length > 5 && (
                         <div className="p-1 mb-1 border-b border-border">
