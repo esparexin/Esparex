@@ -42,12 +42,14 @@ export const AdCardMeta = memo(function AdCardMeta({
   const isList = variant === "list";
 
   const locationLabel = resolveListingLocationLabel(ad.location, "brief");
-  const conditionBadge = getConditionBadge(ad);
 
-  /* ── Price display ─────────────────────────────────────────────── */
+  /* ── Price display & Type guards ───────────────────────────────── */
   const isService =
     typeof adRecord.listingType === "string" &&
     adRecord.listingType === "service";
+
+  const isDevice = !adRecord.listingType || adRecord.listingType === "ad";
+  const conditionBadge = isDevice ? getConditionBadge(ad) : null;
 
   const priceDisplay = (() => {
     if (isService && (adRecord.priceMin || adRecord.priceMax)) {
@@ -85,7 +87,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Title — Snug line-height and discrete Geist font size */}
       <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
-          "font-medium sm:font-semibold line-clamp-2 leading-snug text-foreground tracking-tight",
+          "font-normal line-clamp-2 leading-snug text-foreground tracking-tight",
           isList ? "text-caption sm:text-small" : "text-small sm:text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}

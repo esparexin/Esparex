@@ -101,9 +101,13 @@ export const AdCardList = memo(function AdCardList({
                 <span className="text-tiny text-foreground-tertiary">No Image</span>
               </div>
             )}
-            <div className="absolute top-1.5 left-1.5 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
+            {planBadge && (
+              <div className="absolute top-1.5 left-1.5 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
+                {planBadge}
+              </div>
+            )}
+            <div className="absolute bottom-1.5 left-1.5 z-10 flex items-center pointer-events-none">
               <ListingTypeBadge ad={ad} />
-              {planBadge}
             </div>
           </div>
 

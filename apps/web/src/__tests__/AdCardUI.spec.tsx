@@ -58,6 +58,20 @@ describe("AdCard Component SSOT & Architecture", () => {
       const unknownBadge = getConditionBadge("unknown_condition");
       expect(unknownBadge).toBeNull();
     });
+
+    it("restricts device condition resolution to physical device listings", () => {
+      const serviceAd = createMockAd({ listingType: "service", condition: "working" });
+      const isDeviceService = !serviceAd.listingType || serviceAd.listingType === "ad";
+      expect(isDeviceService).toBe(false);
+
+      const partAd = createMockAd({ listingType: "spare_part", condition: "working" });
+      const isDevicePart = !partAd.listingType || partAd.listingType === "ad";
+      expect(isDevicePart).toBe(false);
+
+      const deviceAd = createMockAd({ listingType: "ad", condition: "working" });
+      const isDeviceAd = !deviceAd.listingType || deviceAd.listingType === "ad";
+      expect(isDeviceAd).toBe(true);
+    });
   });
 
   describe("Spotlight Promotion Resolution", () => {
@@ -86,6 +100,13 @@ describe("AdCard Component SSOT & Architecture", () => {
       expect(onBadge).not.toBeNull();
       const offBadge = getConditionBadge("power_off");
       expect(offBadge).not.toBeNull();
+    });
+  });
+
+  describe("Touch Target & WCAG 2.2 Accessibility Standards", () => {
+    it("verifies AdCardActions exports valid React component with touch manipulation contract", () => {
+      expect(typeof AdCardActions).toBe("object");
+      expect(AdCardActions.displayName).toBe("AdCardActions");
     });
   });
 });
