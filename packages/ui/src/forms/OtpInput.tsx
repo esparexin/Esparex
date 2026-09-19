@@ -33,7 +33,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     React.useEffect(() => {
       if (autoFocus && !disabled) {
         const timer = setTimeout(() => {
-          inputRefs.current[0]?.focus();
+          inputRefs.current[0]?.focus({ preventScroll: true });
         }, 50);
         return () => clearTimeout(timer);
       }
@@ -41,7 +41,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     }, [autoFocus, disabled]);
 
     const focusInput = React.useCallback((index: number) => {
-      inputRefs.current[index]?.focus();
+      inputRefs.current[index]?.focus({ preventScroll: true });
     }, []);
 
     const updateOtp = React.useCallback(
@@ -60,7 +60,21 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
       (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         if (disabled) return;
         const val = e.target.value.replace(/\D/g, "");
-        if (val.length > 1) return;
+
+        // Handle multi-character paste / iOS SMS autofill ("From Messages")
+        if (val.length > 1) {
+          const digits = val.slice(0, length).split("");
+          const next = [...otp];
+          digits.forEach((digit, i) => {
+            if (i < length) {
+              next[i] = digit;
+            }
+          });
+          updateOtp(next);
+          const nextFocus = Math.min(digits.length, length - 1);
+          focusInput(nextFocus);
+          return;
+        }
 
         const next = [...otp];
         next[index] = val;
@@ -116,13 +130,15 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
 
         e.preventDefault();
         const next = [...otp];
-        const digits = pasted.slice(0, length - index).split("");
+        // If pasted a full OTP code (or more), fill starting from index 0 for robust UX
+        const startIdx = pasted.length >= length ? 0 : index;
+        const digits = pasted.slice(0, length - startIdx).split("");
 
         digits.forEach((digit, offset) => {
-          next[index + offset] = digit;
+          next[startIdx + offset] = digit;
         });
 
-        const focusIndex = Math.min(index + digits.length, length) - 1;
+        const focusIndex = Math.min(startIdx + digits.length, length - 1);
         focusInput(focusIndex);
         updateOtp(next);
       },
@@ -130,7 +146,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     );
 
     return (
-      <div ref={ref} className={cn("flex items-center justify-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 py-2 max-w-full", className)} {...props}>
+      <div ref={ref} className={cn("flex items-center justify-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 py-1.5 max-w-full", className)} {...props}>
         {otp.map((digit, index) => (
           <Input
             key={index}
@@ -145,7 +161,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
             onPaste={(e) => handlePaste(index, e)}
             disabled={disabled}
             className={cn(
-              "h-10 w-8 px-0 text-center text-body-lg font-semibold xs:w-9 sm:h-12 sm:w-11 md:w-12 sm:text-h4 rounded-xl flex-1 max-w-[48px] min-w-0",
+              "h-11 min-h-[44px] w-9 px-0 text-center text-body-lg font-semibold xs:w-10 sm:h-12 sm:w-11 md:w-12 sm:text-h4 rounded-xl flex-1 max-w-[48px] min-w-0",
               hasError && "border-destructive ring-destructive/20 focus-visible:ring-destructive"
             )}
             inputMode="numeric"
