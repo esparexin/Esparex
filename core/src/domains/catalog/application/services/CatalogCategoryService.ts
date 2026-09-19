@@ -55,6 +55,34 @@ export const clearCategoryCanonicalCache = () => {
     });
 };
 
+/**
+ * Resolves semantically equivalent active category IDs for **search/browse broadening only**.
+ *
+ * @description
+ * Uses slug/name key-overlap (via CatalogFacade) to find all active categories that are
+ * semantically equivalent to the given `categoryId`. This is intentionally broad — it is
+ * designed to widen browse/search result sets (e.g. "Mobiles" also surfaces "Mobile Phones").
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 🚫 PROHIBITED IN: Post Ad form, Edit Ad form, or any catalog dropdown query
+ *    where the user has explicitly selected a specific category.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Using this function in form catalog queries causes cross-category data leakage:
+ * brands, models, and spare parts from unrelated categories appear because two
+ * categories share overlapping slug/name tokens.
+ *
+ * This is the documented root cause of the six-month recurring category-dependency
+ * bug on the Post Ad page. Do NOT call this from `catalogSparePartController.ts`
+ * or any catalog API handler that serves form dropdowns.
+ *
+ * ✅ PERMITTED IN: AdCreationService (duplicate ad detection), listing search/browse,
+ *    search result relevance broadening, and any flow where semantic category
+ *    expansion is explicitly intentional.
+ *
+ * @param categoryId - The source category ObjectId string.
+ * @returns Array of ObjectId strings for semantically equivalent active categories.
+ */
 export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Promise<string[]> => {
     if (!mongoose.Types.ObjectId.isValid(categoryId)) return [];
 

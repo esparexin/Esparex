@@ -44,7 +44,7 @@ export function LoginMobileStep({
   } = flow;
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3 sm:space-y-3.5">
       <FieldRoot<LoginFormValues, "mobile">
         name="mobile"
         render={({ field }) => (
@@ -61,7 +61,7 @@ export function LoginMobileStep({
                   placeholder="9876543210"
                   maxLength={10}
                   className={cn(
-                    "pl-12 pr-4 h-11 tracking-wider font-semibold text-foreground border-border rounded-xl focus-visible:border-primary focus-visible:ring-primary/20",
+                    "pl-12 pr-4 h-11 text-body-lg md:text-body tracking-wider font-semibold text-foreground border-border rounded-xl focus-visible:border-primary focus-visible:ring-primary/20",
                     isValidMobile && "border-primary ring-2 ring-primary/10"
                   )}
                   autoComplete="tel"

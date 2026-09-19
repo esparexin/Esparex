@@ -18,7 +18,9 @@ import {
     findSparePartById,
     checkSparePartDependencies,
 } from '@esparex/core/domains/catalog/application/services/CatalogSparePartService';
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
+// NOTE: resolveEquivalentActiveCategoryIds is intentionally NOT imported here.
+// It performs semantic category broadening for browse/search flows only.
+// Post Ad catalog queries must use exact category isolation — see getSparePartsPublic.
 import {
     sendCatalogError,
     QueryRecord,
@@ -66,14 +68,30 @@ const normalizeListingTypeFromQuery = (listingTypeParam?: unknown): ListingTypeV
 // SparePart CRUD now delegated to shared.ts generic handlers.
 
 /**
- * Get spare parts for PUBLIC view (strict validation, active categories only)
+ * Get spare parts for PUBLIC view.
+ *
+ * STRICT CATEGORY ISOLATION (architectural rule):
+ * This endpoint serves two surfaces:
+ *   1. Post Ad / Edit Ad form dropdowns — requires EXACT category boundary.
+ *   2. Browse / listing-detail spare-parts tab — may tolerate broadened results.
+ *
+ * We enforce strict isolation here unconditionally because:
+ *   - The Post Ad form explicitly selects one category. Only that category's
+ *     spare parts must appear. Semantic broadening causes six-month recurring
+ *     cross-category data leakage.
+ *   - Browse flows that need broadened results must call a dedicated endpoint
+ *     (e.g. listing search) that explicitly invokes resolveEquivalentActiveCategoryIds.
+ *
+ * DO NOT call resolveEquivalentActiveCategoryIds in this handler.
+ * It performs semantic key-overlap broadening across all active categories and
+ * is ONLY permitted in the browse/search listing flow.
  */
 const getSparePartsPublic = async (req: Request, res: Response) => {
     const categoryParam = (req.query.categoryId || req.query.category) as string | undefined;
     const requestedListingType = normalizeListingTypeFromQuery(req.query.listingType);
 
     let categoryObjectId: string | undefined = categoryParam;
-    
+
     // Resolve category slug to ObjectId if needed
     if (categoryParam && !mongoose.Types.ObjectId.isValid(categoryParam)) {
         const resolvedCategoryId = await findCategoryIdBySlug(categoryParam, ACTIVE_CATEGORY_QUERY);
@@ -93,9 +111,10 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
         }
     }
 
-    // Get active categories
-    const activeCategoryIds = categoryObjectId
-        ? await resolveEquivalentActiveCategoryIds(categoryObjectId)
+    // STRICT ISOLATION: use the exact requested categoryId only.
+    // resolveEquivalentActiveCategoryIds is prohibited here — see JSDoc above.
+    const activeCategoryIds: string[] = categoryObjectId
+        ? [categoryObjectId]
         : await getActiveCategoryIds();
 
     if (activeCategoryIds.length === 0) {
@@ -103,13 +122,22 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
         return sendEmptyPublicList(res);
     }
 
-    // Fetch active brands and models for filtering
+    // ── Redis cache (checked before expensive DB lookups) ───────────────────
+    // Cache key is strictly scoped to the exact resolved categoryId so that
+    // results from different categories can never bleed across cache entries.
+    const cacheKey = sparePartsCacheKey(categoryObjectId ?? 'all', requestedListingType);
+    const cached = await getCache<unknown>(cacheKey);
+    if (cached) {
+        return res.json(cached);
+    }
+
+    // Fetch active brands and models for this exact category
     const [activeBrandIds, activeModelIds] = await Promise.all([
         getActiveBrandIdsForCategories(activeCategoryIds),
         getActiveModelIdsForCategories(activeCategoryIds)
     ]);
 
-    // Build public query
+    // Build public query — scoped strictly to the resolved category
     const publicQuery: QueryRecord = {
         ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
@@ -142,13 +170,6 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
         activeModelIds: activeModelIds.length,
         listingType: requestedListingType
     });
-
-    // ── Redis cache ─────────────────────────────────────────────────────────
-    const cacheKey = sparePartsCacheKey(categoryObjectId ?? 'all', requestedListingType);
-    const cached = await getCache<unknown>(cacheKey);
-    if (cached) {
-        return res.json(cached);
-    }
 
     const originalJson = res.json.bind(res);
     res.json = (body: unknown) => {

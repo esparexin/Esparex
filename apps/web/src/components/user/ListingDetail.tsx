@@ -91,7 +91,7 @@ export function ListingDetail({
   const viewCount = typeof ad?.views === "number" ? ad.views : (ad?.views && typeof ad.views === "object" ? (ad.views as { total: number }).total || 0 : 0);
   const { adStatus, setSoldOverride } = useAdStatus(ad);
   const { revealedPhone, phoneMessage, isPhoneLoading, handleRevealPhone } = usePhoneReveal(ad, user, router);
-  const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary, handleViewAnalytics } = useAnalyticsDialog(ad, viewCount);
+  const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary } = useAnalyticsDialog(ad, viewCount);
 
   const isFavorited = useMemo(() => Boolean(user && adId && savedAds.some((saved) => String(saved.id) === String(adId))), [adId, savedAds, user]);
   const isOwner = canUserPerformAction(ad ? { sellerId: ad.sellerId } : null, user || null);
@@ -213,7 +213,6 @@ export function ListingDetail({
                     onDelete={handleDeleteClick}
                     onMarkSold={handleMarkSoldClick}
                     onPromote={handlePromote}
-                    onViewAnalytics={handleViewAnalytics}
                     onReport={handleReport}
                   />
                 </div>
@@ -227,7 +226,6 @@ export function ListingDetail({
               onDeleteClick={handleDeleteClick}
               onMarkSoldClick={() => handleMarkSoldClick()}
               onPromoteClick={handlePromote}
-              onAnalyticsClick={handleViewAnalytics}
               onChatClick={handleChatWithSeller}
               onRevealPhone={handleRevealPhone}
               isPhoneLoading={isPhoneLoading}
