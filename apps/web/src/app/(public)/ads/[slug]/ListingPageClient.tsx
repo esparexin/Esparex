@@ -10,12 +10,20 @@ import { parseListingSlugParam } from '@/lib/slug';
 
 const isValidAdIdentifier = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
-export function ListingPageClient({ ad }: { ad?: Ad }) {
+/** Canonical listing domain context passed from the server render factory. */
+export type ListingCanonicalBasePath = "/ads" | "/services" | "/spare-part-listings";
+
+interface ListingPageClientProps {
+    ad?: Ad;
+    canonicalBasePath?: ListingCanonicalBasePath;
+}
+
+export function ListingPageClient({ ad, canonicalBasePath }: ListingPageClientProps) {
     const params = useParams();
     const router = useRouter();
     const routeSlug = typeof params?.slug === 'string' ? params.slug : undefined;
 
-    // Server payload `ad.id` is the exact DB identifier. 
+    // Server payload `ad.id` is the exact DB identifier.
     // Fall back to SSOT slug parser if ad payload is missing.
     const rawIdFromSlug = routeSlug ? parseListingSlugParam(routeSlug).id : undefined;
     const id = ad?.id ? String(ad.id) : (rawIdFromSlug || routeSlug);
@@ -56,6 +64,7 @@ export function ListingPageClient({ ad }: { ad?: Ad }) {
             initialAd={ad} // Pass pre-fetched data
             navigateTo={navigateTo}
             navigateBack={navigateBack}
+            canonicalBasePath={canonicalBasePath}
         />
     );
 }

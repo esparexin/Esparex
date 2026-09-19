@@ -1,11 +1,12 @@
 "use client";
 
 import { type Ad } from "@/schemas/ad.schema";
-import { CheckCircle2, CircuitBoard, ShieldCheck, Wrench, XCircle } from "@esparex/ui";
+import { CheckCircle2, CircuitBoard, ShieldCheck, Wrench, XCircle, Briefcase } from "@esparex/ui";
 import { resolveListingSpareParts, resolveListingSparePartsCount } from "@/lib/listings/listingPresentation";
+import type { Listing } from "@/lib/api/user/listings";
 
 interface ListingDescriptionTabProps {
-    ad: Ad;
+    ad: Ad | Listing;
     description: string;
 }
 
@@ -15,6 +16,8 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
     const hasAttributes = isService || isSparePart || !!ad.warranty;
     const resolvedSpareParts = resolveListingSpareParts(ad);
     const sparePartsCount = resolveListingSparePartsCount(ad);
+    // Resolved service types from backend aggregation (serviceTypeIds → name)
+    const serviceTypes = (ad as Listing).serviceTypes?.filter((st) => !!st?.name) ?? [];
 
     return (
         <div
@@ -27,6 +30,25 @@ export function ListingDescriptionTab({ ad, description }: ListingDescriptionTab
             {/* Specifications & Highlights Grid */}
             {hasAttributes && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-3 border-b border-border/60">
+                    {/* Service Types: rendered as chips (service listings only) */}
+                    {isService && serviceTypes.length > 0 && (
+                        <div className="col-span-2 sm:col-span-3 flex items-start gap-2 bg-emerald-50/60 rounded-xl p-2.5 border border-emerald-100">
+                            <Briefcase className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                                <p className="text-tiny uppercase font-bold text-muted-foreground tracking-wider mb-1.5">Service Types</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {serviceTypes.map((st, idx) => (
+                                        <span
+                                            key={st._id ?? idx}
+                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200/80"
+                                        >
+                                            {st.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {!!ad.warranty && (
                         <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border/60">
                             <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
