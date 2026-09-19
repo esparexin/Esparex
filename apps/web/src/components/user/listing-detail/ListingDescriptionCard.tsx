@@ -12,7 +12,7 @@ import { resolveListingSparePartsCount } from "@/lib/listings/listingPresentatio
 
 interface ListingDescriptionCardProps {
     ad: Ad;
-    /** Listing domain type — drives which tabs are shown. Defaults to "ad" for backwards compatibility. */
+    /** Listing domain type — drives which tabs are shown. Defaults to "ad". */
     listingType?: "ad" | "service" | "spare_part";
     variant?: "mobile" | "desktop";
     navigateTo?: (
@@ -28,24 +28,16 @@ interface ListingDescriptionCardProps {
 
 // ── Tab definitions per listing domain ─────────────────────────────────────
 
-/** Tab set for General Ad (device) listings: Repair Shops | Description | Working Spare Parts */
-export const AD_TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
-export type AdTabKey = typeof AD_TAB_KEYS[number];
+/** Canonical tab set for General Ad listings */
+export const TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
 
-/** Tab set for Service listings: About This Service | Description */
-export const SERVICE_TAB_KEYS = ["about-service", "description"] as const;
-export type ServiceTabKey = typeof SERVICE_TAB_KEYS[number];
+const SERVICE_TAB_KEYS = ["about-service", "description"] as const;
+const SPARE_PART_TAB_KEYS = ["part-details", "description"] as const;
 
-/** Tab set for Spare Part listings: Part Details | Description */
-export const SPARE_PART_TAB_KEYS = ["part-details", "description"] as const;
-export type SparePartTabKey = typeof SPARE_PART_TAB_KEYS[number];
-
-/** Union of all tab keys across all listing types */
-export type TabKey = AdTabKey | ServiceTabKey | SparePartTabKey;
-
-// ── Legacy export for backwards compatibility with any consumers ─────────────
-/** @deprecated Use the type-specific tab key exports instead */
-export const TAB_KEYS = AD_TAB_KEYS;
+type TabKey =
+    | typeof TAB_KEYS[number]
+    | typeof SERVICE_TAB_KEYS[number]
+    | typeof SPARE_PART_TAB_KEYS[number];
 
 // ── Tab label map ────────────────────────────────────────────────────────────
 const TAB_LABELS: Record<TabKey, string> = {
@@ -67,7 +59,7 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
         ? SERVICE_TAB_KEYS
         : isSparePart
         ? SPARE_PART_TAB_KEYS
-        : AD_TAB_KEYS;
+        : TAB_KEYS;
 
     const defaultTab = tabKeys[0] as TabKey;
 
