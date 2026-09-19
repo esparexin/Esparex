@@ -34,7 +34,8 @@ function areAdCardGridPropsEqual(
     isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
     prevProps.ad.title === nextProps.ad.title &&
     prevProps.ad.price === nextProps.ad.price &&
-    prevProps.ad.image === nextProps.ad.image
+    prevProps.ad.image === nextProps.ad.image &&
+    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType
   );
 }
 
