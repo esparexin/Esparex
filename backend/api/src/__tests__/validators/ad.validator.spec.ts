@@ -103,6 +103,26 @@ describe('homeFeedQuerySchema', () => {
             })
         ).toThrow(/location|category/i);
     });
+
+    it('accepts valid listingType query parameters (all, ad, service, spare_part)', () => {
+        const types = ['all', 'ad', 'service', 'spare_part'] as const;
+        for (const type of types) {
+            const parsed = homeFeedQuerySchema.parse({
+                limit: '12',
+                listingType: type,
+            });
+            expect(parsed.listingType).toBe(type);
+        }
+    });
+
+    it('rejects invalid listingType query parameters', () => {
+        expect(() =>
+            homeFeedQuerySchema.parse({
+                limit: '12',
+                listingType: 'invalid_type',
+            })
+        ).toThrow();
+    });
 });
 
 describe('trendingAdsQuerySchema', () => {

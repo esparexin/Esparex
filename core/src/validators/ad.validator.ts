@@ -166,6 +166,7 @@ const homeFeedQuerySchemaBase = feedLocationSchema.extend({
     cursor: z.string().min(1).optional(),
     cursorId: commonSchemas.objectId.optional(),
     categoryId: commonSchemas.objectId.optional(),
+    listingType: z.enum(['all', 'ad', 'service', 'spare_part']).optional(),
 });
 
 export const homeFeedQuerySchema = z.preprocess((raw) => {

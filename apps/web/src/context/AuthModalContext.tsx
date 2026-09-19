@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo, Suspense } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
@@ -19,17 +19,14 @@ function AuthModalQueryWatcher({
   onLoginParam: (callbackUrlParam: string | null) => void;
 }) {
   const searchParams = useSearchParams();
-  const [prevQueryKey, setPrevQueryKey] = useState<string | null>(null);
   const loginParam = searchParams?.get("login");
   const callbackUrlParam = searchParams?.get("callbackUrl");
-  const currentQueryKey = loginParam === "true" ? `login=true&cb=${callbackUrlParam || ""}` : null;
 
-  if (currentQueryKey !== prevQueryKey) {
-    setPrevQueryKey(currentQueryKey);
-    if (currentQueryKey) {
+  useEffect(() => {
+    if (loginParam === "true") {
       onLoginParam(callbackUrlParam);
     }
-  }
+  }, [loginParam, callbackUrlParam, onLoginParam]);
 
   return null;
 }

@@ -35,7 +35,7 @@ function FeedErrorState({ onRetry }: { onRetry: () => void }) {
     return (
         <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
             <p className="text-caption text-destructive mb-3">
-                Failed to load recommended ads. Please try again.
+                Failed to load listings. Please try again.
             </p>
             <Button variant="outline" onClick={onRetry}>
                 Retry
@@ -64,7 +64,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
 }
 
 /**
- * HomeFeedClient - Handles the state and rendering for the recommended ads feed.
+ * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
  * This component is keyed by location in the parent (HomeFeed), so it automatically 
  * resets when the location changes.
  */
@@ -98,8 +98,20 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             prevLocationIdentityRef.current = locationIdentity;
             setCursor(undefined);
             setNextCursor(null);
+            setFeedAds([]);
         }
     }, [locationIdentity]);
+
+    // Soft-reset pagination cursor and feed state when active listing tab changes
+    const prevSelectedTypeRef = useRef(selectedType);
+    useEffect(() => {
+        if (prevSelectedTypeRef.current !== selectedType) {
+            prevSelectedTypeRef.current = selectedType;
+            setCursor(undefined);
+            setNextCursor(null);
+            setFeedAds([]);
+        }
+    }, [selectedType]);
     
     const requestParams = useMemo(() => {
         const rawLocationId = hasUserLocation ? (location.locationId || location.id) : undefined;
@@ -113,10 +125,11 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
             lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
             radiusKm: shouldUseGeoSearch ? 50 : undefined,
+            listingType: selectedType !== "all" ? selectedType : undefined,
         };
-    }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, shouldUseGeoSearch]);
+    }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    const shouldUseInitialData = !cursor && !hasUserLocation;
+    const shouldUseInitialData = !cursor && !hasUserLocation && selectedType === "all";
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
@@ -153,11 +166,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         })();
     }, [data]);
 
-    const recommendedAds = feedAds;
-    const displayedAds = useMemo(() => {
-        if (selectedType === "all") return recommendedAds;
-        return recommendedAds.filter((ad) => (ad.listingType || "ad") === selectedType);
-    }, [recommendedAds, selectedType]);
+    const displayedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
 
     return (
@@ -181,13 +190,13 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     />
                 </div>
 
-                {isLoading && displayedAds.length === 0 && <FeedSkeletonGrid />}
+                {(isLoading || isFetching) && displayedAds.length === 0 && <FeedSkeletonGrid />}
 
                 {isError && displayedAds.length === 0 && (
                     <FeedErrorState onRetry={() => refetch()} />
                 )}
 
-                {!isLoading && !isError && displayedAds.length === 0 && (
+                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && (
                     <FeedEmptyState selectedType={selectedType} />
                 )}
 
@@ -224,14 +233,14 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    aria-label="Load more recommended ads"
+                                    aria-label="Load more listings"
                                     aria-busy={isFetching}
                                     className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>
                                             <Loader2 className="h-4 w-4 animate-spin text-primary" aria-hidden="true" />
-                                            <span>Loading more ads...</span>
+                                            <span>Loading more listings...</span>
                                         </>
                                     ) : (
                                         "Load More"

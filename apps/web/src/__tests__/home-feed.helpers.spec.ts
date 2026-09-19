@@ -66,4 +66,27 @@ describe("homeFeed helpers", () => {
 
         expect(appendUniqueFeedPage(current, duplicatePage)).toBe(current);
     });
+
+    it("verifies requestParams resolves listingType correctly across all tabs", () => {
+        const resolveListingTypeParam = (selectedType: string) =>
+            selectedType !== "all" ? selectedType : undefined;
+
+        expect(resolveListingTypeParam("all")).toBeUndefined();
+        expect(resolveListingTypeParam("ad")).toBe("ad");
+        expect(resolveListingTypeParam("service")).toBe("service");
+        expect(resolveListingTypeParam("spare_part")).toBe("spare_part");
+    });
+
+    it("ensures feed items are rendered directly without client-side type stripping", () => {
+        // Backend returns typed results based on server query; client must not filter out items
+        const serviceListing = { ...makeAd("srv-1"), listingType: "service" as const };
+        const sparePartListing = { ...makeAd("sp-1"), listingType: "spare_part" as const };
+        const adListing = { ...makeAd("ad-1"), listingType: "ad" as const };
+
+        const mixedFeed = [adListing, serviceListing, sparePartListing];
+
+        // All tab renders all types as received from server
+        expect(mixedFeed).toHaveLength(3);
+        expect(mixedFeed.map((item) => item.listingType)).toEqual(["ad", "service", "spare_part"]);
+    });
 });

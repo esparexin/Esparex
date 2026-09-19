@@ -8,7 +8,7 @@ interface HomeFeedProps {
 }
 
 /**
- * HomeFeed - Serves the recommended ads feed on the Home page.
+ * HomeFeed - Serves the marketplace listing feed on the Home page.
  * Keeps HomeFeedClient stably mounted across client location hydration
  * and location updates.
  */
