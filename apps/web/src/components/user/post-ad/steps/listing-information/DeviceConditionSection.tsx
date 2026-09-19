@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdAction, usePostAdFlow } from "../../context";
 import { Button, FieldRoot, FieldLabel, FieldControl, FormItem } from "@esparex/ui";
+import { CatalogSelectDropdown } from "@/components/user/shared/CatalogSelectDropdown";
 import type { FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
@@ -10,7 +12,7 @@ import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {
     const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
-    const { watch, toggleSparePart, loadSparePartsForCategory } = usePostAdAction();
+    const { watch, loadSparePartsForCategory } = usePostAdAction();
     const { form } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -18,52 +20,50 @@ export function DeviceConditionSection() {
     const deviceCondition = watch("deviceCondition");
     const hasSelection = deviceCondition === "power_on" || deviceCondition === "power_off";
 
+    const handleSparePartsChange = useCallback((selectedIds: string | string[]) => {
+        const ids = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
+        form.setValue("spareParts", ids, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+        });
+        clearStep2GeneratedDetails(form);
+    }, [form]);
+
     return (
         <div className="space-y-4">
             {categoryId && (
                 <section className="space-y-2">
-                    <label className="text-xs sm:text-sm font-semibold text-foreground-secondary leading-snug block mb-1.5">Working Spare Parts</label>
+                    <label 
+                        htmlFor="working-spare-parts-select" 
+                        className="text-caption sm:text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
+                    >
+                        Working Spare Parts (Optional)
+                    </label>
                     {isLoadingSpareParts ? (
-                        <div className="grid grid-cols-4 gap-2">
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="h-9 rounded-xl bg-slate-100 animate-pulse" />
-                            ))}
-                        </div>
+                        <div className="h-11 rounded-xl bg-muted animate-pulse border border-border" />
                     ) : sparePartsError ? (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                            <p className="text-xs text-red-700 text-center mb-2">{sparePartsError}</p>
+                        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
+                            <p className="text-caption text-destructive text-center mb-2">{sparePartsError}</p>
                             <Button 
                                 type="button" 
                                 variant="outline" 
                                 size="sm" 
                                 onClick={() => loadSparePartsForCategory(categoryId)} 
-                                className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                                className="w-full text-caption font-semibold text-destructive border-destructive/30 hover:bg-destructive/10"
                             >
                                 Try Again
                             </Button>
                         </div>
                     ) : availableSpareParts.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                            {availableSpareParts.map((part) => {
-                                const selected = spareParts.includes(part.id as string);
-                                return (
-                                    <button 
-                                        key={part.id as string} 
-                                        type="button" 
-                                        onClick={() => toggleSparePart(part.id as string)}
-                                        aria-pressed={selected}
-                                        className={cn(
-                                            "h-8 sm:h-9 px-3 rounded-xl border text-xs font-medium transition-all duration-200 cursor-pointer select-none", 
-                                            selected 
-                                                ? "bg-blue-600 border-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20" 
-                                                : "bg-slate-50/80 border-slate-200/90 text-slate-700 hover:bg-slate-100 hover:border-slate-300"
-                                        )}
-                                    >
-                                        {part.name}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <CatalogSelectDropdown
+                            id="working-spare-parts-select"
+                            items={availableSpareParts}
+                            value={spareParts}
+                            onChange={handleSparePartsChange}
+                            multiSelect={true}
+                            placeholder="Search or select working spare parts..."
+                        />
                     ) : null}
                 </section>
             )}
@@ -74,7 +74,7 @@ export function DeviceConditionSection() {
                     name="deviceCondition"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-x-4 gap-y-0 space-y-0">
-                            <FieldLabel className="text-xs sm:text-sm font-semibold m-0 leading-none text-foreground-secondary">Device Condition</FieldLabel>
+                            <FieldLabel className="text-caption sm:text-body font-semibold m-0 leading-none text-foreground-secondary">Device Condition</FieldLabel>
                             <FieldControl animateOnError>
                                 <RadioGroupPrimitive.Root
                                     onValueChange={(val) => {

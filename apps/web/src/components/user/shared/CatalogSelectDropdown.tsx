@@ -10,6 +10,7 @@ import {
     Check,
     ChevronDown,
     X,
+    Search,
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
@@ -115,12 +116,20 @@ function MultiSelectCatalogDropdown({
     id: string;
 }) {
     const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const filteredItems = React.useMemo(() => {
+        if (!search.trim()) return items;
+        const query = search.toLowerCase().trim();
+        return items.filter((item) => (item.name || "").toLowerCase().includes(query));
+    }, [items, search]);
 
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
                 setOpen(false);
+                setSearch("");
             }
         };
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -211,14 +220,28 @@ function MultiSelectCatalogDropdown({
                 <div
                     role="listbox"
                     aria-multiselectable="true"
-                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
+                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
                 >
-                    {items.length === 0 ? (
+                    {items.length > 5 && (
+                        <div className="p-1 mb-1 border-b border-border">
+                            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-muted/40 border border-border">
+                                <Search className="h-3.5 w-3.5 text-foreground-subtle shrink-0" />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search options..."
+                                    className="w-full bg-transparent text-body-lg md:text-caption font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {filteredItems.length === 0 ? (
                         <div className="p-3 text-center text-caption text-foreground-subtle">
-                            No options available
+                            {search ? `No options matching "${search}"` : "No options available"}
                         </div>
                     ) : (
-                        items.map((item) => {
+                        filteredItems.map((item) => {
                             const itemId = item.id || (item._id as string);
                             const isSelected = value.includes(itemId);
                             return (
