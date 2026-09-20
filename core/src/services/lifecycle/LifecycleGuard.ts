@@ -56,7 +56,6 @@ export const isValidLifecycleTransition = (
 ): boolean => {
     const from = normalizeInputStatus(currentStatus);
     const to = normalizeInputStatus(nextStatus);
-    if (from === to) return true;
     return MAPS[domain]?.[from]?.includes(to) ?? false;
 };
 
