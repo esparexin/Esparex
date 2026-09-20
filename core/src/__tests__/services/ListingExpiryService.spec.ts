@@ -1,5 +1,6 @@
 import { ListingExpiryService } from '../../services/lifecycle/ListingExpiryService';
 import { LISTING_STATUS, ACTOR_TYPE } from '@esparex/contracts';
+import { getStatusMatchCriteria } from '../../utils/statusQueryMapper';
 import { mutateStatusesBulk } from '../../services/lifecycle/StatusMutationService';
 import { lifecycleEvents } from '../../events';
 
@@ -68,7 +69,7 @@ describe('ListingExpiryService', () => {
         const result = await ListingExpiryService.runSweep(now);
 
         expect(mockRepo.find).toHaveBeenCalledWith({
-            status: LISTING_STATUS.LIVE,
+            status: getStatusMatchCriteria(LISTING_STATUS.LIVE),
             expiresAt: { $lte: now },
             isDeleted: false,
         });

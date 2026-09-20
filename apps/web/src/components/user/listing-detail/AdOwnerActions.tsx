@@ -24,6 +24,7 @@ export function AdOwnerActions({
 }: AdOwnerActionsProps) {
     const isPending = status === "pending";
     const isActive = status === "live" || status === "active" || status === "approved" || status === "published";
+    const isExpired = status === "expired" || status === "rejected";
     const showViewOnlyState = !isPending && !isActive && !isSold;
 
     return (
@@ -53,25 +54,25 @@ export function AdOwnerActions({
                     </Button>
                 )}
 
-                {isPending && (
-                    <Button
-                        onClick={onDelete}
-                        variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-11 text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                        Delete Listing
-                    </Button>
-                )}
-
-                {!isSold && isActive && (
+                {!isSold && (isActive || isExpired) && (
                     <Button
                         onClick={onMarkSold}
                         variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-11"
+                        className="w-full gap-2 justify-start text-body h-11"
                     >
                         <CheckCheck className="h-4 w-4" />
                         Mark as Sold
+                    </Button>
+                )}
+
+                {(isPending || isExpired) && (
+                    <Button
+                        onClick={onDelete}
+                        variant="outline"
+                        className="w-full gap-2 justify-start text-body h-11 text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        Delete Listing
                     </Button>
                 )}
 

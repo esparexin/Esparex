@@ -28,6 +28,7 @@ export function useProfileSettings({
     deleteFeedback, setDeleteFeedback,
     deleteAccountErrors,
     deleteAccountGlobalError,
+    isDeleting,
     handleDeleteAccount,
   } = useProfileTermination({ onLogout });
 
@@ -53,6 +54,7 @@ export function useProfileSettings({
     deleteFeedback, setDeleteFeedback,
     deleteAccountErrors,
     deleteAccountGlobalError,
+    isDeleting,
     handleDeleteAccount,
 
     // UI Dialogs

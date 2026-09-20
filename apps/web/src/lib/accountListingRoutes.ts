@@ -23,8 +23,13 @@ export function normalizeAccountListingStatus(
 
 export function buildAccountListingRoute(
     section: AccountListingSection,
-    status: unknown = "live"
+    status: unknown = "live",
+    page?: number
 ): string {
     const normalizedStatus = normalizeAccountListingStatus(section, status);
-    return `/account/${section}?status=${encodeURIComponent(normalizedStatus)}`;
+    const base = `/account/${section}?status=${encodeURIComponent(normalizedStatus)}`;
+    if (page && page > 1) {
+        return `${base}&page=${page}`;
+    }
+    return base;
 }

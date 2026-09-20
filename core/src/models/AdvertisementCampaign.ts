@@ -40,7 +40,6 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
                 'browse_in_feed',
                 'global_footer',
             ],
-            index: true,
         },
         providerType: {
             type: String,
@@ -48,13 +47,12 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
             enum: ['google_adsense', 'google_ad_manager', 'custom_banner', 'house_ad'],
             default: 'google_adsense',
         },
-        priority: { type: Number, required: true, default: 1, min: 1, index: true },
+        priority: { type: Number, required: true, default: 1, min: 1 },
         status: {
             type: String,
             required: true,
             enum: ['draft', 'active', 'paused', 'expired'],
             default: 'active',
-            index: true,
         },
         fallbackStrategy: {
             type: String,
@@ -125,7 +123,26 @@ const AdvertisementCampaignSchema = new Schema<IAdvertisementCampaign>(
     }
 );
 
-AdvertisementCampaignSchema.index({ placementId: 1, status: 1, priority: 1 });
+/* -------------------------------------------------------------------------- */
+/* Indexes (Explicitly Named per Index Governance SSOT)                       */
+/* -------------------------------------------------------------------------- */
+
+AdvertisementCampaignSchema.index(
+    { placementId: 1 },
+    { name: 'idx_advertisementcampaign_placementid_idx' }
+);
+AdvertisementCampaignSchema.index(
+    { priority: 1 },
+    { name: 'idx_advertisementcampaign_priority_idx' }
+);
+AdvertisementCampaignSchema.index(
+    { status: 1 },
+    { name: 'idx_advertisementcampaign_status_idx' }
+);
+AdvertisementCampaignSchema.index(
+    { placementId: 1, status: 1, priority: 1 },
+    { name: 'idx_advertisementcampaign_placement_status_priority_idx' }
+);
 applyToJSONTransform(AdvertisementCampaignSchema);
 
 export interface IMonetizationConfigDoc extends Document, MonetizationSystemState {

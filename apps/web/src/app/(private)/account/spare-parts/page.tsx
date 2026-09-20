@@ -10,8 +10,10 @@ export default async function AccountSparePartsPage(props: {
     const rawStatus = typeof searchParams.status === "string" ? searchParams.status : undefined;
     const normalizedStatus = normalizeAccountListingStatus("spare-parts", rawStatus);
 
+    const pageParam = typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : undefined;
+
     if (rawStatus !== normalizedStatus) {
-        redirect(buildAccountListingRoute("spare-parts", normalizedStatus));
+        redirect(buildAccountListingRoute("spare-parts", normalizedStatus, pageParam));
     }
 
     return <AccountPageShell tab="mylistings" listingSubTab="spare-parts" />;

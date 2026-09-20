@@ -11,12 +11,27 @@ export type { ListingStatus };
 export type ListingType = "ads" | "spare-parts" | "services";
 export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 
+export interface UserListingPagination {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasMore: boolean;
+}
+
+interface ListingQueryResult<T> {
+    items: T[];
+    pagination: UserListingPagination;
+}
+
 interface ListingOptions<T> {
     type: ListingType;
     activeTab: string;
     user: User | null;
     statusFilter: ListingStatus;
-    fetchApi: () => Promise<T[]>;
+    page?: number;
+    limit?: number;
+    fetchApi: () => Promise<T[] | { data: T[]; pagination?: { total?: number; page?: number; limit?: number; hasMore?: boolean; totalPages?: number } }>;
     deleteApi: (id: string) => Promise<unknown>;
     markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
     deactivateApi: (id: string) => Promise<unknown>;
@@ -30,6 +45,8 @@ export function useUserListingManagement<T extends { id: string; status: string 
     activeTab,
     user,
     statusFilter,
+    page = 1,
+    limit = 10,
     fetchApi,
     deleteApi,
     markSoldApi,
@@ -47,22 +64,56 @@ export function useUserListingManagement<T extends { id: string; status: string 
     }[type];
 
     const {
-        data: listings = [],
+        data: queryResult,
         isLoading: loading,
         refetch,
         error,
-    } = useQuery<T[]>({
-        queryKey: [...queryKey, statusFilter],
+    } = useQuery<ListingQueryResult<T>>({
+        queryKey: [...queryKey, statusFilter, page, limit],
         queryFn: async () => {
-            const all = await fetchApi();
-            // Grouped status filtering logic to match backend tab groupings
-            if (statusFilter === "live") {
-                return all.filter((l) => ["active", "live", "deactivated"].includes(l.status));
-            }
-            if (statusFilter === "expired") {
-                return all.filter((l) => ["expired", "sold"].includes(l.status));
-            }
-            return all.filter((l) => l.status === statusFilter);
+            const res = await fetchApi();
+            const rawItems: T[] = Array.isArray(res) ? res : (res?.data || []);
+            const paginationRaw = Array.isArray(res) ? null : res?.pagination;
+
+            const nowMs = Date.now();
+            const filtered = rawItems.filter((l) => {
+                const expiresAtVal = (l as Record<string, unknown>).expiresAt;
+                const expiresAtMs = expiresAtVal ? new Date(String(expiresAtVal)).getTime() : null;
+                const isPastExpiry = Boolean(expiresAtMs && expiresAtMs <= nowMs);
+
+                if (statusFilter === "live") {
+                    if (isPastExpiry) return false;
+                    return ["active", "live", "deactivated"].includes(l.status);
+                }
+                if (statusFilter === "expired") {
+                    return ["expired", "sold"].includes(l.status) || isPastExpiry;
+                }
+                return l.status === statusFilter;
+            });
+
+            const effectiveLimit = limit || paginationRaw?.limit || 10;
+            const effectivePage = page || paginationRaw?.page || 1;
+            const effectiveTotal =
+                typeof paginationRaw?.total === "number" && paginationRaw.total > 0
+                    ? paginationRaw.total
+                    : (paginationRaw?.total === 0 && filtered.length === 0
+                        ? 0
+                        : filtered.length);
+            const totalPages =
+                paginationRaw?.totalPages && paginationRaw.totalPages > 0
+                    ? paginationRaw.totalPages
+                    : (Math.ceil(effectiveTotal / effectiveLimit) || 1);
+
+            return {
+                items: filtered,
+                pagination: {
+                    total: effectiveTotal,
+                    page: effectivePage,
+                    limit: effectiveLimit,
+                    totalPages,
+                    hasMore: Boolean(paginationRaw?.hasMore ?? effectivePage < totalPages),
+                }
+            };
         },
         enabled: isEnabled,
         staleTime: 30_000,
@@ -136,7 +187,8 @@ export function useUserListingManagement<T extends { id: string; status: string 
     });
 
     return {
-        listings,
+        listings: queryResult?.items ?? [],
+        pagination: queryResult?.pagination,
         loading,
         error,
         refetch,

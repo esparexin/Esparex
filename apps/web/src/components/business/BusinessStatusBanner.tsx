@@ -56,8 +56,8 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                     {current.icon}
                 </div>
                 <div className="flex-1 space-y-1">
-                    <h3 className={`font-bold text-sm ${current.textColor}`}>{current.title}</h3>
-                    <p className="text-xs text-foreground-tertiary leading-relaxed max-w-2xl">
+                    <h3 className={`font-bold text-body ${current.textColor}`}>{current.title}</h3>
+                    <p className="text-caption text-foreground-tertiary leading-relaxed max-w-2xl">
                         {current.description}
                     </p>
                 </div>
@@ -65,7 +65,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                     <Button 
                         onClick={onAction}
                         size="sm"
-                        className="bg-white hover:bg-slate-50 text-foreground border border-slate-200 shadow-sm text-xs font-bold px-4 h-9 rounded-xl flex items-center gap-2 group shrink-0"
+                        className="bg-card hover:bg-muted text-foreground border border-border shadow-xs text-caption font-bold px-4 h-9 rounded-xl flex items-center gap-2 group shrink-0"
                     >
                         {current.actionLabel}
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

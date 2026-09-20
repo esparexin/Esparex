@@ -156,7 +156,7 @@ export function ListingItemActions({
               )}
               {(showMarkSold || showDeactivate || showActivate || showRenew) &&
                 showDelete && <DropdownMenuSeparator className="my-1" />}
-              {detailHref && (
+              {detailHref && isActive && (
                 <DropdownMenuItem
                   onClick={() => {
                     if (typeof window !== "undefined" && navigator.share) {
