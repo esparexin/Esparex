@@ -15,6 +15,7 @@ export { calculateUserPlan };
 import logger from '../../../utils/logger';
 import UserWallet from '../../../models/UserWallet';
 import { withUserPostingLock } from '../../boosts/application/services/AdSlotService';
+import { getSystemConfigForRead } from '../../../services/SystemConfigService';
 import { findPlanByIdOrCode } from './planQueryHelpers';
 export { findPlanByIdOrCode };
 
@@ -158,9 +159,27 @@ export const checkPostLimit = async (
             }
             return true;
         } else if (type === 'service') {
-            limit = (permissions.maxServices || 100);
+            let defaultLimit = 100;
+            try {
+                const config = await getSystemConfigForRead();
+                if (typeof config?.listing?.thresholds?.businessServiceLimit === 'number') {
+                    defaultLimit = config.listing.thresholds.businessServiceLimit;
+                }
+            } catch (err) {
+                logger.warn('checkPostLimit: failed to fetch businessServiceLimit config', { err });
+            }
+            limit = (permissions.maxServices || defaultLimit);
         } else if (type === 'spare_part_listing') {
-            limit = (permissions.maxParts || 100);
+            let defaultLimit = 100;
+            try {
+                const config = await getSystemConfigForRead();
+                if (typeof config?.listing?.thresholds?.businessSparePartLimit === 'number') {
+                    defaultLimit = config.listing.thresholds.businessSparePartLimit;
+                }
+            } catch (err) {
+                logger.warn('checkPostLimit: failed to fetch businessSparePartLimit config', { err });
+            }
+            limit = (permissions.maxParts || defaultLimit);
         }
 
         let currentCount = 0;
