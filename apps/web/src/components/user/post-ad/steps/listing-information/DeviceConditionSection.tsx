@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { usePostAdCatalog, usePostAdAction, usePostAdFlow } from "../../context";
 import { Button, FieldRoot, FieldLabel, FieldControl, FormItem, FieldMessage } from "@esparex/ui";
 import { CatalogSelectDropdown } from "@/components/user/shared/CatalogSelectDropdown";
@@ -11,7 +11,7 @@ import { Leaf, Contrast, Zap } from "@esparex/ui";
 import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {
-    const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
+    const { availableSpareParts, isLoadingSpareParts, sparePartsError, sparePartActiveCategoryId } = usePostAdCatalog();
     const { watch, loadSparePartsForCategory } = usePostAdAction();
     const { form, errors } = usePostAdFlow();
 
@@ -33,6 +33,17 @@ export function DeviceConditionSection() {
         }
         clearStep2GeneratedDetails(form);
     }, [form]);
+
+    // Ensure spare parts catalog is loaded for the active category (e.g. on restored draft)
+    useEffect(() => {
+        if (categoryId && sparePartActiveCategoryId !== categoryId) {
+            void loadSparePartsForCategory(categoryId);
+        }
+    }, [categoryId, sparePartActiveCategoryId, loadSparePartsForCategory]);
+
+    const isSparePartsPending = Boolean(categoryId) && (isLoadingSpareParts || sparePartActiveCategoryId !== categoryId);
+    const hasSpareParts = availableSpareParts.length > 0;
+    const shouldRenderSparePartsSection = Boolean(categoryId) && (isSparePartsPending || Boolean(sparePartsError) || hasSpareParts);
 
     return (
         <div className="space-y-4">
@@ -119,7 +130,7 @@ export function DeviceConditionSection() {
                 />
             </section>
 
-            {categoryId && (
+            {shouldRenderSparePartsSection && (
                 <section className="space-y-2" data-field="spareParts">
                     <label 
                         htmlFor="working-spare-parts-select" 
@@ -127,7 +138,7 @@ export function DeviceConditionSection() {
                     >
                         Working Spare Parts <span className="text-destructive">*</span>
                     </label>
-                    {isLoadingSpareParts ? (
+                    {isSparePartsPending ? (
                         <div className="h-11 rounded-xl bg-muted animate-pulse border border-border" />
                     ) : sparePartsError ? (
                         <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl">
@@ -142,7 +153,7 @@ export function DeviceConditionSection() {
                                 Try Again
                             </Button>
                         </div>
-                    ) : availableSpareParts.length > 0 ? (
+                    ) : hasSpareParts ? (
                         <>
                             <CatalogSelectDropdown
                                 id="working-spare-parts-select"
