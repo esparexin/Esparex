@@ -17,9 +17,9 @@ const elevationVariants: Record<NonNullable<CardProps["elevation"]>, string> = {
 };
 
 const surfaceVariants: Record<NonNullable<CardProps["variant"]>, string> = {
-  default: "bg-card text-card-foreground border-border/60 hover:border-border/80",
-  soft: "bg-slate-50/80 dark:bg-slate-900/40 text-foreground border-slate-200/50 dark:border-slate-800/50",
-  glass: "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-white/20 text-foreground",
+  default: "bg-card text-card-foreground border-border hover:border-border",
+  soft: "bg-muted/40 text-foreground border-border/40",
+  glass: "bg-card/80 backdrop-blur-md border-border/30 text-foreground",
   outlined: "bg-transparent border-border text-foreground",
 };
 
