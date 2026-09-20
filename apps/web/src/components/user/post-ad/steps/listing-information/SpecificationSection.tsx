@@ -43,7 +43,7 @@ export function SpecificationSection() {
     return (
         <div className="flex flex-col gap-2.5">
             {dynamicAttributeFilters.length > 0 ? (
-                <fieldset disabled={isEditMode} className={cn("space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50/40 p-2.5 border-0 m-0", isEditMode && "opacity-60 cursor-not-allowed")}>
+                <fieldset disabled={isEditMode} className={cn("space-y-2.5 rounded-2xl border border-border bg-muted/20 p-2.5 m-0", isEditMode && "opacity-60 cursor-not-allowed")}>
                     <div>
                         <p className="text-tiny sm:text-caption font-bold uppercase tracking-wider text-foreground-tertiary">Category Details</p>
                     </div>
@@ -74,8 +74,8 @@ export function SpecificationSection() {
                                         className={cn(
                                             "h-8 sm:h-9 px-3 sm:px-4 rounded-xl border text-caption sm:text-body font-medium transition-all duration-200 cursor-pointer select-none",
                                             isSelected
-                                                ? "bg-blue-600 border-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20"
-                                                : "bg-slate-50/80 border-slate-200/90 text-slate-700 hover:bg-slate-100 hover:border-slate-300",
+                                                ? "bg-primary border-primary text-primary-foreground font-medium shadow-2xs"
+                                                : "bg-card border-border text-foreground-secondary hover:border-primary/40 hover:bg-muted/30",
                                             isEditMode && "cursor-not-allowed opacity-60"
                                         )}
                                     >

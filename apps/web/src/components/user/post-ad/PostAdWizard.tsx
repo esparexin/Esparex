@@ -73,9 +73,9 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     <PostAdShell>
       <a
         href="#post-ad-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-foreground focus:rounded-lg focus:shadow-lg focus:border focus:border-slate-200 focus:text-sm focus:font-semibold"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-foreground focus:rounded-lg focus:shadow-lg focus:border focus:border-border focus:text-small focus:font-semibold"
       >
-        Skip to content
+        Skip to Post Ad form
       </a>
       <ListingModalLayout 
         title={isEditMode ? "Edit Ad" : "Post Ad"} 
@@ -100,7 +100,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={prevStep}
-                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-caption sm:text-body font-semibold h-11 px-4 sm:px-5 rounded-xl border-border hover:bg-muted text-foreground-secondary hover:text-foreground transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 ← Back
               </Button>
@@ -110,7 +110,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={handleClose}
-                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-caption sm:text-body font-semibold h-11 px-4 sm:px-5 rounded-xl border-border hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Cancel
               </Button>
