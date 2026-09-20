@@ -21,7 +21,7 @@ import {
 } from "@esparex/contracts";
 import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
 import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
-import { toCanonicalGeoPoint } from "@esparex/shared";
+import { toCanonicalGeoPoint, sanitizeMongoObjectId } from "@esparex/shared";
 import type { Location as AppLocation } from "@/lib/api/user/locations";
 import {
   type SmartAlert,

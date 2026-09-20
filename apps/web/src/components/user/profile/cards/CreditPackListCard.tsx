@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { CreditPackDTO, EntitlementType } from '@esparex/contracts';
-import { Package, Bell, Zap, ChevronDown, Calendar, Clock } from "@esparex/ui";
+import { Package, Bell, Zap, CheckCircle2, ChevronDown, Calendar, Clock } from "@esparex/ui";
 import { CreditPoolBatchList } from './CreditPoolBatchList';
 import { HistoryPackCard } from './HistoryPackCard';
 
