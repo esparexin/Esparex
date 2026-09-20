@@ -72,9 +72,9 @@ export function MyListingsTab({
   useEffect(() => {
     const currentParam = searchParams.get("status");
     if (currentParam !== selectedStatus) {
-      void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus), { scroll: false });
+      void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus, currentPage > 1 ? currentPage : undefined), { scroll: false });
     }
-  }, [selectedStatus, searchParams, subTab, router]);
+  }, [selectedStatus, searchParams, subTab, router, currentPage]);
 
   const handleStatusChange = (status: ListingStatus) => {
     void router.push(buildAccountListingRoute(subTab as AccountListingSection, status), { scroll: false });
@@ -283,7 +283,11 @@ export function MyListingsTab({
       pagination: {
         page: adsPagination?.page ?? currentPage,
         limit: adsPagination?.limit ?? 10,
-        total: adsPagination?.total ?? ((adCounts?.ad as Record<string, number | undefined>)?.[adsStatus] ?? 0),
+        total: (typeof adsPagination?.total === "number" && adsPagination.total > 0)
+          ? adsPagination.total
+          : (adsPagination?.total === 0 && myAds.length === 0
+            ? 0
+            : ((adCounts?.ad as Record<string, number | undefined>)?.[adsStatus] ?? myAds.length)),
         onPageChange: handlePageChange,
       },
     },
@@ -309,7 +313,11 @@ export function MyListingsTab({
       pagination: {
         page: servicesPagination?.page ?? currentPage,
         limit: servicesPagination?.limit ?? 10,
-        total: servicesPagination?.total ?? ((adCounts?.service as Record<string, number | undefined>)?.[servicesStatus] ?? 0),
+        total: (typeof servicesPagination?.total === "number" && servicesPagination.total > 0)
+          ? servicesPagination.total
+          : (servicesPagination?.total === 0 && myServices.length === 0
+            ? 0
+            : ((adCounts?.service as Record<string, number | undefined>)?.[servicesStatus] ?? myServices.length)),
         onPageChange: handlePageChange,
       },
     },
@@ -335,7 +343,11 @@ export function MyListingsTab({
       pagination: {
         page: sparePagination?.page ?? currentPage,
         limit: sparePagination?.limit ?? 10,
-        total: sparePagination?.total ?? ((adCounts?.spare_part as Record<string, number | undefined>)?.[spareStatus] ?? 0),
+        total: (typeof sparePagination?.total === "number" && sparePagination.total > 0)
+          ? sparePagination.total
+          : (sparePagination?.total === 0 && mySpare.length === 0
+            ? 0
+            : ((adCounts?.spare_part as Record<string, number | undefined>)?.[spareStatus] ?? mySpare.length)),
         onPageChange: handlePageChange,
       },
     },

@@ -93,8 +93,16 @@ export function useUserListingManagement<T extends { id: string; status: string 
 
             const effectiveLimit = limit || paginationRaw?.limit || 10;
             const effectivePage = page || paginationRaw?.page || 1;
-            const effectiveTotal = paginationRaw?.total ?? filtered.length;
-            const totalPages = paginationRaw?.totalPages ?? (Math.ceil(effectiveTotal / effectiveLimit) || 1);
+            const effectiveTotal =
+                typeof paginationRaw?.total === "number" && paginationRaw.total > 0
+                    ? paginationRaw.total
+                    : (paginationRaw?.total === 0 && filtered.length === 0
+                        ? 0
+                        : filtered.length);
+            const totalPages =
+                paginationRaw?.totalPages && paginationRaw.totalPages > 0
+                    ? paginationRaw.totalPages
+                    : (Math.ceil(effectiveTotal / effectiveLimit) || 1);
 
             return {
                 items: filtered,

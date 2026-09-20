@@ -137,36 +137,45 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             ))}
                         </div>
 
-                        {pagination && pagination.total > pagination.limit && (
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 pb-2 border-t border-border text-caption">
-                                <p className="text-foreground-secondary font-medium">
-                                    Showing <span className="font-semibold text-foreground">{Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}</span> to <span className="font-semibold text-foreground">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-semibold text-foreground">{pagination.total}</span> listings
-                                </p>
-                                <div className="flex items-center gap-1.5">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
-                                        disabled={pagination.page <= 1}
-                                        className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
-                                    >
-                                        Previous
-                                    </Button>
-                                    <span className="px-2 font-semibold text-foreground-secondary">
-                                        Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.limit))}
-                                    </span>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => pagination.onPageChange(Math.min(Math.ceil(pagination.total / pagination.limit), pagination.page + 1))}
-                                        disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
-                                        className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
-                                    >
-                                        Next
-                                    </Button>
+                        {pagination && (() => {
+                            const effectiveTotal = pagination.total > 0 ? pagination.total : items.length;
+                            const effectiveLimit = pagination.limit > 0 ? pagination.limit : 10;
+                            const totalPages = Math.max(1, Math.ceil(effectiveTotal / effectiveLimit));
+                            const shouldShow = effectiveTotal > effectiveLimit || pagination.page > 1;
+
+                            if (!shouldShow) return null;
+
+                            return (
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 pb-2 border-t border-border text-caption">
+                                    <p className="text-foreground-secondary font-medium">
+                                        Showing <span className="font-semibold text-foreground">{effectiveTotal > 0 ? Math.min((pagination.page - 1) * effectiveLimit + 1, effectiveTotal) : 0}</span> to <span className="font-semibold text-foreground">{Math.min(pagination.page * effectiveLimit, effectiveTotal)}</span> of <span className="font-semibold text-foreground">{effectiveTotal}</span> listings
+                                    </p>
+                                    <div className="flex items-center gap-1.5">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
+                                            disabled={pagination.page <= 1}
+                                            className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
+                                        >
+                                            Previous
+                                        </Button>
+                                        <span className="px-2 font-semibold text-foreground-secondary">
+                                            Page {pagination.page} of {totalPages}
+                                        </span>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => pagination.onPageChange(Math.min(totalPages, pagination.page + 1))}
+                                            disabled={pagination.page >= totalPages}
+                                            className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
+                                        >
+                                            Next
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
                     </>
                 )}
             </div>

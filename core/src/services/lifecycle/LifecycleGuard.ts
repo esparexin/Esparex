@@ -45,7 +45,7 @@ export const MAPS: Record<ValidDomain, Record<string, string[]>> = {
  * Normalizes input status to handle legacy 'active' vs 'live' during migration.
  */
 const normalizeInputStatus = (status: string): string => {
-    if (status === 'active' || status === 'approved') return LIFECYCLE_STATUS.LIVE;
+    if (status === 'active' || status === 'approved' || status === 'published') return LIFECYCLE_STATUS.LIVE;
     return status;
 };
 
@@ -56,7 +56,8 @@ export const isValidLifecycleTransition = (
 ): boolean => {
     const from = normalizeInputStatus(currentStatus);
     const to = normalizeInputStatus(nextStatus);
-    return MAPS[domain][from]?.includes(to) ?? false;
+    if (from === to) return true;
+    return MAPS[domain]?.[from]?.includes(to) ?? false;
 };
 
 export const validateTransition = (

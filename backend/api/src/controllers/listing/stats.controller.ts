@@ -108,7 +108,12 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
 
         const { listingType } = (req.query || {});
         
-        await ListingExpiryService.runSweep();
+        try {
+            await ListingExpiryService.runSweep();
+        } catch (sweepErr) {
+            logger.warn('ListingExpiryService sweep error (non-blocking)', { error: sweepErr });
+        }
+
         const counts = await AdMetricsService.getListingStatusCountsForSeller(
             userId, 
             listingType ? String(listingType) : undefined
@@ -131,7 +136,11 @@ export const getMyTabListings = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        await ListingExpiryService.runSweep();
+        try {
+            await ListingExpiryService.runSweep();
+        } catch (sweepErr) {
+            logger.warn('ListingExpiryService sweep error (non-blocking)', { error: sweepErr });
+        }
 
         const { tab, page = 1, limit = 20, listingType, type } = req.query;
         const requestedType = (listingType || type) as string | undefined;

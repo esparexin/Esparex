@@ -192,11 +192,35 @@ export const getListingStatusCountsForSeller = async (sellerId: string, listingT
 
     matchStage.$and = andConditions;
 
+    const now = new Date();
     const results = await Ad.aggregate<{ _id: string; count: number }>([
         { $match: matchStage },
         {
+            $project: {
+                status: 1,
+                isPastExpiry: {
+                    $and: [
+                        { $ne: ['$status', 'deactivated'] },
+                        { $ifNull: ['$expiresAt', false] },
+                        { $lte: ['$expiresAt', now] }
+                    ]
+                }
+            }
+        },
+        {
             $group: {
-                _id: '$status',
+                _id: {
+                    $cond: [
+                        {
+                            $or: [
+                                { $in: ['$status', ['expired', 'sold']] },
+                                '$isPastExpiry'
+                            ]
+                        },
+                        'expired',
+                        '$status'
+                    ]
+                },
                 count: { $sum: 1 }
             }
         }
