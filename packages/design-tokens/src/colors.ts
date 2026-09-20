@@ -98,8 +98,8 @@ export const semantic = {
     'muted-foreground': base.warmNeutral[500],
     accent: base.warmNeutral[100],
     'accent-foreground': base.warmNeutral[950],
-    border: base.warmNeutral[200], // #E7E5E4
-    input: base.warmNeutral[200],
+    border: base.warmNeutral[300], // #D6D3D1 (Crisp Stone-300, 82.7% lightness, WCAG 2.2 AA compliant)
+    input: base.warmNeutral[300],  // #D6D3D1 (Clearly defines input fields against white surfaces)
     ring: base.brand[600],
     // Primary interactive control color
     action: base.action,
