@@ -30,6 +30,7 @@ import {
 import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { canPublishBusiness } from "@/guards/businessGuards";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 import { BusinessRegistrationPromo } from "./BusinessRegistrationPromo";
 
@@ -99,6 +100,7 @@ export function BusinessTab({
     const status = businessData
         ? normalizeBusinessStatus(businessData.status, "pending")
         : "pending";
+    const isLive = canPublishBusiness(businessData?.status);
     const locationLabel = resolveListingLocationLabel(businessData?.location, "full");
 
     if (status === "pending" || status === "rejected") {
@@ -116,19 +118,19 @@ export function BusinessTab({
             <div className="space-y-6">
                 {/* Visual Business Profile Card */}
                 <Card className="rounded-3xl border border-border shadow-xs overflow-hidden bg-card">
-                    <div className="h-28 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative border-b border-border">
-                        <div className="absolute -bottom-8 left-6">
-                            <div className="h-16 w-16 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center overflow-hidden">
+                    <div className="h-24 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative border-b border-border">
+                        <div className="absolute -bottom-7 left-6">
+                            <div className="h-14 w-14 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center overflow-hidden">
                                 {businessData.logo ? (
                                     <img src={businessData.logo} alt={businessData.name} className="h-full w-full object-cover" />
                                 ) : (
-                                    <Building2 className="h-8 w-8 text-primary" />
+                                    <Building2 className="h-7 w-7 text-primary" />
                                 )}
                             </div>
                         </div>
                     </div>
                     
-                    <CardContent className="pt-10 pb-6 px-6">
+                    <CardContent className="pt-9 pb-5 px-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <div className="flex items-center gap-2">
@@ -200,47 +202,42 @@ export function BusinessTab({
                 </Card>
 
                 {/* Streamlined Business Services Section */}
-                <PageSection
-                    variant="bordered"
-                    title={
-                        <div className="flex items-center gap-2 text-body sm:text-body-lg font-bold text-foreground">
-                            <Wrench className="h-4.5 w-4.5 text-primary" />
-                            <span>Business services</span>
+                <Card className="rounded-2xl border border-border shadow-xs bg-card p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                <Wrench className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-body font-bold text-foreground">Business services</h3>
+                                <p className="text-caption text-foreground-secondary mt-0.5">
+                                    Manage all your repair and maintenance offerings directly from your listings.
+                                </p>
+                            </div>
                         </div>
-                    }
-                    action={
-                        <Button 
-                            onClick={() => navigateTo("post-service")} 
-                            size="sm" 
-                            className="rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption"
-                        >
-                            <Plus className="mr-1 h-3.5 w-3.5" />
-                            Add Service
-                        </Button>
-                    }
-                    className="bg-card"
-                >
-                    <div className="text-center py-8">
-                        <div className="mx-auto h-12 w-12 rounded-2xl bg-muted flex items-center justify-center text-foreground-subtle mb-3">
-                            <Wrench className="h-6 w-6" />
+                        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                            <Button 
+                                onClick={() => navigateTo("services")} 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 rounded-xl border-border text-caption font-semibold"
+                            >
+                                Go to My Services
+                            </Button>
+                            <Button 
+                                onClick={() => navigateTo("post-service")} 
+                                size="sm" 
+                                className="h-8 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption"
+                            >
+                                <Plus className="mr-1 h-3.5 w-3.5" />
+                                Add Service
+                            </Button>
                         </div>
-                        <h4 className="text-body font-bold text-foreground">Services are live</h4>
-                        <p className="text-caption text-foreground-secondary mt-1 max-w-sm mx-auto">
-                            Manage all your repair and maintenance offerings directly from the Services tab.
-                        </p>
-                        <Button 
-                            onClick={() => navigateTo("services")} 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-4 rounded-xl border-border text-caption font-semibold"
-                        >
-                            Go to My Services
-                        </Button>
                     </div>
-                </PageSection>
+                </Card>
 
                 {/* Account Status / Lifecycle Alerts */}
-                {status !== "live" && (
+                {!isLive && (
                     <PageSection variant="bordered" title="Business Account Status" className="bg-card">
                         <div className="flex items-center justify-between">
                             <div>
