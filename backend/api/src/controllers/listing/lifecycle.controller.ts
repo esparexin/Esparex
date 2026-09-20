@@ -2,8 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import { LISTING_STATUS } from "@esparex/contracts";
-import { ACTOR_TYPE } from "@esparex/contracts";
+import { LISTING_STATUS, LISTING_TYPE, ACTOR_TYPE } from "@esparex/contracts";
 import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
 import * as AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
 import { PromotionPolicyService } from '@esparex/core/services/PromotionPolicyService';
@@ -18,6 +17,10 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
         const user = req.user as AuthUser;
         const listing = req.listing;
         if (!listing) return;
+
+        if (listing.listingType === LISTING_TYPE.SERVICE) {
+            return sendErrorResponse(req, res, 400, 'Services cannot be marked as sold');
+        }
 
         if (listing.status !== LISTING_STATUS.LIVE) {
             return sendErrorResponse(req, res, 400, 'Only live listings can be marked as sold');
