@@ -131,6 +131,7 @@ export function ProfileSettingsSidebar({
         deleteFeedback, setDeleteFeedback,
         deleteAccountErrors,
         deleteAccountGlobalError,
+        isDeleting,
         handleDeleteAccount,
         setShowPlanDialog,
         setSelectedPlan,
@@ -305,6 +306,7 @@ export function ProfileSettingsSidebar({
         deleteFeedback={deleteFeedback}
         setDeleteFeedback={setDeleteFeedback}
         onDelete={handleDeleteAccount}
+        isDeleting={isDeleting}
         deleteAccountErrors={deleteAccountErrors}
         deleteAccountGlobalError={deleteAccountGlobalError}
       />

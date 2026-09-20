@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@esparex/ui";
-import { AlertTriangle } from "@esparex/ui";
+import { AlertTriangle, Loader2 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
 
@@ -33,6 +33,7 @@ interface DeleteAccountDialogProps {
     deleteFeedback: string;
     setDeleteFeedback: (feedback: string) => void;
     onDelete: () => void;
+    isDeleting?: boolean;
     deleteAccountErrors?: DeleteAccountFieldErrors;
     deleteAccountGlobalError?: string | null;
 }
@@ -47,13 +48,15 @@ export function DeleteAccountDialog({
     deleteFeedback,
     setDeleteFeedback,
     onDelete,
+    isDeleting = false,
     deleteAccountErrors,
     deleteAccountGlobalError,
 }: DeleteAccountDialogProps) {
-    const confirmReady = deleteConfirmText.trim().toLowerCase() === "delete";
+    // Controls are locked while the API call is in flight
+    const isLocked = isDeleting;
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={isLocked ? undefined : onOpenChange}>
             <DialogContent mobileSafe className="sm:max-w-lg !p-0 overflow-hidden">
                 <DialogHeader className="!mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
                     <DialogTitle className="flex items-center gap-2 text-destructive">
@@ -72,7 +75,11 @@ export function DeleteAccountDialog({
 
                         <div className="space-y-1.5">
                             <Label htmlFor="delete-account-reason" className="text-caption sm:text-small font-medium text-foreground-secondary">Reason</Label>
-                            <Select value={deleteReason} onValueChange={(value) => setDeleteReason(value as DeleteAccountReason)}>
+                            <Select
+                                value={deleteReason}
+                                onValueChange={(value) => setDeleteReason(value as DeleteAccountReason)}
+                                disabled={isLocked}
+                            >
                                 <SelectTrigger
                                     id="delete-account-reason"
                                     aria-invalid={!!deleteAccountErrors?.reason}
@@ -103,6 +110,7 @@ export function DeleteAccountDialog({
                                 onChange={(e) => setDeleteFeedback(e.target.value.slice(0, 500))}
                                 placeholder="Tell us what went wrong or what we could improve"
                                 maxLength={500}
+                                disabled={isLocked}
                                 className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                                 aria-invalid={!!deleteAccountErrors?.feedback}
                             />
@@ -118,26 +126,41 @@ export function DeleteAccountDialog({
                                 placeholder="Type 'delete' to confirm"
                                 value={deleteConfirmText}
                                 onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                disabled={isLocked}
                                 className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                                 aria-invalid={!!deleteAccountErrors?.confirmText}
+                                aria-describedby={deleteAccountErrors?.confirmText ? "delete-confirm-error" : undefined}
                             />
-                            <FormError message={deleteAccountErrors?.confirmText} />
+                            <FormError id="delete-confirm-error" message={deleteAccountErrors?.confirmText} />
                         </div>
 
                         <FormError message={deleteAccountGlobalError} />
                     </div>
                 </div>
                 <DialogFooter className="!mt-0 shrink-0 gap-2 border-t bg-card px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end">
-                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto h-11 rounded-xl border-border font-semibold text-small">
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isLocked}
+                        className="w-full sm:w-auto h-11 rounded-xl border-border font-semibold text-small"
+                    >
                         Cancel
                     </Button>
                     <Button
                         variant="destructive"
                         onClick={onDelete}
-                        disabled={!confirmReady}
+                        disabled={isLocked}
+                        aria-busy={isDeleting}
                         className="w-full sm:w-auto h-11 rounded-xl font-semibold text-small"
                     >
-                        Delete Account
+                        {isDeleting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                                Deleting account...
+                            </>
+                        ) : (
+                            "Delete Account"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
