@@ -137,6 +137,8 @@ export type SystemConfig = {
     };
     thresholds?: {
       proSparePartLimit?: number;
+      businessServiceLimit?: number;
+      businessSparePartLimit?: number;
     };
   };
   emailTemplates?: unknown[];
