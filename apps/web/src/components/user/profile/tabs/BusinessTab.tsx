@@ -31,6 +31,7 @@ import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { canPublishBusiness } from "@/guards/businessGuards";
+import { type UserPage } from "@/lib/routeUtils";
 import { BusinessApplicationStatus } from "../BusinessApplicationStatus";
 import { BusinessRegistrationPromo } from "./BusinessRegistrationPromo";
 
@@ -39,7 +40,7 @@ interface BusinessTabProps {
     businessStats?: { totalServices: number; approvedServices: number; pendingServices: number; views: number };
     isLoading?: boolean;
     isFetched?: boolean;
-    navigateTo: (page: string, adId?: string | number, category?: string, sellerIdOrBusinessId?: string) => void;
+    navigateTo: (page: UserPage, adId?: string | number, category?: string, sellerIdOrBusinessId?: string) => void;
     onDeactivate?: () => Promise<void>;
     onReactivate?: () => Promise<void>;
     onClose?: () => Promise<void>;
@@ -217,7 +218,7 @@ export function BusinessTab({
                         </div>
                         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
                             <Button 
-                                onClick={() => navigateTo("services")} 
+                                onClick={() => navigateTo("my-services")} 
                                 variant="outline" 
                                 size="sm" 
                                 className="h-8 rounded-xl border-border text-caption font-semibold"

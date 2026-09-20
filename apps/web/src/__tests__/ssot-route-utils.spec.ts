@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isWizardPathname } from "@/lib/routeUtils";
+import { getPageRoute, isProtectedPath, isProtectedUserPage, isWizardPathname } from "@/lib/routeUtils";
 
 describe("Route Utilities SSOT (FIND-019)", () => {
     it("identifies wizard routes correctly", () => {
@@ -10,6 +10,7 @@ describe("Route Utilities SSOT (FIND-019)", () => {
         expect(isWizardPathname("/edit-service/12345")).toBe(true);
         expect(isWizardPathname("/edit-spare-part/12345")).toBe(true);
         expect(isWizardPathname("/account/business/apply")).toBe(true);
+        expect(isWizardPathname("/business/edit")).toBe(true);
     });
 
     it("identifies non-wizard routes correctly", () => {
@@ -19,5 +20,20 @@ describe("Route Utilities SSOT (FIND-019)", () => {
         expect(isWizardPathname("/contact")).toBe(false);
         expect(isWizardPathname(null)).toBe(false);
         expect(isWizardPathname(undefined)).toBe(false);
+    });
+
+    it("maps business edit and services routes accurately", () => {
+        expect(getPageRoute("business-edit")).toBe("/business/edit");
+        expect(getPageRoute("edit-business")).toBe("/business/edit");
+        expect(getPageRoute("profile-settings-business")).toBe("/business/edit");
+        expect(getPageRoute("my-services")).toBe("/account/services");
+        expect(getPageRoute("services")).toBe("/account/services");
+    });
+
+    it("enforces protected route authentication requirements for business edit", () => {
+        expect(isProtectedPath("/business/edit")).toBe(true);
+        expect(isProtectedUserPage("business-edit")).toBe(true);
+        expect(isProtectedUserPage("edit-business")).toBe(true);
+        expect(isProtectedUserPage("profile-settings-business")).toBe(true);
     });
 });

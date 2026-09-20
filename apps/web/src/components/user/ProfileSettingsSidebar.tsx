@@ -227,7 +227,7 @@ export function ProfileSettingsSidebar({
       case "business": return (
         <BusinessTab 
           businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} 
-          navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)}
+          navigateTo={navigateTo}
           onDeactivate={deactivateBusiness} onReactivate={reactivateBusiness} onClose={closeBusiness} onRenew={renewBusiness}
         />
       );
