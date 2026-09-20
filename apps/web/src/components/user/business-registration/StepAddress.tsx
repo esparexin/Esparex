@@ -6,6 +6,7 @@ import { Field } from "@esparex/ui";
 import { FormError } from "@esparex/ui";
 import { Input } from "@esparex/ui";
 import { Textarea } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import logger from "@/lib/logger";
 import {
     getCurrentLocationResult,
@@ -81,25 +82,25 @@ function CompactReadonlyField({
     return (
         <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-                <label className="text-sm font-medium leading-snug text-foreground-secondary" htmlFor={id}>
+                <label className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary" htmlFor={id}>
                     {label}
                 </label>
                 {badge}
             </div>
-            {helperText ? <p className="text-xs leading-5 text-muted-foreground">{helperText}</p> : null}
+            {helperText ? <p className="text-caption leading-normal text-foreground-subtle">{helperText}</p> : null}
             <div className="flex items-center gap-2">
                 <Input
                     id={id}
                     value={value}
                     readOnly
                     placeholder={placeholder}
-                    className="bg-slate-50 font-medium flex-1 h-11"
+                    className="h-11 flex-1 rounded-xl border-border bg-muted/40 font-normal text-foreground-secondary focus-visible:ring-2 focus-visible:ring-primary/20"
                     aria-invalid={Boolean(error)}
                 />
                 {fieldAction ? <div className="shrink-0">{fieldAction}</div> : null}
             </div>
             {children}
-            <FormError message={error} className="text-xs font-medium text-destructive" />
+            <FormError message={error} className="text-caption font-medium text-destructive" />
         </div>
     );
 }
@@ -229,14 +230,15 @@ export function StepAddress({
             {hasCurrentLocation ? (
                 <Field
                     label="Full address"
+                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
                     required
                     error={formData.errors?.address}
                     headerExtra={
-                        <span className={`shrink-0 text-xs font-medium ${formData.address.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
+                        <span className={cn("shrink-0 text-tiny font-normal tabular-nums", formData.address.length >= 300 ? "text-destructive" : "text-foreground-subtle")}>
                             {formData.address.length}/300
                         </span>
                     }
-                    className="space-y-1"
+                    className="space-y-1.5"
                 >
                     <Textarea
                         id="reg-full-address"
@@ -249,8 +251,7 @@ export function StepAddress({
                         }
                         placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                         maxLength={300}
-                        rows={2}
-                        className="min-h-[64px] text-body-lg md:text-body"
+                        className="min-h-[110px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
                         aria-invalid={Boolean(formData.errors?.address)}
                     />
                 </Field>

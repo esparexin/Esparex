@@ -19,7 +19,7 @@ export function DescriptionSection() {
                 render={({ field }) => (
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between gap-2 mb-1">
-                            <FieldLabel required className="text-caption sm:text-body font-semibold leading-snug text-foreground-secondary">
+                            <FieldLabel required className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary">
                                 Description
                             </FieldLabel>
                             {isAiAvailable && (

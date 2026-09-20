@@ -124,20 +124,22 @@ export function ReportAdDialog({
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent mobileSafe className="max-w-md !p-0 overflow-hidden">
-        <DialogHeader className="!mb-0 shrink-0 border-b bg-white px-5 py-4 pr-12">
+        <DialogHeader className="!mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
+            <AlertTriangle className="h-5 w-5 text-destructive" />
             <DialogTitle>Report Ad</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-caption text-foreground-subtle">
             Report Ad #{adId} - {adTitle}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
-            <div className="space-y-3">
-              <Label>Reason for reporting *</Label>
+            <div className="space-y-2.5">
+              <Label className="text-caption sm:text-small font-medium text-foreground-secondary">
+                Reason for reporting <span className="text-destructive ml-0.5">*</span>
+              </Label>
               <RadioGroup
                 value={selectedReason}
                 onValueChange={(value) => {
@@ -145,11 +147,12 @@ export function ReportAdDialog({
                   if (reasonError) setReasonError(null);
                   if (globalError) setGlobalError(null);
                 }}
+                className="gap-2"
               >
                 {reportReasonOptions.map((option) => (
-                  <div key={option.value} className="flex items-center space-x-2">
+                  <div key={option.value} className="flex items-center space-x-2.5 py-0.5">
                     <RadioGroupItem value={option.value} id={option.value} />
-                    <Label htmlFor={option.value} className="font-normal cursor-pointer">
+                    <Label htmlFor={option.value} className="text-body font-normal text-foreground cursor-pointer select-none">
                       {option.label}
                     </Label>
                   </div>
@@ -158,9 +161,9 @@ export function ReportAdDialog({
               <FormError message={reasonError} />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="additional-info">
-                Additional Information (Optional)
+            <div className="space-y-1.5">
+              <Label htmlFor="additional-info" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                Additional Information <span className="text-foreground-subtle font-normal">(Optional)</span>
               </Label>
               <Textarea
                 id="additional-info"
@@ -171,7 +174,7 @@ export function ReportAdDialog({
                   if (additionalInfoError) setAdditionalInfoError(null);
                   if (globalError) setGlobalError(null);
                 }}
-                rows={4}
+                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
               />
               <FormError message={additionalInfoError} />
             </div>
@@ -179,12 +182,12 @@ export function ReportAdDialog({
             <FormError message={globalError} />
           </div>
 
-          <div className="shrink-0 border-t bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="shrink-0 border-t bg-card px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <div className="flex gap-3">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 h-11"
+                className="flex-1 h-11 rounded-xl border-border"
                 onClick={() => handleDialogOpenChange(false)}
                 disabled={isSubmitting}
               >
@@ -192,7 +195,8 @@ export function ReportAdDialog({
               </Button>
               <Button
                 type="submit"
-                className="flex-1 h-11 bg-red-600 hover:bg-red-700"
+                variant="destructive"
+                className="flex-1 h-11 rounded-xl font-semibold"
                 disabled={isSubmitting || isAuthPending}
               >
                 {isSubmitting ? "Submitting..." : isAuthPending ? "Checking login..." : "Submit Report"}

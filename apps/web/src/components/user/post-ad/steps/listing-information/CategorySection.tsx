@@ -28,7 +28,7 @@ export function CategorySection() {
                 name="categoryId"
                 render={() => (
                     <div className="flex flex-col gap-1.5">
-                        <FieldLabel required className="text-xs sm:text-sm font-semibold text-foreground-secondary">Category</FieldLabel>
+                        <FieldLabel required className="text-caption sm:text-small font-medium text-foreground-secondary">Category</FieldLabel>
                         <FieldControl animateOnError>
                             <CategorySelectorGrid
                                 categories={dynamicCategories}
