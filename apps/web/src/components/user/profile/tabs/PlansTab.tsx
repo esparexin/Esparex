@@ -25,7 +25,7 @@ interface PlansTabProps {
   initialTab?: DashboardHubTab;
 }
 
-type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'INVOICES' | 'BUY_PLANS';
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
 
 const DEFAULT_CATEGORIES: string[] = ['More Ads', 'Spotlight', 'Top Ad', 'Alert Slots'];
 
@@ -65,10 +65,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   const filteredPlans = dynamicPlans.filter((plan) => plan.type === currentCategory);
 
   return (
-    <div className="space-y-6">
-      {/* Header Navigation: 3-Tab Navigation for Wallet view */}
+    <div className="w-full max-w-4xl space-y-6">
+      {/* Header Navigation: Multi-Tab Navigation for Wallet view */}
       {initialTab !== 'BUY_PLANS' && (
-        <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2">
+        <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2 max-w-full overflow-x-auto">
           <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
               id="tab-overview"
@@ -97,7 +97,22 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
-              Ad Credits
+              Credits & Wallet
+            </button>
+
+            <button
+              id="tab-credit-history"
+              role="tab"
+              aria-selected={activeTab === 'CREDIT_HISTORY'}
+              aria-controls="panel-credit-history"
+              onClick={() => handleTabSwitch('CREDIT_HISTORY')}
+              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+                activeTab === 'CREDIT_HISTORY'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
+              }`}
+            >
+              Credit History
             </button>
 
             <button
@@ -144,6 +159,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
         <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
             subscription={dashboardData?.subscription || null}
+            nextMonthlyResetDate={dashboardData?.wallet?.nextMonthlyResetDate}
             onBrowsePlans={() => setActiveTab('BUY_PLANS')}
           />
 
@@ -155,15 +171,25 @@ export const PlansTab: React.FC<PlansTabProps> = ({
         </div>
       )}
 
-      {/* TAB 2: ITEMIZED CREDIT PACKS & AUDIT HISTORY */}
+      {/* TAB 2: ITEMIZED CREDIT PACKS */}
       {activeTab === 'CREDIT_PACKS' && !isLoading && (
         <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="flex flex-col gap-3 sm:gap-4">
-          <CreditPackListCard creditPacks={dashboardData?.creditPacks || []} />
+          <CreditPackListCard
+            creditPacks={dashboardData?.creditPacks || []}
+            onBrowsePlans={() => setActiveTab('BUY_PLANS')}
+            onViewHistory={() => handleTabSwitch('CREDIT_HISTORY')}
+          />
+        </div>
+      )}
+
+      {/* TAB 3: DEDICATED CREDIT HISTORY */}
+      {activeTab === 'CREDIT_HISTORY' && !isLoading && (
+        <div id="panel-credit-history" role="tabpanel" aria-labelledby="tab-credit-history" className="flex flex-col gap-3 sm:gap-4">
           <CreditLedgerHistoryCard />
         </div>
       )}
 
-      {/* TAB 3: INVOICES & PAYMENT HISTORY */}
+      {/* TAB 4: INVOICES & PAYMENT HISTORY */}
       {activeTab === 'INVOICES' && !isLoading && (
         <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="flex flex-col gap-3 sm:gap-4">
           <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />

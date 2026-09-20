@@ -33,6 +33,14 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
               <span>Free Monthly: <strong className="text-foreground">{wallet.monthlyFreeAdsRemaining}</strong> / {wallet.monthlyFreeAdsTotal}</span>
               <span>Extra Paid: <strong className="text-foreground">{wallet.paidAdCredits}</strong></span>
             </div>
+            {wallet.nextMonthlyResetDate && (
+              <div className="text-[11px] text-muted-foreground flex items-center justify-between pt-0.5">
+                <span>Monthly reset:</span>
+                <span className="font-semibold text-foreground">
+                  {new Date(wallet.nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Group 2: Smart Alerts */}

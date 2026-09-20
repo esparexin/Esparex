@@ -122,7 +122,7 @@ export const getCreditLedgerHistory = async (req: Request, res: Response) => {
       creditPool: (tx.creditPool as string) || 'PURCHASED',
       amount: (tx.amount as number) || 1,
       entitlementType: (tx.entitlementType as string) || 'AD_POSTING',
-      reason: (tx.reason as string) || 'Credit Transaction',
+      reason: (tx.description as string) || (tx.reason as string) || 'Credit Transaction',
       listingId: (tx.listingId as { toString(): string } | undefined)?.toString(),
       createdAt: tx.createdAt ? new Date(String(tx.createdAt)).toISOString() : new Date().toISOString(),
     }));
