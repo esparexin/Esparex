@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createSmartAlert, deleteSmartAlert, fetchSmartAlerts } from "@/lib/api/user/smartAlerts";
+import { createSmartAlert, deleteSmartAlert, fetchSmartAlerts, fetchSmartAlertMatches } from "@/lib/api/user/smartAlerts";
 import { removeSavedSearch } from "@/lib/api/user/savedSearches";
 import { apiClient } from '@/lib/api/client';
 
@@ -133,4 +133,58 @@ describe('SmartAlerts API Tests', () => {
             expect(alerts).toEqual([]);
         });
     });
+
+    // ── fetchSmartAlertMatches ─────────────────────────────────────────────────
+
+    describe('fetchSmartAlertMatches', () => {
+        it('returns paginated matches payload on success', async () => {
+            vi.mocked(apiClient.get).mockResolvedValueOnce({
+                success: true,
+                data: {
+                    matches: [
+                        {
+                            id: 'notif-001',
+                            alertId: 'alert-001',
+                            alertName: 'iPhone Alert',
+                            deliveredAt: '2026-09-20T10:00:00Z',
+                            isRead: false,
+                            adId: 'ad-001',
+                            actionUrl: '/ads/ad-001',
+                            ad: {
+                                id: 'ad-001',
+                                title: 'iPhone 13 Pro',
+                                price: 700,
+                                status: 'active',
+                            },
+                        },
+                    ],
+                    total: 1,
+                    page: 1,
+                    limit: 4,
+                    totalPages: 1,
+                },
+            });
+
+            const result = await fetchSmartAlertMatches({ page: 1, limit: 4 });
+            expect(result.total).toBe(1);
+            expect(result.matches).toHaveLength(1);
+            expect(result.matches[0]?.alertName).toBe('iPhone Alert');
+            expect(result.matches[0]?.ad?.title).toBe('iPhone 13 Pro');
+            expect(apiClient.get).toHaveBeenCalledWith(
+                expect.stringContaining('smart-alerts/matches'),
+                expect.objectContaining({ params: { page: 1, limit: 4 } })
+            );
+        });
+
+        it('handles empty matches response gracefully', async () => {
+            vi.mocked(apiClient.get).mockResolvedValueOnce(null);
+
+            const result = await fetchSmartAlertMatches();
+            expect(result.matches).toEqual([]);
+            expect(result.total).toBe(0);
+            expect(result.page).toBe(1);
+            expect(result.totalPages).toBe(1);
+        });
+    });
 });
+

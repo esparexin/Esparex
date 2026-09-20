@@ -12,6 +12,12 @@ const router = express.Router();
 // GET /api/v1/smart-alerts
 router.get('/', protect, smartAlertController.getSmartAlerts);
 
+// GET /api/v1/smart-alerts/quota
+router.get('/quota', protect, smartAlertController.getSmartAlertQuota);
+
+// GET /api/v1/smart-alerts/matches
+router.get('/matches', protect, smartAlertController.getSmartAlertMatches);
+
 // POST /api/v1/smart-alerts
 // Rate limited + validated to prevent abuse
 router.post(

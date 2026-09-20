@@ -72,6 +72,7 @@ export class NotificationIntent {
 
     static fromSmartAlert(params: FromSmartAlertParams): NotificationIntent {
         const channels = params.channels ?? ['push', 'in-app'];
+        const actionUrl = `/ads/${params.adId}`;
         return new NotificationIntent({
             userId: params.userId,
             type: NOTIFICATION_TYPE.SMART_ALERT,
@@ -79,7 +80,14 @@ export class NotificationIntent {
             message: {
                 title: 'New Ad Alert',
                 body: `A new ad matches your alert: ${params.alertName}`,
-                data: { adId: params.adId, alertId: params.alertId, type: NOTIFICATION_TYPE.SMART_ALERT }
+                data: {
+                    adId: params.adId,
+                    alertId: params.alertId,
+                    alertName: params.alertName,
+                    type: NOTIFICATION_TYPE.SMART_ALERT,
+                    actionUrl,
+                    link: actionUrl,
+                }
             },
             priority: 'high',
             channels,

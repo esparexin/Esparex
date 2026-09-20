@@ -91,6 +91,8 @@ export function MyListingsTab({
     void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus, newPage), { scroll: false });
   };
 
+  const LISTINGS_PER_PAGE = 4;
+
   // Dynamic Data Fetching
   const {
     listings: myAds,
@@ -109,7 +111,7 @@ export function MyListingsTab({
     user,
     statusFilter: adsStatus,
     page: currentPage,
-    limit: 10,
+    limit: LISTINGS_PER_PAGE,
   });
 
   const {
@@ -128,7 +130,7 @@ export function MyListingsTab({
     user,
     statusFilter: servicesStatus,
     page: currentPage,
-    limit: 10,
+    limit: LISTINGS_PER_PAGE,
   });
 
   const {
@@ -148,7 +150,7 @@ export function MyListingsTab({
     user,
     statusFilter: spareStatus,
     page: currentPage,
-    limit: 10,
+    limit: LISTINGS_PER_PAGE,
   });
 
   // Modal States
@@ -284,7 +286,7 @@ export function MyListingsTab({
       render: (listing: Listing) => renderAdItem(listing, adsStatus, actionHandlers),
       pagination: {
         page: adsPagination?.page ?? currentPage,
-        limit: adsPagination?.limit ?? 10,
+        limit: adsPagination?.limit ?? LISTINGS_PER_PAGE,
         total: (typeof adsPagination?.total === "number" && adsPagination.total > 0)
           ? adsPagination.total
           : (adsPagination?.total === 0 && myAds.length === 0
@@ -314,7 +316,7 @@ export function MyListingsTab({
       render: (service: Listing) => renderServiceItem(service, servicesStatus, actionHandlers),
       pagination: {
         page: servicesPagination?.page ?? currentPage,
-        limit: servicesPagination?.limit ?? 10,
+        limit: servicesPagination?.limit ?? LISTINGS_PER_PAGE,
         total: (typeof servicesPagination?.total === "number" && servicesPagination.total > 0)
           ? servicesPagination.total
           : (servicesPagination?.total === 0 && myServices.length === 0
@@ -344,7 +346,7 @@ export function MyListingsTab({
       render: (listing: Listing) => renderSpareItem(listing, spareStatus, actionHandlers),
       pagination: {
         page: sparePagination?.page ?? currentPage,
-        limit: sparePagination?.limit ?? 10,
+        limit: sparePagination?.limit ?? LISTINGS_PER_PAGE,
         total: (typeof sparePagination?.total === "number" && sparePagination.total > 0)
           ? sparePagination.total
           : (sparePagination?.total === 0 && mySpare.length === 0

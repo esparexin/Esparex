@@ -5,7 +5,8 @@ import { notify } from "@/lib/feedback";
 
 import { listSavedSearches, removeSavedSearch } from "@/lib/api/user/savedSearches";
 import {
-    fetchSmartAlerts,
+    fetchSmartAlertsWithQuota,
+    fetchSmartAlertQuota,
     createSmartAlert as createSmartAlertApi,
     deleteSmartAlert as deleteSmartAlertApi,
     toggleSmartAlertStatus,
@@ -16,117 +17,22 @@ import {
   SmartAlertCreateSchema,
   SmartAlertUpdateSchema,
   type SmartAlertCreatePayload,
+  type SmartAlertQuotaDTO,
 } from "@esparex/contracts";
-import { sanitizeMongoObjectId } from "@esparex/shared";
-import type { SmartAlertListItem, SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
+import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
 import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
 import { toCanonicalGeoPoint } from "@esparex/shared";
 import type { Location as AppLocation } from "@/lib/api/user/locations";
+import {
+  type SmartAlert,
+  mapAlertToListItem,
+  deriveSmartAlertName,
+  createInitialSmartAlertForm,
+  emptySmartAlertFieldErrors,
+} from "./smartAlertHelpers";
 
-export interface SmartAlert {
-    id: string;
-    isActive?: boolean;
-    active?: boolean;
-    radiusKm?: number;
-    notificationChannels?: string[];
-    name?: string;
-    criteria?: {
-        keywords?: string;
-        category?: string;
-        location?: string;
-        locationId?: string;
-        radiusKm?: number;
-    };
-    lastMatch?: string;
-    totalMatches?: number;
-    [key: string]: unknown; // Type safety hatch
-}
-
-const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
-    const record = alert as Record<string, unknown>;
-    const name = typeof record.name === "string" ? record.name : "Smart Alert";
-    const criteriaRaw = record.criteria;
-    const criteria = typeof criteriaRaw === "object" && criteriaRaw !== undefined ? (criteriaRaw as Record<string, unknown>) : null;
-    const keywords = typeof criteria?.keywords === "string" ? criteria.keywords : "";
-    const category = typeof criteria?.category === "string" ? criteria.category : "";
-    const locationId = typeof criteria?.locationId === "string" ? criteria.locationId : undefined;
-    const location = typeof criteria?.location === "string" ? criteria.location : "";
-    const radius =
-        typeof record.radiusKm === "number"
-            ? record.radiusKm
-            : typeof criteria?.radiusKm === "number"
-              ? criteria.radiusKm
-              : undefined;
-    const notificationChannels = Array.isArray(record.notificationChannels)
-        ? record.notificationChannels.filter((value): value is string => typeof value === "string")
-        : undefined;
-
-    return {
-        id: alert.id,
-        name,
-        keywords,
-        category,
-        location,
-        locationId,
-        radiusKm: radius,
-        lastMatch: typeof record.lastMatch === "string" ? record.lastMatch : undefined,
-        totalMatches: typeof record.totalMatches === "number" ? record.totalMatches : undefined,
-        active: typeof alert.isActive === "boolean" ? alert.isActive : (typeof alert.active === "boolean" ? alert.active : true),
-        notificationChannels,
-    };
-};
-
-export const deriveSmartAlertName = (data: {
-    category?: string;
-    brand?: string;
-    model?: string;
-    keywords?: string;
-    location?: string;
-    radiusKm?: number;
-}): string => {
-    const parts: string[] = [];
-    if (data.brand && data.model) {
-        parts.push(`${data.brand} ${data.model}`);
-    } else if (data.brand) {
-        parts.push(data.brand);
-    } else if (data.keywords?.trim()) {
-        parts.push(data.keywords.trim());
-    } else if (data.category) {
-        parts.push(data.category);
-    } else {
-        parts.push("Smart Alert");
-    }
-
-    if (data.location?.trim()) {
-        parts.push(data.location.trim());
-    }
-    if (typeof data.radiusKm === "number" && data.radiusKm > 0) {
-        parts.push(`${data.radiusKm} km`);
-    }
-
-    return parts.join(" • ");
-};
-
-const createInitialSmartAlertForm = (): SmartAlertFormData => ({
-  name: "",
-  keywords: "",
-  category: "",
-  brand: "",
-  model: "",
-  location: "",
-  locationId: null,
-  radiusKm: 25,
-  notificationChannels: ["push", "email"],
-});
-
-const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
-  name: undefined,
-  keywords: undefined,
-  category: undefined,
-  location: undefined,
-  radiusKm: undefined,
-  notificationChannels: undefined,
-});
+export type { SmartAlert };
+export { deriveSmartAlertName };
 
 type SmartAlertLocationSelection = Pick<
   AppLocation,
@@ -135,6 +41,7 @@ type SmartAlertLocationSelection = Pick<
 
 export function useSmartAlerts(enabled = true) {
     const [smartAlerts, setSmartAlerts] = useState<SmartAlert[]>([]);
+    const [quota, setQuota] = useState<SmartAlertQuotaDTO | null>(null);
     const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
     const [isInitialLoading, setIsInitialLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
@@ -146,17 +53,23 @@ export function useSmartAlerts(enabled = true) {
     const [smartAlertGlobalError, setSmartAlertGlobalError] = useState<string | null>(null);
     const [editingAlertId, setEditingAlertId] = useState<string | null>(null);
 
-    // Fetch alerts and saved searches on mount
+    const refreshQuota = useCallback(async () => {
+        const q = await fetchSmartAlertQuota();
+        if (q) setQuota(q);
+    }, []);
+
+    // Fetch alerts, quota, and saved searches on mount
     useEffect(() => {
         if (!enabled) return undefined;
         
         const timeoutId = setTimeout(() => {
             setIsInitialLoading(true);
             Promise.all([
-                fetchSmartAlerts(),
+                fetchSmartAlertsWithQuota(),
                 listSavedSearches()
-            ]).then(([alerts, searches]) => {
+            ]).then(([{ alerts, quota: fetchedQuota }, searches]) => {
                 setSmartAlerts(alerts);
+                setQuota(fetchedQuota);
                 setSavedSearches(searches);
             }).finally(() => setIsInitialLoading(false));
         }, 0);
@@ -250,8 +163,7 @@ export function useSmartAlerts(enabled = true) {
         const { keywords, category, brand, model, location, locationId, radiusKm, notificationChannels } = parsedForm.data;
         const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
         const canonicalLocationId = sanitizeMongoObjectId(selectedLocation?.locationId || selectedLocation?.id || locationId);
-        const rawLocationId = selectedLocation?.locationId || selectedLocation?.id || locationId;
-        const locationIdPayload = canonicalLocationId || (typeof rawLocationId === "string" && rawLocationId.trim() !== "" ? rawLocationId.trim() : undefined);
+        const locationIdPayload = canonicalLocationId || undefined;
         const locationDisplay = selectedLocation?.display || selectedLocation?.name || selectedLocation?.city || location || "";
 
         setSmartAlertErrors(emptySmartAlertFieldErrors());
@@ -314,6 +226,7 @@ export function useSmartAlerts(enabled = true) {
 
         if (result.success) {
             resetAlertForm();
+            void refreshQuota();
             notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
             setIsMutating(false);
             return { success: true };
@@ -376,6 +289,8 @@ export function useSmartAlerts(enabled = true) {
         smartAlerts,
         smartAlertItems: smartAlerts.map(mapAlertToListItem),
         savedSearches,
+        quota,
+        refreshQuota,
         loading,
         isMutating,
         

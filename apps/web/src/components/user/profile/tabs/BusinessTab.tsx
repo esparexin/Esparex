@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent } from "@esparex/ui";
+import { Card } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import {
     AlertDialog,
@@ -25,6 +25,7 @@ import {
     LogOut,
     RefreshCw,
     Plus,
+    Package,
 } from "@esparex/ui";
 
 import { type Business } from "@/lib/api/user/businesses";
@@ -116,70 +117,83 @@ export function BusinessTab({
 
     if (businessData) {
         return (
-            <div className="space-y-6">
-                {/* Visual Business Profile Card */}
-                <Card className="rounded-3xl border border-border shadow-xs overflow-hidden bg-card">
-                    <div className="h-24 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative border-b border-border">
-                        <div className="absolute -bottom-7 left-6">
-                            <div className="h-14 w-14 rounded-2xl bg-card border border-border shadow-sm flex items-center justify-center overflow-hidden">
+            <div className="max-w-2xl space-y-3.5">
+                {/* Visual Business Profile Card (Compact & Half Size) */}
+                <Card className="rounded-2xl border border-border shadow-xs bg-card p-4">
+                    {/* Business Identity Row */}
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="h-11 w-11 rounded-xl bg-muted border border-border shadow-xs flex items-center justify-center overflow-hidden shrink-0">
                                 {businessData.logo ? (
                                     <img src={businessData.logo} alt={businessData.name} className="h-full w-full object-cover" />
                                 ) : (
-                                    <Building2 className="h-7 w-7 text-primary" />
+                                    <Building2 className="h-5 w-5 text-primary" />
                                 )}
                             </div>
-                        </div>
-                    </div>
-                    
-                    <CardContent className="pt-9 pb-5 px-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <h2 className="text-h3 font-bold text-foreground">{businessData.name}</h2>
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-caption font-semibold text-emerald-700 border border-emerald-200">
-                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h2 className="text-body-lg font-bold text-foreground truncate">{businessData.name}</h2>
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-semibold text-emerald-700 border border-emerald-200 shrink-0">
+                                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                         Verified
                                     </span>
                                 </div>
-                                <p className="text-body text-foreground-secondary mt-1">{businessData.businessType ?? businessData.businessTypes?.[0]}</p>
-                            </div>
-                            <Button onClick={() => navigateTo("business-edit")} variant="outline" size="sm" className="rounded-xl self-start sm:self-auto border-border">
-                                Edit Profile
-                            </Button>
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap items-center gap-y-2 gap-x-4 text-caption sm:text-body text-foreground-secondary">
-                            <div className="flex items-center gap-1.5">
-                                <MapPin className="h-4 w-4 text-foreground-subtle shrink-0" />
-                                <span>{locationLabel || "Location not specified"}</span>
-                            </div>
-                            <span className="text-foreground-subtle hidden sm:inline">•</span>
-                            <div className="flex items-center gap-1.5">
-                                <Phone className="h-4 w-4 text-foreground-subtle shrink-0" />
-                                <span>{businessData.mobile}</span>
-                            </div>
-                            <span className="text-foreground-subtle hidden sm:inline">•</span>
-                            <div className="flex items-center gap-1.5">
-                                <Mail className="h-4 w-4 text-foreground-subtle shrink-0" />
-                                <span>{businessData.email}</span>
-                            </div>
-                            <span className="text-foreground-subtle hidden sm:inline">•</span>
-                            <div className="flex items-center gap-1.5">
-                                <Globe className="h-4 w-4 text-foreground-subtle shrink-0" />
-                                <span>{businessData.website || "Website not added"}</span>
+                                <p className="text-caption text-foreground-secondary truncate">
+                                    {businessData.businessType ?? businessData.businessTypes?.[0]}
+                                </p>
                             </div>
                         </div>
+                        <Button 
+                            onClick={() => navigateTo("business-edit")} 
+                            variant="outline" 
+                            size="sm" 
+                            className="rounded-xl border-border text-caption font-semibold h-8 px-3 shrink-0 whitespace-nowrap"
+                        >
+                            Edit Profile
+                        </Button>
+                    </div>
 
-                        {/* Styled Action Buttons for Deactivate & Close Business */}
-                        {(onDeactivate || onClose) && (
-                            <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
+                    {/* Compact Metadata Row */}
+                    <div className="mt-3 pt-2.5 border-t border-border/70 flex flex-wrap items-center gap-y-1 gap-x-2.5 text-tiny text-foreground-secondary">
+                        <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3 text-foreground-subtle shrink-0" />
+                            <span>{locationLabel || "Location not specified"}</span>
+                        </div>
+                        <span className="text-foreground-subtle hidden sm:inline">•</span>
+                        <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3 text-foreground-subtle shrink-0" />
+                            <span>{businessData.mobile}</span>
+                        </div>
+                        <span className="text-foreground-subtle hidden sm:inline">•</span>
+                        <div className="flex items-center gap-1">
+                            <Mail className="h-3 w-3 text-foreground-subtle shrink-0" />
+                            <span>{businessData.email}</span>
+                        </div>
+                        {businessData.website && (
+                            <>
+                                <span className="text-foreground-subtle hidden sm:inline">•</span>
+                                <div className="flex items-center gap-1">
+                                    <Globe className="h-3 w-3 text-foreground-subtle shrink-0" />
+                                    <span>{businessData.website}</span>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Account Lifecycle Actions */}
+                    {(onDeactivate || onClose) && (
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 mt-3 border-t border-border/70">
+                            <span className="text-tiny text-foreground-subtle font-medium">
+                                Account status
+                            </span>
+                            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                                 {onDeactivate && (
                                     <Button
                                         type="button"
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setShowDeactivateDialog(true)}
-                                        className="h-8 border-amber-300 text-amber-700 bg-amber-50/50 hover:bg-amber-100 font-semibold text-caption rounded-xl gap-1.5"
+                                        className="h-8 border-amber-300 text-amber-700 bg-amber-50/70 hover:bg-amber-100 font-semibold text-caption rounded-xl gap-1.5 px-3 whitespace-nowrap shrink-0"
                                     >
                                         <PowerOff className="h-3.5 w-3.5" />
                                         Deactivate
@@ -191,51 +205,89 @@ export function BusinessTab({
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setShowCloseDialog(true)}
-                                        className="h-8 border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold text-caption rounded-xl gap-1.5 ml-auto"
+                                        className="h-8 border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold text-caption rounded-xl gap-1.5 px-3 whitespace-nowrap shrink-0"
                                     >
                                         <LogOut className="h-3.5 w-3.5" />
                                         Close Business
                                     </Button>
                                 )}
                             </div>
-                        )}
-                    </CardContent>
+                        </div>
+                    )}
                 </Card>
 
-                {/* Streamlined Business Services Section */}
-                <Card className="rounded-2xl border border-border shadow-xs bg-card p-4 sm:p-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                <Wrench className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h3 className="text-body font-bold text-foreground">Business services</h3>
-                                <p className="text-caption text-foreground-secondary mt-0.5">
-                                    Manage all your repair and maintenance offerings directly from your listings.
-                                </p>
+                {/* Operations Hub: Services & Spare Parts Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Services Card */}
+                    <Card className="rounded-2xl border border-border shadow-xs bg-card p-4 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-2.5">
+                                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <Wrench className="h-4.5 w-4.5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-body font-bold text-foreground">Services</h3>
+                                    <p className="text-caption text-foreground-secondary mt-0.5">
+                                        Repair & maintenance
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                        <div className="flex items-center gap-2 justify-end mt-4 pt-3 border-t border-border/60">
                             <Button 
                                 onClick={() => navigateTo("my-services")} 
                                 variant="outline" 
                                 size="sm" 
-                                className="h-8 rounded-xl border-border text-caption font-semibold"
+                                className="h-8 px-3 rounded-xl border-border text-caption font-semibold flex-1 sm:flex-initial whitespace-nowrap shrink-0"
                             >
-                                Go to My Services
+                                View Services
                             </Button>
                             <Button 
                                 onClick={() => navigateTo("post-service")} 
                                 size="sm" 
-                                className="h-8 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption"
+                                className="h-8 px-3 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption gap-1.5 flex-1 sm:flex-initial whitespace-nowrap shrink-0"
                             >
-                                <Plus className="mr-1 h-3.5 w-3.5" />
+                                <Plus className="h-3.5 w-3.5" />
                                 Add Service
                             </Button>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+
+                    {/* Spare Parts Card */}
+                    <Card className="rounded-2xl border border-border shadow-xs bg-card p-4 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-2.5">
+                                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 shrink-0">
+                                    <Package className="h-4.5 w-4.5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-body font-bold text-foreground">Spare Parts</h3>
+                                    <p className="text-caption text-foreground-secondary mt-0.5">
+                                        Parts & components
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 justify-end mt-4 pt-3 border-t border-border/60">
+                            <Button 
+                                onClick={() => navigateTo("spare-parts")} 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 px-3 rounded-xl border-border text-caption font-semibold flex-1 sm:flex-initial whitespace-nowrap shrink-0"
+                            >
+                                View Inventory
+                            </Button>
+                            <Button 
+                                onClick={() => navigateTo("post-spare-part-listing")} 
+                                size="sm" 
+                                className="h-8 px-3 rounded-xl shadow-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-caption gap-1.5 flex-1 sm:flex-initial whitespace-nowrap shrink-0"
+                            >
+                                <Plus className="h-3.5 w-3.5" />
+                                Add Spare Part
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
 
                 {/* Account Status / Lifecycle Alerts */}
                 {!isLive && (
