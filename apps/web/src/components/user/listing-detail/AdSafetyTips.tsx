@@ -2,10 +2,13 @@ import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@esparex/ui";
 
 interface AdSafetyTipsProps {
     adId?: string | number;
+    listingType?: "ad" | "service" | "spare_part";
 }
 
-export function AdSafetyTips({ adId }: AdSafetyTipsProps) {
+export function AdSafetyTips({ adId, listingType = "ad" }: AdSafetyTipsProps) {
     const formattedId = adId && typeof adId === 'string' && adId.length === 24 ? adId.slice(-8).toUpperCase() : String(adId || '');
+    const isService = listingType === "service";
+    const isSparePart = listingType === "spare_part";
 
     return (
         <div className="rounded-xl border border-border bg-card p-3.5 space-y-2.5 shadow-2xs">
@@ -25,16 +28,30 @@ export function AdSafetyTips({ adId }: AdSafetyTipsProps) {
                 <div className="flex items-start gap-2">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                        <span className="font-semibold text-foreground">Inspect in person: </span>
-                        <span>Meet in a public place to check the item status.</span>
+                        <span className="font-semibold text-foreground">
+                            {isService ? "Verify service scope: " : isSparePart ? "Inspect part in person: " : "Inspect in person: "}
+                        </span>
+                        <span>
+                            {isService
+                                ? "Confirm scope of work, warranty, and estimated turnaround before handing over devices."
+                                : isSparePart
+                                ? "Check connector pins, model fit, and physical integrity before purchasing."
+                                : "Meet in a public place to check the item status."}
+                        </span>
                     </div>
                 </div>
 
                 <div className="flex items-start gap-2">
                     <AlertCircle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                        <span className="font-semibold text-foreground">No advance payments: </span>
-                        <span>Never pay before receiving and verifying the item.</span>
+                        <span className="font-semibold text-foreground">
+                            {isService ? "No unauthorized advance: " : "No advance payments: "}
+                        </span>
+                        <span>
+                            {isService
+                                ? "Pay only agreed diagnostic or service fees upon service verification or completion."
+                                : "Never pay before receiving and verifying the item."}
+                        </span>
                     </div>
                 </div>
 

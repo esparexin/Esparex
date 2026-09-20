@@ -14,7 +14,6 @@ interface ListingDescriptionCardProps {
     ad: Ad;
     /** Listing domain type — drives which tabs are shown. Defaults to "ad". */
     listingType?: "ad" | "service" | "spare_part";
-    variant?: "mobile" | "desktop";
     navigateTo?: (
         page: UserPage,
         adId?: string | number,
@@ -31,8 +30,8 @@ interface ListingDescriptionCardProps {
 /** Canonical tab set for General Ad listings */
 export const TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
 
-const SERVICE_TAB_KEYS = ["about-service", "description"] as const;
-const SPARE_PART_TAB_KEYS = ["part-details", "description"] as const;
+export const SERVICE_TAB_KEYS = ["about-service", "service-centers"] as const;
+export const SPARE_PART_TAB_KEYS = ["part-details", "description"] as const;
 
 type TabKey =
     | typeof TAB_KEYS[number]
@@ -45,6 +44,7 @@ const TAB_LABELS: Record<TabKey, string> = {
     "description": "Description",
     "spare-parts": "Working Spare Parts",
     "about-service": "About This Service",
+    "service-centers": "Other Service Centers",
     "part-details": "Part Details",
 };
 
@@ -54,7 +54,8 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
 
     // Compute the correct tab set and default active tab for this listing domain.
     // Ad listings keep the original Repair Shops → Description → Working Spare Parts flow.
-    // Service and Spare Part listings get purpose-specific tabs with no irrelevant content.
+    // Service listings show About This Service → Other Service Centers.
+    // Spare Part listings show Part Details → Description.
     const tabKeys: readonly TabKey[] = isService
         ? SERVICE_TAB_KEYS
         : isSparePart
@@ -133,7 +134,7 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
                             className={cn(
                                 "inline-flex items-center gap-2 px-3.5 py-2.5 text-caption sm:text-body font-semibold rounded-t-xl transition-all border-b-2 -mb-px whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                                 isActive
-                                    ? "border-primary text-emerald-700 dark:text-emerald-400 font-bold bg-primary/10"
+                                    ? "border-primary text-primary font-bold bg-primary/10"
                                     : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                             )}
                         >
@@ -170,17 +171,49 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
 
             {/* Tab Panel: About This Service (Service only) */}
             {activeTab === "about-service" && (
-                <ListingDescriptionTab ad={ad} description={description} />
+                <ListingDescriptionTab
+                    ad={ad}
+                    description={description}
+                    id="tabpanel-about-service"
+                    ariaLabelledBy="tab-about-service"
+                />
+            )}
+
+            {/* Tab Panel: Other Service Centers (Service only) */}
+            {activeTab === "service-centers" && (
+                <div
+                    role="tabpanel"
+                    id="tabpanel-service-centers"
+                    aria-labelledby="tab-service-centers"
+                    tabIndex={0}
+                    className="pt-3.5 sm:pt-4 focus-visible:outline-none"
+                >
+                    <ListingRelatedBusinessesSection
+                        ad={ad}
+                        navigateTo={navigateTo || (() => {})}
+                        variant="default"
+                    />
+                </div>
             )}
 
             {/* Tab Panel: Part Details (Spare Part only) */}
             {activeTab === "part-details" && (
-                <ListingDescriptionTab ad={ad} description="" />
+                <ListingDescriptionTab
+                    ad={ad}
+                    description=""
+                    id="tabpanel-part-details"
+                    ariaLabelledBy="tab-part-details"
+                />
             )}
 
-            {/* Tab Panel: Description (all listing types) */}
+            {/* Tab Panel: Description (Ad and Spare Part listings) */}
             {activeTab === "description" && (
-                <ListingDescriptionTab ad={ad} description={description} />
+                <ListingDescriptionTab
+                    ad={ad}
+                    description={description}
+                    id="tabpanel-description"
+                    ariaLabelledBy="tab-description"
+                />
             )}
 
             {/* Tab Panel: Working Spare Parts (Ad only) */}
