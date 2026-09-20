@@ -99,7 +99,6 @@ export function PlanPurchaseDialog({
             });
         } catch (error) {
             logger.error("Plan purchase failed", error);
-            notify.error("Payment couldn't be started right now. Please try again in a few moments.");
         }
     };
 
@@ -198,9 +197,14 @@ export function PlanPurchaseDialog({
                     </Card>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2.5">
                         <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <p className="text-caption font-medium text-link-dark leading-relaxed">
-                            🔒 <strong>Instant Activation</strong> — Your plan credits will be activated immediately upon payment confirmation.
-                        </p>
+                        <div className="space-y-1">
+                            <p className="text-caption font-medium text-link-dark leading-relaxed">
+                                🔒 <strong>Instant Activation</strong> — Your plan credits will be activated immediately upon payment confirmation.
+                            </p>
+                            <p className="text-tiny text-muted-foreground">
+                                💳 <strong>Supported Payment Methods:</strong> UPI, Indian Domestic Debit/Credit Cards (RuPay, Visa, MasterCard), Netbanking. <em>(International cards are not supported)</em>
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <DialogFooter>
