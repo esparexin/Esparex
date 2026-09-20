@@ -14,6 +14,7 @@ import {
   type AccountListingSection,
 } from "@/lib/accountListingRoutes";
 import type { BusinessStatusValue } from "@esparex/contracts";
+import { canPublishBusiness } from "@/guards/businessGuards";
 import {
   SUB_TABS,
   type ListingSubTab,
@@ -51,8 +52,9 @@ export function MyListingsTab({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Tab visibility: Services and Spare Parts are only accessible to approved (live) businesses.
-  const visibleSubTabs = businessStatus === "live" ? SUB_TABS : SUB_TABS.filter(t => t.value === "ads");
+  // Tab visibility: Services and Spare Parts are only accessible to approved (live/active) businesses.
+  const isVerifiedBusiness = canPublishBusiness(businessStatus as BusinessStatusValue | undefined);
+  const visibleSubTabs = isVerifiedBusiness ? SUB_TABS : SUB_TABS.filter(t => t.value === "ads");
   const showPendingBanner = businessStatus === "pending";
 
   const subTab: ListingSubTab = visibleSubTabs.some(t => t.value === initialSubTab)

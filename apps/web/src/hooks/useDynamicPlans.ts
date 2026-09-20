@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getPlans } from "@/lib/api/user/plans";
 import type { ProfilePlan, ProfilePlanType } from "@/components/user/profile/types";
 import type { User } from "@esparex/contracts";
+import { isApprovedBusiness } from "@/guards/businessGuards";
 import logger from "@/lib/logger";
 
 export function getPlanEntitlementFeatures(p: {
@@ -84,7 +85,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
         setLoadingPlans(true);
         try {
             const userType =
-                user?.role === "business" || user?.businessStatus === "live"
+                user?.role === "business" || isApprovedBusiness(user)
                     ? "business"
                     : "normal";
             const data = await getPlans({ userType });

@@ -19,7 +19,8 @@ export function canRegisterBusiness(user: User) {
     return canEditBusiness(user.businessStatus);
 }
 
-export function isBusinessPending(user: User) {
+export function isBusinessPending(user: User | null | undefined) {
+    if (!user) return false;
     return normalizeBusinessStatus(user.businessStatus, 'none') === "pending";
 }
 
@@ -28,6 +29,7 @@ export function isApprovedBusiness(user: User | null | undefined) {
     return canPublishBusiness(user.businessStatus);
 }
 
-export function isRejectedBusiness(user: User) {
+export function isRejectedBusiness(user: User | null | undefined) {
+    if (!user) return false;
     return normalizeBusinessStatus(user.businessStatus, 'none') === "rejected";
 }

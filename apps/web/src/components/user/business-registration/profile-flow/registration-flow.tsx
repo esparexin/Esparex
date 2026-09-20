@@ -26,6 +26,7 @@ import { processStagedFiles } from "./upload";
 import { useFormDraftPersistence } from "@/hooks/useFormDraftPersistence";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { useProfileWizardController } from "./hooks";
+import { isApprovedBusiness, isBusinessPending } from "@/guards/businessGuards";
 
 export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onClose }: {
     user: User | null; onRefreshUser?: () => void | Promise<void>; onComplete?: () => void; onClose?: () => void;
@@ -44,7 +45,7 @@ export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onCl
     const { idempotencyKey, clearDraft } = useFormDraftPersistence({
         form,
         userId: user?.id,
-        enabled: !user?.businessId && user?.businessStatus !== "live" && user?.businessStatus !== "pending",
+        enabled: !user?.businessId && !isApprovedBusiness(user) && !isBusinessPending(user),
     });
     useUnsavedChangesGuard({ isDirty: form.formState.isDirty });
 
