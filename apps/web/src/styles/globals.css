@@ -97,9 +97,6 @@
   /* Categorized Semantic Tokens (Layer 2) */
   --color-surface: var(--raw-color-white);
   --color-surface-muted: var(--raw-color-stone-50);
-  --color-border-subtle: rgba(231, 229, 228, 0.6);
-  --color-border-default: rgba(231, 229, 228, 0.9);
-  --color-border-strong: rgba(214, 211, 209, 0.8);
 
   --color-text-primary: var(--raw-color-stone-950);
   --color-text-secondary: var(--raw-color-stone-600);
