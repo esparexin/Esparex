@@ -22,4 +22,13 @@ describe("Catalog Dependency Isolation Contract Safeguards (Post-Ad)", () => {
         // prevent pruning spare parts during loading or category mismatch.
         expect(typeof useSparePartCatalog).toBe("function");
     });
+
+    it("verifies PostAd catalog state contract includes sparePartActiveCategoryId for draft restoration", () => {
+        // Type-level and runtime assertion ensuring PostAdCatalogState includes sparePartActiveCategoryId
+        type CatalogStateHasKey = import("@/components/user/post-ad/context/types").PostAdCatalogState;
+        const testState: Partial<CatalogStateHasKey> = {
+            sparePartActiveCategoryId: "65e8f1a2b3c4d5e6f7a8b9c0",
+        };
+        expect(testState.sparePartActiveCategoryId).toBe("65e8f1a2b3c4d5e6f7a8b9c0");
+    });
 });

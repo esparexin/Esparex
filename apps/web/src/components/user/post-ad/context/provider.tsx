@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/api/user/listings/normalizer";
 import type { ListingImage, ListingLocation } from "@/types/listing";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { useNavigation } from "@/context/NavigationContext";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
@@ -38,7 +39,7 @@ export function PostAdProvider({
     const sparePartCatalog = useSparePartCatalog({ listingType: LISTING_TYPE.AD, onError: setFormError });
     const categorySchemaCatalog = useCategorySchemaCatalog();
     const { dynamicCategories, categoryMap } = categoryCatalog;
-    const { brandMap, availableBrands, availableModels, availableSizes, loadBrandsForCategory, loadModelsForBrand, refreshBrands, brandsError, isLoadingBrands, isLoadingModels } = brandCatalog;
+    const { brandMap, availableBrands, availableModels, availableSizes, loadBrandsForCategory, loadModelsForBrand, refreshBrands, brandsError, isLoadingBrands, isLoadingModels, activeCategoryId: brandActiveCategoryId } = brandCatalog;
     const { availableSpareParts, isLoadingSpareParts, sparePartsError, loadSparePartsForCategory, activeCategoryId: sparePartActiveCategoryId } = sparePartCatalog;
     const { categorySchema, loadCategorySchema } = categorySchemaCatalog;
 
@@ -92,7 +93,7 @@ export function PostAdProvider({
         // were selected in a previous category context, or incorrectly pruning
         // during rapid category switches when the catalog is mid-flight.
         const selectedCategoryId = form.getValues("categoryId") || form.getValues("category");
-        if (sparePartActiveCategoryId && selectedCategoryId && sparePartActiveCategoryId !== selectedCategoryId) return;
+        if (!sparePartActiveCategoryId || !selectedCategoryId || sparePartActiveCategoryId !== selectedCategoryId) return;
         // Guard 3: Nothing to prune if available list is empty (e.g. no spare parts for category).
         if (availableSpareParts.length === 0) return;
         const currentParts = (form.getValues("spareParts") || []) as string[];
@@ -101,6 +102,34 @@ export function PostAdProvider({
         const next = currentParts.filter((id) => validIds.has(id));
         if (next.length !== currentParts.length) form.setValue("spareParts", next, { shouldDirty: true });
     }, [availableSpareParts, isLoadingSpareParts, sparePartActiveCategoryId, form]);
+
+    // Catalog hydration effect:
+    // When categoryId is populated (e.g. restored from localStorage draft or initial props),
+    // trigger dependent catalog queries if they have not yet loaded for this category.
+    const watchedCategoryId = form.watch("categoryId") || form.watch("category");
+    useEffect(() => {
+        if (!watchedCategoryId) return;
+        const normalizedCatId = sanitizeMongoObjectId(watchedCategoryId) || watchedCategoryId;
+        if (!normalizedCatId) return;
+
+        if (sparePartActiveCategoryId !== normalizedCatId) {
+            void loadSparePartsForCategory(normalizedCatId);
+        }
+        if (brandActiveCategoryId !== normalizedCatId) {
+            void loadBrandsForCategory(normalizedCatId);
+        }
+        if (categorySchema?.categoryId !== normalizedCatId) {
+            void loadCategorySchema(normalizedCatId);
+        }
+    }, [
+        watchedCategoryId,
+        sparePartActiveCategoryId,
+        brandActiveCategoryId,
+        categorySchema?.categoryId,
+        loadSparePartsForCategory,
+        loadBrandsForCategory,
+        loadCategorySchema,
+    ]);
 
     const initializeFromListing = useCallback(async (data: Listing) => {
         setMode('edit'); setListingId(String(data.id || (data as { _id?: string })._id || "")); setCurrentStep(2);
@@ -155,7 +184,7 @@ export function PostAdProvider({
         setSubmittedAd,
     });
 
-    const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels]);
+    const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels, sparePartActiveCategoryId }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels, sparePartActiveCategoryId]);
     const locationState = useMemo<PostAdLocationState>(() => ({ listingLocation, locationDisplay: locationDisplay || "", coordinates, isLocationLocked }), [listingLocation, locationDisplay, coordinates, isLocationLocked]);
     const imagesState = useMemo<PostAdImagesState>(() => ({ listingImages, isUploadingImages: imagesHook.isUploadingImages, imageUploadError: imagesHook.imageUploadError }), [listingImages, imagesHook.isUploadingImages, imagesHook.imageUploadError]);
     const flowState = useMemo<PostAdFlowState>(() => ({ currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isAiAvailable, aiCache, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId }), [currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isAiAvailable, aiCache, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId]);

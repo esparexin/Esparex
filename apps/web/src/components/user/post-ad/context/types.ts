@@ -50,6 +50,7 @@ export interface PostAdContextType {
     availableSizes: string[];
     availableSpareParts: SparePart[];
     isLoadingSpareParts: boolean;
+    sparePartActiveCategoryId?: string;
     categorySchema: { categoryId: string; categoryName: string; filters: CategoryFilter[] } | null;
     requiresScreenSize: boolean;
     loadBrandsForCategory: (categoryId: string) => Promise<void>;
@@ -98,6 +99,7 @@ export type PostAdCatalogState = {
     brandIsPending: boolean;
     isLoadingBrands: boolean;
     isLoadingModels: boolean;
+    sparePartActiveCategoryId?: string;
 };
 
 export type PostAdLocationState = {
