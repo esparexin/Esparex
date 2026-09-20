@@ -131,16 +131,24 @@ export const getMyTabListings = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        const { tab, page = 1, limit = 20 } = req.query;
+        await ListingExpiryService.runSweep();
+
+        const { tab, page = 1, limit = 20, listingType, type } = req.query;
+        const requestedType = (listingType || type) as string | undefined;
 
         const query: Record<string, unknown> = {
             sellerId: userId,
             isDeleted: { $ne: true },
-            $or: [
-                { deletedAt: { $exists: false } },
-                { deletedAt: null }
-            ]
+            deletedAt: null
         };
+
+        if (requestedType && Object.values(LISTING_TYPE as Record<string, string>).includes(requestedType)) {
+            if (requestedType === LISTING_TYPE.AD || requestedType === 'ad') {
+                query.listingType = { $in: [LISTING_TYPE.AD, null, undefined] };
+            } else {
+                query.listingType = requestedType;
+            }
+        }
 
         if (tab) {
             const tabStr = String(tab).trim().toLowerCase();
@@ -153,8 +161,6 @@ export const getMyTabListings = async (req: Request, res: Response) => {
 
                 // Live/active ads must not have passed expiresAt.
                 // Deactivated ads are explicitly exempt — they carry no expiry semantics.
-                // The $exists: false clause covers earlier documents pre-dating the expiresAt field;
-                // it does not generalise expiry bypass beyond this context.
                 query.$and = [
                     { status: { $in: [...liveStatuses, 'deactivated'] } },
                     {
@@ -168,7 +174,13 @@ export const getMyTabListings = async (req: Request, res: Response) => {
             } else if (tabStr === 'pending') {
                 query.status = 'pending';
             } else if (tabStr === 'expired') {
-                query.status = { $in: ['expired', 'sold'] };
+                query.$or = [
+                    { status: { $in: ['expired', 'sold'] } },
+                    {
+                        status: { $in: ['live', 'approved', 'active', 'published'] },
+                        expiresAt: { $lte: new Date() }
+                    }
+                ];
             } else {
                 query.status = { $in: [] };
             }

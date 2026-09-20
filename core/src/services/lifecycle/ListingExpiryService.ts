@@ -3,6 +3,7 @@ import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatusesBulk } from './StatusMutationService';
 import { lifecycleEvents } from '../../events';
+import { getStatusMatchCriteria } from '../../utils/statusQueryMapper';
 import logger from '../../utils/logger';
 
 export type ListingExpirySweepResult = {
@@ -13,8 +14,9 @@ export type ListingExpirySweepResult = {
 
 export class ListingExpiryService {
     static async runSweep(now: Date = new Date()): Promise<ListingExpirySweepResult> {
+        const liveCriteria = getStatusMatchCriteria(LISTING_STATUS.LIVE);
         const expiringListings = await getListingRepository().find({
-            status: LISTING_STATUS.LIVE,
+            status: typeof liveCriteria === 'string' ? liveCriteria : liveCriteria,
             expiresAt: { $lte: now },
             isDeleted: false,
         });

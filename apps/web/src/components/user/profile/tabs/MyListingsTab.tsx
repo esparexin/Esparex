@@ -59,6 +59,8 @@ export function MyListingsTab({
     ? initialSubTab
     : "ads";
 
+  const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+
   const selectedStatus = normalizeAccountListingStatus(
     subTab as AccountListingSection,
     searchParams.get("status")
@@ -83,9 +85,14 @@ export function MyListingsTab({
     void router.push(buildAccountListingRoute(value as AccountListingSection, nextStatus), { scroll: false });
   };
 
+  const handlePageChange = (newPage: number) => {
+    void router.push(buildAccountListingRoute(subTab as AccountListingSection, selectedStatus, newPage), { scroll: false });
+  };
+
   // Dynamic Data Fetching
   const {
     listings: myAds,
+    pagination: adsPagination,
     loading: loadingAds,
     error: adsError,
     handleDelete: handleDeleteAd,
@@ -94,10 +101,18 @@ export function MyListingsTab({
     handleActivate: handleActivateAd,
     handleRepost: handleRepostAd,
     refetch: fetchMyAds
-  } = useProfileListings("ads", subTab, user, adsStatus);
+  } = useProfileListings({
+    type: "ads",
+    activeSubTab: subTab,
+    user,
+    statusFilter: adsStatus,
+    page: currentPage,
+    limit: 10,
+  });
 
   const {
     listings: myServices,
+    pagination: servicesPagination,
     loading: loadingServices,
     error: servicesError,
     handleDelete: handleDeleteService,
@@ -105,10 +120,18 @@ export function MyListingsTab({
     handleActivate: handleActivateService,
     handleRepost: handleRepostService,
     refetch: fetchMyServices
-  } = useProfileListings("services", subTab, user, servicesStatus);
+  } = useProfileListings({
+    type: "services",
+    activeSubTab: subTab,
+    user,
+    statusFilter: servicesStatus,
+    page: currentPage,
+    limit: 10,
+  });
 
   const {
     listings: mySpare,
+    pagination: sparePagination,
     loading: loadingSpare,
     error: spareError,
     handleDelete: handleDeleteSpare,
@@ -117,7 +140,14 @@ export function MyListingsTab({
     handleActivate: handleActivateSpare,
     handleRepost: handleRepostSpare,
     refetch: fetchMySpare
-  } = useProfileListings("spare-parts", subTab, user, spareStatus);
+  } = useProfileListings({
+    type: "spare-parts",
+    activeSubTab: subTab,
+    user,
+    statusFilter: spareStatus,
+    page: currentPage,
+    limit: 10,
+  });
 
   // Modal States
   const [adToDelete, setAdToDelete] = useState<Listing | null>(null);
@@ -222,6 +252,12 @@ export function MyListingsTab({
     emptyTitle: string;
     emptyDesc: string;
     render: (item: Listing) => React.ReactNode;
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      onPageChange: (page: number) => void;
+    };
   }
 
   const configMap: Record<ListingSubTab, SectionConfig> = {
@@ -244,6 +280,12 @@ export function MyListingsTab({
       emptyTitle: `No ${adsStatus} ads`,
       emptyDesc: "Post your first ad to reach thousands of buyers.",
       render: (listing: Listing) => renderAdItem(listing, adsStatus, actionHandlers),
+      pagination: {
+        page: adsPagination?.page ?? currentPage,
+        limit: adsPagination?.limit ?? 10,
+        total: adsPagination?.total ?? ((adCounts?.ad as Record<string, number | undefined>)?.[adsStatus] ?? 0),
+        onPageChange: handlePageChange,
+      },
     },
     services: {
       title: "My Professional Services",
@@ -264,6 +306,12 @@ export function MyListingsTab({
       emptyTitle: `No ${servicesStatus} services`,
       emptyDesc: "List your repair or maintenance services to attract customers.",
       render: (service: Listing) => renderServiceItem(service, servicesStatus, actionHandlers),
+      pagination: {
+        page: servicesPagination?.page ?? currentPage,
+        limit: servicesPagination?.limit ?? 10,
+        total: servicesPagination?.total ?? ((adCounts?.service as Record<string, number | undefined>)?.[servicesStatus] ?? 0),
+        onPageChange: handlePageChange,
+      },
     },
     "spare-parts": {
       title: "My Spare Part Inventory",
@@ -284,6 +332,12 @@ export function MyListingsTab({
       emptyTitle: `No ${spareStatus} listings`,
       emptyDesc: "List spare parts to sell to repair shops and customers.",
       render: (listing: Listing) => renderSpareItem(listing, spareStatus, actionHandlers),
+      pagination: {
+        page: sparePagination?.page ?? currentPage,
+        limit: sparePagination?.limit ?? 10,
+        total: sparePagination?.total ?? ((adCounts?.spare_part as Record<string, number | undefined>)?.[spareStatus] ?? 0),
+        onPageChange: handlePageChange,
+      },
     },
   };
 
@@ -314,6 +368,7 @@ export function MyListingsTab({
           title: currentConfig.emptyTitle,
           description: currentConfig.emptyDesc,
         }}
+        pagination={currentConfig.pagination}
       />
 
       {showPendingBanner && (

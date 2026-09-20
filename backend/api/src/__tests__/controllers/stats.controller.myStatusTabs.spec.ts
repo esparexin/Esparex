@@ -193,7 +193,9 @@ describe('stats.controller getMyTabListings', () => {
 
         expect(mockGetOwnerListings).toHaveBeenCalledWith(
             expect.objectContaining({
-                status: { $in: ['expired', 'sold'] },
+                $or: expect.arrayContaining([
+                    { status: { $in: ['expired', 'sold'] } },
+                ]),
             }),
             1,
             20

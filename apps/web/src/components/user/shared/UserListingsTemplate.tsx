@@ -35,6 +35,12 @@ interface UserListingsTemplateProps<TStatus extends string, TItem> {
         description: string;
         cta?: React.ReactNode;
     };
+    pagination?: {
+        page: number;
+        limit: number;
+        total: number;
+        onPageChange: (page: number) => void;
+    };
 }
 
 export function UserListingsTemplate<TStatus extends string, TItem>({
@@ -42,7 +48,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     statusTabs, selectedStatus, onStatusChange, getStatusCount,
     onPost: _onPost, postLabel: _postLabel,
     items, loading, error, errorMessage = "Failed to load listings.", onRetry,
-    getItemKey, renderItem, emptyState
+    getItemKey, renderItem, emptyState, pagination
 }: UserListingsTemplateProps<TStatus, TItem>) {
     
     const activeSubTabColor = subTabs?.find(t => t.value === activeSubTab)?.color ?? "blue";
@@ -124,11 +130,44 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         {emptyState.cta}
                     </div>
                 ) : (
-                    <div className="divide-y divide-border border-t border-border">
-                        {items.map((item) => (
-                            <div key={getItemKey(item)}>{renderItem(item)}</div>
-                        ))}
-                    </div>
+                    <>
+                        <div className="divide-y divide-border border-t border-border">
+                            {items.map((item) => (
+                                <div key={getItemKey(item)}>{renderItem(item)}</div>
+                            ))}
+                        </div>
+
+                        {pagination && pagination.total > pagination.limit && (
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 pb-2 border-t border-border text-caption">
+                                <p className="text-foreground-secondary font-medium">
+                                    Showing <span className="font-semibold text-foreground">{Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}</span> to <span className="font-semibold text-foreground">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-semibold text-foreground">{pagination.total}</span> listings
+                                </p>
+                                <div className="flex items-center gap-1.5">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
+                                        disabled={pagination.page <= 1}
+                                        className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
+                                    >
+                                        Previous
+                                    </Button>
+                                    <span className="px-2 font-semibold text-foreground-secondary">
+                                        Page {pagination.page} of {Math.max(1, Math.ceil(pagination.total / pagination.limit))}
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => pagination.onPageChange(Math.min(Math.ceil(pagination.total / pagination.limit), pagination.page + 1))}
+                                        disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
+                                        className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
