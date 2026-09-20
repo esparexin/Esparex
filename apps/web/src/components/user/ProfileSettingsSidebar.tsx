@@ -187,8 +187,15 @@ export function ProfileSettingsSidebar({
     return item.businessOnly && item.value !== "business" ? isBusinessLive : true;
   });
 
-  const businessStatusBanner = user?.businessStatus ? (
-    <BusinessStatusBanner status={user.businessStatus} onAction={user.businessStatus === "rejected" ? () => navigateTo("business-register") : () => handleTabChange("business")} />
+  // Business status banner should ONLY display when contextually relevant (on personal overview tab),
+  // and MUST NOT display on the business tab itself (which already renders BusinessApplicationStatus)
+  // or on unrelated focused workspaces (mylistings, messages, saved, settings, plans, alerts).
+  const isBannerContextual = activeTab === "personal";
+  const businessStatusBanner = isBannerContextual && user?.businessStatus && user.businessStatus !== "live" ? (
+    <BusinessStatusBanner
+      status={user.businessStatus}
+      onAction={user.businessStatus === "rejected" ? () => navigateTo("business-register") : () => handleTabChange("business")}
+    />
   ) : null;
 
   // Rendering logic
