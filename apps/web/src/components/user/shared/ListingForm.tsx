@@ -4,9 +4,8 @@ import React from "react";
 import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "@esparex/ui";
-import { cn } from "@/lib/utils";
-import { Check } from "@esparex/ui";
-import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
+import { MultiBrandSearchSelect } from "@/components/user/shared/MultiBrandSearchSelect";
+import { CatalogSelectDropdown } from "@/components/user/shared/CatalogSelectDropdown";
 import { ListingTitleField, ListingPriceField, ListingDescriptionField, CategorySelectorGrid, getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 import { ListingModalLoading } from "@/components/user/shared/ListingModalLayout";
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
@@ -39,6 +38,14 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
 
     const categoryId = useWatch({ control, name: "categoryId" }) || "";
     const brandId = useWatch({ control, name: "brandId" }) || "";
+    const [selectedBrandIds, setSelectedBrandIds] = React.useState<string[]>(() => (brandId ? [brandId] : []));
+
+    React.useEffect(() => {
+        if (brandId && !selectedBrandIds.includes(brandId)) {
+            setSelectedBrandIds((prev) => (prev.length === 0 ? [brandId] : prev));
+        }
+    }, [brandId, selectedBrandIds]);
+
     const catalogValue = useWatch({ control, name: config.catalogFieldName });
     const selectedCatalogIds = React.useMemo(() => {
         if (Array.isArray(catalogValue)) return catalogValue;
@@ -122,21 +129,10 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
     const handleCategorySelect = (selectedCategoryId: string) => {
         setValue("categoryId", selectedCategoryId, { shouldValidate: true, shouldDirty: true });
         setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        setSelectedBrandIds([]);
         setValue(config.catalogFieldName, config.catalogMultiSelect ? [] : "", { shouldValidate: true, shouldDirty: true });
         void loadBrandsForCategory(selectedCategoryId);
         void loadCatalogItems(selectedCategoryId);
-    };
-
-    const handleCatalogToggle = (itemId: string) => {
-        if (config.catalogMultiSelect) {
-            const current = Array.isArray(catalogValue) ? catalogValue : [];
-            const next = current.includes(itemId)
-                ? current.filter((id: string) => id !== itemId)
-                : [...current, itemId];
-            setValue(config.catalogFieldName, next, { shouldValidate: true, shouldDirty: true });
-        } else {
-            setValue(config.catalogFieldName, itemId, { shouldValidate: true, shouldDirty: true });
-        }
     };
 
     const sharedProps = useListingFormProps({
@@ -175,6 +171,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             {...sharedProps}
             title={isEditMode ? `Edit ${config.entityLabel}` : `Post ${config.entityLabel}`}
             formId={config.formId}
+            priceSlot={categoryId ? <ListingPriceField name="price" /> : null}
         >
             {isEditMode && (
                 <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -182,7 +179,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                 </div>
             )}
 
-            <Field label="1. Select Category" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.categoryId)}>
+            <Field label="Category" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.categoryId)}>
                 <CategorySelectorGrid
                     categories={dynamicCategories}
                     selectedCategoryId={categoryId}
@@ -194,63 +191,38 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
 
             {categoryId && (
                 <Field
-                    label={`2. Select ${config.catalogLabel}`}
-                    labelClassName="text-sm font-medium"
+                    label={config.catalogLabel}
+                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
                     error={catalogError}
                 >
-                    <p className="mb-2 text-xs text-slate-500">
-                        {config.catalogMultiSelect ? "Choose all that apply" : "Select one option"}
-                    </p>
                     {availableItems.length === 0 ? (
-                        <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-caption text-amber-800">
                             {config.catalogEmptyErrorMessage}
                         </div>
                     ) : (
-                        <div className={cn("grid gap-2.5 sm:gap-3", config.catalogGridCols)}>
-                            {availableItems.map((item) => {
-                                const isSelected = selectedCatalogIds.includes(item.id || (item._id as string));
-                                return (
-                                    <button
-                                        key={item.id || item._id}
-                                        type="button"
-                                        disabled={isEditMode}
-                                        onClick={() => handleCatalogToggle(item.id || (item._id as string))}
-                                        className={cn(
-                                            "flex items-center gap-2.5 rounded hover:border-blue-400 p-2.5 text-left text-xs transition-all border sm:text-sm",
-                                            isSelected
-                                                ? "border-blue-600 bg-blue-50/50 font-medium text-blue-900 shadow-sm"
-                                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-                                            isEditMode && "cursor-not-allowed opacity-60"
-                                        )}
-                                    >
-                                        <div
-                                            className={cn(
-                                                "flex h-4 w-4 shrink-0 items-center justify-center border transition-colors",
-                                                config.catalogMultiSelect ? "rounded" : "rounded-full",
-                                                isSelected
-                                                    ? "border-blue-600 bg-blue-600 text-white"
-                                                    : "border-slate-300 bg-white"
-                                            )}
-                                        >
-                                            {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
-                                        </div>
-                                        <span className="line-clamp-2 leading-tight">{item.name}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <CatalogSelectDropdown
+                            items={availableItems}
+                            value={catalogValue || (config.catalogMultiSelect ? [] : "")}
+                            onChange={(val) => setValue(config.catalogFieldName, val, { shouldValidate: true, shouldDirty: true })}
+                            multiSelect={config.catalogMultiSelect}
+                            placeholder={`Select ${config.catalogLabel}...`}
+                            disabled={isEditMode}
+                            error={catalogError}
+                        />
                     )}
                 </Field>
             )}
 
             {categoryId && (
-                <Field label="3. Brand / Manufacturer (Optional)" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.brandId)}>
-                    <BrandSearchSelect
+                <Field label="Compatible Brand(s) (Optional)" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={getFirstFormErrorMessage(errors.brandId)}>
+                    <MultiBrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
-                        categoryId={categoryId}
-                        value={brandId}
-                        onChange={(bId) => setValue("brandId", bId, { shouldValidate: true, shouldDirty: true })}
+                        values={selectedBrandIds}
+                        onChange={(selectedIds) => {
+                            setSelectedBrandIds(selectedIds);
+                            setValue("brandId", selectedIds[0] || "", { shouldValidate: true, shouldDirty: true });
+                        }}
                         disabled={isEditMode}
                     />
                 </Field>
@@ -268,15 +240,12 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <ListingPriceField name="price" />
-            )}
-
-            {categoryId && (
                 <ListingDescriptionField
                     label={config.descriptionProps.label || "Description"}
                     error={getFirstFormErrorMessage(errors.description)}
                     registerProps={register("description")}
                     placeholder={config.descriptionProps.placeholder}
+                    helperText={config.descriptionProps.helperText}
                     valueLength={descVal.length}
                     maxLength={config.descriptionProps.maxLength}
                 />

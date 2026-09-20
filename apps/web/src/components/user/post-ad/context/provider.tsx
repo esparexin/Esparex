@@ -143,7 +143,7 @@ export function PostAdProvider({
     const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); imagesHook.setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
     const { generateDescription, isGeneratingAI, isAiAvailable, aiCache } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setFormError);
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form, availableSpareParts);
-    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });
+    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger, availableSpareParts });
     const { submitAd, isSubmitting } = usePostAdSubmissionFlow({
         form,
         listingImages,

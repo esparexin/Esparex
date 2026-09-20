@@ -26,13 +26,13 @@ export function ListingLocationField({
     helperText,
 }: ListingLocationFieldProps) {
     return (
-        <Field label="Listing Location" labelClassName="text-body font-medium" error={error}>
+        <Field label="Listing Location" labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={error}>
             <div className="space-y-2">
                 {display ? (
                     <div className="flex h-11 items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 text-body text-foreground-secondary">
                         <MapPin className="w-4 h-4 text-foreground-subtle shrink-0" />
                         <span className="truncate">{display}</span>
-                        <span className="ml-auto shrink-0 rounded bg-muted px-2 py-0.5 text-caption font-semibold uppercase text-muted-foreground">
+                        <span className="ml-auto shrink-0 rounded bg-muted px-2 py-0.5 text-tiny font-medium uppercase text-muted-foreground">
                             {fixedLabel}
                         </span>
                     </div>
@@ -42,7 +42,7 @@ export function ListingLocationField({
                             <div className="flex h-11 items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 text-body text-foreground-secondary">
                                 <MapPin className="w-4 h-4 text-foreground-subtle shrink-0" />
                                 <span className="truncate">{placeholder}</span>
-                                <span className="ml-auto shrink-0 rounded bg-muted px-2 py-0.5 text-caption font-semibold uppercase text-muted-foreground">
+                                <span className="ml-auto shrink-0 rounded bg-muted px-2 py-0.5 text-tiny font-medium uppercase text-muted-foreground">
                                     {fixedLabel}
                                 </span>
                             </div>
@@ -68,16 +68,16 @@ interface ListingTitleFieldProps {
 }
 export function ListingTitleField({ label, error, required = true, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
     return (
-        <Field label={label} labelClassName="text-body font-medium" error={error} required={required}>
+        <Field label={label} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={error} required={required}>
             <div className="relative">
                 <Input
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="pr-16 h-11 text-body-lg md:text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                    className="pr-16 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
                 <span className={cn(
-                    "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-caption font-medium tabular-nums",
+                    "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-tiny font-normal tabular-nums",
                     valueLength > (maxLength - 5) ? "text-destructive" : "text-foreground-subtle"
                 )}>
                     {valueLength}/{maxLength}
@@ -93,25 +93,31 @@ interface ListingDescriptionFieldProps {
     required?: boolean;
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
+    helperText?: string;
     valueLength: number;
     maxLength?: number;
 }
-export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
+export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, helperText, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
-        <Field label={label} labelClassName="text-body font-medium" error={error} required={required}>
-            <div className="relative">
-                <Textarea
-                    {...registerProps}
-                    placeholder={placeholder}
-                    maxLength={maxLength}
-                    className="min-h-[120px] pb-6 text-body-lg md:text-body font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
-                />
-                <span className={cn(
-                    "pointer-events-none absolute right-3 bottom-2 text-caption font-medium tabular-nums",
-                    valueLength > (maxLength - 100) ? "text-destructive" : "text-foreground-subtle"
-                )}>
-                    {valueLength}/{maxLength}
-                </span>
+        <Field label={label} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" error={error} required={required}>
+            <div className="space-y-1.5">
+                <div className="relative">
+                    <Textarea
+                        {...registerProps}
+                        placeholder={placeholder}
+                        maxLength={maxLength}
+                        className="min-h-[120px] pb-6 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle leading-relaxed border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
+                    />
+                    <span className={cn(
+                        "pointer-events-none absolute right-3 bottom-2 text-tiny font-normal tabular-nums",
+                        valueLength > (maxLength - 100) ? "text-destructive" : "text-foreground-subtle"
+                    )}>
+                        {valueLength}/{maxLength}
+                    </span>
+                </div>
+                {helperText && !error ? (
+                    <p className="text-caption text-muted-foreground">{helperText}</p>
+                ) : null}
             </div>
         </Field>
     );
@@ -156,15 +162,15 @@ export function CategorySelectorGrid({
                         className={cn(
                             "flex flex-col items-center justify-center gap-1 h-[56px] sm:h-[60px] py-1 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border",
                             selected
-                                ? "bg-primary/10 border-2 border-primary text-primary font-bold shadow-xs ring-2 ring-primary/15"
+                                ? "bg-primary/10 border border-primary text-primary font-medium shadow-2xs"
                                 : "bg-card hover:bg-muted border-border text-foreground-secondary hover:border-border shadow-2xs",
                             disabled && !selected ? "opacity-40 cursor-not-allowed" : ""
                         )}
                     >
-                        <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 transition-colors", selected ? "text-primary stroke-[2.2]" : "text-foreground-subtle group-hover:text-primary")} />
+                        <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 transition-colors", selected ? "text-primary stroke-2" : "text-foreground-subtle group-hover:text-primary")} />
                         <span className={cn(
-                            "text-tiny sm:text-caption font-semibold text-center leading-tight tracking-tight w-full px-0.5",
-                            selected ? "text-primary font-bold" : "text-foreground-secondary group-hover:text-foreground line-clamp-2"
+                            "text-tiny sm:text-caption text-center leading-tight tracking-tight w-full px-0.5",
+                            selected ? "text-primary font-medium" : "text-foreground-secondary font-normal group-hover:text-foreground line-clamp-2"
                         )}>
                             {cat.name}
                         </span>
