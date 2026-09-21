@@ -1,4 +1,4 @@
-import { PLAN_STATUS } from '@esparex/contracts';
+import { PLAN_STATUS, PLATFORM_QUOTAS } from '@esparex/contracts';
 import { calculateUserPlan } from '../../payments';
 import { UserPlanModel, PlanModel } from '../../payments';
 import { consumeCredit } from '../../payments';
@@ -158,7 +158,7 @@ const requireOwnedAlert = async ({
     };
 };
 
-const FREE_ALERT_BASE = 2;
+const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT;
 
 const resolvePlanLimit = async (userId: string) => {
     const activeUserPlans = await UserPlanModel.find({

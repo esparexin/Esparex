@@ -1715,3 +1715,57 @@ scripts/ops/marketplace-validator.ts
 - ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
 - ✅ `Phase 2 Activity Scaling`: 112 verified records executed via canonical application workflows, bringing cumulative platform totals to 75 Live Businesses (150%), 70 Live Services (140%), 70 Live Spare Parts (140%), 76 Active Smart Alerts (304%), and 24 Live Classified Ads (164 total live marketplace listings across AP & Telangana). S3 asset reachability: 36/36 assets (100%) HTTP 200 OK.
 
+---
+
+### EA-048
+**Date**: 2026-09-21  
+**Description**: Plans, Wallet, Balances, Credit Ledger & Smart Alert Quota SSOT Remediation  
+**Root Cause**: 
+1. **Navigation Misdirection**: Desktop profile sidebar and Smart Alert rules tab "Upgrade" buttons routed to internal tab `'plans'` instead of `'buyplans'` (`/account/plans`).
+2. **Missing Subscription Visibility**: `ActiveSubscriptionCard` was absent from user profile, hiding current active tier from the user.
+3. **Quota Double-Counting & Out-of-Sync Limits**: Smart Alert query and mutation services calculated quota against a hardcoded free limit of 5 rather than canonical entitlement records and `UserWallet` free base of 2, producing inverted "13 of 5 used" states.
+4. **Mobile Wallet Balance Divergence**: `creditController.getCreditWalletSummary` returned ad credits but lacked `spotlightCredits` and `smartAlertSlots`, causing mobile `PlanSelectionScreen` to default those balances to 0.
+5. **Alien / Zombie Formatters**: Unused formatting file `CreditPackFormatters.tsx` (51 lines, 0 references) and orphan card wrappers existed in the web app.  
+**Action**:
+1. **Navigation Alignment**: Fixed routing in `AccountDesktopSidebar.tsx` and `SmartAlertRulesSection.tsx` to target `'buyplans'`.
+2. **UI/UX SSOT Standardization**: Renamed sub-tab to "Wallet & Balances", mounted `ActiveSubscriptionCard` above `WalletOverviewCard`, and updated card heading to "Available Balances".
+3. **Dead Code Elimination**: Removed orphan files `CreditPackFormatters.tsx`, `CreditPackListCard.tsx`, and `ActivePromotionsCard.tsx`.
+4. **Smart Alert Quota SSOT Unification**: Updated `SmartAlertQueryService.ts` and `SmartAlertMutationService.ts` to query `Entitlement` records for `SMART_ALERT_SLOT`, computing `totalLimit = basePlanLimit + activePaidSlots` and `totalRemaining = freeRemaining + activePaidSlots`.
+5. **Mobile API Synchronization**: Integrated `DashboardFacade` in `creditController.getCreditWalletSummary` to return `spotlightCredits` and `smartAlertSlots` alongside `adCredits`.
+6. **Parallel Endpoint Deprecation**: Marked legacy parallel endpoints `/me/wallet` and `/me/transactions` with `@deprecated` annotations pointing to canonical SSOT endpoints.
+7. **SSOT Constants & Architecture Gate**: Extracted `PLATFORM_QUOTAS` into `@esparex/contracts` and added automated architecture consistency test `plansWalletSSOTConsistency.spec.ts`.
+
+**Files Modified / Created / Removed**:
+```
+apps/web/src/components/user/profile/AccountDesktopSidebar.tsx
+apps/web/src/components/user/profile/cards/ActivePromotionsCard.tsx [REMOVED]
+apps/web/src/components/user/profile/cards/CreditPackFormatters.tsx [REMOVED]
+apps/web/src/components/user/profile/cards/CreditPackListCard.tsx [REMOVED]
+apps/web/src/components/user/profile/cards/WalletOverviewCard.tsx
+apps/web/src/components/user/profile/tabs/PlansTab.tsx
+apps/web/src/components/user/profile/tabs/SmartAlertRulesSection.tsx
+backend/api/src/__tests__/controllers/creditController.spec.ts [NEW]
+backend/api/src/controllers/payment/creditController.ts
+backend/api/src/controllers/wallet/walletQueryController.ts
+backend/api/src/routes/userRoutes.ts
+core/src/__tests__/architecture/plansWalletSSOTConsistency.spec.ts [NEW]
+core/src/__tests__/services/SmartAlertMutationService.spec.ts
+core/src/__tests__/services/SmartAlertQueryService.spec.ts
+core/src/domains/notifications/application/SmartAlertMutationService.ts
+core/src/domains/notifications/application/SmartAlertQueryService.ts
+core/src/domains/payments/mappers/PlansWalletMapper.ts
+docs/tracking/engineering-action-register.md
+packages/contracts/src/v1/payments/constants/quotas.ts [NEW]
+packages/contracts/src/v1/payments/dto/credit.ts
+packages/contracts/src/v1/payments/index.ts
+```
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/core` ──► PASS (Smart Alert, Wallet & Architecture tests green)
+- ✅ `npm test -w @esparex/backend-api` ──► PASS (creditController tests green)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (79 suites, 385 tests green)
+- ✅ `npm test -w @esparex/apps-mobile` ──► PASS (72 suites, 306 tests green)
+- ✅ `npm run build -w @esparex/apps-web` ──► PASS (42/42 static pages built)
+
+

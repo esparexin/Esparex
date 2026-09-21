@@ -10,6 +10,7 @@ import type {
   EntitlementSourceType,
   EntitlementStatus,
 } from '@esparex/contracts';
+import { PLATFORM_QUOTAS } from '@esparex/contracts';
 import { getEntitlementPresentationMeta } from '@esparex/shared';
 
 export interface RawAdMetadata {
@@ -74,7 +75,7 @@ export class PlansWalletMapper {
   }
 
   private static mapWallet(userWallet?: Record<string, unknown>, entitlements?: Record<string, unknown>[]): WalletSummaryDTO {
-    const monthlyFreeTotal = (userWallet?.monthlyFreeAdsTotal as number | undefined) ?? 5;
+    const monthlyFreeTotal = (userWallet?.monthlyFreeAdsTotal as number | undefined) ?? PLATFORM_QUOTAS.FREE_MONTHLY_AD_LIMIT;
     const usedFree = (userWallet?.monthlyFreeAdsUsed as number | undefined) || 0;
     const remainingFree = Math.max(0, monthlyFreeTotal - usedFree);
 
@@ -116,7 +117,7 @@ export class PlansWalletMapper {
     const spotlightCredits = hasEntitlementsList ? activeSpotlightEntitlements : ((userWallet?.spotlightCredits as number) || 0);
     const topAdCredits = hasEntitlementsList ? activeTopAdEntitlements : ((userWallet?.boostCredits as number) || 0);
     const paidAdCredits = hasEntitlementsList ? activeAdEntitlements : ((userWallet?.adCredits as number) || 0);
-    const FREE_ALERT_BASE = 2; // base free slots per ADR-001 / UserWallet default
+    const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT; // base free slots per ADR-001 / UserWallet default
     const smartAlertSlots = hasEntitlementsList
       ? FREE_ALERT_BASE + activeSmartAlertEntitlements
       : ((userWallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE);

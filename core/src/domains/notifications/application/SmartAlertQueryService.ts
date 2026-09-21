@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { NOTIFICATION_TYPE, PLAN_STATUS, type SmartAlertMatchesResponseDTO, type SmartAlertQuotaDTO } from '@esparex/contracts';
+import { NOTIFICATION_TYPE, PLAN_STATUS, PLATFORM_QUOTAS, type SmartAlertMatchesResponseDTO, type SmartAlertQuotaDTO } from '@esparex/contracts';
 import SmartAlert from '../../../models/SmartAlert';
 import Notification from '../../../models/Notification';
 import Ad from '../../../models/Ad';
@@ -165,8 +165,8 @@ export const getSmartAlertQuotaForUser = async (userId: string): Promise<SmartAl
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
 
-    const FREE_ALERT_BASE = 2;
-    let basePlanLimit = FREE_ALERT_BASE;
+    const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT;
+    let basePlanLimit: number = FREE_ALERT_BASE;
 
     if (activeUserPlans.length > 0) {
         const planIds = activeUserPlans.map((up: { planId: unknown }) => up.planId);
