@@ -74,17 +74,17 @@ export default async function PostAdPage() {
 
     if (!balance || totalRemaining <= 0) {
         return (
-            <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center px-4 py-12">
-                <Card className="max-w-md w-full bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8 space-y-6 text-center">
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+                <Card className="max-w-md w-full bg-card rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8 space-y-6 text-center">
                     <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
                         <TriangleAlert className="w-8 h-8" strokeWidth={2} />
                     </div>
 
                     <div className="space-y-2">
-                        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                        <h1 className="text-xl font-bold text-foreground tracking-tight">
                             No Ad Posting Slots Remaining
                         </h1>
-                        <p className="text-sm text-slate-600 leading-relaxed">
+                        <p className="text-body text-foreground-secondary leading-relaxed">
                             You have used all your available free ad posting slots for this month. Buy an Ad Pack to post more ads, or wait for your monthly free slots to reset.
                         </p>
                     </div>
@@ -98,7 +98,7 @@ export default async function PostAdPage() {
                         </Link>
                         <Link
                             href="/"
-                            className="w-full inline-flex items-center justify-center rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 active:bg-slate-100 font-semibold text-sm h-11 px-4 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                            className="w-full inline-flex items-center justify-center rounded-xl bg-card border border-border text-foreground-secondary hover:bg-muted active:bg-muted font-semibold text-body h-11 px-4 transition-colors focus:outline-none focus:ring-2 focus:ring-border focus:ring-offset-2"
                         >
                             Back to Home
                         </Link>
