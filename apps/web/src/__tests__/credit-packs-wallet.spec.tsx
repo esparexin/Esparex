@@ -155,25 +155,67 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       monthlyFreeAdsTotal: 5,
       monthlyFreeAdsUsed: 0,
       monthlyFreeAdsRemaining: 5,
-      paidAdCredits: 0,
-      spotlightCredits: 0,
-      topAdCredits: 0,
-      smartAlertSlots: 2,
+      paidAdCredits: 10,
+      spotlightCredits: 2,
+      topAdCredits: 3,
+      smartAlertSlots: 6,
       freeAlertSlotsBase: 2,
-      paidAlertSlots: 0,
+      paidAlertSlots: 4,
+      nextMonthlyResetDate: '2026-10-01T00:00:00.000Z',
     };
+
+    const mockPacks = [
+      {
+        packId: 'pack-spotlight',
+        planName: 'Spotlight Boost Pack',
+        entitlementType: 'SPOTLIGHT_HP' as const,
+        sourceType: 'PURCHASED_PACK' as const,
+        purchaseDate: '2026-09-01T00:00:00.000Z',
+        totalGranted: 2,
+        consumed: 0,
+        remaining: 2,
+        status: 'ACTIVE' as const,
+        expiresAt: '2026-10-15T00:00:00.000Z',
+      },
+    ];
 
     const handleNavigate = vi.fn();
 
     const html = renderToStaticMarkup(
-      <WalletOverviewCard wallet={mockWallet} onNavigateToHistory={handleNavigate} />
+      <WalletOverviewCard wallet={mockWallet} creditPacks={mockPacks} onNavigateToHistory={handleNavigate} />
     );
 
+    // Section Headings
+    expect(html).toContain('Free Allowances');
+    expect(html).toContain('Purchased Credits');
+
+    // Free Allowances Boxes
     expect(html).toContain('Free Ads');
     expect(html).toContain('5 Available');
     expect(html).toContain('2 Active');
-    expect(html).not.toContain('Boost Credits');
+
+    // Purchased Credits Boxes
+    expect(html).toContain('Spotlight');
+    expect(html).toContain('2 Credits');
+    expect(html).toContain('Top Ad');
+    expect(html).toContain('3 Credits');
+    expect(html).toContain('More Ads');
+    expect(html).toContain('10 Credits');
+    expect(html).toContain('4 Active');
+
+    // Active Expiry Tag
+    expect(html).toContain('Expires Oct 15, 2026');
+
+    // Header & Reset Note
+    expect(html).toContain('Available Balances');
+    expect(html).toContain('Free allowances reset on');
     expect(html).toContain('View My Usage');
+
+    // Redundant text eliminated
+    expect(html).not.toContain('Boost Credits');
+    expect(html).not.toContain('Monthly quota to publish listings');
+    expect(html).not.toContain('Get notified when buyers search your keywords');
+    expect(html).not.toContain('Free Monthly: 5 / 5');
   });
 
   it('renders de-boxed credit history with dynamic filter chips and usage ledger', () => {

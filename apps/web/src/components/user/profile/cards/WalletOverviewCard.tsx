@@ -1,6 +1,15 @@
 import React from 'react';
 import type { WalletSummaryDTO, CreditPackDTO } from '@esparex/contracts';
-import { Package, Bell, Card, CardContent, ArrowRight, Clock } from '@esparex/ui';
+import {
+  Package,
+  Bell,
+  Sparkles,
+  TrendingUp,
+  Card,
+  CardContent,
+  ArrowRight,
+  Clock,
+} from '@esparex/ui';
 
 export interface WalletOverviewCardProps {
   wallet: WalletSummaryDTO;
@@ -29,43 +38,63 @@ function nearestExpiry(
     : null;
 }
 
-interface StatRowProps {
+interface StatTileProps {
   icon: React.ReactNode;
+  iconBgClass: string;
   label: string;
-  description: string;
-  badge: React.ReactNode;
-  details: React.ReactNode;
+  value: number | string;
+  unit: string;
   expiry?: string | null;
-  onExpiryClick?: () => void;
+  onClick?: () => void;
+  ariaLabel: string;
 }
 
-const StatRow: React.FC<StatRowProps> = ({ icon, label, description, badge, details, expiry, onExpiryClick }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-3.5">
-    {/* Left: icon + label */}
-    <div className="flex items-center gap-3 sm:w-44 shrink-0">
-      {icon}
-      <div className="min-w-0">
-        <div className="text-small font-bold text-foreground leading-tight">{label}</div>
-        <div className="text-tiny text-muted-foreground leading-tight">{description}</div>
+const StatTile: React.FC<StatTileProps> = ({
+  icon,
+  iconBgClass,
+  label,
+  value,
+  unit,
+  expiry,
+  onClick,
+  ariaLabel,
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={!onClick}
+    aria-label={ariaLabel}
+    className={`group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-border bg-card text-left transition-all ${
+      onClick
+        ? 'hover:border-primary/40 hover:bg-muted/30 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+        : 'cursor-default'
+    }`}
+  >
+    <div className="flex items-center justify-between gap-2 w-full mb-3">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${iconBgClass}`}>
+          {icon}
+        </div>
+        <span className="text-small font-bold text-foreground truncate">{label}</span>
       </div>
+      {onClick && (
+        <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+      )}
     </div>
 
-    {/* Right: details + expiry + badge */}
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-tiny text-muted-foreground pl-11 sm:pl-0 flex-1 justify-end">
-      {details}
+    <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 w-full mt-auto">
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">{value}</span>
+        <span className="text-caption font-medium text-muted-foreground">{` ${unit}`}</span>
+      </div>
       {expiry && (
-        <button
-          type="button"
-          onClick={onExpiryClick}
-          className="flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:underline cursor-pointer focus-visible:outline-none"
-        >
+        <span className="inline-flex items-center gap-1 text-tiny text-amber-600 dark:text-amber-400 font-medium">
           <Clock className="w-3 h-3 shrink-0" />
           Expires {expiry}
-        </button>
+        </span>
       )}
-      {badge}
     </div>
-  </div>
+  </button>
 );
 
 export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
@@ -74,13 +103,10 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   onNavigateToHistory,
 }) => {
   const freeAdsRemaining = wallet.monthlyFreeAdsRemaining ?? 0;
-  const freeAdsTotal = wallet.monthlyFreeAdsTotal ?? 0;
   const paidAds = wallet.paidAdCredits ?? 0;
-  const totalAdCredits = freeAdsRemaining + paidAds;
 
   const freeAlerts = wallet.freeAlertSlotsBase ?? 2;
   const extraAlerts = wallet.paidAlertSlots ?? Math.max(0, (wallet.smartAlertSlots ?? 0) - freeAlerts);
-  const totalAlertSlots = freeAlerts + extraAlerts;
 
   const resetDateFormatted = wallet.nextMonthlyResetDate
     ? new Date(wallet.nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
@@ -88,99 +114,112 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
 
   const adExpiry = paidAds > 0 ? nearestExpiry(creditPacks, 'AD_POSTING') : null;
   const alertExpiry = extraAlerts > 0 ? nearestExpiry(creditPacks, 'SMART_ALERT_SLOT') : null;
-
-  const pillCls = (color: 'primary' | 'emerald') => {
-    const map = {
-      primary: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 focus-visible:ring-primary',
-      emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 focus-visible:ring-emerald-500',
-    };
-    return `text-tiny font-semibold px-2.5 py-0.5 rounded-full border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 shrink-0 ${map[color]}`;
-  };
+  const spotlightExpiry = (wallet.spotlightCredits ?? 0) > 0 ? nearestExpiry(creditPacks, ['SPOTLIGHT_HP', 'SPOTLIGHT_CAT']) : null;
+  const topAdExpiry = (wallet.topAdCredits ?? 0) > 0 ? nearestExpiry(creditPacks, 'PUSH_TO_TOP') : null;
 
   return (
     <Card className="rounded-2xl border border-border bg-card shadow-xs">
-      <CardContent className="p-4 sm:p-5">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">Available Balances</h4>
+      <CardContent className="p-4 sm:p-6 space-y-6">
+        {/* Top Bar */}
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h3 className="text-body font-bold text-foreground">Available Balances</h3>
+            {resetDateFormatted && (
+              <p className="text-tiny text-muted-foreground mt-0.5">
+                Free allowances reset on <strong className="text-foreground">{resetDateFormatted}</strong>
+              </p>
+            )}
+          </div>
           {onNavigateToHistory && (
             <button
               type="button"
               onClick={() => onNavigateToHistory()}
-              className="text-tiny font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1"
+              className="text-tiny font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-2 py-1"
             >
-              View My Usage <ArrowRight className="w-3 h-3" />
+              View My Usage <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Rows */}
-        <div className="divide-y divide-border/40">
-          {/* Row 1 — Free Ads */}
-          <StatRow
-            icon={
-              <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-                <Package className="w-4 h-4" />
-              </div>
-            }
-            label="Free Ads"
-            description="Monthly quota to publish listings"
-            badge={
-              <button
-                type="button"
-                onClick={() => onNavigateToHistory?.('MORE_ADS')}
-                className={pillCls('primary')}
-                title="View ad posting credit usage"
-              >
-                {totalAdCredits} Available
-              </button>
-            }
-            details={
-              <>
-                <span>Free Monthly: <strong className="text-foreground">{freeAdsRemaining}</strong><span className="text-muted-foreground/60"> / {freeAdsTotal}</span></span>
-                {paidAds > 0 && <span>Extra Paid: <strong className="text-foreground">{paidAds}</strong></span>}
-              </>
-            }
-            expiry={adExpiry}
-            onExpiryClick={() => onNavigateToHistory?.('MORE_ADS')}
-          />
-
-          {/* Row 2 — Smart Alerts */}
-          <StatRow
-            icon={
-              <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                <Bell className="w-4 h-4" />
-              </div>
-            }
-            label="Smart Alerts"
-            description="Get notified when buyers search your keywords"
-            badge={
-              <button
-                type="button"
-                onClick={() => onNavigateToHistory?.('SMART_ALERTS')}
-                className={pillCls('emerald')}
-                title="View smart alert usage"
-              >
-                {totalAlertSlots} Active
-              </button>
-            }
-            details={
-              <>
-                <span>Free Monthly: <strong className="text-foreground">{freeAlerts}</strong></span>
-                {extraAlerts > 0 && <span>Extra Purchased: <strong className="text-foreground">{extraAlerts}</strong></span>}
-              </>
-            }
-            expiry={alertExpiry}
-            onExpiryClick={() => onNavigateToHistory?.('SMART_ALERTS')}
-          />
+        {/* Section 1: Free Allowances */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between">
+            <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
+              Free Allowances
+            </h4>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <StatTile
+              icon={<Package className="w-4 h-4" />}
+              iconBgClass="bg-primary/10 text-primary border border-primary/20"
+              label="Free Ads"
+              value={freeAdsRemaining}
+              unit="Available"
+              ariaLabel={`Free Ads: ${freeAdsRemaining} Available`}
+              onClick={() => onNavigateToHistory?.('MORE_ADS')}
+            />
+            <StatTile
+              icon={<Bell className="w-4 h-4" />}
+              iconBgClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+              label="Smart Alerts"
+              value={freeAlerts}
+              unit="Active"
+              ariaLabel={`Free Smart Alerts: ${freeAlerts} Active`}
+              onClick={() => onNavigateToHistory?.('SMART_ALERTS')}
+            />
+          </div>
         </div>
 
-        {/* Footer — monthly reset */}
-        {resetDateFormatted && (
-          <p className="text-tiny text-muted-foreground pt-3 border-t border-border/40 mt-1">
-            Free Monthly quota resets: <strong className="text-foreground">{resetDateFormatted}</strong>
-          </p>
-        )}
+        {/* Section 2: Purchased Credits */}
+        <div className="space-y-2.5 pt-2 border-t border-border/40">
+          <div className="flex items-center justify-between">
+            <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
+              Purchased Credits
+            </h4>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <StatTile
+              icon={<Sparkles className="w-4 h-4" />}
+              iconBgClass="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+              label="Spotlight"
+              value={wallet.spotlightCredits ?? 0}
+              unit="Credits"
+              expiry={spotlightExpiry}
+              ariaLabel={`Spotlight: ${wallet.spotlightCredits ?? 0} Credits`}
+              onClick={() => onNavigateToHistory?.('SPOTLIGHT')}
+            />
+            <StatTile
+              icon={<TrendingUp className="w-4 h-4" />}
+              iconBgClass="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20"
+              label="Top Ad"
+              value={wallet.topAdCredits ?? 0}
+              unit="Credits"
+              expiry={topAdExpiry}
+              ariaLabel={`Top Ad: ${wallet.topAdCredits ?? 0} Credits`}
+              onClick={() => onNavigateToHistory?.('TOP_AD')}
+            />
+            <StatTile
+              icon={<Package className="w-4 h-4" />}
+              iconBgClass="bg-primary/10 text-primary border border-primary/20"
+              label="More Ads"
+              value={paidAds}
+              unit="Credits"
+              expiry={adExpiry}
+              ariaLabel={`More Ads: ${paidAds} Credits`}
+              onClick={() => onNavigateToHistory?.('MORE_ADS')}
+            />
+            <StatTile
+              icon={<Bell className="w-4 h-4" />}
+              iconBgClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+              label="Smart Alerts"
+              value={extraAlerts}
+              unit="Active"
+              expiry={alertExpiry}
+              ariaLabel={`Purchased Smart Alerts: ${extraAlerts} Active`}
+              onClick={() => onNavigateToHistory?.('SMART_ALERTS')}
+            />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
