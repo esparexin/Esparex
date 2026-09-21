@@ -79,7 +79,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h4 className="text-body sm:text-body-lg font-bold text-foreground">My Usage</h4>
-          <p className="text-tiny text-muted-foreground">Your credit deductions, applied ads, and boost history</p>
+          <p className="text-tiny text-muted-foreground">Your credit deductions and activity history</p>
         </div>
         {pagination && (
           <span className="text-tiny text-muted-foreground font-medium self-start sm:self-auto">
