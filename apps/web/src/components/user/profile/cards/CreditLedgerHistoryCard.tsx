@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
 import type { CreditLedgerDTO, CreditPackDTO } from '@esparex/contracts';
-import { Pagination, ArrowUp, ArrowDown, Button } from '@esparex/ui';
+import { Pagination, ArrowUp, ArrowDown, Info, Button } from '@esparex/ui';
+import Link from 'next/link';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 import {
   formatActivityName,
@@ -11,6 +11,7 @@ import {
   type LedgerFilterType,
 } from './CreditLedgerFormatters';
 import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
+import { CreditLedgerDetailPopup } from './CreditLedgerDetailPopup';
 
 export { type LedgerFilterType };
 
@@ -25,6 +26,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
 }) => {
   const [activeFilter, setActiveFilter] = useState<LedgerFilterType>(initialFilter);
   const [page, setPage] = useState(1);
+  const [selectedTx, setSelectedTx] = useState<CreditLedgerDTO | null>(null);
   const limit = 4;
   const { data, isLoading, isError, refetch } = useCreditLedgerHistory(page, limit);
 
@@ -74,16 +76,13 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
   );
 
   return (
-    <div className="space-y-4">
-      {/* 1. Clean De-Boxed Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h4 className="text-body sm:text-body-lg font-bold text-foreground">My Usage</h4>
-          <p className="text-tiny text-muted-foreground">Your credit deductions and activity history</p>
-        </div>
+    <div className="space-y-3">
+      {/* 1. Header */}
+      <div className="flex items-center justify-between gap-2">
+        <h4 className="text-body font-bold text-foreground">My Usage</h4>
         {pagination && (
-          <span className="text-tiny text-muted-foreground font-medium self-start sm:self-auto">
-            Total Activities: {pagination.total}
+          <span className="text-tiny text-muted-foreground font-medium">
+            {pagination.total} activities
           </span>
         )}
       </div>
@@ -158,38 +157,45 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
       {/* 7. Transactions List */}
       {!isLoading && filteredItems.length > 0 && (
         <>
-          <CreditLedgerDesktopTable items={filteredItems} />
+          <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-          {/* Mobile Cards View (< md:) */}
-          <div className="md:hidden flex flex-col gap-2.5">
+          {/* Mobile Cards (< md) */}
+          <div className="md:hidden flex flex-col gap-2">
             {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
               const absAmount = Math.abs(tx.amount);
               const adTarget = tx.adSlug || tx.listingId;
 
               return (
-                <div key={tx.transactionId} className="p-3 rounded-xl border border-border/40 bg-card space-y-2 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-tiny text-muted-foreground">{formatAppliedDateTime(tx.createdAt)}</span>
+                <div key={tx.transactionId} className="p-3 rounded-xl border border-border/40 bg-card space-y-1.5 shadow-2xs">
+                  {/* Top row: date + info button + amount badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTx(tx)}
+                      aria-label="View activity details"
+                      className="inline-flex items-center gap-1 text-tiny text-muted-foreground hover:text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded"
+                    >
+                      {formatAppliedDateTime(tx.createdAt)}
+                      <Info className="w-3 h-3 shrink-0" />
+                    </button>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
                       isDebit ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                     }`}>
                       {isDebit ? <><ArrowDown className="w-3 h-3" />-{absAmount} USED</> : <><ArrowUp className="w-3 h-3" />+{absAmount} ADDED</>}
                     </span>
                   </div>
+
+                  {/* Plan */}
                   <div className="font-semibold text-foreground text-caption">{formatActivityName(tx)}</div>
+
+                  {/* Listing + Status */}
                   {adTarget && (
-                    <div className="text-caption pt-1 border-t border-border/20 flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 text-tiny text-muted-foreground">
-                        <span>Listing:</span>
-                        <Link href={`/ads/${adTarget}`} className="font-semibold text-primary hover:underline truncate">
-                          {tx.adTitle || 'View Ad'}
-                        </Link>
-                      </div>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="text-tiny text-muted-foreground">Status:</span>
-                        {renderTransactionStatus(tx)}
-                      </div>
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/20">
+                      <Link href={`/ads/${adTarget}`} className="text-tiny font-semibold text-primary hover:underline truncate">
+                        {tx.adTitle || 'View Listing'}
+                      </Link>
+                      {renderTransactionStatus(tx)}
                     </div>
                   )}
                 </div>
@@ -198,6 +204,13 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
           </div>
         </>
       )}
+
+      {/* Detail Popup */}
+      <CreditLedgerDetailPopup
+        tx={selectedTx}
+        open={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
     </div>
   );
 };
