@@ -1,6 +1,17 @@
 import React, { useState, useMemo } from 'react';
 import type { CreditLedgerDTO, CreditPackDTO } from '@esparex/contracts';
-import { Pagination, ArrowUp, ArrowDown, Info, Button } from '@esparex/ui';
+import {
+  Pagination,
+  ArrowUp,
+  ArrowDown,
+  Info,
+  Button,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@esparex/ui';
 import Link from 'next/link';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 import {
@@ -32,85 +43,75 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
 
   const handleFilterChange = (filter: LedgerFilterType) => {
     setActiveFilter(filter);
-    setPage(1); // always reset to page 1 when filter changes
+    setPage(1);
   };
 
   const items: CreditLedgerDTO[] = data?.items || [];
   const pagination = data?.pagination;
 
-  // Filter chips: always show at minimum 'All Activities'.
-  // Visibility of extra chips is seeded from creditPacks (covers ALL pages / credit types)
-  // so chips remain stable as the user pages through the ledger.
-  const availableFilterChips = useMemo(() => {
-    const chips: { key: LedgerFilterType; label: string }[] = [{ key: 'ALL', label: 'All Activities' }];
+  // Filter options seeded from creditPacks so stable across pages
+  const filterOptions = useMemo(() => {
+    const opts: { value: LedgerFilterType; label: string }[] = [
+      { value: 'ALL', label: 'All Activities' },
+    ];
 
-    const hasMoreAds = creditPacks.some(
-      (p) => p.entitlementType === 'AD_POSTING' || p.planName?.toLowerCase().includes('ad'),
-    );
-    if (hasMoreAds) chips.push({ key: 'MORE_ADS', label: 'More Ads' });
+    if (creditPacks.some((p) => p.entitlementType === 'AD_POSTING' || p.planName?.toLowerCase().includes('ad')))
+      opts.push({ value: 'MORE_ADS', label: 'More Ads' });
 
-    const hasSpotlight = creditPacks.some(
-      (p) => p.entitlementType?.startsWith('SPOTLIGHT') || p.planName?.toLowerCase().includes('spotlight'),
-    );
-    if (hasSpotlight) chips.push({ key: 'SPOTLIGHT', label: 'Spotlight' });
+    if (creditPacks.some((p) => p.entitlementType?.startsWith('SPOTLIGHT') || p.planName?.toLowerCase().includes('spotlight')))
+      opts.push({ value: 'SPOTLIGHT', label: 'Spotlight' });
 
-    const hasTopAd = creditPacks.some(
-      (p) =>
-        p.entitlementType === 'PUSH_TO_TOP' ||
-        p.planName?.toLowerCase().includes('top ad') ||
-        p.planName?.toLowerCase().includes('boost'),
-    );
-    if (hasTopAd) chips.push({ key: 'TOP_AD', label: 'Top Ads' });
+    if (
+      creditPacks.some(
+        (p) =>
+          p.entitlementType === 'PUSH_TO_TOP' ||
+          p.planName?.toLowerCase().includes('top ad') ||
+          p.planName?.toLowerCase().includes('boost'),
+      )
+    )
+      opts.push({ value: 'TOP_AD', label: 'Top Ads' });
 
-    const hasSmartAlert = creditPacks.some(
-      (p) => p.entitlementType === 'SMART_ALERT_SLOT' || p.planName?.toLowerCase().includes('alert'),
-    );
-    if (hasSmartAlert) chips.push({ key: 'SMART_ALERT', label: 'Smart Alerts' });
+    if (creditPacks.some((p) => p.entitlementType === 'SMART_ALERT_SLOT' || p.planName?.toLowerCase().includes('alert')))
+      opts.push({ value: 'SMART_ALERT', label: 'Smart Alerts' });
 
-    return chips;
+    return opts;
   }, [creditPacks]);
 
   const filteredItems = useMemo(
     () => items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason)),
-    [items, activeFilter]
+    [items, activeFilter],
   );
+
+  const showFilter = filterOptions.length > 1;
 
   return (
     <div className="space-y-3">
-      {/* 1. Header */}
-      <div className="flex items-center justify-between gap-2">
+      {/* Header: title + compact filter dropdown */}
+      <div className="flex items-center justify-between gap-3">
         <h4 className="text-body font-bold text-foreground">My Usage</h4>
-        {pagination && (
-          <span className="text-tiny text-muted-foreground font-medium">
-            {pagination.total} activities
-          </span>
+        {showFilter && (
+          <Select
+            value={activeFilter}
+            onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
+          >
+            <SelectTrigger
+              className="h-7 w-auto min-w-[120px] max-w-[160px] text-tiny font-semibold border-border/50 bg-muted/40 px-2.5 rounded-lg focus:ring-primary"
+              aria-label="Filter activities"
+            >
+              <SelectValue placeholder="All Activities" />
+            </SelectTrigger>
+            <SelectContent className="text-tiny">
+              {filterOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value} className="text-tiny">
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
       </div>
 
-      {/* 2. Filter chips — always visible; seeded from creditPacks so stable across pages */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none" role="tablist" aria-label="Activity Filter">
-        {availableFilterChips.map((chip) => {
-          const isSelected = activeFilter === chip.key;
-          return (
-            <button
-              key={chip.key}
-              type="button"
-              role="tab"
-              aria-selected={isSelected}
-              onClick={() => handleFilterChange(chip.key)}
-              className={`h-7 px-3 rounded-full text-tiny font-semibold transition-all whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                isSelected
-                  ? 'bg-primary text-primary-foreground shadow-xs'
-                  : 'bg-muted/70 text-foreground-secondary hover:text-foreground hover:bg-muted border border-border/40'
-              }`}
-            >
-              {chip.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 3. Pagination — above the table so user never scrolls to page */}
+      {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <Pagination
           currentPage={page}
@@ -118,12 +119,11 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
           totalItems={pagination.total}
           pageSize={limit}
           onPageChange={setPage}
-          itemLabel="activities"
           className="border border-border/40 rounded-xl px-3 py-2 bg-muted/30"
         />
       )}
 
-      {/* 4. Loading State */}
+      {/* Loading */}
       {isLoading && (
         <div className="space-y-2.5 animate-pulse">
           <div className="h-12 bg-muted/60 rounded-xl" />
@@ -131,7 +131,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </div>
       )}
 
-      {/* 5. Error State */}
+      {/* Error */}
       {isError && (
         <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-tiny flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
@@ -147,19 +147,19 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </div>
       )}
 
-      {/* 6. Empty State */}
+      {/* Empty */}
       {!isLoading && filteredItems.length === 0 && (
         <div className="text-center py-8 text-tiny text-muted-foreground border border-dashed border-border rounded-xl">
-          No credit activity found for this category.
+          No activity found.
         </div>
       )}
 
-      {/* 7. Transactions List */}
+      {/* Transactions */}
       {!isLoading && filteredItems.length > 0 && (
         <>
           <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-          {/* Mobile Cards (< md) */}
+          {/* Mobile Cards */}
           <div className="md:hidden flex flex-col gap-2">
             {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
@@ -167,8 +167,10 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
               const adTarget = tx.adSlug || tx.listingId;
 
               return (
-                <div key={tx.transactionId} className="p-3 rounded-xl border border-border/40 bg-card space-y-1.5 shadow-2xs">
-                  {/* Top row: date + info button + amount badge */}
+                <div
+                  key={tx.transactionId}
+                  className="p-3 rounded-xl border border-border/40 bg-card space-y-1.5 shadow-2xs"
+                >
                   <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
@@ -179,20 +181,35 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                       {formatAppliedDateTime(tx.createdAt)}
                       <Info className="w-3 h-3 shrink-0" />
                     </button>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
-                      isDebit ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    }`}>
-                      {isDebit ? <><ArrowDown className="w-3 h-3" />-{absAmount} USED</> : <><ArrowUp className="w-3 h-3" />+{absAmount} ADDED</>}
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
+                        isDebit
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      {isDebit ? (
+                        <>
+                          <ArrowDown className="w-3 h-3" />-{absAmount} USED
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUp className="w-3 h-3" />+{absAmount} ADDED
+                        </>
+                      )}
                     </span>
                   </div>
 
-                  {/* Plan */}
-                  <div className="font-semibold text-foreground text-caption">{formatActivityName(tx)}</div>
+                  <div className="font-semibold text-foreground text-caption">
+                    {formatActivityName(tx)}
+                  </div>
 
-                  {/* Listing + Status */}
                   {adTarget && (
                     <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/20">
-                      <Link href={`/ads/${adTarget}`} className="text-tiny font-semibold text-primary hover:underline truncate">
+                      <Link
+                        href={`/ads/${adTarget}`}
+                        className="text-tiny font-semibold text-primary hover:underline truncate"
+                      >
                         {tx.adTitle || 'View Listing'}
                       </Link>
                       {renderTransactionStatus(tx)}
