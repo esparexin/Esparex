@@ -3,7 +3,6 @@ import { Button } from '@esparex/ui';
 import { usePlansWalletDashboard } from '@/hooks/usePlansWalletDashboard';
 import { ActiveSubscriptionCard } from '../cards/ActiveSubscriptionCard';
 import { WalletOverviewCard } from '../cards/WalletOverviewCard';
-import { CreditPackListCard } from '../cards/CreditPackListCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
 import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
 import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
@@ -79,7 +78,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
-              My Plan & Allowances
+              Wallet & Balances
             </button>
 
             <button
@@ -94,7 +93,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
-              Credit History
+              My Usage
             </button>
 
             <button
@@ -143,23 +142,17 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       {activeTab === 'OVERVIEW' && !isLoading && (
         <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
-            subscription={dashboardData?.subscription || null}
+            subscription={dashboardData?.subscription ?? null}
             nextMonthlyResetDate={dashboardData?.wallet?.nextMonthlyResetDate}
-            onBrowsePlans={() => setActiveTab('BUY_PLANS')}
+            onBrowsePlans={() => handleTabSwitch('BUY_PLANS')}
           />
-
           {dashboardData?.wallet && (
             <WalletOverviewCard
               wallet={dashboardData.wallet}
+              creditPacks={dashboardData.creditPacks ?? []}
               onNavigateToHistory={handleNavigateToHistory}
             />
           )}
-
-          <CreditPackListCard
-            creditPacks={dashboardData?.creditPacks || []}
-            onBrowsePlans={() => setActiveTab('BUY_PLANS')}
-            onViewHistory={() => handleNavigateToHistory()}
-          />
         </div>
       )}
 

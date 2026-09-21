@@ -49,9 +49,9 @@ export function SmartAlertsTab({
     editingAlertId,
     resetAlertForm,
     setActiveTab,
-    userPlan = "Free",
+    userPlan: _userPlan = "Free",
     loading,
-    quota,
+    quota: _quota,
     smartAlertErrors,
     smartAlertGlobalError,
 }: SmartAlertsTabProps) {
@@ -90,12 +90,6 @@ export function SmartAlertsTab({
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
     const isEditing = Boolean(editingAlertId);
-    const isPremium = userPlan.toLowerCase() !== "free";
-    const freeSlotsLimit = quota?.limit ?? 5;
-    const remainingSlots = quota ? quota.remaining : Math.max(0, freeSlotsLimit - smartAlerts.length);
-    const renewalText = quota?.resetsAt
-        ? ` · Renews ${new Date(quota.resetsAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
-        : "";
 
     const handleCloseDialog = () => {
         setIsInternalOpen(false);
@@ -134,12 +128,6 @@ export function SmartAlertsTab({
                             {activeAlerts} Active
                         </span>
                     </div>
-                    <p className="text-caption text-foreground-secondary mt-0.5">
-                        {isPremium
-                            ? "Unlimited watchdog alert slots available on your plan."
-                            : `${remainingSlots} of ${freeSlotsLimit} free alert slots remaining${renewalText}.`
-                        }
-                    </p>
                 </div>
 
                 <Button

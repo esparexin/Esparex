@@ -58,7 +58,7 @@ export function AccountDesktopSidebar({
           {(!user?.plan || user.plan === "Free") && (
             <Button
               type="button"
-              onClick={() => onTabChange("plans")}
+              onClick={() => onTabChange("buyplans")}
               size="sm"
               className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs"
             >

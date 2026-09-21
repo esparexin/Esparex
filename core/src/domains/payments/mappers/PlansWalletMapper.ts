@@ -70,7 +70,6 @@ export class PlansWalletMapper {
       startDate: userPlan.startDate ? new Date(String(userPlan.startDate)).toISOString() : new Date().toISOString(),
       endDate: userPlan.endDate ? new Date(String(userPlan.endDate)).toISOString() : null,
       daysRemaining,
-      autoRenew: true,
     };
   }
 
@@ -117,9 +116,10 @@ export class PlansWalletMapper {
     const spotlightCredits = hasEntitlementsList ? activeSpotlightEntitlements : ((userWallet?.spotlightCredits as number) || 0);
     const topAdCredits = hasEntitlementsList ? activeTopAdEntitlements : ((userWallet?.boostCredits as number) || 0);
     const paidAdCredits = hasEntitlementsList ? activeAdEntitlements : ((userWallet?.adCredits as number) || 0);
+    const FREE_ALERT_BASE = 2; // base free slots per ADR-001 / UserWallet default
     const smartAlertSlots = hasEntitlementsList
-      ? 2 + activeSmartAlertEntitlements
-      : ((userWallet?.smartAlertSlots as number | undefined) || 2);
+      ? FREE_ALERT_BASE + activeSmartAlertEntitlements
+      : ((userWallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE);
 
     const now = new Date();
     const nextResetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
@@ -133,6 +133,8 @@ export class PlansWalletMapper {
       spotlightCredits,
       topAdCredits,
       smartAlertSlots,
+      freeAlertSlotsBase: FREE_ALERT_BASE,
+      paidAlertSlots: hasEntitlementsList ? activeSmartAlertEntitlements : Math.max(0, ((userWallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE),
       nextMonthlyResetDate: nextResetDate.toISOString(),
     };
   }

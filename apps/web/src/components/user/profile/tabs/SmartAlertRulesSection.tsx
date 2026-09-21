@@ -210,7 +210,7 @@ export function SmartAlertRulesSection({
                     size="sm"
                     variant="outline"
                     className="border-primary/30 text-primary hover:bg-primary/10 font-semibold text-caption h-8 px-3 rounded-lg shrink-0 whitespace-nowrap"
-                    onClick={() => setActiveTab("plans")}
+                    onClick={() => setActiveTab("buyplans")}
                 >
                     Upgrade
                 </Button>

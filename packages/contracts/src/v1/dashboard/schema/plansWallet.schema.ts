@@ -8,7 +8,6 @@ export const subscriptionSummarySchema = z.object({
   startDate: z.string(),
   endDate: z.string().nullable().optional(),
   daysRemaining: z.number().nullable().optional(),
-  autoRenew: z.boolean().optional(),
 });
 
 export const walletSummarySchema = z.object({
@@ -20,6 +19,8 @@ export const walletSummarySchema = z.object({
   spotlightCredits: z.number().min(0),
   topAdCredits: z.number().min(0),
   smartAlertSlots: z.number().min(0),
+  freeAlertSlotsBase: z.number().min(0),
+  paidAlertSlots: z.number().min(0),
   nextMonthlyResetDate: z.string().nullable().optional(),
 });
 

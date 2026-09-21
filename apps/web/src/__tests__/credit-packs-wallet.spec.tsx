@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CreditPackListCard } from '@/components/user/profile/cards/CreditPackListCard';
-import type { CreditPackDTO, WalletSummaryDTO } from '@esparex/contracts';
+import type { WalletSummaryDTO } from '@esparex/contracts';
 
 // Mock useCreditLedgerHistory
 vi.mock('@/hooks/useCreditLedgerHistory', () => ({
@@ -67,105 +66,6 @@ import { ActiveSubscriptionCard } from '@/components/user/profile/cards/ActiveSu
 import { WalletOverviewCard } from '@/components/user/profile/cards/WalletOverviewCard';
 
 describe('Wallet & Credits UI/UX Architecture', () => {
-  const mockPacks: CreditPackDTO[] = [
-    {
-      packId: 'pack-1',
-      planName: 'Smart Alerts Pack',
-      entitlementType: 'SMART_ALERT_SLOT',
-      sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-01T00:00:00.000Z',
-      totalGranted: 1,
-      consumed: 0,
-      remaining: 1,
-      status: 'ACTIVE',
-      expiresAt: '2026-10-20T00:00:00.000Z',
-    },
-    {
-      packId: 'pack-2',
-      planName: 'Smart Alerts Pack',
-      entitlementType: 'SMART_ALERT_SLOT',
-      sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-02T00:00:00.000Z',
-      totalGranted: 1,
-      consumed: 0,
-      remaining: 1,
-      status: 'ACTIVE',
-      expiresAt: '2026-10-05T00:00:00.000Z',
-    },
-    {
-      packId: 'pack-3',
-      planName: 'Smart Alerts Pack',
-      entitlementType: 'SMART_ALERT_SLOT',
-      sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-03T00:00:00.000Z',
-      totalGranted: 1,
-      consumed: 0,
-      remaining: 1,
-      status: 'ACTIVE',
-      expiresAt: '2026-10-05T00:00:00.000Z',
-    },
-    {
-      packId: 'pack-4',
-      planName: 'Smart Alerts Pack',
-      entitlementType: 'SMART_ALERT_SLOT',
-      sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-04T00:00:00.000Z',
-      totalGranted: 1,
-      consumed: 0,
-      remaining: 1,
-      status: 'ACTIVE',
-      expiresAt: '2026-10-05T00:00:00.000Z',
-    },
-  ];
-
-  it('displays individual non-merged purchased plans without duplicate executive summary', () => {
-    const html = renderToStaticMarkup(<CreditPackListCard creditPacks={mockPacks} />);
-
-    // Duplicate summary bars must be removed to avoid double-accounting
-    expect(html).not.toContain('Total Purchased');
-    expect(html).not.toContain('Executive Wallet Summary');
-
-    // Filter controls
-    expect(html).toContain('All Purchases (4)');
-    expect(html).toContain('Active Credits (4)');
-
-    // Each purchase must be displayed as an individual non-merged entry
-    expect(html).toContain('Smart Alerts Pack');
-    expect(html).toContain('1 total');
-    expect(html).toContain('0 used');
-    expect(html).toContain('Active');
-    expect(html).toContain('Valid until:');
-
-    // Desktop table container and Mobile cards must exist
-    expect(html).toContain('hidden md:block');
-    expect(html).toContain('md:hidden');
-  });
-
-  it('renders purchase filter navigation correctly with active and total counts', () => {
-    const multiCategoryPacks: CreditPackDTO[] = [
-      ...mockPacks,
-      {
-        packId: 'pack-5',
-        planName: 'Ad Postings Pack',
-        entitlementType: 'AD_POSTING',
-        sourceType: 'PURCHASED_PACK',
-        purchaseDate: '2026-09-01T00:00:00.000Z',
-        totalGranted: 5,
-        consumed: 1,
-        remaining: 4,
-        status: 'ACTIVE',
-        expiresAt: '2026-10-30T00:00:00.000Z',
-      },
-    ];
-
-    const html = renderToStaticMarkup(<CreditPackListCard creditPacks={multiCategoryPacks} />);
-
-    expect(html).toContain('All Purchases (5)');
-    expect(html).toContain('Active Credits (5)');
-    expect(html).toContain('Ad Postings');
-    expect(html).toContain('Smart Alerts');
-  });
-
   it('renders single-instance responsive credit history with ad traceability and independent statuses', () => {
     const html = renderToStaticMarkup(<CreditLedgerHistoryCard />);
 
@@ -196,19 +96,12 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     );
 
     expect(html).toContain('id="tab-overview"');
-    expect(html).toContain('My Plan &amp; Allowances');
+    expect(html).toContain('Wallet &amp; Balances');
+    expect(html).toContain('Free Starter Plan');
     expect(html).toContain('id="tab-credit-history"');
-    expect(html).toContain('Credit History');
+    expect(html).toContain('My Usage');
     expect(html).toContain('id="tab-invoices"');
     expect(html).not.toContain('id="tab-credit-packs"');
-  });
-
-  it('renders View Credit History shortcut in CreditPackListCard when onViewHistory is provided', () => {
-    const html = renderToStaticMarkup(
-      <CreditPackListCard creditPacks={mockPacks} onViewHistory={vi.fn()} />
-    );
-
-    expect(html).toContain('View Credit History →');
   });
 
   it('renders purchased plan validity, days left, and expiration warnings in ActiveSubscriptionCard', () => {
@@ -223,7 +116,6 @@ describe('Wallet & Credits UI/UX Architecture', () => {
           startDate: '2026-09-01T00:00:00.000Z',
           endDate: '2026-10-01T00:00:00.000Z',
           daysRemaining: 11,
-          autoRenew: true,
         }}
         nextMonthlyResetDate="2026-10-01T00:00:00.000Z"
       />
@@ -246,7 +138,6 @@ describe('Wallet & Credits UI/UX Architecture', () => {
           startDate: '2026-08-01T00:00:00.000Z',
           endDate: '2026-09-01T00:00:00.000Z',
           daysRemaining: 0,
-          autoRenew: false,
         }}
         onBrowsePlans={vi.fn()}
       />
@@ -256,66 +147,6 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(expiredHtml).toContain('Upgrade Plan');
     expect(expiredHtml).not.toContain('Renew Plan');
     expect(expiredHtml).not.toContain('Your plan expired on');
-  });
-
-  it('renders clear expiration dates and status chips in past/used credit packs', () => {
-    const historicalPacks: CreditPackDTO[] = [
-      {
-        packId: 'expired-1',
-        planName: 'Old Alert Pack',
-        entitlementType: 'SMART_ALERT_SLOT',
-        sourceType: 'PURCHASED_PACK',
-        purchaseDate: '2026-07-01T00:00:00.000Z',
-        totalGranted: 2,
-        consumed: 0,
-        remaining: 0,
-        status: 'EXPIRED',
-        expiresAt: '2026-08-01T00:00:00.000Z',
-      },
-    ];
-
-    const html = renderToStaticMarkup(<CreditPackListCard creditPacks={historicalPacks} />);
-
-    expect(html).toContain('Past / Used (1)');
-    expect(html).toContain('Old Alert Pack');
-    expect(html).toContain('Expired');
-    expect(html).toContain('Purchased:');
-    expect(html).toContain('Expired on:');
-  });
-
-  it('strictly excludes expired credit packs from active pools and active balances even if raw status is ACTIVE', () => {
-    const mixedPacks: CreditPackDTO[] = [
-      {
-        packId: 'active-valid',
-        planName: 'Fresh Alert Pack',
-        entitlementType: 'SMART_ALERT_SLOT',
-        sourceType: 'PURCHASED_PACK',
-        purchaseDate: '2026-09-01T00:00:00.000Z',
-        totalGranted: 2,
-        consumed: 0,
-        remaining: 2,
-        status: 'ACTIVE',
-        expiresAt: '2026-10-30T00:00:00.000Z',
-      },
-      {
-        packId: 'expired-still-marked-active',
-        planName: 'Expired Alert Pack',
-        entitlementType: 'SMART_ALERT_SLOT',
-        sourceType: 'PURCHASED_PACK',
-        purchaseDate: '2026-07-01T00:00:00.000Z',
-        totalGranted: 5,
-        consumed: 0,
-        remaining: 5,
-        status: 'ACTIVE',
-        expiresAt: '2026-08-01T00:00:00.000Z', // In the past!
-      },
-    ];
-
-    const html = renderToStaticMarkup(<CreditPackListCard creditPacks={mixedPacks} />);
-
-    // Active purchases should count 1 active pack, NOT the expired pack
-    expect(html).toContain('Active Credits (1)');
-    expect(html).toContain('Past / Used (1)');
   });
 
   it('renders clean allowance breakdown and view history link in WalletOverviewCard', () => {
@@ -328,6 +159,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       spotlightCredits: 0,
       topAdCredits: 0,
       smartAlertSlots: 2,
+      freeAlertSlotsBase: 2,
+      paidAlertSlots: 0,
     };
 
     const handleNavigate = vi.fn();
@@ -339,15 +172,30 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('5 Available');
     expect(html).toContain('2 Active');
     expect(html).toContain('0 Credits');
-    expect(html).toContain('View Credit History');
+    expect(html).toContain('View My Usage');
   });
 
   it('renders de-boxed credit history with dynamic filter chips and usage ledger', () => {
+    const mockPacks = [
+      {
+        packId: 'pack-1',
+        planName: 'Smart Alerts Pack',
+        entitlementType: 'SMART_ALERT_SLOT' as const,
+        sourceType: 'PURCHASED_PACK' as const,
+        purchaseDate: '2026-09-01T00:00:00.000Z',
+        totalGranted: 1,
+        consumed: 0,
+        remaining: 1,
+        status: 'ACTIVE' as const,
+        expiresAt: '2026-10-20T00:00:00.000Z',
+      },
+    ];
+
     const html = renderToStaticMarkup(
       <CreditLedgerHistoryCard creditPacks={mockPacks} />
     );
 
-    expect(html).toContain('Credit Usage History');
+    expect(html).toContain('My Usage');
     expect(html).toContain('Smart Alerts');
     // Confirms the duplicate 4 boxes are successfully removed
     expect(html).not.toContain('Purchased Credit Allocations');
