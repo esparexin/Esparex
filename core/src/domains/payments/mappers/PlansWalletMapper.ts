@@ -217,12 +217,12 @@ export class PlansWalletMapper {
     });
   }
 
-  private static mapRecentUsage(
+  public static mapCreditTransactions(
     transactions: Record<string, unknown>[],
     adMap?: Map<string, RawAdMetadata>
   ): CreditLedgerDTO[] {
     const now = Date.now();
-    return transactions.slice(0, 10).map((tx) => {
+    return transactions.map((tx) => {
       const listingIdStr = (tx.listingId as { toString(): string } | undefined)?.toString();
       const ad = listingIdStr && adMap ? adMap.get(listingIdStr) : undefined;
       const adTitle = (ad?.title as string | undefined) || undefined;
@@ -290,6 +290,13 @@ export class PlansWalletMapper {
         createdAt: new Date(txCreatedMs).toISOString(),
       };
     });
+  }
+
+  private static mapRecentUsage(
+    transactions: Record<string, unknown>[],
+    adMap?: Map<string, RawAdMetadata>
+  ): CreditLedgerDTO[] {
+    return this.mapCreditTransactions(transactions.slice(0, 10), adMap);
   }
 
   private static mapRecentPayments(payments: Record<string, unknown>[]): PaymentSummaryDTO[] {

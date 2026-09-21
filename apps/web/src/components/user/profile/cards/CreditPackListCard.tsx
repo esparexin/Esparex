@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
 import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
 import { Package, Bell, Zap, Calendar, Clock } from '@esparex/ui';
-import { isPackExpired, getStatusBadge, getValidityDisplay } from './creditPackFormatters';
+import { isPackExpired, getStatusBadge, getValidityDisplay } from './CreditPackFormatters';
 
 export interface CreditPackListCardProps {
   creditPacks: CreditPackDTO[];
@@ -90,7 +90,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
       </div>
 
       {/* 2. Executive Wallet Summary */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 *:flex-1">
         <div className="p-3 rounded-xl border border-border/50 bg-card/60">
           <div className="text-tiny text-muted-foreground font-medium">Total Purchased</div>
           <div className="text-body sm:text-body-lg font-bold text-foreground">{totalPurchased}</div>
@@ -107,7 +107,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
 
       {/* 3. Category Balances */}
       {(alertAvailable > 0 || adAvailable > 0 || boostAvailable > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+        <div className="flex flex-col sm:flex-row gap-2 pt-0.5 *:flex-1">
           <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0"><Bell className="w-3 h-3" /></div>
             <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Smart Alerts</div><div className="text-caption font-bold text-foreground">{alertAvailable} Available</div></div>
