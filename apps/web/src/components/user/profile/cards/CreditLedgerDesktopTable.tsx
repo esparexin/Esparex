@@ -19,7 +19,7 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
           <tr>
             <th scope="col" className="py-2.5 px-3.5 whitespace-nowrap">Date</th>
             <th scope="col" className="py-2.5 px-3">Plan</th>
-            <th scope="col" className="py-2.5 px-3">Applied to Listing</th>
+            <th scope="col" className="py-2.5 px-3">Listing</th>
             <th scope="col" className="py-2.5 px-3">Validity</th>
             <th scope="col" className="py-2.5 px-3.5">Status</th>
           </tr>

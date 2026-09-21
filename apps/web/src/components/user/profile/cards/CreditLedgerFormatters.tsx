@@ -112,7 +112,8 @@ export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode =>
   }
 
   if (tx.adStatus) {
-    const isLive = tx.adStatus === 'ACTIVE' || tx.adStatus === 'active' || tx.adStatus === 'live';
+    const isPastExpiry = tx.adExpiresAt ? new Date(tx.adExpiresAt).getTime() <= Date.now() : false;
+    const isLive = !isPastExpiry && (tx.adStatus === 'ACTIVE' || tx.adStatus === 'active' || tx.adStatus === 'live');
     if (isLive) {
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">

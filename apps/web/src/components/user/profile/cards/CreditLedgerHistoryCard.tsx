@@ -181,7 +181,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                   {adTarget && (
                     <div className="text-caption pt-1 border-t border-border/20 flex flex-col gap-1">
                       <div className="flex items-center gap-1.5 text-tiny text-muted-foreground">
-                        <span>Applied to Ad:</span>
+                        <span>Listing:</span>
                         <Link href={`/ads/${adTarget}`} className="font-semibold text-primary hover:underline truncate">
                           {tx.adTitle || 'View Ad'}
                         </Link>

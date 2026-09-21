@@ -231,15 +231,17 @@ export class PlansWalletMapper {
       const adTitle = (ad?.title as string | undefined) || undefined;
       const adSlug = ((ad?.seoSlug as string) || (ad?.slug as string) || listingIdStr) || undefined;
 
+      const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
       let adStatus: string | undefined = undefined;
       let adExpiresAt: string | undefined = undefined;
       let adRemainingDays: number | undefined = undefined;
 
       if (ad) {
-        const adExpMs = ad.expiresAt ? new Date(String(ad.expiresAt)).getTime() : 0;
-        const isExpired = ad.status === 'expired' || (adExpMs > 0 && adExpMs <= now);
+        const rawAdExpMs = ad.expiresAt ? new Date(String(ad.expiresAt)).getTime() : 0;
+        const adExpMs = rawAdExpMs > 0 ? rawAdExpMs : (txCreatedMs + 30 * 24 * 60 * 60 * 1000);
+        const isExpired = ad.status === 'expired' || adExpMs <= now;
         adStatus = isExpired ? 'expired' : ((ad.status as string) || 'active');
-        adExpiresAt = ad.expiresAt ? new Date(String(ad.expiresAt)).toISOString() : undefined;
+        adExpiresAt = new Date(adExpMs).toISOString();
         if (adExpMs > 0) {
           adRemainingDays = Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24)));
         }
@@ -271,7 +273,6 @@ export class PlansWalletMapper {
         }
       }
 
-      const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
       let spotlightExpiresAt: string | undefined = undefined;
       let spotlightStatus: 'ACTIVE' | 'EXPIRED' | undefined = undefined;
 
