@@ -4,6 +4,7 @@ import { UserPlanModel, PlanModel } from '../../payments';
 import { consumeCredit } from '../../payments';
 import { SmartAlertModel, type SmartAlertDocument } from './SmartAlertService';
 import UserWallet from '../../../models/UserWallet';
+import Entitlement from '../../../models/Entitlement';
 import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
 import { resolveMasterDataIds } from '../../../utils/masterDataResolver';
 import { AppError } from '../../../utils/AppError';
@@ -157,7 +158,7 @@ const requireOwnedAlert = async ({
     };
 };
 
-const DEFAULT_FREE_SMART_ALERT_LIMIT = 5;
+const FREE_ALERT_BASE = 2;
 
 const resolvePlanLimit = async (userId: string) => {
     const activeUserPlans = await UserPlanModel.find({
@@ -166,11 +167,11 @@ const resolvePlanLimit = async (userId: string) => {
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
     if (activeUserPlans.length === 0) {
-        return DEFAULT_FREE_SMART_ALERT_LIMIT;
+        return FREE_ALERT_BASE;
     }
     const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: { planId: unknown }) => up.planId) } }).lean();
     const userRights = calculateUserPlan(plans);
-    return userRights.smartAlerts || DEFAULT_FREE_SMART_ALERT_LIMIT;
+    return userRights.smartAlerts || FREE_ALERT_BASE;
 };
 
 export const createSmartAlertMutation = async ({
@@ -188,13 +189,26 @@ export const createSmartAlertMutation = async ({
     const planLimit = await resolvePlanLimit(userId);
     await syncWalletCycle(userId);
 
-    const wallet = await UserWallet.findOne({ userId }).lean();
-    const monthlyUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
-    const walletSlots = (wallet?.smartAlertSlots as number | undefined) || 0;
+    const [wallet, rawEntitlements] = await Promise.all([
+        UserWallet.findOne({ userId }).lean(),
+        Entitlement.find({
+            userId,
+            type: 'SMART_ALERT_SLOT',
+            status: 'ACTIVE',
+            remaining: { $gt: 0 },
+            $or: [{ expiresAt: { $gte: new Date() } }, { expiresAt: null }],
+        }).lean(),
+    ]);
 
+    const activePaidSlots = rawEntitlements.length > 0
+        ? rawEntitlements.reduce((acc, e) => acc + (typeof e.remaining === 'number' ? e.remaining : 0), 0)
+        : Math.max(0, ((wallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE);
+
+    const monthlyUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
     const requiresWalletSlot = monthlyUsed >= planLimit;
-    if (requiresWalletSlot && walletSlots <= 0) {
-        const totalLimit = planLimit + walletSlots;
+
+    if (requiresWalletSlot && activePaidSlots <= 0) {
+        const totalLimit = planLimit + activePaidSlots;
         throw new AppError(
             `Smart Alert monthly limit reached (${monthlyUsed}/${totalLimit}). Upgrade plan or buy slots.`,
             403,
