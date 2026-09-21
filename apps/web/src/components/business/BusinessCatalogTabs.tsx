@@ -124,7 +124,7 @@ export function BusinessCatalogTabs({
               placeholder={`Search in ${activeTabLabel.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-8 pr-7 h-9 text-caption bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+              className="w-full pl-8 pr-7 h-9 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
             />
             {query && (
               <button
