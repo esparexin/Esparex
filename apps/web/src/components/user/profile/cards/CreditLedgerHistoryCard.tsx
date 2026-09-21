@@ -49,33 +49,33 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
   const items: CreditLedgerDTO[] = data?.items || [];
   const pagination = data?.pagination;
 
-  // Filter options seeded from creditPacks so stable across pages
+  // Filter options: seeded from BOTH creditPacks (future active packs) AND actual
+  // ledger items on the current page (consumed/expired packs that still have history).
+  // This prevents "legacy" gaps where used-up credits vanish from filter options.
   const filterOptions = useMemo(() => {
     const opts: { value: LedgerFilterType; label: string }[] = [
       { value: 'ALL', label: 'All Activities' },
     ];
 
-    if (creditPacks.some((p) => p.entitlementType === 'AD_POSTING' || p.planName?.toLowerCase().includes('ad')))
+    // Collect entitlement types from both sources
+    const hasType = (type: string) =>
+      creditPacks.some((p) => p.entitlementType === type || p.planName?.toLowerCase().includes(type.toLowerCase())) ||
+      items.some((tx) => tx.entitlementType === type);
+
+    if (hasType('AD_POSTING') || creditPacks.some((p) => p.planName?.toLowerCase().includes('ad')) || items.some((tx) => tx.reason?.toLowerCase().includes('ad posting')))
       opts.push({ value: 'MORE_ADS', label: 'More Ads' });
 
-    if (creditPacks.some((p) => p.entitlementType?.startsWith('SPOTLIGHT') || p.planName?.toLowerCase().includes('spotlight')))
+    if (hasType('SPOTLIGHT_HP') || hasType('SPOTLIGHT_CAT') || creditPacks.some((p) => p.entitlementType?.startsWith('SPOTLIGHT')) || items.some((tx) => tx.reason?.toLowerCase().includes('spotlight')))
       opts.push({ value: 'SPOTLIGHT', label: 'Spotlight' });
 
-    if (
-      creditPacks.some(
-        (p) =>
-          p.entitlementType === 'PUSH_TO_TOP' ||
-          p.planName?.toLowerCase().includes('top ad') ||
-          p.planName?.toLowerCase().includes('boost'),
-      )
-    )
+    if (hasType('PUSH_TO_TOP') || creditPacks.some((p) => p.planName?.toLowerCase().includes('top ad') || p.planName?.toLowerCase().includes('boost')) || items.some((tx) => tx.reason?.toLowerCase().includes('boost') || tx.reason?.toLowerCase().includes('top')))
       opts.push({ value: 'TOP_AD', label: 'Top Ads' });
 
-    if (creditPacks.some((p) => p.entitlementType === 'SMART_ALERT_SLOT' || p.planName?.toLowerCase().includes('alert')))
+    if (hasType('SMART_ALERT_SLOT') || creditPacks.some((p) => p.planName?.toLowerCase().includes('alert')) || items.some((tx) => tx.reason?.toLowerCase().includes('alert')))
       opts.push({ value: 'SMART_ALERT', label: 'Smart Alerts' });
 
     return opts;
-  }, [creditPacks]);
+  }, [creditPacks, items]);
 
   const filteredItems = useMemo(
     () => items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason)),
@@ -111,15 +111,14 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination — show only page nav, suppress verbose 'Showing X to Y of N results' */}
       {pagination && pagination.totalPages > 1 && (
         <Pagination
           currentPage={page}
           totalPages={pagination.totalPages}
-          totalItems={pagination.total}
           pageSize={limit}
           onPageChange={setPage}
-          className="border border-border/40 rounded-xl px-3 py-2 bg-muted/30"
+          className="border border-border/40 rounded-xl px-3 py-1.5 bg-muted/30"
         />
       )}
 
