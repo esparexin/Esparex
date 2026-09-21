@@ -15,6 +15,7 @@ export function WalletCreditCard({
   selectedPlan,
   boostPlans,
   isSelected,
+  durationDays,
   onSelect,
 }: {
   activeCategory: PromotionCategory;
@@ -22,11 +23,12 @@ export function WalletCreditCard({
   selectedPlan: BoostPlan | null;
   boostPlans: BoostPlan[];
   isSelected: boolean;
+  durationDays?: number;
   onSelect: () => void;
 }) {
   const isSpotlight = activeCategory === "SPOTLIGHT";
   const creditType = isSpotlight ? "Spotlight" : "Top Ad";
-  const duration = selectedPlan?.durationDays || boostPlans[0]?.durationDays || 30;
+  const duration = durationDays || selectedPlan?.durationDays || boostPlans[0]?.durationDays || 1;
 
   return (
     <div
@@ -75,7 +77,7 @@ export function WalletCreditCard({
             </span>
           </div>
           <p className="text-tiny text-slate-600 mt-0.5 font-medium">
-            Deducts 1 credit to promote this listing for {duration} days
+            Deducts 1 credit to promote this listing for {duration} day{duration > 1 ? "s" : ""}
           </p>
         </div>
       </div>
@@ -210,6 +212,74 @@ export function SpotlightActiveNotice({ onClose }: { onClose: () => void }) {
           Close Window
         </Button>
       </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pre-confirmation promotion validity disclosure                             */
+/* -------------------------------------------------------------------------- */
+
+export interface PromotionValidityPreviewProps {
+  adRemainingDays: number;
+  effectiveDurationDays: number;
+  effectiveExpiresAt: Date;
+  isSpotlight: boolean;
+  isAdExpired: boolean;
+}
+
+export function PromotionValidityPreview({
+  adRemainingDays,
+  effectiveDurationDays,
+  effectiveExpiresAt,
+  isSpotlight,
+  isAdExpired,
+}: PromotionValidityPreviewProps) {
+  const promoName = isSpotlight ? "Spotlight" : "Top Ad";
+
+  if (isAdExpired) {
+    return (
+      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-tiny text-destructive font-semibold">
+        This listing has expired. Please renew the ad before applying {promoName}.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="p-3 bg-muted/60 border border-border/80 rounded-xl space-y-2 text-tiny">
+        <div className="flex items-center justify-between">
+          <span className="text-foreground-secondary">Ad remaining validity:</span>
+          <span className="font-semibold text-foreground">
+            {adRemainingDays > 0 ? `${adRemainingDays} day${adRemainingDays > 1 ? "s" : ""}` : "Expired"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-foreground-secondary">{promoName} validity:</span>
+          <span className="font-semibold text-foreground">
+            {effectiveDurationDays} day{effectiveDurationDays > 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className="flex items-center justify-between border-t border-border/40 pt-1.5">
+          <span className="text-foreground-secondary">{promoName} expires:</span>
+          <span className={`font-bold ${isSpotlight ? "text-amber-600 dark:text-amber-400" : "text-link"}`}>
+            {effectiveExpiresAt.toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+      </div>
+
+      {adRemainingDays <= 1 && (
+        <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-tiny text-amber-700 dark:text-amber-400 flex items-start gap-2">
+          <span className="shrink-0">⚠️</span>
+          <span>
+            This listing has only 1 day of validity remaining. {promoName} visibility will expire with the ad.
+          </span>
+        </div>
+      )}
     </div>
   );
 }
