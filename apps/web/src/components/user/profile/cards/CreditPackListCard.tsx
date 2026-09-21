@@ -154,7 +154,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
         <>
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto rounded-xl border border-border/40">
-            <table className="w-full text-left text-caption">
+            <table className="w-full text-left text-caption" aria-label="Active credit purchases">
               <thead className="bg-muted/40 border-b border-border/40">
                 <tr className="text-muted-foreground font-semibold text-tiny">
                   <th scope="col" className="py-2.5 px-3.5">Plan Name</th>

@@ -220,14 +220,14 @@ test.describe('Plans & Wallet Hub — 15-Point Release Gate E2E Regression Suite
     await adCreditsTab.click();
 
     // Verify itemized Active Credit Pack (Gate 3 & 4)
-    const packTitle = page.getByText('More Ads 20-Pack');
+    const packTitle = page.getByText('More Ads 20-Pack').first();
     await expect(packTitle).toBeVisible();
 
     const activeStatusPill = page.getByText('Active').first();
     await expect(activeStatusPill).toBeVisible();
 
     // Verify credit balance (Gate 5: Granted 20 = Remaining 15 + Consumed 5)
-    const availableCredits = page.getByText('15 Available');
+    const availableCredits = page.getByText('15 Available').first();
     await expect(availableCredits).toBeVisible();
   });
 
