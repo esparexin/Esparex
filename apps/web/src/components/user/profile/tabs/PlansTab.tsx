@@ -4,7 +4,6 @@ import { usePlansWalletDashboard } from '@/hooks/usePlansWalletDashboard';
 import { ActiveSubscriptionCard } from '../cards/ActiveSubscriptionCard';
 import { WalletOverviewCard } from '../cards/WalletOverviewCard';
 import { CreditPackListCard } from '../cards/CreditPackListCard';
-import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
 import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
 import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
@@ -26,7 +25,7 @@ interface PlansTabProps {
   initialTab?: DashboardHubTab;
 }
 
-type DashboardHubTab = 'OVERVIEW' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS' | 'CREDIT_PACKS';
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
 
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
@@ -34,12 +33,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   setSelectedPlan,
   onPlanSelected,
   setShowPlanDialog,
-  formatCurrency: _formatCurrency,
+  formatCurrency,
   initialTab = 'OVERVIEW',
 }) => {
-  const [activeTab, setActiveTab] = useState<DashboardHubTab>(
-    initialTab === 'CREDIT_PACKS' ? 'OVERVIEW' : initialTab
-  );
+  const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
   const [historyFilter, setHistoryFilter] = useState<LedgerFilterType>('ALL');
   const [dialogSelectedPlan, setDialogSelectedPlan] = useState<string | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState<boolean>(false);
@@ -73,11 +70,11 @@ export const PlansTab: React.FC<PlansTabProps> = ({
             <button
               id="tab-overview"
               role="tab"
-              aria-selected={activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS'}
+              aria-selected={activeTab === 'OVERVIEW'}
               aria-controls="panel-overview"
               onClick={() => handleTabSwitch('OVERVIEW')}
               className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS'
+                activeTab === 'OVERVIEW'
                   ? 'bg-card text-foreground shadow-xs'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
@@ -143,7 +140,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       )}
 
       {/* TAB 1: CONSOLIDATED PLAN & ALLOWANCES OVERVIEW */}
-      {(activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS') && !isLoading && (
+      {activeTab === 'OVERVIEW' && !isLoading && (
         <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
             subscription={dashboardData?.subscription || null}
@@ -163,10 +160,6 @@ export const PlansTab: React.FC<PlansTabProps> = ({
             onBrowsePlans={() => setActiveTab('BUY_PLANS')}
             onViewHistory={() => handleNavigateToHistory()}
           />
-
-          {dashboardData?.activePromotions && dashboardData.activePromotions.length > 0 && (
-            <ActivePromotionsCard promotions={dashboardData.activePromotions} />
-          )}
         </div>
       )}
 
@@ -220,7 +213,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           features: p.features || [],
           price: p.price,
         }))}
-        formatCurrency={_formatCurrency || formatPrice}
+        formatCurrency={formatCurrency || formatPrice}
       />
     </div>
   );

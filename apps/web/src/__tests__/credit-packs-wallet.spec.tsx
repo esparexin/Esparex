@@ -118,13 +118,12 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     },
   ];
 
-  it('displays individual non-merged purchased plans with credit wallet summary', () => {
+  it('displays individual non-merged purchased plans without duplicate executive summary', () => {
     const html = renderToStaticMarkup(<CreditPackListCard creditPacks={mockPacks} />);
 
-    // Credit Wallet Executive Summary
-    expect(html).toContain('Total Purchased');
-    expect(html).toContain('Used');
-    expect(html).toContain('4 Available');
+    // Duplicate summary bars must be removed to avoid double-accounting
+    expect(html).not.toContain('Total Purchased');
+    expect(html).not.toContain('Executive Wallet Summary');
 
     // Filter controls
     expect(html).toContain('All Purchases (4)');
@@ -314,11 +313,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     const html = renderToStaticMarkup(<CreditPackListCard creditPacks={mixedPacks} />);
 
-    // Active summary should ONLY count the 2 unexpired credits, NOT the 5 expired credits (7 total)
-    expect(html).toContain('2 Available');
-    expect(html).not.toContain('7 Available');
-
-    // The expired pack should be recognized in Past / Used tab badge
+    // Active purchases should count 1 active pack, NOT the expired pack
+    expect(html).toContain('Active Credits (1)');
     expect(html).toContain('Past / Used (1)');
   });
 

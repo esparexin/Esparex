@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
 import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
-import { Package, Bell, Zap, Calendar, Clock, Button } from '@esparex/ui';
+import { Package, Calendar, Clock, Button } from '@esparex/ui';
 import { isPackExpired, getCreditPackStatusBadge, getValidityDisplay } from './CreditPackFormatters';
 
 export interface CreditPackListCardProps {
@@ -27,14 +27,6 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
     () => (creditPacks || []).filter((p) => p.status !== 'ACTIVE' || p.remaining === 0 || isPackExpired(p)),
     [creditPacks]
   );
-
-  const totalPurchased = useMemo(() => (creditPacks || []).reduce((acc, p) => acc + (p.totalGranted || 0), 0), [creditPacks]);
-  const totalConsumed = useMemo(() => (creditPacks || []).reduce((acc, p) => acc + (p.consumed || 0), 0), [creditPacks]);
-  const totalAvailable = useMemo(() => activePacks.reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
-
-  const alertAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType === 'SMART_ALERT_SLOT' || p.planName?.toLowerCase().includes('alert')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
-  const adAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType === 'AD_POSTING' || p.planName?.toLowerCase().includes('ad')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
-  const boostAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType?.startsWith('SPOTLIGHT') || p.entitlementType === 'PUSH_TO_TOP' || p.planName?.toLowerCase().includes('boost') || p.planName?.toLowerCase().includes('spotlight')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
 
   const filteredPacks = useMemo(() => {
     if (filter === 'ACTIVE') return activePacks;
@@ -101,41 +93,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
         </div>
       </div>
 
-      {/* 2. Executive Wallet Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/50 rounded-xl bg-muted/40 p-1 border border-border/40">
-        <div className="p-3">
-          <div className="text-tiny text-muted-foreground font-medium">Total Purchased</div>
-          <div className="text-body sm:text-body-lg font-bold text-foreground">{totalPurchased}</div>
-        </div>
-        <div className="p-3">
-          <div className="text-tiny text-muted-foreground font-medium">Used</div>
-          <div className="text-body sm:text-body-lg font-bold text-foreground-secondary">{totalConsumed}</div>
-        </div>
-        <div className="p-3 bg-primary/5 rounded-lg">
-          <div className="text-tiny text-primary font-medium">Available</div>
-          <div className="text-body sm:text-body-lg font-black text-primary">{totalAvailable} Available</div>
-        </div>
-      </div>
-
-      {/* 3. Category Balances */}
-      {(alertAvailable > 0 || adAvailable > 0 || boostAvailable > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
-          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-success/10 text-success flex items-center justify-center shrink-0"><Bell className="w-3 h-3" /></div>
-            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Smart Alerts</div><div className="text-caption font-bold text-foreground">{alertAvailable} Available</div></div>
-          </div>
-          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Package className="w-3 h-3" /></div>
-            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Ad Postings</div><div className="text-caption font-bold text-foreground">{adAvailable} Available</div></div>
-          </div>
-          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0"><Zap className="w-3 h-3" /></div>
-            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Featured Boosts</div><div className="text-caption font-bold text-foreground">{boostAvailable} Available</div></div>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Filter Navigation */}
+      {/* 2. Filter Navigation */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar pt-1 pb-0.5 border-b border-border/40" role="tablist" aria-label="Purchase filters">
         {[
           { key: 'ALL', label: `All Purchases (${creditPacks.length})` },

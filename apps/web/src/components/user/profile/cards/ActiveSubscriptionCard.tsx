@@ -61,10 +61,16 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             {isExpired ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-                <Clock className="w-3 h-3 shrink-0" />
-                <span>Expired Plan</span>
-              </span>
+              <>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
+                  <Crown className="w-3 h-3 text-primary shrink-0" />
+                  <span>FREE PLAN</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+                  <Clock className="w-3 h-3 shrink-0" />
+                  <span>Previous Pack Expired</span>
+                </span>
+              </>
             ) : (
               <>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
@@ -90,35 +96,32 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           </div>
 
           <h3 className="text-body-lg sm:text-title font-bold text-foreground tracking-tight">
-            {formatPlanName(subscription.planName)}
+            {isExpired ? 'Free Starter Plan' : formatPlanName(subscription.planName)}
           </h3>
 
-          {isExpired && endDateFormatted && (
+          {isExpired ? (
             <p className="text-caption text-muted-foreground">
-              This plan expired on {endDateFormatted}. You are currently on the Free tier. Upgrade anytime to reactivate extra credits.
+              Previous pack ({formatPlanName(subscription.planName)}) expired{endDateFormatted ? ` on ${endDateFormatted}` : ''}. You are active on the Free tier with monthly quotas.
             </p>
-          )}
+          ) : null}
 
           {/* Plan Validity Info Row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-tiny text-muted-foreground pt-0.5">
-            {startDateFormatted && (
+            {startDateFormatted && !isExpired && (
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
                 <span>Purchased: <strong className="text-foreground">{startDateFormatted}</strong></span>
               </div>
             )}
-            {endDateFormatted ? (
+            {endDateFormatted && !isExpired ? (
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
-                <span>
-                  {isExpired ? 'Expired on: ' : 'Valid until: '}
-                  <strong className={isExpired ? 'text-muted-foreground font-semibold' : 'text-foreground'}>{endDateFormatted}</strong>
-                </span>
+                <span>Valid until: <strong className="text-foreground">{endDateFormatted}</strong></span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
-                <span>30-Day Plan Validity • Resets on 1st of every month</span>
+                <span>Free monthly quota resets: <strong className="text-foreground">{nextMonthlyResetDate ? new Date(nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '1st of every month'}</strong></span>
               </div>
             )}
           </div>
