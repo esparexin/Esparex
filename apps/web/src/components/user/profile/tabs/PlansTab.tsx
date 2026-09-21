@@ -97,7 +97,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
-              Credits & Wallet
+              Ad Credits & Wallet
             </button>
 
             <button
