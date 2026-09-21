@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SubscriptionSummaryDTO } from '@esparex/contracts';
-import { Crown, Calendar, Clock, AlertCircle, CheckCircle2 } from "@esparex/ui";
+import { Crown, Calendar, Clock, CheckCircle2 } from "@esparex/ui";
 import { formatPlanName } from '@esparex/shared';
 
 interface ActiveSubscriptionCardProps {
@@ -38,8 +38,9 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           </div>
           {onBrowsePlans && (
             <button
+              type="button"
               onClick={onBrowsePlans}
-              className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold transition-colors shadow-xs whitespace-nowrap self-start sm:self-auto cursor-pointer"
+              className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold transition-colors shadow-xs whitespace-nowrap self-start sm:self-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Upgrade Plan
             </button>
@@ -55,7 +56,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   const endDateFormatted = subscription.endDate ? new Date(subscription.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 
   return (
-    <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-xs relative overflow-hidden space-y-3.5">
+    <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-xs relative overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
@@ -64,8 +65,8 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
               <span>{subscription.category || 'Standard'}</span>
             </span>
             {isExpired ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-destructive/10 text-destructive border border-destructive/20">
-                <AlertCircle className="w-3 h-3 shrink-0" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+                <Clock className="w-3 h-3 shrink-0" />
                 <span>Expired</span>
               </span>
             ) : (
@@ -103,7 +104,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
                 <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
                 <span>
                   {isExpired ? 'Expired on: ' : 'Valid until: '}
-                  <strong className={isExpired ? 'text-destructive font-bold' : 'text-foreground'}>{endDateFormatted}</strong>
+                  <strong className={isExpired ? 'text-muted-foreground font-semibold' : 'text-foreground'}>{endDateFormatted}</strong>
                 </span>
               </div>
             ) : (
@@ -117,27 +118,14 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
 
         {onBrowsePlans && (
           <button
+            type="button"
             onClick={onBrowsePlans}
-            className={`inline-flex items-center justify-center h-9 px-4 rounded-xl text-caption font-semibold transition-colors shadow-xs whitespace-nowrap self-start sm:self-auto cursor-pointer ${
-              isExpired
-                ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-            }`}
+            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold transition-colors shadow-xs whitespace-nowrap self-start sm:self-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            {isExpired ? 'Renew Plan' : 'Upgrade Plan'}
+            Upgrade Plan
           </button>
         )}
       </div>
-
-      {/* Prominent warning banner when plan has expired */}
-      {isExpired && endDateFormatted && (
-        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-caption text-destructive flex items-center gap-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>
-            Your plan expired on <strong>{endDateFormatted}</strong>. Renew or upgrade now to reactivate ad postings and boosts.
-          </span>
-        </div>
-      )}
     </div>
   );
 };

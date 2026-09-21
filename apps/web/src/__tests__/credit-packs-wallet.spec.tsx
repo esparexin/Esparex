@@ -252,8 +252,9 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     );
 
     expect(expiredHtml).toContain('Expired');
-    expect(expiredHtml).toContain('Renew Plan');
-    expect(expiredHtml).toContain('Your plan expired on');
+    expect(expiredHtml).toContain('Upgrade Plan');
+    expect(expiredHtml).not.toContain('Renew Plan');
+    expect(expiredHtml).not.toContain('Your plan expired on');
   });
 
   it('renders clear expiration dates and status chips in past/used credit packs', () => {
