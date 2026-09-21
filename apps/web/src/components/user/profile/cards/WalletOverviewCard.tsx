@@ -1,6 +1,6 @@
 import React from 'react';
 import type { WalletSummaryDTO, CreditPackDTO } from '@esparex/contracts';
-import { Package, Bell, Zap, Card, CardContent, ArrowRight, Clock } from '@esparex/ui';
+import { Package, Bell, Card, CardContent, ArrowRight, Clock } from '@esparex/ui';
 
 export interface WalletOverviewCardProps {
   wallet: WalletSummaryDTO;
@@ -78,10 +78,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   const paidAds = wallet.paidAdCredits ?? 0;
   const totalAdCredits = freeAdsRemaining + paidAds;
 
-  const spotlightCredits = wallet.spotlightCredits ?? 0;
-  const topAdCredits = wallet.topAdCredits ?? 0;
-  const totalBoostCredits = spotlightCredits + topAdCredits;
-
   const freeAlerts = wallet.freeAlertSlotsBase ?? 2;
   const extraAlerts = wallet.paidAlertSlots ?? Math.max(0, (wallet.smartAlertSlots ?? 0) - freeAlerts);
   const totalAlertSlots = freeAlerts + extraAlerts;
@@ -92,15 +88,11 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
 
   const adExpiry = paidAds > 0 ? nearestExpiry(creditPacks, 'AD_POSTING') : null;
   const alertExpiry = extraAlerts > 0 ? nearestExpiry(creditPacks, 'SMART_ALERT_SLOT') : null;
-  const boostExpiry = totalBoostCredits > 0
-    ? nearestExpiry(creditPacks, ['SPOTLIGHT_HP', 'SPOTLIGHT_CAT', 'PUSH_TO_TOP'])
-    : null;
 
-  const pillCls = (color: 'primary' | 'emerald' | 'amber') => {
+  const pillCls = (color: 'primary' | 'emerald') => {
     const map = {
       primary: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 focus-visible:ring-primary',
       emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 focus-visible:ring-emerald-500',
-      amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20 focus-visible:ring-amber-500',
     };
     return `text-tiny font-semibold px-2.5 py-0.5 rounded-full border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 shrink-0 ${map[color]}`;
   };
@@ -180,39 +172,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
             }
             expiry={alertExpiry}
             onExpiryClick={() => onNavigateToHistory?.('SMART_ALERTS')}
-          />
-
-          {/* Row 3 — Boost Credits */}
-          <StatRow
-            icon={
-              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
-                <Zap className="w-4 h-4" />
-              </div>
-            }
-            label="Boost Credits"
-            description="Spotlight or push your ad to the top of search"
-            badge={
-              <button
-                type="button"
-                onClick={() => onNavigateToHistory?.('BOOSTS')}
-                className={pillCls('amber')}
-                title="View boost credit usage"
-              >
-                {totalBoostCredits} Available
-              </button>
-            }
-            details={
-              totalBoostCredits > 0 ? (
-                <>
-                  {spotlightCredits > 0 && <span>Spotlight: <strong className="text-foreground">{spotlightCredits}</strong></span>}
-                  {topAdCredits > 0 && <span>Top Ad: <strong className="text-foreground">{topAdCredits}</strong></span>}
-                </>
-              ) : (
-                <span>None active</span>
-              )
-            }
-            expiry={boostExpiry}
-            onExpiryClick={() => onNavigateToHistory?.('BOOSTS')}
           />
         </div>
 

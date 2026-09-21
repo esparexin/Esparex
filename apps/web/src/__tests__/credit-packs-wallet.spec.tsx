@@ -170,7 +170,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('Free Ads');
     expect(html).toContain('5 Available');
     expect(html).toContain('2 Active');
-    expect(html).toContain('0 Available');
+    expect(html).not.toContain('Boost Credits');
     expect(html).toContain('View My Usage');
   });
 
