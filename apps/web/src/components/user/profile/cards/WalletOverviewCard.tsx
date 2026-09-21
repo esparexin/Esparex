@@ -15,7 +15,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
           Ad Credits & Allowances
         </h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="flex flex-col md:flex-row gap-3.5 *:flex-1">
           {/* Group 1: Ad Postings */}
           <div className="bg-muted/50 rounded-xl p-3.5 border border-border flex flex-col justify-between space-y-3">
             <div className="flex items-center justify-between">
@@ -34,7 +34,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
               <span>Extra Paid: <strong className="text-foreground">{wallet.paidAdCredits}</strong></span>
             </div>
             {wallet.nextMonthlyResetDate && (
-              <div className="text-[11px] text-muted-foreground flex items-center justify-between pt-0.5">
+              <div className="text-tiny text-muted-foreground flex items-center justify-between pt-0.5">
                 <span>Monthly reset:</span>
                 <span className="font-semibold text-foreground">
                   {new Date(wallet.nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}

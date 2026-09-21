@@ -35,7 +35,7 @@ export const HistoryPackCard: React.FC<HistoryPackCardProps> = ({ pack }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-tiny text-muted-foreground pt-1.5 border-t border-border/30">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-tiny text-muted-foreground pt-1.5 border-t border-border/30">
         <div className="flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
           <span>Purchased: <strong className="text-foreground-secondary">{new Date(pack.purchaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong></span>

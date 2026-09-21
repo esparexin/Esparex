@@ -10,9 +10,9 @@ export interface CreditPackListCardProps {
   onViewHistory?: () => void;
 }
 
-export type PackCategoryFilter = 'ALL' | 'SMART_ALERTS' | 'AD_POSTING' | 'BOOSTS' | 'HISTORY';
+type PackCategoryFilter = 'ALL' | 'SMART_ALERTS' | 'AD_POSTING' | 'BOOSTS' | 'HISTORY';
 
-export interface CreditPoolGroup {
+interface CreditPoolGroup {
   poolKey: 'SMART_ALERTS' | 'AD_POSTING' | 'BOOSTS';
   title: string;
   entitlementType: EntitlementType;
@@ -263,7 +263,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
       </div>
 
       {/* 2. Executive Balance Summary Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      <div className="flex flex-col sm:flex-row gap-2.5 *:flex-1">
         <div
           onClick={() => {
             if (totalSmartAlerts > 0) setSelectedTab('SMART_ALERTS');

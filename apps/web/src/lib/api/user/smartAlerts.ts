@@ -85,7 +85,7 @@ export interface FetchSmartAlertMatchesParams {
   alertId?: string;
 }
 
-export interface SmartAlertMatchRecord {
+interface SmartAlertMatchRecord {
   id: string;
   alertId: string;
   alertName: string;
@@ -110,7 +110,7 @@ export interface SmartAlertMatchRecord {
   } | null;
 }
 
-export interface FetchSmartAlertMatchesResponse {
+interface FetchSmartAlertMatchesResponse {
   matches: SmartAlertMatchRecord[];
   total: number;
   page: number;
