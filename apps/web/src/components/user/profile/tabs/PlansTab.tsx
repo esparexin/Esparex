@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '@esparex/ui';
 import { usePlansWalletDashboard } from '@/hooks/usePlansWalletDashboard';
 import { ActiveSubscriptionCard } from '../cards/ActiveSubscriptionCard';
 import { WalletOverviewCard } from '../cards/WalletOverviewCard';
@@ -145,12 +146,15 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       {isError && (
         <div role="alert" className="bg-destructive/10 text-destructive p-4 rounded-xl text-body flex items-center justify-between border border-destructive/20">
           <span>Unable to load live plans and wallet data. Please refresh or try again later.</span>
-          <button
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
             onClick={() => void refetch()}
-            className="px-3 py-1 bg-destructive text-destructive-foreground rounded-lg text-caption font-semibold hover:bg-destructive/90 transition-colors"
+            className="h-8 px-3 rounded-lg text-caption font-semibold cursor-pointer"
           >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 

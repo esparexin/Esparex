@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import type { CreditLedgerDTO } from '@esparex/contracts';
-import { Pagination, ArrowUp, ArrowDown } from '@esparex/ui';
+import { Pagination, ArrowUp, ArrowDown, Button } from '@esparex/ui';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 
 const formatReason = (reason?: string) => {
@@ -120,9 +120,15 @@ export const CreditLedgerHistoryCard: React.FC = () => {
       {isError && (
         <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-tiny flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
-          <button onClick={() => void refetch()} className="font-bold underline cursor-pointer hover:opacity-80">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => void refetch()}
+            className="font-bold underline cursor-pointer hover:opacity-80 p-0 h-auto text-tiny text-destructive"
+          >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 

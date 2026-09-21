@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
 import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
-import { Package, Bell, Zap, Calendar, Clock } from '@esparex/ui';
+import { Package, Bell, Zap, Calendar, Clock, Button } from '@esparex/ui';
 import { isPackExpired, getCreditPackStatusBadge, getValidityDisplay } from './CreditPackFormatters';
 
 export interface CreditPackListCardProps {
@@ -53,9 +53,15 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
           <p className="text-tiny text-muted-foreground max-w-md mx-auto">Purchased ad postings, spotlight boosts, and alert packs will be tracked individually here.</p>
         </div>
         {onBrowsePlans && (
-          <button type="button" onClick={onBrowsePlans} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-caption font-semibold hover:bg-primary/90 transition-colors shadow-xs cursor-pointer">
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={onBrowsePlans}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-caption font-semibold cursor-pointer"
+          >
             Explore Plans & Credits
-          </button>
+          </Button>
         )}
       </div>
     );
@@ -76,9 +82,15 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
         </div>
         <div className="flex items-center gap-2.5 flex-wrap self-start sm:self-auto">
           {onViewHistory && (
-            <button type="button" onClick={onViewHistory} className="text-tiny font-semibold text-primary hover:underline cursor-pointer">
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              onClick={onViewHistory}
+              className="p-0 h-auto text-tiny font-semibold text-primary hover:underline cursor-pointer"
+            >
               View Credit History →
-            </button>
+            </Button>
           )}
           {activePacks.length > 0 && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
@@ -136,7 +148,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
             role="tab"
             aria-selected={filter === tab.key}
             onClick={() => setFilter(tab.key as PurchaseFilter)}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
               filter === tab.key ? 'bg-primary text-primary-foreground shadow-xs' : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
             }`}
           >
