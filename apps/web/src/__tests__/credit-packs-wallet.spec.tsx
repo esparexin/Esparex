@@ -218,7 +218,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).not.toContain('Free Monthly: 5 / 5');
   });
 
-  it('renders de-boxed credit history with dynamic filter chips and usage ledger', () => {
+  it('renders de-boxed credit history with dropdown filter and usage ledger', () => {
     const mockPacks = [
       {
         packId: 'pack-1',
@@ -239,7 +239,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     );
 
     expect(html).toContain('My Usage');
-    expect(html).toContain('Smart Alerts');
+    // Filter dropdown trigger renders when multiple options exist
+    expect(html).toContain('Filter activities');
     // Confirms the duplicate 4 boxes are successfully removed
     expect(html).not.toContain('Purchased Credit Allocations');
   });
