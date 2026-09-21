@@ -12,6 +12,15 @@ import type {
 } from '@esparex/contracts';
 import { getEntitlementPresentationMeta } from '@esparex/shared';
 
+export interface RawAdMetadata {
+  _id?: unknown;
+  title?: string;
+  slug?: string;
+  seoSlug?: string;
+  status?: string;
+  expiresAt?: Date | string;
+}
+
 export interface RawDashboardData {
   userPlan?: unknown;
   planCatalogItem?: unknown;
@@ -20,6 +29,7 @@ export interface RawDashboardData {
   boosts?: unknown[];
   creditTransactions?: unknown[];
   paymentTransactions?: unknown[];
+  adMap?: Map<string, RawAdMetadata>;
 }
 
 export class PlansWalletMapper {
@@ -29,7 +39,7 @@ export class PlansWalletMapper {
       wallet: this.mapWallet(data.userWallet as Record<string, unknown> | undefined, data.entitlements as Record<string, unknown>[] | undefined),
       creditPacks: this.mapCreditPacks((data.entitlements || []) as Record<string, unknown>[]),
       activePromotions: this.mapPromotions((data.boosts || []) as Record<string, unknown>[]),
-      recentUsage: this.mapRecentUsage((data.creditTransactions || []) as Record<string, unknown>[]),
+      recentUsage: this.mapRecentUsage((data.creditTransactions || []) as Record<string, unknown>[], data.adMap),
       recentPayments: this.mapRecentPayments((data.paymentTransactions || []) as Record<string, unknown>[]),
     };
   }
@@ -207,17 +217,79 @@ export class PlansWalletMapper {
     });
   }
 
-  private static mapRecentUsage(transactions: Record<string, unknown>[]): CreditLedgerDTO[] {
-    return transactions.slice(0, 10).map((tx) => ({
-      transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
-      type: ((tx.type as string) || 'DEBIT') as CreditLedgerDTO['type'],
-      creditPool: ((tx.creditPool as string) || 'PURCHASED') as CreditLedgerDTO['creditPool'],
-      amount: (tx.amount as number) || 1,
-      entitlementType: 'AD_POSTING',
-      reason: (tx.reason as string) || 'Credit Transaction',
-      listingId: (tx.listingId as { toString(): string } | undefined)?.toString(),
-      createdAt: tx.createdAt ? new Date(String(tx.createdAt)).toISOString() : new Date().toISOString(),
-    }));
+  private static mapRecentUsage(
+    transactions: Record<string, unknown>[],
+    adMap?: Map<string, RawAdMetadata>
+  ): CreditLedgerDTO[] {
+    const now = Date.now();
+    return transactions.slice(0, 10).map((tx) => {
+      const listingIdStr = (tx.listingId as { toString(): string } | undefined)?.toString();
+      const ad = listingIdStr && adMap ? adMap.get(listingIdStr) : undefined;
+      const adTitle = (ad?.title as string | undefined) || undefined;
+      const adSlug = ((ad?.seoSlug as string) || (ad?.slug as string) || listingIdStr) || undefined;
+
+      let adStatus: string | undefined = undefined;
+      let adExpiresAt: string | undefined = undefined;
+      let adRemainingDays: number | undefined = undefined;
+
+      if (ad) {
+        const adExpMs = ad.expiresAt ? new Date(String(ad.expiresAt)).getTime() : 0;
+        const isExpired = ad.status === 'expired' || (adExpMs > 0 && adExpMs <= now);
+        adStatus = isExpired ? 'expired' : ((ad.status as string) || 'active');
+        adExpiresAt = ad.expiresAt ? new Date(String(ad.expiresAt)).toISOString() : undefined;
+        if (adExpMs > 0) {
+          adRemainingDays = Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24)));
+        }
+      }
+
+      const reason = (tx.reason as string) || 'Credit Transaction';
+      const reasonLower = reason.toLowerCase();
+      const isSpotlight = reasonLower.includes('spotlight');
+      const isPushToTop = reasonLower.includes('boost') || reasonLower.includes('top ad') || reasonLower.includes('push_to_top');
+      const isAlert = reasonLower.includes('alert');
+
+      let entitlementType: EntitlementType = 'AD_POSTING';
+      if (isSpotlight) entitlementType = 'SPOTLIGHT_HP';
+      else if (isPushToTop) entitlementType = 'PUSH_TO_TOP';
+      else if (isAlert) entitlementType = 'SMART_ALERT_SLOT';
+
+      const metadata = tx.metadata as Record<string, unknown> | undefined;
+      const effectiveDurationDays = typeof metadata?.effectiveDurationDays === 'number'
+        ? metadata.effectiveDurationDays
+        : (isSpotlight ? 1 : undefined);
+
+      const validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
+
+      const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
+      let spotlightExpiresAt: string | undefined = undefined;
+      let spotlightStatus: 'ACTIVE' | 'EXPIRED' | undefined = undefined;
+
+      if (isSpotlight) {
+        const durationDaysCount = effectiveDurationDays || 1;
+        const spotEndsMs = txCreatedMs + durationDaysCount * 24 * 60 * 60 * 1000;
+        spotlightExpiresAt = new Date(spotEndsMs).toISOString();
+        spotlightStatus = spotEndsMs <= now ? 'EXPIRED' : 'ACTIVE';
+      }
+
+      return {
+        transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
+        type: ((tx.type as string) || 'DEBIT') as CreditLedgerDTO['type'],
+        creditPool: ((tx.creditPool as string) || 'PURCHASED') as CreditLedgerDTO['creditPool'],
+        amount: (tx.amount as number) || 1,
+        entitlementType,
+        reason,
+        listingId: listingIdStr,
+        adTitle,
+        adSlug,
+        adStatus,
+        adExpiresAt,
+        adRemainingDays,
+        validityText,
+        spotlightExpiresAt,
+        spotlightStatus,
+        createdAt: new Date(txCreatedMs).toISOString(),
+      };
+    });
   }
 
   private static mapRecentPayments(payments: Record<string, unknown>[]): PaymentSummaryDTO[] {
