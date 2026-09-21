@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -48,7 +49,7 @@ export function BoostPlanDialog({
     open, adId, adTitle, onOpenChange, onPlanPurchased, onListingUnavailable,
   });
 
-  const now = Date.now();
+  const [now] = useState(() => Date.now());
   const adExpMs = adExpiresAt ? new Date(adExpiresAt).getTime() : 0;
   const isAdExpired = adExpMs > 0 && adExpMs <= now;
   const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24))) : 30;

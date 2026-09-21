@@ -14,6 +14,8 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   nextMonthlyResetDate,
   onBrowsePlans,
 }) => {
+  const [currentTime] = React.useState(() => Date.now());
+
   if (!subscription) {
     return (
       <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-xs relative overflow-hidden">
@@ -47,8 +49,8 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
     );
   }
 
-  const isExpired = subscription.status === 'EXPIRED' || (subscription.endDate && new Date(subscription.endDate).getTime() < Date.now());
-  const daysLeft = subscription.daysRemaining ?? (subscription.endDate ? Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : null);
+  const isExpired = subscription.status === 'EXPIRED' || Boolean(subscription.endDate && new Date(subscription.endDate).getTime() < currentTime);
+  const daysLeft = subscription.daysRemaining ?? (subscription.endDate ? Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - currentTime) / (1000 * 60 * 60 * 24))) : null);
   const startDateFormatted = subscription.startDate ? new Date(subscription.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : null;
   const endDateFormatted = subscription.endDate ? new Date(subscription.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : null;
 

@@ -39,12 +39,14 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
     const categoryId = useWatch({ control, name: "categoryId" }) || "";
     const brandId = useWatch({ control, name: "brandId" }) || "";
     const [selectedBrandIds, setSelectedBrandIds] = React.useState<string[]>(() => (brandId ? [brandId] : []));
+    const [prevBrandId, setPrevBrandId] = React.useState(brandId);
 
-    React.useEffect(() => {
+    if (brandId !== prevBrandId) {
+        setPrevBrandId(brandId);
         if (brandId && !selectedBrandIds.includes(brandId)) {
             setSelectedBrandIds((prev) => (prev.length === 0 ? [brandId] : prev));
         }
-    }, [brandId, selectedBrandIds]);
+    }
 
     const catalogValue = useWatch({ control, name: config.catalogFieldName });
     const selectedCatalogIds = React.useMemo(() => {
