@@ -1,42 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Search,
   LogIn,
-  TrendingUp,
+  Button,
+  Input,
+  Z_INDEX,
 } from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
-import {
-  Button,
-  Z_INDEX,
-} from "@esparex/ui";
-import { Input } from "@esparex/ui";
-
 import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
 import { useMounted } from "@/hooks/useMounted";
 import type { UserPage } from "@/lib/routeUtils";
-
-import {
-  getNavigationItems,
-  getNavigationSections,
-  type ResolvedNavigationItem,
-} from "@/config/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
-import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
-import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
-import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-import { HeaderAccountMenu } from "./header/HeaderAccountMenu";
-import { HeaderBusinessButton } from "./header/HeaderBusinessButton";
+import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
 
@@ -60,28 +45,10 @@ export function Header({
   onSearch,
   onShowLogin,
 }: HeaderProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isMounted = useMounted();
   const { setIsOpen: setIsMobileDrawerOpen } = useMobileNavDrawer();
-
-  const businessStatus = normalizeBusinessStatus(user?.businessStatus, "pending");
-  const isBusinessLive = Boolean(user && isApprovedBusiness(user));
-  const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
-  const canRegister = Boolean(user && canRegisterBusiness(user));
-  const safeProfilePhoto = useMemo(
-    () => toSafeImageSrc(user?.profilePhoto, ""),
-    [user?.profilePhoto]
-  );
-
-  const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
-    isLoggedIn,
-    onShowLogin,
-    navigateTo: (path) => {
-      navigateTo(path as UserPage);
-    },
-  });
 
   const chromePolicy = getMobileChromePolicy(pathname);
   const browseParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
@@ -126,20 +93,6 @@ export function Header({
     onSearch,
     disableNotificationsFetch: !shouldFetchHeaderNotifications,
   });
-
-  const { account: profileMenuItems } = getNavigationSections(
-    getNavigationItems("profile-dropdown", { isLoggedIn, user: user ?? null })
-  );
-
-  const handleMenuItemClick = (item: ResolvedNavigationItem) => {
-    if (item.href) {
-      void router.push(item.href);
-      return;
-    }
-    if (item.page) {
-      navigateTo(item.page);
-    }
-  };
 
   const [isMobileSearchEditing, setIsMobileSearchEditing] = useState(false);
   const [headerLocationQuery, setHeaderLocationQuery] = useState("");
@@ -195,34 +148,18 @@ export function Header({
           />
         </div>
 
-        <div className="flex items-center gap-3 ml-auto">
-          {!isMounted || isAuthLoading ? (
-            <>
-              <div className="hidden lg:flex h-9 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
-              <div className="h-9 w-9 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
-            </>
-          ) : isLoggedIn ? (
-            <>
-              <HeaderBusinessButton isBusinessLive={isBusinessLive} shouldShowPendingReview={shouldShowPendingReview} canRegister={canRegister} businessStatus={businessStatus} onNavigate={navigateTo} />
-              <NotificationBellDropdown notificationsData={notificationsData} unreadCount={notifUnreadCount} onRefresh={refetchNotifications} variant="desktop" />
-              <HeaderAccountMenu user={user} safeProfilePhoto={safeProfilePhoto} profileMenuItems={profileMenuItems} onMenuItemClick={handleMenuItemClick} onLogout={onLogout} />
-            </>
-          ) : (
-            <Button variant="ghost" size="sm" onClick={onShowLogin} className="cursor-pointer">
-              Login
-            </Button>
-          )}
-
-          <Button
-            size="sm"
-            onClick={handlePostAdClick}
-            disabled={!isBackendUp}
-            className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
-          >
-            <TrendingUp className="h-4 w-4" /> Post Ad
-          </Button>
-        </div>
+        <HeaderDesktopActions
+          isMounted={isMounted}
+          isAuthLoading={isAuthLoading}
+          isLoggedIn={isLoggedIn}
+          user={user}
+          onLogout={onLogout}
+          onShowLogin={onShowLogin}
+          navigateTo={(page) => navigateTo(page)}
+          notificationsData={notificationsData}
+          unreadCount={notifUnreadCount}
+          onRefreshNotifications={refetchNotifications}
+        />
       </div>
 
       <div className="flex md:hidden flex-col">
