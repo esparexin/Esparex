@@ -1,0 +1,100 @@
+import React from 'react';
+import type { CreditLedgerDTO } from '@esparex/contracts';
+
+export const formatReason = (reason?: string): string => {
+  if (!reason) return 'Credit Activity';
+  const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
+  const lower = clean.toLowerCase();
+  if (lower.includes('spotlight')) return 'Spotlight Boost Applied';
+  if (lower.includes('top_ad') || lower.includes('top ad')) return 'Top Ad Boost Applied';
+  if (lower.includes('smart_alert') || lower.includes('smart alert')) return 'Smart Alert Slot Consumed';
+  if (lower.includes('alert')) return 'Smart Alert Activity';
+  if (lower.includes('post') || lower.includes('ad_posting')) return 'Ad Posting Credit Used';
+  if (lower.includes('pack') || lower.includes('purchase')) return 'Credit Pack Purchased';
+  if (lower.includes('plan')) return 'Plan Entitlement Applied';
+  if (lower.includes('credit transaction')) return 'Credit Adjustment';
+  return clean || 'Credit Activity';
+};
+
+export const formatActivityName = (tx: CreditLedgerDTO): string => {
+  const isDebit = tx.type === 'DEBIT';
+  const absAmount = Math.abs(tx.amount);
+  const creditWord = absAmount === 1 ? 'credit' : 'credits';
+  const cleanReason = formatReason(tx.reason);
+
+  if (isDebit) {
+    if (cleanReason.toLowerCase().includes('spotlight')) return `Spotlight Credit Used — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('top ad')) return `Top Ad Credit Used — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('smart alert')) return `Smart Alert Slot Consumed — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('ad posting')) return `Ad Posting Credit Used — ${absAmount} ${creditWord}`;
+    return `${cleanReason} — ${absAmount} ${creditWord}`;
+  }
+  return `${cleanReason} (+${absAmount} ${creditWord})`;
+};
+
+export const formatAppliedDateTime = (isoDate: string): string => {
+  const d = new Date(isoDate);
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
+export const renderSpotlightStatus = (tx: CreditLedgerDTO): React.ReactNode => {
+  if (!tx.spotlightStatus && !tx.listingId) return <span className="text-muted-foreground">—</span>;
+  if (tx.spotlightStatus === 'ACTIVE') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        Active
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+      Spotlight Expired
+    </span>
+  );
+};
+
+export const renderAdStatus = (tx: CreditLedgerDTO): React.ReactNode => {
+  if (!tx.adStatus) return <span className="text-muted-foreground">—</span>;
+  if (tx.adStatus === 'ACTIVE' || tx.adStatus === 'active') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+        Active
+      </span>
+    );
+  }
+  if (tx.adStatus === 'EXPIRED' || tx.adStatus === 'expired') {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-destructive/10 text-destructive border border-destructive/20">
+        Original Ad Expired
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+      {tx.adStatus}
+    </span>
+  );
+};
+
+export type LedgerFilterType = 'ALL' | 'MORE_ADS' | 'SPOTLIGHT' | 'TOP_AD' | 'SMART_ALERT';
+
+export const matchesLedgerFilter = (
+  type: LedgerFilterType,
+  entitlementType?: string,
+  reason?: string,
+  planName?: string
+): boolean => {
+  if (type === 'ALL') return true;
+  const combined = `${entitlementType || ''} ${reason || ''} ${planName || ''}`.toLowerCase();
+  if (type === 'MORE_ADS') return combined.includes('ad_posting') || combined.includes('ad pack') || combined.includes('ad post') || combined.includes('post');
+  if (type === 'SPOTLIGHT') return combined.includes('spotlight');
+  if (type === 'TOP_AD') return combined.includes('top ad') || combined.includes('push_to_top') || combined.includes('boost');
+  if (type === 'SMART_ALERT') return combined.includes('smart_alert') || combined.includes('alert');
+  return true;
+};

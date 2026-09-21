@@ -13,6 +13,8 @@ import { formatPrice } from '@/lib/formatters';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
 import type { ProfilePlan } from '../types';
 
+import type { LedgerFilterType } from '../cards/CreditLedgerFormatters';
+
 interface PlansTabProps {
   dynamicPlans: PlanCard[];
   currentPlan: string;
@@ -24,7 +26,7 @@ interface PlansTabProps {
   initialTab?: DashboardHubTab;
 }
 
-type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS' | 'CREDIT_PACKS';
 
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
@@ -35,7 +37,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   formatCurrency: _formatCurrency,
   initialTab = 'OVERVIEW',
 }) => {
-  const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
+  const [activeTab, setActiveTab] = useState<DashboardHubTab>(
+    initialTab === 'CREDIT_PACKS' ? 'OVERVIEW' : initialTab
+  );
+  const [historyFilter, setHistoryFilter] = useState<LedgerFilterType>('ALL');
   const [dialogSelectedPlan, setDialogSelectedPlan] = useState<string | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState<boolean>(false);
   const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
@@ -45,40 +50,39 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     trackPlansWalletEvent('plans_tab_switched', { tabName: tab });
   };
 
+  const handleNavigateToHistory = (filterType?: string) => {
+    let mapped: LedgerFilterType = 'ALL';
+    if (filterType) {
+      const lower = filterType.toLowerCase();
+      if (lower.includes('more ads') || lower.includes('ad_posting')) mapped = 'MORE_ADS';
+      else if (lower.includes('spotlight')) mapped = 'SPOTLIGHT';
+      else if (lower.includes('top ad') || lower.includes('boost')) mapped = 'TOP_AD';
+      else if (lower.includes('alert')) mapped = 'SMART_ALERT';
+    }
+    setHistoryFilter(mapped);
+    setActiveTab('CREDIT_HISTORY');
+    trackPlansWalletEvent('plans_tab_switched', { tabName: 'CREDIT_HISTORY', metadata: { filter: mapped } });
+  };
+
   return (
     <div className="w-full max-w-4xl space-y-6">
-      {/* Header Navigation: Multi-Tab Navigation for Wallet view */}
+      {/* Header Navigation: Simplified 3-Tab Hub for Wallet view */}
       {initialTab !== 'BUY_PLANS' && (
         <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2 max-w-full overflow-x-auto">
           <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
               id="tab-overview"
               role="tab"
-              aria-selected={activeTab === 'OVERVIEW'}
+              aria-selected={activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS'}
               aria-controls="panel-overview"
               onClick={() => handleTabSwitch('OVERVIEW')}
               className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'OVERVIEW'
+                activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS'
                   ? 'bg-card text-foreground shadow-xs'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
-              My Plan
-            </button>
-
-            <button
-              id="tab-credit-packs"
-              role="tab"
-              aria-selected={activeTab === 'CREDIT_PACKS'}
-              aria-controls="panel-credit-packs"
-              onClick={() => handleTabSwitch('CREDIT_PACKS')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'CREDIT_PACKS'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              Ad Credits & Wallet
+              My Plan & Allowances
             </button>
 
             <button
@@ -138,8 +142,8 @@ export const PlansTab: React.FC<PlansTabProps> = ({
         </div>
       )}
 
-      {/* TAB 1: OVERVIEW & BALANCES */}
-      {activeTab === 'OVERVIEW' && !isLoading && (
+      {/* TAB 1: CONSOLIDATED PLAN & ALLOWANCES OVERVIEW */}
+      {(activeTab === 'OVERVIEW' || activeTab === 'CREDIT_PACKS') && !isLoading && (
         <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
             subscription={dashboardData?.subscription || null}
@@ -148,32 +152,37 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           />
 
           {dashboardData?.wallet && (
-            <WalletOverviewCard wallet={dashboardData.wallet} />
+            <WalletOverviewCard
+              wallet={dashboardData.wallet}
+              plans={dynamicPlans}
+              onNavigateToHistory={handleNavigateToHistory}
+              onBrowsePlans={() => setActiveTab('BUY_PLANS')}
+            />
           )}
 
-          <ActivePromotionsCard promotions={dashboardData?.activePromotions || []} />
-        </div>
-      )}
-
-      {/* TAB 2: ITEMIZED CREDIT PACKS */}
-      {activeTab === 'CREDIT_PACKS' && !isLoading && (
-        <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="flex flex-col gap-3 sm:gap-4">
           <CreditPackListCard
             creditPacks={dashboardData?.creditPacks || []}
             onBrowsePlans={() => setActiveTab('BUY_PLANS')}
-            onViewHistory={() => handleTabSwitch('CREDIT_HISTORY')}
+            onViewHistory={() => handleNavigateToHistory()}
+          />
+
+          {dashboardData?.activePromotions && dashboardData.activePromotions.length > 0 && (
+            <ActivePromotionsCard promotions={dashboardData.activePromotions} />
+          )}
+        </div>
+      )}
+
+      {/* TAB 2: DE-BOXED CREDIT HISTORY WITH DYNAMIC FILTERS */}
+      {activeTab === 'CREDIT_HISTORY' && !isLoading && (
+        <div id="panel-credit-history" role="tabpanel" aria-labelledby="tab-credit-history" className="flex flex-col gap-3 sm:gap-4">
+          <CreditLedgerHistoryCard
+            creditPacks={dashboardData?.creditPacks || []}
+            initialFilter={historyFilter}
           />
         </div>
       )}
 
-      {/* TAB 3: DEDICATED CREDIT HISTORY */}
-      {activeTab === 'CREDIT_HISTORY' && !isLoading && (
-        <div id="panel-credit-history" role="tabpanel" aria-labelledby="tab-credit-history" className="flex flex-col gap-3 sm:gap-4">
-          <CreditLedgerHistoryCard />
-        </div>
-      )}
-
-      {/* TAB 4: INVOICES & PAYMENT HISTORY */}
+      {/* TAB 3: INVOICES & PAYMENT HISTORY */}
       {activeTab === 'INVOICES' && !isLoading && (
         <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="flex flex-col gap-3 sm:gap-4">
           <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />

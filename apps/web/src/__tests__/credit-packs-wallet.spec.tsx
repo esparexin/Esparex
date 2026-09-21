@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { CreditPackListCard } from '@/components/user/profile/cards/CreditPackListCard';
-import type { CreditPackDTO } from '@esparex/contracts';
+import type { CreditPackDTO, WalletSummaryDTO } from '@esparex/contracts';
 
 // Mock useCreditLedgerHistory
 vi.mock('@/hooks/useCreditLedgerHistory', () => ({
@@ -64,6 +64,7 @@ vi.mock('@/hooks/usePlansWalletDashboard', () => ({
 import { CreditLedgerHistoryCard } from '@/components/user/profile/cards/CreditLedgerHistoryCard';
 import { PlansTab } from '@/components/user/profile/tabs/PlansTab';
 import { ActiveSubscriptionCard } from '@/components/user/profile/cards/ActiveSubscriptionCard';
+import { WalletOverviewCard } from '@/components/user/profile/cards/WalletOverviewCard';
 
 describe('Wallet & Credits UI/UX Architecture', () => {
   const mockPacks: CreditPackDTO[] = [
@@ -196,10 +197,11 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     );
 
     expect(html).toContain('id="tab-overview"');
-    expect(html).toContain('id="tab-credit-packs"');
+    expect(html).toContain('My Plan &amp; Allowances');
     expect(html).toContain('id="tab-credit-history"');
     expect(html).toContain('Credit History');
     expect(html).toContain('id="tab-invoices"');
+    expect(html).not.toContain('id="tab-credit-packs"');
   });
 
   it('renders View Credit History shortcut in CreditPackListCard when onViewHistory is provided', () => {
@@ -318,5 +320,44 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     // The expired pack should be recognized in Past / Used tab badge
     expect(html).toContain('Past / Used (1)');
+  });
+
+  it('renders all available plans with explicit 0 credits for unpurchased plans in WalletOverviewCard', () => {
+    const mockWallet: WalletSummaryDTO = {
+      userId: 'u-1',
+      monthlyFreeAdsTotal: 5,
+      monthlyFreeAdsUsed: 0,
+      monthlyFreeAdsRemaining: 5,
+      paidAdCredits: 0,
+      spotlightCredits: 0,
+      topAdCredits: 0,
+      smartAlertSlots: 2,
+    };
+
+    const mockPlans = [
+      { id: 'free-1', name: 'Free Starter', type: 'More Ads', price: 0, duration: '30 Days', features: [] },
+      { id: 'spot-1', name: 'Spotlight Booster', type: 'Spotlight', price: 199, duration: '7 Days', features: [] },
+      { id: 'top-1', name: 'Top Ad 5-Pack', type: 'Top Ad', price: 499, duration: '14 Days', features: [] },
+    ];
+
+    const html = renderToStaticMarkup(
+      <WalletOverviewCard wallet={mockWallet} plans={mockPlans} />
+    );
+
+    expect(html).toContain('5 Available');
+    expect(html).toContain('0 Available');
+    expect(html).toContain('Spotlight Booster');
+    expect(html).toContain('Top Ad 5-Pack');
+  });
+
+  it('renders de-boxed credit history with dynamic filter chips and purchased plan allocations', () => {
+    const html = renderToStaticMarkup(
+      <CreditLedgerHistoryCard creditPacks={mockPacks} />
+    );
+
+    expect(html).toContain('Smart Alerts');
+    expect(html).toContain('Credit Usage History');
+    expect(html).toContain('Purchased Credit Allocations');
+    expect(html).toContain('Smart Alerts Pack');
   });
 });
