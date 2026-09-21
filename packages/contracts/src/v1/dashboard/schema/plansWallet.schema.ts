@@ -53,6 +53,14 @@ export const creditLedgerSchema = z.object({
   entitlementType: z.enum(['AD_POSTING', 'SPOTLIGHT_HP', 'SPOTLIGHT_CAT', 'PUSH_TO_TOP', 'SMART_ALERT_SLOT', 'BUSINESS_PAGE']).optional(),
   reason: z.string(),
   listingId: z.string().optional(),
+  adTitle: z.string().optional(),
+  adSlug: z.string().optional(),
+  adStatus: z.string().optional(),
+  adExpiresAt: z.string().optional(),
+  adRemainingDays: z.number().optional(),
+  validityText: z.string().optional(),
+  spotlightExpiresAt: z.string().optional(),
+  spotlightStatus: z.enum(['ACTIVE', 'EXPIRED']).optional(),
   createdAt: z.string(),
 });
 
