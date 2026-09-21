@@ -19,6 +19,7 @@ import {
   formatAppliedDateTime,
   renderTransactionStatus,
   matchesLedgerFilter,
+  getListingDetailHref,
   type LedgerFilterType,
 } from './CreditLedgerFormatters';
 import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
@@ -32,7 +33,7 @@ export interface CreditLedgerHistoryCardProps {
 }
 
 export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = ({
-  creditPacks = [],
+  creditPacks: _creditPacks = [],
   initialFilter = 'ALL',
 }) => {
   const [activeFilter, setActiveFilter] = useState<LedgerFilterType>(initialFilter);
@@ -49,66 +50,48 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
   const items: CreditLedgerDTO[] = data?.items || [];
   const pagination = data?.pagination;
 
-  // Filter options: seeded from BOTH creditPacks (future active packs) AND actual
-  // ledger items on the current page (consumed/expired packs that still have history).
-  // This prevents "legacy" gaps where used-up credits vanish from filter options.
-  const filterOptions = useMemo(() => {
-    const opts: { value: LedgerFilterType; label: string }[] = [
+  // Complete plan filters: All plans are always available in the filter dropdown
+  // to prevent conditional omission or missing plan filters.
+  const filterOptions: { value: LedgerFilterType; label: string }[] = useMemo(
+    () => [
       { value: 'ALL', label: 'All Activities' },
-    ];
-
-    // Collect entitlement types from both sources
-    const hasType = (type: string) =>
-      creditPacks.some((p) => p.entitlementType === type || p.planName?.toLowerCase().includes(type.toLowerCase())) ||
-      items.some((tx) => tx.entitlementType === type);
-
-    if (hasType('AD_POSTING') || creditPacks.some((p) => p.planName?.toLowerCase().includes('ad')) || items.some((tx) => tx.reason?.toLowerCase().includes('ad posting')))
-      opts.push({ value: 'MORE_ADS', label: 'More Ads' });
-
-    if (hasType('SPOTLIGHT_HP') || hasType('SPOTLIGHT_CAT') || creditPacks.some((p) => p.entitlementType?.startsWith('SPOTLIGHT')) || items.some((tx) => tx.reason?.toLowerCase().includes('spotlight')))
-      opts.push({ value: 'SPOTLIGHT', label: 'Spotlight' });
-
-    if (hasType('PUSH_TO_TOP') || creditPacks.some((p) => p.planName?.toLowerCase().includes('top ad') || p.planName?.toLowerCase().includes('boost')) || items.some((tx) => tx.reason?.toLowerCase().includes('boost') || tx.reason?.toLowerCase().includes('top')))
-      opts.push({ value: 'TOP_AD', label: 'Top Ads' });
-
-    if (hasType('SMART_ALERT_SLOT') || creditPacks.some((p) => p.planName?.toLowerCase().includes('alert')) || items.some((tx) => tx.reason?.toLowerCase().includes('alert')))
-      opts.push({ value: 'SMART_ALERT', label: 'Smart Alerts' });
-
-    return opts;
-  }, [creditPacks, items]);
+      { value: 'MORE_ADS', label: 'Ad Posting' },
+      { value: 'SPOTLIGHT', label: 'Spotlight' },
+      { value: 'TOP_AD', label: 'Top Ads' },
+      { value: 'SMART_ALERT', label: 'Smart Alerts' },
+    ],
+    [],
+  );
 
   const filteredItems = useMemo(
     () => items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason)),
     [items, activeFilter],
   );
 
-  const showFilter = filterOptions.length > 1;
-
   return (
     <div className="space-y-3">
       {/* Header: title + compact filter dropdown */}
       <div className="flex items-center justify-between gap-3">
         <h4 className="text-body font-bold text-foreground">My Usage</h4>
-        {showFilter && (
-          <Select
-            value={activeFilter}
-            onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
+        <Select
+          value={activeFilter}
+          onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
+        >
+          <SelectTrigger
+            size="sm"
+            className="h-8 w-auto min-w-[130px] max-w-[170px] text-body-lg md:text-caption font-medium border-border/60 bg-muted/30 px-3 rounded-lg focus:ring-primary [&_[data-slot=select-value]]:text-body-lg [&_[data-slot=select-value]]:md:text-caption"
+            aria-label="Filter activities"
           >
-            <SelectTrigger
-              className="h-7 w-auto min-w-[120px] max-w-[160px] text-tiny font-semibold border-border/50 bg-muted/40 px-2.5 rounded-lg focus:ring-primary"
-              aria-label="Filter activities"
-            >
-              <SelectValue placeholder="All Activities" />
-            </SelectTrigger>
-            <SelectContent className="text-tiny">
-              {filterOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value} className="text-tiny">
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+            <SelectValue placeholder="All Activities" />
+          </SelectTrigger>
+          <SelectContent className="text-caption">
+            {filterOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value} className="text-caption">
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Pagination — show only page nav, suppress verbose 'Showing X to Y of N results' */}
@@ -159,27 +142,33 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
           <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
           {/* Mobile Cards */}
-          <div className="md:hidden flex flex-col gap-2">
+          <div className="md:hidden flex flex-col gap-2.5">
             {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
               const absAmount = Math.abs(tx.amount);
-              const adTarget = tx.adSlug || tx.listingId;
+              const adHref = getListingDetailHref(tx);
 
               return (
                 <div
                   key={tx.transactionId}
-                  className="p-3 rounded-xl border border-border/40 bg-card space-y-1.5 shadow-2xs"
+                  onClick={() => setSelectedTx(tx)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedTx(tx);
+                    }
+                  }}
+                  className="p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/20 active:scale-[0.99] transition-[background-color,transform] space-y-2 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="View activity details"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTx(tx)}
-                      aria-label="View activity details"
-                      className="inline-flex items-center gap-1 text-tiny text-muted-foreground hover:text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded"
-                    >
+                  {/* Top row: Date & Used/Added badge */}
+                  <div className="flex items-center justify-between gap-2 text-caption">
+                    <span className="text-muted-foreground font-medium inline-flex items-center gap-1.5">
                       {formatAppliedDateTime(tx.createdAt)}
-                      <Info className="w-3 h-3 shrink-0" />
-                    </button>
+                      <Info className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                    </span>
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
                         isDebit
@@ -199,21 +188,34 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                     </span>
                   </div>
 
-                  <div className="font-semibold text-foreground text-caption">
+                  {/* Plan Name */}
+                  <div className="font-semibold text-foreground text-body">
                     {formatActivityName(tx)}
                   </div>
 
-                  {adTarget && (
-                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/20">
+                  {/* Bottom row: Listing link + Validity & Status */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-caption">
+                    {adHref ? (
                       <Link
-                        href={`/ads/${adTarget}`}
-                        className="text-tiny font-semibold text-primary hover:underline truncate"
+                        href={adHref}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-medium text-primary hover:underline truncate max-w-[55%]"
                       >
                         {tx.adTitle || 'View Listing'}
                       </Link>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {tx.validityText && (
+                        <span className="text-muted-foreground text-tiny">
+                          {tx.validityText}
+                        </span>
+                      )}
                       {renderTransactionStatus(tx)}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

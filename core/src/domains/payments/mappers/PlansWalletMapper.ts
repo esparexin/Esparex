@@ -268,9 +268,12 @@ export class PlansWalletMapper {
       let validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
 
       if (!validityText && entitlementType === 'AD_POSTING') {
-        if (adRemainingDays !== undefined) {
-          validityText = adStatus === 'expired' ? 'Expired' : `${adRemainingDays} days left`;
-        } else if (adStatus === 'active') {
+        if (ad?.expiresAt && ad?.createdAt) {
+          const totalDays = Math.round(
+            (new Date(String(ad.expiresAt)).getTime() - new Date(String(ad.createdAt)).getTime()) / (1000 * 60 * 60 * 24)
+          );
+          validityText = totalDays > 0 ? `${totalDays} day${totalDays !== 1 ? 's' : ''}` : '30 days';
+        } else {
           validityText = '30 days';
         }
       }

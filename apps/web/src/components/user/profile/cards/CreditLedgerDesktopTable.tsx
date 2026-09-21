@@ -5,6 +5,7 @@ import {
   formatActivityName,
   formatAppliedDateTime,
   renderTransactionStatus,
+  getListingDetailHref,
 } from './CreditLedgerFormatters';
 import { Info } from '@esparex/ui';
 
@@ -30,7 +31,7 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
           {items.map((tx) => {
             const isDebit = tx.type === 'DEBIT';
             const absAmount = Math.abs(tx.amount);
-            const adTarget = tx.adSlug || tx.listingId;
+            const adHref = getListingDetailHref(tx);
 
             return (
               <tr key={tx.transactionId} className="hover:bg-muted/20 transition-colors group">
@@ -72,9 +73,9 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
 
                 {/* Listing */}
                 <td className="py-2 px-3">
-                  {adTarget ? (
+                  {adHref ? (
                     <Link
-                      href={`/ads/${adTarget}`}
+                      href={adHref}
                       className="font-medium text-primary hover:underline line-clamp-1 max-w-xs"
                     >
                       {tx.adTitle || 'View Ad'}

@@ -96,6 +96,25 @@ export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode =>
     reasonLower.includes('top ad') ||
     reasonLower.includes('boost');
 
+  const isSpotlight =
+    tx.entitlementType?.startsWith('SPOTLIGHT') ||
+    reasonLower.includes('spotlight');
+
+  if (isSpotlight) {
+    if (tx.spotlightStatus === 'ACTIVE') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">
+          Spotlight Active
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+        Spotlight Expired
+      </span>
+    );
+  }
+
   if (isBoost) {
     if (tx.spotlightStatus === 'ACTIVE') {
       return (
@@ -147,3 +166,19 @@ export const matchesLedgerFilter = (
   if (type === 'SMART_ALERT') return combined.includes('smart_alert') || combined.includes('alert');
   return true;
 };
+
+/**
+ * Canonical URL builder for listings linked from credit transactions.
+ * Resolves to `/ads/${slug}-${id}` (canonical) or `/ads/${id}` to prevent 404 / malformed slug params.
+ */
+export const getListingDetailHref = (tx: { adSlug?: string; listingId?: string }): string | null => {
+  const id = tx.listingId;
+  const slug = tx.adSlug;
+  if (!id && !slug) return null;
+  if (slug && id) {
+    if (slug.endsWith(id)) return `/ads/${slug}`;
+    return `/ads/${slug}-${id}`;
+  }
+  return `/ads/${slug || id}`;
+};
+
