@@ -35,7 +35,7 @@ export function AccountMessagesWorkspace({
   const renderConversationPanel = () => {
     if (!conversationId) {
       return (
-        <div className="hidden md:flex h-full min-h-0 flex-col items-center justify-center bg-slate-50/50 p-6 text-center">
+        <div className="hidden md:flex h-full min-h-0 flex-col items-center justify-center bg-muted/30 p-6 text-center">
           {/* Sparkle Chat Bubble Illustration */}
           <div className="relative mb-3.5 flex items-center justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-xs">
@@ -44,8 +44,8 @@ export function AccountMessagesWorkspace({
             <Sparkles className="absolute -top-1.5 -right-1.5 h-4 w-4 text-amber-500 fill-amber-500/20" />
           </div>
 
-          <h3 className="text-base font-bold text-slate-900">No conversations yet</h3>
-          <p className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed">
+          <h3 className="text-body-lg font-bold text-foreground">No conversations yet</h3>
+          <p className="mt-1 text-caption text-muted-foreground max-w-xs leading-relaxed">
             Messages with buyers and sellers will appear here.
           </p>
 
@@ -62,12 +62,12 @@ export function AccountMessagesWorkspace({
 
     if (!initialConversation) {
       return (
-        <div className="flex h-full min-h-0 items-center justify-center bg-slate-50/50 p-6">
+        <div className="flex h-full min-h-0 items-center justify-center bg-muted/30 p-6">
           <div className="max-w-sm text-center">
             <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
             <button
               type="button"
-              className="mt-4 inline-flex min-h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+              className="mt-4 inline-flex min-h-9 items-center justify-center rounded-xl border border-border bg-card px-4 text-caption font-semibold text-foreground hover:bg-muted transition-colors"
               onClick={() => {
                 if (typeof window !== "undefined") {
                   window.location.reload();
