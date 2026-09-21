@@ -72,6 +72,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     // Desktop table container must be hidden on mobile
     expect(html).toContain('hidden md:block');
     expect(html).toContain('<table');
+    expect(html).toContain('>Plan<');
+    expect(html).not.toContain('>Credit Activity<');
 
     // Mobile card container must be hidden on desktop
     expect(html).toContain('md:hidden');

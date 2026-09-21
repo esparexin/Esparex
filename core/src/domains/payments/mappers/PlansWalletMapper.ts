@@ -259,9 +259,17 @@ export class PlansWalletMapper {
       const metadata = tx.metadata as Record<string, unknown> | undefined;
       const effectiveDurationDays = typeof metadata?.effectiveDurationDays === 'number'
         ? metadata.effectiveDurationDays
-        : (isSpotlight ? 1 : undefined);
+        : (typeof metadata?.durationDays === 'number' ? metadata.durationDays : undefined);
 
-      const validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
+      let validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
+
+      if (!validityText && entitlementType === 'AD_POSTING') {
+        if (adRemainingDays !== undefined) {
+          validityText = adStatus === 'expired' ? 'Expired' : `${adRemainingDays} days left`;
+        } else if (adStatus === 'active') {
+          validityText = '30 days';
+        }
+      }
 
       const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
       let spotlightExpiresAt: string | undefined = undefined;

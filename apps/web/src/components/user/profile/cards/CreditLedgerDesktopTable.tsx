@@ -18,7 +18,7 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
         <thead className="bg-muted/40 border-b border-border/40 text-muted-foreground font-semibold text-tiny">
           <tr>
             <th scope="col" className="py-2.5 px-3.5 whitespace-nowrap">Date</th>
-            <th scope="col" className="py-2.5 px-3">Credit Activity</th>
+            <th scope="col" className="py-2.5 px-3">Plan</th>
             <th scope="col" className="py-2.5 px-3">Applied to Listing</th>
             <th scope="col" className="py-2.5 px-3">Validity</th>
             <th scope="col" className="py-2.5 px-3.5">Status</th>
@@ -62,7 +62,7 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
                   )}
                 </td>
                 <td className="py-3 px-3 text-tiny text-foreground-secondary whitespace-nowrap">
-                  {tx.validityText || (isDebit ? '1 day' : '—')}
+                  {tx.validityText || '—'}
                 </td>
                 <td className="py-3 px-3.5 whitespace-nowrap">{renderTransactionStatus(tx)}</td>
               </tr>

@@ -2,18 +2,18 @@ import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
 
 export const formatReason = (reason?: string): string => {
-  if (!reason) return 'Credit Activity';
+  if (!reason) return 'Plan Activity';
   const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
   const lower = clean.toLowerCase();
-  if (lower.includes('spotlight')) return 'Spotlight Boost Applied';
-  if (lower.includes('top_ad') || lower.includes('top ad')) return 'Top Ad Boost Applied';
-  if (lower.includes('smart_alert') || lower.includes('smart alert')) return 'Smart Alert Slot Consumed';
-  if (lower.includes('alert')) return 'Smart Alert Activity';
-  if (lower.includes('post') || lower.includes('ad_posting')) return 'Ad Posting Credit Used';
+  if (lower.includes('spotlight')) return 'Spotlight Boost';
+  if (lower.includes('top_ad') || lower.includes('top ad')) return 'Top Ad Boost';
+  if (lower.includes('smart_alert') || lower.includes('smart alert')) return 'Smart Alert';
+  if (lower.includes('alert')) return 'Smart Alert';
+  if (lower.includes('slot') || lower.includes('post') || lower.includes('ad_posting')) return 'Ad Posting';
   if (lower.includes('pack') || lower.includes('purchase')) return 'Credit Pack Purchased';
-  if (lower.includes('plan')) return 'Plan Entitlement Applied';
+  if (lower.includes('plan')) return 'Plan Entitlement';
   if (lower.includes('credit transaction')) return 'Credit Adjustment';
-  return clean || 'Credit Activity';
+  return clean || 'Plan Activity';
 };
 
 export const formatActivityName = (tx: CreditLedgerDTO): string => {
@@ -24,9 +24,9 @@ export const formatActivityName = (tx: CreditLedgerDTO): string => {
 
   if (isDebit) {
     if (cleanReason.toLowerCase().includes('spotlight')) return `Spotlight Credit Used — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('top ad')) return `Top Ad Credit Used — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('smart alert')) return `Smart Alert Slot Consumed — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('ad posting')) return `Ad Posting Credit Used — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('top ad')) return `Top Ad Boost — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('smart alert')) return `Smart Alert — ${absAmount} ${creditWord}`;
+    if (cleanReason.toLowerCase().includes('ad posting') || cleanReason.toLowerCase().includes('slot')) return `Ad Posting — ${absAmount} ${creditWord}`;
     return `${cleanReason} — ${absAmount} ${creditWord}`;
   }
   return `${cleanReason} (+${absAmount} ${creditWord})`;
