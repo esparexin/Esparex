@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@esparex/ui";
+import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, Z_INDEX } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
@@ -193,7 +193,9 @@ export function NotificationBellDropdown({
             <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="z-[50] w-[min(90vw,22rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+                className="w-[min(90vw,22rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+                // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                style={{ zIndex: Z_INDEX.userHeaderDropdown }}
                 onPointerDownOutside={(e) => {
                     if ((e.target as HTMLElement | null)?.closest('[data-slot="dropdown-menu-trigger"]')) {
                         e.preventDefault();

@@ -11,6 +11,7 @@ import {
     ChevronDown,
     X,
     Search,
+    Z_INDEX,
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +66,8 @@ export function CatalogSelectDropdown({
                     >
                         <SelectValue placeholder={placeholder} />
                     </SelectTrigger>
-                    <SelectContent className="max-h-60 rounded-xl border-border bg-popover text-popover-foreground shadow-lg z-[1100]">
+                    {/* design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance */}
+                    <SelectContent className="max-h-60 rounded-xl border-border bg-popover text-popover-foreground shadow-lg" style={{ zIndex: Z_INDEX.alertDialogOverlay }}>
                         {items.map((item) => {
                             const itemId = item.id || (item._id as string);
                             return (
@@ -233,7 +235,9 @@ function MultiSelectCatalogDropdown({
                     ref={listboxRef}
                     role="listbox"
                     aria-multiselectable="true"
-                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 scroll-mb-6"
+                    className="absolute top-full left-0 mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95 scroll-mb-6"
+                    // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                    style={{ zIndex: Z_INDEX.alertDialogOverlay }}
                 >
                     {items.length > 5 && (
                         <div className="p-1 mb-1 border-b border-border">
