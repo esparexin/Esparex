@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
 import { ChevronRight } from "@esparex/ui";
 import type { ProfileTabValue } from "@/config/navigation";
 

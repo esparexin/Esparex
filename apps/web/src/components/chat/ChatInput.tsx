@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
-import { Spinner } from '@esparex/ui';
+import { Paperclip, Send, Spinner } from '@esparex/ui';
 import { ChatInputAttachmentBanner } from './ChatInputAttachmentBanner';
 
 interface ChatInputProps {
@@ -185,9 +185,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           aria-label="Attach file"
           disabled={isSending}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-          </svg>
+          <Paperclip className="h-5 w-5" />
         </button>
 
         <textarea
@@ -217,9 +215,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           {isSending ? (
             <Spinner size="sm" />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-              <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-            </svg>
+            <Send className="h-5 w-5" />
           )}
         </button>
       </div>

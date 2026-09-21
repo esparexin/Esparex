@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Sparkles, Smartphone, Wrench, Cpu } from "lucide-react";
+import { Sparkles, Smartphone, Wrench, Cpu } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 

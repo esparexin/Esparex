@@ -86,8 +86,8 @@ const RULES = {
 };
 
 const NATIVE_BUTTON_BASELINE = 138;
-const LUCIDE_DIRECT_IMPORT_BASELINE = 6;
-const RAW_INLINE_SVG_BASELINE = 5;
+const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
+const RAW_INLINE_SVG_BASELINE = 0;
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

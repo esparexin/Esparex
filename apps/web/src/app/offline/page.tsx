@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@esparex/ui";
-import { WifiOff, Home } from "lucide-react";
+import { WifiOff, Home } from "@esparex/ui";
 import { OfflineReloadButton } from "@/components/common/OfflineReloadButton";
 
 export const metadata: Metadata = {

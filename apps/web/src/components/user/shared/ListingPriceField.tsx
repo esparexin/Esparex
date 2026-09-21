@@ -1,6 +1,6 @@
 
 import { FieldPath, FieldValues } from "react-hook-form";
-import { Input } from "@esparex/ui";
+import { Check, Input } from "@esparex/ui";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import { Stack } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -98,9 +98,7 @@ export function ListingPriceField<
                     isFree ? "bg-primary border-primary" : "bg-background border-input"
                   )}>
                     {isFree && (
-                      <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
                     )}
                   </div>
                   <span className="text-caption font-bold whitespace-nowrap">{isFree ? "Free" : "Make Free"}</span>

@@ -3,8 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Zap, Badge, Smartphone, Wrench, Cpu } from "@esparex/ui";
-import { Power } from "lucide-react";
+import { Zap, Badge, Smartphone, Wrench, Cpu, Power } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";

@@ -1,5 +1,5 @@
 import { Button } from "@esparex/ui";
-import { AlertTriangle, RefreshCcw } from "lucide-react";
+import { AlertTriangle, RefreshCcw } from "@esparex/ui";
 
 interface ErrorFallbackProps {
     error: Error;
