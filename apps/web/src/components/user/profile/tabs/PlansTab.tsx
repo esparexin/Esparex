@@ -8,12 +8,10 @@ import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
 import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
 import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
-import { DynamicPlanCard } from '../cards/DynamicPlanCard';
+import { BuyPlansSection, type PlanCard } from './BuyPlansSection';
 import { formatPrice } from '@/lib/formatters';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
 import type { ProfilePlan } from '../types';
-
-type PlanCard = Omit<ProfilePlan, 'type'> & { type: string };
 
 interface PlansTabProps {
   dynamicPlans: PlanCard[];
@@ -28,8 +26,6 @@ interface PlansTabProps {
 
 type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
 
-const DEFAULT_CATEGORIES: string[] = ['More Ads', 'Spotlight', 'Top Ad', 'Alert Slots'];
-
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
   currentPlan,
@@ -40,7 +36,6 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   initialTab = 'OVERVIEW',
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
-  const [selectedCategory, setSelectedCategory] = useState<string>('More Ads');
   const [dialogSelectedPlan, setDialogSelectedPlan] = useState<string | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState<boolean>(false);
   const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
@@ -49,21 +44,6 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     setActiveTab(tab);
     trackPlansWalletEvent('plans_tab_switched', { tabName: tab });
   };
-
-  // Derive unique categories from dynamic plans, merging with defaults
-  const availableCategories = Array.from(
-    new Set([
-      ...dynamicPlans.map((p) => p.type).filter(Boolean),
-      ...DEFAULT_CATEGORIES,
-    ])
-  );
-
-  // Ensure selected category is valid
-  const currentCategory = availableCategories.includes(selectedCategory)
-    ? selectedCategory
-    : availableCategories[0] || 'More Ads';
-
-  const filteredPlans = dynamicPlans.filter((plan) => plan.type === currentCategory);
 
   return (
     <div className="w-full max-w-4xl space-y-6">
@@ -202,80 +182,23 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 3: BUY PLANS & TOP-UPS (Mobile-First Category Pills Navigation) */}
       {activeTab === 'BUY_PLANS' && (
-        <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="flex flex-col gap-3 sm:gap-4">
-          {/* Free-Flowing Category Filter Pills Bar */}
-          <div className="overflow-x-auto no-scrollbar scrollbar-none py-1 -mx-1 px-1">
-            <div
-              className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none w-max sm:w-auto"
-              role="tablist"
-              aria-label="Plan Categories"
-            >
-              {availableCategories.map((catType) => {
-                const count = dynamicPlans.filter((p) => p.type === catType).length;
-                const isSelected = currentCategory === catType;
-
-                return (
-                  <button
-                    key={catType}
-                    id={`cat-tab-${catType.replace(/\s+/g, '-').toLowerCase()}`}
-                    role="tab"
-                    aria-selected={isSelected}
-                    onClick={() => setSelectedCategory(catType)}
-                    className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-2xs'
-                    }`}
-                  >
-                    <span>{catType}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded-full text-tiny font-extrabold ${
-                        isSelected
-                          ? 'bg-primary-foreground/20 text-primary-foreground'
-                          : 'bg-muted text-foreground-secondary'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Standardized Compact Package Cards Grid */}
-          {filteredPlans.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-              {filteredPlans.map((plan) => (
-                <DynamicPlanCard
-                  key={plan.id}
-                  plan={plan}
-                  isCurrent={currentPlan === plan.id}
-                  onSelect={(p) => {
-                    setDialogSelectedPlan(p.id);
-                    setIsPurchaseDialogOpen(true);
-                    if (setSelectedPlan) {
-                      setSelectedPlan(p.id);
-                    }
-                    if (onPlanSelected) {
-                      onPlanSelected(p as ProfilePlan);
-                    }
-                    if (setShowPlanDialog) {
-                      setShowPlanDialog(true);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-xs">
-              <h4 className="text-body font-bold text-foreground">No Packages Available</h4>
-              <p className="text-caption text-foreground-subtle">
-                There are currently no active packages in the {currentCategory} category.
-              </p>
-            </div>
-          )}
-        </div>
+        <BuyPlansSection
+          dynamicPlans={dynamicPlans}
+          currentPlan={currentPlan}
+          onSelectPlan={(plan) => {
+            setDialogSelectedPlan(plan.id);
+            setIsPurchaseDialogOpen(true);
+            if (setSelectedPlan) {
+              setSelectedPlan(plan.id);
+            }
+            if (onPlanSelected) {
+              onPlanSelected(plan as ProfilePlan);
+            }
+            if (setShowPlanDialog) {
+              setShowPlanDialog(true);
+            }
+          }}
+        />
       )}
 
       {/* Plan Purchase Confirmation Dialog */}
