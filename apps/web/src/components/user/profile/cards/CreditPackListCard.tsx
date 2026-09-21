@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
 import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
 import { Package, Bell, Zap, Calendar, Clock } from '@esparex/ui';
-import { isPackExpired, getStatusBadge, getValidityDisplay } from './CreditPackFormatters';
+import { isPackExpired, getCreditPackStatusBadge, getValidityDisplay } from './CreditPackFormatters';
 
 export interface CreditPackListCardProps {
   creditPacks: CreditPackDTO[];
@@ -185,7 +185,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
                       <td className="py-3 px-3 text-foreground-secondary">{pack.consumed} used</td>
                       <td className="py-3 px-3 font-bold text-primary">{pack.remaining}</td>
                       <td className="py-3 px-3 text-tiny text-foreground-secondary whitespace-nowrap">{getValidityDisplay(pack)}</td>
-                      <td className="py-3 px-3.5 whitespace-nowrap">{getStatusBadge(pack)}</td>
+                      <td className="py-3 px-3.5 whitespace-nowrap">{getCreditPackStatusBadge(pack)}</td>
                     </tr>
                   );
                 })}
@@ -207,7 +207,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
                       <div className="font-bold text-caption text-foreground truncate">{displayName}</div>
                       <div className="text-tiny text-muted-foreground">{meta.label}</div>
                     </div>
-                    {getStatusBadge(pack)}
+                    {getCreditPackStatusBadge(pack)}
                   </div>
                   <div className="flex items-center justify-between gap-2 text-caption pt-1 border-t border-border/20">
                     <span className="text-muted-foreground text-tiny">Credits: <strong className="text-foreground">{pack.consumed} used / {pack.totalGranted} total</strong></span>

@@ -5,7 +5,7 @@ export const isPackExpired = (p: CreditPackDTO): boolean =>
   p.status === 'EXPIRED' ||
   Boolean(p.expiresAt && new Date(p.expiresAt).getTime() <= Date.now());
 
-export const getStatusBadge = (p: CreditPackDTO) => {
+export const getCreditPackStatusBadge = (p: CreditPackDTO) => {
   if (isPackExpired(p)) {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold bg-destructive/10 text-destructive border border-destructive/20">

@@ -284,10 +284,14 @@ export function getPlanBadge(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Status badge (image overlay — top-right)                                   */
+/* Overlay badge (image overlay — top-right corner of card thumbnail)         */
+/*                                                                             */
+/* NOTE: This is distinct from profile/StatusBadge.tsx (listing lifecycle     */
+/* status text indicator) and CreditPackFormatters.tsx (credit pack status).  */
+/* These three serve different domains and must NOT be consolidated.           */
 /* -------------------------------------------------------------------------- */
 
-export function getStatusBadge(
+export function getAdOverlayBadge(
   ad: AdCardData,
   className?: string
 ): ReactNode | null {
