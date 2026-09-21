@@ -97,7 +97,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     expect(html).toContain('id="tab-overview"');
     expect(html).toContain('Wallet &amp; Balances');
-    expect(html).toContain('Free Starter Plan');
+    expect(html).toContain('Available Balances');
+    expect(html).not.toContain('Free Starter Plan');
     expect(html).toContain('id="tab-credit-history"');
     expect(html).toContain('My Usage');
     expect(html).toContain('id="tab-invoices"');
@@ -127,7 +128,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(activeHtml).toContain('Valid until:');
     expect(activeHtml).toContain('11 days left');
 
-    // Expired plan
+    // Expired plan returns empty to eliminate noisy banner boxes
     const expiredHtml = renderToStaticMarkup(
       <ActiveSubscriptionCard
         subscription={{
@@ -143,10 +144,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       />
     );
 
-    expect(expiredHtml).toContain('Expired');
-    expect(expiredHtml).toContain('Upgrade Plan');
-    expect(expiredHtml).not.toContain('Renew Plan');
-    expect(expiredHtml).not.toContain('Your plan expired on');
+    expect(expiredHtml).toBe('');
   });
 
   it('renders clean allowance breakdown and view history link in WalletOverviewCard', () => {
@@ -169,9 +167,10 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       <WalletOverviewCard wallet={mockWallet} onNavigateToHistory={handleNavigate} />
     );
 
+    expect(html).toContain('Free Ads');
     expect(html).toContain('5 Available');
     expect(html).toContain('2 Active');
-    expect(html).toContain('0 Credits');
+    expect(html).toContain('0 Available');
     expect(html).toContain('View My Usage');
   });
 

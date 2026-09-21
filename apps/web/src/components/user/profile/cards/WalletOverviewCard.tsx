@@ -124,15 +124,15 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
 
         {/* Rows */}
         <div className="divide-y divide-border/40">
-          {/* Row 1 — Post an Ad */}
+          {/* Row 1 — Free Ads */}
           <StatRow
             icon={
               <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
                 <Package className="w-4 h-4" />
               </div>
             }
-            label="Post an Ad"
-            description="Use credits to publish your listings"
+            label="Free Ads"
+            description="Monthly quota to publish listings"
             badge={
               <button
                 type="button"
@@ -198,14 +198,18 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
                 className={pillCls('amber')}
                 title="View boost credit usage"
               >
-                {totalBoostCredits} Credits
+                {totalBoostCredits} Available
               </button>
             }
             details={
-              <>
-                <span>Spotlight: <strong className="text-foreground">{spotlightCredits}</strong></span>
-                <span>Top Ad: <strong className="text-foreground">{topAdCredits}</strong></span>
-              </>
+              totalBoostCredits > 0 ? (
+                <>
+                  {spotlightCredits > 0 && <span>Spotlight: <strong className="text-foreground">{spotlightCredits}</strong></span>}
+                  {topAdCredits > 0 && <span>Top Ad: <strong className="text-foreground">{topAdCredits}</strong></span>}
+                </>
+              ) : (
+                <span>None active</span>
+              )
             }
             expiry={boostExpiry}
             onExpiryClick={() => onNavigateToHistory?.('BOOSTS')}

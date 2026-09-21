@@ -8,7 +8,6 @@ import {
     Crown,
     Edit2,
     MapPin,
-    Plus,
     Power,
     Tag,
     Trash2,
@@ -23,7 +22,7 @@ export interface SmartAlertRulesSectionProps {
     savedSearches: SavedSearch[];
     pendingDeleteId: string | null;
     setPendingDeleteId: (id: string | null) => void;
-    handleOpenCreateModal: () => void;
+    handleOpenCreateModal?: () => void;
     handleOpenEditModal: (alert: SmartAlertListItem) => void;
     handleToggleAlertStatus: (id: string) => void;
     handleDeleteAlert: (id: string) => void;
@@ -51,7 +50,6 @@ export function SmartAlertRulesSection({
     savedSearches,
     pendingDeleteId,
     setPendingDeleteId,
-    handleOpenCreateModal,
     handleOpenEditModal,
     handleToggleAlertStatus,
     handleDeleteAlert,
@@ -72,14 +70,6 @@ export function SmartAlertRulesSection({
                             Set up watchdogs for specific models, categories, and price ranges to get notified immediately when matching items are posted.
                         </p>
                     </div>
-                    <Button
-                        type="button"
-                        onClick={handleOpenCreateModal}
-                        size="sm"
-                        className="bg-primary text-primary-foreground font-semibold text-caption h-9 px-4 rounded-xl gap-1.5"
-                    >
-                        <Plus className="h-4 w-4" /> Create Your First Alert
-                    </Button>
                 </div>
             ) : (
                 <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border overflow-hidden">
