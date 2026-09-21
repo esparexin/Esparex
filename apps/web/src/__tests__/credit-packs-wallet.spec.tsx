@@ -13,9 +13,15 @@ vi.mock('@/hooks/useCreditLedgerHistory', () => ({
           type: 'DEBIT',
           creditPool: 'PURCHASED',
           amount: 1,
-          entitlementType: 'SMART_ALERT_SLOT',
-          reason: 'Smart Alert slot consumed',
+          entitlementType: 'SPOTLIGHT_HP',
+          reason: 'Applied Spotlight to ad 60d5ec49f1b2c8a1e8c9a001',
           createdAt: '2026-09-20T10:00:00.000Z',
+          listingId: '60d5ec49f1b2c8a1e8c9a001',
+          adTitle: 'Toyota Corolla 2022 Hybrid',
+          adSlug: 'toyota-corolla-2022-hybrid',
+          adStatus: 'ACTIVE',
+          validityText: '1 day',
+          spotlightStatus: 'ACTIVE',
         },
         {
           transactionId: 'tx-2',
@@ -78,7 +84,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       planName: 'Smart Alerts Pack',
       entitlementType: 'SMART_ALERT_SLOT',
       sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-01T00:00:00.000Z',
+      purchaseDate: '2026-09-02T00:00:00.000Z',
       totalGranted: 1,
       consumed: 0,
       remaining: 1,
@@ -90,7 +96,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       planName: 'Smart Alerts Pack',
       entitlementType: 'SMART_ALERT_SLOT',
       sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-01T00:00:00.000Z',
+      purchaseDate: '2026-09-03T00:00:00.000Z',
       totalGranted: 1,
       consumed: 0,
       remaining: 1,
@@ -102,7 +108,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       planName: 'Smart Alerts Pack',
       entitlementType: 'SMART_ALERT_SLOT',
       sourceType: 'PURCHASED_PACK',
-      purchaseDate: '2026-09-01T00:00:00.000Z',
+      purchaseDate: '2026-09-04T00:00:00.000Z',
       totalGranted: 1,
       consumed: 0,
       remaining: 1,
@@ -111,22 +117,31 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     },
   ];
 
-  it('aggregates individual credit packs into unified credit pool cards', () => {
+  it('displays individual non-merged purchased plans with credit wallet summary', () => {
     const html = renderToStaticMarkup(<CreditPackListCard creditPacks={mockPacks} />);
 
-    // Total Smart Alerts balance summary must show 4 Available and aggregated metrics
+    // Credit Wallet Executive Summary
+    expect(html).toContain('Total Purchased');
+    expect(html).toContain('Used');
     expect(html).toContain('4 Available');
-    expect(html).toContain('Smart Alerts');
-    expect(html).toContain('Granted:');
-    expect(html).toContain('Used:');
-    expect(html).toContain('Active Credits (4)');
-    expect(html).toContain('View 4 Purchase Batches');
 
-    // Should NOT show redundant duplicate category pill when only 1 category exists
-    expect(html).not.toContain('All Packs (4)');
+    // Filter controls
+    expect(html).toContain('All Purchases (4)');
+    expect(html).toContain('Active Credits (4)');
+
+    // Each purchase must be displayed as an individual non-merged entry
+    expect(html).toContain('Smart Alerts Pack');
+    expect(html).toContain('1 total');
+    expect(html).toContain('0 used');
+    expect(html).toContain('Active');
+    expect(html).toContain('Valid until:');
+
+    // Desktop table container and Mobile cards must exist
+    expect(html).toContain('hidden md:block');
+    expect(html).toContain('md:hidden');
   });
 
-  it('renders category filter pills only when multiple credit categories exist', () => {
+  it('renders purchase filter navigation correctly with active and total counts', () => {
     const multiCategoryPacks: CreditPackDTO[] = [
       ...mockPacks,
       {
@@ -145,13 +160,13 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     const html = renderToStaticMarkup(<CreditPackListCard creditPacks={multiCategoryPacks} />);
 
-    // Multi-category should render category filters
-    expect(html).toContain('All Active (5)');
-    expect(html).toContain('Smart Alerts (4)');
-    expect(html).toContain('Ad Postings (4)');
+    expect(html).toContain('All Purchases (5)');
+    expect(html).toContain('Active Credits (5)');
+    expect(html).toContain('Ad Postings');
+    expect(html).toContain('Smart Alerts');
   });
 
-  it('renders single-instance responsive credit history with desktop table and mobile cards', () => {
+  it('renders single-instance responsive credit history with ad traceability and independent statuses', () => {
     const html = renderToStaticMarkup(<CreditLedgerHistoryCard />);
 
     // Desktop table container must be hidden on mobile
@@ -161,10 +176,18 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     // Mobile card container must be hidden on desktop
     expect(html).toContain('md:hidden');
 
-    // Human-readable formatted reasons
-    expect(html).toContain('Smart Alert Slot Consumed');
+    // Human-readable formatted activity
+    expect(html).toContain('Spotlight Credit Used — 1 credit');
     expect(html).toContain('-1 USED');
     expect(html).toContain('+5 ADDED');
+
+    // Ad traceability and link
+    expect(html).toContain('/ads/toyota-corolla-2022-hybrid');
+    expect(html).toContain('Toyota Corolla 2022 Hybrid');
+
+    // Applied validity and independent spotlight / ad status
+    expect(html).toContain('1 day');
+    expect(html).toContain('Active');
   });
 
   it('renders dedicated Credit History tab in PlansTab hub navigation', () => {
@@ -251,7 +274,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     const html = renderToStaticMarkup(<CreditPackListCard creditPacks={historicalPacks} />);
 
-    expect(html).toContain('Past / Used');
+    expect(html).toContain('Past / Used (1)');
     expect(html).toContain('Old Alert Pack');
     expect(html).toContain('Expired');
     expect(html).toContain('Purchased:');

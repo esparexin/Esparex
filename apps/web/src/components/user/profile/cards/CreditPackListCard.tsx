@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import type { CreditPackDTO, EntitlementType } from '@esparex/contracts';
-import { Package, Bell, Zap, CheckCircle2, ChevronDown, Calendar, Clock } from "@esparex/ui";
-import { CreditPoolBatchList } from './CreditPoolBatchList';
-import { HistoryPackCard } from './HistoryPackCard';
+import type { CreditPackDTO } from '@esparex/contracts';
+import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
+import { Package, Bell, Zap, Calendar, Clock } from '@esparex/ui';
+import { isPackExpired, getStatusBadge, getValidityDisplay } from './creditPackFormatters';
 
 export interface CreditPackListCardProps {
   creditPacks: CreditPackDTO[];
@@ -10,199 +10,37 @@ export interface CreditPackListCardProps {
   onViewHistory?: () => void;
 }
 
-type PackCategoryFilter = 'ALL' | 'SMART_ALERTS' | 'AD_POSTING' | 'BOOSTS' | 'HISTORY';
-
-interface CreditPoolGroup {
-  poolKey: 'SMART_ALERTS' | 'AD_POSTING' | 'BOOSTS';
-  title: string;
-  entitlementType: EntitlementType;
-  icon: typeof Bell;
-  iconBgClass: string;
-  totalGranted: number;
-  consumed: number;
-  remaining: number;
-  earliestExpiry: string | null;
-  batches: CreditPackDTO[];
-}
+type PurchaseFilter = 'ALL' | 'ACTIVE' | 'HISTORY';
 
 export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
   creditPacks,
   onBrowsePlans,
   onViewHistory,
 }) => {
-  const [selectedTab, setSelectedTab] = useState<PackCategoryFilter>(() => {
-    const hasActive = (creditPacks || []).some((p) => p.status === 'ACTIVE' && p.remaining > 0);
-    return hasActive ? 'ALL' : 'HISTORY';
-  });
-  const [expandedPools, setExpandedPools] = useState<Record<string, boolean>>({});
+  const [filter, setFilter] = useState<PurchaseFilter>('ALL');
 
-  const togglePoolExpand = (poolKey: string) => {
-    setExpandedPools((prev) => ({
-      ...prev,
-      [poolKey]: !prev[poolKey],
-    }));
-  };
-
-  const isPackExpired = (p: CreditPackDTO): boolean =>
-    p.status === 'EXPIRED' ||
-    Boolean(p.expiresAt && new Date(p.expiresAt).getTime() <= Date.now());
-
-  // Categorize active vs history packs: strictly exclude expired packs from active pool
   const activePacks = useMemo(
-    () =>
-      (creditPacks || []).filter(
-        (p) =>
-          (p.status === 'ACTIVE' || (p.status as string) === 'active') &&
-          p.remaining > 0 &&
-          !isPackExpired(p)
-      ),
+    () => (creditPacks || []).filter((p) => (p.status === 'ACTIVE' || (p.status as string) === 'active') && p.remaining > 0 && !isPackExpired(p)),
     [creditPacks]
   );
   const historyPacks = useMemo(
-    () =>
-      (creditPacks || []).filter(
-        (p) =>
-          p.status !== 'ACTIVE' ||
-          p.remaining === 0 ||
-          isPackExpired(p)
-      ),
+    () => (creditPacks || []).filter((p) => p.status !== 'ACTIVE' || p.remaining === 0 || isPackExpired(p)),
     [creditPacks]
   );
 
-  // Executive balance summary totals
-  const totalSmartAlerts = useMemo(
-    () =>
-      activePacks
-        .filter((p) => p.entitlementType === 'SMART_ALERT_SLOT' || (p.planName && p.planName.toLowerCase().includes('alert')))
-        .reduce((acc, p) => acc + (p.remaining || 0), 0),
-    [activePacks]
-  );
+  const totalPurchased = useMemo(() => (creditPacks || []).reduce((acc, p) => acc + (p.totalGranted || 0), 0), [creditPacks]);
+  const totalConsumed = useMemo(() => (creditPacks || []).reduce((acc, p) => acc + (p.consumed || 0), 0), [creditPacks]);
+  const totalAvailable = useMemo(() => activePacks.reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
 
-  const totalAdCredits = useMemo(
-    () =>
-      activePacks
-        .filter((p) => p.entitlementType === 'AD_POSTING' || (p.planName && p.planName.toLowerCase().includes('ad')))
-        .reduce((acc, p) => acc + (p.remaining || 0), 0),
-    [activePacks]
-  );
+  const alertAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType === 'SMART_ALERT_SLOT' || p.planName?.toLowerCase().includes('alert')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
+  const adAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType === 'AD_POSTING' || p.planName?.toLowerCase().includes('ad')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
+  const boostAvailable = useMemo(() => activePacks.filter((p) => p.entitlementType?.startsWith('SPOTLIGHT') || p.entitlementType === 'PUSH_TO_TOP' || p.planName?.toLowerCase().includes('boost') || p.planName?.toLowerCase().includes('spotlight')).reduce((acc, p) => acc + (p.remaining || 0), 0), [activePacks]);
 
-  const totalBoostCredits = useMemo(
-    () =>
-      activePacks
-        .filter((p) =>
-          p.entitlementType === 'SPOTLIGHT_HP' ||
-          p.entitlementType === 'SPOTLIGHT_CAT' ||
-          p.entitlementType === 'PUSH_TO_TOP' ||
-          (p.planName && (p.planName.toLowerCase().includes('boost') || p.planName.toLowerCase().includes('spotlight')))
-        )
-        .reduce((acc, p) => acc + (p.remaining || 0), 0),
-    [activePacks]
-  );
-
-  // Group active packs into unified Credit Pools to avoid repeated cards
-  const creditPools = useMemo<CreditPoolGroup[]>(() => {
-    const pools: CreditPoolGroup[] = [];
-
-    // 1. Smart Alerts Pool
-    const alertBatches = activePacks.filter(
-      (p) => p.entitlementType === 'SMART_ALERT_SLOT' || (p.planName && p.planName.toLowerCase().includes('alert'))
-    );
-    if (alertBatches.length > 0) {
-      const totalGranted = alertBatches.reduce((acc, p) => acc + (p.totalGranted || 1), 0);
-      const consumed = alertBatches.reduce((acc, p) => acc + (p.consumed || 0), 0);
-      const remaining = alertBatches.reduce((acc, p) => acc + (p.remaining || 0), 0);
-
-      // Find earliest expiry date
-      const validDates = alertBatches
-        .map((p) => p.expiresAt)
-        .filter((d): d is string => Boolean(d))
-        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-      pools.push({
-        poolKey: 'SMART_ALERTS',
-        title: 'Smart Alerts',
-        entitlementType: 'SMART_ALERT_SLOT',
-        icon: Bell,
-        iconBgClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-        totalGranted,
-        consumed,
-        remaining,
-        earliestExpiry: validDates[0] || null,
-        batches: alertBatches,
-      });
-    }
-
-    // 2. Ad Postings Pool
-    const adBatches = activePacks.filter(
-      (p) => p.entitlementType === 'AD_POSTING' || (p.planName && p.planName.toLowerCase().includes('ad'))
-    );
-    if (adBatches.length > 0) {
-      const totalGranted = adBatches.reduce((acc, p) => acc + (p.totalGranted || 1), 0);
-      const consumed = adBatches.reduce((acc, p) => acc + (p.consumed || 0), 0);
-      const remaining = adBatches.reduce((acc, p) => acc + (p.remaining || 0), 0);
-
-      const validDates = adBatches
-        .map((p) => p.expiresAt)
-        .filter((d): d is string => Boolean(d))
-        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-      pools.push({
-        poolKey: 'AD_POSTING',
-        title: 'Ad Postings',
-        entitlementType: 'AD_POSTING',
-        icon: Package,
-        iconBgClass: 'bg-primary/10 text-primary',
-        totalGranted,
-        consumed,
-        remaining,
-        earliestExpiry: validDates[0] || null,
-        batches: adBatches,
-      });
-    }
-
-    // 3. Featured Boosts Pool
-    const boostBatches = activePacks.filter(
-      (p) =>
-        p.entitlementType === 'SPOTLIGHT_HP' ||
-        p.entitlementType === 'SPOTLIGHT_CAT' ||
-        p.entitlementType === 'PUSH_TO_TOP' ||
-        (p.planName && (p.planName.toLowerCase().includes('boost') || p.planName.toLowerCase().includes('spotlight')))
-    );
-    if (boostBatches.length > 0) {
-      const totalGranted = boostBatches.reduce((acc, p) => acc + (p.totalGranted || 1), 0);
-      const consumed = boostBatches.reduce((acc, p) => acc + (p.consumed || 0), 0);
-      const remaining = boostBatches.reduce((acc, p) => acc + (p.remaining || 0), 0);
-
-      const validDates = boostBatches
-        .map((p) => p.expiresAt)
-        .filter((d): d is string => Boolean(d))
-        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-      pools.push({
-        poolKey: 'BOOSTS',
-        title: 'Featured Boosts',
-        entitlementType: 'SPOTLIGHT_HP',
-        icon: Zap,
-        iconBgClass: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-        totalGranted,
-        consumed,
-        remaining,
-        earliestExpiry: validDates[0] || null,
-        batches: boostBatches,
-      });
-    }
-
-    return pools;
-  }, [activePacks]);
-
-  // Filtered active pools based on sub-tab
-  const displayedPools = useMemo(() => {
-    if (selectedTab === 'ALL' || selectedTab === 'HISTORY') return creditPools;
-    return creditPools.filter((p) => p.poolKey === selectedTab);
-  }, [selectedTab, creditPools]);
-
-  // Number of active categories
-  const activeCategoryCount = creditPools.length;
+  const filteredPacks = useMemo(() => {
+    if (filter === 'ACTIVE') return activePacks;
+    if (filter === 'HISTORY') return historyPacks;
+    return creditPacks || [];
+  }, [filter, creditPacks, activePacks, historyPacks]);
 
   if (!creditPacks || creditPacks.length === 0) {
     return (
@@ -212,16 +50,10 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
         </div>
         <div className="space-y-1">
           <h4 className="text-body font-bold text-foreground">No Credit Packs Purchased Yet</h4>
-          <p className="text-tiny text-muted-foreground max-w-md mx-auto">
-            Extra ad postings, spotlight boosts, or alert slots will appear here once acquired.
-          </p>
+          <p className="text-tiny text-muted-foreground max-w-md mx-auto">Purchased ad postings, spotlight boosts, and alert packs will be tracked individually here.</p>
         </div>
         {onBrowsePlans && (
-          <button
-            type="button"
-            onClick={onBrowsePlans}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-caption font-semibold hover:bg-primary/90 transition-colors shadow-xs cursor-pointer"
-          >
+          <button type="button" onClick={onBrowsePlans} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-caption font-semibold hover:bg-primary/90 transition-colors shadow-xs cursor-pointer">
             Explore Plans & Credits
           </button>
         )}
@@ -238,343 +70,158 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
             <Package className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-body font-bold text-foreground">My Credit Packs</h4>
-            <p className="text-tiny text-muted-foreground">Manage active entitlements and balances</p>
+            <h4 className="text-body font-bold text-foreground">Purchased Plans & Credits</h4>
+            <p className="text-tiny text-muted-foreground">Trace individual purchases, credit usage, and validities</p>
           </div>
         </div>
-
         <div className="flex items-center gap-2.5 flex-wrap self-start sm:self-auto">
           {onViewHistory && (
-            <button
-              type="button"
-              onClick={onViewHistory}
-              className="text-tiny font-semibold text-primary hover:underline cursor-pointer"
-            >
+            <button type="button" onClick={onViewHistory} className="text-tiny font-semibold text-primary hover:underline cursor-pointer">
               View Credit History →
             </button>
           )}
           {activePacks.length > 0 && (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-              {activePacks.length} Active Pack{activePacks.length > 1 ? 's' : ''}
+              {activePacks.length} Active Purchase{activePacks.length > 1 ? 's' : ''}
             </span>
           )}
         </div>
       </div>
 
-      {/* 2. Executive Balance Summary Grid */}
-      <div className="flex flex-col sm:flex-row gap-2.5 *:flex-1">
-        <div
-          onClick={() => {
-            if (totalSmartAlerts > 0) setSelectedTab('SMART_ALERTS');
-          }}
-          className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
-            selectedTab === 'SMART_ALERTS'
-              ? 'border-emerald-500/60 bg-emerald-500/5 shadow-xs'
-              : 'border-border/40 bg-card/60 hover:bg-card hover:border-border/60'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <Bell className="w-3.5 h-3.5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-tiny text-muted-foreground truncate">Smart Alerts</div>
-              <div className="text-body font-bold text-foreground">{totalSmartAlerts} Available</div>
-            </div>
-          </div>
+      {/* 2. Executive Wallet Summary */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="p-3 rounded-xl border border-border/50 bg-card/60">
+          <div className="text-tiny text-muted-foreground font-medium">Total Purchased</div>
+          <div className="text-body sm:text-body-lg font-bold text-foreground">{totalPurchased}</div>
         </div>
-
-        <div
-          onClick={() => {
-            if (totalAdCredits > 0) setSelectedTab('AD_POSTING');
-          }}
-          className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
-            selectedTab === 'AD_POSTING'
-              ? 'border-primary/60 bg-primary/5 shadow-xs'
-              : 'border-border/40 bg-card/60 hover:bg-card hover:border-border/60'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <Package className="w-3.5 h-3.5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-tiny text-muted-foreground truncate">Ad Postings</div>
-              <div className="text-body font-bold text-foreground">{totalAdCredits} Available</div>
-            </div>
-          </div>
+        <div className="p-3 rounded-xl border border-border/50 bg-card/60">
+          <div className="text-tiny text-muted-foreground font-medium">Used</div>
+          <div className="text-body sm:text-body-lg font-bold text-foreground-secondary">{totalConsumed}</div>
         </div>
-
-        <div
-          onClick={() => {
-            if (totalBoostCredits > 0) setSelectedTab('BOOSTS');
-          }}
-          className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
-            selectedTab === 'BOOSTS'
-              ? 'border-amber-500/60 bg-amber-500/5 shadow-xs'
-              : 'border-border/40 bg-card/60 hover:bg-card hover:border-border/60'
-          }`}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-              <Zap className="w-3.5 h-3.5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-tiny text-muted-foreground truncate">Featured Boosts</div>
-              <div className="text-body font-bold text-foreground">{totalBoostCredits} Available</div>
-            </div>
-          </div>
+        <div className="p-3 rounded-xl border border-primary/20 bg-primary/5">
+          <div className="text-tiny text-primary font-medium">Available</div>
+          <div className="text-body sm:text-body-lg font-black text-primary">{totalAvailable} Available</div>
         </div>
       </div>
 
-      {/* 3. Filter Navigation (Eliminates redundant identical tabs) */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pt-1 pb-0.5 border-b border-border/40" role="tablist" aria-label="Pack categories">
-        {/* If only 1 category exists among active packs, avoid redundant "All Packs" vs "Category" duplicate tabs */}
-        {activeCategoryCount > 1 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === 'ALL'}
-            onClick={() => setSelectedTab('ALL')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab === 'ALL'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            All Active ({activePacks.length})
-          </button>
-        )}
-
-        {/* When only 1 category exists, show a single clear "Active Credits" tab */}
-        {activeCategoryCount <= 1 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab !== 'HISTORY'}
-            onClick={() => setSelectedTab('ALL')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab !== 'HISTORY'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            Active Credits ({activePacks.length})
-          </button>
-        )}
-
-        {/* Category-specific tabs only shown when multiple distinct active categories exist */}
-        {activeCategoryCount > 1 && totalSmartAlerts > 0 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === 'SMART_ALERTS'}
-            onClick={() => setSelectedTab('SMART_ALERTS')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab === 'SMART_ALERTS'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            Smart Alerts ({totalSmartAlerts})
-          </button>
-        )}
-
-        {activeCategoryCount > 1 && totalAdCredits > 0 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === 'AD_POSTING'}
-            onClick={() => setSelectedTab('AD_POSTING')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab === 'AD_POSTING'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            Ad Postings ({totalAdCredits})
-          </button>
-        )}
-
-        {activeCategoryCount > 1 && totalBoostCredits > 0 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === 'BOOSTS'}
-            onClick={() => setSelectedTab('BOOSTS')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab === 'BOOSTS'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            Boosts ({totalBoostCredits})
-          </button>
-        )}
-
-        {/* Past / History Tab */}
-        {historyPacks.length > 0 && (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === 'HISTORY'}
-            onClick={() => setSelectedTab('HISTORY')}
-            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-              selectedTab === 'HISTORY'
-                ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
-            }`}
-          >
-            Past / Used ({historyPacks.length})
-          </button>
-        )}
-      </div>
-
-      {/* 4. ACTIVE CREDIT POOLS (Unified Pool Cards without Repetition) */}
-      {selectedTab !== 'HISTORY' && (
-        <div className="flex flex-col gap-3">
-          {displayedPools.length === 0 ? (
-            <div className="text-center py-6 text-tiny text-muted-foreground">
-              No active credits found in this category.
-            </div>
-          ) : (
-            displayedPools.map((pool) => {
-              const IconComponent = pool.icon;
-              const isExpanded = !!expandedPools[pool.poolKey];
-              const pct = pool.totalGranted > 0 ? Math.min(100, Math.round((pool.consumed / pool.totalGranted) * 100)) : 0;
-
-              const isExpiringSoon = pool.earliestExpiry
-                ? new Date(pool.earliestExpiry).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000
-                : false;
-
-              return (
-                <div
-                  key={pool.poolKey}
-                  className="p-4 rounded-2xl border border-border/50 bg-card shadow-2xs hover:border-border transition-all space-y-3"
-                >
-                  {/* Pool Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${pool.iconBgClass}`}>
-                        <IconComponent className="w-4 h-4" />
-                      </div>
-                      <span className="font-bold text-foreground text-caption sm:text-body">{pool.title}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="w-3 h-3" /> Active
-                      </span>
-                    </div>
-
-                    <div className="font-black text-primary text-body sm:text-body-lg sm:text-right shrink-0">
-                      {pool.remaining} Available
-                    </div>
-                  </div>
-
-                  {/* Utilization Progress Bar */}
-                  <div className="w-full bg-muted/60 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="h-1.5 rounded-full bg-gradient-to-r from-primary via-emerald-500 to-teal-400 transition-all duration-300"
-                      style={{ width: `${pct}%` }} /* design-token-ignore: dynamic utilization progress bar */
-                    />
-                  </div>
-
-                  {/* Pool Metrics Row */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-tiny text-muted-foreground">
-                    <span>
-                      Granted: <strong className="text-foreground">{pool.totalGranted}</strong> • Used: <strong className="text-foreground">{pool.consumed}</strong>
-                    </span>
-                    <span className="font-medium text-foreground-secondary">
-                      {pool.earliestExpiry ? (
-                        (() => {
-                          const expiryDate = new Date(pool.earliestExpiry);
-                          const isExpired = expiryDate.getTime() < Date.now();
-                          const daysLeft = Math.max(0, Math.ceil((expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-                          const dateStr = expiryDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-
-                          return (
-                            <span className={`inline-flex items-center gap-1 ${
-                              isExpired
-                                ? 'text-destructive font-semibold'
-                                : isExpiringSoon
-                                ? 'text-amber-600 dark:text-amber-400 font-semibold'
-                                : ''
-                            }`}>
-                              <Clock className="w-3 h-3 shrink-0" />
-                              {isExpired
-                                ? `Expired on ${dateStr}`
-                                : isExpiringSoon
-                                ? `Expires soon: ${dateStr} (${daysLeft}d left)`
-                                : `Earliest expiry: ${dateStr}`}
-                            </span>
-                          );
-                        })()
-                      ) : (
-                        <span>Standard Validity</span>
-                      )}
-                    </span>
-                  </div>
-
-                  {/* Single Batch Detail: show purchase date & validity directly */}
-                  {pool.batches.length === 1 && pool.batches[0] && (() => {
-                    const singleBatch = pool.batches[0];
-                    const isBatchExpired = singleBatch.expiresAt ? new Date(singleBatch.expiresAt).getTime() < Date.now() : false;
-                    return (
-                      <div className="pt-2 border-t border-border/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-tiny text-muted-foreground">
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
-                          Purchased on: <strong className="text-foreground-secondary">{new Date(singleBatch.purchaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong>
-                        </span>
-                        {singleBatch.expiresAt && (
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
-                            <span>
-                              {isBatchExpired ? 'Expired on: ' : 'Valid until: '}
-                              <strong className={isBatchExpired ? 'text-destructive font-semibold' : 'text-foreground-secondary'}>
-                                {new Date(singleBatch.expiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                              </strong>
-                            </span>
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* Expandable Purchase Batches Drawer for multi-purchase accounts */}
-                  {pool.batches.length > 1 && (
-                    <div className="pt-2 border-t border-border/30">
-                      <button
-                        type="button"
-                        onClick={() => togglePoolExpand(pool.poolKey)}
-                        className="inline-flex items-center gap-1.5 text-tiny font-semibold text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
-                        aria-expanded={isExpanded}
-                      >
-                        <span>{isExpanded ? 'Hide' : 'View'} {pool.batches.length} Purchase Batches</span>
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      {isExpanded && <CreditPoolBatchList batches={pool.batches} />}
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          )}
+      {/* 3. Category Balances */}
+      {(alertAvailable > 0 || adAvailable > 0 || boostAvailable > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0"><Bell className="w-3 h-3" /></div>
+            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Smart Alerts</div><div className="text-caption font-bold text-foreground">{alertAvailable} Available</div></div>
+          </div>
+          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Package className="w-3 h-3" /></div>
+            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Ad Postings</div><div className="text-caption font-bold text-foreground">{adAvailable} Available</div></div>
+          </div>
+          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0"><Zap className="w-3 h-3" /></div>
+            <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Featured Boosts</div><div className="text-caption font-bold text-foreground">{boostAvailable} Available</div></div>
+          </div>
         </div>
       )}
 
-      {/* 5. PAST / USED PACKS LIST */}
-      {selectedTab === 'HISTORY' && (
-        <div className="flex flex-col gap-2.5">
-          {historyPacks.length === 0 ? (
-            <div className="text-center py-6 text-tiny text-muted-foreground">
-              No historical or expired credit packs found.
-            </div>
-          ) : (
-            historyPacks.map((pack) => (
-              <HistoryPackCard key={pack.packId} pack={pack} />
-            ))
-          )}
+      {/* 4. Filter Navigation */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pt-1 pb-0.5 border-b border-border/40" role="tablist" aria-label="Purchase filters">
+        {[
+          { key: 'ALL', label: `All Purchases (${creditPacks.length})` },
+          { key: 'ACTIVE', label: `Active Credits (${activePacks.length})` },
+          ...(historyPacks.length > 0 ? [{ key: 'HISTORY', label: `Past / Used (${historyPacks.length})` }] : []),
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={filter === tab.key}
+            onClick={() => setFilter(tab.key as PurchaseFilter)}
+            className={`px-3 py-1.5 text-caption font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+              filter === tab.key ? 'bg-primary text-primary-foreground shadow-xs' : 'text-foreground-secondary hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 5. Non-merged Individual Purchases List */}
+      {filteredPacks.length === 0 ? (
+        <div className="text-center py-6 text-tiny text-muted-foreground">
+          {filter === 'ACTIVE' ? 'No active credit purchases found.' : filter === 'HISTORY' ? 'No past or expired credit purchases found.' : 'No credit purchases found.'}
         </div>
+      ) : (
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-border/40">
+            <table className="w-full text-left text-caption">
+              <thead className="bg-muted/40 border-b border-border/40">
+                <tr className="text-muted-foreground font-semibold text-tiny">
+                  <th scope="col" className="py-2.5 px-3.5">Plan Name</th>
+                  <th scope="col" className="py-2.5 px-3">Purchase Date</th>
+                  <th scope="col" className="py-2.5 px-3">Total Credits</th>
+                  <th scope="col" className="py-2.5 px-3">Used</th>
+                  <th scope="col" className="py-2.5 px-3">Available</th>
+                  <th scope="col" className="py-2.5 px-3">Validity</th>
+                  <th scope="col" className="py-2.5 px-3.5">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/20">
+                {filteredPacks.map((pack) => {
+                  const meta = getEntitlementPresentationMeta(pack.entitlementType);
+                  const displayName = pack.planName ? formatPlanName(pack.planName) : meta.label;
+                  const purchaseDateStr = new Date(pack.purchaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+                  return (
+                    <tr key={pack.packId} className="hover:bg-muted/20 transition-colors">
+                      <td className="py-3 px-3.5 font-bold text-foreground">
+                        <div>{displayName}</div>
+                        <div className="text-tiny text-muted-foreground font-normal">{meta.label}</div>
+                      </td>
+                      <td className="py-3 px-3 text-muted-foreground text-tiny whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground/70 shrink-0" />{purchaseDateStr}</span>
+                      </td>
+                      <td className="py-3 px-3 font-semibold text-foreground">{pack.totalGranted} total</td>
+                      <td className="py-3 px-3 text-foreground-secondary">{pack.consumed} used</td>
+                      <td className="py-3 px-3 font-bold text-primary">{pack.remaining}</td>
+                      <td className="py-3 px-3 text-tiny text-foreground-secondary whitespace-nowrap">{getValidityDisplay(pack)}</td>
+                      <td className="py-3 px-3.5 whitespace-nowrap">{getStatusBadge(pack)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden flex flex-col gap-2.5">
+            {filteredPacks.map((pack) => {
+              const meta = getEntitlementPresentationMeta(pack.entitlementType);
+              const displayName = pack.planName ? formatPlanName(pack.planName) : meta.label;
+              const purchaseDateStr = new Date(pack.purchaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+              return (
+                <div key={pack.packId} className="p-3 rounded-xl border border-border/40 bg-card space-y-2 shadow-2xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-bold text-caption text-foreground truncate">{displayName}</div>
+                      <div className="text-tiny text-muted-foreground">{meta.label}</div>
+                    </div>
+                    {getStatusBadge(pack)}
+                  </div>
+                  <div className="flex items-center justify-between gap-2 text-caption pt-1 border-t border-border/20">
+                    <span className="text-muted-foreground text-tiny">Credits: <strong className="text-foreground">{pack.consumed} used / {pack.totalGranted} total</strong></span>
+                    <span className="font-bold text-primary text-caption">Available: {pack.remaining}</span>
+                  </div>
+                  <div className="flex flex-col gap-1 text-tiny text-muted-foreground pt-1 border-t border-border/20">
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-muted-foreground/70 shrink-0" />Purchased: <strong className="text-foreground-secondary">{purchaseDateStr}</strong></span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-muted-foreground/70 shrink-0" /><span>{getValidityDisplay(pack)}</span></span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
