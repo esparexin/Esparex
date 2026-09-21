@@ -69,7 +69,7 @@ export const getCreditLedgerHistoryByUserId = async (
     );
 
     const ads = listingIds.length > 0
-        ? await Ad.find({ _id: { $in: listingIds } }).select('_id title slug seoSlug status expiresAt').lean()
+        ? await Ad.find({ _id: { $in: listingIds } }).select('_id title seoSlug status expiresAt').lean()
         : [];
 
     const adMap = new Map<string, RawAdMetadata>(
@@ -78,7 +78,6 @@ export const getCreditLedgerHistoryByUserId = async (
             {
                 _id: a._id,
                 title: typeof a.title === 'string' ? a.title : undefined,
-                slug: typeof a.slug === 'string' ? a.slug : undefined,
                 seoSlug: typeof a.seoSlug === 'string' ? a.seoSlug : undefined,
                 status: typeof a.status === 'string' ? a.status : undefined,
                 expiresAt: a.expiresAt as Date | string | undefined,
@@ -87,7 +86,7 @@ export const getCreditLedgerHistoryByUserId = async (
     );
 
     const mappedItems = PlansWalletMapper.mapCreditTransactions(
-        items as Record<string, unknown>[],
+        items,
         adMap
     );
 

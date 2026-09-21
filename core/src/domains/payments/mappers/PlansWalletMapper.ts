@@ -218,11 +218,11 @@ export class PlansWalletMapper {
   }
 
   public static mapCreditTransactions(
-    transactions: Record<string, unknown>[],
+    transactions: unknown[],
     adMap?: Map<string, RawAdMetadata>
   ): CreditLedgerDTO[] {
     const now = Date.now();
-    return transactions.map((tx) => {
+    return (transactions as Record<string, unknown>[]).map((tx) => {
       const listingIdStr = (tx.listingId as { toString(): string } | undefined)?.toString();
       const ad = listingIdStr && adMap ? adMap.get(listingIdStr) : undefined;
       const adTitle = (ad?.title as string | undefined) || undefined;
