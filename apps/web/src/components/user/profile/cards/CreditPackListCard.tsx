@@ -93,8 +93,8 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
             </Button>
           )}
           {activePacks.length > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-success/10 text-success border border-success/20 shrink-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
               {activePacks.length} Active Purchase{activePacks.length > 1 ? 's' : ''}
             </span>
           )}
@@ -102,16 +102,16 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
       </div>
 
       {/* 2. Executive Wallet Summary */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 *:flex-1">
-        <div className="p-3 rounded-xl border border-border/50 bg-card/60">
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/50 rounded-xl bg-muted/40 p-1 border border-border/40">
+        <div className="p-3">
           <div className="text-tiny text-muted-foreground font-medium">Total Purchased</div>
           <div className="text-body sm:text-body-lg font-bold text-foreground">{totalPurchased}</div>
         </div>
-        <div className="p-3 rounded-xl border border-border/50 bg-card/60">
+        <div className="p-3">
           <div className="text-tiny text-muted-foreground font-medium">Used</div>
           <div className="text-body sm:text-body-lg font-bold text-foreground-secondary">{totalConsumed}</div>
         </div>
-        <div className="p-3 rounded-xl border border-primary/20 bg-primary/5">
+        <div className="p-3 bg-primary/5 rounded-lg">
           <div className="text-tiny text-primary font-medium">Available</div>
           <div className="text-body sm:text-body-lg font-black text-primary">{totalAvailable} Available</div>
         </div>
@@ -119,17 +119,17 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({
 
       {/* 3. Category Balances */}
       {(alertAvailable > 0 || adAvailable > 0 || boostAvailable > 0) && (
-        <div className="flex flex-col sm:flex-row gap-2 pt-0.5 *:flex-1">
-          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0"><Bell className="w-3 h-3" /></div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-0.5">
+          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-success/10 text-success flex items-center justify-center shrink-0"><Bell className="w-3 h-3" /></div>
             <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Smart Alerts</div><div className="text-caption font-bold text-foreground">{alertAvailable} Available</div></div>
           </div>
-          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
+          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0"><Package className="w-3 h-3" /></div>
             <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Ad Postings</div><div className="text-caption font-bold text-foreground">{adAvailable} Available</div></div>
           </div>
-          <div className="p-2.5 rounded-xl border border-border/40 bg-card flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0"><Zap className="w-3 h-3" /></div>
+          <div className="p-2.5 rounded-xl bg-muted/30 flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0"><Zap className="w-3 h-3" /></div>
             <div className="min-w-0"><div className="text-tiny text-muted-foreground truncate">Featured Boosts</div><div className="text-caption font-bold text-foreground">{boostAvailable} Available</div></div>
           </div>
         </div>
