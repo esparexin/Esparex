@@ -3,10 +3,12 @@
  * Single Source of Truth for user-facing credit evaluation and wallet breakdown endpoints.
  */
 import { Request, Response } from 'express';
+import type { CreditWalletSummaryPayload } from '@esparex/contracts';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { CreditRulesEngine } from '@esparex/core/domains/credits/application/CreditRulesEngine';
 import { getAdPostingBalance } from '@esparex/core/domains/boosts/application/services/AdSlotService';
+import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
 
 interface AuthenticatedUser {
   _id?: { toString(): string };
@@ -44,9 +46,12 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
     const userId = user?._id?.toString();
     if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
-    const balance = await getAdPostingBalance(userId);
+    const [balance, snapshot] = await Promise.all([
+      getAdPostingBalance(userId),
+      DashboardFacade.getDashboardSnapshot(userId).catch(() => null),
+    ]);
 
-    const summary = {
+    const summary: CreditWalletSummaryPayload = {
       monthlyFree: {
         limit: balance.freeLimit,
         used: balance.freeUsed,
@@ -61,8 +66,12 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
       },
       subscription: {
         unlimited: false,
+        activePlan: snapshot?.subscription?.planName,
       },
       totalRemaining: balance.totalRemaining,
+      adCredits: balance.totalRemaining,
+      spotlightCredits: snapshot?.wallet?.spotlightCredits ?? 0,
+      smartAlertSlots: snapshot?.wallet?.smartAlertSlots ?? 2,
     };
 
     res.json(respond({ success: true, data: summary }));

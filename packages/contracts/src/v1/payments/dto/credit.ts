@@ -34,4 +34,7 @@ export interface CreditWalletSummaryPayload {
     activePlan?: string;
   };
   totalRemaining: number;
+  adCredits?: number;
+  spotlightCredits?: number;
+  smartAlertSlots?: number;
 }
