@@ -1,41 +1,19 @@
 import React from 'react';
 import type { WalletSummaryDTO } from '@esparex/contracts';
 import { Package, Bell, Zap, Card, CardContent, ArrowRight } from '@esparex/ui';
-import type { PlanCard } from '../tabs/BuyPlansSection';
 
 export interface WalletOverviewCardProps {
   wallet: WalletSummaryDTO;
-  plans?: PlanCard[];
   onNavigateToHistory?: (filterType?: string) => void;
-  onBrowsePlans?: () => void;
 }
 
 export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   wallet,
-  plans = [],
   onNavigateToHistory,
-  onBrowsePlans,
 }) => {
   const totalAdCredits = (wallet.monthlyFreeAdsRemaining ?? 0) + (wallet.paidAdCredits ?? 0);
   const totalBoostCredits = (wallet.spotlightCredits ?? 0) + (wallet.topAdCredits ?? 0);
   const totalAlertSlots = wallet.smartAlertSlots ?? 0;
-
-  const getAvailableCreditsForPlan = (plan: PlanCard): number => {
-    const typeLower = plan.type.toLowerCase();
-    if (typeLower.includes('more ads') || typeLower.includes('ad_pack') || typeLower.includes('free')) {
-      return totalAdCredits;
-    }
-    if (typeLower.includes('spotlight')) {
-      return wallet.spotlightCredits ?? 0;
-    }
-    if (typeLower.includes('top ad') || typeLower.includes('boost')) {
-      return wallet.topAdCredits ?? 0;
-    }
-    if (typeLower.includes('alert')) {
-      return totalAlertSlots;
-    }
-    return 0;
-  };
 
   return (
     <Card className="rounded-2xl border border-border bg-card shadow-xs">
@@ -110,8 +88,13 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
                 {totalAlertSlots} Active
               </button>
             </div>
-            <div className="text-tiny text-muted-foreground pt-2 border-t border-border">
-              Instant match notifications for buyer requests
+            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-border">
+              <span>Base Free: <strong className="text-foreground">2</strong></span>
+              <span>Extra Purchased: <strong className="text-foreground">{Math.max(0, totalAlertSlots - 2)}</strong></span>
+            </div>
+            <div className="text-tiny text-muted-foreground flex items-center justify-between pt-0.5">
+              <span>Delivery:</span>
+              <span className="font-semibold text-foreground">Instant Push & Email</span>
             </div>
           </div>
 
@@ -137,70 +120,12 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               <span>Spotlight: <strong className="text-foreground">{wallet.spotlightCredits ?? 0}</strong></span>
               <span>Top Ad: <strong className="text-foreground">{wallet.topAdCredits ?? 0}</strong></span>
             </div>
+            <div className="text-tiny text-muted-foreground flex items-center justify-between pt-0.5">
+              <span>Visibility:</span>
+              <span className="font-semibold text-foreground">Featured & Top Search</span>
+            </div>
           </div>
         </div>
-
-        {/* Plan Credit Inventory: All Available Plans with Included Credits & User Balance */}
-        {plans.length > 0 && (
-          <div className="pt-2 space-y-2 border-t border-border/60">
-            <div className="flex items-center justify-between">
-              <span className="text-tiny font-bold text-muted-foreground uppercase tracking-wider">
-                Platform Plans & Included Credits
-              </span>
-              {onBrowsePlans && (
-                <button
-                  type="button"
-                  onClick={onBrowsePlans}
-                  className="text-tiny font-medium text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1"
-                >
-                  Explore All Plans →
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {plans.map((plan) => {
-                const available = getAvailableCreditsForPlan(plan);
-                return (
-                  <div
-                    key={plan.id}
-                    className="p-3 rounded-xl border border-border/60 bg-muted/30 flex flex-col justify-between gap-2"
-                  >
-                    <div className="flex items-start justify-between gap-1.5">
-                      <div className="min-w-0">
-                        <div className="text-caption font-bold text-foreground truncate" title={plan.name}>
-                          {plan.name}
-                        </div>
-                        <div className="text-tiny text-muted-foreground">
-                          {plan.type} • {plan.duration}
-                        </div>
-                      </div>
-                      <span className="text-tiny font-bold text-foreground shrink-0">
-                        ₹{plan.price}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1.5 border-t border-border/40">
-                      <span className="text-tiny text-muted-foreground">Your Balance:</span>
-                      <button
-                        type="button"
-                        onClick={() => onNavigateToHistory?.(plan.type)}
-                        className={`text-tiny font-bold px-1.5 py-0.5 rounded cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                          available > 0
-                            ? 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20'
-                            : 'bg-muted text-muted-foreground border border-border/40 hover:bg-muted/80'
-                        }`}
-                        title="Click to view history"
-                      >
-                        {available} Available
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

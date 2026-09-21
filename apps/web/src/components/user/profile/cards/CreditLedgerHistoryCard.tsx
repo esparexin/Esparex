@@ -6,8 +6,7 @@ import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 import {
   formatActivityName,
   formatAppliedDateTime,
-  renderSpotlightStatus,
-  renderAdStatus,
+  renderTransactionStatus,
   matchesLedgerFilter,
   type LedgerFilterType,
 } from './CreditLedgerFormatters';
@@ -63,11 +62,6 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
     [items, activeFilter]
   );
 
-  const filteredPacks = useMemo(
-    () => creditPacks.filter((p) => matchesLedgerFilter(activeFilter, p.entitlementType, undefined, p.planName)),
-    [creditPacks, activeFilter]
-  );
-
   return (
     <div className="space-y-4">
       {/* 1. Clean De-Boxed Header */}
@@ -110,35 +104,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </div>
       )}
 
-      {/* 3. Purchased Plan & Credit Allocations Summary (displayed when available) */}
-      {filteredPacks.length > 0 && (
-        <div className="space-y-2">
-          <span className="text-tiny font-bold text-muted-foreground uppercase tracking-wider">
-            Purchased Credit Allocations
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-            {filteredPacks.map((pack) => (
-              <div key={pack.packId} className="p-3 rounded-xl border border-border bg-card shadow-2xs space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-caption font-bold text-foreground truncate" title={pack.planName}>
-                    {pack.planName || 'Credit Package'}
-                  </span>
-                  <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
-                    {pack.remaining} Available
-                  </span>
-                </div>
-                <div className="text-tiny text-muted-foreground flex items-center justify-between pt-1 border-t border-border/30">
-                  <span>Allocated: <strong className="text-foreground">{pack.totalGranted}</strong></span>
-                  <span>Used: <strong className="text-foreground">{pack.consumed}</strong></span>
-                  <span>Status: <strong className="text-foreground">{pack.status}</strong></span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 4. Loading State */}
+      {/* 3. Loading State */}
       {isLoading && (
         <div className="space-y-2.5 animate-pulse">
           <div className="h-12 bg-muted/60 rounded-xl" />
@@ -146,7 +112,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </div>
       )}
 
-      {/* 5. Error State */}
+      {/* 4. Error State */}
       {isError && (
         <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-tiny flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
@@ -162,14 +128,14 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </div>
       )}
 
-      {/* 6. Empty State */}
+      {/* 5. Empty State */}
       {!isLoading && filteredItems.length === 0 && (
         <div className="text-center py-8 text-tiny text-muted-foreground border border-dashed border-border rounded-xl">
           No credit activity found for this category.
         </div>
       )}
 
-      {/* 7. Transactions List */}
+      {/* 6. Transactions List */}
       {!isLoading && filteredItems.length > 0 && (
         <>
           <CreditLedgerDesktopTable items={filteredItems} />
@@ -200,11 +166,9 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                           {tx.adTitle || 'View Ad'}
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2 pt-1">
-                        <span className="text-tiny text-muted-foreground">Spotlight:</span>
-                        {renderSpotlightStatus(tx)}
-                        <span className="text-tiny text-muted-foreground ml-1">Ad:</span>
-                        {renderAdStatus(tx)}
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-tiny text-muted-foreground">Status:</span>
+                        {renderTransactionStatus(tx)}
                       </div>
                     </div>
                   )}

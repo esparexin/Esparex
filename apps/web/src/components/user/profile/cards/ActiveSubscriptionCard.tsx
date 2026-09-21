@@ -60,20 +60,22 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
-              <Crown className="w-3 h-3 text-primary shrink-0" />
-              <span>{subscription.category || 'Standard'}</span>
-            </span>
             {isExpired ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
                 <Clock className="w-3 h-3 shrink-0" />
-                <span>Expired</span>
+                <span>Expired Plan</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800">
-                <CheckCircle2 className="w-3 h-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                <span>Active Plan</span>
-              </span>
+              <>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
+                  <Crown className="w-3 h-3 text-primary shrink-0" />
+                  <span>{subscription.category || 'Standard'}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800">
+                  <CheckCircle2 className="w-3 h-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>Active Plan</span>
+                </span>
+              </>
             )}
             {!isExpired && daysLeft !== null && (
               <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-semibold ${
@@ -90,6 +92,12 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           <h3 className="text-body-lg sm:text-title font-bold text-foreground tracking-tight">
             {formatPlanName(subscription.planName)}
           </h3>
+
+          {isExpired && endDateFormatted && (
+            <p className="text-caption text-muted-foreground">
+              This plan expired on {endDateFormatted}. You are currently on the Free tier. Upgrade anytime to reactivate extra credits.
+            </p>
+          )}
 
           {/* Plan Validity Info Row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-tiny text-muted-foreground pt-0.5">

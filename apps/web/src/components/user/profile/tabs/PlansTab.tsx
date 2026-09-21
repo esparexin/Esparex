@@ -154,9 +154,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           {dashboardData?.wallet && (
             <WalletOverviewCard
               wallet={dashboardData.wallet}
-              plans={dynamicPlans}
               onNavigateToHistory={handleNavigateToHistory}
-              onBrowsePlans={() => setActiveTab('BUY_PLANS')}
             />
           )}
 

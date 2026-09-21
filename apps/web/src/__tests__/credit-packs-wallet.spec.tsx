@@ -322,7 +322,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('Past / Used (1)');
   });
 
-  it('renders all available plans with explicit 0 credits for unpurchased plans in WalletOverviewCard', () => {
+  it('renders clean allowance breakdown and view history link in WalletOverviewCard', () => {
     const mockWallet: WalletSummaryDTO = {
       userId: 'u-1',
       monthlyFreeAdsTotal: 5,
@@ -334,30 +334,26 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       smartAlertSlots: 2,
     };
 
-    const mockPlans = [
-      { id: 'free-1', name: 'Free Starter', type: 'More Ads', price: 0, duration: '30 Days', features: [] },
-      { id: 'spot-1', name: 'Spotlight Booster', type: 'Spotlight', price: 199, duration: '7 Days', features: [] },
-      { id: 'top-1', name: 'Top Ad 5-Pack', type: 'Top Ad', price: 499, duration: '14 Days', features: [] },
-    ];
+    const handleNavigate = vi.fn();
 
     const html = renderToStaticMarkup(
-      <WalletOverviewCard wallet={mockWallet} plans={mockPlans} />
+      <WalletOverviewCard wallet={mockWallet} onNavigateToHistory={handleNavigate} />
     );
 
     expect(html).toContain('5 Available');
-    expect(html).toContain('0 Available');
-    expect(html).toContain('Spotlight Booster');
-    expect(html).toContain('Top Ad 5-Pack');
+    expect(html).toContain('2 Active');
+    expect(html).toContain('0 Credits');
+    expect(html).toContain('View Credit History');
   });
 
-  it('renders de-boxed credit history with dynamic filter chips and purchased plan allocations', () => {
+  it('renders de-boxed credit history with dynamic filter chips and usage ledger', () => {
     const html = renderToStaticMarkup(
       <CreditLedgerHistoryCard creditPacks={mockPacks} />
     );
 
-    expect(html).toContain('Smart Alerts');
     expect(html).toContain('Credit Usage History');
-    expect(html).toContain('Purchased Credit Allocations');
-    expect(html).toContain('Smart Alerts Pack');
+    expect(html).toContain('Smart Alerts');
+    // Confirms the duplicate 4 boxes are successfully removed
+    expect(html).not.toContain('Purchased Credit Allocations');
   });
 });

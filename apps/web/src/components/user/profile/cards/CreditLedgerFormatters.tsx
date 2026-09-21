@@ -44,7 +44,11 @@ export const formatAppliedDateTime = (isoDate: string): string => {
 };
 
 export const renderSpotlightStatus = (tx: CreditLedgerDTO): React.ReactNode => {
-  if (!tx.spotlightStatus && !tx.listingId) return <span className="text-muted-foreground">—</span>;
+  const isSpotlight =
+    tx.entitlementType?.startsWith('SPOTLIGHT') ||
+    (tx.reason && tx.reason.toLowerCase().includes('spotlight'));
+
+  if (!isSpotlight && !tx.spotlightStatus) return <span className="text-muted-foreground">—</span>;
   if (tx.spotlightStatus === 'ACTIVE') {
     return (
       <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -61,7 +65,8 @@ export const renderSpotlightStatus = (tx: CreditLedgerDTO): React.ReactNode => {
 
 export const renderAdStatus = (tx: CreditLedgerDTO): React.ReactNode => {
   if (!tx.adStatus) return <span className="text-muted-foreground">—</span>;
-  if (tx.adStatus === 'ACTIVE' || tx.adStatus === 'active') {
+  const isLive = tx.adStatus === 'ACTIVE' || tx.adStatus === 'active' || tx.adStatus === 'live';
+  if (isLive) {
     return (
       <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
         Active
@@ -70,8 +75,8 @@ export const renderAdStatus = (tx: CreditLedgerDTO): React.ReactNode => {
   }
   if (tx.adStatus === 'EXPIRED' || tx.adStatus === 'expired') {
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-destructive/10 text-destructive border border-destructive/20">
-        Original Ad Expired
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+        Expired
       </span>
     );
   }
@@ -80,6 +85,49 @@ export const renderAdStatus = (tx: CreditLedgerDTO): React.ReactNode => {
       {tx.adStatus}
     </span>
   );
+};
+
+export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode => {
+  const reasonLower = (tx.reason || '').toLowerCase();
+  const isBoost =
+    tx.entitlementType?.startsWith('SPOTLIGHT') ||
+    tx.entitlementType === 'PUSH_TO_TOP' ||
+    reasonLower.includes('spotlight') ||
+    reasonLower.includes('top ad') ||
+    reasonLower.includes('boost');
+
+  if (isBoost) {
+    if (tx.spotlightStatus === 'ACTIVE') {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">
+          Boost Active
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+        Boost Ended
+      </span>
+    );
+  }
+
+  if (tx.adStatus) {
+    const isLive = tx.adStatus === 'ACTIVE' || tx.adStatus === 'active' || tx.adStatus === 'live';
+    if (isLive) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400">
+          Ad Live
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
+        Ad Expired
+      </span>
+    );
+  }
+
+  return <span className="text-muted-foreground">—</span>;
 };
 
 export type LedgerFilterType = 'ALL' | 'MORE_ADS' | 'SPOTLIGHT' | 'TOP_AD' | 'SMART_ALERT';
