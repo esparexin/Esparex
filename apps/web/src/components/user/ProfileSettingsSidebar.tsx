@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter, useParams, usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import type { User } from "@esparex/contracts";
 import {
   PROFILE_TAB_ITEMS,
@@ -27,7 +27,6 @@ import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
-import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
 
@@ -72,7 +71,6 @@ export function ProfileSettingsSidebar({
   initialConversationId,
   initialConversation,
 }: ProfileSettingsProps) {
-  const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
@@ -109,6 +107,7 @@ export function ProfileSettingsSidebar({
   const {
     smartAlertItems,
     savedSearches,
+    quota: smartAlertQuota,
     loading: loadingAlerts,
     toggleSmartAlertStatus,
     deleteSmartAlert,
@@ -192,7 +191,7 @@ export function ProfileSettingsSidebar({
   // and MUST NOT display on the business tab itself (which already renders BusinessApplicationStatus)
   // or on unrelated focused workspaces (mylistings, messages, saved, settings, plans, alerts).
   const isBannerContextual = activeTab === "personal";
-  const businessStatusBanner = isBannerContextual && user?.businessStatus && user.businessStatus !== "live" ? (
+  const businessStatusBanner = isBannerContextual && user?.businessStatus && !isBusinessLive ? (
     <BusinessStatusBanner
       status={user.businessStatus}
       onAction={user.businessStatus === "rejected" ? () => navigateTo("business-register") : () => handleTabChange("business")}
@@ -227,7 +226,7 @@ export function ProfileSettingsSidebar({
       case "business": return (
         <BusinessTab 
           businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} 
-          navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)}
+          navigateTo={navigateTo}
           onDeactivate={deactivateBusiness} onReactivate={reactivateBusiness} onClose={closeBusiness} onRenew={renewBusiness}
         />
       );
@@ -236,8 +235,8 @@ export function ProfileSettingsSidebar({
         <SmartAlertsTab
           smartAlerts={smartAlertItems} savedSearches={savedSearches} userPlan={user?.plan || "Free"} smartAlertForm={smartAlertForm} updateSmartAlertForm={updateSmartAlertForm} handleCreateAlert={handleCreateAlert}
           handleToggleAlertStatus={(id) => { void toggleSmartAlertStatus(id); }} handleDeleteAlert={(id) => { void deleteSmartAlert(id); }} handleDeleteSavedSearch={(id) => { void deleteSavedSearch(id); }}
-          handleViewAlertMatches={(alert) => { void router.push(buildPublicBrowseRoute({ type: "ad", q: alert.keywords, category: alert.category, locationId: alert.locationId, location: alert.locationId ? undefined : alert.location, radiusKm: alert.radiusKm })); }}
           handleEditAlert={(alert) => handleEditAlert(alert)} editingAlertId={editingAlertId} resetAlertForm={resetAlertForm} setActiveTab={setActiveTabFromChild} loading={loadingAlerts} smartAlertErrors={smartAlertErrors} smartAlertGlobalError={smartAlertGlobalError} clearSmartAlertError={clearSmartAlertError}
+          quota={smartAlertQuota}
         />
       );
       case "purchases": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="INVOICES" />;

@@ -58,6 +58,7 @@ export const USER_ROUTES = {
 
   // Smart Alerts
   SMART_ALERTS: "smart-alerts",
+  SMART_ALERTS_MATCHES: "smart-alerts/matches",
   SMART_ALERT_DETAIL: (id: string | number) => `smart-alerts/${encodeURIComponent(String(id))}`,
   SMART_ALERT_TOGGLE_STATUS: (id: string | number) =>
     `smart-alerts/${encodeURIComponent(String(id))}/toggle-status`,

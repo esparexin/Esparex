@@ -1,5 +1,4 @@
-import { Button } from "@esparex/ui";
-import { Skeleton } from "@esparex/ui";
+import { Button, Pagination, Skeleton } from "@esparex/ui";
 
 interface UserListingsTemplateProps<TStatus extends string, TItem> {
     title?: string;
@@ -137,45 +136,24 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             ))}
                         </div>
 
-                        {pagination && (() => {
-                            const effectiveTotal = pagination.total > 0 ? pagination.total : items.length;
-                            const effectiveLimit = pagination.limit > 0 ? pagination.limit : 10;
-                            const totalPages = Math.max(1, Math.ceil(effectiveTotal / effectiveLimit));
-                            const shouldShow = effectiveTotal > effectiveLimit || pagination.page > 1;
-
-                            if (!shouldShow) return null;
-
-                            return (
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 pb-2 border-t border-border text-caption">
-                                    <p className="text-foreground-secondary font-medium">
-                                        Showing <span className="font-semibold text-foreground">{effectiveTotal > 0 ? Math.min((pagination.page - 1) * effectiveLimit + 1, effectiveTotal) : 0}</span> to <span className="font-semibold text-foreground">{Math.min(pagination.page * effectiveLimit, effectiveTotal)}</span> of <span className="font-semibold text-foreground">{effectiveTotal}</span> listings
-                                    </p>
-                                    <div className="flex items-center gap-1.5">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
-                                            disabled={pagination.page <= 1}
-                                            className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
-                                        >
-                                            Previous
-                                        </Button>
-                                        <span className="px-2 font-semibold text-foreground-secondary">
-                                            Page {pagination.page} of {totalPages}
-                                        </span>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => pagination.onPageChange(Math.min(totalPages, pagination.page + 1))}
-                                            disabled={pagination.page >= totalPages}
-                                            className="h-8 px-3 text-caption font-semibold rounded-lg border-border text-foreground-secondary hover:bg-muted disabled:opacity-40 cursor-pointer"
-                                        >
-                                            Next
-                                        </Button>
-                                    </div>
-                                </div>
-                            );
-                        })()}
+                        {pagination && (
+                            <Pagination
+                                currentPage={pagination.page}
+                                totalPages={Math.max(
+                                    1,
+                                    Math.ceil(
+                                        (pagination.total > 0 ? pagination.total : items.length) /
+                                        (pagination.limit > 0 ? pagination.limit : 4)
+                                    )
+                                )}
+                                totalItems={pagination.total > 0 ? pagination.total : items.length}
+                                pageSize={pagination.limit > 0 ? pagination.limit : 4}
+                                onPageChange={pagination.onPageChange}
+                                itemLabel="listings"
+                                alwaysShow={false}
+                                className="pt-3 pb-2 border-t border-border"
+                            />
+                        )}
                     </>
                 )}
             </div>

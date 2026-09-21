@@ -105,7 +105,11 @@ export const restoreAd = async (id: string, actorId?: string, actorType: 'user' 
  * otherwise falls back to hardcoded GOVERNANCE constants.
  */
 export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTING_TYPE.AD): Promise<Date> => {
-    let days = GOVERNANCE.AD.EXPIRY_DAYS; // Default 30
+    let days = listingType === LISTING_TYPE.SERVICE
+        ? 90
+        : listingType === LISTING_TYPE.SPARE_PART
+            ? 60
+            : GOVERNANCE.AD.EXPIRY_DAYS;
 
     try {
         const config = await getSystemConfigForRead();
@@ -113,17 +117,10 @@ export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTIN
             const dynamicDays = config.listing.expiryDays[listingType];
             if (typeof dynamicDays === 'number') {
                 days = dynamicDays;
-            } else if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
-                days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
             }
-        } else if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
-            days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
         }
     } catch (error) {
-        logger.warn('computeActiveExpiry: Failed to fetch SystemConfig, falling back to constants', { error });
-        if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
-            days = GOVERNANCE.CONTENT.EXPIRY_DAYS;
-        }
+        logger.warn('computeActiveExpiry: Failed to fetch SystemConfig, falling back to defaults', { error });
     }
 
     return new Date(Date.now() + days * MS_IN_DAY);

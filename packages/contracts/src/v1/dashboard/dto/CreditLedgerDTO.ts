@@ -8,5 +8,13 @@ export interface CreditLedgerDTO {
   entitlementType?: EntitlementType;
   reason: string;
   listingId?: string;
+  adTitle?: string;
+  adSlug?: string;
+  adStatus?: 'active' | 'expired' | 'sold' | string;
+  adExpiresAt?: string;
+  adRemainingDays?: number;
+  validityText?: string;
+  spotlightExpiresAt?: string;
+  spotlightStatus?: 'ACTIVE' | 'EXPIRED';
   createdAt: string;
 }

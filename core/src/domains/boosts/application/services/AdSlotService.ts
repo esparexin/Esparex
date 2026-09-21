@@ -93,7 +93,7 @@ export async function syncWalletCycle(
         { userId },
         {
             $setOnInsert: { userId, adCredits: 0 },
-            $set: { monthlyFreeAdsUsed: 0, lastMonthlyReset: cycleStart },
+            $set: { monthlyFreeAdsUsed: 0, monthlyFreeAlertsUsed: 0, lastMonthlyReset: cycleStart },
         },
         { upsert: true, session }
     );

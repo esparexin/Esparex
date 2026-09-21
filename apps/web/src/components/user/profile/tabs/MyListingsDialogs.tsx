@@ -167,6 +167,7 @@ export function MyListingsDialogs({
           adTitle={boostAd.title}
           isSpotlight={Boolean(boostAd.isSpotlight)}
           isBoosted={Boolean(boostAd.isBoosted)}
+          adExpiresAt={boostAd.expiresAt}
           onPlanPurchased={onBoostPlanPurchased}
         />
       )}

@@ -1,5 +1,6 @@
-import { PageSection } from "@/components/layout";
+import { useState } from "react";
 import {
+    Card,
     Button,
     AlertDialog,
     AlertDialogContent,
@@ -9,13 +10,18 @@ import {
     AlertDialogFooter,
     AlertDialogAction,
     AlertDialogCancel,
+    AlertTriangle,
+    Clock,
+    AlertCircle,
+    Edit2,
+    XCircle,
+    CheckCircle2,
+    Trash2,
+    type LucideIcon,
 } from "@esparex/ui";
-import { Separator } from "@esparex/ui";
-import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2, type LucideIcon } from "@esparex/ui";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { type Business, withdrawBusiness } from "@/lib/api/user/businesses";
 import { notify } from "@/lib/feedback";
-import { useState } from "react";
 
 interface BusinessApplicationStatusProps {
     businessData: Business | null;
@@ -25,49 +31,100 @@ interface BusinessApplicationStatusProps {
 }
 
 interface StatusCardProps {
-    cardClass: string;
-    iconBgClass: string;
+    badge: { label: string; className: string };
     Icon: LucideIcon;
-    titleClass?: string;
-    title: string;
-    description: string;
+    iconBgClass: string;
+    subtitle: string;
     businessName: string;
-    businessNameAppended?: React.ReactNode;
+    businessCategory?: string;
     children?: React.ReactNode;
     actions: React.ReactNode;
 }
 
+const TIMELINE_STEPS = [
+    { title: "Submitted", desc: "Docs received", state: "done" },
+    { title: "Under Review", desc: "Verifying details", state: "active" },
+    { title: "Activation", desc: "24–48h estimate", state: "upcoming" },
+] as const;
+
 function StatusCard({
-    cardClass, iconBgClass, Icon, titleClass, title, description, businessName, businessNameAppended, children, actions
+    badge,
+    Icon,
+    iconBgClass,
+    subtitle,
+    businessName,
+    businessCategory,
+    children,
+    actions,
 }: StatusCardProps) {
     return (
-        <PageSection
-            variant="bordered"
-            className={`bg-gradient-to-br ${cardClass}`}
-            title={
-                <div className="flex items-center gap-2.5">
-                    <div className={`h-9 w-9 rounded-full flex items-center justify-center ${iconBgClass} shrink-0`}>
-                        <Icon className="h-5 w-5 text-white" />
+        <Card className="rounded-2xl border border-border shadow-xs bg-card p-3.5 sm:p-4">
+            {/* Unified Compact Header: Identity + Badge + Actions */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-border/70">
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${iconBgClass}`}>
+                        <Icon className="h-4.5 w-4.5" />
                     </div>
-                    <div>
-                        <span className={`text-base sm:text-lg font-bold ${titleClass || ''}`}>{title}</span>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-body font-bold text-foreground truncate">{businessName}</span>
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-tiny font-semibold border shrink-0 ${badge.className}`}>
+                                {badge.label}
+                            </span>
+                            {businessCategory && (
+                                <span className="text-tiny text-foreground-secondary hidden sm:inline-block shrink-0 px-2 py-0.5 rounded-md bg-muted/60 border border-border/70">
+                                    {businessCategory}
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-tiny text-foreground-secondary mt-0.5 truncate">{subtitle}</p>
                     </div>
                 </div>
-            }
-            subtitle={description}
-        >
-            <div className="bg-card rounded-xl p-4 border border-border mb-4">
-                <p className="font-medium text-caption text-foreground-subtle uppercase tracking-wider mb-1">Business Name:</p>
-                <p className={`text-body-lg font-bold text-foreground ${businessNameAppended ? 'mb-3' : ''}`}>
-                    {businessName}
-                </p>
-                {businessNameAppended}
+
+                <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                    {actions}
+                </div>
             </div>
-            {children}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-                {actions}
-            </div>
-        </PageSection>
+
+            {/* Compact Body / Timeline */}
+            {children && <div className="mt-2.5">{children}</div>}
+        </Card>
+    );
+}
+
+function WithdrawModal({
+    open,
+    onOpenChange,
+    onConfirm,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onConfirm: () => void;
+}) {
+    return (
+        <AlertDialog open={open} onOpenChange={onOpenChange}>
+            <AlertDialogContent className="max-w-md rounded-2xl bg-card p-6 shadow-2xl border border-border">
+                <AlertDialogHeader>
+                    <AlertDialogTitle className="text-h4 font-bold text-foreground">
+                        Withdraw Business Application?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-body text-muted-foreground mt-2">
+                        Are you sure you want to withdraw your business application? This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
+                    <AlertDialogCancel className="h-9 rounded-xl px-4 font-semibold text-caption border-border">
+                        Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={onConfirm}
+                        className="h-9 rounded-xl bg-destructive text-destructive-foreground font-semibold text-caption hover:bg-destructive/90"
+                    >
+                        Withdraw
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -75,14 +132,13 @@ export function BusinessApplicationStatus({
     businessData,
     onEditApplication,
     navigateToBusinessTab,
-    onWithdraw
+    onWithdraw,
 }: BusinessApplicationStatusProps) {
     const [isWithdrawing, setIsWithdrawing] = useState(false);
     const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
-    const businessDataStatus = businessData
-        ? normalizeBusinessStatus(businessData.status, "pending")
-        : "pending";
+    const status = businessData ? normalizeBusinessStatus(businessData.status, "pending") : "pending";
     const businessLabel = businessData?.name || "Pending Business";
+    const category = businessData?.businessType ?? businessData?.businessTypes?.[0];
 
     const confirmWithdraw = async () => {
         setIsWithdrawing(true);
@@ -98,229 +154,156 @@ export function BusinessApplicationStatus({
         }
     };
 
-    let cardContent: React.ReactNode = null;
-
-    if (businessDataStatus === "pending") {
-        cardContent = (
-            <StatusCard
-                cardClass="from-yellow-50 to-amber-50 border border-yellow-200"
-                iconBgClass="bg-yellow-600"
-                Icon={AlertTriangle}
-                title="Business Verification Pending"
-                description="Your application is under review"
-                businessName={businessLabel}
-                actions={
-                    <>
-                        <Button
-                            onClick={onEditApplication}
-                            variant="outline"
-                            className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                            disabled={!onEditApplication}
-                        >
-                            <Edit2 className="h-4 w-4 mr-2" />
-                            Edit Application
-                        </Button>
-                        <Button
-                            onClick={() => setShowWithdrawDialog(true)}
-                            variant="outline"
-                            disabled={isWithdrawing}
-                            className="flex-1 text-red-600 border-red-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                        >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            {isWithdrawing ? "Withdrawing..." : "Withdraw Application"}
-                        </Button>
-                    </>
-                }
-            >
-                <div className="space-y-3 mb-4">
-                    <h4 className="font-semibold text-sm">Verification Status:</h4>
-                    <div className="space-y-2">
-                        <div className="flex items-start gap-3">
-                            <div className="h-6 w-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
-                                <CheckCircle2 className="h-4 w-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-medium">Submitted</p>
-                                <p className="text-xs text-muted-foreground">Application received successfully</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="h-6 w-6 rounded-full bg-yellow-600 flex items-center justify-center flex-shrink-0 animate-pulse">
-                                <Clock className="h-4 w-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-medium">Under Review</p>
-                                <p className="text-xs text-muted-foreground">Our team is verifying your details</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                            <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                                <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-medium text-muted-foreground">Approval Pending</p>
-                                <p className="text-xs text-muted-foreground">Usually takes 24-48 hours</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-link-dark mb-4">
-                    <p className="font-medium mb-1">What happens next?</p>
-                    <p className="text-xs">You&apos;ll receive a notification once your business is verified. After approval, you can start adding services and managing your business profile.</p>
-                </div>
-            </StatusCard>
-        );
-    } else if (businessData && businessDataStatus === "rejected") {
-        cardContent = (
-            <StatusCard
-                cardClass="from-red-50 to-rose-50 border border-red-200"
-                iconBgClass="bg-red-600"
-                Icon={XCircle}
-                titleClass="text-red-900"
-                title="Business Verification Not Approved"
-                description="Your application needs attention"
-                businessName={businessLabel}
-                businessNameAppended={
-                    <>
-                        <Separator className="my-3" />
-                        <p className="font-medium mb-1 text-red-900">Reason for Rejection:</p>
-                        <div className="bg-red-50 border border-red-200 rounded p-3">
-                            <p className="text-sm text-red-700">
-                                {businessData.rejectionReason || "The business documents provided were unclear or incomplete. Please ensure all required documents are legible and match the business information provided."}
-                            </p>
-                        </div>
-                    </>
-                }
-                actions={
-                    <>
-                        {navigateToBusinessTab && (
+    if (status === "pending") {
+        return (
+            <div className="max-w-2xl space-y-2.5">
+                <WithdrawModal open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog} onConfirm={confirmWithdraw} />
+                <StatusCard
+                    Icon={Clock}
+                    iconBgClass="bg-amber-500/10 text-amber-600"
+                    badge={{ label: "Under Review", className: "bg-amber-50 text-amber-700 border-amber-200" }}
+                    subtitle="Verification is being reviewed by our team"
+                    businessName={businessLabel}
+                    businessCategory={category}
+                    actions={
+                        <>
                             <Button
-                                onClick={navigateToBusinessTab}
+                                type="button"
+                                onClick={onEditApplication}
                                 variant="outline"
-                                className="w-full text-red-700 border-red-200 hover:bg-red-50"
+                                size="sm"
+                                disabled={!onEditApplication}
+                                className="h-8 px-2.5 rounded-xl border-border text-caption font-semibold gap-1.5 whitespace-nowrap"
                             >
-                                Manage Business Profile
+                                <Edit2 className="h-3.5 w-3.5" />
+                                Edit Application
                             </Button>
-                        )}
-                        <Button
-                            onClick={onEditApplication}
-                            className="w-full bg-green-600 hover:bg-green-700 gap-2"
-                            disabled={!onEditApplication}
-                        >
-                            <Edit2 className="h-4 w-4" />
-                            Edit & Resubmit
-                        </Button>
-                    </>
-                }
-            >
-                <div className="space-y-3 mb-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-link-dark">
-                        <p className="font-medium mb-1">What you can do:</p>
-                        <ul className="text-xs space-y-1 list-disc list-inside">
-                            <li>Review the rejection reason carefully</li>
-                            <li>Update your business information</li>
-                            <li>Upload clear, valid documents</li>
-                            <li>Resubmit your application</li>
-                        </ul>
-                    </div>
-                </div>
-            </StatusCard>
-        );
-    } else if (businessData && businessDataStatus === "suspended") {
-        cardContent = (
-            <StatusCard
-                cardClass="from-orange-50 to-amber-50 border border-orange-200"
-                iconBgClass="bg-orange-600"
-                Icon={AlertTriangle}
-                titleClass="text-orange-900"
-                title="Business Account Suspended"
-                description="Your business operations have been temporarily halted"
-                businessName={businessLabel}
-                actions={
-                    <Button
-                        onClick={() => window.location.href = '/contact'}
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                    >
-                        Contact Support
-                    </Button>
-                }
-            >
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-700 mb-4">
-                    <p className="font-medium mb-1">What this means:</p>
-                    <p className="text-xs">Your public store is hidden and you currently cannot post new services or receive customer inquiries. Please contact admin support to resolve any outstanding issues and restore your account.</p>
-                </div>
-            </StatusCard>
-        );
-    } else if (businessData && businessDataStatus === "deleted") {
-        cardContent = (
-            <StatusCard
-                cardClass="from-muted/40 to-muted border border-border"
-                iconBgClass="bg-gray-600"
-                Icon={Clock}
-                titleClass="text-foreground"
-                title="Business Profile Expired/Deleted"
-                description="Your registration validity has concluded or account was deleted"
-                businessName={businessLabel}
-                actions={
-                    <>
-                        {navigateToBusinessTab && (
                             <Button
-                                onClick={navigateToBusinessTab}
+                                type="button"
+                                onClick={() => setShowWithdrawDialog(true)}
                                 variant="outline"
-                                className="w-full text-foreground-secondary border-border hover:bg-muted"
+                                size="sm"
+                                disabled={isWithdrawing}
+                                className="h-8 px-2.5 rounded-xl border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold text-caption gap-1.5 whitespace-nowrap"
                             >
-                                Manage Profile
+                                <Trash2 className="h-3.5 w-3.5" />
+                                {isWithdrawing ? "Withdrawing..." : "Withdraw"}
                             </Button>
-                        )}
-                        <Button
-                            onClick={onEditApplication}
-                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                            disabled={!onEditApplication}
-                        >
-                            Renew Registration
-                        </Button>
-                    </>
-                }
-            >
-                <div className="bg-muted border border-border rounded-lg p-3 text-body text-foreground-secondary mb-4">
-                    <p className="font-medium mb-1">Action Required:</p>
-                    <p className="text-caption">Your business registration has reached its expiry date. Your profile and services are currently offline. You must renew or re-verify your registration to continue operations.</p>
-                </div>
-            </StatusCard>
+                        </>
+                    }
+                >
+                    {/* Horizontal Compact 3-Step Progress */}
+                    <div className="p-2.5 rounded-xl border border-border/70 bg-muted/30 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {TIMELINE_STEPS.map((step) => {
+                            const IconComponent = step.state === "done" ? CheckCircle2 : step.state === "active" ? Clock : AlertCircle;
+                            const iconStyle = step.state === "done"
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                : step.state === "active"
+                                ? "bg-amber-50 text-amber-600 border-amber-300 animate-pulse"
+                                : "bg-muted text-foreground-subtle border-border";
+                            return (
+                                <div key={step.title} className="flex items-center gap-2 min-w-0">
+                                    <div className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 ${iconStyle}`}>
+                                        <IconComponent className="h-3 w-3" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className={`text-caption font-semibold truncate ${step.state === "active" ? "text-amber-700" : "text-foreground"}`}>
+                                            {step.title}
+                                        </p>
+                                        <p className="text-tiny text-foreground-subtle truncate">{step.desc}</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Single-line Notice Callout */}
+                    <div className="mt-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/15 flex items-center gap-2 text-tiny text-foreground-secondary">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="truncate">
+                            Notification sent on approval. Then you can post services & spare parts immediately.
+                        </span>
+                    </div>
+                </StatusCard>
+            </div>
         );
     }
 
-    if (!cardContent) {
-        return null;
+    if (businessData && status === "rejected") {
+        return (
+            <div className="max-w-2xl space-y-2.5">
+                <StatusCard
+                    Icon={XCircle}
+                    iconBgClass="bg-destructive/10 text-destructive"
+                    badge={{ label: "Action Required", className: "bg-destructive/10 text-destructive border-destructive/20" }}
+                    subtitle="Registration requires updates before approval"
+                    businessName={businessLabel}
+                    businessCategory={category}
+                    actions={
+                        <>
+                            {navigateToBusinessTab && (
+                                <Button
+                                    type="button"
+                                    onClick={navigateToBusinessTab}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-2.5 rounded-xl border-border text-caption font-semibold whitespace-nowrap"
+                                >
+                                    Manage Profile
+                                </Button>
+                            )}
+                            <Button
+                                type="button"
+                                onClick={onEditApplication}
+                                size="sm"
+                                disabled={!onEditApplication}
+                                className="h-8 px-3 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption gap-1.5 whitespace-nowrap"
+                            >
+                                <Edit2 className="h-3.5 w-3.5" />
+                                Edit & Resubmit
+                            </Button>
+                        </>
+                    }
+                >
+                    <div className="p-2.5 rounded-xl border border-destructive/20 bg-destructive/5 text-caption">
+                        <span className="font-bold text-destructive mr-1.5">Reason:</span>
+                        <span className="text-foreground-secondary">
+                            {businessData.rejectionReason || "Documents provided were unclear or incomplete."}
+                        </span>
+                    </div>
+                </StatusCard>
+            </div>
+        );
     }
 
-    return (
-        <>
-            <AlertDialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
-                <AlertDialogContent className="max-w-md rounded-2xl bg-card p-6 shadow-2xl">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-h4 font-bold text-foreground">
-                            Withdraw Business Application?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-body text-muted-foreground mt-2">
-                            Are you sure you want to withdraw your business application? This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
-                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={confirmWithdraw}
-                            className="h-10 rounded-xl bg-destructive text-destructive-foreground font-medium hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+    if (businessData && status === "suspended") {
+        return (
+            <div className="max-w-2xl space-y-2.5">
+                <StatusCard
+                    Icon={AlertTriangle}
+                    iconBgClass="bg-amber-500/10 text-amber-600"
+                    badge={{ label: "Suspended", className: "bg-amber-50 text-amber-700 border-amber-200" }}
+                    subtitle="Operations have been temporarily halted"
+                    businessName={businessLabel}
+                    businessCategory={category}
+                    actions={
+                        <Button
+                            type="button"
+                            onClick={() => { window.location.href = '/contact'; }}
+                            size="sm"
+                            className="h-8 px-3.5 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption whitespace-nowrap"
                         >
-                            Withdraw
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-            {cardContent}
-        </>
-    );
+                            Contact Support
+                        </Button>
+                    }
+                >
+                    <div className="p-2.5 rounded-xl border border-border/70 bg-muted/40 text-tiny text-foreground-secondary">
+                        Your public profile is hidden. Please contact support to restore your account.
+                    </div>
+                </StatusCard>
+            </div>
+        );
+    }
+
+    return null;
 }

@@ -5,6 +5,7 @@ import Entitlement from '../../../models/Entitlement';
 import { getUserConnection } from '../../../config/db';
 import { AppError } from '../../../utils/AppError';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
+import { FEFOEntitlementConsumptionEngine } from '../../entitlements/application/FEFOEntitlementConsumptionEngine';
 
 
 export interface WalletAmount {
@@ -248,6 +249,10 @@ export const debit = async ({
             if (wallet.spotlightCredits < amount.spotlightCredits) throw new AppError('Insufficient Spotlight Credits.', 422, 'INSUFFICIENT_CREDITS');
             decrementPayload.spotlightCredits = -Math.abs(amount.spotlightCredits);
         }
+        if (amount.boostCredits) {
+            if (wallet.boostCredits < amount.boostCredits) throw new AppError('Insufficient Boost Credits.', 422, 'INSUFFICIENT_CREDITS');
+            decrementPayload.boostCredits = -Math.abs(amount.boostCredits);
+        }
         if (amount.smartAlertSlots) {
             if (wallet.smartAlertSlots < amount.smartAlertSlots) throw new AppError('Insufficient Smart Alert Slots.', 422, 'INSUFFICIENT_CREDITS');
             decrementPayload.smartAlertSlots = -Math.abs(amount.smartAlertSlots);
@@ -262,6 +267,44 @@ export const debit = async ({
             { $inc: decrementPayload },
             { new: true, ...(activeSession ? { session: activeSession } : {}) }
         );
+
+        // Synchronize Entitlement documents via FEFO (earliest expiring pack consumed first)
+        if (amount.adCredits && amount.adCredits > 0) {
+            await FEFOEntitlementConsumptionEngine.consumeFEFO({
+                userId,
+                type: 'AD_POSTING',
+                amount: amount.adCredits,
+                reason,
+                session: activeSession,
+            });
+        }
+        if (amount.spotlightCredits && amount.spotlightCredits > 0) {
+            await FEFOEntitlementConsumptionEngine.consumeFEFO({
+                userId,
+                type: 'SPOTLIGHT_CAT',
+                amount: amount.spotlightCredits,
+                reason,
+                session: activeSession,
+            });
+        }
+        if (amount.boostCredits && amount.boostCredits > 0) {
+            await FEFOEntitlementConsumptionEngine.consumeFEFO({
+                userId,
+                type: 'PUSH_TO_TOP',
+                amount: amount.boostCredits,
+                reason,
+                session: activeSession,
+            });
+        }
+        if (amount.smartAlertSlots && amount.smartAlertSlots > 0) {
+            await FEFOEntitlementConsumptionEngine.consumeFEFO({
+                userId,
+                type: 'SMART_ALERT_SLOT',
+                amount: amount.smartAlertSlots,
+                reason,
+                session: activeSession,
+            });
+        }
 
         await recordTransaction({
             userId,

@@ -105,33 +105,17 @@ export const getCreditLedgerHistory = async (req: Request, res: Response) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
     const skip = (page - 1) * limit;
 
-    const { TransactionModel } = await import('@esparex/core/domains/payments/application/WalletService');
+    const { getCreditLedgerHistoryByUserId } = await import(
+      '@esparex/core/domains/payments/application/WalletQueryService'
+    );
 
-    const [items, total] = await Promise.all([
-      TransactionModel.find({ userId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      TransactionModel.countDocuments({ userId }),
-    ]);
-
-    const formattedItems = items.map((tx: Record<string, unknown>) => ({
-      transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
-      type: (tx.type as string) || 'DEBIT',
-      creditPool: (tx.creditPool as string) || 'PURCHASED',
-      amount: (tx.amount as number) || 1,
-      entitlementType: (tx.entitlementType as string) || 'AD_POSTING',
-      reason: (tx.reason as string) || 'Credit Transaction',
-      listingId: (tx.listingId as { toString(): string } | undefined)?.toString(),
-      createdAt: tx.createdAt ? new Date(String(tx.createdAt)).toISOString() : new Date().toISOString(),
-    }));
+    const { items, total } = await getCreditLedgerHistoryByUserId(userId, { limit, skip });
 
     res.json(
       respond({
         success: true,
         data: {
-          items: formattedItems,
+          items,
           pagination: {
             page,
             limit,

@@ -93,6 +93,9 @@ export function ListingDetailDialogs({
         adTitle={ad.title}
         open={showBoostDialog}
         onOpenChange={setShowBoostDialog}
+        isSpotlight={Boolean(ad.isSpotlight)}
+        isBoosted={Boolean(ad.isBoosted)}
+        adExpiresAt={ad.expiresAt}
         onListingUnavailable={onListingUnavailable}
       />
 

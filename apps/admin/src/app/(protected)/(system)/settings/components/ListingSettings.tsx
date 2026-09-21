@@ -17,7 +17,7 @@ const FIELDS: SettingsFieldSchema[] = [
     label: "Service Expiry (days)",
     description: "Used by the listing expiry service for service listings.",
     path: "expiryDays.service",
-    default: 30,
+    default: 90,
     min: 1,
   },
   {
@@ -25,7 +25,23 @@ const FIELDS: SettingsFieldSchema[] = [
     label: "Spare-Part Expiry (days)",
     description: "Used by the listing expiry service for spare-part listings.",
     path: "expiryDays.spare_part",
-    default: 30,
+    default: 60,
+    min: 1,
+  },
+  {
+    type: "number",
+    label: "Service Posting Limit",
+    description: "Maximum active service listings allowed per verified business.",
+    path: "thresholds.businessServiceLimit",
+    default: 100,
+    min: 1,
+  },
+  {
+    type: "number",
+    label: "Spare-Part Posting Limit",
+    description: "Maximum active spare-part listings allowed per verified business.",
+    path: "thresholds.businessSparePartLimit",
+    default: 100,
     min: 1,
   },
   {

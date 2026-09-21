@@ -72,3 +72,4 @@ export * from "./layout/Grid";
 export * from "./layout/PageLayout";
 export * from "./navigation/NavigationModel";
 export * from "./navigation/BottomNavigation";
+export * from "./navigation/Pagination";

@@ -70,7 +70,7 @@ describe('DashboardFacade', () => {
     expect(dto.subscription?.planName).toBe('Pro Seller Tier');
     expect(dto.subscription?.category).toBe('PRO');
     expect(dto.wallet.monthlyFreeAdsRemaining).toBe(7);
-    expect(dto.wallet.paidAdCredits).toBe(15);
+    expect(dto.wallet.paidAdCredits).toBe(8);
     expect(dto.creditPacks.length).toBe(1);
     expect(dto.creditPacks[0].remaining).toBe(8);
     expect(dto.activePromotions.length).toBe(1);

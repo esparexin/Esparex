@@ -22,7 +22,7 @@ interface ProximityFilterShape {
   radiusKm?: number;
 }
 
-interface ServiceLocationFilterShape extends ProximityFilterShape {}
+type ServiceLocationFilterShape = ProximityFilterShape;
 
 type RequestedLocationFilterShape = ProximityFilterShape;
 

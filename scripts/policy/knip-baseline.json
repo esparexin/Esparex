@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "version": "1.0.0",
-  "updatedAt": "2026-09-20T07:17:56.157Z",
+  "updatedAt": "2026-09-21T01:14:25.101Z",
   "description": "Authoritative Knip technical debt baseline. Can only ratchet decrease, never increase.",
-  "maxUnusedExports": 260,
+  "maxUnusedExports": 259,
   "maxUnusedTypes": 97,
   "maxDuplicateExports": 41,
   "maxUnusedFiles": 0

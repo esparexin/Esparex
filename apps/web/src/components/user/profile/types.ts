@@ -38,6 +38,7 @@ export type SmartAlertListItem = {
   totalMatches?: number;
   active?: boolean;
   notificationChannels?: string[];
+  createdAt?: string;
 };
 
 export type SmartAlertItem = SmartAlertListItem;
