@@ -372,7 +372,7 @@ export const getInvoice = async (req: Request, res: Response) => {
                         <div class="meta-col">
                             <h3>Billed To (Customer)</h3>
                             <p><strong>${user.name || 'Valued Customer'}</strong></p>
-                            <p>${user.email}</p>
+                            ${user.email ? `<p>${user.email}</p>` : ''}
                             <p>${user.mobile || '-'}</p>
                             <p><strong>Invoice Date:</strong> ${date}</p>
                             <p><strong>Payment Order:</strong> ${orderId}</p>
