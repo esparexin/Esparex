@@ -69,7 +69,7 @@ export const getCreditLedgerHistoryByUserId = async (
     );
 
     const ads = listingIds.length > 0
-        ? await Ad.find({ _id: { $in: listingIds } }).select('_id title seoSlug status expiresAt').lean()
+        ? await Ad.find({ _id: { $in: listingIds } }).select('_id title seoSlug status expiresAt createdAt').lean()
         : [];
 
     const adMap = new Map<string, RawAdMetadata>(
@@ -81,6 +81,7 @@ export const getCreditLedgerHistoryByUserId = async (
                 seoSlug: typeof a.seoSlug === 'string' ? a.seoSlug : undefined,
                 status: typeof a.status === 'string' ? a.status : undefined,
                 expiresAt: a.expiresAt as Date | string | undefined,
+                createdAt: (a as { createdAt?: Date }).createdAt,
             },
         ])
     );

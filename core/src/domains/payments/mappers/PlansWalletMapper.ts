@@ -20,6 +20,8 @@ export interface RawAdMetadata {
   seoSlug?: string;
   status?: string;
   expiresAt?: Date | string;
+  /** When the listing was originally created/posted by the user */
+  createdAt?: Date | string;
 }
 
 export interface RawDashboardData {
@@ -283,6 +285,10 @@ export class PlansWalletMapper {
         spotlightStatus = spotEndsMs <= now ? 'EXPIRED' : 'ACTIVE';
       }
 
+      const adPostedAt: string | undefined = ad?.createdAt
+        ? new Date(String(ad.createdAt)).toISOString()
+        : undefined;
+
       return {
         transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
         type: ((tx.type as string) || 'DEBIT') as CreditLedgerDTO['type'],
@@ -294,6 +300,7 @@ export class PlansWalletMapper {
         adTitle,
         adSlug,
         adStatus,
+        adPostedAt,
         adExpiresAt,
         adRemainingDays,
         validityText,

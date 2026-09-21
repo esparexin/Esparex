@@ -46,10 +46,6 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
   const creditWord = absAmount === 1 ? 'credit' : 'credits';
   const adTarget = tx.adSlug || tx.listingId;
 
-  const expiresAt = tx.spotlightExpiresAt ?? tx.adExpiresAt ?? null;
-  const activatedLabel = isDebit ? 'Applied on' : 'Credited on';
-  const expiryLabel = tx.spotlightExpiresAt ? 'Boost expires' : 'Listing expires';
-
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent
@@ -65,20 +61,38 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
         </DialogHeader>
 
         <div className="px-5 py-3">
-          <Row label={activatedLabel}>{formatAppliedDateTime(tx.createdAt)}</Row>
+          {/* 1. When the listing was originally posted — distinct from when credit was applied */}
+          {tx.adPostedAt && (
+            <Row label="Listing posted">{formatDate(tx.adPostedAt)}</Row>
+          )}
 
+          {/* 2. When the credit activity happened (spotlight applied / ad posted / credit added) */}
+          <Row label={isDebit ? (tx.spotlightExpiresAt ? 'Boost applied' : 'Ad posting used') : 'Credited on'}>
+            {formatAppliedDateTime(tx.createdAt)}
+          </Row>
+
+          {/* 3. Validity period of the credit/entitlement */}
           {tx.validityText && (
             <Row label="Validity">{tx.validityText}</Row>
           )}
 
-          {expiresAt && (
-            <Row label={expiryLabel}>
-              <span className={new Date(expiresAt).getTime() <= Date.now() ? 'text-destructive' : 'text-foreground'}>
-                {formatDate(expiresAt)}
+          {/* 4. Expiry — ad expiry or boost expiry, whichever is relevant */}
+          {tx.spotlightExpiresAt && (
+            <Row label="Boost expires">
+              <span className={new Date(tx.spotlightExpiresAt).getTime() <= Date.now() ? 'text-destructive' : 'text-foreground'}>
+                {formatDate(tx.spotlightExpiresAt)}
+              </span>
+            </Row>
+          )}
+          {tx.adExpiresAt && (
+            <Row label="Ad expires">
+              <span className={new Date(tx.adExpiresAt).getTime() <= Date.now() ? 'text-destructive' : 'text-foreground'}>
+                {formatDate(tx.adExpiresAt)}
               </span>
             </Row>
           )}
 
+          {/* 5. Listing link */}
           {adTarget && (
             <Row label="Listing">
               <Link
@@ -92,12 +106,14 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
             </Row>
           )}
 
+          {/* 6. Amount */}
           <Row label="Amount">
             <span className={isDebit ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold'}>
               {isDebit ? `-${absAmount} ${creditWord} used` : `+${absAmount} ${creditWord} added`}
             </span>
           </Row>
 
+          {/* 7. Status */}
           <Row label="Status">{renderTransactionStatus(tx)}</Row>
         </div>
 

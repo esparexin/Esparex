@@ -11,6 +11,8 @@ export interface CreditLedgerDTO {
   adTitle?: string;
   adSlug?: string;
   adStatus?: 'active' | 'expired' | 'sold' | string;
+  /** ISO date when the listing was originally posted by the user (ad.createdAt) */
+  adPostedAt?: string;
   adExpiresAt?: string;
   adRemainingDays?: number;
   validityText?: string;
