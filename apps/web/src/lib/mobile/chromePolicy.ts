@@ -4,6 +4,7 @@ export interface MobileChromePolicy {
   showContextActionBar: boolean;
   showStickySearch: boolean;
   showMobileSearch: boolean;
+  showMobileLocation: boolean;
   hasAnyBottomNav: boolean;
 }
 
@@ -13,6 +14,7 @@ const DEFAULT_POLICY: MobileChromePolicy = {
   showContextActionBar: false,
   showStickySearch: false,
   showMobileSearch: true,
+  showMobileLocation: true,
   hasAnyBottomNav: true,
 };
 
@@ -38,6 +40,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: false,
       showStickySearch: false,
       showMobileSearch: false,
+      showMobileLocation: false,
       hasAnyBottomNav: false,
     };
   }
@@ -49,6 +52,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: false,
       showStickySearch: false,
       showMobileSearch: false,
+      showMobileLocation: false,
       hasAnyBottomNav: false,
     };
   }
@@ -60,6 +64,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: true,
       showStickySearch: false,
       showMobileSearch: true,
+      showMobileLocation: true,
       hasAnyBottomNav: true,
     };
   }
@@ -78,7 +83,21 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: false,
       showStickySearch: false,
       showMobileSearch: false,
+      showMobileLocation: false,
       hasAnyBottomNav: false,
+    };
+  }
+
+  // Profile page: reclaim vertical space by hiding search bar & location selector
+  if (pathname === "/account/profile" || pathname.startsWith("/account/profile/")) {
+    return {
+      showMobileBottomNav: false,
+      showBottomActionsBar: false,
+      showContextActionBar: false,
+      showStickySearch: false,
+      showMobileSearch: false,
+      showMobileLocation: false,
+      hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
 
@@ -89,6 +108,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: false,
       showStickySearch: false,
       showMobileSearch: true,
+      showMobileLocation: true,
       hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
@@ -100,6 +120,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showContextActionBar: false,
       showStickySearch: true,
       showMobileSearch: true,
+      showMobileLocation: true,
       hasAnyBottomNav: true,
     };
   }

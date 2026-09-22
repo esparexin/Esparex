@@ -13,6 +13,7 @@ import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 
 import { PageLayout } from '@esparex/ui';
 import { isWizardPathname } from '@/lib/routeUtils';
+import { getMobileChromePolicy } from '@/lib/mobile/chromePolicy';
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -34,6 +35,7 @@ export function CommonLayout({
     const activeYear = currentYear ?? new Date().getUTCFullYear();
     const pathname = usePathname();
     const isWizardRoute = isWizardPathname(pathname);
+    const chromePolicy = getMobileChromePolicy(pathname);
 
     // Chat & regular routes: keep the default layout & site header and footer intact.
     // Wizard routes: retain fullscreen + no-header immersive behavior.
@@ -55,6 +57,7 @@ export function CommonLayout({
                 <PageLayout
                     variant={useFullscreen ? "fullscreen" : "default"}
                     header={!hideHeader ? header : undefined}
+                    hasCompactHeader={!chromePolicy.showMobileSearch}
                 >
                     <ScrollSentinel />
                     <ClientChromeLoader apiUnavailable={false} />

@@ -22,6 +22,15 @@ describe("mobile chrome policy", () => {
         const policy = getMobileChromePolicy("/account/wallet");
         expect(policy.showMobileBottomNav).toBe(false); // Public nav is off
         expect(policy.hasAnyBottomNav).toBe(true);      // MobileAccountBottomNav is active
-        expect(policy.showMobileSearch).toBe(true);     // Search and notifications always accessible
+        expect(policy.showMobileSearch).toBe(true);     // Search and notifications accessible on general account routes
+        expect(policy.showMobileLocation).toBe(true);
+    });
+
+    it("hides search and location selector on /account/profile to reclaim vertical space", () => {
+        const profilePolicy = getMobileChromePolicy("/account/profile");
+        expect(profilePolicy.showMobileSearch).toBe(false);
+        expect(profilePolicy.showMobileLocation).toBe(false);
+        expect(profilePolicy.showMobileBottomNav).toBe(false);
+        expect(profilePolicy.hasAnyBottomNav).toBe(true);
     });
 });

@@ -4,7 +4,7 @@ import React from "react";
 import { ChevronLeft, Settings as SettingsIcon } from "@esparex/ui";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { ACCOUNT_COPY } from "@/config/copy/account";
-import { Button } from "@esparex/ui";
+import { Button, cn } from "@esparex/ui";
 
 interface AccountHeaderProps {
   /** Passed when rendering the mobile sticky context — drives tab title and back button */
@@ -40,7 +40,10 @@ export function AccountHeader({
     <>
       {/* MOBILE: Sticky contextual header (hidden on md+) */}
       <header
-        className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-14 w-full text-foreground"
+        className={cn(
+          "sticky z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-14 w-full text-foreground",
+          activeTab === "personal" ? "top-[calc(2.5rem+env(safe-area-inset-top,0px))]" : "top-0"
+        )}
         aria-label="Account section header"
       >
         <div className="flex items-center gap-2 min-w-0">

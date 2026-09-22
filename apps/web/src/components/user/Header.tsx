@@ -166,6 +166,7 @@ export function Header({
         <MobileHeaderTopBar
           isMounted={isMounted}
           resolvedHeaderLocation={resolvedHeaderLocation}
+          showLocation={chromePolicy.showMobileLocation}
           onNavigateHome={() => navigateTo("home")}
           onOpenLocationSelector={() => setShowLocationSelector(true)}
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
