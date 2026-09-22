@@ -83,7 +83,7 @@ export function ListingImagesField({
     return (
         <Stack gap="sm">
             <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-semibold text-foreground">
+                <label className="text-body font-semibold text-foreground">
                     Photos (up to 10)
                 </label>
                 <span className="text-tiny font-medium text-muted-foreground">
@@ -98,7 +98,7 @@ export function ListingImagesField({
                             {disabled ? (
                                 <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4">
                                     <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                                    <span className="text-xs font-semibold">Processing & Compressing Photos...</span>
+                                    <span className="text-caption font-semibold">Processing & Compressing Photos...</span>
                                 </div>
                             ) : (
                                 <button
@@ -107,7 +107,7 @@ export function ListingImagesField({
                                     onClick={handleOpenPicker}
                                     aria-label="Add product photos"
                                     className={cn(
-                                        "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-caption sm:text-body font-semibold transition-all cursor-pointer select-none active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                         isDraggingOver
                                             ? "border-primary bg-primary/10 text-primary scale-[1.01] shadow-sm"
                                             : "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary text-primary"
@@ -203,12 +203,12 @@ export function ListingImagesField({
             {(error || helperText) && (
                 <div className="mt-1.5">
                     {error ? (
-                        <div className="flex items-center gap-1.5 text-destructive text-xs font-medium">
+                        <div className="flex items-center gap-1.5 text-destructive text-caption font-medium">
                             <AlertCircle className="w-3.5 h-3.5" />
                             <span>{error}</span>
                         </div>
                     ) : (
-                        <p className="text-muted-foreground text-xs">{helperText}</p>
+                        <p className="text-muted-foreground text-caption">{helperText}</p>
                     )}
                 </div>
             )}
