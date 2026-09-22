@@ -152,7 +152,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
     const formattedMobile = user?.mobile ? (user.mobile.startsWith("+") ? user.mobile : `+${user.mobile}`) : "Not provided";
 
     return (
-        <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs w-full overflow-hidden">
+        <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs w-full overflow-visible sm:overflow-hidden">
             <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
                 <CardContent className="p-0 sm:p-5 space-y-4">
                     {/* Profile Photo Header with Hover Action Overlay */}
@@ -197,19 +197,19 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
 
                     {/* 3-Column Responsive Form Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="profile-name" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                        <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
+                            <Label htmlFor="profile-name" className="text-caption font-medium text-foreground-secondary">
                                 Full name <span className="text-destructive ml-0.5">*</span>
                             </Label>
-                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary" {...form.register("name")} />
+                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" {...form.register("name")} />
                             <FormError message={nameError} />
                         </div>
 
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="profile-mobile" className="text-caption sm:text-small font-medium text-foreground-secondary">Mobile number</Label>
+                        <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
+                            <Label htmlFor="profile-mobile" className="text-caption font-medium text-foreground-secondary">Mobile number</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground-subtle" />
-                                <Input id="profile-mobile" type="tel" value={formattedMobile} readOnly disabled className="h-11 text-body-lg md:text-body pl-10 pr-3.5 rounded-xl border-border bg-muted/40 text-foreground-secondary font-normal cursor-not-allowed" />
+                                <Input id="profile-mobile" type="tel" value={formattedMobile} readOnly disabled className="h-11 text-body-lg md:text-body pl-10 pr-3.5 rounded-xl border-border bg-muted/40 text-foreground-secondary font-normal cursor-not-allowed scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" />
                             </div>
                         </div>
 
@@ -222,8 +222,8 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
 
                     <FormError message={globalError} />
 
-                    <div className="pt-3 border-t border-border flex items-center justify-end">
-                        <Button type="submit" size="sm" disabled={isSaving} className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-small px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
+                    <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 px-4 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:pt-3 sm:static sm:bg-transparent sm:backdrop-blur-none bg-background/95 backdrop-blur-md border-t border-border flex items-center justify-end shadow-xs sm:shadow-none">
+                        <Button type="submit" size="sm" disabled={isSaving} className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
                             {isSaving ? "Saving..." : "Save changes"}
                         </Button>
                     </div>
