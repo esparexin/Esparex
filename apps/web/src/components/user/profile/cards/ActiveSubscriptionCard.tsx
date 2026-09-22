@@ -55,7 +55,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
             )}
           </div>
 
-          <h3 className="text-body-lg sm:text-title font-bold text-foreground tracking-tight">
+          <h3 className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight">
             {isExpired ? 'Free Starter Plan' : formatPlanName(subscription.planName)}
           </h3>
 

@@ -122,7 +122,7 @@ export function SmartAlertsTab({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
                 <div>
                     <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="text-body-lg sm:text-heading-sm font-bold text-foreground">Smart Alerts</h3>
+                        <h3 className="text-body-lg sm:text-h4 font-bold text-foreground">Smart Alerts</h3>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
                             {activeAlerts} Active
