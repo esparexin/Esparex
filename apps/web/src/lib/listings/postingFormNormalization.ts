@@ -1,8 +1,7 @@
 import type { ServiceType } from "@/lib/api/user/masterData";
 import { sanitizeMongoObjectId } from "@esparex/shared";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import type { PostSparePartFormValues } from "@/schemas/postSparePartForm.schema";
-import type { ServiceListingFormData } from "@esparex/contracts";
+import type { PostSparePartFormValues, ServiceListingFormData } from "@esparex/contracts";
 
 type ListingPayloadRecord = Record<string, unknown>;
 

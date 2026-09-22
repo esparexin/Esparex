@@ -15,7 +15,7 @@ import {
   Input,
   FormError as UiFormError,
 } from "@esparex/ui";
-import type { LoginFormValues } from "@/schemas/login.schema";
+import type { LoginFormValues } from "@esparex/contracts";
 import type { useOtpFlow } from "@/hooks/useOtpFlow";
 
 interface LoginMobileStepProps {
