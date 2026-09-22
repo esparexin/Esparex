@@ -16,6 +16,10 @@ export const formatReason = (reason?: string): string => {
   return clean || 'Plan Activity';
 };
 
+export const formatActivityCategory = (tx: CreditLedgerDTO): string => {
+  return formatReason(tx.reason);
+};
+
 export const formatActivityName = (tx: CreditLedgerDTO): string => {
   const isDebit = tx.type === 'DEBIT';
   const absAmount = Math.abs(tx.amount);
@@ -23,10 +27,6 @@ export const formatActivityName = (tx: CreditLedgerDTO): string => {
   const cleanReason = formatReason(tx.reason);
 
   if (isDebit) {
-    if (cleanReason.toLowerCase().includes('spotlight')) return `Spotlight Credit Used — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('top ad')) return `Top Ad Boost — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('smart alert')) return `Smart Alert — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('ad posting') || cleanReason.toLowerCase().includes('slot')) return `Ad Posting — ${absAmount} ${creditWord}`;
     return `${cleanReason} — ${absAmount} ${creditWord}`;
   }
   return `${cleanReason} (+${absAmount} ${creditWord})`;

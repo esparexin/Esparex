@@ -169,7 +169,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       {/* TAB 3: INVOICES & PAYMENT HISTORY */}
       {activeTab === 'INVOICES' && !isLoading && (
         <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="flex flex-col gap-3 sm:gap-4">
-          <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />
+          <RecentPaymentsCard
+            payments={dashboardData?.recentPayments || []}
+            onBrowsePlans={() => handleTabSwitch('BUY_PLANS')}
+          />
         </div>
       )}
 

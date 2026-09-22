@@ -1,39 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
-import { Eye, Download, FileText } from "@esparex/ui";
+import { Eye, Download, FileText, Button } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
 
 interface RecentPaymentsCardProps {
   payments: PaymentSummaryDTO[];
+  onBrowsePlans?: () => void;
 }
 
-const formatOrderDescription = (desc?: string) => {
+const formatOrderDescription = (desc?: string): string => {
   if (!desc) return 'Plan & Credit Purchase';
-  if (desc.includes('New_user_Plan_10')) return 'Smart Alert 5-Pack';
-  if (desc.includes('New_user_Plan')) return 'Plan & Credit Top-up';
-  return desc.replace(/_/g, ' ');
+  // Strip internal pipe metadata like "| Credit: smartAlertSlots=+1" or "| Debit: smartAlertSlots=-1"
+  let cleaned = (desc.split('|')[0] ?? '').trim();
+
+  if (!cleaned) return 'Plan & Credit Purchase';
+  if (cleaned.includes('New_user_Plan_10')) return 'Smart Alert 5-Pack';
+  if (cleaned.includes('New_user_Plan')) return 'Plan & Credit Top-up';
+
+  return cleaned.replace(/_/g, ' ');
 };
 
-export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments }) => {
+const formatInvoiceDate = (dateStr?: string): string => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return String(dateStr);
+  }
+};
+
+export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments, onBrowsePlans }) => {
   const [selectedInvoice, setSelectedInvoice] = useState<PaymentSummaryDTO | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+
+  const validPayments = useMemo(() => {
+    return (payments || []).filter((pay) => {
+      // Invoices & Receipts represent actual financial transactions.
+      // Free plan top-ups (₹0) and internal quota adjustments belong in My Usage.
+      return pay.amount > 0;
+    });
+  }, [payments]);
 
   const handleOpenPreview = (pay: PaymentSummaryDTO) => {
     setSelectedInvoice(pay);
     setIsPreviewOpen(true);
   };
 
-  if (!payments || payments.length === 0) {
+  const renderStatusBadge = (status: string) => {
+    const isPaid = status === 'SUCCESS';
+    const isFailed = status === 'FAILED';
     return (
-      <div className="bg-surface rounded-xl p-4 sm:p-5 border border-border/60 shadow-2xs text-center space-y-1.5">
-        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground mb-1">
-          <FileText className="w-4 h-4" />
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold ${
+          isPaid
+            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+            : isFailed
+            ? 'bg-destructive/10 text-destructive'
+            : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+        }`}
+      >
+        {isPaid ? 'PAID' : status}
+      </span>
+    );
+  };
+
+  if (validPayments.length === 0) {
+    return (
+      <div className="bg-surface rounded-xl p-6 sm:p-8 border border-border/60 shadow-2xs text-center space-y-3">
+        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
+          <FileText className="w-6 h-6" />
         </div>
-        <h4 className="text-caption sm:text-body font-bold text-foreground">No Payment Receipts Yet</h4>
-        <p className="text-tiny sm:text-caption text-muted-foreground max-w-sm mx-auto">
-          When you upgrade your plan or buy credit packs, your tax invoices and download receipts will appear here.
-        </p>
+        <div className="space-y-1">
+          <h4 className="text-body font-bold text-foreground">No Payment Receipts Yet</h4>
+          <p className="text-caption text-muted-foreground max-w-sm mx-auto">
+            When you upgrade your plan or purchase credit packs, your official tax invoices and receipts will appear here.
+          </p>
+        </div>
+        {onBrowsePlans && (
+          <div className="pt-2">
+            <Button
+              type="button"
+              onClick={onBrowsePlans}
+              className="h-9 px-4 text-caption font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+            >
+              Browse Plans
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -41,32 +100,37 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
   return (
     <>
       <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+          <h4 className="text-body font-bold text-foreground flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary shrink-0" />
-            My Invoices & Receipts ({payments.length})
+            Invoices & Receipts
+            <span className="text-tiny px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-semibold">
+              {validPayments.length}
+            </span>
           </h4>
-          <span className="text-tiny text-muted-foreground">
-            Showing last {payments.length} orders
+          <span className="text-tiny text-muted-foreground hidden sm:inline">
+            Showing last {validPayments.length} {validPayments.length === 1 ? 'order' : 'orders'}
           </span>
         </div>
 
-        <div className="max-h-[340px] overflow-y-auto overflow-x-auto relative rounded-lg border border-border/40">
+        {/* Desktop View: Clean Table (hidden on mobile) */}
+        <div className="hidden md:block max-h-[360px] overflow-y-auto relative rounded-lg border border-border/40">
           <table className="w-full text-left text-caption">
             <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
-                <th className="py-2 px-3">Date</th>
-                <th className="py-2 px-3">Order Description</th>
-                <th className="py-2 px-3">Amount</th>
-                <th className="py-2 px-3">Status</th>
-                <th className="py-2 px-3 text-right">Invoice Actions</th>
+                <th className="py-2.5 px-3">Date</th>
+                <th className="py-2.5 px-3">Order Description</th>
+                <th className="py-2.5 px-3">Amount</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3 text-right">Invoice Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
-              {payments.map((pay) => (
-                <tr key={pay.orderId} className="hover:bg-muted/40 transition-colors">
+              {validPayments.map((pay) => (
+                <tr key={pay.orderId} className="hover:bg-muted/30 transition-colors">
                   <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground">
-                    {new Date(pay.createdAt).toLocaleDateString()}
+                    {formatInvoiceDate(pay.createdAt)}
                   </td>
                   <td className="py-2.5 px-3 font-medium text-foreground max-w-xs truncate">
                     {formatOrderDescription(pay.description)}
@@ -75,22 +139,13 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     ₹{pay.amount.toLocaleString()}
                   </td>
                   <td className="py-2.5 px-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold ${
-                        pay.status === 'SUCCESS'
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                          : pay.status === 'FAILED'
-                          ? 'bg-destructive/10 text-destructive'
-                          : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                      }`}
-                    >
-                      {pay.status === 'SUCCESS' ? 'PAID' : pay.status}
-                    </span>
+                    {renderStatusBadge(pay.status)}
                   </td>
                   <td className="py-2.5 px-3 text-right">
                     {pay.status === 'SUCCESS' ? (
                       <div className="flex items-center justify-end gap-1.5">
                         <button
+                          type="button"
                           onClick={() => handleOpenPreview(pay)}
                           className="p-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1"
                           aria-label={`Preview invoice for order ${pay.orderId}`}
@@ -100,6 +155,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                           <span className="text-tiny font-semibold hidden sm:inline">Preview</span>
                         </button>
                         <button
+                          type="button"
                           onClick={() => void downloadInvoiceFile(pay.orderId)}
                           className="p-1.5 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 px-2 py-1"
                           aria-label={`Download invoice file for order ${pay.orderId}`}
@@ -119,6 +175,66 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View: Responsive Cards (hidden on desktop) */}
+        <div className="md:hidden flex flex-col gap-2.5">
+          {validPayments.map((pay) => (
+            <div
+              key={pay.orderId}
+              className="p-3.5 rounded-xl border border-border/50 bg-card space-y-2.5 shadow-2xs"
+            >
+              {/* Top Row: Date & Status Badge */}
+              <div className="flex items-center justify-between gap-2 text-caption">
+                <span className="text-muted-foreground font-medium">
+                  {formatInvoiceDate(pay.createdAt)}
+                </span>
+                {renderStatusBadge(pay.status)}
+              </div>
+
+              {/* Middle Row: Plan Name & Amount */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-semibold text-foreground text-body leading-snug">
+                  {formatOrderDescription(pay.description)}
+                </div>
+                <div className="font-bold text-foreground text-body shrink-0">
+                  ₹{pay.amount.toLocaleString()}
+                </div>
+              </div>
+
+              {/* Bottom Row: Order ID & Actions */}
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-caption">
+                <span className="text-tiny text-muted-foreground font-mono">
+                  #{pay.orderId.slice(-8).toUpperCase()}
+                </span>
+
+                {pay.status === 'SUCCESS' ? (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPreview(pay)}
+                      className="h-8 px-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1.5 text-tiny font-semibold"
+                      aria-label={`Preview invoice for order ${pay.orderId}`}
+                    >
+                      <Eye className="w-3.5 h-3.5 shrink-0" />
+                      <span>Preview</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void downloadInvoiceFile(pay.orderId)}
+                      className="h-8 px-2.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1.5 text-tiny font-semibold"
+                      aria-label={`Download invoice file for order ${pay.orderId}`}
+                    >
+                      <Download className="w-3.5 h-3.5 shrink-0" />
+                      <span>PDF</span>
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-tiny text-muted-foreground/60">No Invoice</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

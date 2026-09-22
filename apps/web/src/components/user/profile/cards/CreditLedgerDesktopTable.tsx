@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { CreditLedgerDTO } from '@esparex/contracts';
 import {
-  formatActivityName,
+  formatActivityCategory,
   formatAppliedDateTime,
   renderTransactionStatus,
   getListingDetailHref,
@@ -57,7 +57,7 @@ export const CreditLedgerDesktopTable: React.FC<CreditLedgerDesktopTableProps> =
                     className="text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                   >
                     <div className="font-semibold text-foreground text-caption hover:text-primary transition-colors">
-                      {formatActivityName(tx)}
+                      {formatActivityCategory(tx)}
                     </div>
                     <span
                       className={`inline-flex items-center px-1.5 rounded text-tiny font-bold ${

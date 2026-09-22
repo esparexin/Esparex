@@ -327,6 +327,27 @@ export class PlansWalletMapper {
     // Filter to retain SUCCESS orders and recent active PENDING checkout attempts (< 15 mins)
     const activePayments = (payments || []).filter((pay: Record<string, unknown>) => {
       const rawStatus = String(pay.status || '').toUpperCase();
+      if (!['SUCCESS', 'CAPTURED', 'PAID', 'INITIATED', 'CREATED', 'PENDING', 'FAILED', 'REFUNDED'].includes(rawStatus)) {
+        return false;
+      }
+
+      // Exclude internal 0-rupee wallet quota adjustments that belong in credit usage ledger
+      const meta = pay.metadata as Record<string, unknown> | undefined;
+      const desc = String(pay.description || '');
+      const isInternalQuota =
+        ((pay.amount as number) || 0) === 0 &&
+        (meta?.operation === 'credit' ||
+          meta?.operation === 'debit' ||
+          meta?.adjustment !== undefined ||
+          desc.includes('| Credit:') ||
+          desc.includes('| Debit:') ||
+          desc.includes('smartAlertSlots') ||
+          desc.includes('slot restored') ||
+          desc.includes('slot consumed'));
+      if (isInternalQuota) {
+        return false;
+      }
+
       if (['SUCCESS', 'CAPTURED', 'PAID'].includes(rawStatus)) {
         return true;
       }

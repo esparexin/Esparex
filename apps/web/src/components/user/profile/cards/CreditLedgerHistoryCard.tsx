@@ -15,7 +15,7 @@ import {
 import Link from 'next/link';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 import {
-  formatActivityName,
+  formatActivityCategory,
   formatAppliedDateTime,
   renderTransactionStatus,
   matchesLedgerFilter,
@@ -70,16 +70,16 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
 
   return (
     <div className="space-y-3">
-      {/* Header: title + compact filter dropdown */}
+      {/* Header: title + compact filter dropdown with balanced typography */}
       <div className="flex items-center justify-between gap-3">
-        <h4 className="text-body font-bold text-foreground">My Usage</h4>
+        <h4 className="text-body-lg sm:text-h4 font-bold text-foreground">My Usage</h4>
         <Select
           value={activeFilter}
           onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
         >
           <SelectTrigger
             size="sm"
-            className="h-8 w-auto min-w-[130px] max-w-[170px] text-body-lg md:text-caption font-medium border-border/60 bg-muted/30 px-3 rounded-lg focus:ring-primary [&_[data-slot=select-value]]:text-body-lg [&_[data-slot=select-value]]:md:text-caption"
+            className="h-8 w-auto min-w-[120px] max-w-[160px] text-caption font-medium border-border/60 bg-muted/30 px-2.5 rounded-lg focus:ring-primary [&_[data-slot=select-value]]:text-caption"
             aria-label="Filter activities"
           >
             <SelectValue placeholder="All Activities" />
@@ -94,22 +94,11 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         </Select>
       </div>
 
-      {/* Pagination — show only page nav, suppress verbose 'Showing X to Y of N results' */}
-      {pagination && pagination.totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={pagination.totalPages}
-          pageSize={limit}
-          onPageChange={setPage}
-          className="border border-border/40 rounded-xl px-3 py-1.5 bg-muted/30"
-        />
-      )}
-
       {/* Loading */}
       {isLoading && (
         <div className="space-y-2.5 animate-pulse">
-          <div className="h-12 bg-muted/60 rounded-xl" />
-          <div className="h-12 bg-muted/60 rounded-xl" />
+          <div className="h-14 bg-muted/60 rounded-xl" />
+          <div className="h-14 bg-muted/60 rounded-xl" />
         </div>
       )}
 
@@ -131,7 +120,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
 
       {/* Empty */}
       {!isLoading && filteredItems.length === 0 && (
-        <div className="text-center py-8 text-tiny text-muted-foreground border border-dashed border-border rounded-xl">
+        <div className="text-center py-8 text-caption text-muted-foreground border border-dashed border-border rounded-xl">
           No activity found.
         </div>
       )}
@@ -141,7 +130,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         <>
           <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-          {/* Mobile Cards */}
+          {/* Mobile Cards: Clean, non-redundant hierarchy */}
           <div className="md:hidden flex flex-col gap-2.5">
             {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
@@ -163,14 +152,13 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                   className="p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/20 active:scale-[0.99] transition-[background-color,transform] space-y-2 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="View activity details"
                 >
-                  {/* Top row: Date & Used/Added badge */}
-                  <div className="flex items-center justify-between gap-2 text-caption">
-                    <span className="text-muted-foreground font-medium inline-flex items-center gap-1.5">
-                      {formatAppliedDateTime(tx.createdAt)}
-                      <Info className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                  {/* Row 1: Plan Title + Amount Badge (Zero duplicate words) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-foreground text-body leading-snug">
+                      {formatActivityCategory(tx)}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold shrink-0 ${
                         isDebit
                           ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                           : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
@@ -188,30 +176,29 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                     </span>
                   </div>
 
-                  {/* Plan Name */}
-                  <div className="font-semibold text-foreground text-body">
-                    {formatActivityName(tx)}
-                  </div>
-
-                  {/* Bottom row: Listing link + Validity & Status */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-caption">
-                    {adHref ? (
+                  {/* Row 2: Listing link (dedicated line with full width) */}
+                  {adHref && tx.adTitle && (
+                    <div className="text-caption">
                       <Link
                         href={adHref}
                         onClick={(e) => e.stopPropagation()}
-                        className="font-medium text-primary hover:underline truncate max-w-[55%]"
+                        className="font-medium text-primary hover:underline line-clamp-1"
                       >
-                        {tx.adTitle || 'View Listing'}
+                        {tx.adTitle}
                       </Link>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
+                    </div>
+                  )}
+
+                  {/* Row 3: Date on left, Validity & Status on right */}
+                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30 text-tiny text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      {formatAppliedDateTime(tx.createdAt)}
+                      <Info className="w-3 h-3 opacity-60 shrink-0" />
+                    </span>
 
                     <div className="flex items-center gap-2 shrink-0">
                       {tx.validityText && (
-                        <span className="text-muted-foreground text-tiny">
-                          {tx.validityText}
-                        </span>
+                        <span>{tx.validityText}</span>
                       )}
                       {renderTransactionStatus(tx)}
                     </div>
@@ -220,6 +207,21 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
               );
             })}
           </div>
+
+          {/* Pagination positioned at bottom */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="pt-2">
+              <Pagination
+                currentPage={page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                pageSize={limit}
+                itemLabel="activities"
+                onPageChange={setPage}
+                className="border border-border/40 rounded-xl px-3 py-2 bg-muted/30"
+              />
+            </div>
+          )}
         </>
       )}
 

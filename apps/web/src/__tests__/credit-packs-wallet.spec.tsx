@@ -64,6 +64,7 @@ import { CreditLedgerHistoryCard } from '@/components/user/profile/cards/CreditL
 import { PlansTab } from '@/components/user/profile/tabs/PlansTab';
 import { ActiveSubscriptionCard } from '@/components/user/profile/cards/ActiveSubscriptionCard';
 import { WalletOverviewCard } from '@/components/user/profile/cards/WalletOverviewCard';
+import { RecentPaymentsCard } from '@/components/user/profile/cards/RecentPaymentsCard';
 
 describe('Wallet & Credits UI/UX Architecture', () => {
   it('renders single-instance responsive credit history with ad traceability and independent statuses', () => {
@@ -79,7 +80,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('md:hidden');
 
     // Human-readable formatted activity
-    expect(html).toContain('Spotlight Credit Used — 1 credit');
+    expect(html).toContain('Spotlight Boost');
     expect(html).toContain('-1 USED');
     expect(html).toContain('+5 ADDED');
 
@@ -243,5 +244,72 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('Filter activities');
     // Confirms the duplicate 4 boxes are successfully removed
     expect(html).not.toContain('Purchased Credit Allocations');
+  });
+
+  it('renders clean empty state with Browse Plans button on Free plan when no paid invoices exist', () => {
+    // When array is empty
+    const emptyHtml = renderToStaticMarkup(
+      <RecentPaymentsCard payments={[]} onBrowsePlans={vi.fn()} />
+    );
+    expect(emptyHtml).toContain('No Payment Receipts Yet');
+    expect(emptyHtml).toContain('When you upgrade your plan or purchase credit packs');
+    expect(emptyHtml).toContain('Browse Plans');
+
+    // When payments only contain 0-rupee internal quota adjustments
+    const quotaHtml = renderToStaticMarkup(
+      <RecentPaymentsCard
+        payments={[
+          {
+            orderId: 'tx_quota_1',
+            amount: 0,
+            currency: 'INR',
+            status: 'SUCCESS',
+            description: 'Smart Alert slot restored | Credit: smartAlertSlots=+1',
+            createdAt: '2026-09-20T10:00:00.000Z',
+          },
+        ]}
+        onBrowsePlans={vi.fn()}
+      />
+    );
+    expect(quotaHtml).toContain('No Payment Receipts Yet');
+    expect(quotaHtml).not.toContain('smartAlertSlots=+1');
+    expect(quotaHtml).toContain('Browse Plans');
+  });
+
+  it('renders single-instance responsive layout with desktop table and mobile cards for real invoices', () => {
+    const mockInvoices = [
+      {
+        orderId: 'ord_9001abc',
+        amount: 499,
+        currency: 'INR',
+        status: 'SUCCESS' as const,
+        description: 'New_user_Plan_10',
+        createdAt: '2026-09-20T10:00:00.000Z',
+      },
+    ];
+
+    const html = renderToStaticMarkup(
+      <RecentPaymentsCard payments={mockInvoices} />
+    );
+
+    // Header with title case and count
+    expect(html).toContain('Invoices &amp; Receipts');
+    expect(html).toContain('Showing last 1 order');
+
+    // Desktop table container must be hidden on mobile
+    expect(html).toContain('hidden md:block');
+    expect(html).toContain('<table');
+
+    // Mobile cards container must be hidden on desktop
+    expect(html).toContain('md:hidden');
+
+    // Clean human-friendly plan description
+    expect(html).toContain('Smart Alert 5-Pack');
+    expect(html).toContain('₹499');
+    expect(html).toContain('PAID');
+
+    // Action buttons
+    expect(html).toContain('Preview');
+    expect(html).toContain('PDF');
   });
 });
