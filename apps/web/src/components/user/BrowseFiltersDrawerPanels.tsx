@@ -120,7 +120,7 @@ export function BrowseFiltersDrawerPanels({
           </Label>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-caption text-muted-foreground font-medium pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-body text-muted-foreground font-medium pointer-events-none">
                 ₹
               </span>
               <Input
@@ -128,12 +128,12 @@ export function BrowseFiltersDrawerPanels({
                 placeholder="Min"
                 value={localMin}
                 onChange={(e) => setLocalMin(e.target.value)}
-                className="h-9 pl-6 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
+                className="h-11 pl-7 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
               />
             </div>
             <span className="text-muted-foreground text-caption">-</span>
             <div className="relative flex-1">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-caption text-muted-foreground font-medium pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-body text-muted-foreground font-medium pointer-events-none">
                 ₹
               </span>
               <Input
@@ -141,13 +141,13 @@ export function BrowseFiltersDrawerPanels({
                 placeholder="Max"
                 value={localMax}
                 onChange={(e) => setLocalMax(e.target.value)}
-                className="h-9 pl-6 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
+                className="h-11 pl-7 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
               />
             </div>
           </div>
 
           <div className="pt-2 space-y-2">
-            <Label className="text-tiny font-semibold text-muted-foreground">Quick Presets</Label>
+            <Label className="text-caption font-semibold text-muted-foreground">Quick Presets</Label>
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "Under ₹5,000", min: "", max: "5000" },
@@ -162,7 +162,7 @@ export function BrowseFiltersDrawerPanels({
                     setLocalMin(preset.min);
                     setLocalMax(preset.max);
                   }}
-                  className="px-3 py-1.5 rounded-full border border-border text-tiny font-medium text-foreground-secondary hover:border-primary hover:bg-muted transition-colors"
+                  className="px-3 py-2 min-h-[36px] rounded-full border border-border text-caption font-medium text-foreground-secondary hover:border-primary hover:bg-muted transition-colors cursor-pointer"
                 >
                   {preset.label}
                 </button>

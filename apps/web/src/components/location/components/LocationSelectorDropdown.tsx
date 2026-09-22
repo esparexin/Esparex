@@ -124,7 +124,7 @@ export function LocationSelectorDropdown({
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5">
                     {(isSearching || isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
                     {hasSelection && !disabled ? (
-                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-7 px-2 rounded-lg bg-muted/60 hover:bg-muted text-tiny font-semibold text-muted-foreground hover:text-foreground transition-colors" title="Change location">
+                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-8 px-2.5 rounded-lg bg-muted/60 hover:bg-muted text-caption font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer" title="Change location">
                             Change
                         </button>
                     ) : !disabled ? (
@@ -135,12 +135,12 @@ export function LocationSelectorDropdown({
                                 e.stopPropagation();
                                 onDetect();
                             }}
-                            className="flex items-center gap-1 h-7 px-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-tiny font-semibold transition-colors"
+                            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-caption font-semibold transition-colors cursor-pointer"
                             title="Use Current Location"
                             aria-label="Use Current Location"
                         >
                             <Target className={cn("w-3.5 h-3.5 shrink-0", isDetecting && "animate-spin")} />
-                            <span className="hidden xs:inline sm:inline text-tiny font-semibold">Auto Detect</span>
+                            <span className="hidden xs:inline sm:inline text-caption font-semibold">Auto Detect</span>
                         </button>
                     ) : null}
                 </div>

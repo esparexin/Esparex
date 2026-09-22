@@ -1029,8 +1029,8 @@
 }
 
 .chat-input__send {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 0.625rem;
   background: var(--chat-action);
   border: none;
@@ -1042,6 +1042,13 @@
   flex-shrink: 0;
   transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
   box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+}
+
+@media (min-width: 768px) {
+  .chat-input__send {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 .chat-input__send:hover:not(:disabled) {

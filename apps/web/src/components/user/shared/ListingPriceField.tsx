@@ -1,6 +1,6 @@
 
 import { FieldPath, FieldValues } from "react-hook-form";
-import { Check, Input } from "@esparex/ui";
+import { Input, Switch } from "@esparex/ui";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import { Stack } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -77,32 +77,20 @@ export function ListingPriceField<
                 />
               </div>
               {onToggleFree && (
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={!!isFree}
-                  onClick={onToggleFree}
-                  onKeyDown={(e) => {
-                    if (e.key === " " || e.key === "Enter") {
-                      e.preventDefault();
-                      onToggleFree();
-                    }
-                  }}
-                  className={cn(
-                    "flex items-center justify-center gap-2 h-11 px-4 rounded-xl border cursor-pointer transition-all duration-200 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                    isFree ? "bg-primary/10 border-primary/20 text-primary" : "bg-card border-border hover:border-primary/40 text-foreground"
-                  )}
-                >
-                  <div className={cn(
-                    "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all",
-                    isFree ? "bg-primary border-primary" : "bg-background border-input"
-                  )}>
-                    {isFree && (
-                      <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-                    )}
-                  </div>
-                  <span className="text-caption font-bold whitespace-nowrap">{isFree ? "Free" : "Make Free"}</span>
-                </button>
+                <div className="flex items-center gap-2 h-11 px-3.5 rounded-xl border border-border bg-card shrink-0">
+                  <Switch
+                    id="price-is-free-switch"
+                    checked={!!isFree}
+                    onCheckedChange={() => onToggleFree()}
+                    aria-label="Make Free"
+                  />
+                  <label
+                    htmlFor="price-is-free-switch"
+                    className="text-body font-semibold cursor-pointer select-none text-foreground whitespace-nowrap"
+                  >
+                    Free
+                  </label>
+                </div>
               )}
             </div>
           </FieldControl>
