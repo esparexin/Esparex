@@ -31,26 +31,26 @@ export function CatalogSlugPage({
   const total = listings.pagination.total ?? items.length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <section className="border-b border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)]">
+    <div className="min-h-screen bg-background">
+      <section className="border-b border-border bg-[linear-gradient(180deg,hsl(var(--muted)/0.3)_0%,hsl(var(--primary)/0.05)_100%)]">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-widest text-link">
+            <p className="text-caption font-semibold uppercase tracking-widest text-primary">
               {entity === "brand" ? "Brand Landing" : "Model Landing"}
             </p>
-            <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-h1 font-bold tracking-tight text-foreground sm:text-5xl">
               {config.heading(record.name)}
             </h1>
-            <p className="text-base leading-7 text-foreground-tertiary sm:text-lg">
+            <p className="text-body-lg leading-7 text-foreground-tertiary sm:text-h4">
               {config.description(record.name, record.contextLabel)}
             </p>
             {record.contextLabel ? (
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-body font-medium text-muted-foreground">
                 Connected to <span className="text-foreground-secondary">{record.contextLabel}</span>
               </p>
             ) : null}
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary">
+              <div className="rounded-full border border-border bg-card px-4 py-2 text-body font-medium text-foreground-secondary">
                 {total} live result{total === 1 ? "" : "s"}
               </div>
               <Button asChild className="rounded-full px-5">
@@ -66,8 +66,8 @@ export function CatalogSlugPage({
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Featured results</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <h2 className="text-h2 font-bold text-foreground">Featured results</h2>
+                <p className="mt-1 text-body text-muted-foreground">
                   Live public listings tied to this {entity.replace("-", " ")}.
                   {total > items.length
                     ? ` Showing ${items.length} featured results here; use the browse action above for the full catalog view.`
@@ -83,9 +83,9 @@ export function CatalogSlugPage({
             </div>
           </div>
         ) : (
-          <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm">
-            <h2 className="text-2xl font-bold text-foreground">No live listings yet</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+          <div className="rounded-[2rem] border border-dashed border-border bg-card px-6 py-16 text-center shadow-xs">
+            <h2 className="text-h2 font-bold text-foreground">No live listings yet</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-body leading-6 text-muted-foreground">
               This {entity.replace("-", " ")} exists in the catalog, but there are no live public
               listings connected to it right now.
             </p>
