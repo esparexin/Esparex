@@ -60,7 +60,7 @@ export function ReportChatDialog({
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="chat-report-reason" className="text-body font-medium text-foreground-secondary">
+            <Label htmlFor="chat-report-reason" className="text-body font-semibold text-foreground-secondary">
               Reason
             </Label>
             <Select
@@ -82,12 +82,12 @@ export function ReportChatDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="chat-report-desc" className="text-body font-medium text-foreground-secondary">
+            <Label htmlFor="chat-report-desc" className="text-body font-semibold text-foreground-secondary">
               Additional details (optional)
             </Label>
             <Textarea
               id="chat-report-desc"
-              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus-visible:ring-2 focus-visible:ring-primary/20 resize-none"
+              className="w-full min-h-[96px] rounded-xl border border-border bg-card p-3 text-body-lg md:text-body text-foreground shadow-xs focus-visible:ring-2 focus-visible:ring-primary/20 resize-none leading-relaxed"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
               placeholder="Describe the issue..."
@@ -97,14 +97,22 @@ export function ReportChatDialog({
           </div>
         </div>
 
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onCancel} disabled={isSubmitting} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer">
+        <DialogFooter className="mt-4 flex flex-row items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="h-11 px-5 rounded-xl border-border font-medium cursor-pointer"
+          >
             Cancel
           </Button>
           <Button
+            type="button"
+            variant="destructive"
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
+            className="h-11 px-5 rounded-xl font-semibold cursor-pointer"
           >
             {isSubmitting ? 'Submitting…' : 'Submit Report'}
           </Button>
