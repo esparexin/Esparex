@@ -22,6 +22,6 @@ describe("mobile chrome policy", () => {
         const policy = getMobileChromePolicy("/account/wallet");
         expect(policy.showMobileBottomNav).toBe(false); // Public nav is off
         expect(policy.hasAnyBottomNav).toBe(true);      // MobileAccountBottomNav is active
-        expect(policy.showMobileSearch).toBe(false);    // Reclaims 56px header space
+        expect(policy.showMobileSearch).toBe(true);     // Search and notifications always accessible
     });
 });

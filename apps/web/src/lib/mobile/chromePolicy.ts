@@ -88,7 +88,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
-      showMobileSearch: false,
+      showMobileSearch: true,
       hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
