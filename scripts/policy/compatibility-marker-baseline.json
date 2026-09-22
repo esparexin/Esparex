@@ -51,6 +51,8 @@
   "backend/api/src/controllers/smartAlert/index.ts": 1,
   "backend/api/src/controllers/user/index.ts": 1,
   "backend/api/src/controllers/wallet/index.ts": 1,
+  "backend/api/src/controllers/wallet/walletQueryController.ts": 4,
+  "backend/api/src/routes/userRoutes.ts": 4,
   "backend/api/src/middleware/authMiddleware.ts": 1,
   "backend/api/src/middleware/deprecations.ts": 5,
   "backend/api/src/middleware/fraudMiddleware.ts": 1,

@@ -9,6 +9,7 @@ import {
   CardContent,
   ArrowRight,
   Clock,
+  Grid,
 } from '@esparex/ui';
 
 export interface WalletOverviewCardProps {
@@ -164,7 +165,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               Free Plans
             </h4>
           </div>
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <Grid cols={2} gap="sm">
             <StatTile
               icon={<Package className="w-4 h-4" />}
               iconBgClass="bg-primary/10 text-primary border border-primary/20"
@@ -185,7 +186,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               ariaLabel={`Free Smart Alerts: ${freeAlerts} Active, 0 Used`}
               onClick={undefined}
             />
-          </div>
+          </Grid>
         </div>
 
         {/* Section 2: Purchased Credits */}
@@ -195,7 +196,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               Purchased Credits
             </h4>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Grid cols={4} gap="sm">
             <StatTile
               icon={<Sparkles className="w-4 h-4" />}
               iconBgClass="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
@@ -236,7 +237,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               ariaLabel={`Purchased Smart Alerts: ${extraAlerts} Active`}
               onClick={extraAlerts > 0 ? () => onNavigateToHistory?.('SMART_ALERTS') : undefined}
             />
-          </div>
+          </Grid>
         </div>
       </CardContent>
     </Card>
