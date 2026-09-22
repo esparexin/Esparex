@@ -65,9 +65,9 @@ export function SmartAlertRulesSection({
                         <Bell className="h-6 w-6" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-body text-foreground">No smart alerts created yet</h4>
+                        <h4 className="font-semibold text-body-lg text-foreground">No alerts yet</h4>
                         <p className="text-caption text-foreground-secondary max-w-sm mx-auto mt-1">
-                            Set up watchdogs for specific models, categories, and price ranges to get notified immediately when matching items are posted.
+                            Get notified immediately when matching items are posted.
                         </p>
                     </div>
                 </div>
@@ -85,7 +85,7 @@ export function SmartAlertRulesSection({
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                                     <div className="flex items-center gap-2 min-w-0">
                                         <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${isPaused ? "bg-muted-foreground" : "bg-emerald-500 animate-pulse"}`} />
-                                        <h4 className="font-bold text-foreground text-caption sm:text-body truncate">
+                                        <h4 className="font-semibold text-foreground text-body truncate">
                                             {alert.name}
                                         </h4>
                                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-tiny font-semibold border shrink-0 ${isPaused ? "bg-muted text-foreground-secondary border-border" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`}>
@@ -185,14 +185,14 @@ export function SmartAlertRulesSection({
             )}
 
             {/* Clean Upgrade Banner */}
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center justify-between gap-3">
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                     <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
                         <Crown className="h-4.5 w-4.5" />
                     </div>
                     <div className="min-w-0">
-                        <h4 className="font-semibold text-caption sm:text-body text-foreground">Want more smart alerts?</h4>
-                        <p className="text-caption text-foreground-secondary truncate">Upgrade your plan to unlock additional alert slots.</p>
+                        <h4 className="font-semibold text-body text-foreground">Need more alerts?</h4>
+                        <p className="text-caption text-foreground-secondary truncate">Upgrade your plan for additional slots.</p>
                     </div>
                 </div>
                 <Button

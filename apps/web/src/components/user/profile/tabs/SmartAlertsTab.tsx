@@ -119,25 +119,23 @@ export function SmartAlertsTab({
     return (
         <div className="w-full max-w-3xl space-y-5">
             {/* Header Row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
-                <div>
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="text-body-lg sm:text-h4 font-bold text-foreground">Smart Alerts</h3>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                            {activeAlerts} Active
-                        </span>
-                    </div>
+            <div className="flex items-center justify-between gap-3 pb-1">
+                <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                    <h3 className="text-body-lg sm:text-h4 font-semibold text-foreground">Smart Alerts</h3>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                        {activeAlerts} Active
+                    </span>
                 </div>
 
                 <Button
                     type="button"
                     onClick={handleOpenCreateModal}
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-4 rounded-xl shadow-xs gap-1.5 shrink-0 self-start sm:self-auto whitespace-nowrap cursor-pointer"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-3 sm:px-4 rounded-xl shadow-xs gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
                 >
                     <Plus className="h-4 w-4" />
-                    Create Smart Alert
+                    <span>Create Alert</span>
                 </Button>
             </div>
 
@@ -148,7 +146,7 @@ export function SmartAlertsTab({
                     role="tab"
                     aria-selected={activeSubTab === "rules"}
                     onClick={() => setActiveSubTab("rules")}
-                    className={`flex items-center gap-2 pb-3 text-caption sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`flex items-center gap-2 pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "rules"
                             ? "border-primary text-primary"
                             : "border-transparent text-foreground-secondary hover:text-foreground"
@@ -162,7 +160,7 @@ export function SmartAlertsTab({
                     role="tab"
                     aria-selected={activeSubTab === "matches"}
                     onClick={() => { setActiveSubTab("matches"); setMatchesPage(1); }}
-                    className={`flex items-center gap-2 pb-3 text-caption sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`flex items-center gap-2 pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "matches"
                             ? "border-primary text-primary"
                             : "border-transparent text-foreground-secondary hover:text-foreground"

@@ -64,11 +64,11 @@ export function SmartAlertMatchesSection({
                         <Compass className="h-6 w-6" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-body text-foreground">No matched listings yet</h4>
+                        <h4 className="font-semibold text-body-lg text-foreground">No matched listings yet</h4>
                         <p className="text-caption text-foreground-secondary max-w-sm mx-auto mt-1">
                             {selectedAlertFilter
-                                ? "No listings have matched this alert yet. As soon as a seller posts a matching ad, it will show up here."
-                                : "When new ads matching your alert criteria are published, they will appear here automatically."}
+                                ? "No listings have matched this alert yet."
+                                : "Matching listings will appear here when published."}
                         </p>
                     </div>
                     {selectedAlertFilter && (
@@ -135,7 +135,7 @@ export function SmartAlertMatchesSection({
                                                 </span>
                                             </div>
 
-                                            <h4 className="font-bold text-foreground text-caption sm:text-body truncate">
+                                            <h4 className="font-semibold text-foreground text-body truncate">
                                                 {ad ? ad.title : "Listing no longer available"}
                                             </h4>
 

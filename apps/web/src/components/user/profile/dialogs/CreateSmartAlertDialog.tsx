@@ -177,7 +177,7 @@ export function CreateSmartAlertDialog({
                         </div>
                         <span>{isEditing ? "Edit Smart Alert" : "Create Smart Alert"}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-caption text-foreground-subtle leading-relaxed">
+                    <DialogDescription className="text-caption text-muted-foreground leading-relaxed">
                         Set search criteria to receive real-time notifications for matching ads.
                     </DialogDescription>
                 </DialogHeader>
@@ -208,7 +208,7 @@ export function CreateSmartAlertDialog({
                         {/* Search Keywords */}
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
-                                <Label htmlFor="alert-keywords" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                                <Label htmlFor="alert-keywords" className="text-caption font-medium text-foreground-secondary">
                                     Search Keywords {!formData.model && <span className="text-destructive">*</span>}
                                 </Label>
                                 <span className="text-tiny font-normal tabular-nums text-foreground-subtle">
@@ -233,7 +233,7 @@ export function CreateSmartAlertDialog({
 
                         {/* Location */}
                         <div ref={locationWrapperRef} onFocusCapture={handleLocationFocus}>
-                            <Label htmlFor="alert-location" className="text-caption sm:text-small font-medium text-foreground-secondary mb-1.5 block">
+                            <Label htmlFor="alert-location" className="text-caption font-medium text-foreground-secondary mb-1.5 block">
                                 Location <span className="text-destructive">*</span>
                             </Label>
                             <LocationSelector
@@ -264,7 +264,7 @@ export function CreateSmartAlertDialog({
                     </div>
 
                     {/* Fixed Footer Outside Scroll Area */}
-                    <DialogFooter className="!mt-0 shrink-0 pt-3.5 border-t border-border/80 bg-card flex items-center gap-3">
+                    <DialogFooter className="!mt-0 shrink-0 pt-3 border-t border-border/80 bg-card flex flex-row items-center gap-3">
                         <Button
                             type="button"
                             variant="outline"
