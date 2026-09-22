@@ -195,7 +195,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                     {/* 3-Column Responsive Form Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                         <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
-                            <Label htmlFor="profile-name" className="text-caption font-medium text-foreground-secondary">
+                            <Label htmlFor="profile-name" className="text-body font-semibold text-foreground-secondary">
                                 Full name <span className="text-destructive ml-0.5">*</span>
                             </Label>
                             <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" {...form.register("name")} />
@@ -203,7 +203,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                         </div>
 
                         <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
-                            <Label htmlFor="profile-mobile" className="text-caption font-medium text-foreground-secondary">Mobile number</Label>
+                            <Label htmlFor="profile-mobile" className="text-body font-semibold text-foreground-secondary">Mobile number</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground-subtle" />
                                 <Input id="profile-mobile" type="tel" value={formattedMobile} readOnly disabled className="h-11 text-body-lg md:text-body pl-10 pr-3.5 rounded-xl border-border bg-muted/40 text-foreground-secondary font-normal cursor-not-allowed scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" />

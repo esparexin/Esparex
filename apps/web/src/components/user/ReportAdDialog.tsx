@@ -137,7 +137,7 @@ export function ReportAdDialog({
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
             <div className="space-y-2.5">
-              <Label className="text-caption sm:text-small font-medium text-foreground-secondary">
+              <Label className="text-body font-semibold text-foreground-secondary">
                 Reason for reporting <span className="text-destructive ml-0.5">*</span>
               </Label>
               <RadioGroup
@@ -162,7 +162,7 @@ export function ReportAdDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="additional-info" className="text-caption sm:text-small font-medium text-foreground-secondary">
+              <Label htmlFor="additional-info" className="text-body font-semibold text-foreground-secondary">
                 Additional Information <span className="text-foreground-subtle font-normal">(Optional)</span>
               </Label>
               <Textarea

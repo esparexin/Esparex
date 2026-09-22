@@ -15,7 +15,7 @@ export function PersonalProfileBusinessSection({
 }: PersonalProfileBusinessSectionProps) {
     return (
         <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
-            <Label htmlFor="profile-business-name" className="text-caption font-medium text-foreground-secondary">
+            <Label htmlFor="profile-business-name" className="text-body font-semibold text-foreground-secondary">
                 Business Name <span className="text-tiny font-normal text-muted-foreground ml-1">(Optional)</span>
             </Label>
             <Input

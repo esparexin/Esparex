@@ -19,7 +19,7 @@ export function PersonalProfileMobileVisibilitySection({
 }: PersonalProfileMobileVisibilitySectionProps) {
     return (
         <div className="space-y-1 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
-            <Label className="text-caption font-medium text-foreground-secondary">
+            <Label className="text-body font-semibold text-foreground-secondary">
                 Phone Number Privacy
             </Label>
             <Controller

@@ -208,7 +208,7 @@ export function CreateSmartAlertDialog({
                         {/* Search Keywords */}
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
-                                <Label htmlFor="alert-keywords" className="text-caption font-medium text-foreground-secondary">
+                                <Label htmlFor="alert-keywords" className="text-body font-semibold text-foreground-secondary">
                                     Search Keywords {!formData.model && <span className="text-destructive">*</span>}
                                 </Label>
                                 <span className="text-tiny font-normal tabular-nums text-foreground-subtle">
@@ -233,7 +233,7 @@ export function CreateSmartAlertDialog({
 
                         {/* Location */}
                         <div ref={locationWrapperRef} onFocusCapture={handleLocationFocus}>
-                            <Label htmlFor="alert-location" className="text-caption font-medium text-foreground-secondary mb-1.5 block">
+                            <Label htmlFor="alert-location" className="text-body font-semibold text-foreground-secondary mb-1.5 block">
                                 Location <span className="text-destructive">*</span>
                             </Label>
                             <LocationSelector

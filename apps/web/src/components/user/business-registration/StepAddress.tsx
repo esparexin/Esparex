@@ -82,7 +82,7 @@ function CompactReadonlyField({
     return (
         <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-                <label className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary" htmlFor={id}>
+                <label className="text-body font-semibold leading-snug text-foreground-secondary" htmlFor={id}>
                     {label}
                 </label>
                 {badge}
@@ -230,7 +230,7 @@ export function StepAddress({
             {hasCurrentLocation ? (
                 <Field
                     label="Full address"
-                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
+                    labelClassName="text-body font-semibold text-foreground-secondary"
                     required
                     error={formData.errors?.address}
                     headerExtra={

@@ -19,7 +19,7 @@ export function TitleSection() {
                 render={({ field }) => (
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center justify-between gap-2 mb-1">
-                            <FieldLabel required className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary">
+                            <FieldLabel required className="text-body font-semibold leading-snug text-foreground-secondary">
                                 Ad Title
                             </FieldLabel>
                             {isAiAvailable && (
@@ -40,7 +40,7 @@ export function TitleSection() {
                                 {...field}
                                 placeholder="e.g. iPhone 13 Pro - Screen issue"
                                 maxLength={MAX_AD_TITLE_CHARS}
-                                className="h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary placeholder:text-caption sm:placeholder:text-body"
+                                className="h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                             />
                         </FieldControl>
                         <div className="flex justify-between items-start mt-1">

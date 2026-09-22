@@ -18,7 +18,7 @@ export function StepBasicDetails({
             <div className="grid gap-3.5 md:grid-cols-2">
                 <Field
                     label="Business name"
-                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
+                    labelClassName="text-body font-semibold text-foreground-secondary"
                     required
                     error={formData.errors?.name}
                     headerExtra={
@@ -41,7 +41,7 @@ export function StepBasicDetails({
 
                 <Field
                     label="Business email"
-                    labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
+                    labelClassName="text-body font-semibold text-foreground-secondary"
                     required
                     error={formData.errors?.email}
                     className="space-y-1.5"
@@ -61,7 +61,7 @@ export function StepBasicDetails({
 
             <Field
                 label="About your business"
-                labelClassName="text-caption sm:text-small font-medium text-foreground-secondary"
+                labelClassName="text-body font-semibold text-foreground-secondary"
                 required
                 error={formData.errors?.description}
                 headerExtra={
