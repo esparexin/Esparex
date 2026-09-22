@@ -63,19 +63,22 @@ export function BusinessPostFAB() {
         },
     ];
 
-    // Hide while the user is actively on creation / editing pages
+    // Hide while the user is actively on creation / editing pages or account / chat / admin dashboards
     if (
         pathname?.startsWith("/post-service") ||
         pathname?.startsWith("/post-spare-part-listing") ||
         pathname?.startsWith("/post-ad") ||
         pathname?.startsWith("/edit-service") ||
         pathname?.startsWith("/edit-spare-part") ||
-        pathname?.startsWith("/edit-ad")
+        pathname?.startsWith("/edit-ad") ||
+        pathname?.startsWith("/account") ||
+        pathname?.startsWith("/chat") ||
+        pathname?.startsWith("/admin")
     ) {
         return null;
     }
 
-    const mobileBottomOffset = policy.showMobileBottomNav
+    const mobileBottomOffset = policy.hasAnyBottomNav
         ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]"
         : policy.showContextActionBar
         ? "bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"

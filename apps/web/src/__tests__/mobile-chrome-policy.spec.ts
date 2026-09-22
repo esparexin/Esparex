@@ -12,7 +12,16 @@ describe("mobile chrome policy", () => {
     it("suppresses bottom mobile chrome on chat routes", () => {
         expect(getMobileChromePolicy("/chat").showMobileBottomNav).toBe(false);
         expect(getMobileChromePolicy("/chat").showBottomActionsBar).toBe(false);
+        expect(getMobileChromePolicy("/chat").hasAnyBottomNav).toBe(false);
         expect(getMobileChromePolicy("/chat/abc123").showMobileBottomNav).toBe(false);
         expect(getMobileChromePolicy("/chat/abc123").showBottomActionsBar).toBe(false);
+        expect(getMobileChromePolicy("/chat/abc123").hasAnyBottomNav).toBe(false);
+    });
+
+    it("correctly manages mobile chrome policy on account routes", () => {
+        const policy = getMobileChromePolicy("/account/wallet");
+        expect(policy.showMobileBottomNav).toBe(false); // Public nav is off
+        expect(policy.hasAnyBottomNav).toBe(true);      // MobileAccountBottomNav is active
+        expect(policy.showMobileSearch).toBe(false);    // Reclaims 56px header space
     });
 });

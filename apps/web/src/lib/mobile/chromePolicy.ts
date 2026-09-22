@@ -3,6 +3,8 @@ export interface MobileChromePolicy {
   showBottomActionsBar: boolean;
   showContextActionBar: boolean;
   showStickySearch: boolean;
+  showMobileSearch: boolean;
+  hasAnyBottomNav: boolean;
 }
 
 const DEFAULT_POLICY: MobileChromePolicy = {
@@ -10,6 +12,8 @@ const DEFAULT_POLICY: MobileChromePolicy = {
   showBottomActionsBar: true,
   showContextActionBar: false,
   showStickySearch: false,
+  showMobileSearch: true,
+  hasAnyBottomNav: true,
 };
 
 const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
@@ -33,6 +37,8 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      hasAnyBottomNav: false,
     };
   }
 
@@ -42,6 +48,8 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      hasAnyBottomNav: false,
     };
   }
 
@@ -51,6 +59,8 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: true,
       showContextActionBar: true,
       showStickySearch: false,
+      showMobileSearch: true,
+      hasAnyBottomNav: true,
     };
   }
 
@@ -60,14 +70,26 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     pathname === "/post-service" ||
     pathname.startsWith("/edit-service") ||
     pathname === "/post-spare-part-listing" ||
-    pathname.startsWith("/edit-spare-part") ||
-    pathname.startsWith("/account")
+    pathname.startsWith("/edit-spare-part")
   ) {
     return {
       showMobileBottomNav: false,
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      hasAnyBottomNav: false,
+    };
+  }
+
+  if (pathname.startsWith("/account")) {
+    return {
+      showMobileBottomNav: false,
+      showBottomActionsBar: false,
+      showContextActionBar: false,
+      showStickySearch: false,
+      showMobileSearch: false,
+      hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
 
@@ -77,6 +99,8 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: true,
       showContextActionBar: false,
       showStickySearch: true,
+      showMobileSearch: true,
+      hasAnyBottomNav: true,
     };
   }
 

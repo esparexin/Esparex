@@ -40,7 +40,7 @@ function getServerSnapshot(): string | null {
 export function CookieConsentBanner() {
     const pathname = usePathname();
     const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-    const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
+    const hasAnyBottomNav = getMobileChromePolicy(pathname).hasAnyBottomNav;
 
     const visible = consent === null;
 
@@ -86,7 +86,7 @@ export function CookieConsentBanner() {
             className={cn(
                 "pointer-events-none fixed z-40 px-3 sm:px-4",
                 "left-0 right-0 md:left-1/2 md:right-auto md:-translate-x-1/2 md:max-w-4xl md:w-[calc(100%-3rem)]",
-                hasMobileBottomNav
+                hasAnyBottomNav
                     ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] pb-1"
                     : "bottom-0 md:bottom-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-0"
             )}

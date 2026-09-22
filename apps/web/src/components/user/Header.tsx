@@ -170,44 +170,46 @@ export function Header({
           onOpenLocationSelector={() => setShowLocationSelector(true)}
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
-        <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
-          {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
-            <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
-              <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
-              <span className="truncate text-body font-medium text-foreground-secondary">{stickySearchLabel}</span>
-            </button>
-          ) : (
-            <form onSubmit={(e) => { handleSearchSubmit(e); setIsMobileSearchEditing(false); }} className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
-              <Input
-                id="header-mobile-search"
-                autoFocus={isMobileSearchEditing}
-                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-xl text-body-lg md:text-body placeholder:text-foreground-subtle"
-                placeholder="Search phones, laptops, spare parts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onBlur={() => { if (!searchQuery.trim() && chromePolicy.showStickySearch) setIsMobileSearchEditing(false); }}
-                aria-label="Search listings"
-              />
-            </form>
-          )}
-          <div className="flex items-center gap-1">
-            {!isLoggedIn && !isAuthLoading && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
-                onClick={onShowLogin}
-                aria-label="Log in to Esparex"
-              >
-                <LogIn className="h-5 w-5" />
-              </Button>
+        {chromePolicy.showMobileSearch && (
+          <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
+            {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
+              <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
+                <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
+                <span className="truncate text-body font-medium text-foreground-secondary">{stickySearchLabel}</span>
+              </button>
+            ) : (
+              <form onSubmit={(e) => { handleSearchSubmit(e); setIsMobileSearchEditing(false); }} className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
+                <Input
+                  id="header-mobile-search"
+                  autoFocus={isMobileSearchEditing}
+                  className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all rounded-xl text-body-lg md:text-body placeholder:text-foreground-subtle"
+                  placeholder="Search phones, laptops, spare parts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onBlur={() => { if (!searchQuery.trim() && chromePolicy.showStickySearch) setIsMobileSearchEditing(false); }}
+                  aria-label="Search listings"
+                />
+              </form>
             )}
-            {isLoggedIn && (
-              <NotificationBellDropdown notificationsData={notificationsData} unreadCount={notifUnreadCount} onRefresh={refetchNotifications} variant="mobile" />
-            )}
+            <div className="flex items-center gap-1">
+              {!isLoggedIn && !isAuthLoading && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
+                  onClick={onShowLogin}
+                  aria-label="Log in to Esparex"
+                >
+                  <LogIn className="h-5 w-5" />
+                </Button>
+              )}
+              {isLoggedIn && (
+                <NotificationBellDropdown notificationsData={notificationsData} unreadCount={notifUnreadCount} onRefresh={refetchNotifications} variant="mobile" />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <LocationOverlayHost
