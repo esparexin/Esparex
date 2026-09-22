@@ -79,14 +79,14 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         >
           <SelectTrigger
             size="sm"
-            className="h-8 w-auto min-w-[120px] max-w-[160px] text-caption font-medium border-border/60 bg-muted/30 px-2.5 rounded-lg focus:ring-primary [&_[data-slot=select-value]]:text-caption"
+            className="h-9 w-auto min-w-[130px] max-w-[180px] font-medium border-border/60 bg-muted/30 px-3 rounded-lg focus:ring-primary"
             aria-label="Filter activities"
           >
             <SelectValue placeholder="All Activities" />
           </SelectTrigger>
-          <SelectContent className="text-caption">
+          <SelectContent className="text-body">
             {filterOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value} className="text-caption">
+              <SelectItem key={opt.value} value={opt.value} className="text-body">
                 {opt.label}
               </SelectItem>
             ))}

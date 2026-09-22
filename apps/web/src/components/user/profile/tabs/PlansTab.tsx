@@ -64,7 +64,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     <div className="w-full max-w-4xl space-y-6">
       {/* Header Navigation: Simplified 3-Tab Hub for Wallet view */}
       {initialTab !== 'BUY_PLANS' && (
-        <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2 max-w-full overflow-x-auto">
+        <div className="bg-muted/80 p-1.5 rounded-2xl border border-border inline-flex space-x-1 mb-2 max-w-full overflow-x-auto">
           <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
               id="tab-overview"
@@ -72,7 +72,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'OVERVIEW'}
               aria-controls="panel-overview"
               onClick={() => handleTabSwitch('OVERVIEW')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'OVERVIEW'
                   ? 'bg-card text-foreground shadow-xs'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
@@ -87,7 +87,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'CREDIT_HISTORY'}
               aria-controls="panel-credit-history"
               onClick={() => handleTabSwitch('CREDIT_HISTORY')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'CREDIT_HISTORY'
                   ? 'bg-card text-foreground shadow-xs'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
@@ -102,7 +102,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'INVOICES'}
               aria-controls="panel-invoices"
               onClick={() => handleTabSwitch('INVOICES')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'INVOICES'
                   ? 'bg-card text-foreground shadow-xs'
                   : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
