@@ -1,8 +1,11 @@
 "use client";
 
-import { Label } from "@esparex/ui";
+import { useMemo } from "react";
+import { Label, Tag, Grid } from "@esparex/ui";
 import { FormError } from "@esparex/ui";
 import { EntitySearchCombobox } from "@/components/user/EntitySearchCombobox";
+import { CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
+import { getCategoryIcon } from "@/lib/browse/getCategoryIcon";
 import type { Category } from "@/lib/api/user/categories";
 import type { Brand, DeviceModel } from "@/lib/api/user/masterData";
 import type { SmartAlertFieldErrors, SmartAlertFormData } from "../types";
@@ -30,28 +33,49 @@ export function SmartAlertCategoryBrandModelFields({
     formData,
     updateFormData,
     errors,
-    autoFocusCategory = false,
+    autoFocusCategory: _autoFocusCategory = false,
 }: SmartAlertCategoryBrandModelFieldsProps) {
+    const categoriesWithIcons = useMemo(() => {
+        return categories.map((cat) => ({
+            id: cat.id || cat.slug || cat.name,
+            name: cat.name,
+            icon: getCategoryIcon(cat.icon || cat.name || cat.slug),
+        }));
+    }, [categories]);
+
+    const selectedCategoryObj = categories.find(
+        (c) => c.name === formData.category || c.id === formData.category || c.slug === formData.category
+    );
+    const selectedCategoryId = selectedCategoryObj?.id || "";
+
     return (
         <>
-            {/* Category (SSOT) */}
+            {/* Category (SSOT - 1-Tap Category Grid matching Post Ad) */}
             <div className="relative z-20">
                 <Label htmlFor="alert-category" className="text-body font-semibold text-foreground mb-1.5 block">
                     Category <span className="text-destructive">*</span>
                 </Label>
-                <EntitySearchCombobox<Category>
-                    items={categories}
-                    loading={isLoadingCategories}
-                    value={formData.category}
-                    placeholder="Select Category..."
-                    title="Category"
-                    emptyMessage="No categories found"
-                    autoFocus={autoFocusCategory}
-                    onSelect={(cat) => updateFormData({ category: cat.name, brand: "", model: "" })}
-                    onClear={() => updateFormData({ category: "", brand: "", model: "" })}
-                    getLabel={(cat) => cat.name}
-                    getId={(cat) => cat.id || cat.slug || cat.name}
-                />
+                {isLoadingCategories ? (
+                    <Grid cols={3} gap="sm" className="rounded-xl">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-[56px] sm:h-[60px] rounded-xl bg-muted animate-pulse" />
+                        ))}
+                    </Grid>
+                ) : (
+                    <CategorySelectorGrid
+                        categories={categoriesWithIcons}
+                        selectedCategoryId={selectedCategoryId}
+                        onSelect={(catId) => {
+                            const found = categories.find((c) => c.id === catId || c.slug === catId || c.name === catId);
+                            updateFormData({
+                                category: found?.name || catId,
+                                brand: "",
+                                model: "",
+                            });
+                        }}
+                        defaultIcon={Tag}
+                    />
+                )}
                 <FormError message={errors?.category} />
             </div>
 

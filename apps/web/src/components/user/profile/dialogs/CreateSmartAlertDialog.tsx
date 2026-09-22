@@ -168,7 +168,10 @@ export function CreateSmartAlertDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md sm:max-w-[500px] w-[94vw] max-h-[min(760px,calc(var(--visual-viewport-height,100dvh)-2rem))] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
+            <DialogContent
+                variant="bottomSheet"
+                className="sm:max-w-[500px] w-full p-4 sm:p-6 gap-0 shadow-2xl flex flex-col overflow-hidden"
+            >
                 {/* Fixed Header */}
                 <DialogHeader className="space-y-1 text-left pb-3 border-b border-border shrink-0">
                     <DialogTitle className="flex items-center gap-2.5 text-body-lg sm:text-h4 font-bold">
@@ -270,14 +273,15 @@ export function CreateSmartAlertDialog({
                             variant="outline"
                             onClick={onCancel}
                             disabled={isMutating}
-                            className="flex-1 h-10 rounded-xl text-caption font-semibold cursor-pointer"
+                            className="flex-1 h-11 rounded-xl text-body font-semibold cursor-pointer"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
+                            variant="primary"
                             disabled={isMutating}
-                            className="flex-1 h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold rounded-xl shadow-md cursor-pointer"
+                            className="flex-1 h-11 text-body font-bold rounded-xl shadow-md cursor-pointer"
                         >
                             {isMutating ? (
                                 "Saving..."
