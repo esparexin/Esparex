@@ -35,7 +35,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wide">
               <Crown className="w-3 h-3 text-primary shrink-0" />
               <span>{subscription.category || 'Standard'}</span>
             </span>
@@ -55,7 +55,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
             )}
           </div>
 
-          <h3 className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight">
+          <h3 className="text-body-lg sm:text-h4 font-semibold text-foreground tracking-tight">
             {isExpired ? 'Free Starter Plan' : formatPlanName(subscription.planName)}
           </h3>
 
@@ -91,7 +91,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           <button
             type="button"
             onClick={onBrowsePlans}
-            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold transition-colors shadow-xs whitespace-nowrap self-start sm:self-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-body font-semibold transition-colors shadow-xs whitespace-nowrap w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Upgrade Plan
           </button>

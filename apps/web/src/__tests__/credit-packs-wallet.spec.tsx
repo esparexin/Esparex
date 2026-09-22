@@ -100,7 +100,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
 
     expect(html).toContain('id="tab-overview"');
     expect(html).toContain('Wallet &amp; Balances');
-    expect(html).toContain('Available Balances');
+    expect(html).toContain('Available Credits');
     expect(html).not.toContain('Free Starter Plan');
     expect(html).toContain('id="tab-credit-history"');
     expect(html).toContain('My Usage');
@@ -187,7 +187,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     );
 
     // Section Headings
-    expect(html).toContain('Free Allowances');
+    expect(html).toContain('Free Plans');
     expect(html).toContain('Purchased Credits');
 
     // Free Allowances Boxes
@@ -208,8 +208,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('Expires Oct 15, 2026');
 
     // Header & Reset Note
-    expect(html).toContain('Available Balances');
-    expect(html).toContain('Free allowances reset on');
+    expect(html).toContain('Available Credits');
+    expect(html).not.toContain('Free allowances reset on');
     expect(html).toContain('View My Usage');
 
     // Redundant text eliminated

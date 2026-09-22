@@ -1,7 +1,7 @@
 import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
 
-export const formatReason = (reason?: string): string => {
+const formatReason = (reason?: string): string => {
   if (!reason) return 'Plan Activity';
   const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
   const lower = clean.toLowerCase();
@@ -41,50 +41,6 @@ export const formatAppliedDateTime = (isoDate: string): string => {
     hour: 'numeric',
     minute: '2-digit',
   });
-};
-
-export const renderSpotlightStatus = (tx: CreditLedgerDTO): React.ReactNode => {
-  const isSpotlight =
-    tx.entitlementType?.startsWith('SPOTLIGHT') ||
-    (tx.reason && tx.reason.toLowerCase().includes('spotlight'));
-
-  if (!isSpotlight && !tx.spotlightStatus) return <span className="text-muted-foreground">—</span>;
-  if (tx.spotlightStatus === 'ACTIVE') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        Active
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-      Spotlight Expired
-    </span>
-  );
-};
-
-export const renderAdStatus = (tx: CreditLedgerDTO): React.ReactNode => {
-  if (!tx.adStatus) return <span className="text-muted-foreground">—</span>;
-  const isLive = tx.adStatus === 'ACTIVE' || tx.adStatus === 'active' || tx.adStatus === 'live';
-  if (isLive) {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        Active
-      </span>
-    );
-  }
-  if (tx.adStatus === 'EXPIRED' || tx.adStatus === 'expired') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-        Expired
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-      {tx.adStatus}
-    </span>
-  );
 };
 
 export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode => {

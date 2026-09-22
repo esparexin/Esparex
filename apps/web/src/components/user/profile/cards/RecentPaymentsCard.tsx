@@ -77,7 +77,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           <FileText className="w-6 h-6" />
         </div>
         <div className="space-y-1">
-          <h4 className="text-body font-bold text-foreground">No Payment Receipts Yet</h4>
+          <h4 className="text-body-lg font-semibold text-foreground">No Payment Receipts Yet</h4>
           <p className="text-caption text-muted-foreground max-w-sm mx-auto">
             When you upgrade your plan or purchase credit packs, your official tax invoices and receipts will appear here.
           </p>
@@ -87,7 +87,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
             <Button
               type="button"
               onClick={onBrowsePlans}
-              className="h-9 px-4 text-caption font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+              className="h-9 px-4 text-body font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
             >
               Browse Plans
             </Button>
@@ -99,10 +99,10 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   return (
     <>
-      <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
+      <div className="bg-surface rounded-xl p-4 border border-border/60 shadow-2xs space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h4 className="text-body font-bold text-foreground flex items-center gap-2">
+          <h4 className="text-body-lg font-semibold text-foreground flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary shrink-0" />
             Invoices & Receipts
             <span className="text-tiny px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-semibold">
@@ -194,10 +194,10 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
               {/* Middle Row: Plan Name & Amount */}
               <div className="flex items-start justify-between gap-2">
-                <div className="font-semibold text-foreground text-body leading-snug">
+                <div className="font-semibold text-foreground text-small sm:text-body leading-snug">
                   {formatOrderDescription(pay.description)}
                 </div>
-                <div className="font-bold text-foreground text-body shrink-0">
+                <div className="font-bold text-foreground text-small sm:text-body shrink-0">
                   ₹{pay.amount.toLocaleString()}
                 </div>
               </div>
@@ -209,11 +209,11 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                 </span>
 
                 {pay.status === 'SUCCESS' ? (
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleOpenPreview(pay)}
-                      className="h-8 px-2.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1.5 text-tiny font-semibold"
+                      className="h-7.5 px-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny sm:text-caption font-semibold"
                       aria-label={`Preview invoice for order ${pay.orderId}`}
                     >
                       <Eye className="w-3.5 h-3.5 shrink-0" />
@@ -222,7 +222,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     <button
                       type="button"
                       onClick={() => void downloadInvoiceFile(pay.orderId)}
-                      className="h-8 px-2.5 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1.5 text-tiny font-semibold"
+                      className="h-7.5 px-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny sm:text-caption font-semibold"
                       aria-label={`Download invoice file for order ${pay.orderId}`}
                     >
                       <Download className="w-3.5 h-3.5 shrink-0" />

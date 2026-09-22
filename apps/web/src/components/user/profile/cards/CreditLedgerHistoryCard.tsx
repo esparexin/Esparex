@@ -25,8 +25,6 @@ import {
 import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
 import { CreditLedgerDetailPopup } from './CreditLedgerDetailPopup';
 
-export { type LedgerFilterType };
-
 export interface CreditLedgerHistoryCardProps {
   creditPacks?: CreditPackDTO[];
   initialFilter?: LedgerFilterType;
@@ -72,7 +70,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
     <div className="space-y-3">
       {/* Header: title + compact filter dropdown with balanced typography */}
       <div className="flex items-center justify-between gap-3">
-        <h4 className="text-body-lg sm:text-h4 font-bold text-foreground">My Usage</h4>
+        <h4 className="text-body-lg sm:text-h4 font-semibold text-foreground">My Usage</h4>
         <Select
           value={activeFilter}
           onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
@@ -104,14 +102,14 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
 
       {/* Error */}
       {isError && (
-        <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-tiny flex justify-between items-center border border-destructive/20">
+        <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-caption flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
           <Button
             type="button"
             variant="link"
             size="sm"
             onClick={() => void refetch()}
-            className="font-bold underline cursor-pointer hover:opacity-80 p-0 h-auto text-tiny text-destructive"
+            className="font-bold underline cursor-pointer hover:opacity-80 p-0 h-auto text-caption text-destructive"
           >
             Retry
           </Button>
@@ -158,7 +156,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                       {formatActivityCategory(tx)}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold shrink-0 ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold shrink-0 ${
                         isDebit
                           ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                           : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'

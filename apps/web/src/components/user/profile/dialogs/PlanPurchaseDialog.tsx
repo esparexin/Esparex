@@ -188,7 +188,7 @@ export function PlanPurchaseDialog({
 
                                 <div className="flex items-center justify-between pt-2 border-t border-border">
                                     <span className="font-bold text-body text-foreground">Total Payable:</span>
-                                    <span className="text-xl font-bold text-emerald-600">
+                                    <span className="text-h3 font-bold text-emerald-600">
                                         {formatCurrency(taxResult.totalAmount)}
                                     </span>
                                 </div>

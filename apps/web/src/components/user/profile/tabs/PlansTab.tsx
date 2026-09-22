@@ -61,56 +61,54 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl space-y-6">
-      {/* Header Navigation: Simplified 3-Tab Hub for Wallet view */}
+    <div className="w-full space-y-4 sm:space-y-6">
+      {/* Clean Underline Sub-Tabs (Esparex Design System SSOT) */}
       {initialTab !== 'BUY_PLANS' && (
-        <div className="bg-muted/80 p-1.5 rounded-2xl border border-border inline-flex space-x-1 mb-2 max-w-full overflow-x-auto">
-          <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
-            <button
-              id="tab-overview"
-              role="tab"
-              aria-selected={activeTab === 'OVERVIEW'}
-              aria-controls="panel-overview"
-              onClick={() => handleTabSwitch('OVERVIEW')}
-              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'OVERVIEW'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              Wallet & Balances
-            </button>
+        <div className="flex gap-4 sm:gap-6 border-b border-border overflow-x-auto no-scrollbar scrollbar-none pb-px mb-1" role="tablist" aria-label="Wallet Navigation">
+          <button
+            id="tab-overview"
+            role="tab"
+            aria-selected={activeTab === 'OVERVIEW'}
+            aria-controls="panel-overview"
+            onClick={() => handleTabSwitch('OVERVIEW')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'OVERVIEW'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>Wallet & Balances</span>
+          </button>
 
-            <button
-              id="tab-credit-history"
-              role="tab"
-              aria-selected={activeTab === 'CREDIT_HISTORY'}
-              aria-controls="panel-credit-history"
-              onClick={() => handleTabSwitch('CREDIT_HISTORY')}
-              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'CREDIT_HISTORY'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              My Usage
-            </button>
+          <button
+            id="tab-credit-history"
+            role="tab"
+            aria-selected={activeTab === 'CREDIT_HISTORY'}
+            aria-controls="panel-credit-history"
+            onClick={() => handleTabSwitch('CREDIT_HISTORY')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'CREDIT_HISTORY'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>My Usage</span>
+          </button>
 
-            <button
-              id="tab-invoices"
-              role="tab"
-              aria-selected={activeTab === 'INVOICES'}
-              aria-controls="panel-invoices"
-              onClick={() => handleTabSwitch('INVOICES')}
-              className={`min-h-[44px] h-11 px-4 text-body font-semibold rounded-xl transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'INVOICES'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              Invoices
-            </button>
-          </nav>
+          <button
+            id="tab-invoices"
+            role="tab"
+            aria-selected={activeTab === 'INVOICES'}
+            aria-controls="panel-invoices"
+            onClick={() => handleTabSwitch('INVOICES')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'INVOICES'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>Invoices</span>
+          </button>
         </div>
       )}
 

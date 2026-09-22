@@ -52,7 +52,7 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
                 role="tab"
                 aria-selected={isSelected}
                 onClick={() => setSelectedCategory(catType)}
-                className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
+                className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
                   isSelected
                     ? 'bg-primary text-primary-foreground shadow-xs'
                     : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-2xs'
@@ -60,7 +60,7 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
               >
                 <span>{catType}</span>
                 <span
-                  className={`px-1.5 py-0.5 rounded-full text-tiny font-extrabold ${
+                  className={`px-1.5 py-0.5 rounded-full text-tiny font-semibold ${
                     isSelected
                       ? 'bg-primary-foreground/20 text-primary-foreground'
                       : 'bg-muted text-foreground-secondary'
@@ -76,7 +76,7 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
 
       {/* Standardized Compact Package Cards Grid */}
       {filteredPlans.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredPlans.map((plan) => (
             <DynamicPlanCard
               key={plan.id}
@@ -88,7 +88,7 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
         </div>
       ) : (
         <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-xs">
-          <h4 className="text-body font-bold text-foreground">No Packages Available</h4>
+          <h4 className="text-body-lg font-semibold text-foreground">No Packages Available</h4>
           <p className="text-caption text-foreground-subtle">
             There are currently no active packages in the {currentCategory} category.
           </p>

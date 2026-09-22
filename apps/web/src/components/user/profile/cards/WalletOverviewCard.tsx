@@ -34,7 +34,7 @@ function nearestExpiry(
   active.sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
   const first = active[0];
   return first
-    ? new Date(first.expiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    ? new Date(first.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
     : null;
 }
 
@@ -79,27 +79,27 @@ const StatTile: React.FC<StatTileProps> = ({
           : undefined
       }
       aria-label={ariaLabel}
-      className={`group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-border bg-card text-left transition-all ${
+      className={`group relative flex flex-col justify-between p-3 sm:p-4 rounded-xl border border-border bg-card text-left transition-all ${
         isClickable
           ? 'hover:border-primary/40 hover:bg-muted/30 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
           : 'cursor-default select-none'
       }`}
     >
       <div className="flex items-center justify-between gap-2 w-full mb-2">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
           <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${iconBgClass}`}>
             {icon}
           </div>
-          <span className="text-small font-bold text-foreground truncate">{label}</span>
+          <span className="text-small sm:text-body font-semibold text-foreground truncate">{label}</span>
         </div>
         {isClickable && (
-          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+          <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
         )}
       </div>
 
       <div className="flex flex-col gap-1 w-full mt-auto">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">{value}</span>
+          <span className="text-h3 sm:text-h2 font-bold text-foreground tracking-tight">{value}</span>
           <span className="text-caption font-medium text-muted-foreground">{` ${unit}`}</span>
         </div>
         {subtext && (
@@ -131,10 +131,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   const freeAlerts = wallet.freeAlertSlotsBase ?? 2;
   const extraAlerts = wallet.paidAlertSlots ?? Math.max(0, (wallet.smartAlertSlots ?? 0) - freeAlerts);
 
-  const resetDateFormatted = wallet.nextMonthlyResetDate
-    ? new Date(wallet.nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-    : null;
-
   const adExpiry = paidAds > 0 ? nearestExpiry(creditPacks, 'AD_POSTING') : null;
   const alertExpiry = extraAlerts > 0 ? nearestExpiry(creditPacks, 'SMART_ALERT_SLOT') : null;
   const spotlightExpiry = (wallet.spotlightCredits ?? 0) > 0 ? nearestExpiry(creditPacks, ['SPOTLIGHT_HP', 'SPOTLIGHT_CAT']) : null;
@@ -144,36 +140,31 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
 
   return (
     <Card className="rounded-2xl border border-border bg-card shadow-xs">
-      <CardContent className="p-3.5 sm:p-5 space-y-4 sm:space-y-5">
+      <CardContent className="p-4 sm:p-5 space-y-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between gap-2">
           <div>
-            <h3 className="text-body font-bold text-foreground">Available Balances</h3>
-            {resetDateFormatted && (
-              <p className="text-tiny text-muted-foreground mt-0.5">
-                Free allowances reset on <strong className="text-foreground">{resetDateFormatted}</strong>
-              </p>
-            )}
+            <h3 className="text-body-lg sm:text-h4 font-semibold text-foreground">Available Credits</h3>
           </div>
           {onNavigateToHistory && (
             <button
               type="button"
               onClick={() => onNavigateToHistory()}
-              className="text-tiny font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-2 py-1"
+              className="text-caption font-semibold text-primary hover:underline cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-2 py-1"
             >
               View My Usage <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Section 1: Free Allowances */}
+        {/* Section 1: Free Plans */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
-              Free Allowances
+            <h4 className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
+              Free Plans
             </h4>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <StatTile
               icon={<Package className="w-4 h-4" />}
               iconBgClass="bg-primary/10 text-primary border border-primary/20"
@@ -200,11 +191,11 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
         {/* Section 2: Purchased Credits */}
         <div className="space-y-2 pt-2 border-t border-border/40">
           <div className="flex items-center justify-between">
-            <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
+            <h4 className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
               Purchased Credits
             </h4>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatTile
               icon={<Sparkles className="w-4 h-4" />}
               iconBgClass="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"

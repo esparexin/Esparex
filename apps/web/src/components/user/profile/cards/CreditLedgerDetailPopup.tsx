@@ -96,7 +96,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
         aria-describedby="ledger-detail-desc"
       >
         <DialogHeader className="px-5 pt-5 pb-3 border-b border-border/40">
-          <DialogTitle className="text-body font-bold text-foreground">Activity Details</DialogTitle>
+          <DialogTitle className="text-body-lg font-semibold text-foreground">Activity Details</DialogTitle>
           <p id="ledger-detail-desc" className="text-tiny text-muted-foreground mt-0.5">
             {formatActivityName(tx)}
           </p>

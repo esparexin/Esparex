@@ -33,7 +33,7 @@ export function PlanCheckoutGstSection({
 
             {wantsGst && (
                 <div className="pl-6 flex flex-col gap-1.5 pt-1">
-                    <Label htmlFor="checkout-gstin" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                    <Label htmlFor="checkout-gstin" className="text-caption font-medium text-foreground-secondary">
                         GSTIN Number
                     </Label>
                     <Input
