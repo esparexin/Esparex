@@ -21,28 +21,31 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
 
     const config = {
         pending: {
-            icon: <Clock className="w-5 h-5 text-amber-600" />,
-            bg: "bg-amber-50 border-amber-200 shadow-amber-100/50",
+            icon: <Clock className="w-4 h-4 text-warning shrink-0" />,
+            bg: "bg-warning/10 border-warning/20 shadow-xs",
             title: "Application Pending Review",
-            description: "Our moderation team is verifying your business documents. This typically takes 24-48 hours.",
+            description: "Moderation team is verifying your business documents (24-48h).",
+            mobileDescription: "Verifying documents (24-48h)",
             actionLabel: "View Application",
-            textColor: "text-amber-900"
+            textColor: "text-warning"
         },
         rejected: {
-            icon: <XCircle className="w-5 h-5 text-red-600" />,
-            bg: "bg-red-50 border-red-200 shadow-red-100/50",
+            icon: <XCircle className="w-4 h-4 text-destructive shrink-0" />,
+            bg: "bg-destructive/10 border-destructive/20 shadow-xs",
             title: "Application Rejected",
-            description: rejectionReason || "Your application did not meet our verification criteria. Please review and resubmit.",
-            actionLabel: "Update & Resubmit",
-            textColor: "text-red-900"
+            description: rejectionReason || "Application did not meet verification criteria. Please review and resubmit.",
+            mobileDescription: rejectionReason || "Please review & resubmit",
+            actionLabel: "Resubmit",
+            textColor: "text-destructive"
         },
         suspended: {
-            icon: <AlertTriangle className="w-5 h-5 text-orange-600" />,
-            bg: "bg-orange-50 border-orange-200 shadow-orange-100/50",
-            title: "Business Account Suspended",
-            description: "Your account has been suspended due to a policy violation or expired documents. Contact support for assistance.",
-            actionLabel: "Contact Support",
-            textColor: "text-orange-900"
+            icon: <AlertTriangle className="w-4 h-4 text-warning shrink-0" />,
+            bg: "bg-warning/10 border-warning/20 shadow-xs",
+            title: "Account Suspended",
+            description: "Your business account has been suspended. Contact support for assistance.",
+            mobileDescription: "Suspended. Contact support",
+            actionLabel: "Support",
+            textColor: "text-warning"
         }
     };
 
@@ -50,28 +53,36 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
     if (!current) return null;
 
     return (
-        <div className={`mb-6 p-4 rounded-2xl border ${current.bg} shadow-lg transition-all animate-in fade-in slide-in-from-top-4 duration-500`}>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="p-2.5 bg-white rounded-xl shadow-sm">
-                    {current.icon}
+        <aside 
+            role="status" 
+            aria-live="polite"
+            className={`mb-3 sm:mb-4 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl border ${current.bg} flex items-center justify-between gap-2.5 transition-all animate-in fade-in slide-in-from-top-2 duration-300`}
+        >
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+                {current.icon}
+                <div className="min-w-0 flex-1 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                    <span className={`font-semibold text-caption shrink-0 ${current.textColor}`}>
+                        {current.title}
+                    </span>
+                    <span className="text-caption text-foreground-secondary hidden sm:inline">
+                        — {current.description}
+                    </span>
+                    <span className="text-caption text-foreground-secondary sm:hidden truncate">
+                        — {current.mobileDescription}
+                    </span>
                 </div>
-                <div className="flex-1 space-y-1">
-                    <h3 className={`font-bold text-body ${current.textColor}`}>{current.title}</h3>
-                    <p className="text-caption text-foreground-tertiary leading-relaxed max-w-2xl">
-                        {current.description}
-                    </p>
-                </div>
-                {onAction && (
-                    <Button 
-                        onClick={onAction}
-                        size="sm"
-                        className="bg-card hover:bg-muted text-foreground border border-border shadow-xs text-caption font-bold px-4 h-9 rounded-xl flex items-center gap-2 group shrink-0"
-                    >
-                        {current.actionLabel}
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                )}
             </div>
-        </div>
+            {onAction && (
+                <Button 
+                    onClick={onAction}
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2.5 text-tiny font-medium rounded-lg bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-2xs flex items-center gap-1 shrink-0 group transition-all"
+                >
+                    <span>{current.actionLabel}</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
+            )}
+        </aside>
     );
 }

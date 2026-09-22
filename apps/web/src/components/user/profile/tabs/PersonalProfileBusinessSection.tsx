@@ -16,7 +16,7 @@ export function PersonalProfileBusinessSection({
     return (
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="profile-business-name" className="text-caption sm:text-small font-medium text-foreground-secondary">
-                Business Name <span className="text-foreground-subtle font-normal">(Optional)</span>
+                Business Name <span className="text-caption font-normal text-muted-foreground ml-1">(Optional)</span>
             </Label>
             <Input
                 id="profile-business-name"

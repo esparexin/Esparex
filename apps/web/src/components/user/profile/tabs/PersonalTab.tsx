@@ -199,7 +199,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                         <div className="flex flex-col gap-1.5">
                             <Label htmlFor="profile-name" className="text-caption sm:text-small font-medium text-foreground-secondary">
-                                Full name <span className="text-destructive">*</span>
+                                Full name <span className="text-destructive ml-0.5">*</span>
                             </Label>
                             <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary" {...form.register("name")} />
                             <FormError message={nameError} />
