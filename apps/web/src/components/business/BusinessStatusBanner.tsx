@@ -25,7 +25,6 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
             bg: "bg-warning/10 border-warning/20 shadow-xs",
             title: "Application Pending Review",
             description: "Moderation team is verifying your business documents (24-48h).",
-            mobileDescription: "Verifying documents (24-48h)",
             actionLabel: "View Application",
             textColor: "text-warning"
         },
@@ -34,7 +33,6 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
             bg: "bg-destructive/10 border-destructive/20 shadow-xs",
             title: "Application Rejected",
             description: rejectionReason || "Application did not meet verification criteria. Please review and resubmit.",
-            mobileDescription: rejectionReason || "Please review & resubmit",
             actionLabel: "Resubmit",
             textColor: "text-destructive"
         },
@@ -43,7 +41,6 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
             bg: "bg-warning/10 border-warning/20 shadow-xs",
             title: "Account Suspended",
             description: "Your business account has been suspended. Contact support for assistance.",
-            mobileDescription: "Suspended. Contact support",
             actionLabel: "Support",
             textColor: "text-warning"
         }
@@ -60,15 +57,12 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
         >
             <div className="flex items-center gap-2 min-w-0 flex-1">
                 {current.icon}
-                <div className="min-w-0 flex-1 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                <div className="min-w-0 flex items-baseline gap-1.5 truncate">
                     <span className={`font-semibold text-caption shrink-0 ${current.textColor}`}>
                         {current.title}
                     </span>
-                    <span className="text-caption text-foreground-secondary hidden sm:inline">
+                    <span className="text-caption text-foreground-secondary hidden sm:inline truncate">
                         — {current.description}
-                    </span>
-                    <span className="text-caption text-foreground-secondary sm:hidden truncate">
-                        — {current.mobileDescription}
                     </span>
                 </div>
             </div>

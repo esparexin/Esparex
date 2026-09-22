@@ -26,7 +26,7 @@ export function PersonalProfileGstSection({
                 placeholder="e.g. 27AAAAA0000A1Z5"
                 maxLength={15}
                 {...register("gstin")}
-                className={`h-11 rounded-xl bg-card border-border px-3.5 text-body-lg md:text-body font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle uppercase placeholder:normal-case scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))] ${gstinError ? "border-destructive" : ""}`}
+                className={`h-11 rounded-xl bg-card border-border px-3.5 text-body font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle uppercase placeholder:normal-case scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))] ${gstinError ? "border-destructive" : ""}`}
                 aria-invalid={!!gstinError}
                 aria-describedby={gstinError ? "profile-gstin-error" : undefined}
             />

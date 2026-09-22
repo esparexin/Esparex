@@ -22,7 +22,7 @@ export function PersonalProfileBusinessSection({
                 id="profile-business-name"
                 type="text"
                 placeholder="e.g. Acme Spares Pvt Ltd"
-                className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]"
+                className="h-11 text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-small placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]"
                 {...register("businessName")}
             />
             <FormError id="profile-business-name-error" message={businessNameError} />
