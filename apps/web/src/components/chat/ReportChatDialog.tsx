@@ -9,6 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Textarea,
+  Label,
 } from "@esparex/ui";
 
 interface ReportReasonOption {
@@ -44,7 +51,7 @@ export function ReportChatDialog({
       <DialogContent className="max-w-md pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            ⚑ Report this conversation
+            Report this conversation
           </DialogTitle>
           <DialogDescription>
             Help us keep Esparex safe by providing details about your concern.
@@ -52,30 +59,42 @@ export function ReportChatDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <label className="block text-body font-medium text-foreground-secondary">
-            Reason
-            <select
-              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          <div className="space-y-1.5">
+            <Label htmlFor="chat-report-reason" className="text-body font-medium text-foreground-secondary">
+              Reason
+            </Label>
+            <Select
               value={reportReason}
-              onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
+              onValueChange={(val) => onReasonChange(val as ChatReportReasonValue)}
             >
-              {reasons.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-          </label>
+              <SelectTrigger
+                id="chat-report-reason"
+                className="w-full h-11 rounded-xl border border-border bg-card px-3 text-body-lg md:text-body text-foreground shadow-xs"
+              >
+                <SelectValue placeholder="Select reason" />
+              </SelectTrigger>
+              <SelectContent>
+                {reasons.map((r) => (
+                  <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <label className="block text-body font-medium text-foreground-secondary">
-            Additional details (optional)
-            <textarea
-              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+          <div className="space-y-1.5">
+            <Label htmlFor="chat-report-desc" className="text-body font-medium text-foreground-secondary">
+              Additional details (optional)
+            </Label>
+            <Textarea
+              id="chat-report-desc"
+              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-body-lg md:text-body text-foreground shadow-xs focus-visible:ring-2 focus-visible:ring-primary/20 resize-none"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
-              placeholder="Describe the issue…"
+              placeholder="Describe the issue..."
               rows={3}
               maxLength={500}
             />
-          </label>
+          </div>
         </div>
 
         <DialogFooter className="mt-4">

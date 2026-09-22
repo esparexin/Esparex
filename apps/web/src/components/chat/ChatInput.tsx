@@ -3,6 +3,7 @@
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { Paperclip, Send, Spinner } from '@esparex/ui';
 import { ChatInputAttachmentBanner } from './ChatInputAttachmentBanner';
+import { validateImageMagicBytes } from '@/lib/uploads/profilePhotoUpload';
 
 interface ChatInputProps {
   onSend: (text: string, attachment?: File) => Promise<boolean>;
@@ -41,19 +42,6 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     if (onTypingChange) onTypingChange(false);
   };
 
-  const validateMagicBytes = async (file: File): Promise<boolean> => {
-    try {
-      const buffer = await file.slice(0, 4).arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
-      const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-      const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46;
-      return isJpeg || isPng || isWebp;
-    } catch {
-      return false;
-    }
-  };
-
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -65,7 +53,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
       return;
     }
 
-    const isValidImage = await validateMagicBytes(file);
+    const isValidImage = await validateImageMagicBytes(file);
     if (!isValidImage) {
       setFileError('Only JPEG, PNG, and WebP images are allowed');
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -135,7 +123,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
             setFileError('Pasted image exceeds 5 MB limit');
             return;
           }
-          const isValid = await validateMagicBytes(file);
+          const isValid = await validateImageMagicBytes(file);
           if (isValid) {
             setSelectedFile(file);
             setFileError(null);
@@ -154,7 +142,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     return (
       <div className="chat-input chat-input--disabled">
         <p className="chat-input__disabled-msg">
-          🔒 {disabledReason ?? 'This chat is closed'}
+          {disabledReason ?? 'This chat is closed'}
         </p>
       </div>
     );
