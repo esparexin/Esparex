@@ -29,9 +29,9 @@ export interface BrowseFilterSidebarProps {
   className?: string;
 }
 
-const CONDITION_OPTIONS = [
-  { id: "power_on", label: "Powers On (Working)" },
-  { id: "power_off", label: "Powers Off (Parts / Repair)" },
+export const CONDITION_OPTIONS = [
+  { id: "power_on", label: "Powers On" },
+  { id: "power_off", label: "Powers Off" },
 ] as const;
 
 export function BrowseFilterSidebar({
@@ -97,20 +97,18 @@ export function BrowseFilterSidebar({
           <div className="grid grid-cols-2 gap-1.5 pt-1">
             {LISTING_TYPE_TABS.map((tab) => {
               const isSelected = (browseType ?? "all") === tab.id;
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => onTypeChange(tab.id)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-caption font-semibold transition-all border text-left cursor-pointer",
+                    "flex items-center justify-center rounded-xl px-2.5 py-1.5 text-caption font-medium transition-all border text-center cursor-pointer",
                     isSelected
-                      ? "bg-primary text-primary-foreground border-primary shadow-2xs font-bold"
+                      ? "bg-primary text-primary-foreground border-primary shadow-2xs font-semibold"
                       : "border-border/80 bg-background text-foreground-secondary hover:bg-muted/80 hover:text-foreground"
                   )}
                 >
-                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
                   <span className="truncate">{tab.label}</span>
                 </button>
               );

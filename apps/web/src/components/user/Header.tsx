@@ -24,6 +24,7 @@ import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
+import { cn } from "@/lib/utils";
 
 export interface HeaderProps {
   currentPage?: string;
@@ -172,15 +173,30 @@ export function Header({
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (
-          <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
+          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5 border-b border-border/40">
             {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
-              <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileSearchEditing(true);
+                  setSearchQuery(browseParams.q || "");
+                }}
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-muted px-3 h-11 text-left hover:bg-muted/80 transition-colors cursor-pointer border border-transparent"
+                aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
+              >
                 <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                <span className="truncate text-body font-medium text-foreground-secondary">{stickySearchLabel}</span>
+                <span
+                  className={cn(
+                    "truncate text-body-lg md:text-body",
+                    browseParams.q?.trim() ? "font-medium text-foreground" : "font-normal text-foreground-subtle"
+                  )}
+                >
+                  {stickySearchLabel}
+                </span>
               </button>
             ) : (
               <form onSubmit={(e) => { handleSearchSubmit(e); setIsMobileSearchEditing(false); }} className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle pointer-events-none" />
                 <Input
                   id="header-mobile-search"
                   autoFocus={isMobileSearchEditing}

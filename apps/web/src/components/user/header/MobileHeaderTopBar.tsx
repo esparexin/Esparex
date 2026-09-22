@@ -26,16 +26,16 @@ export function MobileHeaderTopBar({
     : DEFAULT_APP_LOCATION.display;
 
   return (
-    <div className="flex items-center px-3.5 h-10 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary gap-2">
+    <div className="flex items-center px-3.5 h-12 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary gap-2">
       {/* Left Navigation Group: Hamburger Menu + Full Esparex Logo */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <button
           type="button"
           onClick={onOpenMobileDrawer}
-          className="h-8 w-8 rounded-lg hover:bg-muted active:bg-muted/80 text-foreground-secondary flex items-center justify-center cursor-pointer transition-colors"
+          className="h-9 w-9 rounded-xl hover:bg-muted active:bg-muted/80 text-foreground-secondary flex items-center justify-center cursor-pointer transition-colors"
           aria-label="Open navigation drawer"
         >
-          <Menu className="h-4.5 w-4.5" />
+          <Menu className="h-5 w-5" />
         </button>
         <button
           type="button"
@@ -49,7 +49,7 @@ export function MobileHeaderTopBar({
             width={495}
             height={112}
             unoptimized
-            className="h-[22px] w-auto object-contain"
+            className="h-[24px] w-auto object-contain"
           />
         </button>
       </div>

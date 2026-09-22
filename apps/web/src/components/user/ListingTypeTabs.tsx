@@ -45,6 +45,7 @@ export interface ListingTypeTabsProps {
   counts?: Partial<Record<PublicBrowseType, number>>;
   className?: string;
   compact?: boolean;
+  showIcons?: boolean;
 }
 
 export function ListingTypeTabs({
@@ -53,6 +54,7 @@ export function ListingTypeTabs({
   counts,
   className,
   compact = false,
+  showIcons = false,
 }: ListingTypeTabsProps) {
   const tabRefs = useRef<Map<PublicBrowseType, HTMLButtonElement>>(new Map());
 
@@ -116,29 +118,31 @@ export function ListingTypeTabs({
             onClick={() => onTypeChange(tab.id)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              "inline-flex items-center gap-1.5 sm:gap-2 rounded-full border transition-all duration-150 shrink-0 select-none whitespace-nowrap cursor-pointer",
+              "inline-flex items-center justify-center rounded-full border transition-all duration-150 shrink-0 select-none whitespace-nowrap cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               compact
-                ? "h-9 px-3 text-caption font-semibold"
-                : "h-10 sm:h-11 px-3.5 sm:px-4 text-small sm:text-body font-semibold",
+                ? "h-7.5 px-2.5 text-tiny font-semibold"
+                : "h-8 sm:h-8.5 px-3 sm:px-3.5 text-caption font-medium",
               isActive
-                ? "border-primary bg-primary text-primary-foreground shadow-2xs font-bold"
+                ? "border-primary bg-primary text-primary-foreground shadow-2xs font-semibold"
                 : "border-border/80 bg-card text-foreground-secondary hover:bg-muted hover:text-foreground active:scale-95"
             )}
           >
-            <Icon
-              className={cn(
-                "shrink-0 transition-transform",
-                compact ? "size-3.5" : "size-4",
-                isActive ? "text-primary-foreground" : "text-foreground-subtle"
-              )}
-              aria-hidden="true"
-            />
+            {showIcons && (
+              <Icon
+                className={cn(
+                  "shrink-0 transition-transform mr-1.5",
+                  compact ? "size-3" : "size-3.5",
+                  isActive ? "text-primary-foreground" : "text-foreground-subtle"
+                )}
+                aria-hidden="true"
+              />
+            )}
             <span>{tab.label}</span>
             {typeof count === "number" && count > 0 && (
               <span
                 className={cn(
-                  "inline-flex items-center justify-center rounded-full px-1.5 py-0.2 text-tiny font-bold tabular-nums",
+                  "inline-flex items-center justify-center rounded-full px-1.5 py-0.2 text-tiny font-bold tabular-nums ml-1.5",
                   isActive
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-muted text-foreground-secondary"

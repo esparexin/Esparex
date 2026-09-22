@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Zap, Badge, Smartphone, Wrench, Cpu, Power } from "@esparex/ui";
+import { Zap, Badge, Power } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
@@ -248,15 +248,12 @@ export function ListingTypeBadge({
   return (
     <Badge
       className={cn(
-        "border text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center gap-1 shadow-2xs select-none backdrop-blur-xs",
+        "border text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center shadow-2xs select-none backdrop-blur-xs",
         typeBadge.className,
         className
       )}
       aria-label={`Listing type: ${typeBadge.label}`}
     >
-      {typeBadge.icon === "wrench" && <Wrench className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
-      {typeBadge.icon === "cpu" && <Cpu className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
-      {typeBadge.icon === "device" && <Smartphone className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />}
       <span>{typeBadge.label}</span>
     </Badge>
   );

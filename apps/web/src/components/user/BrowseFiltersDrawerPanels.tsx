@@ -6,6 +6,7 @@ import { Input, Label, Checkbox } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 import { LISTING_TYPE_TABS } from "./ListingTypeTabs";
+import { CONDITION_OPTIONS } from "./BrowseFilterSidebar";
 
 export type FilterTab = "type" | "category" | "budget" | "condition";
 
@@ -48,7 +49,6 @@ export function BrowseFiltersDrawerPanels({
         <div className="space-y-1.5">
           {LISTING_TYPE_TABS.map((tab) => {
             const isSelected = (browseType ?? "all") === tab.id;
-            const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
@@ -58,16 +58,13 @@ export function BrowseFiltersDrawerPanels({
                   onClose();
                 }}
                 className={cn(
-                  "flex w-full items-center justify-between p-3 rounded-xl text-small font-medium transition-colors border",
+                  "flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-caption font-medium transition-colors border min-h-[40px]",
                   isSelected
-                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-2xs"
+                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
                     : "border-border/80 bg-background text-foreground-secondary hover:bg-muted"
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <Icon className="size-4 shrink-0" aria-hidden="true" />
-                  <span>{tab.label}</span>
-                </div>
+                <span>{tab.label}</span>
                 {isSelected && <Check className="size-4 shrink-0" />}
               </button>
             );
@@ -81,7 +78,7 @@ export function BrowseFiltersDrawerPanels({
             type="button"
             onClick={() => onCategoryChange("all")}
             className={cn(
-              "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
+              "flex w-full items-center justify-between px-3 py-2 rounded-lg text-caption font-medium transition-colors min-h-[36px]",
               !selectedCategory || selectedCategory === "all"
                 ? "bg-primary text-primary-foreground font-semibold"
                 : "text-foreground-secondary hover:bg-muted"
@@ -102,7 +99,7 @@ export function BrowseFiltersDrawerPanels({
                 type="button"
                 onClick={() => onCategoryChange(val)}
                 className={cn(
-                  "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
+                  "flex w-full items-center justify-between px-3 py-2 rounded-lg text-caption font-medium transition-colors min-h-[36px]",
                   isSelected
                     ? "bg-primary text-primary-foreground font-semibold"
                     : "text-foreground-secondary hover:bg-muted"
@@ -122,21 +119,31 @@ export function BrowseFiltersDrawerPanels({
             Price Range (₹)
           </Label>
           <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              placeholder="Min Price"
-              value={localMin}
-              onChange={(e) => setLocalMin(e.target.value)}
-              className="h-9 text-body-lg md:text-body rounded-xl border-input"
-            />
-            <span className="text-muted-foreground">-</span>
-            <Input
-              type="number"
-              placeholder="Max Price"
-              value={localMax}
-              onChange={(e) => setLocalMax(e.target.value)}
-              className="h-9 text-body-lg md:text-body rounded-xl border-input"
-            />
+            <div className="relative flex-1">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-caption text-muted-foreground font-medium pointer-events-none">
+                ₹
+              </span>
+              <Input
+                type="number"
+                placeholder="Min"
+                value={localMin}
+                onChange={(e) => setLocalMin(e.target.value)}
+                className="h-9 pl-6 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
+              />
+            </div>
+            <span className="text-muted-foreground text-caption">-</span>
+            <div className="relative flex-1">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-caption text-muted-foreground font-medium pointer-events-none">
+                ₹
+              </span>
+              <Input
+                type="number"
+                placeholder="Max"
+                value={localMax}
+                onChange={(e) => setLocalMax(e.target.value)}
+                className="h-9 pl-6 text-body-lg md:text-body placeholder:text-foreground-subtle rounded-xl border-input"
+              />
+            </div>
           </div>
 
           <div className="pt-2 space-y-2">
@@ -171,13 +178,10 @@ export function BrowseFiltersDrawerPanels({
             Device Condition
           </Label>
           <div className="space-y-2">
-            {[
-              { id: "power_on", label: "Powers On (Working)" },
-              { id: "power_off", label: "Powers Off (Parts / Repair)" },
-            ].map((item) => {
+            {CONDITION_OPTIONS.map((item) => {
               const isChecked = deviceCondition === item.id;
               return (
-                <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border hover:bg-muted">
+                <div key={item.id} className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border hover:bg-muted min-h-[38px]">
                   <Checkbox
                     id={`drawer-cond-${item.id}`}
                     checked={isChecked}
@@ -187,7 +191,7 @@ export function BrowseFiltersDrawerPanels({
                   />
                   <Label
                     htmlFor={`drawer-cond-${item.id}`}
-                    className="text-small font-medium text-foreground-secondary cursor-pointer flex-1"
+                    className="text-caption font-medium text-foreground-secondary cursor-pointer flex-1"
                   >
                     {item.label}
                   </Label>
