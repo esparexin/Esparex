@@ -88,8 +88,8 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     };
   }
 
-  // Profile page: reclaim vertical space by hiding search bar & location selector
-  if (pathname === "/account/profile" || pathname.startsWith("/account/profile/")) {
+  // Account & profile routes: reclaim vertical space by hiding search bar & location selector across all account management views
+  if (pathname === "/account" || pathname.startsWith("/account/")) {
     return {
       showMobileBottomNav: false,
       showBottomActionsBar: false,
@@ -97,18 +97,6 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showStickySearch: false,
       showMobileSearch: false,
       showMobileLocation: false,
-      hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
-    };
-  }
-
-  if (pathname.startsWith("/account")) {
-    return {
-      showMobileBottomNav: false,
-      showBottomActionsBar: false,
-      showContextActionBar: false,
-      showStickySearch: false,
-      showMobileSearch: true,
-      showMobileLocation: true,
       hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
