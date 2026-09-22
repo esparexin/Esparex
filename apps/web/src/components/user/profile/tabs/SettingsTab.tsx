@@ -166,9 +166,9 @@ export function SettingsTab({
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-9 gap-1.5 text-caption font-semibold px-4 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-colors shrink-0 w-full sm:w-auto cursor-pointer"
+                        className="h-10 gap-2 font-semibold text-body px-4 rounded-xl shrink-0 w-full sm:w-auto cursor-pointer"
                     >
-                        <AlertTriangle className="h-3.5 w-3.5" />
+                        <AlertTriangle className="h-4 w-4" />
                         <span>Delete Account</span>
                     </Button>
                 </div>

@@ -5,7 +5,6 @@ import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
 import { Button, Spinner } from "@esparex/ui";
-import { cn } from "@/lib/utils";
 import type { ListingImage } from "@/types/listing";
 
 type GenericPostFormValues = FieldValues & {
@@ -94,12 +93,9 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                             <Button
                                 type="submit"
                                 form={formId}
-                                size="lg"
+                                variant="primary"
                                 disabled={isSubmitting}
-                                className={cn(
-                                    "w-full font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                    "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
-                                )}
+                                className="w-full h-11 rounded-xl font-semibold text-body transition-all active:scale-[0.98] shadow-xs"
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
