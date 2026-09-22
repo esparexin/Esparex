@@ -55,7 +55,7 @@ const FOOTER_LINK_SECTIONS: FooterLinkSection[] = [
 
 export function Footer({ theme = "light", onNavigate, className, currentYear }: FooterProps) {
     const pathname = usePathname();
-    const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
+    const hasAnyBottomNav = getMobileChromePolicy(pathname).hasAnyBottomNav;
 
     // Hide footer on Post Ad wizard to prevent sticky CTA conflicts
     if (isWizardPathname(pathname)) return null;
@@ -67,7 +67,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
             compact
                 ? "inline-flex items-center text-caption transition-colors leading-relaxed"
                 : "inline-flex min-h-8 items-center text-left text-caption transition-colors md:min-h-0 leading-relaxed",
-            isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-green-600 text-foreground-tertiary"
+            isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-primary text-foreground-tertiary"
         );
 
         if (onNavigate) {
@@ -104,8 +104,8 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
         <footer
             className={cn(
                 "mt-auto w-full border-t",
-                hasMobileBottomNav
-                    ? "pt-4 pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:py-6"
+                hasAnyBottomNav
+                    ? "pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:py-6"
                     : "py-4 md:py-6",
                 isDark ? "bg-card border-border text-foreground-subtle" : "bg-muted/30 border-border text-foreground-tertiary",
                 className

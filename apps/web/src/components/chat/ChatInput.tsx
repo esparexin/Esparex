@@ -1,8 +1,9 @@
 'use client';
 
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
-import { Spinner } from '@esparex/ui';
+import { Paperclip, Send, Spinner } from '@esparex/ui';
 import { ChatInputAttachmentBanner } from './ChatInputAttachmentBanner';
+import { validateImageMagicBytes } from '@/lib/uploads/profilePhotoUpload';
 
 interface ChatInputProps {
   onSend: (text: string, attachment?: File) => Promise<boolean>;
@@ -41,19 +42,6 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     if (onTypingChange) onTypingChange(false);
   };
 
-  const validateMagicBytes = async (file: File): Promise<boolean> => {
-    try {
-      const buffer = await file.slice(0, 4).arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
-      const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-      const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46;
-      return isJpeg || isPng || isWebp;
-    } catch {
-      return false;
-    }
-  };
-
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -65,7 +53,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
       return;
     }
 
-    const isValidImage = await validateMagicBytes(file);
+    const isValidImage = await validateImageMagicBytes(file);
     if (!isValidImage) {
       setFileError('Only JPEG, PNG, and WebP images are allowed');
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -135,7 +123,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
             setFileError('Pasted image exceeds 5 MB limit');
             return;
           }
-          const isValid = await validateMagicBytes(file);
+          const isValid = await validateImageMagicBytes(file);
           if (isValid) {
             setSelectedFile(file);
             setFileError(null);
@@ -154,7 +142,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     return (
       <div className="chat-input chat-input--disabled">
         <p className="chat-input__disabled-msg">
-          🔒 {disabledReason ?? 'This chat is closed'}
+          {disabledReason ?? 'This chat is closed'}
         </p>
       </div>
     );
@@ -180,14 +168,12 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
         />
         <button
           type="button"
-          className="p-2 text-foreground-subtle hover:text-foreground-secondary rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all cursor-pointer"
+          className="h-11 w-11 md:h-9 md:w-9 shrink-0 flex items-center justify-center text-foreground-subtle hover:text-foreground-secondary rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach file"
           disabled={isSending}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-          </svg>
+          <Paperclip className="h-5 w-5" />
         </button>
 
         <textarea
@@ -217,9 +203,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           {isSending ? (
             <Spinner size="sm" />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-              <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
-            </svg>
+            <Send className="h-5 w-5" />
           )}
         </button>
       </div>

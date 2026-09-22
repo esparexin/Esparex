@@ -50,5 +50,12 @@ export const VerifyOtpPayloadSchema = z.object({
     name: z.union([authNameSchema, z.literal('')]).optional(),
 });
 
+export const loginFormSchema = z.object({
+    mobile: authMobileSchema,
+    name: z.union([authNameSchema, z.literal('')]).optional(),
+    otp: z.string().optional(),
+});
+
 export type LoginPayload = z.infer<typeof LoginPayloadSchema>;
 export type VerifyOtpPayload = z.infer<typeof VerifyOtpPayloadSchema>;
+export type LoginFormValues = z.infer<typeof loginFormSchema>;

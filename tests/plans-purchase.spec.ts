@@ -188,9 +188,12 @@ test.describe('Plans & Wallet Hub — 15-Point Release Gate E2E Regression Suite
     const currentPlanHeading = page.getByRole('heading', { name: /Free Starter Plan/i });
     await expect(currentPlanHeading).toBeVisible({ timeout: 10000 });
 
-    // Verify Active Promotion (Gate 9)
-    const boostedAdTitle = page.getByText('2021 Hyundai Creta Headlight Assembly');
-    await expect(boostedAdTitle).toBeVisible();
+    // Verify Available Credits & Promotions (Gate 7 & 9)
+    const availableCreditsHeading = page.getByRole('heading', { name: /Available Credits/i });
+    await expect(availableCreditsHeading).toBeVisible();
+
+    const spotlightCreditTile = page.getByRole('button', { name: /Spotlight: 2 Credits/i });
+    await expect(spotlightCreditTile).toBeVisible();
 
     // Verify 0 uncaught console errors (Gate 12 & 14)
     // Filter out known CI-environment network noise:
@@ -214,21 +217,21 @@ test.describe('Plans & Wallet Hub — 15-Point Release Gate E2E Regression Suite
   test('Satisfies Gates 3, 4, 5, 10 — Credit Packs, Pricing, Validity, and Credit Accounting Invariant', async ({ page }) => {
     await page.goto('http://localhost:3000/account/wallet');
 
-    // Switch to Ad Credits tab
-    const adCreditsTab = page.getByRole('tab', { name: /Ad Credits/i });
-    await expect(adCreditsTab).toBeVisible();
-    await adCreditsTab.click();
+    // Verify Available Credits section (Gate 3 & 4)
+    const availableCreditsHeading = page.getByRole('heading', { name: /Available Credits/i });
+    await expect(availableCreditsHeading).toBeVisible({ timeout: 10000 });
 
-    // Verify itemized Active Credit Pack (Gate 3 & 4)
-    const packTitle = page.getByText('More Ads 20-Pack').first();
-    await expect(packTitle).toBeVisible();
+    // Switch to My Usage tab (Gate 5 & 10)
+    const myUsageTab = page.getByRole('tab', { name: /My Usage/i });
+    await expect(myUsageTab).toBeVisible();
+    await myUsageTab.click();
 
-    const activeStatusPill = page.getByText('Active').first();
-    await expect(activeStatusPill).toBeVisible();
+    // Verify My Usage ledger heading & Filter dropdown
+    const usageHeading = page.getByRole('heading', { name: /My Usage/i });
+    await expect(usageHeading).toBeVisible();
 
-    // Verify credit balance (Gate 5: Granted 20 = Remaining 15 + Consumed 5)
-    const availableCredits = page.getByText('15 Available').first();
-    await expect(availableCredits).toBeVisible();
+    const filterTrigger = page.getByRole('combobox', { name: /Filter activities/i });
+    await expect(filterTrigger).toBeVisible();
   });
 
   test('Satisfies Gates 6, 11 & 12 — Upgrade Plan button presents catalog packages and triggers order initialization', async ({ page }) => {

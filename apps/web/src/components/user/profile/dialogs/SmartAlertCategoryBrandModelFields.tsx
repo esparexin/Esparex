@@ -36,7 +36,7 @@ export function SmartAlertCategoryBrandModelFields({
         <>
             {/* Category (SSOT) */}
             <div className="relative z-20">
-                <Label htmlFor="alert-category" className="text-caption font-semibold text-foreground mb-1.5 block">
+                <Label htmlFor="alert-category" className="text-body font-semibold text-foreground mb-1.5 block">
                     Category <span className="text-destructive">*</span>
                 </Label>
                 <EntitySearchCombobox<Category>
@@ -59,7 +59,7 @@ export function SmartAlertCategoryBrandModelFields({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative z-10">
                 {/* Brand (Mandatory SSOT) */}
                 <div className="relative z-10">
-                    <Label htmlFor="alert-brand" className="text-caption font-semibold text-foreground mb-1.5 block">
+                    <Label htmlFor="alert-brand" className="text-body font-semibold text-foreground mb-1.5 block">
                         Brand <span className="text-destructive">*</span>
                     </Label>
                     <EntitySearchCombobox<Brand>
@@ -80,7 +80,7 @@ export function SmartAlertCategoryBrandModelFields({
 
                 {/* Model (Optional SSOT) */}
                 <div className="relative z-10">
-                    <Label htmlFor="alert-model" className="text-caption font-semibold text-foreground mb-1.5 block">
+                    <Label htmlFor="alert-model" className="text-body font-semibold text-foreground mb-1.5 block">
                         Model
                     </Label>
                     <EntitySearchCombobox<DeviceModel>

@@ -44,9 +44,9 @@ function SettingRow({ icon, title, description, checked, onCheckedChange }: Sett
                     {icon}
                 </div>
                 <div className="space-y-0.5 min-w-0">
-                    <p id={titleId} className="font-bold text-caption sm:text-body text-foreground">{title}</p>
+                    <p id={titleId} className="font-semibold text-body text-foreground">{title}</p>
                     {description && (
-                        <p className="text-tiny text-muted-foreground leading-relaxed">{description}</p>
+                        <p className="text-caption text-muted-foreground leading-relaxed">{description}</p>
                     )}
                 </div>
             </div>
@@ -134,7 +134,7 @@ export function SettingsTab({
 
     return (
         <div className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border/60 overflow-hidden">
+            <div className="rounded-2xl border border-border bg-card shadow-xs divide-y divide-border/60 overflow-hidden">
                 <Controller
                     name="enabled"
                     control={form.control}
@@ -142,7 +142,7 @@ export function SettingsTab({
                         <SettingRow
                             icon={<BellRing className="h-4.5 w-4.5" />}
                             title="Notification Settings"
-                            description="Receive real-time push & email notifications for buyer messages, ad status updates, and smart alert matches."
+                            description="Real-time push and email alerts for messages and ad updates."
                             checked={field.value}
                             onCheckedChange={(checked) => handleToggle("enabled", checked)}
                         />
@@ -155,9 +155,9 @@ export function SettingsTab({
                             <Trash2 className="h-4.5 w-4.5" />
                         </div>
                         <div className="space-y-0.5 min-w-0">
-                            <p className="font-bold text-caption sm:text-body text-destructive">Delete Account</p>
-                            <p className="text-tiny text-muted-foreground leading-relaxed">
-                                Permanently delete your account, listings, and saved preferences. Secure confirmation required.
+                            <p className="font-semibold text-body text-destructive">Delete Account</p>
+                            <p className="text-caption text-muted-foreground leading-relaxed">
+                                Permanently remove your account and all listings.
                             </p>
                         </div>
                     </div>
@@ -166,9 +166,9 @@ export function SettingsTab({
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-9 gap-1.5 text-tiny font-semibold px-4 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-colors shrink-0 self-start sm:self-auto cursor-pointer"
+                        className="h-10 gap-2 font-semibold text-body px-4 rounded-xl shrink-0 w-full sm:w-auto cursor-pointer"
                     >
-                        <AlertTriangle className="h-3.5 w-3.5" />
+                        <AlertTriangle className="h-4 w-4" />
                         <span>Delete Account</span>
                     </Button>
                 </div>

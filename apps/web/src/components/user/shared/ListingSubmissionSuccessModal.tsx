@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogTitle, Stack } from "@esparex/ui";
+import { Button, Check, Dialog, DialogContent, DialogDescription, DialogTitle, Stack } from "@esparex/ui";
 
 interface ListingSubmissionSuccessModalProps {
     entityLabel: string;
@@ -28,9 +28,7 @@ export function ListingSubmissionSuccessModal({
             >
                 <Stack gap="md">
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 ring-4 ring-emerald-50">
-                        <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Check className="h-5 w-5 text-emerald-600" strokeWidth={2.5} />
                     </div>
 
                     <Stack gap="xs">

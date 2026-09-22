@@ -47,24 +47,63 @@ const SUPPRESSION_PATTERN = /input-zoom-ignore(?::\s*(.+))?/;
 
 let violations = [];
 
+function extractJsxOpeningTags(fileContent, controlNames) {
+    const tags = [];
+    const tagRegex = new RegExp(`<(?:${controlNames.join('|')})\\b`, 'g');
+    let match;
+    while ((match = tagRegex.exec(fileContent)) !== null) {
+        const startIdx = match.index;
+        let i = startIdx + match[0].length;
+        let braceDepth = 0;
+        let inQuote = null;
+        let tagEnd = -1;
+
+        while (i < fileContent.length) {
+            const ch = fileContent[i];
+            const prev = fileContent[i - 1];
+
+            if (inQuote) {
+                if (ch === inQuote && prev !== '\\') {
+                    inQuote = null;
+                }
+            } else if (ch === '"' || ch === "'" || ch === '`') {
+                inQuote = ch;
+            } else if (ch === '{') {
+                braceDepth++;
+            } else if (ch === '}') {
+                braceDepth--;
+            } else if (ch === '>' && braceDepth === 0) {
+                tagEnd = i + 1;
+                break;
+            }
+            i++;
+        }
+
+        if (tagEnd !== -1) {
+            tags.push({
+                start: startIdx,
+                end: tagEnd,
+                snippet: fileContent.slice(startIdx, tagEnd),
+                attributes: fileContent.slice(startIdx + match[0].length, tagEnd - (fileContent[tagEnd - 2] === '/' ? 2 : 1))
+            });
+        }
+    }
+    return tags;
+}
+
 function checkFile(filePath) {
     const relPath = path.relative(repoRoot, filePath);
     const content = fs.readFileSync(filePath, 'utf-8');
     const lines = content.split('\n');
 
-    // Regex to match JSX element opening tags for form controls
-    const controlPattern = new RegExp(`<(?:${CONTROL_NAMES.join('|')})\\b([^>]*)/?>`, 'gs');
-    let match;
+    const tags = extractJsxOpeningTags(content, CONTROL_NAMES);
 
-    while ((match = controlPattern.exec(content)) !== null) {
-        const tagAttributes = match[1];
-        
-        // Extract className from string literal, template literal, or cn(...)
-        const classMatch = tagAttributes.match(/className=(?:\{cn\(|["`]|`)([^"`}]+)/);
+    for (const tag of tags) {
+        const classMatch = tag.attributes.match(/className=(?:\{cn\(|["`]|`)([^"`}]+)/);
         if (classMatch) {
             const classContent = classMatch[1];
             if (SUB_16PX_REGEX.test(classContent)) {
-                const upToMatch = content.substring(0, match.index);
+                const upToMatch = content.substring(0, tag.start);
                 const lineNo = upToMatch.split('\n').length;
                 const lineContent = lines[lineNo - 1] || '';
                 const prevLineContent = lineNo > 1 ? lines[lineNo - 2] : '';
@@ -76,7 +115,7 @@ function checkFile(filePath) {
                         file: relPath,
                         line: lineNo,
                         classStr: classContent.trim(),
-                        snippet: match[0].replace(/\s+/g, ' ').substring(0, 100),
+                        snippet: tag.snippet.replace(/\s+/g, ' ').substring(0, 100),
                     });
                 }
             }

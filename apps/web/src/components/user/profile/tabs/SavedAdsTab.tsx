@@ -68,7 +68,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pink-50 text-pink-500 border border-pink-100 mx-auto mb-3.5">
             <Heart className="h-7 w-7 fill-pink-500/20" />
           </div>
-          <h3 className="text-body-lg font-bold text-foreground">No saved ads yet</h3>
+          <h3 className="text-body-lg font-semibold text-foreground">No saved ads yet</h3>
           <p className="text-caption text-foreground-subtle max-w-sm mx-auto mt-1 mb-5 leading-relaxed">
             Tap the heart icon on any spare part or vehicle listing in the marketplace to save it here for quick access.
           </p>
@@ -112,7 +112,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {ad.category && (
-                    <span className="absolute bottom-1 left-1 bg-foreground/80 backdrop-blur-xs text-background text-tiny font-semibold px-1.5 py-0.2 rounded">
+                    <span className="absolute bottom-1 left-1 bg-foreground/80 backdrop-blur-xs text-background text-tiny font-semibold px-1.5 py-0.5 rounded">
                       {ad.category}
                     </span>
                   )}
@@ -120,10 +120,10 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
 
                 {/* Middle Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-body sm:text-body-lg font-bold text-foreground tracking-tight">
+                  <p className="text-body sm:text-body-lg font-bold text-emerald-700 dark:text-emerald-400 tracking-tight tabular-nums">
                     {formatPrice(ad.price)}
                   </p>
-                  <h4 className="text-caption sm:text-body font-semibold text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
+                  <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
                     {ad.title}
                   </h4>
                   <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-tiny text-foreground-subtle mt-1">

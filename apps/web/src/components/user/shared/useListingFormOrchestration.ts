@@ -9,15 +9,12 @@ import {
     updateSparePartListing,
 } from "@/lib/api/user/listings/postingAPI";
 import {
-    EditPostSparePartFormSchema,
-} from "@/schemas/postSparePartForm.schema";
-import {
     buildServiceListingEditValues,
     buildSparePartListingEditValues,
     resolveServiceTypeSelectionIds,
 } from "@/lib/listings/postingFormNormalization";
 import type { ListingFormConfig } from "./listingFormConfig";
-import { LISTING_TYPE, ServiceListingPayloadSchema } from "@esparex/contracts";
+import { LISTING_TYPE, ServiceListingPayloadSchema, EditPostSparePartFormSchema } from "@esparex/contracts";
 import { toCanonicalGeoPoint, sanitizeMongoObjectId } from "@esparex/shared";
 import { getBusinessLocationDisplay } from "./listingFormShared";
 import type { ServiceType } from "@/lib/api/user/masterData";

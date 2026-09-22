@@ -13,7 +13,7 @@ import {
   ControlledOtp,
   FormError as UiFormError,
 } from "@esparex/ui";
-import type { LoginFormValues } from "@/schemas/login.schema";
+import type { LoginFormValues } from "@esparex/contracts";
 import type { useOtpFlow } from "@/hooks/useOtpFlow";
 
 interface LoginOtpStepProps {
@@ -112,13 +112,13 @@ export function LoginOtpStep({
           name="name"
           render={({ field }) => (
             <div className="space-y-1.5">
-              <FieldLabel className="text-caption font-semibold text-foreground-secondary">
+              <FieldLabel className="text-body font-semibold text-foreground-secondary">
                 Your Name <span className="text-destructive">*</span>
               </FieldLabel>
               <FieldControl animateOnError>
                 <Input
                   placeholder="Enter your name"
-                  className="h-10 text-body-lg md:text-body font-medium border-border rounded-xl"
+                  className="h-11 text-body-lg md:text-body font-medium border-border rounded-xl"
                   disabled={isBlocked || isLocked}
                   autoComplete="name"
                   {...field}

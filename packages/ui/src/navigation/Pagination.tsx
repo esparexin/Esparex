@@ -48,20 +48,15 @@ export function Pagination({
                 className
             )}
         >
-            <div className="text-caption text-foreground-secondary font-medium">
-                {totalItems !== undefined ? (
+            {totalItems !== undefined && (
+                <div className="text-caption text-foreground-secondary font-medium">
                     <span>
                         Showing <strong className="font-semibold text-foreground">{startItem}</strong> to{" "}
                         <strong className="font-semibold text-foreground">{endItem}</strong> of{" "}
                         <strong className="font-semibold text-foreground">{totalItems}</strong> {itemLabel}
                     </span>
-                ) : (
-                    <span>
-                        Page <strong className="font-semibold text-foreground">{currentPage}</strong> of{" "}
-                        <strong className="font-semibold text-foreground">{effectiveTotalPages}</strong>
-                    </span>
-                )}
-            </div>
+                </div>
+            )}
 
             <div className="flex items-center gap-1.5">
                 <button

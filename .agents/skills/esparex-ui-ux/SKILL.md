@@ -93,15 +93,35 @@ import { colors, spacing } from '@esparex/design-tokens';
 <h1 style={{ fontFamily: 'Roboto' }}>Heading</h1>
 ```
 
-**Canonical Type Scale**:
-- `text-tiny`: 12px (badge labels, helper captions)
-- `text-sm`: 14px (secondary metadata, table cells)
-- `text-base`: 16px (default body text; **mandatory minimum for mobile inputs**)
-- `text-lg`: 18px (card titles, subheadings)
-- `text-xl`: 20px (section headers)
-- `text-2xl`: 24px (page subheaders)
-- `text-3xl`: 30px (major view titles)
-- `text-4xl`: 36px+ (hero display headings)
+**Canonical Type Scale (SSOT - AGENTS.md §19.2)**:
+- `text-display`: 36px (2.25rem, hero display headings)
+- `text-h1`: 30px (1.875rem, main page titles `<h1>`)
+- `text-h2`: 24px (1.5rem, section headers `<h2>`)
+- `text-h3`: 20px (1.25rem, card group titles `<h3>`)
+- `text-h4`: 18px (1.125rem, subsection headers, modal titles `<h4>`)
+- `text-body-lg`: 16px (1rem, lead text, **mandatory minimum for mobile inputs**)
+- `text-body`: 14px (0.875rem, standard body text, nav items, setting row titles)
+- `text-small`: 13px (0.8125rem, compact listings, helper text)
+- `text-caption`: 12px (0.75rem, descriptions, subtitles, form helper text)
+- `text-tiny`: 11px (0.6875rem, badges, chips, timestamps)
+
+**Canonical UI Role → Token SSOT Mapping**:
+| UI Structural Role | Canonical Token | Size | Notes |
+|---|---|---|---|
+| Page title (mobile sticky h1) | `text-body-lg` | 16px | Bold/semibold |
+| Section / card heading | `text-body-lg` | 16px | Bold, e.g. "Available Balances" |
+| Empty state heading | `text-body-lg` | 16px | Bold, e.g. "No items yet" |
+| Tab button label | `text-body` | 14px | Both pill tabs & underline tabs |
+| Menu / nav item label | `text-body` | 14px | Sidebar & mobile menu items |
+| Setting row title | `text-body` | 14px | Toggle row titles |
+| Card list item title | `text-body` | 14px | Transaction rows, alert cards |
+| CTA button label (primary) | `text-body` | 14px | Semibold/bold |
+| Description / helper text | `text-caption` | 12px | Subtitles, helper lines |
+| Secondary / small button | `text-caption` | 12px | Compact outline buttons |
+| Error banner text | `text-caption` | 12px | Inline alert messages |
+| Badge / status chip | `text-tiny` | 11px | Status pills, counters |
+| Timestamps & metadata | `text-tiny` | 11px | Dates, footer metadata |
+| Mobile bottom nav label | `text-tiny` | 11px | Compact nav bar |
 
 ---
 

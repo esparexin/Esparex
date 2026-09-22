@@ -52,7 +52,7 @@ export function EntitySearchCombobox<T>({
     renderItem,
 }: EntitySearchComboboxProps<T>) {
     const [search, setSearch] = useState("");
-    const [isEditing, setIsEditing] = useState(Boolean(autoFocus));
+    const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const isMobile = useIsMobile();
 
@@ -180,14 +180,19 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
-                    autoFocus={autoFocus || isEditing}
+                    autoFocus={autoFocus && !isMobile}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
                         const val = e.target.value;
                         setSearch(val);
                         onSearchChange?.(val);
                     }}
-                    onFocus={() => setIsEditing(true)}
+                    onClick={() => {
+                        if (!disabled) setIsEditing(true);
+                    }}
+                    onFocus={() => {
+                        if (!isMobile && !disabled) setIsEditing(true);
+                    }}
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}

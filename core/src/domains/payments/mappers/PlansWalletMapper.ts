@@ -10,6 +10,7 @@ import type {
   EntitlementSourceType,
   EntitlementStatus,
 } from '@esparex/contracts';
+import { PLATFORM_QUOTAS } from '@esparex/contracts';
 import { getEntitlementPresentationMeta } from '@esparex/shared';
 
 export interface RawAdMetadata {
@@ -19,6 +20,8 @@ export interface RawAdMetadata {
   seoSlug?: string;
   status?: string;
   expiresAt?: Date | string;
+  /** When the listing was originally created/posted by the user */
+  createdAt?: Date | string;
 }
 
 export interface RawDashboardData {
@@ -70,12 +73,11 @@ export class PlansWalletMapper {
       startDate: userPlan.startDate ? new Date(String(userPlan.startDate)).toISOString() : new Date().toISOString(),
       endDate: userPlan.endDate ? new Date(String(userPlan.endDate)).toISOString() : null,
       daysRemaining,
-      autoRenew: true,
     };
   }
 
   private static mapWallet(userWallet?: Record<string, unknown>, entitlements?: Record<string, unknown>[]): WalletSummaryDTO {
-    const monthlyFreeTotal = (userWallet?.monthlyFreeAdsTotal as number | undefined) ?? 5;
+    const monthlyFreeTotal = (userWallet?.monthlyFreeAdsTotal as number | undefined) ?? PLATFORM_QUOTAS.FREE_MONTHLY_AD_LIMIT;
     const usedFree = (userWallet?.monthlyFreeAdsUsed as number | undefined) || 0;
     const remainingFree = Math.max(0, monthlyFreeTotal - usedFree);
 
@@ -117,9 +119,10 @@ export class PlansWalletMapper {
     const spotlightCredits = hasEntitlementsList ? activeSpotlightEntitlements : ((userWallet?.spotlightCredits as number) || 0);
     const topAdCredits = hasEntitlementsList ? activeTopAdEntitlements : ((userWallet?.boostCredits as number) || 0);
     const paidAdCredits = hasEntitlementsList ? activeAdEntitlements : ((userWallet?.adCredits as number) || 0);
+    const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT; // base free slots per ADR-001 / UserWallet default
     const smartAlertSlots = hasEntitlementsList
-      ? 2 + activeSmartAlertEntitlements
-      : ((userWallet?.smartAlertSlots as number | undefined) || 2);
+      ? FREE_ALERT_BASE + activeSmartAlertEntitlements
+      : ((userWallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE);
 
     const now = new Date();
     const nextResetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
@@ -133,6 +136,8 @@ export class PlansWalletMapper {
       spotlightCredits,
       topAdCredits,
       smartAlertSlots,
+      freeAlertSlotsBase: FREE_ALERT_BASE,
+      paidAlertSlots: hasEntitlementsList ? activeSmartAlertEntitlements : Math.max(0, ((userWallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE),
       nextMonthlyResetDate: nextResetDate.toISOString(),
     };
   }
@@ -228,15 +233,17 @@ export class PlansWalletMapper {
       const adTitle = (ad?.title as string | undefined) || undefined;
       const adSlug = ((ad?.seoSlug as string) || (ad?.slug as string) || listingIdStr) || undefined;
 
+      const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
       let adStatus: string | undefined = undefined;
       let adExpiresAt: string | undefined = undefined;
       let adRemainingDays: number | undefined = undefined;
 
       if (ad) {
-        const adExpMs = ad.expiresAt ? new Date(String(ad.expiresAt)).getTime() : 0;
-        const isExpired = ad.status === 'expired' || (adExpMs > 0 && adExpMs <= now);
+        const rawAdExpMs = ad.expiresAt ? new Date(String(ad.expiresAt)).getTime() : 0;
+        const adExpMs = rawAdExpMs > 0 ? rawAdExpMs : (txCreatedMs + 30 * 24 * 60 * 60 * 1000);
+        const isExpired = ad.status === 'expired' || adExpMs <= now;
         adStatus = isExpired ? 'expired' : ((ad.status as string) || 'active');
-        adExpiresAt = ad.expiresAt ? new Date(String(ad.expiresAt)).toISOString() : undefined;
+        adExpiresAt = new Date(adExpMs).toISOString();
         if (adExpMs > 0) {
           adRemainingDays = Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24)));
         }
@@ -256,11 +263,21 @@ export class PlansWalletMapper {
       const metadata = tx.metadata as Record<string, unknown> | undefined;
       const effectiveDurationDays = typeof metadata?.effectiveDurationDays === 'number'
         ? metadata.effectiveDurationDays
-        : (isSpotlight ? 1 : undefined);
+        : (typeof metadata?.durationDays === 'number' ? metadata.durationDays : undefined);
 
-      const validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
+      let validityText = effectiveDurationDays ? `${effectiveDurationDays} day${effectiveDurationDays > 1 ? 's' : ''}` : undefined;
 
-      const txCreatedMs = tx.createdAt ? new Date(String(tx.createdAt)).getTime() : now;
+      if (!validityText && entitlementType === 'AD_POSTING') {
+        if (ad?.expiresAt && ad?.createdAt) {
+          const totalDays = Math.round(
+            (new Date(String(ad.expiresAt)).getTime() - new Date(String(ad.createdAt)).getTime()) / (1000 * 60 * 60 * 24)
+          );
+          validityText = totalDays > 0 ? `${totalDays} day${totalDays !== 1 ? 's' : ''}` : '30 days';
+        } else {
+          validityText = '30 days';
+        }
+      }
+
       let spotlightExpiresAt: string | undefined = undefined;
       let spotlightStatus: 'ACTIVE' | 'EXPIRED' | undefined = undefined;
 
@@ -270,6 +287,10 @@ export class PlansWalletMapper {
         spotlightExpiresAt = new Date(spotEndsMs).toISOString();
         spotlightStatus = spotEndsMs <= now ? 'EXPIRED' : 'ACTIVE';
       }
+
+      const adPostedAt: string | undefined = ad?.createdAt
+        ? new Date(String(ad.createdAt)).toISOString()
+        : undefined;
 
       return {
         transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
@@ -282,6 +303,7 @@ export class PlansWalletMapper {
         adTitle,
         adSlug,
         adStatus,
+        adPostedAt,
         adExpiresAt,
         adRemainingDays,
         validityText,
@@ -305,6 +327,27 @@ export class PlansWalletMapper {
     // Filter to retain SUCCESS orders and recent active PENDING checkout attempts (< 15 mins)
     const activePayments = (payments || []).filter((pay: Record<string, unknown>) => {
       const rawStatus = String(pay.status || '').toUpperCase();
+      if (!['SUCCESS', 'CAPTURED', 'PAID', 'INITIATED', 'CREATED', 'PENDING', 'FAILED', 'REFUNDED'].includes(rawStatus)) {
+        return false;
+      }
+
+      // Exclude internal 0-rupee wallet quota adjustments that belong in credit usage ledger
+      const meta = pay.metadata as Record<string, unknown> | undefined;
+      const desc = String(pay.description || '');
+      const isInternalQuota =
+        ((pay.amount as number) || 0) === 0 &&
+        (meta?.operation === 'credit' ||
+          meta?.operation === 'debit' ||
+          meta?.adjustment !== undefined ||
+          desc.includes('| Credit:') ||
+          desc.includes('| Debit:') ||
+          desc.includes('smartAlertSlots') ||
+          desc.includes('slot restored') ||
+          desc.includes('slot consumed'));
+      if (isInternalQuota) {
+        return false;
+      }
+
       if (['SUCCESS', 'CAPTURED', 'PAID'].includes(rawStatus)) {
         return true;
       }

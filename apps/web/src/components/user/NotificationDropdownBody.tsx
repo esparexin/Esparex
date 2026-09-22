@@ -85,13 +85,15 @@ export function NotificationDropdownBody({
                         asChild
                         className="p-0 border-none rounded-lg focus:bg-transparent data-[highlighted]:bg-transparent outline-none"
                     >
-                        <button
+                        <Button
                             type="button"
+                            variant="ghost"
+                            size="sm"
                             onClick={onViewAll}
-                            className="w-full py-1.5 text-caption font-semibold text-foreground-secondary hover:text-primary transition-colors cursor-pointer"
+                            className="w-full py-1.5 h-auto text-caption font-semibold text-foreground-secondary hover:text-primary transition-colors cursor-pointer justify-center"
                         >
                             View all notifications
-                        </button>
+                        </Button>
                     </DropdownMenuItem>
                 </div>
             )}

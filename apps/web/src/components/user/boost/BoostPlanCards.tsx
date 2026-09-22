@@ -63,7 +63,7 @@ export function WalletCreditCard({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+            <h4 className="text-caption sm:text-body font-bold text-foreground">
               Use {creditType} Credit
             </h4>
             <span
@@ -76,7 +76,7 @@ export function WalletCreditCard({
               {availableCredits} available in wallet
             </span>
           </div>
-          <p className="text-tiny text-slate-600 mt-0.5 font-medium">
+          <p className="text-tiny text-foreground-secondary mt-0.5 font-medium">
             Deducts 1 credit to promote this listing for {duration} day{duration > 1 ? "s" : ""}
           </p>
         </div>
@@ -126,7 +126,7 @@ export function CatalogPlanCard({
           ? activeCategory === "SPOTLIGHT"
             ? "border-amber-400 bg-amber-50/60 ring-2 ring-amber-300/40 shadow-xs"
             : "border-blue-400 bg-blue-50/60 ring-2 ring-blue-300/40 shadow-xs"
-          : "border-slate-200 bg-slate-50/50 hover:bg-slate-50"
+          : "border-border bg-muted/50 hover:bg-muted"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -136,7 +136,7 @@ export function CatalogPlanCard({
               ? activeCategory === "SPOTLIGHT"
                 ? "bg-amber-500 text-white"
                 : "bg-blue-600 text-white"
-              : "bg-slate-200 text-slate-600"
+              : "bg-muted text-foreground-secondary"
           }`}
         >
           {activeCategory === "SPOTLIGHT" ? (
@@ -147,7 +147,7 @@ export function CatalogPlanCard({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-slate-800">{formattedName}</h4>
+            <h4 className="text-caption font-bold text-foreground">{formattedName}</h4>
             <Badge
               className={`text-tiny px-1.5 py-0 font-semibold border-0 ${
                 activeCategory === "SPOTLIGHT"
@@ -158,14 +158,14 @@ export function CatalogPlanCard({
               {plan.displayBoost} Visibility
             </Badge>
           </div>
-          <p className="text-tiny text-slate-500 mt-0.5">
+          <p className="text-tiny text-foreground-secondary mt-0.5">
             {activeCategory === "SPOTLIGHT" ? "Featured" : "Top Placement"} for{" "}
             {plan.durationDays} Days
           </p>
         </div>
       </div>
       <div className="text-right shrink-0">
-        <p className="text-sm font-bold text-slate-900">
+        <p className="text-body font-bold text-foreground">
           {plan.price === 0 ? "FREE" : formatPrice(plan.price)}
         </p>
         {isSelected && (

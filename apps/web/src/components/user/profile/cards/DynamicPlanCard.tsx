@@ -3,7 +3,7 @@
 import { CheckCircle2, Sparkles, Zap, Package, BellRing } from "@esparex/ui";
 import type { ProfilePlan } from "../types";
 
-export type PlanCardItem = Omit<ProfilePlan, 'type'> & { type: string };
+type PlanCardItem = Omit<ProfilePlan, 'type'> & { type: string };
 
 interface DynamicPlanCardProps {
   plan: PlanCardItem;
@@ -30,7 +30,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
       }`}
     >
       {plan.popular && !isCurrent && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-tiny uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-xs">
+        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold text-tiny uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-xs">
           Popular
         </div>
       )}
@@ -38,7 +38,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
       <div>
         <div className="flex items-center justify-between mb-2">
           <span
-            className={`inline-flex items-center gap-1.5 text-tiny font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+            className={`inline-flex items-center gap-1.5 text-tiny font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
               isSpotlight
                 ? 'bg-amber-50 text-amber-800 border-amber-200'
                 : isTopAd
@@ -56,15 +56,15 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
           </span>
 
           {isCurrent && (
-            <span className="px-2.5 py-0.5 rounded-full text-tiny font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
               Active
             </span>
           )}
         </div>
 
-        <h4 className="text-body-lg font-bold text-foreground tracking-tight">{plan.name}</h4>
+        <h4 className="text-body-lg font-semibold text-foreground tracking-tight">{plan.name}</h4>
         <div className="mt-2 flex items-baseline gap-1.5">
-          <span className="text-2xl font-black text-foreground">₹{plan.price.toLocaleString()}</span>
+          <span className="text-h2 font-bold text-foreground">₹{plan.price.toLocaleString()}</span>
           <span className="text-caption font-semibold text-foreground-subtle">/ {plan.duration}</span>
         </div>
 
@@ -82,7 +82,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
       <button
         onClick={() => onSelect(plan)}
-        className={`w-full h-10 mt-5 rounded-xl text-caption font-bold transition-all cursor-pointer shadow-xs active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+        className={`w-full h-10 mt-5 rounded-xl text-body font-semibold transition-all cursor-pointer shadow-xs active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
           isCurrent
             ? 'bg-muted text-foreground-subtle cursor-default border border-border'
             : isSpotlight

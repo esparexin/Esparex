@@ -3,6 +3,9 @@ export interface MobileChromePolicy {
   showBottomActionsBar: boolean;
   showContextActionBar: boolean;
   showStickySearch: boolean;
+  showMobileSearch: boolean;
+  showMobileLocation: boolean;
+  hasAnyBottomNav: boolean;
 }
 
 const DEFAULT_POLICY: MobileChromePolicy = {
@@ -10,6 +13,9 @@ const DEFAULT_POLICY: MobileChromePolicy = {
   showBottomActionsBar: true,
   showContextActionBar: false,
   showStickySearch: false,
+  showMobileSearch: true,
+  showMobileLocation: true,
+  hasAnyBottomNav: true,
 };
 
 const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
@@ -33,6 +39,9 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      showMobileLocation: false,
+      hasAnyBottomNav: false,
     };
   }
 
@@ -42,6 +51,9 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      showMobileLocation: false,
+      hasAnyBottomNav: false,
     };
   }
 
@@ -51,6 +63,9 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: true,
       showContextActionBar: true,
       showStickySearch: false,
+      showMobileSearch: true,
+      showMobileLocation: true,
+      hasAnyBottomNav: true,
     };
   }
 
@@ -60,14 +75,29 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     pathname === "/post-service" ||
     pathname.startsWith("/edit-service") ||
     pathname === "/post-spare-part-listing" ||
-    pathname.startsWith("/edit-spare-part") ||
-    pathname.startsWith("/account")
+    pathname.startsWith("/edit-spare-part")
   ) {
     return {
       showMobileBottomNav: false,
       showBottomActionsBar: false,
       showContextActionBar: false,
       showStickySearch: false,
+      showMobileSearch: false,
+      showMobileLocation: false,
+      hasAnyBottomNav: false,
+    };
+  }
+
+  // Account & profile routes: reclaim vertical space by hiding search bar & location selector across all account management views
+  if (pathname === "/account" || pathname.startsWith("/account/")) {
+    return {
+      showMobileBottomNav: false,
+      showBottomActionsBar: false,
+      showContextActionBar: false,
+      showStickySearch: false,
+      showMobileSearch: false,
+      showMobileLocation: false,
+      hasAnyBottomNav: true, // Account views have MobileAccountBottomNav
     };
   }
 
@@ -77,6 +107,9 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
       showBottomActionsBar: true,
       showContextActionBar: false,
       showStickySearch: true,
+      showMobileSearch: true,
+      showMobileLocation: true,
+      hasAnyBottomNav: true,
     };
   }
 

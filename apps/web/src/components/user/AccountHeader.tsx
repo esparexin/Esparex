@@ -40,24 +40,24 @@ export function AccountHeader({
     <>
       {/* MOBILE: Sticky contextual header (hidden on md+) */}
       <header
-        className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-14 w-full text-foreground"
+        className="sticky top-[calc(2.5rem+env(safe-area-inset-top,0px))] z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-11 w-full text-foreground"
         aria-label="Account section header"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          {!isMenuTab && onBackToMenu && (
+        <div className="flex items-center gap-1.5 min-w-0">
+          {onBackToMenu && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={onBackToMenu}
-              aria-label="Back to Account Menu"
-              className="rounded-xl text-foreground-secondary hover:bg-muted/60 shrink-0"
+              aria-label="Back"
+              className="h-8 w-8 rounded-lg text-foreground-secondary hover:bg-muted/60 shrink-0"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
           )}
           {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
-          <h1 className="account-page-title truncate">
+          <h1 className="text-body-lg font-semibold text-foreground truncate">
             {mobileTitle}
           </h1>
         </div>
@@ -72,13 +72,13 @@ export function AccountHeader({
       {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
       <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2 ${className}`}>
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-600 rounded-2xl shadow-sm">
-            <SettingsIcon className="h-6 w-6 text-white" />
+          <div className="p-2.5 bg-primary text-primary-foreground rounded-2xl shadow-sm">
+            <SettingsIcon className="h-6 w-6" />
           </div>
           <div>
             {/* ui-guard-ignore: multiple-h1 Responsive sibling — desktop-only h1 inside hidden md:block wrapper */}
-            <h1 className="account-page-title">{ACCOUNT_COPY.title}</h1>
-            <p className="account-body-text mt-0.5">{ACCOUNT_COPY.subtitle}</p>
+            <h1 className="text-h4 sm:text-h3 font-bold text-foreground">{ACCOUNT_COPY.title}</h1>
+            <p className="text-body text-muted-foreground mt-0.5">{ACCOUNT_COPY.subtitle}</p>
           </div>
         </div>
       </div>

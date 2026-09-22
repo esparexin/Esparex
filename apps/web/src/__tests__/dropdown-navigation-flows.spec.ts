@@ -139,11 +139,17 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
     });
 
     it("ensures LocationSelector protects input text from colliding with action buttons via right padding and truncation", () => {
+        const dropdownPath = path.resolve(
+            __dirname,
+            "../components/location/components/LocationSelectorDropdown.tsx"
+        );
         const locationPath = path.resolve(
             __dirname,
             "../components/location/LocationSelector.tsx"
         );
-        const fileContent = fs.readFileSync(locationPath, "utf-8");
+        const fileContent = fs.existsSync(dropdownPath)
+            ? fs.readFileSync(dropdownPath, "utf-8")
+            : fs.readFileSync(locationPath, "utf-8");
 
         expect(fileContent).toContain("pr-28 sm:pr-32");
         expect(fileContent).toContain("truncate");

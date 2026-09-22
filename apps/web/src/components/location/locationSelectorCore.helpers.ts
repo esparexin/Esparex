@@ -1,5 +1,6 @@
-import { normalizeGeoPoint as parseGeoPoint } from "@esparex/shared";
+import { normalizeGeoPoint as parseGeoPoint, toCanonicalGeoPoint } from "@esparex/shared";
 import type { Location } from "@/lib/api/user/locations";
+import { normalizeLocationName } from "@/lib/location/locationService";
 
 export type ErrorType = "network" | "timeout" | "server" | "not_found" | "unknown";
 export type SelectorVariant = "inline" | "panel";
@@ -68,5 +69,41 @@ export const toDetectedSelection = (detected: DetectedLocationShape): Location |
         coordinates: detected.coordinates,
         isActive: true,
         isPopular: false,
+    } as Location;
+};
+
+export const getLocationPrimaryLabel = (loc: Location): string => (
+    normalizeLocationName(loc.name || loc.city || loc.display || "")
+);
+
+export const getLocationSecondaryLabel = (loc: Location): string => {
+    const parts = [loc.city, loc.state]
+        .map((value) => normalizeLocationName(value))
+        .filter(Boolean);
+
+    if (parts.length === 2 && parts[0] === parts[1]) {
+        return loc.country ? normalizeLocationName(loc.country) : "";
+    }
+
+    return parts.join(", ");
+};
+
+export const toFinalSelectedLocation = (loc: Location): Location => {
+    const canonicalGeoJSONPoint = toCanonicalGeoPoint(loc.coordinates) || {
+        type: "Point" as const,
+        coordinates: [78.4867, 17.3850] as [number, number]
+    };
+    return {
+        id: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+        locationId: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+        slug: loc.slug || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+        city: loc.city || loc.name,
+        state: loc.state || loc.city || loc.name,
+        country: loc.country || "India",
+        name: loc.name || loc.city,
+        display: loc.display || loc.displayName || [loc.city || loc.name, loc.state].filter(Boolean).join(", "),
+        displayName: loc.displayName || loc.name || loc.city,
+        level: loc.level || "city",
+        coordinates: canonicalGeoJSONPoint,
     } as Location;
 };

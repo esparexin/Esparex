@@ -1,9 +1,10 @@
 import { Types } from 'mongoose';
-import { NOTIFICATION_TYPE, PLAN_STATUS, type SmartAlertMatchesResponseDTO, type SmartAlertQuotaDTO } from '@esparex/contracts';
+import { NOTIFICATION_TYPE, PLAN_STATUS, PLATFORM_QUOTAS, type SmartAlertMatchesResponseDTO, type SmartAlertQuotaDTO } from '@esparex/contracts';
 import SmartAlert from '../../../models/SmartAlert';
 import Notification from '../../../models/Notification';
 import Ad from '../../../models/Ad';
 import UserWallet from '../../../models/UserWallet';
+import Entitlement from '../../../models/Entitlement';
 import { calculateUserPlan, UserPlanModel, PlanModel } from '../../payments';
 import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
 
@@ -164,28 +165,41 @@ export const getSmartAlertQuotaForUser = async (userId: string): Promise<SmartAl
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
 
-    const DEFAULT_FREE_SMART_ALERT_LIMIT = 5;
-    let planLimit = DEFAULT_FREE_SMART_ALERT_LIMIT;
+    const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT;
+    let basePlanLimit: number = FREE_ALERT_BASE;
 
     if (activeUserPlans.length > 0) {
         const planIds = activeUserPlans.map((up: { planId: unknown }) => up.planId);
         const plans = await PlanModel.find({ _id: { $in: planIds } }).lean();
         const userRights = calculateUserPlan(plans);
-        planLimit = userRights.smartAlerts || DEFAULT_FREE_SMART_ALERT_LIMIT;
+        basePlanLimit = userRights.smartAlerts || FREE_ALERT_BASE;
     }
 
-    const wallet = await UserWallet.findOne({ userId }).lean();
-    const freeAlertsUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
-    const paidCredits = Number(wallet?.smartAlertSlots || 0);
+    const [wallet, rawEntitlements] = await Promise.all([
+        UserWallet.findOne({ userId }).lean(),
+        Entitlement.find({
+            userId,
+            type: 'SMART_ALERT_SLOT',
+            status: 'ACTIVE',
+            remaining: { $gt: 0 },
+            $or: [{ expiresAt: { $gte: new Date() } }, { expiresAt: null }],
+        }).lean(),
+    ]);
 
-    const freeRemaining = Math.max(0, planLimit - freeAlertsUsed);
-    const totalRemaining = freeRemaining + paidCredits;
+    const activePaidSlots = rawEntitlements.length > 0
+        ? rawEntitlements.reduce((acc, e) => acc + (typeof e.remaining === 'number' ? e.remaining : 0), 0)
+        : Math.max(0, ((wallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE);
+
+    const freeAlertsUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
+    const freeRemaining = Math.max(0, basePlanLimit - freeAlertsUsed);
+    const totalRemaining = freeRemaining + activePaidSlots;
+    const totalLimit = basePlanLimit + activePaidSlots;
 
     const now = new Date();
     const resetsAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0)).toISOString();
 
     return {
-        limit: planLimit,
+        limit: totalLimit,
         used: freeAlertsUsed,
         remaining: totalRemaining,
         resetsAt,

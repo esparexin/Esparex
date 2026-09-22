@@ -17,14 +17,14 @@ export function ChatInputAttachmentBanner({
     <>
       {/* File Preview Banner */}
       {selectedFile && (
-        <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 rounded-lg border text-xs text-slate-700">
+        <div className="flex items-center justify-between px-3 py-1.5 bg-muted rounded-lg border border-border text-caption text-foreground-secondary">
           <div className="flex items-center gap-2 truncate">
             <span className="font-semibold truncate">{selectedFile.name}</span>
-            <span className="text-slate-400">({(selectedFile.size / 1024).toFixed(0)} KB)</span>
+            <span className="text-muted-foreground">({(selectedFile.size / 1024).toFixed(0)} KB)</span>
           </div>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600 font-bold px-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+            className="text-muted-foreground hover:text-foreground font-bold px-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
             onClick={onRemoveFile}
             aria-label="Remove attached file"
           >
@@ -43,7 +43,7 @@ export function ChatInputAttachmentBanner({
       {/* Upload Progress Bar */}
       {uploadProgress !== null && (
         <div
-          className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"
+          className="w-full bg-muted h-1.5 rounded-full overflow-hidden"
           role="progressbar"
           aria-valuenow={uploadProgress}
           aria-valuemin={0}

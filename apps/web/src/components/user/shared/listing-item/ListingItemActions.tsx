@@ -13,6 +13,7 @@ import {
   Share2,
   Sparkles,
   Zap,
+  Button,
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import {
@@ -90,19 +91,21 @@ export function ListingItemActions({
         {hasOverflowItems ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 aria-label="More actions"
                 className={cn(
-                  "h-6 w-6 flex items-center justify-center cursor-pointer",
+                  "size-7 md:size-6 flex items-center justify-center cursor-pointer p-0",
                   "rounded text-muted-foreground",
                   "hover:text-foreground hover:bg-muted",
-                  "transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+                  "relative before:absolute before:-inset-2 before:content-['']",
+                  "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                 )}
               >
                 <MoreVertical className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -197,15 +200,17 @@ export function ListingItemActions({
             Spotlight
           </span>
         ) : onBoost && isActive ? (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={onBoost}
             aria-label="Promote listing"
             title="Promote / Boost Ad"
-            className="h-8 w-8 md:h-7 md:w-7 flex items-center justify-center shrink-0 rounded-md border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
+            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
           >
             <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
-          </button>
+          </Button>
         ) : null}
 
         {showEdit ? (

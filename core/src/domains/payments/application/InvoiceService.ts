@@ -149,9 +149,15 @@ export const getInvoiceById = async (id: string, userId?: string) => {
 };
 
 export const getInvoiceByIdOrTransaction = async (id: string): Promise<IInvoice | null> => {
-    return Invoice.findOne({
-        $or: [{ _id: id }, { transactionId: id }]
-    }).lean();
+    const isObjectId = mongoose.isValidObjectId(id);
+    const conditions: Array<Record<string, unknown>> = [];
+    if (isObjectId) {
+        conditions.push({ _id: id });
+        conditions.push({ transactionId: id });
+    }
+    conditions.push({ invoiceNumber: id });
+    if (conditions.length === 0) return null;
+    return Invoice.findOne({ $or: conditions }).lean();
 };
 
 export const buildInvoicePayload = async (

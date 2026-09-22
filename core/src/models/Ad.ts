@@ -507,13 +507,15 @@ AdSchema.pre('save', async function (this: IAd) {
                 : 90;
         const maxAllowedExpiryMs = now + (maxCeilingDays * MS_IN_DAY);
 
-        if (!this.expiresAt || this.expiresAt.getTime() <= now) {
+        if (this.isNew || !this.expiresAt) {
             const defaultDays = this.listingType === LISTING_TYPE.SERVICE
                 ? 90
                 : this.listingType === LISTING_TYPE.SPARE_PART
                     ? 60
                     : GOVERNANCE.AD.EXPIRY_DAYS;
             this.expiresAt = new Date(now + (defaultDays * MS_IN_DAY));
+        } else if (this.expiresAt.getTime() <= now) {
+            this.status = LISTING_STATUS.EXPIRED as AdStatusValue;
         } else if (this.expiresAt.getTime() > maxAllowedExpiryMs + MS_IN_DAY) {
             this.expiresAt = new Date(maxAllowedExpiryMs);
         }

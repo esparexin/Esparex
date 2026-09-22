@@ -6,5 +6,4 @@ export interface SubscriptionSummaryDTO {
   startDate: string;
   endDate?: string | null;
   daysRemaining?: number | null;
-  autoRenew?: boolean;
 }

@@ -10,6 +10,7 @@ export interface PageLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   bottomNavigation?: React.ReactNode;
   breadcrumbs?: React.ReactNode;
   children: React.ReactNode;
+  hasCompactHeader?: boolean;
 }
 
 export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
@@ -22,6 +23,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
       bottomNavigation,
       breadcrumbs,
       children,
+      hasCompactHeader = false,
       ...props
     },
     ref
@@ -69,7 +71,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
       <div ref={ref} className={cn("flex min-h-screen flex-col bg-background", className)} {...props}>
         {header}
         
-        <div className={cn("flex flex-1", header && !isAdmin && "pt-[96px] md:pt-16")}>
+        <div className={cn("flex flex-1", header && !isAdmin && (hasCompactHeader ? "pt-[calc(3rem+env(safe-area-inset-top,0px))] md:pt-16" : "pt-[104px] md:pt-16"))}>
           {hasSidebar && (
             <aside className={cn("shrink-0 border-r border-border", isAdmin ? "" : "hidden w-64 md:block")}>
               {sidebar}

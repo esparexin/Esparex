@@ -171,13 +171,13 @@ export function CreateSmartAlertDialog({
             <DialogContent className="max-w-md sm:max-w-[500px] w-[94vw] max-h-[min(760px,calc(var(--visual-viewport-height,100dvh)-2rem))] flex flex-col rounded-3xl p-5 sm:p-6 gap-0 shadow-2xl overflow-hidden max-sm:rounded-b-3xl">
                 {/* Fixed Header */}
                 <DialogHeader className="space-y-1 text-left pb-3 border-b border-border shrink-0">
-                    <DialogTitle className="flex items-center gap-2.5 text-body sm:text-headline font-bold">
+                    <DialogTitle className="flex items-center gap-2.5 text-body-lg sm:text-h4 font-bold">
                         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                             <Bell className="h-4 w-4" />
                         </div>
                         <span>{isEditing ? "Edit Smart Alert" : "Create Smart Alert"}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-caption text-foreground-subtle leading-relaxed">
+                    <DialogDescription className="text-caption text-muted-foreground leading-relaxed">
                         Set search criteria to receive real-time notifications for matching ads.
                     </DialogDescription>
                 </DialogHeader>
@@ -208,7 +208,7 @@ export function CreateSmartAlertDialog({
                         {/* Search Keywords */}
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
-                                <Label htmlFor="alert-keywords" className="text-caption sm:text-small font-medium text-foreground-secondary">
+                                <Label htmlFor="alert-keywords" className="text-body font-semibold text-foreground-secondary">
                                     Search Keywords {!formData.model && <span className="text-destructive">*</span>}
                                 </Label>
                                 <span className="text-tiny font-normal tabular-nums text-foreground-subtle">
@@ -233,7 +233,7 @@ export function CreateSmartAlertDialog({
 
                         {/* Location */}
                         <div ref={locationWrapperRef} onFocusCapture={handleLocationFocus}>
-                            <Label htmlFor="alert-location" className="text-caption sm:text-small font-medium text-foreground-secondary mb-1.5 block">
+                            <Label htmlFor="alert-location" className="text-body font-semibold text-foreground-secondary mb-1.5 block">
                                 Location <span className="text-destructive">*</span>
                             </Label>
                             <LocationSelector
@@ -264,7 +264,7 @@ export function CreateSmartAlertDialog({
                     </div>
 
                     {/* Fixed Footer Outside Scroll Area */}
-                    <DialogFooter className="!mt-0 shrink-0 pt-3.5 border-t border-border/80 bg-card flex items-center gap-3">
+                    <DialogFooter className="!mt-0 shrink-0 pt-3 border-t border-border/80 bg-card flex flex-row items-center gap-3">
                         <Button
                             type="button"
                             variant="outline"

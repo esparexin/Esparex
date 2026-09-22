@@ -22,6 +22,15 @@ import {
 import { AlertTriangle, Loader2 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
+import { DELETE_ACCOUNT_REASONS } from "../types";
+
+const DELETE_REASON_LABELS: Record<DeleteAccountReason, string> = {
+    not_useful: "Not useful for me",
+    privacy_concerns: "Privacy concerns",
+    too_many_emails: "Too many notifications",
+    found_alternative: "Found an alternative",
+    other: "Other",
+};
 
 interface DeleteAccountDialogProps {
     open: boolean;
@@ -65,10 +74,10 @@ export function DeleteAccountDialog({
                             <AlertTriangle className="h-4 w-4" />
                         </div>
                         <div className="min-w-0">
-                            <DialogTitle className="text-body sm:text-body-lg font-bold text-foreground">
+                            <DialogTitle>
                                 Delete Account
                             </DialogTitle>
-                            <DialogDescription className="text-tiny text-muted-foreground truncate">
+                            <DialogDescription>
                                 Permanent action • Data cannot be recovered
                             </DialogDescription>
                         </div>
@@ -85,7 +94,7 @@ export function DeleteAccountDialog({
 
                     {/* Reason Dropdown */}
                     <div className="space-y-1">
-                        <Label htmlFor="delete-account-reason" className="text-caption font-semibold text-foreground">
+                        <Label htmlFor="delete-account-reason" className="text-body font-semibold text-foreground-secondary">
                             Reason for leaving
                         </Label>
                         <Select
@@ -96,16 +105,16 @@ export function DeleteAccountDialog({
                             <SelectTrigger
                                 id="delete-account-reason"
                                 aria-invalid={!!deleteAccountErrors?.reason}
-                                className="h-10 sm:h-9 rounded-xl text-body-lg md:text-caption font-normal border-border bg-card shadow-2xs"
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs"
                             >
                                 <SelectValue placeholder="Select a reason" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="not_useful">Not useful for me</SelectItem>
-                                <SelectItem value="privacy_concerns">Privacy concerns</SelectItem>
-                                <SelectItem value="too_many_emails">Too many notifications</SelectItem>
-                                <SelectItem value="found_alternative">Found an alternative</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                {DELETE_ACCOUNT_REASONS.map((reason) => (
+                                    <SelectItem key={reason} value={reason}>
+                                        {DELETE_REASON_LABELS[reason]}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                         <FormError message={deleteAccountErrors?.reason} />
@@ -114,7 +123,7 @@ export function DeleteAccountDialog({
                     {/* Optional Feedback */}
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="delete-account-feedback" className="text-caption font-semibold text-foreground">
+                            <Label htmlFor="delete-account-feedback" className="text-body font-semibold text-foreground-secondary">
                                 Feedback <span className="font-normal text-muted-foreground">(optional)</span>
                             </Label>
                             <span className={cn("text-tiny tabular-nums", deleteFeedback.length >= 500 ? "text-destructive font-bold" : "text-muted-foreground")}>
@@ -129,7 +138,7 @@ export function DeleteAccountDialog({
                             maxLength={500}
                             disabled={isLocked}
                             rows={2}
-                            className="min-h-[58px] sm:min-h-[52px] rounded-xl text-body-lg md:text-caption font-normal border-border bg-card shadow-2xs resize-none p-2.5 leading-snug focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
+                            className="min-h-[72px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-2.5 leading-snug focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
                             aria-invalid={!!deleteAccountErrors?.feedback}
                         />
                         <FormError message={deleteAccountErrors?.feedback} />
@@ -137,7 +146,7 @@ export function DeleteAccountDialog({
 
                     {/* Confirmation input */}
                     <div className="space-y-1">
-                        <Label htmlFor="delete-account-confirm" className="text-caption font-semibold text-foreground">
+                        <Label htmlFor="delete-account-confirm" className="text-body font-semibold text-foreground-secondary">
                             Type <span className="font-bold text-destructive">delete</span> to confirm
                         </Label>
                         <Input
@@ -146,7 +155,7 @@ export function DeleteAccountDialog({
                             value={deleteConfirmText}
                             onChange={(e) => setDeleteConfirmText(e.target.value)}
                             disabled={isLocked}
-                            className="h-10 sm:h-9 rounded-xl text-body-lg md:text-caption font-normal border-border bg-card shadow-2xs focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
+                            className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
                             aria-invalid={!!deleteAccountErrors?.confirmText}
                             aria-describedby={deleteAccountErrors?.confirmText ? "delete-confirm-error" : undefined}
                         />

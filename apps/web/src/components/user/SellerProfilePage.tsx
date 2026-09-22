@@ -168,7 +168,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                     placeholder="Search in seller's ads..."
                                     value={searchFilter}
                                     onChange={(e) => setSearchFilter(e.target.value)}
-                                    className="w-full pl-8 pr-7 h-9 text-caption bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+                                    className="w-full pl-8 pr-7 h-9 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
                                 />
                                 {searchFilter && (
                                     <button type="button" onClick={() => setSearchFilter("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer" aria-label="Clear search">

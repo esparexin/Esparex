@@ -107,19 +107,19 @@ export function AdSellerCard({
                                 variant="outline"
                                 disabled={isPhoneLoading}
                                 aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                                className="w-full h-10 rounded-xl text-xs sm:text-sm font-semibold gap-2 border-border text-foreground-secondary hover:bg-muted cursor-pointer"
+                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl font-semibold gap-1.5 border-border text-foreground-secondary hover:bg-muted cursor-pointer"
                             >
-                                <Phone className="h-4 w-4" />
-                                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                                <Phone className="h-4 w-4 shrink-0" />
+                                <span className="min-w-0 truncate text-caption sm:text-small font-semibold tracking-tight">{phoneButtonLabel}</span>
                             </Button>
                         )}
                         {showInlineChat && (
                             <Button
                                 onClick={onChat}
                                 aria-label="Chat with seller"
-                                className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-semibold gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption sm:text-small font-semibold gap-1.5 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
                             >
-                                <MessageCircle className="h-4 w-4" />
+                                <MessageCircle className="h-4 w-4 shrink-0" />
                                 <span>Chat</span>
                             </Button>
                         )}

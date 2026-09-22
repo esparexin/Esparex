@@ -1,269 +1,233 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import type { CreditLedgerDTO, CreditPackDTO } from '@esparex/contracts';
+import {
+  Pagination,
+  ArrowUp,
+  ArrowDown,
+  Info,
+  Button,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@esparex/ui';
 import Link from 'next/link';
-import type { CreditLedgerDTO } from '@esparex/contracts';
-import { Pagination, ArrowUp, ArrowDown } from '@esparex/ui';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
+import {
+  formatActivityCategory,
+  formatAppliedDateTime,
+  renderTransactionStatus,
+  matchesLedgerFilter,
+  getListingDetailHref,
+  type LedgerFilterType,
+} from './CreditLedgerFormatters';
+import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
+import { CreditLedgerDetailPopup } from './CreditLedgerDetailPopup';
 
-const formatReason = (reason?: string) => {
-  if (!reason) return 'Credit Activity';
-  const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
-  const lower = clean.toLowerCase();
-  if (lower.includes('spotlight')) return 'Spotlight Boost Applied';
-  if (lower.includes('top_ad') || lower.includes('top ad')) return 'Top Ad Boost Applied';
-  if (lower.includes('smart_alert') || lower.includes('smart alert')) return 'Smart Alert Slot Consumed';
-  if (lower.includes('alert')) return 'Smart Alert Activity';
-  if (lower.includes('post') || lower.includes('ad_posting')) return 'Ad Posting Credit Used';
-  if (lower.includes('pack') || lower.includes('purchase')) return 'Credit Pack Purchased';
-  if (lower.includes('plan')) return 'Plan Entitlement Applied';
-  if (lower.includes('credit transaction')) return 'Credit Adjustment';
-  return clean || 'Credit Activity';
-};
+export interface CreditLedgerHistoryCardProps {
+  creditPacks?: CreditPackDTO[];
+  initialFilter?: LedgerFilterType;
+}
 
-const formatActivityName = (tx: CreditLedgerDTO) => {
-  const isDebit = tx.type === 'DEBIT';
-  const absAmount = Math.abs(tx.amount);
-  const creditWord = absAmount === 1 ? 'credit' : 'credits';
-  const cleanReason = formatReason(tx.reason);
-
-  if (isDebit) {
-    if (cleanReason.toLowerCase().includes('spotlight')) return `Spotlight Credit Used — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('top ad')) return `Top Ad Credit Used — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('smart alert')) return `Smart Alert Slot Consumed — ${absAmount} ${creditWord}`;
-    if (cleanReason.toLowerCase().includes('ad posting')) return `Ad Posting Credit Used — ${absAmount} ${creditWord}`;
-    return `${cleanReason} — ${absAmount} ${creditWord}`;
-  }
-  return `${cleanReason} (+${absAmount} ${creditWord})`;
-};
-
-const formatAppliedDateTime = (isoDate: string) => {
-  const d = new Date(isoDate);
-  return d.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-};
-
-const renderSpotlightStatus = (tx: CreditLedgerDTO) => {
-  if (!tx.spotlightStatus && !tx.listingId) return <span className="text-muted-foreground">—</span>;
-  if (tx.spotlightStatus === 'ACTIVE') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        Active
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-      Spotlight Expired
-    </span>
-  );
-};
-
-const renderAdStatus = (tx: CreditLedgerDTO) => {
-  if (!tx.adStatus) return <span className="text-muted-foreground">—</span>;
-  if (tx.adStatus === 'ACTIVE') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        Active
-      </span>
-    );
-  }
-  if (tx.adStatus === 'EXPIRED') {
-    return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold bg-destructive/10 text-destructive border border-destructive/20">
-        Original Ad Expired
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-tiny font-medium bg-muted text-muted-foreground border border-border/40">
-      {tx.adStatus}
-    </span>
-  );
-};
-
-export const CreditLedgerHistoryCard: React.FC = () => {
+export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = ({
+  creditPacks: _creditPacks = [],
+  initialFilter = 'ALL',
+}) => {
+  const [activeFilter, setActiveFilter] = useState<LedgerFilterType>(initialFilter);
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [selectedTx, setSelectedTx] = useState<CreditLedgerDTO | null>(null);
+  const limit = 4;
   const { data, isLoading, isError, refetch } = useCreditLedgerHistory(page, limit);
 
-  const items: CreditLedgerDTO[] = data?.items || [];
+  const handleFilterChange = (filter: LedgerFilterType) => {
+    setActiveFilter(filter);
+    setPage(1);
+  };
+
   const pagination = data?.pagination;
 
+  // Complete plan filters: All plans are always available in the filter dropdown
+  // to prevent conditional omission or missing plan filters.
+  const filterOptions: { value: LedgerFilterType; label: string }[] = useMemo(
+    () => [
+      { value: 'ALL', label: 'All Activities' },
+      { value: 'MORE_ADS', label: 'Ad Posting' },
+      { value: 'SPOTLIGHT', label: 'Spotlight' },
+      { value: 'TOP_AD', label: 'Top Ads' },
+      { value: 'SMART_ALERT', label: 'Smart Alerts' },
+    ],
+    [],
+  );
+
+  const filteredItems = useMemo(() => {
+    const items = data?.items || [];
+    return items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason));
+  }, [data?.items, activeFilter]);
+
   return (
-    <div className="bg-surface rounded-2xl p-4 sm:p-5 border border-border/60 shadow-2xs space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider">
-            Credit Usage History
-          </h4>
-          <p className="text-tiny text-muted-foreground">Trace credit deductions, applied ads, and independent validities</p>
-        </div>
-        {pagination && (
-          <span className="text-tiny text-muted-foreground font-medium">
-            Total Activities: {pagination.total}
-          </span>
-        )}
+    <div className="space-y-3">
+      {/* Header: title + compact filter dropdown with balanced typography */}
+      <div className="flex items-center justify-between gap-3">
+        <h4 className="text-body-lg sm:text-h4 font-semibold text-foreground">My Usage</h4>
+        <Select
+          value={activeFilter}
+          onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
+        >
+          <SelectTrigger
+            size="sm"
+            className="h-9 w-auto min-w-[130px] max-w-[180px] font-medium border-border/60 bg-muted/30 px-3 rounded-lg focus:ring-primary"
+            aria-label="Filter activities"
+          >
+            <SelectValue placeholder="All Activities" />
+          </SelectTrigger>
+          <SelectContent className="text-body">
+            {filterOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value} className="text-body">
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
+      {/* Loading */}
       {isLoading && (
         <div className="space-y-2.5 animate-pulse">
-          <div className="h-12 bg-muted/60 rounded-xl" />
-          <div className="h-12 bg-muted/60 rounded-xl" />
-          <div className="h-12 bg-muted/60 rounded-xl" />
+          <div className="h-14 bg-muted/60 rounded-xl" />
+          <div className="h-14 bg-muted/60 rounded-xl" />
         </div>
       )}
 
+      {/* Error */}
       {isError && (
-        <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-tiny flex justify-between items-center border border-destructive/20">
+        <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-caption flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
-          <button onClick={() => void refetch()} className="font-bold underline cursor-pointer hover:opacity-80">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => void refetch()}
+            className="font-bold underline cursor-pointer hover:opacity-80 p-0 h-auto text-caption text-destructive"
+          >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <div className="text-center py-8 text-tiny text-muted-foreground">
-          No credit transactions recorded yet.
+      {/* Empty */}
+      {!isLoading && filteredItems.length === 0 && (
+        <div className="text-center py-8 text-caption text-muted-foreground border border-dashed border-border rounded-xl">
+          No activity found.
         </div>
       )}
 
-      {!isLoading && items.length > 0 && (
+      {/* Transactions */}
+      {!isLoading && filteredItems.length > 0 && (
         <>
-          {/* DESKTOP TABLE VIEW (md: and up) */}
-          <div className="hidden md:block overflow-x-auto relative rounded-xl border border-border/40">
-            <table className="w-full text-left text-caption">
-              <thead className="bg-muted/40 border-b border-border/40">
-                <tr className="text-muted-foreground font-semibold text-tiny">
-                  <th scope="col" className="py-2.5 px-3.5 whitespace-nowrap">Applied Date</th>
-                  <th scope="col" className="py-2.5 px-3">Plan / Credit Type</th>
-                  <th scope="col" className="py-2.5 px-3">Applied to Ad</th>
-                  <th scope="col" className="py-2.5 px-3">Applied Validity</th>
-                  <th scope="col" className="py-2.5 px-3">Spotlight Status</th>
-                  <th scope="col" className="py-2.5 px-3.5">Ad Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/20">
-                {items.map((tx) => {
-                  const isDebit = tx.type === 'DEBIT';
-                  const absAmount = Math.abs(tx.amount);
-                  const adTarget = tx.adSlug || tx.listingId;
+          <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-                  return (
-                    <tr key={tx.transactionId} className="hover:bg-muted/20 transition-colors">
-                      <td className="py-3 px-3.5 whitespace-nowrap text-muted-foreground text-tiny">
-                        {formatAppliedDateTime(tx.createdAt)}
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="font-semibold text-foreground text-caption">
-                          {formatActivityName(tx)}
-                        </div>
-                        <span
-                          className={`inline-flex items-center px-1.5 py-0.2 rounded text-tiny font-bold ${
-                            isDebit ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                          }`}
-                        >
-                          {isDebit ? `-${absAmount} USED` : `+${absAmount} ADDED`}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        {adTarget ? (
-                          <Link
-                            href={`/ads/${adTarget}`}
-                            className="font-medium text-primary hover:underline line-clamp-1 max-w-xs"
-                          >
-                            {tx.adTitle || 'View Ad'}
-                          </Link>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 text-tiny text-foreground-secondary whitespace-nowrap">
-                        {tx.validityText || (isDebit ? '1 day' : '—')}
-                      </td>
-                      <td className="py-3 px-3 whitespace-nowrap">
-                        {renderSpotlightStatus(tx)}
-                      </td>
-                      <td className="py-3 px-3.5 whitespace-nowrap">
-                        {renderAdStatus(tx)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* MOBILE TOUCH-FRIENDLY ACTIVITY CARDS (< md:) */}
+          {/* Mobile Cards: Clean, non-redundant hierarchy */}
           <div className="md:hidden flex flex-col gap-2.5">
-            {items.map((tx) => {
+            {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
               const absAmount = Math.abs(tx.amount);
-              const adTarget = tx.adSlug || tx.listingId;
+              const adHref = getListingDetailHref(tx);
 
               return (
                 <div
                   key={tx.transactionId}
-                  className="p-3 rounded-xl border border-border/40 bg-card space-y-2 shadow-2xs"
+                  onClick={() => setSelectedTx(tx)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedTx(tx);
+                    }
+                  }}
+                  className="p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/20 active:scale-[0.99] transition-[background-color,transform] space-y-2 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="View activity details"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-tiny text-muted-foreground">
-                      {formatAppliedDateTime(tx.createdAt)}
+                  {/* Row 1: Plan Title + Amount Badge (Zero duplicate words) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-foreground text-body leading-snug">
+                      {formatActivityCategory(tx)}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-bold ${
-                        isDebit ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold shrink-0 ${
+                        isDebit
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                       }`}
                     >
-                      {isDebit ? <><ArrowDown className="w-3 h-3" /> -{absAmount} USED</> : <><ArrowUp className="w-3 h-3" /> +{absAmount} ADDED</>}
+                      {isDebit ? (
+                        <>
+                          <ArrowDown className="w-3 h-3" />-{absAmount} USED
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUp className="w-3 h-3" />+{absAmount} ADDED
+                        </>
+                      )}
                     </span>
                   </div>
 
-                  <div className="font-semibold text-foreground text-caption">
-                    {formatActivityName(tx)}
-                  </div>
-
-                  {adTarget && (
-                    <div className="text-caption pt-1 border-t border-border/20 flex flex-col gap-1">
-                      <div className="flex items-center gap-1.5 text-tiny text-muted-foreground">
-                        <span>Applied to Ad:</span>
-                        <Link href={`/ads/${adTarget}`} className="font-semibold text-primary hover:underline truncate">
-                          {tx.adTitle || 'View Ad'}
-                        </Link>
-                      </div>
-                      <div className="text-tiny text-muted-foreground">
-                        Applied Validity: <strong className="text-foreground-secondary">{tx.validityText || '1 day'}</strong>
-                      </div>
-                      <div className="flex items-center gap-2 pt-1">
-                        <span className="text-tiny text-muted-foreground">Spotlight:</span>
-                        {renderSpotlightStatus(tx)}
-                        <span className="text-tiny text-muted-foreground ml-1">Ad:</span>
-                        {renderAdStatus(tx)}
-                      </div>
+                  {/* Row 2: Listing link (dedicated line with full width) */}
+                  {adHref && tx.adTitle && (
+                    <div className="text-caption">
+                      <Link
+                        href={adHref}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-medium text-primary hover:underline line-clamp-1"
+                      >
+                        {tx.adTitle}
+                      </Link>
                     </div>
                   )}
+
+                  {/* Row 3: Date on left, Validity & Status on right */}
+                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30 text-tiny text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      {formatAppliedDateTime(tx.createdAt)}
+                      <Info className="w-3 h-3 opacity-60 shrink-0" />
+                    </span>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {tx.validityText && (
+                        <span>{tx.validityText}</span>
+                      )}
+                      {renderTransactionStatus(tx)}
+                    </div>
+                  </div>
                 </div>
               );
             })}
           </div>
+
+          {/* Pagination positioned at bottom */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="pt-2">
+              <Pagination
+                currentPage={page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                pageSize={limit}
+                itemLabel="activities"
+                onPageChange={setPage}
+                className="border border-border/40 rounded-xl px-3 py-2 bg-muted/30"
+              />
+            </div>
+          )}
         </>
       )}
 
-      {pagination && (
-        <Pagination
-          currentPage={page}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.total}
-          pageSize={limit}
-          onPageChange={setPage}
-          itemLabel="activities"
-          className="pt-2 border-t border-border/40"
-        />
-      )}
+      {/* Detail Popup */}
+      <CreditLedgerDetailPopup
+        tx={selectedTx}
+        open={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
     </div>
   );
 };

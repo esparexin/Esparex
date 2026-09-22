@@ -71,10 +71,12 @@ router.get('/sellers', searchLimiter, userController.getPublicSellers);
 router.get('/:id/profile', searchLimiter, validateObjectId, userController.getUserProfileById);
 router.post('/:id/block', mutationLimiter, protect, validateObjectId, userController.blockUser);
 router.delete('/:id/block', mutationLimiter, protect, validateObjectId, userController.unblockUser);
+// @deprecated Legacy parallel endpoint: Prefer /api/plans-wallet/v1 or /api/payments/credits/wallet
 router.get('/me/wallet', searchLimiter, protect, walletController.getWalletSummary);
 router.get('/me/posting-balance', searchLimiter, protect, walletController.getPostingBalance);
 router.get('/me/benefits', searchLimiter, protect, userController.resolveUserBenefits);
 router.get('/benefits/resolve', searchLimiter, protect, userController.resolveUserBenefits);
+// @deprecated Legacy transaction list endpoint: Prefer /api/plans-wallet/v1 or /api/payments/credits/ledger
 router.get('/me/transactions', searchLimiter, protect, walletController.getTransactionHistory);
 router.get('/me/boosts', searchLimiter, protect, boostController.getMyBoosts);
 router.patch('/me', mutationLimiter, protect, upload.single('profilePhoto'), validateRequest(updateUserProfileSchema), userController.updateMe);

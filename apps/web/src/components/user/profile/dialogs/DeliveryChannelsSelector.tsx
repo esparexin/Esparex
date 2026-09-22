@@ -31,6 +31,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
                         <button
                             key={ch.id}
                             type="button"
+                            aria-pressed={isSelected}
                             disabled={!ch.active}
                             onClick={() => {
                                 if (!ch.active) return;
@@ -41,6 +42,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
                             }}
                             className={cn(
                                 "flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-caption font-semibold transition-all border select-none cursor-pointer shadow-2xs",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                                 !ch.active
                                     ? "bg-muted/30 text-muted-foreground/50 border-border/40 cursor-not-allowed"
                                     : isSelected

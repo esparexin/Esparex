@@ -130,7 +130,7 @@ describe("SmartAlertsTab - Sub-Tabs & Dedicated Matched Listings UX", () => {
         expect(html).toContain("Smartphones");
     });
 
-    it("renders server-driven quota and renewal date even when alerts list length differs", () => {
+    it("renders clean Smart Alerts header without slot count mismatch", () => {
         const html = renderToStaticMarkup(
             <SmartAlertsTab
                 smartAlerts={mockAlerts} // 1 alert currently
@@ -148,15 +148,15 @@ describe("SmartAlertsTab - Sub-Tabs & Dedicated Matched Listings UX", () => {
                 quota={{
                     limit: 5,
                     used: 4,
-                    remaining: 1, // 4 consumed in month, 1 remains (even if only 1 alert document exists)
+                    remaining: 1,
                     resetsAt: "2026-10-01T00:00:00.000Z",
                 }}
             />
         );
 
-        // Expect server-driven 1 of 5 remaining with renewal text, not 4 of 5 (5 - 1)
-        expect(html).toContain("1 of 5 free alert slots remaining");
-        expect(html).toContain("Renews");
+        expect(html).toContain("Smart Alerts");
+        expect(html).toContain("Active");
+        expect(html).not.toContain("free alert slots remaining");
         expect(html).toContain("max-w-3xl");
     });
 });

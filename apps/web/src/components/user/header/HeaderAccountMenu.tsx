@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Z_INDEX,
 } from "@esparex/ui";
 
 interface HeaderAccountMenuProps {
@@ -62,7 +63,9 @@ export function HeaderAccountMenu({
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="z-[50] w-64 rounded-2xl shadow-xl border-border p-1.5 animate-in fade-in zoom-in-95 duration-150"
+        className="w-64 rounded-2xl shadow-xl border-border p-1.5 animate-in fade-in zoom-in-95 duration-150"
+        // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+        style={{ zIndex: Z_INDEX.userHeaderDropdown }}
         onPointerDownOutside={(e) => {
           if ((e.target as HTMLElement | null)?.closest('[data-slot="dropdown-menu-trigger"]')) {
             e.preventDefault();

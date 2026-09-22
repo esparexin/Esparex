@@ -13,7 +13,7 @@ import { validateIndianMobile } from "@/lib/mobileUtils";
 import { Form } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
-import { loginFormSchema, type LoginFormValues } from "@/schemas/login.schema";
+import { loginFormSchema, type LoginFormValues } from "@esparex/contracts";
 import { LoginMobileStep } from "./auth/LoginMobileStep";
 import { LoginOtpStep } from "./auth/LoginOtpStep";
 

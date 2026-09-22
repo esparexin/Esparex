@@ -28,7 +28,7 @@ export class DashboardFacade {
     }
 
     // Lookup user listings to query active boosts correctly
-    const userAds = await Ad.find({ sellerId: userId }).select('_id title slug seoSlug status expiresAt').lean();
+    const userAds = await Ad.find({ sellerId: userId }).select('_id title slug seoSlug status expiresAt createdAt').lean();
     const userAdIds = userAds.map((a) => a._id);
     const adTitleMap = new Map(userAds.map((a) => [a._id.toString(), a.title]));
     const adMap = new Map<string, RawAdMetadata>(
@@ -41,6 +41,7 @@ export class DashboardFacade {
           seoSlug: a.seoSlug,
           status: a.status,
           expiresAt: a.expiresAt,
+          createdAt: (a as { createdAt?: Date }).createdAt,
         },
       ])
     );

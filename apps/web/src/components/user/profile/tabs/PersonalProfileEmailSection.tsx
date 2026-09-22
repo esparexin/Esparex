@@ -14,10 +14,10 @@ export function PersonalProfileEmailSection({
     emailError,
 }: PersonalProfileEmailSectionProps) {
     return (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
             <div className="flex items-center justify-between">
-                <Label htmlFor="profile-email" className="text-caption sm:text-small font-medium text-foreground-secondary">
-                    Notification & Invoice Email <span className="text-foreground-subtle font-normal">(Optional)</span>
+                <Label htmlFor="profile-email" className="text-body font-semibold text-foreground-secondary">
+                    Notification & Invoice Email <span className="text-tiny font-normal text-muted-foreground ml-1">(Optional)</span>
                 </Label>
             </div>
             <Input
@@ -25,9 +25,9 @@ export function PersonalProfileEmailSection({
                 type="email"
                 placeholder="your@email.com"
                 {...register("email")}
-                className={`h-11 rounded-xl bg-card border-border px-3.5 text-body-lg md:text-body font-normal text-foreground placeholder:text-foreground-subtle ${emailError ? "border-destructive" : ""}`}
+                className={`h-11 rounded-xl bg-card border-border px-3.5 text-body-lg md:text-body font-normal text-foreground placeholder:text-foreground-subtle scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))] ${emailError ? "border-destructive" : ""}`}
                 aria-invalid={!!emailError}
-                aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
+                aria-describedby={emailError ? "profile-email-error" : undefined}
                 autoComplete="email"
             />
             <FormError id="profile-email-error" message={emailError} />

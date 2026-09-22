@@ -153,6 +153,7 @@ export {
   RefreshCcw,
   RefreshCw,
   RotateCcw,
+  RotateCw,
   Ruler,
   Save,
   Search,
@@ -211,5 +212,6 @@ export {
   XCircle,
   XIcon,
   Zap,
+  Paperclip,
 } from "lucide-react";
 export type { LucideIcon } from "lucide-react";

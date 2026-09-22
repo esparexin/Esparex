@@ -31,17 +31,17 @@ export function getVisibleAttributeFilters(schema: { filters: CategoryFilter[] }
 export function renderAttributeField(filter: ExtendedCategoryFilter, value: unknown, error: string | undefined, updateAttribute: (id: string, val: unknown) => void) {
     const fieldType = getFilterType(filter);
     if (fieldType === "textarea") {
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <Textarea value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="min-h-[100px] rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal text-foreground placeholder:text-foreground-subtle resize-none p-3" />
         </Field>;
     }
     if (fieldType === "number") {
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <Input type="number" min={filter.min} max={filter.max} value={typeof value === "number" || typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value === "" ? "" : Number(e.target.value))} className="h-11 rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal text-foreground placeholder:text-foreground-subtle" />
         </Field>;
     }
     if (fieldType === "radio" && filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={filter.name}>
                 {filter.options.map((opt) => {
                     const checked = value === opt.value;
@@ -52,7 +52,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
         </Field>;
     }
     if (fieldType === "select" && filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <Select value={typeof value === "string" ? value : undefined} onValueChange={(nv) => updateAttribute(filter.id, nv)}>
                 <SelectTrigger className="h-11 rounded-xl border border-border bg-card font-normal text-body-lg md:text-body"><SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} /></SelectTrigger>
                 <SelectContent className="rounded-xl border border-border shadow-xl bg-popover z-50">
@@ -62,7 +62,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
         </Field>;
     }
     if (fieldType === "checkbox" && !filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <label className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-3 text-caption sm:text-small font-normal text-foreground-secondary">
                 <Checkbox checked={value === true} onCheckedChange={(nc) => updateAttribute(filter.id, nc === true)} />{filter.name}
             </label>
@@ -70,7 +70,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
     }
     if ((fieldType === "checkbox" || fieldType === "multi-select" || fieldType === "multiselect") && filter.options?.length) {
         const selectedValues = Array.isArray(value) ? value.map(String) : [];
-        return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
             <div className="flex flex-wrap gap-2">
                 {filter.options.map((opt) => {
                     const checked = selectedValues.includes(opt.value);
@@ -81,7 +81,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
             </div>
         </Field>;
     }
-    return <Field key={filter.id} label={filter.name} labelClassName="text-caption sm:text-small font-medium text-foreground-secondary" required={filter.isRequired} error={error}>
+    return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
         <Input value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="h-11 rounded-xl border border-border focus:border-primary text-body-lg md:text-body font-normal text-foreground placeholder:text-foreground-subtle" />
     </Field>;
 }

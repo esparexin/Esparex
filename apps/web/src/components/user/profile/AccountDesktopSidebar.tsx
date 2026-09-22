@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@esparex/ui";
-import { Separator } from "@esparex/ui";
-import { Crown, LogOut } from "@esparex/ui";
+import { Button, Crown } from "@esparex/ui";
 import { AccountNavItemList } from "../AccountNavItemList";
 import type { ProfileTabItem, ProfileTabValue } from "@/config/navigation";
 import type { ProfileUser } from "./types";
@@ -33,17 +31,9 @@ export function AccountDesktopSidebar({
           activeTab={activeTab}
           onTabChange={onTabChange}
           renderTabBadge={renderTabBadge}
+          onLogout={onLogout}
           variant="sidebar"
         />
-        <Separator className="my-2" />
-        <button
-          type="button"
-          onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors hover:bg-destructive/10 text-destructive font-medium text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
-        >
-          <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
-          <span>Log out</span>
-        </button>
       </div>
 
       <div className="mt-3 p-3.5 rounded-xl border border-border bg-card shadow-xs">
@@ -58,7 +48,7 @@ export function AccountDesktopSidebar({
           {(!user?.plan || user.plan === "Free") && (
             <Button
               type="button"
-              onClick={() => onTabChange("plans")}
+              onClick={() => onTabChange("buyplans")}
               size="sm"
               className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs"
             >

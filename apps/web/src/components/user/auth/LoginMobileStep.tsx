@@ -15,7 +15,7 @@ import {
   Input,
   FormError as UiFormError,
 } from "@esparex/ui";
-import type { LoginFormValues } from "@/schemas/login.schema";
+import type { LoginFormValues } from "@esparex/contracts";
 import type { useOtpFlow } from "@/hooks/useOtpFlow";
 
 interface LoginMobileStepProps {
@@ -49,7 +49,7 @@ export function LoginMobileStep({
         name="mobile"
         render={({ field }) => (
           <div className="space-y-1.5">
-            <FieldLabel className="text-caption font-semibold text-foreground-secondary">
+            <FieldLabel className="text-body font-semibold text-foreground-secondary">
               Mobile Number
             </FieldLabel>
             <FieldControl animateOnError>

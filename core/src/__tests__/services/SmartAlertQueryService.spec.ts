@@ -19,6 +19,13 @@ jest.mock('../../models/UserWallet', () => ({
     },
 }));
 
+jest.mock('../../models/Entitlement', () => ({
+    __esModule: true,
+    default: {
+        find: jest.fn(),
+    },
+}));
+
 jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
     syncWalletCycle: jest.fn().mockResolvedValue(undefined),
 }));
@@ -37,6 +44,7 @@ import mongoose from 'mongoose';
 import Notification from '../../models/Notification';
 import Ad from '../../models/Ad';
 import UserWallet from '../../models/UserWallet';
+import Entitlement from '../../models/Entitlement';
 import { UserPlanModel, PlanModel, calculateUserPlan } from '../../domains/payments';
 import { getSmartAlertMatchesForUser, getSmartAlertQuotaForUser } from '../../domains/notifications/application/SmartAlertQueryService';
 
@@ -156,43 +164,51 @@ describe('SmartAlertQueryService - getSmartAlertQuotaForUser', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        (Entitlement.find as jest.Mock).mockReturnValue({
+            lean: jest.fn().mockResolvedValue([]),
+        });
     });
 
-    it('returns default 5 limit and accurate remaining when user has 4 used', async () => {
+    it('returns default 2 limit and accurate remaining when free user has 1 used', async () => {
         (UserPlanModel.find as jest.Mock).mockReturnValue({
             lean: jest.fn().mockResolvedValue([]),
         });
         (UserWallet.findOne as jest.Mock).mockReturnValue({
             lean: jest.fn().mockResolvedValue({
-                monthlyFreeAlertsUsed: 4,
-                smartAlertSlots: 0,
+                monthlyFreeAlertsUsed: 1,
+                smartAlertSlots: 2,
             }),
         });
 
         const quota = await getSmartAlertQuotaForUser(userId);
 
-        expect(quota.limit).toBe(5);
-        expect(quota.used).toBe(4);
+        expect(quota.limit).toBe(2);
+        expect(quota.used).toBe(1);
         expect(quota.remaining).toBe(1);
         expect(quota.resetsAt).toBeDefined();
         expect(new Date(quota.resetsAt).getTime()).toBeGreaterThan(Date.now());
     });
 
-    it('includes paid wallet slots in remaining total when free limit is exhausted', async () => {
+    it('includes paid entitlement slots in total limit and remaining capacity', async () => {
         (UserPlanModel.find as jest.Mock).mockReturnValue({
             lean: jest.fn().mockResolvedValue([]),
         });
         (UserWallet.findOne as jest.Mock).mockReturnValue({
             lean: jest.fn().mockResolvedValue({
-                monthlyFreeAlertsUsed: 5,
-                smartAlertSlots: 3,
+                monthlyFreeAlertsUsed: 2, // free exhausted
+                smartAlertSlots: 5,
             }),
+        });
+        (Entitlement.find as jest.Mock).mockReturnValue({
+            lean: jest.fn().mockResolvedValue([
+                { remaining: 3, type: 'SMART_ALERT_SLOT', status: 'ACTIVE' },
+            ]),
         });
 
         const quota = await getSmartAlertQuotaForUser(userId);
 
-        expect(quota.limit).toBe(5);
-        expect(quota.used).toBe(5);
+        expect(quota.limit).toBe(5); // 2 base + 3 paid
+        expect(quota.used).toBe(2);
         expect(quota.remaining).toBe(3); // 0 free + 3 paid
     });
 });

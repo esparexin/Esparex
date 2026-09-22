@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Search, X, Check, ChevronDown } from "@esparex/ui";
+import { Search, X, Check, ChevronDown, Z_INDEX } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
 export interface MultiBrandSearchSelectProps {
@@ -175,7 +175,9 @@ export function MultiBrandSearchSelect({
                 <div
                     role="listbox"
                     aria-multiselectable="true"
-                    className="absolute top-full left-0 z-[1100] mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
+                    className="absolute top-full left-0 mt-1.5 max-h-60 w-full overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
+                    // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                    style={{ zIndex: Z_INDEX.alertDialogOverlay }}
                 >
                     {filteredBrands.length === 0 ? (
                         <div className="p-3 text-center text-caption text-foreground-subtle">

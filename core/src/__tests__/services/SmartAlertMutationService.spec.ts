@@ -21,6 +21,15 @@ jest.mock('../../models/UserWallet', () => ({
     },
 }));
 
+jest.mock('../../models/Entitlement', () => ({
+    __esModule: true,
+    default: {
+        find: jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue([]),
+        }),
+    },
+}));
+
 jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
     syncWalletCycle: jest.fn().mockResolvedValue(undefined),
 }));
@@ -46,6 +55,7 @@ jest.mock('../../services/location/LocationNormalizer', () => ({
 import mongoose from 'mongoose';
 import { calculateUserPlan, PlanModel, UserPlanModel, consumeCredit, credit, WalletModel } from '../../domains/payments';
 import UserWallet from '../../models/UserWallet';
+import Entitlement from '../../models/Entitlement';
 import { SmartAlertModel } from '../../domains/notifications/application/SmartAlertService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import {
@@ -118,7 +128,12 @@ describe('SmartAlertMutationService', () => {
     it('consumes a wallet slot when creating beyond the monthly plan limit', async () => {
         mockedCalculateUserPlan.mockReturnValue({ smartAlerts: 1 });
         mockedUserWalletFindOne.mockReturnValue({
-            lean: jest.fn().mockResolvedValue({ smartAlertSlots: 2, monthlyFreeAlertsUsed: 1 }),
+            lean: jest.fn().mockResolvedValue({ smartAlertSlots: 3, monthlyFreeAlertsUsed: 1 }),
+        });
+        (Entitlement.find as jest.Mock).mockReturnValue({
+            lean: jest.fn().mockResolvedValue([
+                { remaining: 1, type: 'SMART_ALERT_SLOT', status: 'ACTIVE' },
+            ]),
         });
 
         const alert = await createSmartAlertMutation({
@@ -142,6 +157,27 @@ describe('SmartAlertMutationService', () => {
         expect(mockedUserWalletUpdateOne).not.toHaveBeenCalled();
         expect(mockedSmartAlertModel.create).toHaveBeenCalled();
         expect(alert).toBeDefined();
+    });
+
+    it('throws 403 AppError when monthly plan limit is reached and no active paid slots are available', async () => {
+        mockedCalculateUserPlan.mockReturnValue({ smartAlerts: 1 });
+        mockedUserWalletFindOne.mockReturnValue({
+            lean: jest.fn().mockResolvedValue({ smartAlertSlots: 2, monthlyFreeAlertsUsed: 1 }),
+        });
+        (Entitlement.find as jest.Mock).mockReturnValue({
+            lean: jest.fn().mockResolvedValue([]),
+        });
+
+        await expect(
+            createSmartAlertMutation({
+                user: makeUser(),
+                body: {
+                    name: 'Exceeded alert',
+                    criteria: { category: 'phones' },
+                    radiusKm: 10,
+                },
+            })
+        ).rejects.toThrow(/Smart Alert monthly limit reached/);
     });
 
     it('allows admin deletion of an active alert without restoring the slot (non-refundable quota)', async () => {
@@ -181,7 +217,7 @@ describe('SmartAlertMutationService', () => {
         expect(updated.isActive).toBe(false);
     });
 
-    it('grants baseline 5 free smart alerts to free users without active plans and increments monthly usage', async () => {
+    it('grants baseline 2 free smart alerts to free users without active plans and increments monthly usage', async () => {
         mockedUserPlanFind.mockReturnValue({
             lean: jest.fn().mockResolvedValue([]),
         });

@@ -1,7 +1,6 @@
 import express from 'express';
 import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
-import { validateObjectId } from '../middleware/validateObjectId';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import * as Validators from '@esparex/core/validators/finance.validator';
@@ -32,7 +31,7 @@ router.get('/account/plans-wallet', protect, paymentController.getPlansWalletDas
 router.get('/history', protect, paymentController.getPurchaseHistory);
 
 // Get Invoice
-router.get('/invoice/:id', protect, validateObjectId, paymentController.getInvoice);
+router.get('/invoice/:id', protect, paymentController.getInvoice);
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
 

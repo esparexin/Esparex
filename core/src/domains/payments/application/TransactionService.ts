@@ -169,7 +169,16 @@ export async function getUserTransactions(userId: string | mongoose.Types.Object
 }
 
 export async function getTransactionWithUser(transactionId: string) {
-    return Transaction.findById(transactionId).populate('userId', 'name email mobile address');
+    if (mongoose.isValidObjectId(transactionId)) {
+        const byId = await Transaction.findById(transactionId).populate('userId', 'name email mobile address');
+        if (byId) return byId;
+    }
+    return Transaction.findOne({
+        $or: [
+            { gatewayOrderId: transactionId },
+            { gatewayPaymentId: transactionId },
+        ],
+    }).populate('userId', 'name email mobile address');
 }
 
 export async function findTransactionForUpdate(id: string) {

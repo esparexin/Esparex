@@ -40,7 +40,7 @@ function getServerSnapshot(): string | null {
 export function CookieConsentBanner() {
     const pathname = usePathname();
     const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-    const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
+    const hasAnyBottomNav = getMobileChromePolicy(pathname).hasAnyBottomNav;
 
     const visible = consent === null;
 
@@ -86,7 +86,7 @@ export function CookieConsentBanner() {
             className={cn(
                 "pointer-events-none fixed z-40 px-3 sm:px-4",
                 "left-0 right-0 md:left-1/2 md:right-auto md:-translate-x-1/2 md:max-w-4xl md:w-[calc(100%-3rem)]",
-                hasMobileBottomNav
+                hasAnyBottomNav
                     ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] pb-1"
                     : "bottom-0 md:bottom-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-0"
             )}
@@ -120,19 +120,18 @@ export function CookieConsentBanner() {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
+                    <div className="flex items-center gap-2.5 shrink-0 w-full md:w-auto">
                         <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="outline"
                             onClick={handleDecline}
-                            className="flex-1 md:flex-none h-8.5 md:h-8 px-3 text-caption text-foreground-secondary hover:text-foreground hover:bg-muted/70 rounded-xl"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-4 text-body font-medium rounded-xl border-border bg-card hover:bg-muted/60 text-foreground transition-all shadow-2xs active:scale-[0.98]"
                         >
                             Essential
                         </Button>
                         <Button
-                            size="sm"
+                            variant="primary"
                             onClick={handleAccept}
-                            className="flex-1 md:flex-none h-8.5 md:h-8 px-3.5 text-caption font-semibold rounded-xl shadow-2xs"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-5 text-body font-semibold rounded-xl transition-all shadow-xs active:scale-[0.98]"
                         >
                             Accept All
                         </Button>
@@ -140,7 +139,7 @@ export function CookieConsentBanner() {
                         <button
                             type="button"
                             onClick={handleDismiss}
-                            className="hidden md:inline-flex text-foreground-tertiary hover:text-foreground rounded-lg p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                            className="hidden md:inline-flex text-foreground-tertiary hover:text-foreground rounded-lg p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
                             aria-label="Dismiss cookie banner"
                         >
                             <X className="h-4 w-4" />

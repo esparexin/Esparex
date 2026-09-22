@@ -28,8 +28,8 @@ export function AdOwnerActions({
     const showViewOnlyState = !isPending && !isActive && !isSold;
 
     return (
-        <div className="hidden md:block border-b border-slate-200/80 pb-4 space-y-2">
-            <h3 className="font-bold text-xs uppercase text-slate-500 tracking-wider mb-2">Quick Actions</h3>
+        <div className="hidden md:block border-b border-border/80 pb-4 space-y-2">
+            <h3 className="font-bold text-caption uppercase text-muted-foreground tracking-wider mb-2">Quick Actions</h3>
 
                 {isPending && (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
@@ -77,7 +77,7 @@ export function AdOwnerActions({
                 )}
 
                 {isSold && (
-                    <div className="bg-slate-100 border-2 border-slate-200 rounded-xl p-4 text-center">
+                    <div className="bg-muted border-2 border-border rounded-xl p-4 text-center">
                         <CheckCheck className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm font-bold text-foreground-secondary">Listing Marked as Sold</p>
                         <p className="text-xs text-muted-foreground mt-1">This listing is now archived</p>
@@ -85,14 +85,14 @@ export function AdOwnerActions({
                 )}
 
                 {isChatLocked && !isSold && (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-foreground-tertiary flex items-center gap-2">
+                    <div className="rounded-xl border border-border bg-muted/40 p-3 text-caption text-foreground-tertiary flex items-center gap-2">
                         <CheckCheck className="h-4 w-4 text-foreground-subtle" />
                         Chat is locked for this listing.
                     </div>
                 )}
 
                 {showViewOnlyState && !isChatLocked && (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-foreground-tertiary">
+                    <div className="rounded-xl border border-border bg-muted/40 p-3 text-caption text-foreground-tertiary">
                         This listing is no longer active. View-only mode is enabled.
                     </div>
                 )}

@@ -234,20 +234,22 @@ export function ListingBottomActions({
                 onClick={onRevealPhone}
                 disabled={isPhoneLoading}
                 aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                className="w-full h-11 rounded-xl font-semibold gap-2 border-border text-foreground-secondary hover:bg-muted"
+                className="w-full h-11 px-2.5 sm:px-3 rounded-xl font-semibold gap-1.5 border-border text-foreground-secondary hover:bg-muted"
               >
-                <Phone className="h-4 w-4" />
-                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                <Phone className="h-4 w-4 shrink-0" />
+                <span className="truncate text-caption sm:text-small font-semibold tracking-tight">
+                  {phoneButtonLabel}
+                </span>
               </Button>
             ) : null}
             {showChatAction ? (
               <Button
                 onClick={onChatClick}
                 aria-label="Chat with seller"
-                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all"
+                className="w-full h-11 px-2.5 sm:px-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-1.5 shadow-md shadow-blue-100 transition-all text-caption sm:text-small"
               >
-                <MessageCircle className="h-5 w-5" />
-                Chat
+                <MessageCircle className="h-4.5 w-4.5 shrink-0" />
+                <span>Chat</span>
               </Button>
             ) : null}
             {isChatLocked ? (

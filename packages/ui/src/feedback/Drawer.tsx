@@ -3,17 +3,20 @@ import * as React from "react";
 import { Drawer as VaulDrawer } from "vaul";
 import { X } from "lucide-react";
 
+import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
 
 export function Drawer({
   title,
+  titleClassName,
   children,
   trigger,
   open,
   onOpenChange,
 }: {
   title: string;
+  titleClassName?: string;
   children: React.ReactNode;
   trigger?: React.ReactNode;
   open?: boolean;
@@ -37,7 +40,7 @@ export function Drawer({
           
           {/* Header */}
           <div className="flex shrink-0 items-center justify-between p-4 pb-2">
-            <VaulDrawer.Title className={OVERLAY_STYLES.panelTitle}>
+            <VaulDrawer.Title className={cn(OVERLAY_STYLES.panelTitle, titleClassName)}>
               {title}
             </VaulDrawer.Title>
             <VaulDrawer.Description className="sr-only">

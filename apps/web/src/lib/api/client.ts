@@ -276,10 +276,16 @@ export class APIClient {
 
                 const ct = String(response.headers['content-type'] || '');
                 const responseType = response.config?.responseType;
-                const acceptsDocument =
-                    responseType === 'blob' || responseType === 'arraybuffer' || responseType === 'document';
+                const isPrintableHtml =
+                    String(response.headers['x-esparex-response-mode'] || '').toLowerCase() === 'html-printable';
+                const acceptsDocumentOrText =
+                    responseType === 'blob' ||
+                    responseType === 'arraybuffer' ||
+                    responseType === 'document' ||
+                    responseType === 'text' ||
+                    isPrintableHtml;
 
-                if (ct.includes('text/html') && !acceptsDocument) {
+                if (ct.includes('text/html') && !acceptsDocumentOrText) {
                     const error = new APIError({
                             status: response.status || 500,
                             code: 'INVALID_RESPONSE_FORMAT',

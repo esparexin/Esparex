@@ -89,8 +89,6 @@ function run(val) {
     'FEFOEntitlementConsumptionEngine',
     'CatalogNotificationService',
     'listingTypeIntegrity',
-    'chatOfflineQueue',
-    'heicConverter',
     'chatPagination',
     'adminAudit.validator',
     'adminModeration.validator',

@@ -50,12 +50,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     getItemKey, renderItem, emptyState, pagination
 }: UserListingsTemplateProps<TStatus, TItem>) {
     
-    const activeSubTabColor = subTabs?.find(t => t.value === activeSubTab)?.color ?? "blue";
-    const activeTabClass = {
-        blue: "border-primary text-primary",
-        violet: "border-violet-600 text-violet-700",
-        teal: "border-teal-600 text-teal-700",
-    }[activeSubTabColor as "blue" | "violet" | "teal"] || "border-primary text-primary";
+    const activeTabClass = "border-primary text-primary";
 
     const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
 
@@ -65,12 +60,15 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             <div className="pb-2 md:pt-1 md:pb-2.5">
                 {/* Sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
-                    <div className="flex gap-0 border-b border-border overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
+                    <div className="flex gap-0 border-b border-border overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3" role="tablist" aria-label="Listing category tabs">
                         {subTabs.map(t => (
                             <button
                                 key={t.value}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeSubTab === t.value}
                                 onClick={() => onSubTabChange(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-2 text-caption font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px] cursor-pointer
+                                className={`flex items-center gap-1.5 px-4 py-2 text-caption font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
                                     ${activeSubTab === t.value
                                         ? activeTabClass
                                         : "border-transparent text-muted-foreground hover:text-foreground-secondary"
@@ -93,10 +91,11 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     {statusTabs.map((status) => (
                         <button
                             key={status}
+                            type="button"
                             role="tab"
                             aria-selected={selectedStatus === status}
                             onClick={() => onStatusChange(status)}
-                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 cursor-pointer ${selectedStatus === status
+                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${selectedStatus === status
                                 ? "bg-card text-foreground shadow-xs"
                                 : "text-foreground-tertiary hover:text-foreground hover:bg-muted/60"
                                 }`}

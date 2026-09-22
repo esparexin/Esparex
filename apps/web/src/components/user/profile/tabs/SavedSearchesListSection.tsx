@@ -16,7 +16,7 @@ export function SavedSearchesListSection({
     return (
         <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-                <h4 className="text-body font-bold text-foreground">Saved Searches</h4>
+                <h4 className="text-body-lg font-semibold text-foreground">Saved Searches</h4>
                 <span className="text-caption font-medium text-foreground-subtle">{savedSearches.length} saved</span>
             </div>
             {savedSearches.length === 0 ? (
@@ -26,7 +26,7 @@ export function SavedSearchesListSection({
                     {savedSearches.map((search) => (
                         <div key={search.id} className="border border-border rounded-xl p-2.5 flex items-center justify-between gap-2 bg-muted/30">
                             <div className="min-w-0 flex-1">
-                                <p className="text-caption font-bold text-foreground truncate">
+                                <p className="text-caption font-semibold text-foreground truncate">
                                     {search.query?.trim() || "Saved search"}
                                 </p>
                                 <p className="text-tiny text-foreground-subtle truncate mt-0.5">

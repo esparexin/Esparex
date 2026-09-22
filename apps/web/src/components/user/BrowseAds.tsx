@@ -157,7 +157,7 @@ export function BrowseAds({
       return view === "list" ? (
         <AdCardList key={listing.id} ad={listing} href={href} priority={index < 4} />
       ) : (
-        <AdCardGrid key={listing.id} ad={listing} href={href} priority={index < 4} />
+        <AdCardGrid key={listing.id} ad={listing} href={href} priority={index < 4} responsiveCompactList />
       );
     },
     []
