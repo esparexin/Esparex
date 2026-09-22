@@ -12,7 +12,7 @@ interface RecentPaymentsCardProps {
 const formatOrderDescription = (desc?: string): string => {
   if (!desc) return 'Plan & Credit Purchase';
   // Strip internal pipe metadata like "| Credit: smartAlertSlots=+1" or "| Debit: smartAlertSlots=-1"
-  let cleaned = (desc.split('|')[0] ?? '').trim();
+  const cleaned = (desc.split('|')[0] ?? '').trim();
 
   if (!cleaned) return 'Plan & Credit Purchase';
   if (cleaned.includes('New_user_Plan_10')) return 'Smart Alert 5-Pack';

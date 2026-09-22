@@ -45,7 +45,6 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
     setPage(1);
   };
 
-  const items: CreditLedgerDTO[] = data?.items || [];
   const pagination = data?.pagination;
 
   // Complete plan filters: All plans are always available in the filter dropdown
@@ -61,10 +60,10 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
     [],
   );
 
-  const filteredItems = useMemo(
-    () => items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason)),
-    [items, activeFilter],
-  );
+  const filteredItems = useMemo(() => {
+    const items = data?.items || [];
+    return items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason));
+  }, [data?.items, activeFilter]);
 
   return (
     <div className="space-y-3">

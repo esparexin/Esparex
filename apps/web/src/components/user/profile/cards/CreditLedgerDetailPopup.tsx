@@ -44,6 +44,8 @@ const formatDate = (iso?: string | null): string => {
 };
 
 export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = ({ tx, open, onClose }) => {
+  const [now] = React.useState(() => Date.now());
+
   if (!tx) return null;
 
   const isDebit = tx.type === 'DEBIT';
@@ -125,7 +127,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {/* 4. Boost expires (for boosts/spotlights) */}
           {tx.spotlightExpiresAt && (
             <Row label="Boost expires">
-              <span className={new Date(tx.spotlightExpiresAt).getTime() <= Date.now() ? 'text-destructive font-medium' : 'text-foreground'}>
+              <span className={new Date(tx.spotlightExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
                 {formatDate(tx.spotlightExpiresAt)}
               </span>
             </Row>
@@ -134,7 +136,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {/* 5. Ad expires (for all listings) */}
           {tx.adExpiresAt && (
             <Row label="Ad expires">
-              <span className={new Date(tx.adExpiresAt).getTime() <= Date.now() ? 'text-destructive font-medium' : 'text-foreground'}>
+              <span className={new Date(tx.adExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
                 {formatDate(tx.adExpiresAt)}
               </span>
             </Row>
