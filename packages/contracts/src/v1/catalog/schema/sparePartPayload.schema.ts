@@ -38,5 +38,30 @@ export const SparePartPayloadSchema = BaseSparePartPayloadSchema;
 /** Partial update schema — used by backend PATCH handler */
 export const PartialSparePartPayloadSchema = BaseSparePartPayloadSchema.partial();
 
+const stringId = z.string().optional();
+const requiredStringId = z.string().min(1, 'Required');
+
+export const PostSparePartFormSchema = BaseSparePartPayloadSchema
+    .omit({
+        sparePartId: true,
+        categoryId: true,
+        brandId: true,
+        images: true,
+    })
+    .merge(z.object({
+        categoryId: requiredStringId,
+        brandId: stringId,
+        sparePartTypeId: requiredStringId,
+    }));
+
+export const EditPostSparePartFormSchema = PartialSparePartPayloadSchema.pick({
+    title: true,
+    description: true,
+    price: true,
+}).extend({
+    images: z.array(z.string()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
+});
+
 export type SparePartPayload = z.infer<typeof SparePartPayloadSchema>;
 export type PartialSparePartPayload = z.infer<typeof PartialSparePartPayloadSchema>;
+export type PostSparePartFormValues = z.infer<typeof PostSparePartFormSchema>;
