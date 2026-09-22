@@ -40,10 +40,10 @@ export function AccountHeader({
     <>
       {/* MOBILE: Sticky contextual header (hidden on md+) */}
       <header
-        className="sticky top-[calc(2.5rem+env(safe-area-inset-top,0px))] z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-14 w-full text-foreground"
+        className="sticky top-[calc(2.5rem+env(safe-area-inset-top,0px))] z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-11 w-full text-foreground"
         aria-label="Account section header"
       >
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0">
           {!isMenuTab && onBackToMenu && (
             <Button
               type="button"
@@ -51,13 +51,13 @@ export function AccountHeader({
               size="icon"
               onClick={onBackToMenu}
               aria-label="Back to Account Menu"
-              className="rounded-xl text-foreground-secondary hover:bg-muted/60 shrink-0"
+              className="h-8 w-8 rounded-lg text-foreground-secondary hover:bg-muted/60 shrink-0"
             >
-              <ChevronLeft className="h-6 w-6" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
           )}
           {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
-          <h1 className="text-body-lg sm:text-h4 font-bold text-foreground truncate">
+          <h1 className="text-body font-semibold text-foreground truncate">
             {mobileTitle}
           </h1>
         </div>
