@@ -19,7 +19,7 @@ export function BusinessOperationsHub({ navigateTo }: BusinessOperationsHubProps
                             <Wrench className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                            <h3 className="text-body font-bold text-foreground">Services</h3>
+                            <h3 className="text-body-lg font-semibold text-foreground">Services</h3>
                             <p className="text-caption text-foreground-secondary mt-0.5">
                                 Repair & maintenance
                             </p>
@@ -54,7 +54,7 @@ export function BusinessOperationsHub({ navigateTo }: BusinessOperationsHubProps
                             <Package className="h-4.5 w-4.5" />
                         </div>
                         <div>
-                            <h3 className="text-body font-bold text-foreground">Spare Parts</h3>
+                            <h3 className="text-body-lg font-semibold text-foreground">Spare Parts</h3>
                             <p className="text-caption text-foreground-secondary mt-0.5">
                                 Parts & components
                             </p>

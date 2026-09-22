@@ -24,13 +24,7 @@ interface ListingQueryResult<T> {
     pagination: UserListingPagination;
 }
 
-interface ListingOptions<T> {
-    type: ListingType;
-    activeTab: string;
-    user: User | null;
-    statusFilter: ListingStatus;
-    page?: number;
-    limit?: number;
+export interface ListingActionApis<T = unknown> {
     fetchApi: () => Promise<T[] | { data: T[]; pagination?: { total?: number; page?: number; limit?: number; hasMore?: boolean; totalPages?: number } }>;
     deleteApi: (id: string) => Promise<unknown>;
     markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
@@ -38,6 +32,15 @@ interface ListingOptions<T> {
     activateApi?: (id: string) => Promise<unknown>;
     repostApi: (id: string) => Promise<unknown>;
     queryKey: readonly unknown[];
+}
+
+interface ListingOptions<T> extends ListingActionApis<T> {
+    type: ListingType;
+    activeTab: string;
+    user: User | null;
+    statusFilter: ListingStatus;
+    page?: number;
+    limit?: number;
 }
 
 export function useUserListingManagement<T extends { id: string; status: string }>({

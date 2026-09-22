@@ -44,20 +44,20 @@ export function AccountHeader({
         aria-label="Account section header"
       >
         <div className="flex items-center gap-1.5 min-w-0">
-          {!isMenuTab && onBackToMenu && (
+          {onBackToMenu && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={onBackToMenu}
-              aria-label="Back to Account Menu"
+              aria-label="Back"
               className="h-8 w-8 rounded-lg text-foreground-secondary hover:bg-muted/60 shrink-0"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
           )}
           {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
-          <h1 className="text-body font-semibold text-foreground truncate">
+          <h1 className="text-body-lg font-semibold text-foreground truncate">
             {mobileTitle}
           </h1>
         </div>

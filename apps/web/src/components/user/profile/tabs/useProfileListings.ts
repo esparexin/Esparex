@@ -2,6 +2,7 @@ import {
     useUserListingManagement,
     type ListingStatus,
     type ListingSoldReason,
+    type ListingActionApis,
 } from "@/hooks/useUserListingManagement";
 import { 
     getMyListings, 
@@ -16,7 +17,7 @@ import { LISTING_TYPE } from "@esparex/contracts";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@esparex/contracts";
 
-export type ProfileListingType = "ads" | "services" | "spare-parts";
+type ProfileListingType = "ads" | "services" | "spare-parts";
 
 export interface UseProfileListingsOptions {
     type: ProfileListingType;
@@ -27,15 +28,7 @@ export interface UseProfileListingsOptions {
     limit?: number;
 }
 
-type ListingManagerConfig = {
-    fetchApi: () => Promise<{ data: Listing[]; pagination?: { total?: number; page?: number; limit?: number; hasMore?: boolean; totalPages?: number } }>;
-    deleteApi: (id: string) => Promise<unknown>;
-    markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
-    deactivateApi: (id: string) => Promise<unknown>;
-    activateApi?: (id: string) => Promise<unknown>;
-    repostApi: (id: string) => Promise<unknown>;
-    queryKey: readonly unknown[];
-};
+type ListingManagerConfig = ListingActionApis<Listing>;
 
 export function useProfileListings({
     type,

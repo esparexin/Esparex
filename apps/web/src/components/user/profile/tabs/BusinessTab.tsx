@@ -95,7 +95,7 @@ export function BusinessTab({
 
     if (businessData) {
         return (
-            <div className="max-w-2xl space-y-3.5">
+            <div className="w-full space-y-4">
                 {/* Visual Business Profile Card */}
                 <BusinessProfileCard
                     businessData={businessData}
@@ -115,7 +115,7 @@ export function BusinessTab({
                     <PageSection variant="bordered" title="Business Account Status" className="bg-card">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-body font-bold capitalize text-foreground">{status}</p>
+                                <p className="text-body font-semibold capitalize text-foreground">{status}</p>
                                 <p className="text-caption text-foreground-secondary mt-0.5">
                                     {status === "deactivated" 
                                         ? "Your business is currently inactive. Re-activate to resume listings and services." 

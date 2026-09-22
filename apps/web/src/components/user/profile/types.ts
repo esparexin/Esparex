@@ -96,11 +96,3 @@ export type ProfilePlan = {
   features: string[];
   popular?: boolean;
 };
-
-export type MyAdsStatus =
-  | "live"
-  | "pending"
-  | "rejected"
-  | "sold"
-  | "expired"
-  | "deactivated";

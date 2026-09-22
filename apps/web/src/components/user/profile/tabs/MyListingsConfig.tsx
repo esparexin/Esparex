@@ -18,14 +18,14 @@ export const SUB_TABS: { value: ListingSubTab; label: string; icon: React.ReactN
   { value: "spare-parts", label: "Spare Parts", icon: <CircuitBoard className="h-4 w-4" />, color: "teal" },
 ];
 
-export const buildLocationMetaBadge = (location: unknown) => {
+const buildLocationMetaBadge = (location: unknown) => {
   const locationLabel = resolveListingLocationLabel(location, "brief");
   return locationLabel
     ? { label: locationLabel, icon: <MapPin className="h-3 w-3" /> }
     : null;
 };
 
-export const buildTag = (label: string | null, className?: string) => (
+const buildTag = (label: string | null, className?: string) => (
   label ? { label, className } : null
 );
 

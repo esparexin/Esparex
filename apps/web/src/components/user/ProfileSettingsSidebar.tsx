@@ -83,12 +83,12 @@ export function ProfileSettingsSidebar({
   ) : null;
 
   return (
-    <div className={`bg-background ${isViewingActiveChat ? "pb-0 overflow-hidden h-[calc(100dvh-6.25rem)]" : "pb-[calc(4rem+env(safe-area-inset-bottom))]"} md:pb-0 md:h-auto md:overflow-visible`}>
+    <div className={`bg-background ${isViewingActiveChat ? "pb-0 overflow-hidden h-[calc(100dvh-6.25rem)]" : "pb-[calc(5.5rem+env(safe-area-inset-bottom))]"} md:pb-0 md:h-auto md:overflow-visible`}>
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       {!isViewingActiveChat && (
         <AccountHeader
           activeTab={activeTab}
-          onBackToMenu={() => handleTabChange("more")}
+          onBackToMenu={() => navigateTo("home")}
           rightElement={
             activeTab === "mylistings" ? (
               <Button
@@ -108,7 +108,7 @@ export function ProfileSettingsSidebar({
         />
       )}
 
-      <div className={`w-full max-w-7xl mx-auto ${isViewingActiveChat || activeTab === "more" ? "p-0" : "px-4 sm:px-6 lg:px-8 pt-1"} ${isViewingActiveChat ? "h-full flex flex-col" : ""} md:py-6 md:h-auto`}>
+      <div className={`w-full max-w-7xl mx-auto ${isViewingActiveChat || activeTab === "more" ? "p-0" : "px-4 sm:px-6 lg:px-8 pt-3.5"} ${isViewingActiveChat ? "h-full flex flex-col" : ""} md:py-6 md:h-auto`}>
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6 flex-1 min-h-0">
           {/* LEFT SIDEBAR (Desktop Only) */}
@@ -122,7 +122,7 @@ export function ProfileSettingsSidebar({
           />
 
           {/* MAIN CONTENT AREA */}
-          <section className="min-h-0 bg-transparent flex-1 flex flex-col h-full">
+          <section className="min-h-0 bg-transparent flex-1 flex flex-col h-full max-w-4xl">
             {businessStatusBanner}
             <ProfileTabContentRouter
               activeTab={activeTab}

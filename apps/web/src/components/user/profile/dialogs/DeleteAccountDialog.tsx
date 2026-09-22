@@ -22,6 +22,15 @@ import {
 import { AlertTriangle, Loader2 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
+import { DELETE_ACCOUNT_REASONS } from "../types";
+
+const DELETE_REASON_LABELS: Record<DeleteAccountReason, string> = {
+    not_useful: "Not useful for me",
+    privacy_concerns: "Privacy concerns",
+    too_many_emails: "Too many notifications",
+    found_alternative: "Found an alternative",
+    other: "Other",
+};
 
 interface DeleteAccountDialogProps {
     open: boolean;
@@ -101,11 +110,11 @@ export function DeleteAccountDialog({
                                 <SelectValue placeholder="Select a reason" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="not_useful">Not useful for me</SelectItem>
-                                <SelectItem value="privacy_concerns">Privacy concerns</SelectItem>
-                                <SelectItem value="too_many_emails">Too many notifications</SelectItem>
-                                <SelectItem value="found_alternative">Found an alternative</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                {DELETE_ACCOUNT_REASONS.map((reason) => (
+                                    <SelectItem key={reason} value={reason}>
+                                        {DELETE_REASON_LABELS[reason]}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                         <FormError message={deleteAccountErrors?.reason} />

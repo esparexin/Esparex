@@ -47,7 +47,7 @@ export function BusinessProfileCard({
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-body-lg font-bold text-foreground truncate">{businessData.name}</h2>
+                            <h2 className="text-body-lg font-semibold text-foreground truncate">{businessData.name}</h2>
                             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-tiny font-semibold shrink-0">
                                 <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                 Verified

@@ -71,7 +71,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                     onClick={onAction}
                     size="sm"
                     variant="ghost"
-                    className="h-7 px-2.5 text-tiny font-medium rounded-lg bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-2xs flex items-center gap-1 shrink-0 group transition-all"
+                    className="h-8 px-2.5 text-caption font-medium rounded-lg bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-2xs flex items-center gap-1 shrink-0 group transition-all"
                 >
                     <span>{current.actionLabel}</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
