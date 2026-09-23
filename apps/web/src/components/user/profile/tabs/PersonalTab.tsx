@@ -198,7 +198,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                             <Label htmlFor="profile-name" className="text-body font-semibold text-foreground-secondary">
                                 Full name <span className="text-destructive ml-0.5">*</span>
                             </Label>
-                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" {...form.register("name")} />
+                            <Input id="profile-name" type="text" placeholder="Enter your full name" className="h-11 text-body-lg md:text-body rounded-xl border-border bg-card px-3.5 font-normal text-foreground placeholder:text-caption sm:placeholder:text-body placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary scroll-mt-[calc(7.5rem+env(safe-area-inset-top,0px))]" {...form.register("name")} />
                             <FormError message={nameError} />
                         </div>
 
@@ -219,8 +219,8 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
 
                     <FormError message={globalError} />
 
-                    <div className="pt-3 border-t border-border flex items-center justify-end">
-                        <Button type="submit" size="sm" disabled={isSaving} className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
+                    <div className="pt-3 border-t border-border sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] md:static md:bottom-auto bg-card/95 backdrop-blur-sm -mx-4 px-4 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none flex items-center justify-end z-20">
+                        <Button type="submit" size="sm" disabled={isSaving || !isFormDirty} className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
                             {isSaving ? "Saving..." : "Save changes"}
                         </Button>
                     </div>
