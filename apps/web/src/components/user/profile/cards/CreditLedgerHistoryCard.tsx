@@ -127,8 +127,8 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
         <>
           <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-          {/* Mobile Cards: Clean, non-redundant hierarchy */}
-          <div className="md:hidden flex flex-col gap-2.5">
+          {/* Mobile View: Unified container with subtle dividers */}
+          <div className="md:hidden divide-y divide-border/40 rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
             {filteredItems.map((tx) => {
               const isDebit = tx.type === 'DEBIT';
               const absAmount = Math.abs(tx.amount);
@@ -146,7 +146,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                       setSelectedTx(tx);
                     }
                   }}
-                  className="p-3.5 rounded-xl border border-border/50 bg-card hover:bg-muted/20 active:scale-[0.99] transition-[background-color,transform] space-y-2 shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="p-3 sm:p-3.5 hover:bg-muted/20 active:bg-muted/40 transition-colors space-y-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   aria-label="View activity details"
                 >
                   {/* Row 1: Plan Title + Amount Badge (Zero duplicate words) */}
@@ -155,7 +155,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                       {formatActivityCategory(tx)}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold shrink-0 ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold tabular-nums shrink-0 ${
                         isDebit
                           ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                           : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
@@ -187,7 +187,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
                   )}
 
                   {/* Row 3: Date on left, Validity & Status on right */}
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30 text-tiny text-muted-foreground">
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30 text-tiny text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
                       {formatAppliedDateTime(tx.createdAt)}
                       <Info className="w-3 h-3 opacity-60 shrink-0" />

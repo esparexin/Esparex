@@ -12,6 +12,7 @@ import {
 } from "@esparex/ui";
 import { formatDate } from "@/lib/formatters";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
+import type { SmartAlertQuotaDTO } from "@esparex/contracts";
 import type { SmartAlertListItem } from "../types";
 import { SavedSearchesListSection } from "./SavedSearchesListSection";
 
@@ -27,6 +28,7 @@ export interface SmartAlertRulesSectionProps {
     handleDeleteSavedSearch: (id: string) => void;
     handleViewMatchesForAlert: (alert: SmartAlertListItem) => void;
     setActiveTab: (tab: string) => void;
+    quota?: SmartAlertQuotaDTO | null;
 }
 
 function formatAlertLocation(location?: string, radiusKm?: number, alertName?: string): string {
@@ -54,7 +56,12 @@ export function SmartAlertRulesSection({
     handleDeleteSavedSearch,
     handleViewMatchesForAlert,
     setActiveTab,
+    quota,
 }: SmartAlertRulesSectionProps) {
+    const isAtSlotLimit = quota
+        ? quota.remaining <= 0
+        : smartAlerts.length >= 2;
+
     return (
         <div className="space-y-5">
             {smartAlerts.length === 0 ? (
@@ -177,22 +184,24 @@ export function SmartAlertRulesSection({
                 </div>
             )}
 
-            {/* Clean Upgrade Banner */}
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                    <h4 className="font-semibold text-body text-foreground">Need more alerts?</h4>
-                    <p className="text-caption text-foreground-secondary truncate">Upgrade your plan for additional slots.</p>
+            {/* Upgrade Banner (Visible only when all available alert slots are consumed) */}
+            {isAtSlotLimit && (
+                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <h4 className="font-semibold text-body text-foreground">Need more alerts?</h4>
+                        <p className="text-caption text-foreground-secondary truncate">Upgrade your plan for additional slots.</p>
+                    </div>
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-primary/30 text-primary hover:bg-primary/10 font-semibold text-caption h-8 px-3 rounded-lg shrink-0 whitespace-nowrap cursor-pointer"
+                        onClick={() => setActiveTab("buyplans")}
+                    >
+                        Upgrade
+                    </Button>
                 </div>
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="border-primary/30 text-primary hover:bg-primary/10 font-semibold text-caption h-8 px-3 rounded-lg shrink-0 whitespace-nowrap"
-                    onClick={() => setActiveTab("buyplans")}
-                >
-                    Upgrade
-                </Button>
-            </div>
+            )}
 
             {/* Saved Searches Section */}
             <div className="pt-2">

@@ -68,8 +68,6 @@ export function useProfileSidebarState({
     deleteAccountGlobalError,
     isDeleting,
     handleDeleteAccount,
-    setShowPlanDialog,
-    setSelectedPlan,
   } = useProfileSettings({ user, onLogout });
 
   useEffect(() => {
@@ -129,7 +127,7 @@ export function useProfileSidebarState({
     normalizedBusinessStatus,
     adCounts,
     chatUnreadCount,
-    plansState: { dynamicPlans, isError: plansError, setSelectedPlan, setShowPlanDialog },
+    plansState: { dynamicPlans, isError: plansError },
     businessState,
     smartAlertsState,
     deleteAccountState: { showDeleteDialog, setShowDeleteDialog, deleteConfirmText, setDeleteConfirmText, deleteReason, setDeleteReason, deleteFeedback, setDeleteFeedback, deleteAccountErrors, deleteAccountGlobalError, isDeleting, handleDeleteAccount },

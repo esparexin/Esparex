@@ -9,18 +9,12 @@ import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
 import { BuyPlansSection, type PlanCard } from './BuyPlansSection';
 import { formatPrice } from '@/lib/formatters';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
-import type { ProfilePlan } from '../types';
 
 import type { LedgerFilterType } from '../cards/CreditLedgerFormatters';
 
 interface PlansTabProps {
   dynamicPlans: PlanCard[];
   currentPlan: string;
-  isError?: boolean;
-  setSelectedPlan?: (id: string) => void;
-  onPlanSelected?: (plan: ProfilePlan) => void;
-  setShowPlanDialog?: (show: boolean) => void;
-  formatCurrency?: (price: number) => string;
   initialTab?: DashboardHubTab;
 }
 
@@ -29,10 +23,6 @@ type DashboardHubTab = 'OVERVIEW' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
   currentPlan,
-  setSelectedPlan,
-  onPlanSelected,
-  setShowPlanDialog,
-  formatCurrency,
   initialTab = 'OVERVIEW',
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
@@ -182,15 +172,6 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           onSelectPlan={(plan) => {
             setDialogSelectedPlan(plan.id);
             setIsPurchaseDialogOpen(true);
-            if (setSelectedPlan) {
-              setSelectedPlan(plan.id);
-            }
-            if (onPlanSelected) {
-              onPlanSelected(plan as ProfilePlan);
-            }
-            if (setShowPlanDialog) {
-              setShowPlanDialog(true);
-            }
           }}
         />
       )}
@@ -207,7 +188,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           features: p.features || [],
           price: p.price,
         }))}
-        formatCurrency={formatCurrency || formatPrice}
+        formatCurrency={formatPrice}
       />
     </div>
   );

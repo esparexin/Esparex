@@ -77,11 +77,15 @@ export function BusinessTab({
         );
     }
 
-    const status = businessData
-        ? normalizeBusinessStatus(businessData.status, "pending")
-        : "pending";
-    const isLive = canPublishBusiness(businessData?.status);
-    const locationLabel = resolveListingLocationLabel(businessData?.location, "full");
+    if (!businessData) {
+        return (
+            <BusinessRegistrationPromo onRegister={() => navigateTo("business-register")} />
+        );
+    }
+
+    const status = normalizeBusinessStatus(businessData.status, "none");
+    const isLive = canPublishBusiness(businessData.status);
+    const locationLabel = resolveListingLocationLabel(businessData.location, "full");
 
     if (status === "pending" || status === "rejected") {
         return (

@@ -80,7 +80,7 @@ export default function BusinessApplyPage() {
         );
     }
 
-    const status = normalizeBusinessStatus(businessData?.status || user?.businessStatus, "pending");
+    const status = normalizeBusinessStatus(businessData?.status || user?.businessStatus, "none");
     const hasExistingBusiness = Boolean(businessData?.id || user?.businessId);
 
     // If user clicked edit to update application details (pending or rejected status)

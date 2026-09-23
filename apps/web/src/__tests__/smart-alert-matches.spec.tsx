@@ -158,5 +158,63 @@ describe("SmartAlertsTab - Sub-Tabs & Dedicated Matched Listings UX", () => {
         expect(html).toContain("Active");
         expect(html).not.toContain("free alert slots remaining");
         expect(html).toContain("max-w-3xl");
+        // Upgrade banner must NOT be shown when remaining slots > 0
+        expect(html).not.toContain("Need more alerts?");
+    });
+
+    it("shows upgrade banner only when all available alert slots are exhausted", () => {
+        // When user has consumed all available slots (remaining === 0)
+        const exhaustedHtml = renderToStaticMarkup(
+            <SmartAlertsTab
+                smartAlerts={mockAlerts}
+                savedSearches={[]}
+                smartAlertForm={defaultForm}
+                updateSmartAlertForm={vi.fn()}
+                handleCreateAlert={vi.fn()}
+                handleToggleAlertStatus={vi.fn()}
+                handleDeleteAlert={vi.fn()}
+                handleDeleteSavedSearch={vi.fn()}
+                handleEditAlert={vi.fn()}
+                editingAlertId={null}
+                resetAlertForm={vi.fn()}
+                setActiveTab={vi.fn()}
+                quota={{
+                    limit: 2,
+                    used: 2,
+                    remaining: 0,
+                    resetsAt: "2026-10-01T00:00:00.000Z",
+                }}
+            />
+        );
+
+        expect(exhaustedHtml).toContain("Need more alerts?");
+        expect(exhaustedHtml).toContain("Upgrade your plan for additional slots.");
+
+        // When user has not yet exhausted slots (e.g., 0 used out of 2)
+        const availableHtml = renderToStaticMarkup(
+            <SmartAlertsTab
+                smartAlerts={[]}
+                savedSearches={[]}
+                smartAlertForm={defaultForm}
+                updateSmartAlertForm={vi.fn()}
+                handleCreateAlert={vi.fn()}
+                handleToggleAlertStatus={vi.fn()}
+                handleDeleteAlert={vi.fn()}
+                handleDeleteSavedSearch={vi.fn()}
+                handleEditAlert={vi.fn()}
+                editingAlertId={null}
+                resetAlertForm={vi.fn()}
+                setActiveTab={vi.fn()}
+                quota={{
+                    limit: 2,
+                    used: 0,
+                    remaining: 2,
+                    resetsAt: "2026-10-01T00:00:00.000Z",
+                }}
+            />
+        );
+
+        expect(availableHtml).not.toContain("Need more alerts?");
+        expect(availableHtml).toContain("No alerts yet");
     });
 });

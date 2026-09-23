@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
-import { Eye, Download, FileText, Button } from "@esparex/ui";
+import { Eye, Download, FileText, Button, Card } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
 
 interface RecentPaymentsCardProps {
@@ -72,36 +72,29 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   if (validPayments.length === 0) {
     return (
-      <div className="bg-surface rounded-xl p-6 sm:p-8 border border-border/60 shadow-2xs text-center space-y-3">
-        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
-          <FileText className="w-6 h-6" />
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+        <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground border border-border/60 mb-3.5">
+          <FileText className="h-6 w-6 sm:h-7 sm:w-7" />
         </div>
-        <div className="space-y-1">
-          <h4 className="text-body-lg font-semibold text-foreground">No Payment Receipts Yet</h4>
-          <p className="text-caption text-muted-foreground max-w-sm mx-auto">
-            When you upgrade your plan or purchase credit packs, your official tax invoices and receipts will appear here.
-          </p>
-        </div>
+        <h3 className="text-body-lg font-semibold text-foreground">No Payment Receipts Yet</h3>
         {onBrowsePlans && (
-          <div className="pt-2">
-            <Button
-              type="button"
-              onClick={onBrowsePlans}
-              className="h-9 px-4 text-body font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
-            >
-              Browse Plans
-            </Button>
-          </div>
+          <Button
+            type="button"
+            onClick={onBrowsePlans}
+            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
+          >
+            Browse Plans
+          </Button>
         )}
-      </div>
+      </Card>
     );
   }
 
   return (
     <>
-      <div className="bg-surface rounded-xl p-4 border border-border/60 shadow-2xs space-y-3">
+      <div className="bg-transparent sm:bg-surface rounded-none sm:rounded-xl p-0 sm:p-4 border-0 sm:border border-border/60 shadow-none sm:shadow-2xs space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pb-1 sm:pb-0">
           <h4 className="text-body-lg font-semibold text-foreground flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary shrink-0" />
             Invoices & Receipts
@@ -135,7 +128,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                   <td className="py-2.5 px-3 font-medium text-foreground max-w-xs truncate">
                     {formatOrderDescription(pay.description)}
                   </td>
-                  <td className="py-2.5 px-3 font-bold text-foreground">
+                  <td className="py-2.5 px-3 font-bold text-foreground tabular-nums">
                     ₹{pay.amount.toLocaleString()}
                   </td>
                   <td className="py-2.5 px-3">
@@ -177,43 +170,43 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           </table>
         </div>
 
-        {/* Mobile View: Responsive Cards (hidden on desktop) */}
-        <div className="md:hidden flex flex-col gap-2.5">
+        {/* Mobile View: Unified List with subtle dividers (hidden on desktop) */}
+        <div className="md:hidden divide-y divide-border/40 rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
           {validPayments.map((pay) => (
             <div
               key={pay.orderId}
-              className="p-3.5 rounded-xl border border-border/50 bg-card space-y-2.5 shadow-2xs"
+              className="p-3 sm:p-3.5 space-y-2 hover:bg-muted/10 transition-colors"
             >
-              {/* Top Row: Date & Status Badge */}
-              <div className="flex items-center justify-between gap-2 text-caption">
-                <span className="text-muted-foreground font-medium">
-                  {formatInvoiceDate(pay.createdAt)}
-                </span>
-                {renderStatusBadge(pay.status)}
-              </div>
-
-              {/* Middle Row: Plan Name & Amount */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="font-semibold text-foreground text-small sm:text-body leading-snug">
-                  {formatOrderDescription(pay.description)}
+              {/* Top Row: Date, Status Badge, and Amount */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-caption text-muted-foreground font-medium whitespace-nowrap">
+                    {formatInvoiceDate(pay.createdAt)}
+                  </span>
+                  {renderStatusBadge(pay.status)}
                 </div>
-                <div className="font-bold text-foreground text-small sm:text-body shrink-0">
+                <span className="text-body sm:text-body-lg font-bold text-foreground tabular-nums shrink-0">
                   ₹{pay.amount.toLocaleString()}
-                </div>
+                </span>
               </div>
 
-              {/* Bottom Row: Order ID & Actions */}
-              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30 text-caption">
-                <span className="text-tiny text-muted-foreground font-mono">
-                  #{pay.orderId.slice(-8).toUpperCase()}
-                </span>
+              {/* Bottom Row: Description, Order ID, and Action Buttons */}
+              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30">
+                <div className="min-w-0 flex items-center gap-1.5 truncate">
+                  <span className="text-small font-semibold text-foreground truncate">
+                    {formatOrderDescription(pay.description)}
+                  </span>
+                  <span className="text-tiny text-muted-foreground font-mono shrink-0">
+                    #{pay.orderId.slice(-8).toUpperCase()}
+                  </span>
+                </div>
 
                 {pay.status === 'SUCCESS' ? (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleOpenPreview(pay)}
-                      className="h-7.5 px-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny sm:text-caption font-semibold"
+                      className="h-7 px-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-caption font-semibold"
                       aria-label={`Preview invoice for order ${pay.orderId}`}
                     >
                       <Eye className="w-3.5 h-3.5 shrink-0" />
@@ -222,7 +215,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     <button
                       type="button"
                       onClick={() => void downloadInvoiceFile(pay.orderId)}
-                      className="h-7.5 px-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny sm:text-caption font-semibold"
+                      className="h-7 px-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-caption font-semibold"
                       aria-label={`Download invoice file for order ${pay.orderId}`}
                     >
                       <Download className="w-3.5 h-3.5 shrink-0" />
@@ -230,7 +223,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     </button>
                   </div>
                 ) : (
-                  <span className="text-tiny text-muted-foreground/60">No Invoice</span>
+                  <span className="text-tiny text-muted-foreground/60 font-medium">No Invoice</span>
                 )}
               </div>
             </div>

@@ -14,8 +14,8 @@ export function StepBasicDetails({
     setFormData,
 }: StepBasicDetailsProps) {
     return (
-        <div className="space-y-4">
-            <div className="grid gap-3.5 md:grid-cols-2">
+        <div className="space-y-3.5">
+            <div className="grid gap-3 md:grid-cols-2">
                 <Field
                     label="Business name"
                     labelClassName="text-body font-semibold text-foreground-secondary"
@@ -34,7 +34,7 @@ export function StepBasicDetails({
                         onChange={(e) => setFormData({ ...formData, name: e.target.value.slice(0, 100) })}
                         placeholder="e.g. Tech Repair Solutions"
                         maxLength={100}
-                        className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                        className="h-11 rounded-xl text-body-lg md:text-body font-normal placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                         aria-invalid={Boolean(formData.errors?.name)}
                     />
                 </Field>
@@ -53,7 +53,7 @@ export function StepBasicDetails({
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="business@example.com"
-                        className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                        className="h-11 rounded-xl text-body-lg md:text-body font-normal placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                         aria-invalid={Boolean(formData.errors?.email)}
                     />
                 </Field>
@@ -77,7 +77,7 @@ export function StepBasicDetails({
                     onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 2000) })}
                     placeholder="Describe your business, specialties, and services..."
                     maxLength={2000}
-                    className="min-h-[110px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
+                    className="min-h-[84px] sm:min-h-[92px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
                     aria-invalid={Boolean(formData.errors?.description)}
                 />
             </Field>

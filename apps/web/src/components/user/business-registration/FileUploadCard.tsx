@@ -74,7 +74,7 @@ export function FileUploadCard({
 
     return (
         <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground-secondary truncate">
+            <p className="text-caption sm:text-small font-medium text-foreground-secondary truncate">
                 {title} <span className="text-destructive">*</span>
             </p>
 
@@ -113,7 +113,7 @@ export function FileUploadCard({
                                 onRemove();
                             }}
                             aria-label={`Remove ${title}`}
-                            className="h-7 w-7 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary"
+                            className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                         >
                             <X className="h-3.5 w-3.5 text-destructive" />
                         </Button>

@@ -18,7 +18,8 @@ import { MyListingsTab } from "./tabs/MyListingsTab";
 import { SavedAdsTab } from "./tabs/SavedAdsTab";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import { getStatusBadge } from "./StatusBadge";
-import { formatPrice, formatDate } from "@/lib/formatters";
+import { formatDate } from "@/lib/formatters";
+
 import type { useBusiness } from "@/hooks/useBusiness";
 import type { useSmartAlerts } from "@/hooks/useSmartAlerts";
 
@@ -40,8 +41,6 @@ export interface ProfileTabContentRouterProps {
   plansState: {
     dynamicPlans: unknown[];
     isError: boolean;
-    setSelectedPlan: (id: string | null) => void;
-    setShowPlanDialog: (show: boolean) => void;
   };
   businessState: ReturnType<typeof useBusiness>;
   setShowDeleteDialog: (show: boolean) => void;
@@ -109,11 +108,7 @@ export function ProfileTabContentRouter({
       return (
         <PlansTab
           dynamicPlans={plansState.dynamicPlans as Parameters<typeof PlansTab>[0]["dynamicPlans"]}
-          isError={plansState.isError}
           currentPlan={user?.plan || "Free"}
-          setSelectedPlan={plansState.setSelectedPlan}
-          setShowPlanDialog={plansState.setShowPlanDialog}
-          formatCurrency={formatPrice}
           initialTab="OVERVIEW"
         />
       );
@@ -121,11 +116,7 @@ export function ProfileTabContentRouter({
       return (
         <PlansTab
           dynamicPlans={plansState.dynamicPlans as Parameters<typeof PlansTab>[0]["dynamicPlans"]}
-          isError={plansState.isError}
           currentPlan={user?.plan || "Free"}
-          setSelectedPlan={plansState.setSelectedPlan}
-          setShowPlanDialog={plansState.setShowPlanDialog}
-          formatCurrency={formatPrice}
           initialTab="BUY_PLANS"
         />
       );
@@ -172,11 +163,7 @@ export function ProfileTabContentRouter({
       return (
         <PlansTab
           dynamicPlans={plansState.dynamicPlans as Parameters<typeof PlansTab>[0]["dynamicPlans"]}
-          isError={plansState.isError}
           currentPlan={user?.plan || "Free"}
-          setSelectedPlan={plansState.setSelectedPlan}
-          setShowPlanDialog={plansState.setShowPlanDialog}
-          formatCurrency={formatPrice}
           initialTab="INVOICES"
         />
       );
