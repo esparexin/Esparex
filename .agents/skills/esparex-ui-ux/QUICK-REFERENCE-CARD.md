@@ -117,13 +117,13 @@ disabled:opacity-50             ← Disabled state
 ### Form Input
 ```jsx
 <div className="w-full">
-  <label htmlFor="email" className="block text-sm font-medium mb-2">
+  <label htmlFor="email" className="block text-body font-medium mb-2">
     Email
   </label>
   <input
     id="email"
     type="email"
-    className="w-full px-3 py-2 rounded-md border border-border 
+    className="w-full text-body-lg md:text-body px-3 py-2 rounded-md border border-border 
       bg-background text-foreground focus-visible:ring-2 focus-visible:ring-ring 
       disabled:opacity-50"
   />
@@ -133,8 +133,8 @@ disabled:opacity-50             ← Disabled state
 ### Card
 ```jsx
 <div className="rounded-lg border border-border bg-card p-4 md:p-6 shadow-sm">
-  <h3 className="text-lg font-semibold text-foreground">Title</h3>
-  <p className="text-sm text-muted-foreground">Description</p>
+  <h3 className="text-h4 font-semibold text-foreground">Title</h3>
+  <p className="text-body text-muted-foreground">Description</p>
 </div>
 ```
 
@@ -243,7 +243,7 @@ Desktop:     1280px+   (xl)
 EXAMPLES:
 hidden md:flex         ← Hide on mobile, show on tablet+
 grid-cols-1 md:grid-cols-2  ← 1 column mobile, 2 on tablet+
-text-sm md:text-base   ← Small text on mobile, normal on tablet+
+text-body md:text-body-lg   ← Body text on mobile, lead text on tablet+
 ```
 
 ---

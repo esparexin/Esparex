@@ -148,8 +148,8 @@ export const Header = () => (
     
     {/* Desktop navigation: hidden on mobile, flex on desktop */}
     <nav className="hidden md:flex items-center gap-6">
-      <Link href="/browse" className="text-sm font-medium text-foreground hover:text-primary">Browse</Link>
-      <Link href="/post" className="text-sm font-medium text-foreground hover:text-primary">Post Ad</Link>
+      <Link href="/browse" className="text-body font-medium text-foreground hover:text-primary">Browse</Link>
+      <Link href="/post" className="text-body font-medium text-foreground hover:text-primary">Post Ad</Link>
     </nav>
   </header>
 );
@@ -210,12 +210,12 @@ toast.success('Done!');
 
 ```tsx
 // ✅ REQUIRED on all editable inputs:
-className="text-base md:text-sm"
+className="text-body-lg md:text-body"
 
 // ❌ FORBIDDEN (Triggers irreversible 14%-33% viewport zoom jump on iOS):
-className="text-sm"
-className="text-xs"
-className="text-caption"
+className="text-body"      /* 14px without md: - triggers 14% zoom jump on mobile */
+className="text-small"     /* 13px - triggers 23% zoom jump */
+className="text-caption"   /* 12px - triggers 33% zoom jump */
 ```
 *Note: Viewport metadata MUST NOT disable pinch-to-zoom (`maximum-scale=1` is forbidden by WCAG 2.2 AA SC 1.4.4).*
 
@@ -242,7 +242,7 @@ When building or updating any interface, follow this 30-second decision tree:
 
 2️⃣ FORM INPUT?
    → Always link <label htmlFor="id"> with <input id="id">
-   → Enforce mobile zoom prevention: className="text-base md:text-sm px-3 py-2 rounded-md border border-border bg-background text-foreground"
+   → Enforce mobile zoom prevention: className="text-body-lg md:text-body px-3 py-2 rounded-md border border-border bg-background text-foreground"
    → Link error messages accessibly via aria-describedby and aria-invalid.
 
 3️⃣ CARD OR CONTAINER?
@@ -318,7 +318,7 @@ Before submitting any UI for code review or PR approval, verify every item:
 ### 2. Accessible Responsive Form Input
 ```tsx
 <div className="w-full space-y-1.5">
-  <label htmlFor="user-email" className="block text-sm font-medium text-foreground">
+  <label htmlFor="user-email" className="block text-body font-medium text-foreground">
     Email Address <span className="text-destructive">*</span>
   </label>
   <input
@@ -326,13 +326,13 @@ Before submitting any UI for code review or PR approval, verify every item:
     name="email"
     type="email"
     placeholder="you@company.com"
-    className="w-full text-base md:text-sm px-3.5 py-2.5 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    className="w-full text-body-lg md:text-body px-3.5 py-2.5 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     aria-invalid={Boolean(error)}
     aria-describedby={error ? "user-email-error" : undefined}
     required
   />
   {error && (
-    <p id="user-email-error" className="text-sm text-destructive" role="alert">
+    <p id="user-email-error" className="text-caption text-destructive" role="alert">
       {error}
     </p>
   )}
@@ -343,12 +343,12 @@ Before submitting any UI for code review or PR approval, verify every item:
 ```tsx
 <div className="rounded-lg border border-border bg-card p-4 md:p-6 shadow-sm space-y-3">
   <div className="flex items-center justify-between">
-    <h3 className="text-lg font-semibold text-foreground">Account Summary</h3>
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+    <h3 className="text-h4 font-semibold text-foreground">Account Summary</h3>
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-medium bg-primary/10 text-primary">
       Active
     </span>
   </div>
-  <p className="text-sm text-muted-foreground">
+  <p className="text-body text-muted-foreground">
     Manage your subscription and credit balance across all services.
   </p>
 </div>
