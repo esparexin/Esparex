@@ -66,9 +66,9 @@ export function DeleteAccountDialog({
 
     return (
         <Dialog open={open} onOpenChange={isLocked ? undefined : onOpenChange}>
-            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-[420px] !h-auto !p-0 overflow-hidden rounded-2xl shadow-xl">
+            <DialogContent padding="none" className="max-w-[calc(100vw-2rem)] sm:max-w-[420px] overflow-hidden rounded-2xl shadow-xl">
                 {/* Header */}
-                <DialogHeader className="!mb-0 shrink-0 border-b border-border/60 bg-card px-4 py-3 sm:px-5 sm:py-3.5 pr-11">
+                <DialogHeader className="mb-0 shrink-0 border-b border-border/60 bg-card px-4 py-3 sm:px-5 sm:py-3.5 pr-11">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-full bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
                             <AlertTriangle className="h-4 w-4" />
@@ -166,7 +166,7 @@ export function DeleteAccountDialog({
                 </div>
 
                 {/* Footer */}
-                <DialogFooter className="!mt-0 shrink-0 border-t border-border/50 bg-muted/20 px-4 py-2.5 sm:px-5 sm:py-3 flex flex-row items-center justify-end gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+                <DialogFooter className="mt-0 shrink-0 border-t border-border/50 bg-muted/20 px-4 py-2.5 sm:px-5 sm:py-3 flex flex-row items-center justify-end gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                     <Button
                         type="button"
                         variant="outline"

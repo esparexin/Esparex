@@ -123,8 +123,8 @@ export function ReportAdDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent mobileSafe className="max-w-md !p-0 overflow-hidden">
-        <DialogHeader className="!mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
+      <DialogContent mobileSafe padding="none" className="max-w-md overflow-hidden">
+        <DialogHeader className="mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
             <DialogTitle>Report Ad</DialogTitle>

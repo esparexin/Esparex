@@ -115,7 +115,7 @@ export function ListingItemActions({
               {showMarkSold && (
                 <DropdownMenuItem
                   onClick={onMarkSold}
-                  className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <CheckSquare className="h-3 w-3 mr-1.5 shrink-0" />
                   Mark as Sold
@@ -124,7 +124,7 @@ export function ListingItemActions({
               {showDeactivate && (
                 <DropdownMenuItem
                   onClick={onDeactivate}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <PowerOff className="h-3 w-3 mr-1.5 shrink-0" />
                   Deactivate
@@ -133,7 +133,7 @@ export function ListingItemActions({
               {showActivate && (
                 <DropdownMenuItem
                   onClick={onActivate}
-                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Power className="h-3 w-3 mr-1.5 shrink-0" />
                   Activate
@@ -142,7 +142,7 @@ export function ListingItemActions({
               {showBoost && (
                 <DropdownMenuItem
                   onClick={onBoost}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-amber-500" />
                   Apply Boost / Spotlight
@@ -151,7 +151,7 @@ export function ListingItemActions({
               {showRenew && (
                 <DropdownMenuItem
                   onClick={onRenew}
-                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <RefreshCw className="h-3 w-3 mr-1.5 shrink-0" />
                   Renew
@@ -170,7 +170,7 @@ export function ListingItemActions({
                       );
                     }
                   }}
-                  className="cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center text-foreground"
+                  className="cursor-pointer text-tiny font-medium py-1 px-2 flex items-center text-foreground"
                 >
                   <Share2 className="h-3 w-3 mr-1.5 shrink-0" />
                   Share
@@ -179,7 +179,7 @@ export function ListingItemActions({
               {showDelete && (
                 <DropdownMenuItem
                   onClick={onDelete}
-                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Trash2 className="h-3 w-3 mr-1.5 shrink-0" />
                   Delete

@@ -267,7 +267,7 @@ export function CreateSmartAlertDialog({
                     </div>
 
                     {/* Fixed Footer Outside Scroll Area */}
-                    <DialogFooter className="!mt-0 shrink-0 pt-3 border-t border-border/80 bg-card flex flex-row items-center gap-3">
+                    <DialogFooter className="mt-0 shrink-0 pt-3 border-t border-border/80 bg-card flex flex-row items-center gap-3">
                         <Button
                             type="button"
                             variant="outline"
