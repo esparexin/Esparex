@@ -64,22 +64,33 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = "DialogOverlay";
 
 // ── Content ──────────────────────────────────────────────────────────────────
+export type DialogContentProps = React.ComponentPropsWithoutRef<typeof RadixDialog.Content> & {
+  /** When true, hides the default close (×) button in the top-right corner. */
+  hideClose?: boolean;
+  /** When true, uses a mobile keyboard-safe top anchored layout. */
+  mobileSafe?: boolean;
+  /** Layout positioning variant: 'centered' (default), 'bottomSheet', 'mobileSafe', or 'fullscreen'. */
+  variant?: "centered" | "bottomSheet" | "mobileSafe" | "fullscreen";
+  /** Padding scale for DialogContent: 'default' (p-5 for centered), 'none' (p-0), or 'compact' (p-3 sm:p-4). */
+  padding?: "default" | "none" | "compact";
+  /** Custom z-index for the background overlay backdrop. */
+  overlayZIndex?: number;
+  /** Custom class names for the background overlay backdrop. */
+  overlayClassName?: string;
+};
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof RadixDialog.Content>,
-  React.ComponentPropsWithoutRef<typeof RadixDialog.Content> & {
-    /** When true, hides the default close (×) button in the top-right corner. */
-    hideClose?: boolean;
-    /** When true, uses a mobile keyboard-safe top anchored layout. */
-    mobileSafe?: boolean;
-    /** Layout positioning variant: 'centered' (default), 'bottomSheet', 'mobileSafe', or 'fullscreen'. */
-    variant?: "centered" | "bottomSheet" | "mobileSafe" | "fullscreen";
-    /** Custom z-index for the background overlay backdrop. */
-    overlayZIndex?: number;
-    /** Custom class names for the background overlay backdrop. */
-    overlayClassName?: string;
-  }
->(({ className, children, hideClose = false, mobileSafe = false, variant, overlayZIndex, overlayClassName, ...props }, ref) => {
+  DialogContentProps
+>(({ className, children, hideClose = false, mobileSafe = false, variant, padding = "default", overlayZIndex, overlayClassName, ...props }, ref) => {
   const activeVariant = variant ?? (mobileSafe ? "mobileSafe" : "centered");
+
+  const getPaddingClass = () => {
+    if (padding === "none") return "p-0";
+    if (padding === "compact") return "p-3 sm:p-4";
+    if (activeVariant === "centered") return "p-5";
+    return "";
+  };
 
   /**
    * TRANSFORM SAFETY RULE (MANDATORY):
@@ -113,6 +124,7 @@ const DialogContent = React.forwardRef<
         return [
           "fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] bottom-auto right-auto w-[calc(100vw-2rem)] max-w-lg outline-none -translate-x-1/2 translate-y-0 sm:top-[50%] sm:-translate-y-1/2",
           "flex h-full max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))] flex-col overflow-hidden overscroll-contain rounded-2xl bg-background shadow-lg",
+          getPaddingClass(),
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -123,7 +135,8 @@ const DialogContent = React.forwardRef<
       default:
         return [
           "fixed left-[50%] top-[max(1rem,env(safe-area-inset-top))] sm:top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-0 sm:translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
-          "bg-background rounded-2xl shadow-xl p-5 max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))] overflow-y-auto overscroll-contain border border-border",
+          "bg-background rounded-2xl shadow-xl max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))] overflow-y-auto overscroll-contain border border-border",
+          getPaddingClass(),
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",

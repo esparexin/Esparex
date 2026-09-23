@@ -5,7 +5,15 @@ import { typography } from '../src/typography';
 
 // Helper to convert hex to HSL (Tailwind format: "H S% L%")
 function hexToHsl(hex: string): string {
-  if (hex.startsWith('var(') || hex === 'transparent' || hex === 'currentColor') {
+  if (
+    hex.startsWith('var(') ||
+    hex.startsWith('rgba(') ||
+    hex.startsWith('rgb(') ||
+    hex.startsWith('hsl(') ||
+    hex.startsWith('hsla(') ||
+    hex === 'transparent' ||
+    hex === 'currentColor'
+  ) {
     return hex;
   }
   

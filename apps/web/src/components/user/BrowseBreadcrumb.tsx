@@ -31,7 +31,7 @@ export function BrowseBreadcrumb({
   return (
     <div className={cn("space-y-1 py-1 md:py-2", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-caption md:text-small text-muted-foreground font-normal overflow-x-auto no-scrollbar">
+      <nav aria-label="Breadcrumb" className="flex items-center text-caption md:text-small text-muted-foreground font-normal overflow-x-auto scrollbar-hide">
         <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
           <li>
             <Link

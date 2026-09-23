@@ -15,7 +15,7 @@ interface QuickRepliesProps {
 export function QuickReplies({ onSelect, disabled }: QuickRepliesProps) {
   return (
     <div className="w-full py-1.5 px-3" aria-label="Quick reply suggestions">
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-0.5">
         {DEFAULT_REPLIES.map((reply) => (
           <button
             key={reply}

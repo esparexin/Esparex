@@ -35,9 +35,9 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
   return (
     <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="flex flex-col gap-3 sm:gap-4">
       {/* Free-Flowing Category Filter Pills Bar */}
-      <div className="overflow-x-auto no-scrollbar scrollbar-none py-1 -mx-1 px-1">
+      <div className="overflow-x-auto scrollbar-hide py-1 -mx-1 px-1">
         <div
-          className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none w-max sm:w-auto"
+          className="flex items-center gap-2 overflow-x-auto scrollbar-hide w-max sm:w-auto"
           role="tablist"
           aria-label="Plan Categories"
         >

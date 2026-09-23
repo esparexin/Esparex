@@ -39,6 +39,7 @@ const GUARDS = [
   { name: 'Shared SSOT', cmd: 'node scripts/enforce-shared-ssot.js', baselineKey: 'sharedSsotViolations' },
   { name: 'Validation SSOT', cmd: 'node scripts/enforce-validation-ssot.js', baselineKey: 'validationSsotViolations' },
   { name: 'Typography SSOT', cmd: 'node scripts/enforce-typography-ssot.js', baselineKey: 'typographySsotViolations' },
+  { name: 'CSS Hygiene', cmd: 'node scripts/enforce-css-hygiene.js', baselineKey: 'cssHygieneViolations' },
   { name: 'Authorization SSOT', cmd: 'node scripts/enforce-authorization-ssot.js', baselineKey: 'authorizationSsotViolations' },
   { name: 'Mobile Architecture', cmd: 'node scripts/enforce-mobile-architecture-guard.js', baselineKey: 'mobileArchitectureViolations' },
   { name: 'Mobile Toolchain', cmd: 'node scripts/guard-mobile-toolchain.js', baselineKey: 'mobileToolchainViolations' },
