@@ -51,7 +51,7 @@ export function AccountMessagesWorkspace({
 
           <Link
             href="/browse"
-            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 h-9 text-xs font-semibold shadow-xs transition-colors"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 h-9 text-caption font-semibold shadow-xs transition-colors"
           >
             <MessageSquare className="h-3.5 w-3.5" />
             <span>Browse Listings</span>
@@ -64,7 +64,7 @@ export function AccountMessagesWorkspace({
       return (
         <div className="flex h-full min-h-0 items-center justify-center bg-muted/30 p-6">
           <div className="max-w-sm text-center">
-            <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
+            <p className="text-body font-semibold text-destructive">Unable to load this conversation right now.</p>
             <button
               type="button"
               className="mt-4 inline-flex min-h-9 items-center justify-center rounded-xl border border-border bg-card px-4 text-caption font-semibold text-foreground hover:bg-muted transition-colors"

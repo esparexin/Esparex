@@ -19,7 +19,7 @@ export function QuickReplies({ onSelect, disabled }: QuickRepliesProps) {
         {DEFAULT_REPLIES.map((reply) => (
           <button
             key={reply}
-            className="inline-flex items-center shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 active:scale-95 transition-all shadow-2xs whitespace-nowrap"
+            className="inline-flex items-center shrink-0 px-3 py-1.5 rounded-full text-caption font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 active:scale-95 transition-all shadow-2xs whitespace-nowrap"
             onClick={() => onSelect(reply)}
             disabled={disabled}
             type="button"

@@ -176,7 +176,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             priceSlot={categoryId ? <ListingPriceField name="price" /> : null}
         >
             {isEditMode && (
-                <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                <div className="rounded border border-amber-200 bg-amber-50 p-3 text-body text-amber-800">
                     Category, brand, and type are locked for active listings. Update title, description, price, or photos below.
                 </div>
             )}

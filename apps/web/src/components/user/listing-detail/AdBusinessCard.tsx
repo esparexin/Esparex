@@ -31,16 +31,16 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-foreground truncate text-sm">{businessName}</h3>
+                        <h3 className="font-bold text-foreground truncate text-body">{businessName}</h3>
                         <Badge className="bg-primary text-primary-foreground text-tiny font-bold px-1.5 py-0.5 rounded-md border-none flex-shrink-0">
                             VERIFIED
                         </Badge>
                     </div>
-                    <p className="text-xs text-foreground-subtle font-medium">{businessType}</p>
+                    <p className="text-caption text-foreground-subtle font-medium">{businessType}</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-caption">
                 {[
                     businessCategory ? { icon: Store, label: "Category", value: businessCategory } : null,
                     locationLabel ? { icon: MapPin, label: "Location", value: locationLabel } : null,
@@ -65,7 +65,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
             {/* Visit Button */}
             <Button
                 variant="outline"
-                className="w-full gap-2 bg-primary hover:bg-primary/90 border-none text-primary-foreground text-xs sm:text-sm h-10 rounded-xl font-semibold transition-all active:scale-95 shadow-xs cursor-pointer"
+                className="w-full gap-2 bg-primary hover:bg-primary/90 border-none text-primary-foreground text-body h-10 rounded-xl font-semibold transition-all active:scale-95 shadow-xs cursor-pointer"
                 onClick={() => {
                     if (ad.businessId) {
                         const businessSlug = generateAdSlug(businessName || "business");
@@ -87,7 +87,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                     <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest">Active Partner</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <span className="text-tiny font-black text-foreground-secondary">100%</span>
+                    <span className="text-tiny font-bold text-foreground-secondary">100%</span>
                     <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest">Verified</span>
                 </div>
             </div>

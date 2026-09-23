@@ -35,7 +35,7 @@ export function ChatInputAttachmentBanner({
 
       {/* Error Announcement */}
       {fileError && (
-        <p className="text-xs font-medium text-red-600 px-1" role="alert" aria-live="polite">
+        <p className="text-caption font-medium text-destructive px-1" role="alert" aria-live="polite">
           {fileError}
         </p>
       )}

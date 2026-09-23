@@ -26,7 +26,7 @@ function SpotlightOrBoostButton({ isSpotlight, onPromoteClick }: { isSpotlight: 
     );
   }
   return (
-    <Button variant="outline" className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white" onClick={onPromoteClick}>
+    <Button variant="outline" className="flex flex-col gap-1 h-11 text-tiny rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white" onClick={onPromoteClick}>
       <TrendingUp className="h-5 w-5" />
       Boost
     </Button>

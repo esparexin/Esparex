@@ -123,7 +123,7 @@ export function RelatedBusinessesSection({
     <section id="nearby-repair-services" className="mt-2 md:mt-4">
       <div className="mb-3 md:mb-4 flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-base font-bold md:text-lg text-foreground">{sectionCopy.title}</h3>
+          <h3 className="text-body-lg font-bold md:text-h4 text-foreground">{sectionCopy.title}</h3>
         </div>
         {!isLoading && uniqueBusinesses.length > 0 ? (
           <div className="flex items-center gap-1.5 md:gap-2">
@@ -158,12 +158,12 @@ export function RelatedBusinessesSection({
       ) : null}
 
       {!isLoading && isError ? (
-        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-5 py-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-5 py-4 text-body text-amber-900">
           <div className="flex items-center gap-2 font-semibold">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             Unable to load repair shops
           </div>
-          <p className="mt-1 text-xs text-amber-800">
+          <p className="mt-1 text-caption text-amber-800">
             Try again to check repair shops with matching live services.
           </p>
           <Button
@@ -180,13 +180,13 @@ export function RelatedBusinessesSection({
       ) : null}
 
       {!isLoading && !isError && !normalizedContext.canSearch ? (
-        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
+        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-body text-foreground-subtle">
           Repair shop suggestions are unavailable because this listing is missing location details.
         </div>
       ) : null}
 
       {!isLoading && !isError && normalizedContext.canSearch && uniqueBusinesses.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
+        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-body text-foreground-subtle">
           {sectionCopy.empty}
         </div>
       ) : null}

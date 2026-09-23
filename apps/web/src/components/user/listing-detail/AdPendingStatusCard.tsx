@@ -8,8 +8,8 @@ export function AdPendingStatusCard() {
                     <AlertTriangle className="h-4 w-4 text-amber-600" />
                 </div>
                 <div>
-                    <p className="text-sm font-bold text-amber-900">Pending Approval</p>
-                    <p className="mt-0.5 text-xs text-amber-700 leading-relaxed">
+                    <p className="text-body font-bold text-amber-900">Pending Approval</p>
+                    <p className="mt-0.5 text-caption text-amber-700 leading-relaxed">
                         Your ad is under review and will become visible once approved by admin.
                     </p>
                 </div>

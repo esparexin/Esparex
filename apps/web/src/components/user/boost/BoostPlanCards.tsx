@@ -83,7 +83,7 @@ export function WalletCreditCard({
       </div>
       <div className="text-right shrink-0 pl-3">
         <p
-          className={`text-xs font-bold ${
+          className={`text-caption font-bold ${
             isSpotlight ? "text-amber-600" : "text-blue-600"
           }`}
         >
@@ -191,7 +191,7 @@ export function SpotlightActiveNotice({ onClose }: { onClose: () => void }) {
         <Sparkles className="h-8 w-8 text-warning animate-pulse" />
       </div>
       <div className="space-y-1">
-        <Badge className="bg-warning text-primary-foreground font-extrabold text-caption px-3 py-1 rounded-full uppercase tracking-wide">
+        <Badge className="bg-warning text-primary-foreground font-bold text-caption px-3 py-1 rounded-full uppercase tracking-wide">
           Spotlight Active
         </Badge>
         <h3 className="text-body-lg font-bold text-foreground pt-2">

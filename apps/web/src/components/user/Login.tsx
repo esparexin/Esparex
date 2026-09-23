@@ -48,7 +48,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
           </div>
         </div>
         <div>
-          <CardTitle className="text-h4 sm:text-h3 font-extrabold tracking-tight text-foreground">
+          <CardTitle className="text-h4 sm:text-h3 font-bold tracking-tight text-foreground">
             {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
           </CardTitle>
           <p className="mt-0.5 text-caption text-muted-foreground font-medium">

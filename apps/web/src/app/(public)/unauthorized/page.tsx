@@ -18,7 +18,7 @@ export default function UnauthorizedPage() {
                     <ShieldOff className="h-12 w-12 text-destructive/60" />
                 </div>
 
-                <h1 className="text-3xl font-bold text-foreground">
+                <h1 className="text-h1 font-bold text-foreground">
                     Unauthorized Access
                 </h1>
 

@@ -188,7 +188,7 @@ export function ChatList({
             </div>
           </div>
 
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-h4 font-bold text-foreground">
             {searchQuery
               ? `No conversations match "${searchQuery}"`
               : activeTab === 'unread'
@@ -197,7 +197,7 @@ export function ChatList({
                   ? 'No archived conversations'
                   : 'No conversations yet'}
           </h3>
-          <p className="mt-1 text-xs text-foreground-subtle max-w-xs leading-relaxed">
+          <p className="mt-1 text-caption text-foreground-subtle max-w-xs leading-relaxed">
             {searchQuery
               ? 'Try searching with another keyword'
               : 'Messages with buyers and sellers will appear here'}
@@ -206,7 +206,7 @@ export function ChatList({
           {!searchQuery && activeTab === 'active' && (
             <Link
               href="/browse"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary bg-background px-4 py-2 text-xs font-semibold text-primary hover:bg-muted transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary bg-background px-4 py-2 text-body font-semibold text-primary hover:bg-muted transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
             >
               <span>💬</span>
               <span>Browse Listings</span>

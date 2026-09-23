@@ -69,14 +69,14 @@ export function NotificationDrawer({
       <div className="space-y-3 pt-2">
         {/* Header Action Bar */}
         <div className="flex items-center justify-between border-b border-border pb-2">
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="text-caption font-semibold text-muted-foreground">
             {unreadCount > 0 ? `${unreadCount} unread` : "All notifications"}
           </span>
           {unreadCount > 0 && onMarkAllRead && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 rounded-full px-3 text-xs font-medium text-primary hover:bg-muted"
+              className="h-8 rounded-full px-3 text-caption font-medium text-primary hover:bg-muted"
               onClick={() => onMarkAllRead()}
             >
               <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
@@ -165,14 +165,14 @@ export function NotificationDrawer({
 
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p id={titleId} className="text-xs font-semibold text-foreground truncate">
+                        <p id={titleId} className="text-body font-semibold text-foreground truncate">
                           {notification.title}
                         </p>
                         {!notification.isRead && (
                           <span className="h-2 w-2 shrink-0 rounded-full bg-primary" aria-label="Unread notification" />
                         )}
                       </div>
-                      <p id={descId} className="text-xs text-muted-foreground line-clamp-2">
+                      <p id={descId} className="text-caption text-muted-foreground line-clamp-2">
                         {notification.message}
                       </p>
                       <span id={dateId} className="inline-block text-tiny text-foreground-subtle">
