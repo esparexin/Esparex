@@ -158,6 +158,8 @@ export interface ISystemConfig extends Document {
         };
         thresholds: {
             proSparePartLimit: number;
+            businessServiceLimit?: number;
+            businessSparePartLimit?: number;
         };
     };
     emailTemplates?: unknown[];
@@ -362,6 +364,8 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
         },
         thresholds: {
             proSparePartLimit: { type: Number, default: 5 },
+            businessServiceLimit: { type: Number, default: 100 },
+            businessSparePartLimit: { type: Number, default: 100 },
         }
     },
     emailTemplates: [{ type: Schema.Types.Mixed }],

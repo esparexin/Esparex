@@ -20,7 +20,7 @@ export function PlanFeatureList({
   return (
     <ul className={cn("space-y-1.5", className)}>
       {features.map((feature, index) => (
-        <li key={index} className={cn("flex items-start gap-2 text-xs", itemClassName)}>
+        <li key={index} className={cn("flex items-start gap-2 text-caption", itemClassName)}>
           <CheckCircle2
             className={cn("mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-link", iconClassName)}
           />

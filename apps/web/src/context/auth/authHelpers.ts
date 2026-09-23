@@ -49,7 +49,7 @@ export function getDevUser(): User {
     mobile: "9999999999",
     role: "user",
     isPhoneVerified: true,
-    businessStatus: "pending",
+    businessStatus: "none",
     createdAt: new Date().toISOString(),
   };
 }

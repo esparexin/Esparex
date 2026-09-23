@@ -1,13 +1,7 @@
 import type { User, UserNotificationSettings } from "@esparex/contracts";
 import { MobileVisibilityValue } from "@esparex/contracts";
-export type MobileVisibility = MobileVisibilityValue;
+type MobileVisibility = MobileVisibilityValue;
 
-export type ProfileFormData = {
-  name: string;
-  email: string;
-  businessName?: string;
-  gstNumber?: string;
-};
 
 export type ProfileFieldErrors = {
   name?: string;
@@ -23,10 +17,6 @@ export type DeleteAccountFieldErrors = {
   confirmText?: string;
 };
 
-export type NotificationPreferences = {
-  enabled: boolean;
-  instantAlerts?: boolean;
-};
 
 export type ProfileUser = User & {
   businessName?: string;
@@ -48,6 +38,7 @@ export type SmartAlertListItem = {
   totalMatches?: number;
   active?: boolean;
   notificationChannels?: string[];
+  createdAt?: string;
 };
 
 export type SmartAlertItem = SmartAlertListItem;
@@ -105,11 +96,3 @@ export type ProfilePlan = {
   features: string[];
   popular?: boolean;
 };
-
-export type MyAdsStatus =
-  | "live"
-  | "pending"
-  | "rejected"
-  | "sold"
-  | "expired"
-  | "deactivated";

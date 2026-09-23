@@ -173,40 +173,67 @@ export const unwrapApiPayload = <T>(response: unknown): T | null => {
   return payload as T;
 };
 
-const unwrapPagination = (response: unknown): PaginationEnvelope => {
-  if (!response || typeof response !== "object") {
-    return { page: 1, limit: 0, total: 0, totalPages: 0, hasMore: false };
+const extractPaginationObject = (obj: unknown, depth = 0): PaginationEnvelope | null => {
+  if (!obj || typeof obj !== "object" || depth > 4) return null;
+  const rec = obj as Record<string, unknown>;
+
+  // Direct pagination property
+  if (rec.pagination && typeof rec.pagination === "object") {
+    return rec.pagination as PaginationEnvelope;
   }
 
-  const record = response as Record<string, unknown>;
-  const nestedData = record.data;
-  const rootPagination =
-    record.pagination && typeof record.pagination === "object"
-      ? (record.pagination as PaginationEnvelope)
-      : null;
+  // Direct pagination envelope
+  if (typeof rec.total === "number" && typeof rec.page === "number") {
+    return {
+      page: rec.page,
+      limit: typeof rec.limit === "number" ? rec.limit : 0,
+      total: rec.total,
+      totalPages: typeof rec.totalPages === "number" ? rec.totalPages : undefined,
+      hasMore: typeof rec.hasMore === "boolean" ? rec.hasMore : undefined,
+      cursor: typeof rec.cursor === "string" ? rec.cursor : undefined,
+      nextCursor: typeof rec.nextCursor === "string" ? rec.nextCursor : undefined,
+    };
+  }
 
-  const nestedPagination =
-    nestedData &&
-      typeof nestedData === "object" &&
-      (nestedData as Record<string, unknown>).pagination &&
-      typeof (nestedData as Record<string, unknown>).pagination === "object"
-      ? ((nestedData as Record<string, unknown>).pagination as PaginationEnvelope)
-      : null;
+  // Nested in data
+  if (rec.data && typeof rec.data === "object") {
+    const fromData = extractPaginationObject(rec.data, depth + 1);
+    if (fromData) return fromData;
+  }
 
-  const pagination = nestedPagination || rootPagination;
+  // Nested in output
+  if (rec.output && typeof rec.output === "object") {
+    const fromOutput = extractPaginationObject(rec.output, depth + 1);
+    if (fromOutput) return fromOutput;
+  }
+
+  return null;
+};
+
+const unwrapPagination = (response: unknown): PaginationEnvelope => {
+  const pagination = extractPaginationObject(response);
   if (!pagination) {
     return { page: 1, limit: 0, total: 0, totalPages: 0, hasMore: false };
   }
 
+  const page = Number(pagination.page || 1);
+  const limit = Number(pagination.limit || 0);
+  const total = typeof pagination.total === "number" ? pagination.total : undefined;
+  const totalPages =
+    typeof pagination.totalPages === "number"
+      ? pagination.totalPages
+      : (typeof total === "number" && limit > 0 ? Math.ceil(total / limit) : undefined);
+  const hasMore =
+    typeof pagination.hasMore === "boolean"
+      ? pagination.hasMore
+      : (typeof totalPages === "number" ? page < totalPages : undefined);
+
   return {
-    page: Number(pagination.page || 1),
-    limit: Number(pagination.limit || 0),
-    total:
-      typeof pagination.total === "number" ? pagination.total : undefined,
-    totalPages:
-      typeof pagination.totalPages === "number" ? pagination.totalPages : undefined,
-    hasMore:
-      typeof pagination.hasMore === "boolean" ? pagination.hasMore : undefined,
+    page,
+    limit,
+    total,
+    totalPages,
+    hasMore,
     cursor: typeof pagination.cursor === "string" || pagination.cursor === undefined ? pagination.cursor : undefined,
     nextCursor:
       typeof pagination.nextCursor === "string" ? pagination.nextCursor : undefined,
@@ -227,7 +254,7 @@ export const toPaginatedApiResult = async <T>(
 ): Promise<ApiResult<PaginatedApiResult<T>>> => {
   try {
     const response = await apiCall;
-    const data = unwrapApiPayload<T[] | { data?: T[]; items?: T[] }>(response);
+    const data = unwrapApiPayload<T[] | { data?: T[]; items?: T[]; pagination?: PaginationEnvelope }>(response);
     const arrayData = Array.isArray(data)
       ? data
       : data && typeof data === "object" && Array.isArray((data as { data?: T[] }).data)
@@ -236,10 +263,14 @@ export const toPaginatedApiResult = async <T>(
           ? ((data as { items: T[] }).items || [])
         : [];
 
+    const pagination = extractPaginationObject(response)
+      ? unwrapPagination(response)
+      : unwrapPagination(data);
+
     return {
       data: {
         data: arrayData,
-        pagination: unwrapPagination(response),
+        pagination,
       },
       error: null,
     };

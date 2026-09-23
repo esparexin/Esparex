@@ -29,12 +29,12 @@ export const ConnectivityBanner: React.FC<ConnectivityBannerProps> = ({ apiUnava
             {isOffline ? (
                 <>
                     <WifiOff size={18} />
-                    <span className="text-sm font-medium">You’re offline. Check your internet connection.</span>
+                    <span className="text-body font-medium">You’re offline. Check your internet connection.</span>
                 </>
             ) : (
                 <>
                     <AlertTriangle size={18} />
-                    <span className="text-sm font-medium">Server unreachable. Some features may not work.</span>
+                    <span className="text-body font-medium">Server unreachable. Some features may not work.</span>
                 </>
             )}
         </div>

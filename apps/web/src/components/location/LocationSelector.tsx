@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Input } from "@esparex/ui";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
-import { Search, MapPin, Target, Loader2 } from "@esparex/ui";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
-import { cn } from "@/lib/utils";
-import { toCanonicalGeoPoint } from "@esparex/shared";
-import { type SelectorVariant } from "./locationSelectorCore.helpers";
+import {
+    type SelectorVariant,
+    getLocationPrimaryLabel,
+    getLocationSecondaryLabel,
+    toFinalSelectedLocation,
+} from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
 
 import { LocationResultsList, POPULAR_CITIES } from "./components/LocationResultsList";
 import { LocationSelectorPanel } from "./components/LocationSelectorPanel";
+import { LocationSelectorDropdown } from "./components/LocationSelectorDropdown";
 
 type SnappedLocation = Location & { isSnapped?: boolean };
 
@@ -48,9 +50,7 @@ export default function LocationSelector({
     const [selectedLabel, setSelectedLabel] = useState(currentDisplay || "");
     const [hasSelection, setHasSelection] = useState(Boolean(currentDisplay));
 
-    const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const dropdownRef = useRef<HTMLDivElement>(null);
     const manuallyClearedRef = useRef(false);
 
     const applySelection = useCallback((loc: Location, source: "manual" | "gps" = "manual") => {
@@ -102,30 +102,6 @@ export default function LocationSelector({
     }, [currentDisplay, isOpen, isPanel, query]);
 
     useEffect(() => {
-        if (isPanel || !isOpen) return;
-
-        const handleClickOutside = (event: MouseEvent | TouchEvent | PointerEvent) => {
-            const target = event.target as Node;
-            if (containerRef.current?.contains(target) || dropdownRef.current?.contains(target)) return;
-            setIsOpen(false);
-            if (!hasSelection && query.length < 2) setQuery("");
-        };
-
-        const timeoutId = setTimeout(() => {
-            document.addEventListener("pointerdown", handleClickOutside);
-            document.addEventListener("mousedown", handleClickOutside);
-            document.addEventListener("touchstart", handleClickOutside);
-        }, 0);
-
-        return () => {
-            clearTimeout(timeoutId);
-            document.removeEventListener("pointerdown", handleClickOutside);
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("touchstart", handleClickOutside);
-        };
-    }, [hasSelection, isOpen, isPanel, query]);
-
-    useEffect(() => {
         const interactionOpen = isPanel || isOpen;
         if (!interactionOpen) return;
         void (async () => { setSelectedIndex(-1); })();
@@ -134,25 +110,8 @@ export default function LocationSelector({
     const handleSelect = useCallback(async (loc: Location) => {
         searchApi.setIsSearching(true);
         try {
-            const canonicalGeoJSONPoint = toCanonicalGeoPoint(loc.coordinates) || {
-                type: "Point" as const,
-                coordinates: [78.4867, 17.3850] as [number, number]
-            };
-            const finalLoc = {
-                id: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
-                locationId: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
-                slug: loc.slug || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
-                city: loc.city || loc.name,
-                state: loc.state || loc.city || loc.name,
-                country: loc.country || "India",
-                name: loc.name || loc.city,
-                display: loc.display || loc.displayName || [loc.city || loc.name, loc.state].filter(Boolean).join(", "),
-                displayName: loc.displayName || loc.name || loc.city,
-                level: loc.level || "city",
-                coordinates: canonicalGeoJSONPoint,
-            };
-
-            applySelection(finalLoc as Location, "manual");
+            const finalLoc = toFinalSelectedLocation(loc);
+            applySelection(finalLoc, "manual");
             if (isPanel) {
                 onClose?.();
             }
@@ -220,22 +179,6 @@ export default function LocationSelector({
 
     const handlePanelDetect = useCallback(() => { void searchApi.handleDetect(); }, [searchApi]);
 
-    const getLocationPrimaryLabel = useCallback((loc: Location) => (
-        normalizeLocationName(loc.name || loc.city || loc.display || "")
-    ), []);
-
-    const getLocationSecondaryLabel = useCallback((loc: Location) => {
-        const parts = [loc.city, loc.state]
-            .map((value) => normalizeLocationName(value))
-            .filter(Boolean);
-
-        if (parts.length === 2 && parts[0] === parts[1]) {
-            return loc.country ? normalizeLocationName(loc.country) : "";
-        }
-
-        return parts.join(", ");
-    }, []);
-
     const renderResults = () => (
         <LocationResultsList
             query={query}
@@ -276,84 +219,27 @@ export default function LocationSelector({
     }
 
     return (
-        <div className="relative space-y-2" ref={containerRef}>
-            <div className="relative">
-                <div className="absolute left-3 top-3 z-10 text-muted-foreground">{hasSelection ? <MapPin className="w-5 h-5 text-primary" /> : <Search className="w-5 h-5" />}</div>
-                <Input
-                    ref={inputRef}
-                    value={hasSelection ? selectedLabel : query}
-                    readOnly={hasSelection}
-                    role="combobox"
-                    aria-expanded={isOpen && !hasSelection}
-                    aria-haspopup="listbox"
-                    aria-controls="location-results-listbox"
-                    aria-autocomplete="list"
-                    aria-activedescendant={selectedIndex >= 0 ? `location-option-${selectedIndex}` : undefined}
-                    onChange={(e) => {
-                        if (hasSelection) return;
-                        setQuery(e.target.value);
-                        if (e.target.value.length > 0) setIsOpen(true);
-                    }}
-                    onFocus={() => {
-                        if (!hasSelection) setIsOpen(true);
-                    }}
-                    onKeyDown={(event) => {
-                        if (hasSelection && (event.key === "Enter" || event.key === " ")) {
-                            event.preventDefault();
-                            handleSelectedFieldActivate();
-                            return;
-                        }
-                        handleKeyDown(event);
-                    }}
-                    placeholder="Search city, area or district..."
-                    disabled={disabled}
-                    aria-label={hasSelection
-                        ? `Selected location ${selectedLabel}. Activate to change location.`
-                        : "Search city, area or district"}
-                    title={hasSelection ? "Tap to change location" : undefined}
-                    className={cn(
-                        "pl-10 pr-28 sm:pr-32 h-11 rounded-xl transition-all text-body-lg md:text-body truncate",
-                        hasSelection ? "bg-primary/5 font-semibold text-primary border-primary/20 cursor-pointer" : "bg-background cursor-text",
-                        error ? "border-destructive ring-destructive/50" : "",
-                        className
-                    )}
-                    onClick={handleSelectedFieldActivate}
-                />
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1.5">
-                    {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                    {hasSelection && !disabled ? (
-                        <button type="button" onClick={handleClear} className="flex items-center justify-center h-7 px-2 rounded-lg bg-muted/60 hover:bg-muted text-tiny font-semibold text-muted-foreground hover:text-foreground transition-colors" title="Change location">
-                            Change
-                        </button>
-                    ) : !disabled ? (
-                        <button
-                            type="button"
-                            disabled={searchApi.isDetecting}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                void searchApi.handleDetect(() => setIsOpen(false));
-                            }}
-                            className="flex items-center gap-1 h-7 px-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-tiny font-semibold transition-colors"
-                            title="Use Current Location"
-                            aria-label="Use Current Location"
-                        >
-                            <Target className={cn("w-3.5 h-3.5 shrink-0", searchApi.isDetecting && "animate-spin")} />
-                            <span className="hidden xs:inline sm:inline text-tiny font-semibold">Auto Detect</span>
-                        </button>
-                    ) : null}
-                </div>
-            </div>
-
-            {isOpen && !hasSelection && !disabled && (
-                <div ref={dropdownRef} className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-[min(280px,calc(var(--visual-viewport-height,100dvh)-12rem))] bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                    {searchApi.detectFeedback && !searchApi.isDetecting && (
-                        <div className="px-3 py-1.5 bg-destructive/5 border-b border-destructive/10">
-                            <p className="text-tiny font-medium text-destructive">{searchApi.detectFeedback}</p>
-                        </div>
-                    )}
-                    {renderResults()}
-                </div>
-            )}
-        </div>
+        <LocationSelectorDropdown
+            inputRef={inputRef}
+            hasSelection={hasSelection}
+            selectedLabel={selectedLabel}
+            query={query}
+            setQuery={setQuery}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            selectedIndex={selectedIndex}
+            disabled={disabled}
+            error={error}
+            className={className}
+            isSearching={searchApi.isSearching}
+            isDetecting={searchApi.isDetecting}
+            detectFeedback={searchApi.detectFeedback}
+            handleClear={handleClear}
+            handleSelectedFieldActivate={handleSelectedFieldActivate}
+            handleKeyDown={handleKeyDown}
+            onDetect={() => void searchApi.handleDetect(() => setIsOpen(false))}
+        >
+            {renderResults()}
+        </LocationSelectorDropdown>
     );
 }

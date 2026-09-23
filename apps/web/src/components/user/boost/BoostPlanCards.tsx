@@ -15,6 +15,7 @@ export function WalletCreditCard({
   selectedPlan,
   boostPlans,
   isSelected,
+  durationDays,
   onSelect,
 }: {
   activeCategory: PromotionCategory;
@@ -22,11 +23,12 @@ export function WalletCreditCard({
   selectedPlan: BoostPlan | null;
   boostPlans: BoostPlan[];
   isSelected: boolean;
+  durationDays?: number;
   onSelect: () => void;
 }) {
   const isSpotlight = activeCategory === "SPOTLIGHT";
   const creditType = isSpotlight ? "Spotlight" : "Top Ad";
-  const duration = selectedPlan?.durationDays || boostPlans[0]?.durationDays || 30;
+  const duration = durationDays || selectedPlan?.durationDays || boostPlans[0]?.durationDays || 1;
 
   return (
     <div
@@ -61,7 +63,7 @@ export function WalletCreditCard({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+            <h4 className="text-body font-bold text-foreground">
               Use {creditType} Credit
             </h4>
             <span
@@ -74,14 +76,14 @@ export function WalletCreditCard({
               {availableCredits} available in wallet
             </span>
           </div>
-          <p className="text-tiny text-slate-600 mt-0.5 font-medium">
-            Deducts 1 credit to promote this listing for {duration} days
+          <p className="text-tiny text-foreground-secondary mt-0.5 font-medium">
+            Deducts 1 credit to promote this listing for {duration} day{duration > 1 ? "s" : ""}
           </p>
         </div>
       </div>
       <div className="text-right shrink-0 pl-3">
         <p
-          className={`text-xs font-bold ${
+          className={`text-caption font-bold ${
             isSpotlight ? "text-amber-600" : "text-blue-600"
           }`}
         >
@@ -124,7 +126,7 @@ export function CatalogPlanCard({
           ? activeCategory === "SPOTLIGHT"
             ? "border-amber-400 bg-amber-50/60 ring-2 ring-amber-300/40 shadow-xs"
             : "border-blue-400 bg-blue-50/60 ring-2 ring-blue-300/40 shadow-xs"
-          : "border-slate-200 bg-slate-50/50 hover:bg-slate-50"
+          : "border-border bg-muted/50 hover:bg-muted"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -134,7 +136,7 @@ export function CatalogPlanCard({
               ? activeCategory === "SPOTLIGHT"
                 ? "bg-amber-500 text-white"
                 : "bg-blue-600 text-white"
-              : "bg-slate-200 text-slate-600"
+              : "bg-muted text-foreground-secondary"
           }`}
         >
           {activeCategory === "SPOTLIGHT" ? (
@@ -145,7 +147,7 @@ export function CatalogPlanCard({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-bold text-slate-800">{formattedName}</h4>
+            <h4 className="text-caption font-bold text-foreground">{formattedName}</h4>
             <Badge
               className={`text-tiny px-1.5 py-0 font-semibold border-0 ${
                 activeCategory === "SPOTLIGHT"
@@ -156,14 +158,14 @@ export function CatalogPlanCard({
               {plan.displayBoost} Visibility
             </Badge>
           </div>
-          <p className="text-tiny text-slate-500 mt-0.5">
+          <p className="text-tiny text-foreground-secondary mt-0.5">
             {activeCategory === "SPOTLIGHT" ? "Featured" : "Top Placement"} for{" "}
             {plan.durationDays} Days
           </p>
         </div>
       </div>
       <div className="text-right shrink-0">
-        <p className="text-sm font-bold text-slate-900">
+        <p className="text-body font-bold text-foreground">
           {plan.price === 0 ? "FREE" : formatPrice(plan.price)}
         </p>
         {isSelected && (
@@ -189,7 +191,7 @@ export function SpotlightActiveNotice({ onClose }: { onClose: () => void }) {
         <Sparkles className="h-8 w-8 text-warning animate-pulse" />
       </div>
       <div className="space-y-1">
-        <Badge className="bg-warning text-primary-foreground font-extrabold text-caption px-3 py-1 rounded-full uppercase tracking-wide">
+        <Badge className="bg-warning text-primary-foreground font-bold text-caption px-3 py-1 rounded-full uppercase tracking-wide">
           Spotlight Active
         </Badge>
         <h3 className="text-body-lg font-bold text-foreground pt-2">
@@ -210,6 +212,74 @@ export function SpotlightActiveNotice({ onClose }: { onClose: () => void }) {
           Close Window
         </Button>
       </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pre-confirmation promotion validity disclosure                             */
+/* -------------------------------------------------------------------------- */
+
+export interface PromotionValidityPreviewProps {
+  adRemainingDays: number;
+  effectiveDurationDays: number;
+  effectiveExpiresAt: Date;
+  isSpotlight: boolean;
+  isAdExpired: boolean;
+}
+
+export function PromotionValidityPreview({
+  adRemainingDays,
+  effectiveDurationDays,
+  effectiveExpiresAt,
+  isSpotlight,
+  isAdExpired,
+}: PromotionValidityPreviewProps) {
+  const promoName = isSpotlight ? "Spotlight" : "Top Ad";
+
+  if (isAdExpired) {
+    return (
+      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-tiny text-destructive font-semibold">
+        This listing has expired. Please renew the ad before applying {promoName}.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="p-3 bg-muted/60 border border-border/80 rounded-xl space-y-2 text-tiny">
+        <div className="flex items-center justify-between">
+          <span className="text-foreground-secondary">Ad remaining validity:</span>
+          <span className="font-semibold text-foreground">
+            {adRemainingDays > 0 ? `${adRemainingDays} day${adRemainingDays > 1 ? "s" : ""}` : "Expired"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-foreground-secondary">{promoName} validity:</span>
+          <span className="font-semibold text-foreground">
+            {effectiveDurationDays} day{effectiveDurationDays > 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className="flex items-center justify-between border-t border-border/40 pt-1.5">
+          <span className="text-foreground-secondary">{promoName} expires:</span>
+          <span className={`font-bold ${isSpotlight ? "text-amber-600 dark:text-amber-400" : "text-link"}`}>
+            {effectiveExpiresAt.toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+      </div>
+
+      {adRemainingDays <= 1 && (
+        <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-tiny text-amber-700 dark:text-amber-400 flex items-start gap-2">
+          <span className="shrink-0">⚠️</span>
+          <span>
+            This listing has only 1 day of validity remaining. {promoName} visibility will expire with the ad.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

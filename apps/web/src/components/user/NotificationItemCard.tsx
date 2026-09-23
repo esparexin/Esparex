@@ -26,31 +26,31 @@ export const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> 
     },
     CHAT: {
         icon: MessageCircleMore,
-        iconTone: "text-sky-600 dark:text-sky-400",
+        iconTone: "text-primary",
     },
     SMART_ALERT: {
         icon: Sparkles,
-        iconTone: "text-amber-500 dark:text-amber-400",
+        iconTone: "text-warning",
     },
     AD_STATUS: {
         icon: Tag,
-        iconTone: "text-violet-600 dark:text-violet-400",
+        iconTone: "text-foreground-secondary",
     },
     BUSINESS_STATUS: {
         icon: Check,
-        iconTone: "text-emerald-600 dark:text-emerald-400",
+        iconTone: "text-success",
     },
     ORDER_UPDATE: {
         icon: ShoppingBag,
-        iconTone: "text-blue-600 dark:text-blue-400",
+        iconTone: "text-primary",
     },
     PRICE_DROP: {
         icon: Tag,
-        iconTone: "text-rose-600 dark:text-rose-400",
+        iconTone: "text-destructive",
     },
     CATALOG_ITEM_APPROVED: {
         icon: Check,
-        iconTone: "text-emerald-600 dark:text-emerald-400",
+        iconTone: "text-success",
     },
 };
 
@@ -97,7 +97,7 @@ export function NotificationItemCard({
                 <div className="flex items-center justify-between gap-1.5">
                     <p
                         className={cn(
-                            "text-caption sm:text-body truncate leading-snug",
+                            "text-body truncate leading-snug",
                             notification.isRead ? "font-medium text-foreground-secondary" : "font-bold text-foreground"
                         )}
                     >

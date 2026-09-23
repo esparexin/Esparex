@@ -36,7 +36,7 @@ export function BrandSection() {
                 name="brand"
                 render={() => (
                     <div className="flex flex-col gap-1.5">
-                        <FieldLabel required className="text-caption sm:text-body font-semibold text-foreground-secondary">Brand</FieldLabel>
+                        <FieldLabel required className="text-caption sm:text-small font-medium text-foreground-secondary">Brand</FieldLabel>
                         <FieldControl animateOnError>
                             <BrandSearchSelect 
                                 brands={availableBrands} 
@@ -57,14 +57,14 @@ export function BrandSection() {
                 )}
             />
             {brandsError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl mt-2">
-                    <p className="text-caption text-red-700 text-center mb-2">{brandsError}</p>
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl mt-2">
+                    <p className="text-caption text-destructive text-center mb-2">{brandsError}</p>
                     <Button 
                         type="button" 
                         variant="outline" 
                         size="sm" 
                         onClick={() => loadBrandsForCategory(categoryId)} 
-                        className="w-full text-caption font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                        className="w-full text-caption font-semibold text-destructive border-destructive/30 hover:bg-destructive/10"
                     >
                         Try Again
                     </Button>

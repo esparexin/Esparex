@@ -124,7 +124,7 @@ export function BusinessCatalogTabs({
               placeholder={`Search in ${activeTabLabel.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-8 pr-7 h-9 text-caption bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+              className="w-full pl-8 pr-7 h-9 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
             />
             {query && (
               <button
@@ -167,7 +167,7 @@ export function BusinessCatalogTabs({
               <LayoutGrid className="size-5" />
             </div>
             <div className="space-y-1">
-              <p className="font-semibold text-foreground text-caption sm:text-body">
+              <p className="font-semibold text-foreground text-body">
                 {query ? `No items found matching "${query}"` : `No ${activeTabLabel.toLowerCase()} currently available.`}
               </p>
               <p className="text-caption text-foreground-subtle max-w-xs leading-relaxed">

@@ -10,8 +10,10 @@ export default async function AccountServicesPage(props: {
     const rawStatus = typeof searchParams.status === "string" ? searchParams.status : undefined;
     const normalizedStatus = normalizeAccountListingStatus("services", rawStatus);
 
+    const pageParam = typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : undefined;
+
     if (rawStatus !== normalizedStatus) {
-        redirect(buildAccountListingRoute("services", normalizedStatus));
+        redirect(buildAccountListingRoute("services", normalizedStatus, pageParam));
     }
 
     return <AccountPageShell tab="mylistings" listingSubTab="services" />;

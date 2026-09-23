@@ -13,7 +13,7 @@ import {
   ControlledOtp,
   FormError as UiFormError,
 } from "@esparex/ui";
-import type { LoginFormValues } from "@/schemas/login.schema";
+import type { LoginFormValues } from "@esparex/contracts";
 import type { useOtpFlow } from "@/hooks/useOtpFlow";
 
 interface LoginOtpStepProps {
@@ -58,9 +58,9 @@ export function LoginOtpStep({
   const isOtpComplete = otpValue.length === 6;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5 sm:space-y-3">
       {/* Streamlined Status & Recipient Info Bar */}
-      <div className="py-2 px-3 bg-muted/60 rounded-xl border border-border/80 shadow-2xs space-y-1">
+      <div className="py-1.5 px-3 bg-muted/60 rounded-xl border border-border/80 shadow-2xs space-y-0.5">
         <div className="flex items-center justify-between gap-2">
           <p className="text-caption text-foreground-secondary font-medium truncate">
             OTP sent to <span className="font-bold text-foreground">+91 {mobileValue}</span>
@@ -78,7 +78,7 @@ export function LoginOtpStep({
           </Button>
         </div>
         {existingUserName && step === "enterOtp" && (
-          <p className="text-caption text-emerald-700 font-semibold border-t border-border/60 pt-1">
+          <p className="text-caption text-emerald-700 font-semibold border-t border-border/60 pt-0.5">
             Welcome back, <span className="font-bold">{existingUserName}</span>!
           </p>
         )}
@@ -112,13 +112,13 @@ export function LoginOtpStep({
           name="name"
           render={({ field }) => (
             <div className="space-y-1.5">
-              <FieldLabel className="text-caption font-semibold text-foreground-secondary">
+              <FieldLabel className="text-body font-semibold text-foreground-secondary">
                 Your Name <span className="text-destructive">*</span>
               </FieldLabel>
               <FieldControl animateOnError>
                 <Input
                   placeholder="Enter your name"
-                  className="h-10 text-body-lg md:text-body font-medium border-border rounded-xl"
+                  className="h-11 text-body-lg md:text-body font-medium border-border rounded-xl"
                   disabled={isBlocked || isLocked}
                   autoComplete="name"
                   {...field}
@@ -130,7 +130,7 @@ export function LoginOtpStep({
                     if (e.key === "Enter" && field.value?.trim()) {
                       e.preventDefault();
                       const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
-                      firstOtpInput?.focus();
+                      firstOtpInput?.focus({ preventScroll: true });
                     }
                   }}
                 />
@@ -157,7 +157,7 @@ export function LoginOtpStep({
       />
 
       {/* Inline Resend & Error Area */}
-      <div className="flex flex-col items-center gap-1 my-1">
+      <div className="flex flex-col items-center gap-0.5 my-0.5">
         {otpErrorMessage && (
           <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
         )}

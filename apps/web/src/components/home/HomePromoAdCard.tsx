@@ -37,7 +37,7 @@ export function HomePromoAdCard({ className }: { className?: string }) {
             {/* Bottom Content Section — matches AdCardContent layout */}
             <div className="flex flex-col flex-1 justify-between p-3 sm:p-3.5 gap-2.5">
                 <div>
-                    <h3 className="text-caption sm:text-body font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                    <h3 className="text-body font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
                         Post Your Ad for Free
                     </h3>
                     <p className="mt-0.5 text-tiny text-foreground-subtle line-clamp-2 leading-relaxed">

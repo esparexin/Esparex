@@ -23,6 +23,25 @@ interface UseProfileTerminationProps {
   onLogout: (options?: { skipServerLogout?: boolean }) => void | Promise<void>;
 }
 
+type ZodIssueList = { path: (string | number)[]; message: string }[];
+
+function mapZodIssuesToDeleteErrors(
+  issues: ZodIssueList,
+): { fieldErrors: DeleteAccountFieldErrors; globalError: string | null } {
+  const fieldErrors = emptyDeleteAccountFieldErrors();
+  let globalError: string | null = null;
+
+  for (const issue of issues) {
+    const field = issue.path[0];
+    if (field === "reason") fieldErrors.reason = issue.message;
+    else if (field === "feedback") fieldErrors.feedback = issue.message;
+    else if (field === "confirmText") fieldErrors.confirmText = issue.message;
+    else if (!globalError) globalError = issue.message;
+  }
+
+  return { fieldErrors, globalError };
+}
+
 export function useProfileTermination({
   onLogout
 }: UseProfileTerminationProps) {
@@ -34,6 +53,7 @@ export function useProfileTermination({
     emptyDeleteAccountFieldErrors
   );
   const [deleteAccountGlobalError, setDeleteAccountGlobalError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const setShowDeleteDialog = useCallback((show: boolean) => {
     setShowDeleteDialogState(show);
@@ -65,6 +85,9 @@ export function useProfileTermination({
   }, []);
 
   const handleDeleteAccount = async () => {
+    // Prevent concurrent submissions
+    if (isDeleting) return;
+
     const parsedDeleteAccount = deleteAccountFormSchema.safeParse({
       reason: deleteReason,
       feedback: deleteFeedback,
@@ -72,19 +95,11 @@ export function useProfileTermination({
     });
 
     if (!parsedDeleteAccount.success) {
-      const nextErrors = emptyDeleteAccountFieldErrors();
-      let nextGlobalError: string | null = null;
-
-      for (const issue of parsedDeleteAccount.error.issues) {
-        const field = issue.path[0];
-        if (field === "reason") nextErrors.reason = issue.message;
-        else if (field === "feedback") nextErrors.feedback = issue.message;
-        else if (field === "confirmText") nextErrors.confirmText = issue.message;
-        else if (!nextGlobalError) nextGlobalError = issue.message;
-      }
-
-      setDeleteAccountErrors(nextErrors);
-      setDeleteAccountGlobalError(nextGlobalError || "Please correct the highlighted fields.");
+      const { fieldErrors, globalError } = mapZodIssuesToDeleteErrors(
+        parsedDeleteAccount.error.issues,
+      );
+      setDeleteAccountErrors(fieldErrors);
+      setDeleteAccountGlobalError(globalError ?? "Please correct the highlighted fields.");
       return;
     }
 
@@ -95,6 +110,7 @@ export function useProfileTermination({
 
     setDeleteAccountErrors(emptyDeleteAccountFieldErrors());
     setDeleteAccountGlobalError(null);
+    setIsDeleting(true);
 
     try {
       await apiClient.delete(API_ROUTES.USER.USERS_ME, {
@@ -108,6 +124,8 @@ export function useProfileTermination({
     } catch (err) {
       logger.error("Delete account failed", err);
       setDeleteAccountGlobalError(getErrorMessage(err, "Failed to delete account"));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -124,6 +142,7 @@ export function useProfileTermination({
     setDeleteAccountErrors,
     deleteAccountGlobalError,
     setDeleteAccountGlobalError,
+    isDeleting,
     handleDeleteAccount,
   };
 }

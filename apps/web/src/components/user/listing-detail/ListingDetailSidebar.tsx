@@ -42,7 +42,6 @@ interface ListingDetailSidebarProps {
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
-    onViewAnalytics: () => void;
     onReport: () => void;
 }
 
@@ -63,7 +62,6 @@ export function ListingDetailSidebar({
     onDelete,
     onMarkSold,
     onPromote,
-    onViewAnalytics,
     onReport,
 }: ListingDetailSidebarProps) {
     const ctaPolicy = {
@@ -101,7 +99,12 @@ export function ListingDetailSidebar({
                 />
             ) : null}
 
-            {!isOwner && <AdSafetyTips adId={ad.id} />}
+            {!isOwner && (
+                <AdSafetyTips
+                    adId={ad.id}
+                    listingType={ad.listingType === "service" ? "service" : ad.listingType === "spare_part" ? "spare_part" : "ad"}
+                />
+            )}
 
             {isOwner && (
                 <AdOwnerActions
@@ -113,7 +116,6 @@ export function ListingDetailSidebar({
                     onDelete={onDelete}
                     onMarkSold={onMarkSold}
                     onPromote={onPromote}
-                    onViewAnalytics={onViewAnalytics}
                 />
             )}
             {!isOwner && (

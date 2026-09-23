@@ -67,8 +67,22 @@ export class PromotionService {
                 throw new AppError('Insufficient Top Ad credits', 400, 'INSUFFICIENT_TOP_AD_CREDITS');
             }
 
-            const startsAt = new Date();
-            const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+            const AdModel = (await import('../../../models/Ad')).default;
+            const adDoc = await AdModel.findById(listingId).session(session).lean();
+            if (!adDoc || adDoc.isDeleted) {
+                throw new AppError('Listing not found or has been deleted', 404, 'LISTING_NOT_FOUND');
+            }
+            const now = new Date();
+            if (adDoc.status === 'expired' || (adDoc.expiresAt && new Date(adDoc.expiresAt).getTime() <= now.getTime())) {
+                throw new AppError('Cannot apply Boost promotion to an expired listing. Please renew the ad first.', 400, 'AD_EXPIRED');
+            }
+
+            const startsAt = now;
+            const requestedMs = startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000;
+            const adExpiresMs = adDoc.expiresAt ? new Date(adDoc.expiresAt).getTime() : requestedMs;
+            const effectiveMs = Math.min(requestedMs, adExpiresMs);
+            const endsAt = new Date(effectiveMs);
+            const effectiveDays = Math.max(1, Math.round((effectiveMs - startsAt.getTime()) / (24 * 60 * 60 * 1000)));
 
             const [boost] = await Boost.create([{
                 entityId: new mongoose.Types.ObjectId(listingId),
@@ -80,8 +94,6 @@ export class PromotionService {
             }], { session });
 
             // Synchronize Ad document fields & bump recency timestamp
-            const AdModel = (await import('../../../models/Ad')).default;
-            const now = new Date();
             await AdModel.updateOne(
                 { _id: new mongoose.Types.ObjectId(listingId) },
                 { 
@@ -102,8 +114,8 @@ export class PromotionService {
                 creditPool: 'PURCHASED',
                 amount: 1,
                 type: 'DEBIT',
-                reason: `Applied ${durationDays}-day Boost promotion to ${entityType} ${listingId}`,
-                metadata: { boostId: boost._id, boostType: 'push_to_top' },
+                reason: `Applied ${effectiveDays}-day Boost promotion to ${entityType} ${listingId}`,
+                metadata: { boostId: boost._id, boostType: 'push_to_top', effectiveDurationDays: effectiveDays, adExpiresAt: adDoc.expiresAt },
             }], { session });
 
             await session.commitTransaction();
@@ -121,7 +133,7 @@ export class PromotionService {
                 // Non-blocking cache fallback
             }
 
-            logger.info('[PROMOTION_SERVICE] Boost applied successfully', { userId, listingId, durationDays });
+            logger.info('[PROMOTION_SERVICE] Boost applied successfully', { userId, listingId, durationDays: effectiveDays });
             return boost;
         } catch (error) {
             await session.abortTransaction();
@@ -138,6 +150,16 @@ export class PromotionService {
 
         if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(listingId)) {
             throw new AppError('Invalid user or listing ID', 400, 'INVALID_ID');
+        }
+
+        const AdModel = (await import('../../../models/Ad')).default;
+        const adDoc = await AdModel.findById(listingId).lean();
+        if (!adDoc || adDoc.isDeleted) {
+            throw new AppError('Listing not found or has been deleted', 404, 'LISTING_NOT_FOUND');
+        }
+        const now = new Date();
+        if (adDoc.status === 'expired' || (adDoc.expiresAt && new Date(adDoc.expiresAt).getTime() <= now.getTime())) {
+            throw new AppError('Cannot apply Spotlight to an expired listing. Please renew the ad first.', 400, 'AD_EXPIRED');
         }
 
         const userObjId = new mongoose.Types.ObjectId(userId);
@@ -170,8 +192,12 @@ export class PromotionService {
             throw new AppError('Insufficient spotlight credits', 400, 'INSUFFICIENT_SPOTLIGHT_CREDITS');
         }
 
-        const startsAt = new Date();
-        const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+        const startsAt = now;
+        const requestedMs = startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000;
+        const adExpiresMs = adDoc.expiresAt ? new Date(adDoc.expiresAt).getTime() : requestedMs;
+        const effectiveMs = Math.min(requestedMs, adExpiresMs);
+        const endsAt = new Date(effectiveMs);
+        const effectiveDays = Math.max(1, Math.round((effectiveMs - startsAt.getTime()) / (24 * 60 * 60 * 1000)));
 
         const boost = await Boost.create({
             entityId: new mongoose.Types.ObjectId(listingId),
@@ -183,7 +209,6 @@ export class PromotionService {
         });
 
         // Synchronize Ad document fields for search ranking aggregation & frontend badges
-        const AdModel = (await import('../../../models/Ad')).default;
         await AdModel.updateOne(
             { _id: new mongoose.Types.ObjectId(listingId) },
             { $set: { isSpotlight: true, spotlightExpiresAt: endsAt } }
@@ -209,11 +234,11 @@ export class PromotionService {
             creditPool: 'PURCHASED',
             amount: 1,
             type: 'DEBIT',
-            reason: `Applied ${durationDays}-day Spotlight promotion (${spotlightType}) to ${entityType} ${listingId}`,
-            metadata: { boostId: boost._id, boostType: spotlightType },
+            reason: `Applied ${effectiveDays}-day Spotlight promotion (${spotlightType}) to ${entityType} ${listingId}`,
+            metadata: { boostId: boost._id, boostType: spotlightType, effectiveDurationDays: effectiveDays, adExpiresAt: adDoc.expiresAt },
         });
 
-        logger.info('[PROMOTION_SERVICE] Spotlight applied successfully', { userId, listingId, spotlightType, durationDays });
+        logger.info('[PROMOTION_SERVICE] Spotlight applied successfully', { userId, listingId, spotlightType, durationDays: effectiveDays });
         return boost;
     }
 

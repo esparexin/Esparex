@@ -20,7 +20,7 @@ export default function BusinessEditPage() {
         silent: true,
     });
     
-    const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'pending');
+    const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'none');
     const hasBusinessId = Boolean(businessData?.id || user?.businessId);
     
     const isHydrated = !authLoading && !businessLoading && businessFetched;
@@ -45,9 +45,9 @@ export default function BusinessEditPage() {
     if (businessError) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center px-4">
-                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <h1 className="text-lg font-semibold text-foreground">Unable to load business profile</h1>
-                    <p className="mt-2 text-sm leading-6 text-foreground-tertiary">
+                <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-sm">
+                    <h1 className="text-h4 font-semibold text-foreground">Unable to load business profile</h1>
+                    <p className="mt-2 text-body leading-6 text-foreground-tertiary">
                         {mapErrorToMessage(businessError, "We couldn't load your business profile. Try again.")}
                     </p>
                     <Button className="mt-5 w-full" onClick={() => retryBusiness()}>

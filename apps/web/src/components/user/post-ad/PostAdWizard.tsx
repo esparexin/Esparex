@@ -73,9 +73,9 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     <PostAdShell>
       <a
         href="#post-ad-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-foreground focus:rounded-lg focus:shadow-lg focus:border focus:border-slate-200 focus:text-sm focus:font-semibold"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-card focus:text-foreground focus:rounded-lg focus:shadow-lg focus:border focus:border-border focus:text-small focus:font-semibold"
       >
-        Skip to content
+        Skip to Post Ad form
       </a>
       <ListingModalLayout 
         title={isEditMode ? "Edit Ad" : "Post Ad"} 
@@ -97,20 +97,20 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
           <div className="flex items-center gap-3 sm:gap-4 w-full">
             {currentStep > 1 && !isEditMode && (
               <Button
+                type="button"
                 variant="outline"
-                size="sm"
                 onClick={prevStep}
-                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="h-11 px-4 sm:px-5 rounded-xl font-semibold text-body shrink-0"
               >
                 ← Back
               </Button>
             )}
             {currentStep === 1 && !isEditMode && (
               <Button
+                type="button"
                 variant="outline"
-                size="sm"
                 onClick={handleClose}
-                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="h-11 px-4 sm:px-5 rounded-xl font-semibold text-body shrink-0"
               >
                 Cancel
               </Button>
@@ -118,13 +118,10 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             <div className="flex-1" />
             <Button
               type="button"
+              variant="primary"
               onClick={currentStep === 2 ? submitAd : nextStep}
               disabled={isButtonDisabled}
-              className={cn(
-                "flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                "h-11 text-sm font-semibold",
-                "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-md shadow-blue-600/20 disabled:opacity-50"
-              )}
+              className="flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold h-11 text-body shadow-xs active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

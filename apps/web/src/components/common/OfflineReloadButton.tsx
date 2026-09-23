@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCw } from "lucide-react";
+import { RotateCw } from "@esparex/ui";
 import { useState } from "react";
 
 export function OfflineReloadButton() {

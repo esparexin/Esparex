@@ -6,6 +6,7 @@ import {
     Dialog,
     DialogPortal,
     DialogTitle,
+    Z_INDEX,
 } from "@esparex/ui";
 import { ChevronLeft, ChevronRight, X, Maximize } from "@esparex/ui";
 
@@ -109,12 +110,16 @@ export function AdImageLightbox({
             <DialogPortal>
                 {/* Full-bleed Backdrop Overlay */}
                 <RadixDialog.Overlay
-                    className="fixed inset-0 z-[1050] bg-black/95 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200"
+                    className="fixed inset-0 bg-black/95 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200"
+                    // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                    style={{ zIndex: Z_INDEX.sheetOverlay }}
                 />
 
                 {/* Dialog Content Frame */}
                 <RadixDialog.Content
-                    className="fixed inset-0 z-[1051] flex items-center justify-center overscroll-contain select-none touch-pan-y outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200"
+                    className="fixed inset-0 flex items-center justify-center overscroll-contain select-none touch-pan-y outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200"
+                    // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                    style={{ zIndex: Z_INDEX.sheetContent }}
                     onClick={handleClose}
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}

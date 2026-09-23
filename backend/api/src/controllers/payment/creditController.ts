@@ -3,10 +3,12 @@
  * Single Source of Truth for user-facing credit evaluation and wallet breakdown endpoints.
  */
 import { Request, Response } from 'express';
+import type { CreditWalletSummaryPayload } from '@esparex/contracts';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { CreditRulesEngine } from '@esparex/core/domains/credits/application/CreditRulesEngine';
 import { getAdPostingBalance } from '@esparex/core/domains/boosts/application/services/AdSlotService';
+import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
 
 interface AuthenticatedUser {
   _id?: { toString(): string };
@@ -44,9 +46,12 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
     const userId = user?._id?.toString();
     if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
-    const balance = await getAdPostingBalance(userId);
+    const [balance, snapshot] = await Promise.all([
+      getAdPostingBalance(userId),
+      DashboardFacade.getDashboardSnapshot(userId).catch(() => null),
+    ]);
 
-    const summary = {
+    const summary: CreditWalletSummaryPayload = {
       monthlyFree: {
         limit: balance.freeLimit,
         used: balance.freeUsed,
@@ -61,8 +66,12 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
       },
       subscription: {
         unlimited: false,
+        activePlan: snapshot?.subscription?.planName,
       },
       totalRemaining: balance.totalRemaining,
+      adCredits: balance.totalRemaining,
+      spotlightCredits: snapshot?.wallet?.spotlightCredits ?? 0,
+      smartAlertSlots: snapshot?.wallet?.smartAlertSlots ?? 2,
     };
 
     res.json(respond({ success: true, data: summary }));
@@ -105,33 +114,17 @@ export const getCreditLedgerHistory = async (req: Request, res: Response) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
     const skip = (page - 1) * limit;
 
-    const { TransactionModel } = await import('@esparex/core/domains/payments/application/WalletService');
+    const { getCreditLedgerHistoryByUserId } = await import(
+      '@esparex/core/domains/payments/application/WalletQueryService'
+    );
 
-    const [items, total] = await Promise.all([
-      TransactionModel.find({ userId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      TransactionModel.countDocuments({ userId }),
-    ]);
-
-    const formattedItems = items.map((tx: Record<string, unknown>) => ({
-      transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
-      type: (tx.type as string) || 'DEBIT',
-      creditPool: (tx.creditPool as string) || 'PURCHASED',
-      amount: (tx.amount as number) || 1,
-      entitlementType: (tx.entitlementType as string) || 'AD_POSTING',
-      reason: (tx.reason as string) || 'Credit Transaction',
-      listingId: (tx.listingId as { toString(): string } | undefined)?.toString(),
-      createdAt: tx.createdAt ? new Date(String(tx.createdAt)).toISOString() : new Date().toISOString(),
-    }));
+    const { items, total } = await getCreditLedgerHistoryByUserId(userId, { limit, skip });
 
     res.json(
       respond({
         success: true,
         data: {
-          items: formattedItems,
+          items,
           pagination: {
             page,
             limit,

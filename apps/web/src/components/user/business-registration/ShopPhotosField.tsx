@@ -32,7 +32,7 @@ function ShopImageTile({
     }
 
     return (
-        <div className="group relative h-24 sm:h-28 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+        <div className="group relative h-24 sm:h-28 w-full overflow-hidden rounded-2xl border border-border bg-muted/40">
             <Image
                 src={previewUrl}
                 alt={`Shop ${index + 1}`}
@@ -41,8 +41,8 @@ function ShopImageTile({
                 sizes="(max-width: 768px) 50vw, 20vw"
                 className="object-cover"
             />
-            <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/65 via-slate-900/0 to-slate-900/0 p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                <span className="rounded-full bg-white/90 px-2 py-0.5 text-tiny font-semibold text-foreground-secondary shadow-sm">
+            <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-black/65 via-transparent to-transparent p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                <span className="rounded-full bg-background/90 px-2 py-0.5 text-tiny font-semibold text-foreground-secondary shadow-xs">
                     Photo {index + 1}
                 </span>
                 <Button
@@ -51,9 +51,9 @@ function ShopImageTile({
                     variant="secondary"
                     onClick={onRemove}
                     aria-label={getRemovePhotoAriaLabel(index, total)}
-                    className="h-7 w-7 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-primary"
+                    className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                 >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3.5 w-3.5 text-destructive" />
                 </Button>
             </div>
         </div>
@@ -138,7 +138,7 @@ export function ShopPhotosField({
 
     return (
         <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground-secondary truncate">
+            <p className="text-caption sm:text-small font-medium text-foreground-secondary truncate">
                 Shop photo <span className="text-destructive">*</span>
             </p>
 
@@ -160,10 +160,10 @@ export function ShopPhotosField({
                             "flex min-h-[96px] sm:min-h-[104px] w-full flex-col items-center justify-center rounded-2xl border border-dashed p-3 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                             isDraggingOver
                                 ? "border-primary bg-primary/10 scale-[1.02] shadow-md"
-                                : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
+                                : "border-border bg-muted/30 hover:border-primary/40 hover:bg-primary/5"
                         )}
                     >
-                        <span className="text-tiny font-medium text-muted-foreground mb-1.5">
+                        <span className="text-tiny font-medium text-foreground-subtle mb-1.5">
                             {formData.images.length}/5 uploaded
                         </span>
                         <Button
@@ -171,7 +171,7 @@ export function ShopPhotosField({
                             variant="outline"
                             onClick={handleOpenPicker}
                             aria-label="Add shop photo"
-                            className="flex h-9 items-center justify-center gap-1.5 rounded-xl border-slate-200 bg-white px-4 text-xs font-semibold text-foreground-secondary shadow-2xs hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
+                            className="flex h-9 items-center justify-center gap-1.5 rounded-xl border-border bg-card px-4 text-caption font-semibold text-foreground-secondary shadow-2xs hover:bg-muted hover:border-border focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
                         >
                             <Upload className="h-3.5 w-3.5 text-primary" />
                             <span>+ Add Photo</span>

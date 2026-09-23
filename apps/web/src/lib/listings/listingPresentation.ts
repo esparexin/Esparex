@@ -64,22 +64,25 @@ export function resolveListingTypeBadge(
         return {
             type: listingType,
             label: "Service",
-            className: "bg-emerald-50 text-emerald-700 border-emerald-100",
+            icon: "wrench" as const,
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
         };
     }
 
     if (listingType === "spare_part") {
         return {
             type: listingType,
-            label: "Spare Part",
-            className: "bg-violet-50 text-violet-700 border-violet-100",
+            label: "Parts",
+            icon: "cpu" as const,
+            className: "bg-purple-50 text-purple-700 border-purple-200",
         };
     }
 
     return {
         type: listingType,
-        label: "Device",
-        className: "bg-blue-50 text-link-dark border-blue-100",
+        label: "Ad",
+        icon: "device" as const,
+        className: "bg-blue-50 text-blue-700 border-blue-200",
     };
 }
 
@@ -236,4 +239,109 @@ export function resolveBusinessLocationLabel(
     const businessLocation = [businessCity, businessState].filter(Boolean).join(", ");
 
     return businessLocation || resolveListingLocationLabel(listing?.location, "full");
+}
+
+// ---------------------------------------------------------------------------
+// Spare Parts Presentation Resolvers
+// ---------------------------------------------------------------------------
+
+export interface ResolvedSparePart {
+    id: string;
+    name: string;
+    brand?: string;
+    type?: string;
+}
+
+type SparePartLike = {
+    spareParts?: unknown;
+    sparePartsSnapshot?: unknown;
+    sparePartIds?: unknown;
+};
+
+/**
+ * Canonical SSOT resolver for spare parts on a listing.
+ *
+ * Resolution order (highest fidelity first):
+ *   1. sparePartsSnapshot  — rich objects with name + brand, pre-computed at write time
+ *   2. spareParts          — mixed array of objects/strings, filters raw hex ObjectIds
+ *   3. sparePartIds        — raw ID strings, only included if they carry a readable name
+ *
+ * Raw 24-character hex ObjectId strings are **always** filtered out of display output.
+ */
+export function resolveListingSpareParts(ad: SparePartLike | null | undefined): ResolvedSparePart[] {
+    if (!ad) return [];
+
+    const items: ResolvedSparePart[] = [];
+    const seenNames = new Set<string>();
+
+    const isHexId = (s: string) => /^[a-f\d]{24}$/i.test(s);
+
+    // 1. sparePartsSnapshot — highest fidelity, deduplicate by normalised name
+    if (Array.isArray(ad.sparePartsSnapshot)) {
+        for (const part of ad.sparePartsSnapshot) {
+            if (!part || typeof part !== "object") continue;
+            const rec = part as Record<string, unknown>;
+            const name = typeof rec.name === "string" ? rec.name.trim() : "";
+            if (!name || isHexId(name)) continue;
+            const key = name.toLowerCase();
+            if (seenNames.has(key)) continue;
+            seenNames.add(key);
+            const id = typeof rec.id === "string" ? rec.id : typeof rec._id === "string" ? rec._id : name;
+            const brand = typeof rec.brand === "string" && rec.brand.trim() ? rec.brand.trim() : undefined;
+            items.push({ id, name, brand });
+        }
+    }
+
+    // 2. spareParts — mixed array, skip raw hex IDs, merge objects & name-strings
+    if (Array.isArray(ad.spareParts)) {
+        for (const part of ad.spareParts) {
+            if (typeof part === "string") {
+                const name = part.trim();
+                if (!name || isHexId(name)) continue;
+                const key = name.toLowerCase();
+                if (seenNames.has(key)) continue;
+                seenNames.add(key);
+                items.push({ id: name, name });
+            } else if (part && typeof part === "object") {
+                const rec = part as Record<string, unknown>;
+                const rawName = rec.name ?? rec.displayName ?? rec.title ?? rec.canonicalName ?? "";
+                const name = typeof rawName === "string" ? rawName.trim() : "";
+                if (!name || isHexId(name)) continue;
+                const key = name.toLowerCase();
+                if (seenNames.has(key)) continue;
+                seenNames.add(key);
+                const id = typeof rec.id === "string" ? rec.id : typeof rec._id === "string" ? rec._id : name;
+                const brand = typeof rec.brand === "string" && rec.brand.trim() ? rec.brand.trim() : undefined;
+                const type = typeof rec.type === "string" && rec.type.trim() ? rec.type.trim() : undefined;
+                items.push({ id, name, brand, type });
+            }
+        }
+    }
+
+    // 3. sparePartIds — raw IDs with no names; skip silently, cannot display without catalog
+    //    (Tab 3 / ListingWorkingSparePartsTab resolves these via catalog lookup separately)
+
+    return items;
+}
+
+/**
+ * Returns the count of resolvable (displayable) spare parts for a listing.
+ * Always use this instead of ad.spareParts.length to avoid counting raw hex IDs.
+ */
+export function resolveListingSparePartsCount(ad: SparePartLike | null | undefined): number {
+    if (!ad) return 0;
+    const resolved = resolveListingSpareParts(ad);
+    if (resolved.length > 0) return resolved.length;
+
+    // Fallback: If readable names are not yet hydrated in the ad object,
+    // count tagged sparePartIds / spareParts so UI badges accurately reflect
+    // the working spare parts selected on the device.
+    if (Array.isArray(ad.sparePartIds) && ad.sparePartIds.length > 0) {
+        return ad.sparePartIds.length;
+    }
+    if (Array.isArray(ad.spareParts) && ad.spareParts.length > 0) {
+        return ad.spareParts.length;
+    }
+
+    return 0;
 }

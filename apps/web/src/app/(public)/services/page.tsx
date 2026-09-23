@@ -4,7 +4,7 @@ import { BrowseAds } from '@/components/user/BrowseAds';
 import { AdCardSkeleton } from '@/components/user/ad-card/AdCardSkeleton';
 import { getAdsPage, type ListingPageResult } from '@/lib/api/user/listings';
 import { API_ROUTES } from '@/lib/api/routes';
-import { getCategories, type Category } from '@/lib/api/user/categories';
+import { getCategories } from '@/lib/api/user/categories';
 import { resolveBrowseCategorySelection } from '@/lib/browse/browseFilterNormalization';
 import { toCanonicalUrl } from '@/lib/seo/canonicalHost';
 import { parsePublicBrowseParams } from '@/lib/publicBrowseRoutes';
@@ -82,32 +82,18 @@ export default async function ServicesPage(props: {
     const rawCategoryInput = parsed.categoryId ?? parsed.category;
     const isCategorySlug = Boolean(rawCategoryInput && !/^[0-9a-fA-F]{24}$/.test(rawCategoryInput));
 
-    let initialCategories: Category[] = [];
-    let initialResults: Awaited<ReturnType<typeof getAdsPage>>;
+    const categories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
+    const targetCatId = isCategorySlug
+        ? resolveBrowseCategorySelection(rawCategoryInput, categories).categoryId
+        : (rawCategoryInput && /^[0-9a-fA-F]{24}$/.test(rawCategoryInput) ? rawCategoryInput : undefined);
 
-    if (isCategorySlug) {
-        initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
-        const resolvedCategory = resolveBrowseCategorySelection(rawCategoryInput, initialCategories);
-        initialResults = await getAdsPage(
-            buildBrowseFilters(parsed, resolvedCategory.categoryId),
-            {
-                endpoint,
-                fetchOptions: { next: { revalidate: 60 } },
-            }
-        );
-    } else {
-        const directCategoryId = rawCategoryInput && /^[0-9a-fA-F]{24}$/.test(rawCategoryInput) ? rawCategoryInput : undefined;
-        [initialCategories, initialResults] = await Promise.all([
-            getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
-            getAdsPage(
-                buildBrowseFilters(parsed, directCategoryId),
-                {
-                    endpoint,
-                    fetchOptions: { next: { revalidate: 60 } },
-                }
-            ),
-        ]);
-    }
+    const initialResults = await getAdsPage(
+        buildBrowseFilters(parsed, targetCatId),
+        {
+            endpoint,
+            fetchOptions: { next: { revalidate: 60 } },
+        }
+    );
 
     return (
         <>
@@ -119,7 +105,7 @@ export default async function ServicesPage(props: {
                     initialCategory={parsed.categoryId ?? parsed.category}
                     initialSearchQuery={parsed.q}
                     initialResults={initialResults as ListingPageResult}
-                    initialCategories={initialCategories}
+                    initialCategories={categories}
                 />
             </Suspense>
         </>

@@ -18,6 +18,7 @@ export interface HomeFeedRequest {
     radiusKm?: number;
     category?: string;
     categoryId?: string;
+    listingType?: string;
 }
 
 export type ParsedHomeFeedCursor = {

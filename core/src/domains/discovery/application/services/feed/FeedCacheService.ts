@@ -16,9 +16,10 @@ export const buildHomeFeedCacheKey = (
     const state = String(input.level === 'state' ? input.location : 'all').trim().toLowerCase().replace(/[^a-z0-9,._-]+/g, '-');
     const radiusKm = input.radiusKm || (input.lat && input.lng ? 50 : 0);
     const category = String(input.categoryId || input.category || 'all').trim().toLowerCase().replace(/[^a-z0-9,._-]+/g, '-');
+    const listingType = String(input.listingType || 'all').trim().toLowerCase().replace(/[^a-z0-9,._-]+/g, '-');
     const sort = 'newest';
     const page = toCursorKey(cursor);
-    return `home_feed:${city}:${state}:${radiusKm}:${category}:${sort}:${page}_${limit}`;
+    return `home_feed:${city}:${state}:${radiusKm}:${category}:${listingType}:${sort}:${page}_${limit}`;
 };
 
 export const tryAcquireFeedBuildLock = async (token: string): Promise<boolean> => {

@@ -15,6 +15,7 @@ export interface IUserWallet {
     adCredits: number;
     boostCredits: number;
     monthlyFreeAdsUsed: number;
+    monthlyFreeAlertsUsed: number;
     spotlightCredits: number;
     smartAlertSlots: number;
     consumedSlots?: Types.ObjectId[];
@@ -30,6 +31,7 @@ const UserWalletSchema = new Schema<IUserWallet>(
         adCredits: { type: Number, default: 0 }, // never expires
         boostCredits: { type: Number, default: 0 },
         monthlyFreeAdsUsed: { type: Number, default: 0 },
+        monthlyFreeAlertsUsed: { type: Number, default: 0 },
         spotlightCredits: { type: Number, default: 0 },
         smartAlertSlots: { type: Number, default: 2 }, // base free
         consumedSlots: [{ type: Schema.Types.ObjectId, ref: 'Ad' }],

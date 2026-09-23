@@ -60,25 +60,26 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                 aria-live="assertive"
                 className="flex items-center justify-center w-full min-h-[60vh] p-4"
             >
-                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-amber-100">
-                    <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <WifiOff className="w-8 h-8 text-amber-600" aria-hidden="true" />
+                <div className="max-w-md w-full bg-card rounded-2xl shadow-xl p-8 text-center border border-border">
+                    <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <WifiOff className="w-8 h-8 text-warning" aria-hidden="true" />
                     </div>
 
-                    <h2 className="text-xl font-bold text-foreground mb-2">
+                    <h2 className="text-h3 font-bold text-foreground mb-2">
                         Service Unavailable
                     </h2>
 
-                    <p className="text-foreground-tertiary mb-8">
+                    <p className="text-foreground-secondary mb-8">
                         We are currently unable to connect to our servers. You
                         cannot post new ads at this time.
                     </p>
 
                     <Button
                         type="button"
+                        variant="primary"
                         onClick={handleOfflineRetry}
                         aria-label="Check connection again"
-                        className="gap-2 bg-amber-600 text-white font-medium rounded-full hover:bg-amber-700 w-full sm:w-auto"
+                        className="gap-2 font-semibold rounded-xl h-11 px-5 w-full sm:w-auto"
                     >
                         <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Check Again
@@ -101,16 +102,16 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                 aria-live="assertive"
                 className="flex items-center justify-center w-full min-h-[60vh] p-4"
             >
-                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-red-100">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-8 h-8 text-red-600" aria-hidden="true" />
+                <div className="max-w-md w-full bg-card rounded-2xl shadow-xl p-8 text-center border border-destructive/20">
+                    <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <AlertCircle className="w-8 h-8 text-destructive" aria-hidden="true" />
                     </div>
 
-                    <h2 className="text-xl font-bold text-foreground mb-2">
+                    <h2 className="text-h3 font-bold text-foreground mb-2">
                         Listing Setup Unable to Load
                     </h2>
 
-                    <p className="text-foreground-tertiary mb-8">
+                    <p className="text-foreground-secondary mb-8">
                         {mapErrorToMessage(
                             loadError,
                             "We encountered an issue loading the necessary data. Please try again."
@@ -119,9 +120,10 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
 
                     <Button
                         type="button"
+                        variant="primary"
                         onClick={handleErrorRetry}
                         aria-label="Retry loading the post ad form"
-                        className="gap-2 bg-slate-900 text-white font-medium rounded-full hover:bg-slate-800 w-full sm:w-auto"
+                        className="gap-2 font-semibold rounded-xl h-11 px-5 w-full sm:w-auto"
                     >
                         <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Try Again

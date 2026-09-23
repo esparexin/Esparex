@@ -40,12 +40,12 @@ export function PageSection({
           <div>
             {title && (
               typeof title === 'string' || typeof title === 'number' ? (
-                <h3 className="text-lg font-semibold leading-7 text-foreground">{title}</h3>
+                <h3 className="text-h4 font-semibold leading-7 text-foreground">{title}</h3>
               ) : (
-                <div className="text-lg font-semibold leading-7 text-foreground">{title}</div>
+                <div className="text-h4 font-semibold leading-7 text-foreground">{title}</div>
               )
             )}
-            {subtitle && <p className="text-xs md:text-sm text-foreground-secondary mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-body text-foreground-secondary mt-0.5">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
@@ -55,7 +55,7 @@ export function PageSection({
   );
 }
 
-export interface ListRowProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ListRowProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   active?: boolean;
   clickable?: boolean;

@@ -73,9 +73,9 @@ export const getInvoice = async (req: Request, res: Response) => {
         }
         const id = req.params.id as string;
 
-        if (!Types.ObjectId.isValid(id)) {
+        if (!id || typeof id !== 'string' || !id.trim()) {
             return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
-                details: { message: `Parameter 'id' must be a valid ObjectId` }
+                details: { message: `Parameter 'id' is required` }
             });
         }
 
@@ -101,11 +101,15 @@ export const getInvoice = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 404, 'Invoice not found');
         }
 
-        const user = transaction.userId as InvoiceUser;
+        const rawUser = transaction.userId as (InvoiceUser & { _id?: Types.ObjectId }) | Types.ObjectId | null;
+        const ownerId = (rawUser && typeof rawUser === 'object' && '_id' in rawUser && rawUser._id)
+            ? rawUser._id.toString()
+            : (rawUser?.toString() || '');
+        const user = (rawUser && typeof rawUser === 'object' ? rawUser : {}) as Partial<InvoiceUser>;
         const reqUserRole = normalizeRole(req.user?.role);
         const isReqUserAdmin = reqUserRole === Role.ADMIN || reqUserRole === Role.SUPER_ADMIN;
 
-        if (user._id.toString() !== req.user._id.toString() && !isReqUserAdmin) {
+        if (ownerId && ownerId !== req.user._id.toString() && !isReqUserAdmin) {
             return sendErrorResponse(req, res, 403, 'Unauthorized');
         }
 
@@ -372,7 +376,7 @@ export const getInvoice = async (req: Request, res: Response) => {
                         <div class="meta-col">
                             <h3>Billed To (Customer)</h3>
                             <p><strong>${user.name || 'Valued Customer'}</strong></p>
-                            <p>${user.email}</p>
+                            ${user.email ? `<p>${user.email}</p>` : ''}
                             <p>${user.mobile || '-'}</p>
                             <p><strong>Invoice Date:</strong> ${date}</p>
                             <p><strong>Payment Order:</strong> ${orderId}</p>

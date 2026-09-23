@@ -10,7 +10,7 @@
  * @returns 'owner' | 'visitor' | 'sold-owner'
  */
 
-export type ActionBarVariant = 'owner' | 'visitor' | 'sold-owner' | 'pending-owner' | 'hidden';
+export type ActionBarVariant = 'owner' | 'visitor' | 'sold-owner' | 'pending-owner' | 'expired-owner' | 'hidden';
 
 export const getActionBarVariant = (isOwner: boolean, isSold: boolean, status?: string): ActionBarVariant => {
     if (isOwner) {
@@ -20,6 +20,9 @@ export const getActionBarVariant = (isOwner: boolean, isSold: boolean, status?: 
         if (isSold) {
             // Owner viewing their own sold ad -> Show "Marked as Sold" status bar
             return 'sold-owner'; // Logic maps to existing UI variant which handles sold state
+        }
+        if (status === "expired" || status === "rejected") {
+            return 'expired-owner';
         }
         if (status === "live" || status === "active" || status === "approved" || status === "published") {
             return 'owner';

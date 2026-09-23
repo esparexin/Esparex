@@ -64,18 +64,14 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
-        <Card className="rounded-2xl border border-border bg-card shadow-xs p-8 sm:p-12 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pink-50 text-pink-500 border border-pink-100 mx-auto mb-3.5">
-            <Heart className="h-7 w-7 fill-pink-500/20" />
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 dark:text-pink-400 border border-pink-500/20 mb-3.5">
+            <Heart className="h-6 w-6 sm:h-7 sm:w-7 fill-pink-500/20" />
           </div>
-          <h3 className="text-body-lg font-bold text-foreground">No saved ads yet</h3>
-          <p className="text-caption text-foreground-subtle max-w-sm mx-auto mt-1 mb-5 leading-relaxed">
-            Tap the heart icon on any spare part or vehicle listing in the marketplace to save it here for quick access.
-          </p>
+          <h3 className="text-body-lg font-semibold text-foreground">No saved ads yet</h3>
           <Button
-            size="sm"
             onClick={() => navigateTo("browse")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-5 rounded-xl shadow-xs inline-flex items-center gap-1.5"
+            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
           >
             Explore Marketplace
           </Button>
@@ -112,7 +108,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {ad.category && (
-                    <span className="absolute bottom-1 left-1 bg-foreground/80 backdrop-blur-xs text-background text-tiny font-semibold px-1.5 py-0.2 rounded">
+                    <span className="absolute bottom-1 left-1 bg-foreground/80 backdrop-blur-xs text-background text-tiny font-semibold px-1.5 py-0.5 rounded">
                       {ad.category}
                     </span>
                   )}
@@ -120,10 +116,10 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
 
                 {/* Middle Content */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-body sm:text-body-lg font-bold text-foreground tracking-tight">
+                  <p className="text-body sm:text-body-lg font-bold text-emerald-700 dark:text-emerald-400 tracking-tight tabular-nums">
                     {formatPrice(ad.price)}
                   </p>
-                  <h4 className="text-caption sm:text-body font-semibold text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
+                  <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
                     {ad.title}
                   </h4>
                   <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-tiny text-foreground-subtle mt-1">
@@ -150,9 +146,9 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     disabled={isRemoving}
                     aria-label="Remove from saved"
                     title="Remove from saved"
-                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-pink-50 hover:bg-pink-100 text-pink-600 flex items-center justify-center shrink-0 border border-pink-100 transition-transform active:scale-90"
+                    className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0 border border-pink-500/20 transition-transform active:scale-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer"
                   >
-                    <Heart className="h-4 w-4 fill-pink-600" />
+                    <Heart className="h-4 w-4 fill-pink-600 dark:fill-pink-400" />
                   </button>
                   <div className="hidden sm:flex h-8 w-8 items-center justify-center text-muted-foreground/50 group-hover:text-primary transition-colors">
                     <ArrowRight className="h-4 w-4" />

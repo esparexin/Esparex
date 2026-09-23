@@ -133,6 +133,19 @@ describe('lifecycle.controller — markListingSold', () => {
         expect(next).not.toHaveBeenCalled();
     });
 
+    it('returns 400 when listing is a SERVICE', async () => {
+        const req = makeReq({ listing: { id: LISTING_ID, _id: LISTING_ID, status: 'live', listingType: 'service' } });
+        const res = makeRes();
+        const next = makeNext();
+
+        await markListingSold(req, res, next);
+
+        expect(mockSendErrorResponse).toHaveBeenCalledWith(
+            req, res, 400, 'Services cannot be marked as sold'
+        );
+        expect(mockMutateStatus).not.toHaveBeenCalled();
+    });
+
     it('returns 400 when listing is not LIVE', async () => {
         const req = makeReq({ listing: { _id: LISTING_ID, status: 'draft' } });
         const res = makeRes();

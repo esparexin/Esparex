@@ -7,6 +7,11 @@ import type { User } from "@esparex/contracts";
 import { Button } from "@esparex/ui";
 import { FormError } from "@esparex/ui";
 import { scrollToFirstError } from "@/lib/formHelpers";
+import {
+    ListingModalLayout,
+    ListingModalBody,
+    ListingModalFooter,
+} from "@/components/user/shared/ListingModalLayout";
 import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
 import { FileUploadCard } from "./FileUploadCard";
@@ -48,6 +53,7 @@ export function BusinessProfileWizard({
     isSubmitting,
     submitLabel,
     onNext,
+    onHeaderBack,
     onStepChange,
     onSubmit,
     onCancel,
@@ -62,13 +68,13 @@ export function BusinessProfileWizard({
             title: "Business information",
             description: "Add the business name, contact email, current location proof, and full address reviewers need first.",
             content: (
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     <StepBasicDetails
                         formData={formData}
                         setFormData={setFormData}
                         user={user}
                     />
-                    <div className="border-t border-border pt-6">
+                    <div className="border-t border-border/60 pt-4">
                         <StepAddress
                             formData={formData}
                             setFormData={setFormData}
@@ -128,7 +134,7 @@ export function BusinessProfileWizard({
     const isFinalStep = safeCurrentStep === steps.length - 1;
     const primaryLabel = isFinalStep
         ? submitLabel
-        : "Continue to verification";
+        : "Next";
 
     const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -138,10 +144,25 @@ export function BusinessProfileWizard({
         }
     }, [safeCurrentStep]);
 
+    const handleClose = () => {
+        if (onCancel) {
+            onCancel();
+        } else if (onHeaderBack) {
+            onHeaderBack();
+        } else {
+            router.back();
+        }
+    };
+
     return (
-        <div className="mx-auto max-w-3xl py-1 md:py-3 px-4">
+        <ListingModalLayout
+            title={title}
+            onClose={handleClose}
+            className="sm:max-w-2xl md:max-w-3xl"
+        >
             <form
-                className="flex flex-col gap-3 sm:gap-4 pb-16 sm:pb-0"
+                id="business-profile-wizard-form"
+                className="flex flex-col flex-1 min-h-0"
                 onSubmit={(e) => {
                     onSubmit(e);
                     if (formError) {
@@ -150,64 +171,60 @@ export function BusinessProfileWizard({
                 }}
                 noValidate
             >
-                {/* Header & Step progress */}
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between">
-                        <span className="text-caption font-bold uppercase tracking-wider text-primary">
-                            Step {safeCurrentStep + 1} of {steps.length} • {activeStep.label}
-                        </span>
-                        <div className="flex gap-1.5" aria-hidden="true">
-                            {steps.map((_, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`h-1.5 rounded-full transition-all ${
-                                        idx === safeCurrentStep
-                                            ? "w-8 bg-primary"
-                                            : idx < safeCurrentStep
-                                                ? "w-4 bg-emerald-500"
-                                                : "w-4 bg-border"
-                                    }`}
-                                />
-                            ))}
-                        </div>
+                {/* Step progress indicators */}
+                <div className="shrink-0 px-4 pt-3 sm:px-6 sm:pt-4 flex items-center justify-between border-b border-border/40 pb-2.5" aria-hidden="true">
+                    <span className="text-caption font-semibold uppercase tracking-wider text-primary">
+                        Step {safeCurrentStep + 1} of {steps.length} • {activeStep.label}
+                    </span>
+                    <div className="flex gap-1.5">
+                        {steps.map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                    idx === safeCurrentStep
+                                        ? "w-8 bg-primary"
+                                        : idx < safeCurrentStep
+                                            ? "w-4 bg-emerald-500"
+                                            : "w-4 bg-border"
+                                }`}
+                            />
+                        ))}
                     </div>
-                    <h1
-                        ref={headingRef}
-                        tabIndex={-1}
-                        className="text-xl font-bold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
-                    >
-                        {title}
-                    </h1>
                 </div>
 
-                <div role="alert" aria-live="polite">
-                    <FormError message={formError} className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-2.5 text-caption text-destructive" />
-                </div>
-                {submissionStatus ? (
-                    <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-caption text-foreground" role="status" aria-live="polite">
-                        <div className="flex items-start gap-3">
-                            <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary" />
-                            <div className="flex flex-col gap-0.5">
-                                <p className="font-semibold text-caption">{submissionStatus.title}</p>
-                                <p className="text-tiny leading-5 text-foreground-secondary">{submissionStatus.detail}</p>
+                <ListingModalBody id="business-wizard-body" className="space-y-3.5">
+                    <div role="alert" aria-live="polite">
+                        <FormError message={formError} className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-2.5 text-caption text-destructive" />
+                    </div>
+                    {submissionStatus ? (
+                        <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-caption text-foreground" role="status" aria-live="polite">
+                            <div className="flex items-start gap-3">
+                                <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-primary" />
+                                <div className="flex flex-col gap-0.5">
+                                    <p className="font-semibold text-caption">{submissionStatus.title}</p>
+                                    <p className="text-tiny leading-5 text-foreground-secondary">{submissionStatus.detail}</p>
+                                </div>
                             </div>
                         </div>
+                    ) : null}
+
+                    <div>
+                        <h2 ref={headingRef} tabIndex={-1} className="sr-only">
+                            {activeStep.title}
+                        </h2>
+                        {activeStep.content}
                     </div>
-                ) : null}
+                </ListingModalBody>
 
-                <div className="rounded-2xl border-0 bg-transparent p-0 shadow-none sm:border sm:border-border sm:bg-card sm:p-5 md:p-6 sm:shadow-sm">
-                    {activeStep.content}
-                </div>
-
-                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-                    <div className="mx-auto flex max-w-3xl flex-row items-center justify-between gap-3">
+                <ListingModalFooter>
+                    <div className="flex items-center justify-between gap-3 w-full">
                         {safeCurrentStep > 0 ? (
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => onStepChange(safeCurrentStep - 1)}
                                 disabled={isSubmitting}
-                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto"
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto cursor-pointer"
                             >
                                 Back
                             </Button>
@@ -215,15 +232,9 @@ export function BusinessProfileWizard({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => {
-                                    if (onCancel) {
-                                        onCancel();
-                                    } else {
-                                        router.back();
-                                    }
-                                }}
+                                onClick={handleClose}
                                 disabled={isSubmitting}
-                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto"
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-border px-5 font-semibold text-foreground-secondary hover:bg-muted sm:w-auto cursor-pointer"
                             >
                                 Cancel
                             </Button>
@@ -233,17 +244,17 @@ export function BusinessProfileWizard({
                             type={isFinalStep ? "submit" : "button"}
                             onClick={isFinalStep ? undefined : onNext}
                             disabled={isSubmitting}
-                            className="h-11 flex-1 sm:flex-initial rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto"
+                            className="h-11 flex-1 sm:flex-initial rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto cursor-pointer"
                         >
                             {isSubmitting && isFinalStep
                                 ? (wizardVariant === "registration" ? "Submitting..." : "Saving...")
                                 : primaryLabel}
                         </Button>
                     </div>
-                </div>
-
-                {children}
+                </ListingModalFooter>
             </form>
-        </div>
+
+            {children}
+        </ListingModalLayout>
     );
 }

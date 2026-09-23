@@ -6,6 +6,7 @@ import { RefreshCw } from "@esparex/ui";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button, cn } from "@esparex/ui";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 import { BrowseGridSkeleton } from "./BrowseGridSkeleton";
 import { BrowseEmptyState } from "./BrowseEmptyState";
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
@@ -37,6 +38,8 @@ export interface BrowseResultsPanelProps<TItem>
   query: string;
   filterNode?: ReactNode;
   sidebarNode?: ReactNode;
+  browseType?: PublicBrowseType;
+  onTypeChange?: (value: PublicBrowseType) => void;
   categoryName?: string | null;
   locationLabel?: string | null;
   activeFilterCount?: number;
@@ -82,6 +85,7 @@ export function BrowseResultsPanel<TItem>({
         categoryName={categoryName}
         locationLabel={locationLabel}
         total={loading && items.length === 0 ? 0 : total}
+        query={query}
       />
 
       {/* 2-Column Responsive Layout Shell */}
@@ -137,8 +141,8 @@ export function BrowseResultsPanel<TItem>({
                 <div
                   className={cn(
                     view === "list"
-                      ? "flex flex-col gap-3"
-                      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 lg:gap-5"
+                      ? "flex flex-col gap-2.5 sm:gap-3"
+                      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5 lg:gap-5"
                   )}
                 >
                   {items.map((item, index) => (

@@ -35,7 +35,7 @@ export interface IGoogleAdPlacement extends Document {
 
 const GoogleAdPlacementSchema = new Schema<IGoogleAdPlacement>(
     {
-        placementKey: { type: String, required: true, unique: true, index: true, trim: true },
+        placementKey: { type: String, required: true, trim: true },
         name: { type: String, required: true, trim: true },
         adSlotId: { type: String, required: true, trim: true },
         publisherClientId: { type: String, trim: true },
@@ -43,7 +43,6 @@ const GoogleAdPlacementSchema = new Schema<IGoogleAdPlacement>(
             type: String,
             required: true,
             enum: Object.values(AD_PLACEMENT_LOCATION),
-            index: true,
         },
         format: {
             type: String,
@@ -55,7 +54,6 @@ const GoogleAdPlacementSchema = new Schema<IGoogleAdPlacement>(
             required: true,
             enum: Object.values(GOOGLE_AD_STATUS),
             default: GOOGLE_AD_STATUS.ACTIVE,
-            index: true,
         },
         viewports: {
             type: [String],
@@ -73,11 +71,36 @@ const GoogleAdPlacementSchema = new Schema<IGoogleAdPlacement>(
         endDate: { type: Date },
         impressionsCount: { type: Number, default: 0 },
         clicksCount: { type: Number, default: 0 },
-        isDeleted: { type: Boolean, default: false, index: true },
+        isDeleted: { type: Boolean, default: false },
     },
     {
         timestamps: true,
     }
+);
+
+/* -------------------------------------------------------------------------- */
+/* Indexes (Explicitly Named per Index Governance SSOT)                       */
+/* -------------------------------------------------------------------------- */
+
+GoogleAdPlacementSchema.index(
+    { placementKey: 1 },
+    { name: "idx_googleadplacement_placementkey_unique_idx", unique: true }
+);
+GoogleAdPlacementSchema.index(
+    { location: 1 },
+    { name: "idx_googleadplacement_location_idx" }
+);
+GoogleAdPlacementSchema.index(
+    { status: 1 },
+    { name: "idx_googleadplacement_status_idx" }
+);
+GoogleAdPlacementSchema.index(
+    { isDeleted: 1 },
+    { name: "idx_googleadplacement_isdeleted_idx" }
+);
+GoogleAdPlacementSchema.index(
+    { status: 1, isDeleted: 1, priority: -1 },
+    { name: "idx_googleadplacement_status_deleted_priority_idx" }
 );
 
 const connection = getAdminConnection();

@@ -6,103 +6,10 @@ import { useChatList } from '@/hooks/useChatList';
 import { buildChatConversationRoute } from '@/lib/chatUiRoutes';
 import type { ConversationListView } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import { RelativeTimeText } from '@/components/common/RelativeTimeText';
-import { formatStableNumber } from '@/lib/formatters';
-import { Skeleton } from "@esparex/ui";
-import { MessageCircle } from "@esparex/ui";
-
-import type { IConversationDTO } from "@esparex/contracts";
+import { Skeleton, MessageCircle, Search } from "@esparex/ui";
+import { ConversationCard } from './ConversationCard';
 
 type FilterTab = 'active' | 'unread' | 'archived';
-
-function buildConversationState(conv: IConversationDTO): { label: string; tone: 'warn' | 'muted' } | null {
-  if (conv.isBlocked) return { label: 'Blocked conversation', tone: 'warn' };
-  if (conv.isAdClosed) return { label: 'Listing closed', tone: 'muted' };
-  return null;
-}
-
-function ConversationCard({
-  conv,
-  currentUserId,
-  view,
-  onRestore,
-  isRestoring,
-  href,
-  isActive,
-}: {
-  conv: IConversationDTO;
-  currentUserId: string;
-  view: ConversationListView;
-  onRestore: (conversationId: string) => Promise<void>;
-  isRestoring: boolean;
-  href: string;
-  isActive: boolean;
-}) {
-  const isBuyer = conv.buyer.id === currentUserId;
-  const other = isBuyer ? conv.seller : conv.buyer;
-  const unread = isBuyer ? conv.unreadBuyer : conv.unreadSeller;
-  const state = buildConversationState(conv);
-
-  return (
-    <article className={`conv-card-shell ${unread > 0 ? 'conv-card-shell--unread' : ''} ${isActive ? 'conv-card-shell--active' : ''}`}>
-      <Link href={href} className="conv-card" aria-current={isActive ? 'page' : undefined}>
-        <div className="conv-card__thumb">
-          {conv.ad.thumbnail ? (
-            <img src={conv.ad.thumbnail} alt={conv.ad.title} />
-          ) : (
-            <div className="conv-card__thumb-placeholder">🛍️</div>
-          )}
-        </div>
-
-        <div className="conv-card__body">
-          <div className="conv-card__top">
-            <span className="conv-card__name">{other.name}</span>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {unread > 0 && (
-                <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
-                  {unread > 99 ? '99+' : unread}
-                </span>
-              )}
-              {conv.lastMessageAt && (
-                <span className="conv-card__time">
-                  <RelativeTimeText value={conv.lastMessageAt} variant="short" />
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="conv-card__ad-row">
-            <p className="conv-card__ad-title">{conv.ad.title}</p>
-            {typeof conv.ad.price === 'number' && (
-              <span className="conv-card__ad-price">₹{formatStableNumber(conv.ad.price)}</span>
-            )}
-          </div>
-
-          {state && (
-            <p className={`conv-card__state conv-card__state--${state.tone}`}>
-              {state.label}
-            </p>
-          )}
-        </div>
-      </Link>
-
-      {view === 'archived' && (
-        <div className="conv-card__utility">
-          <button
-            type="button"
-            className="conv-card__restore"
-            onClick={() => {
-              void onRestore(conv.id);
-            }}
-            disabled={isRestoring}
-          >
-            {isRestoring ? 'Restoring…' : 'Restore to inbox'}
-          </button>
-        </div>
-      )}
-    </article>
-  );
-}
 
 interface ChatListProps {
   currentUserId: string;
@@ -186,19 +93,7 @@ export function ChatList({
     <div className="chat-list-shell h-full min-h-0 md:max-h-[480px] flex flex-col overflow-hidden">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="chat-list__search-icon w-4 h-4 shrink-0"
-          width={16}
-          height={16}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <Search className="chat-list__search-icon w-4 h-4 shrink-0" aria-hidden />
         <input
           type="text"
           className="chat-list__search-input"
@@ -293,7 +188,7 @@ export function ChatList({
             </div>
           </div>
 
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-h4 font-bold text-foreground">
             {searchQuery
               ? `No conversations match "${searchQuery}"`
               : activeTab === 'unread'
@@ -302,7 +197,7 @@ export function ChatList({
                   ? 'No archived conversations'
                   : 'No conversations yet'}
           </h3>
-          <p className="mt-1 text-xs text-foreground-subtle max-w-xs leading-relaxed">
+          <p className="mt-1 text-caption text-foreground-subtle max-w-xs leading-relaxed">
             {searchQuery
               ? 'Try searching with another keyword'
               : 'Messages with buyers and sellers will appear here'}
@@ -311,7 +206,7 @@ export function ChatList({
           {!searchQuery && activeTab === 'active' && (
             <Link
               href="/browse"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary bg-background px-4 py-2 text-xs font-semibold text-primary hover:bg-muted transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary bg-background px-4 py-2 text-body font-semibold text-primary hover:bg-muted transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
             >
               <span>💬</span>
               <span>Browse Listings</span>

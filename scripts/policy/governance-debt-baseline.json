@@ -13,6 +13,7 @@
     "missingPublicBarrels": [],
     "missingDomainManifests": [],
     "orphanFiles": [],
-    "duplicateCodeClones": 9
+    "duplicateCodeClones": 9,
+    "cssHygieneViolations": []
   }
 }

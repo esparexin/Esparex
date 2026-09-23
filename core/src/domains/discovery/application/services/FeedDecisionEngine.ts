@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { env } from '../../../../config/env';
 import { getListingRepository } from '../../../../composition/listings';
 import type { ListingFilter } from '../../../../domains/listings/ports/ListingRepositoryPort';
+import type { ListingTypeValue } from '@esparex/contracts';
 import { buildPublicAdFilter } from '../../../../utils/FeedVisibilityGuard';
 import logger from '../../../../utils/logger';
 
@@ -73,7 +74,8 @@ export class FeedDecisionEngine {
         input: { city?: string; state?: string; lat?: number; lng?: number; locationId?: string },
         excludeIds: string[],
         limitNeeded: number,
-        categoryId?: string
+        categoryId?: string,
+        listingType?: string
     ): Promise<{ ads: Record<string, unknown>[], meta: FeedDecisionMetadata }> {
         let currentStage: FallbackStage = 'RADIUS';
         let appliedRadiusKm = 10;
@@ -127,6 +129,9 @@ export class FeedDecisionEngine {
         const baseMatch: ListingFilter = {};
         if (categoryId) {
             baseMatch.categoryId = categoryId;
+        }
+        if (listingType && listingType !== 'all') {
+            baseMatch.listingType = listingType as ListingTypeValue;
         }
 
         // Stage 1: Radius (skip — $geoNear handled upstream by AdQueryService/FeedService)

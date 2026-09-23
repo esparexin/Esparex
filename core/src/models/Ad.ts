@@ -497,16 +497,25 @@ AdSchema.pre('save', async function (this: IAd) {
         this.seoSlug = await generateUniqueSlug(Ad, slugTitle, undefined);
     }
 
-    // 🛡️ Policy Guard: Enforce 30-day listing expiry invariant on live listings
+    // 🛡️ Policy Guard: Enforce listing expiry invariant on live listings
     if (this.status === LISTING_STATUS.LIVE && !this.isDeleted) {
         const now = Date.now();
-        const maxDays = (this.listingType === LISTING_TYPE.SERVICE || this.listingType === LISTING_TYPE.SPARE_PART)
-            ? GOVERNANCE.CONTENT.EXPIRY_DAYS
-            : GOVERNANCE.AD.EXPIRY_DAYS;
-        const maxAllowedExpiryMs = now + (maxDays * MS_IN_DAY);
+        const maxCeilingDays = this.listingType === LISTING_TYPE.SERVICE
+            ? 365
+            : this.listingType === LISTING_TYPE.SPARE_PART
+                ? 180
+                : 90;
+        const maxAllowedExpiryMs = now + (maxCeilingDays * MS_IN_DAY);
 
-        if (!this.expiresAt || this.expiresAt.getTime() <= now) {
-            this.expiresAt = new Date(maxAllowedExpiryMs);
+        if (this.isNew || !this.expiresAt) {
+            const defaultDays = this.listingType === LISTING_TYPE.SERVICE
+                ? 90
+                : this.listingType === LISTING_TYPE.SPARE_PART
+                    ? 60
+                    : GOVERNANCE.AD.EXPIRY_DAYS;
+            this.expiresAt = new Date(now + (defaultDays * MS_IN_DAY));
+        } else if (this.expiresAt.getTime() <= now) {
+            this.status = LISTING_STATUS.EXPIRED as AdStatusValue;
         } else if (this.expiresAt.getTime() > maxAllowedExpiryMs + MS_IN_DAY) {
             this.expiresAt = new Date(maxAllowedExpiryMs);
         }

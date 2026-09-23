@@ -147,3 +147,53 @@ export const SmartAlertDeliveryLogSchema = z.object({
 });
 
 export type SmartAlertDeliveryLogDTO = z.infer<typeof SmartAlertDeliveryLogSchema>;
+
+export const SmartAlertMatchAdSummarySchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    price: z.number(),
+    currency: z.string().optional(),
+    images: z.array(z.string()).optional(),
+    status: z.string(),
+    location: z.object({
+        city: z.string().optional(),
+        state: z.string().optional(),
+        display: z.string().optional(),
+    }).optional(),
+    seoSlug: z.string().optional(),
+    listingType: z.string().optional(),
+});
+
+export type SmartAlertMatchAdSummaryDTO = z.infer<typeof SmartAlertMatchAdSummarySchema>;
+
+export const SmartAlertMatchSchema = z.object({
+    id: z.string(),
+    alertId: z.string(),
+    alertName: z.string(),
+    deliveredAt: z.union([z.string(), z.date()]),
+    isRead: z.boolean(),
+    adId: z.string(),
+    actionUrl: z.string().optional(),
+    ad: SmartAlertMatchAdSummarySchema.nullable().optional(),
+});
+
+export type SmartAlertMatchDTO = z.infer<typeof SmartAlertMatchSchema>;
+
+export const SmartAlertMatchesResponseSchema = z.object({
+    matches: z.array(SmartAlertMatchSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+});
+
+export type SmartAlertMatchesResponseDTO = z.infer<typeof SmartAlertMatchesResponseSchema>;
+
+export const SmartAlertQuotaSchema = z.object({
+    limit: z.number(),
+    used: z.number(),
+    remaining: z.number(),
+    resetsAt: z.string(),
+});
+
+export type SmartAlertQuotaDTO = z.infer<typeof SmartAlertQuotaSchema>;

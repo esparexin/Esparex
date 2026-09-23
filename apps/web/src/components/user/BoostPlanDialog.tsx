@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -13,7 +14,7 @@ import {
 } from "@esparex/ui";
 import { formatPrice } from "@/lib/formatters";
 import { useBoostPlanDialog } from "@/hooks/useBoostPlanDialog";
-import { WalletCreditCard, CatalogPlanCard, SpotlightActiveNotice } from "./boost/BoostPlanCards";
+import { WalletCreditCard, CatalogPlanCard, SpotlightActiveNotice, PromotionValidityPreview } from "./boost/BoostPlanCards";
 
 interface BoostPlanDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ interface BoostPlanDialogProps {
   adTitle: string;
   isSpotlight?: boolean;
   isBoosted?: boolean;
+  adExpiresAt?: string | Date;
   currentPlan?: string;
   onPlanPurchased?: (planType: string, duration: number) => void;
   onListingUnavailable?: () => void;
@@ -34,6 +36,7 @@ export function BoostPlanDialog({
   adTitle = "",
   isSpotlight = false,
   isBoosted = false,
+  adExpiresAt,
   onPlanPurchased,
   onListingUnavailable,
 }: BoostPlanDialogProps) {
@@ -46,12 +49,24 @@ export function BoostPlanDialog({
     open, adId, adTitle, onOpenChange, onPlanPurchased, onListingUnavailable,
   });
 
+  const [now] = useState(() => Date.now());
+  const adExpMs = adExpiresAt ? new Date(adExpiresAt).getTime() : 0;
+  const isAdExpired = adExpMs > 0 && adExpMs <= now;
+  const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24))) : 30;
+
+  const baseDuration = isWalletCreditSelected
+    ? 1
+    : (selectedPlan?.durationDays || boostPlans[0]?.durationDays || 1);
+
+  const effectiveDurationDays = Math.max(1, Math.min(baseDuration, adRemainingDays));
+  const effectiveExpiresAt = new Date(now + effectiveDurationDays * 24 * 60 * 60 * 1000);
+
   const isPromotionBlocked =
     isSpotlight || (isBoosted && activeCategory === "BOOST_AD");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6 rounded-2xl bg-card shadow-xl border border-border">
+      <DialogContent className="max-w-md max-h-[min(calc(100dvh-2rem),36rem)] overflow-y-auto overscroll-contain p-6 rounded-2xl bg-card shadow-xl border border-border">
         <DialogHeader className="space-y-1 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
@@ -101,7 +116,7 @@ export function BoostPlanDialog({
                 <Sparkles className="h-3.5 w-3.5" />
                 Spotlight Ad
                 {spotlightCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-warning text-primary-foreground font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-warning text-primary-foreground font-bold">
                     {spotlightCredits}
                   </span>
                 )}
@@ -121,7 +136,7 @@ export function BoostPlanDialog({
                 <Zap className="h-3.5 w-3.5 fill-current" />
                 Top Ad
                 {topAdCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-link text-primary-foreground font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-link text-primary-foreground font-bold">
                     {topAdCredits}
                   </span>
                 )}
@@ -141,6 +156,7 @@ export function BoostPlanDialog({
                     selectedPlan={selectedPlan}
                     boostPlans={boostPlans}
                     isSelected={isWalletCreditSelected}
+                    durationDays={effectiveDurationDays}
                     onSelect={() => {
                       setSelectedPlanId("WALLET_CREDIT");
                       setSelectedPlan(null);
@@ -173,6 +189,15 @@ export function BoostPlanDialog({
                     ))}
                   </div>
                 )}
+
+                {/* Pre-Confirmation Validity Disclosure */}
+                <PromotionValidityPreview
+                  adRemainingDays={adRemainingDays}
+                  effectiveDurationDays={effectiveDurationDays}
+                  effectiveExpiresAt={effectiveExpiresAt}
+                  isSpotlight={activeCategory === "SPOTLIGHT"}
+                  isAdExpired={isAdExpired}
+                />
               </div>
             )}
 
@@ -182,10 +207,11 @@ export function BoostPlanDialog({
                 disabled={
                   isProcessing ||
                   isPromotionBlocked ||
+                  isAdExpired ||
                   (!isWalletCreditSelected && !selectedPlan)
                 }
                 className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
-                  isPromotionBlocked
+                  isPromotionBlocked || isAdExpired
                     ? "bg-muted text-foreground-subtle cursor-not-allowed"
                     : activeCategory === "SPOTLIGHT"
                     ? "bg-warning hover:bg-warning/90 focus-visible:ring-warning"

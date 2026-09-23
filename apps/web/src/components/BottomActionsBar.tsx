@@ -3,7 +3,7 @@
 
 import { useBottomBar } from '../context/BottomBarContext';
 import type { ButtonProps } from '@esparex/ui';
-import { Button } from '@esparex/ui';
+import { Button, Z_INDEX } from '@esparex/ui';
 import { useRouter, usePathname } from 'next/navigation';
 
 export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {
@@ -21,7 +21,11 @@ export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {
     }
 
     return (
-        <div className="fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border px-4 pt-2.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div
+            className="fixed bottom-0 inset-x-0 bg-background border-t border-border px-4 pt-2.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
+            // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+            style={{ zIndex: Z_INDEX.listingBottomActions }}
+        >
             <div className="flex gap-3 max-w-md mx-auto">
                 {actions.map((action, index) => {
                     const variant: ButtonProps["variant"] = action.variant ?? "outline";
@@ -29,7 +33,7 @@ export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {
                     <Button
                         key={index}
                         variant={variant}
-                        className={`flex-1 ${action.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                        className="flex-1"
                         onClick={() => {
                             if (action.onClick) {
                                 action.onClick();

@@ -1,131 +1,233 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import type { CreditLedgerDTO, CreditPackDTO } from '@esparex/contracts';
+import {
+  Pagination,
+  ArrowUp,
+  ArrowDown,
+  Info,
+  Button,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@esparex/ui';
+import Link from 'next/link';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
+import {
+  formatActivityCategory,
+  formatAppliedDateTime,
+  renderTransactionStatus,
+  matchesLedgerFilter,
+  getListingDetailHref,
+  type LedgerFilterType,
+} from './CreditLedgerFormatters';
+import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
+import { CreditLedgerDetailPopup } from './CreditLedgerDetailPopup';
 
-const formatReason = (reason?: string) => {
-  if (!reason) return 'Credit Activity';
-  // Strip raw 24-character MongoDB ObjectIDs
-  const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
-  if (clean.toLowerCase().includes('spotlight')) return 'Spotlight Boost Applied';
-  if (clean.toLowerCase().includes('top_ad') || clean.toLowerCase().includes('top ad')) return 'Top Ad Boost Applied';
-  if (clean.toLowerCase().includes('smart_alert') || clean.toLowerCase().includes('alert')) return 'Smart Alert Channel Activated';
-  if (clean.toLowerCase().includes('post') || clean.toLowerCase().includes('ad_posting')) return 'Ad Posting Credit Used';
-  return clean || 'Credit Activity';
-};
+export interface CreditLedgerHistoryCardProps {
+  creditPacks?: CreditPackDTO[];
+  initialFilter?: LedgerFilterType;
+}
 
-export const CreditLedgerHistoryCard: React.FC = () => {
+export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = ({
+  creditPacks: _creditPacks = [],
+  initialFilter = 'ALL',
+}) => {
+  const [activeFilter, setActiveFilter] = useState<LedgerFilterType>(initialFilter);
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [selectedTx, setSelectedTx] = useState<CreditLedgerDTO | null>(null);
+  const limit = 4;
   const { data, isLoading, isError, refetch } = useCreditLedgerHistory(page, limit);
 
-  const items = data?.items || [];
+  const handleFilterChange = (filter: LedgerFilterType) => {
+    setActiveFilter(filter);
+    setPage(1);
+  };
+
   const pagination = data?.pagination;
 
+  // Complete plan filters: All plans are always available in the filter dropdown
+  // to prevent conditional omission or missing plan filters.
+  const filterOptions: { value: LedgerFilterType; label: string }[] = useMemo(
+    () => [
+      { value: 'ALL', label: 'All Activities' },
+      { value: 'MORE_ADS', label: 'Ad Posting' },
+      { value: 'SPOTLIGHT', label: 'Spotlight' },
+      { value: 'TOP_AD', label: 'Top Ads' },
+      { value: 'SMART_ALERT', label: 'Smart Alerts' },
+    ],
+    [],
+  );
+
+  const filteredItems = useMemo(() => {
+    const items = data?.items || [];
+    return items.filter((tx) => matchesLedgerFilter(activeFilter, tx.entitlementType, tx.reason));
+  }, [data?.items, activeFilter]);
+
   return (
-    <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
-      <div className="flex items-center justify-between">
-        <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider">
-          Credit History
-        </h4>
-        {pagination && (
-          <span className="text-tiny text-muted-foreground">
-            Total Activities: {pagination.total}
-          </span>
-        )}
+    <div className="space-y-3">
+      {/* Header: title + compact filter dropdown with balanced typography */}
+      <div className="flex items-center justify-between gap-3">
+        <h4 className="text-body-lg sm:text-h4 font-semibold text-foreground">My Usage</h4>
+        <Select
+          value={activeFilter}
+          onValueChange={(v) => handleFilterChange(v as LedgerFilterType)}
+        >
+          <SelectTrigger
+            size="sm"
+            className="h-9 w-auto min-w-[130px] max-w-[180px] font-medium border-border/60 bg-muted/30 px-3 rounded-lg focus:ring-primary"
+            aria-label="Filter activities"
+          >
+            <SelectValue placeholder="All Activities" />
+          </SelectTrigger>
+          <SelectContent className="text-body">
+            {filterOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value} className="text-body">
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
+      {/* Loading */}
       {isLoading && (
-        <div className="space-y-2 animate-pulse">
-          <div className="h-9 bg-muted rounded-lg" />
-          <div className="h-9 bg-muted rounded-lg" />
+        <div className="space-y-2.5 animate-pulse">
+          <div className="h-14 bg-muted/60 rounded-xl" />
+          <div className="h-14 bg-muted/60 rounded-xl" />
         </div>
       )}
 
+      {/* Error */}
       {isError && (
-        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-tiny flex justify-between items-center">
+        <div className="p-3.5 bg-destructive/10 text-destructive rounded-xl text-caption flex justify-between items-center border border-destructive/20">
           <span>Failed to load transaction history.</span>
-          <button onClick={() => void refetch()} className="font-bold underline cursor-pointer">
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => void refetch()}
+            className="font-bold underline cursor-pointer hover:opacity-80 p-0 h-auto text-caption text-destructive"
+          >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <div className="text-center py-5 text-tiny text-muted-foreground">
-          No credit transactions recorded yet.
+      {/* Empty */}
+      {!isLoading && filteredItems.length === 0 && (
+        <div className="text-center py-8 text-caption text-muted-foreground border border-dashed border-border rounded-xl">
+          No activity found.
         </div>
       )}
 
-      {!isLoading && items.length > 0 && (
-        <div className="max-h-[320px] overflow-y-auto overflow-x-auto relative rounded-lg border border-border/40">
-          <table className="w-full text-left text-caption">
-            <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
-              <tr className="border-b border-border/40 text-muted-foreground font-semibold">
-                <th className="py-2 px-3">Date</th>
-                <th className="py-2 px-3">Type</th>
-                <th className="py-2 px-3">Credit Pool</th>
-                <th className="py-2 px-3">Amount</th>
-                <th className="py-2 px-3">Activity</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/20">
-              {items.map((tx) => {
-                const isDebit = tx.type === 'DEBIT';
+      {/* Transactions */}
+      {!isLoading && filteredItems.length > 0 && (
+        <>
+          <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
 
-                return (
-                  <tr key={tx.transactionId} className="hover:bg-muted/40 transition-colors">
-                    <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground">
-                      {new Date(tx.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <span
-                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-tiny font-bold ${
-                          isDebit
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                            : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                        }`}
+          {/* Mobile View: Unified container with subtle dividers */}
+          <div className="md:hidden divide-y divide-border/40 rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
+            {filteredItems.map((tx) => {
+              const isDebit = tx.type === 'DEBIT';
+              const absAmount = Math.abs(tx.amount);
+              const adHref = getListingDetailHref(tx);
+
+              return (
+                <div
+                  key={tx.transactionId}
+                  onClick={() => setSelectedTx(tx)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedTx(tx);
+                    }
+                  }}
+                  className="p-3 sm:p-3.5 hover:bg-muted/20 active:bg-muted/40 transition-colors space-y-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label="View activity details"
+                >
+                  {/* Row 1: Plan Title + Amount Badge (Zero duplicate words) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-foreground text-body leading-snug">
+                      {formatActivityCategory(tx)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold tabular-nums shrink-0 ${
+                        isDebit
+                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      {isDebit ? (
+                        <>
+                          <ArrowDown className="w-3 h-3" />-{absAmount} USED
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUp className="w-3 h-3" />+{absAmount} ADDED
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Row 2: Listing link (dedicated line with full width) */}
+                  {adHref && tx.adTitle && (
+                    <div className="text-caption">
+                      <Link
+                        href={adHref}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-medium text-primary hover:underline line-clamp-1"
                       >
-                        {isDebit ? 'USED' : 'ADDED'}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 font-medium text-foreground">
-                      {tx.creditPool.replace('_', ' ')}
-                    </td>
-                    <td className="py-2.5 px-3 font-bold text-foreground">
-                      {isDebit ? `-${tx.amount}` : `+${tx.amount}`}
-                    </td>
-                    <td className="py-2.5 px-3 text-muted-foreground max-w-xs truncate">
-                      {formatReason(tx.reason)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                        {tx.adTitle}
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Row 3: Date on left, Validity & Status on right */}
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30 text-tiny text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      {formatAppliedDateTime(tx.createdAt)}
+                      <Info className="w-3 h-3 opacity-60 shrink-0" />
+                    </span>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {tx.validityText && (
+                        <span>{tx.validityText}</span>
+                      )}
+                      {renderTransactionStatus(tx)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination positioned at bottom */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="pt-2">
+              <Pagination
+                currentPage={page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                pageSize={limit}
+                itemLabel="activities"
+                onPageChange={setPage}
+                className="border border-border/40 rounded-xl px-3 py-2 bg-muted/30"
+              />
+            </div>
+          )}
+        </>
       )}
 
-      {/* Pagination Controls */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-tiny">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-2.5 py-1 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium cursor-pointer"
-          >
-            Previous
-          </button>
-          <span className="text-muted-foreground font-medium">
-            Page {page} of {pagination.totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-            disabled={page === pagination.totalPages}
-            className="px-2.5 py-1 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium cursor-pointer"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      {/* Detail Popup */}
+      <CreditLedgerDetailPopup
+        tx={selectedTx}
+        open={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
     </div>
   );
 };

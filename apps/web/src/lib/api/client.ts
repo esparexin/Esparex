@@ -73,14 +73,16 @@ export function shouldSuppressPopupForApiError(
    API CLIENT
 ====================================================== */
 
-class APIClient {
+export class APIClient {
     private client: AxiosInstance;
     private isBackendHealthy = true;
     private healthCheckPromise: Promise<boolean> | null = null;
     private healthCheckTimestamp = 0;
     private csrfToken: string | null = null;
     private csrfTokenPromise: Promise<string | null> | null = null;
-    private readonly HEALTH_CACHE_MS = 10_000;
+    private get healthCacheMs(): number {
+        return process.env.NODE_ENV === 'development' ? 2_000 : 10_000;
+    }
 
     constructor() {
         validateApiEnv();
@@ -188,7 +190,7 @@ class APIClient {
             }
 
             if (!this.isBackendHealthy) {
-                if (Date.now() - this.healthCheckTimestamp > this.HEALTH_CACHE_MS) {
+                if (Date.now() - this.healthCheckTimestamp > this.healthCacheMs) {
                     const ok = await this.checkHealth();
                     if (ok) return config;
                 }
@@ -266,12 +268,24 @@ class APIClient {
 
         this.client.interceptors.response.use(
             (response) => {
+                // ✅ Mark backend healthy upon receiving any valid HTTP response
+                if (!this.isBackendHealthy) {
+                    this.isBackendHealthy = true;
+                    this.healthCheckTimestamp = Date.now();
+                }
+
                 const ct = String(response.headers['content-type'] || '');
                 const responseType = response.config?.responseType;
-                const acceptsDocument =
-                    responseType === 'blob' || responseType === 'arraybuffer' || responseType === 'document';
+                const isPrintableHtml =
+                    String(response.headers['x-esparex-response-mode'] || '').toLowerCase() === 'html-printable';
+                const acceptsDocumentOrText =
+                    responseType === 'blob' ||
+                    responseType === 'arraybuffer' ||
+                    responseType === 'document' ||
+                    responseType === 'text' ||
+                    isPrintableHtml;
 
-                if (ct.includes('text/html') && !acceptsDocument) {
+                if (ct.includes('text/html') && !acceptsDocumentOrText) {
                     const error = new APIError({
                             status: response.status || 500,
                             code: 'INVALID_RESPONSE_FORMAT',
@@ -415,7 +429,8 @@ class APIClient {
                     
                     const retryConfig: EsparexRequestConfig = {
                         ...requestConfig,
-                        _retryCount: currentRetryCount + 1
+                        _retryCount: currentRetryCount + 1,
+                        skipHealthCheck: true
                     };
                     return this.client.request(retryConfig);
                 }
@@ -467,6 +482,8 @@ class APIClient {
         const promise = this.client
             .get(API_ROUTES.USER.HEALTH, {
                 timeout: 5000,
+                skipHealthCheck: true,
+                maxRetries: 0,
                 // ✅ No custom headers = no CORS preflight
                 silent: true // 🤫 Silence expected network errors
             } as EsparexRequestConfig)

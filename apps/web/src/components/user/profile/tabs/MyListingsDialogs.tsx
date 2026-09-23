@@ -12,7 +12,7 @@ import type { Listing } from "@/lib/api/user/listings";
 import { MarkAsSoldDialog, type SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import { BoostPlanDialog } from "@/components/user/BoostPlanDialog";
 
-interface MyListingsDialogsProps {
+export interface MyListingsDialogsProps {
   // Delete
   adToDelete: Listing | null;
   isDeleteAdOpen: boolean;
@@ -167,6 +167,7 @@ export function MyListingsDialogs({
           adTitle={boostAd.title}
           isSpotlight={Boolean(boostAd.isSpotlight)}
           isBoosted={Boolean(boostAd.isBoosted)}
+          adExpiresAt={boostAd.expiresAt}
           onPlanPurchased={onBoostPlanPurchased}
         />
       )}

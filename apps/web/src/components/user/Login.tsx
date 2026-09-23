@@ -13,7 +13,7 @@ import { validateIndianMobile } from "@/lib/mobileUtils";
 import { Form } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
-import { loginFormSchema, type LoginFormValues } from "@/schemas/login.schema";
+import { loginFormSchema, type LoginFormValues } from "@esparex/contracts";
 import { LoginMobileStep } from "./auth/LoginMobileStep";
 import { LoginOtpStep } from "./auth/LoginOtpStep";
 
@@ -35,9 +35,9 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-1.5 text-center p-0 mb-3 sm:mb-4">
-        <div className="mx-auto mb-1.5 sm:mb-2 w-fit">
-          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2.5 shadow-xs">
+      <CardHeader className="relative space-y-1 sm:space-y-1.5 text-center p-0 mb-2 sm:mb-4">
+        <div className="mx-auto mb-1 sm:mb-2 w-fit">
+          <div className="h-11 w-11 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2 sm:p-2.5 shadow-xs">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
@@ -48,7 +48,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
           </div>
         </div>
         <div>
-          <CardTitle className="text-h4 sm:text-h3 font-extrabold tracking-tight text-foreground">
+          <CardTitle className="text-h4 sm:text-h3 font-bold tracking-tight text-foreground">
             {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
           </CardTitle>
           <p className="mt-0.5 text-caption text-muted-foreground font-medium">
@@ -58,7 +58,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
           </p>
         </div>
       </CardHeader>
-      <CardContent className="p-0 space-y-3 sm:space-y-4">
+      <CardContent className="p-0 space-y-2.5 sm:space-y-4">
         <LoginForm flow={flow} onBack={onBack} />
       </CardContent>
     </Card>
@@ -98,14 +98,28 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
   const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
   const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
-  // Auto-focus management using RHF & DOM element targeting
+  // Auto-focus management with preventScroll to stop iOS WebKit focus-scrolling
   useEffect(() => {
     if (step === "enterMobile") {
-      const id = setTimeout(() => form.setFocus("mobile"), 0);
+      const id = setTimeout(() => {
+        const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
+        if (input) {
+          input.focus({ preventScroll: true });
+        } else {
+          form.setFocus("mobile");
+        }
+      }, 0);
       return () => clearTimeout(id);
     }
     if (step === "enterNameAndOtp") {
-      const id = setTimeout(() => form.setFocus("name"), 0);
+      const id = setTimeout(() => {
+        const input = document.querySelector<HTMLInputElement>('input[name="name"]');
+        if (input) {
+          input.focus({ preventScroll: true });
+        } else {
+          form.setFocus("name");
+        }
+      }, 0);
       return () => clearTimeout(id);
     }
     if (step === "enterOtp") {
@@ -113,7 +127,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       const raf1 = requestAnimationFrame(() => {
         raf2 = requestAnimationFrame(() => {
           const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
-          firstOtpInput?.focus();
+          firstOtpInput?.focus({ preventScroll: true });
         });
       });
       return () => {

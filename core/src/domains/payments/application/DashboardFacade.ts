@@ -5,7 +5,7 @@ import Boost from '../../../models/Boost';
 import Ad from '../../../models/Ad';
 import CreditTransaction from '../../../models/CreditTransaction';
 import Transaction from '../../../models/Transaction';
-import { PlansWalletMapper } from '../mappers/PlansWalletMapper';
+import { PlansWalletMapper, type RawAdMetadata } from '../mappers/PlansWalletMapper';
 import type { PlansWalletV1DTO } from '@esparex/contracts';
 import redis from '../../../config/redis';
 
@@ -28,9 +28,23 @@ export class DashboardFacade {
     }
 
     // Lookup user listings to query active boosts correctly
-    const userAds = await Ad.find({ sellerId: userId }).select('_id title').lean();
+    const userAds = await Ad.find({ sellerId: userId }).select('_id title slug seoSlug status expiresAt createdAt').lean();
     const userAdIds = userAds.map((a) => a._id);
     const adTitleMap = new Map(userAds.map((a) => [a._id.toString(), a.title]));
+    const adMap = new Map<string, RawAdMetadata>(
+      userAds.map((a) => [
+        a._id.toString(),
+        {
+          _id: a._id,
+          title: a.title,
+          slug: (a as { slug?: string }).slug,
+          seoSlug: a.seoSlug,
+          status: a.status,
+          expiresAt: a.expiresAt,
+          createdAt: (a as { createdAt?: Date }).createdAt,
+        },
+      ])
+    );
 
     const [
       userPlanResult,
@@ -102,6 +116,7 @@ export class DashboardFacade {
       boosts,
       creditTransactions,
       paymentTransactions,
+      adMap,
     });
 
     // Cache the snapshot asynchronously

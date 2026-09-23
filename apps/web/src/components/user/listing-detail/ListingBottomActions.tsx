@@ -26,7 +26,7 @@ function SpotlightOrBoostButton({ isSpotlight, onPromoteClick }: { isSpotlight: 
     );
   }
   return (
-    <Button variant="outline" className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white" onClick={onPromoteClick}>
+    <Button variant="outline" className="flex flex-col gap-1 h-11 text-tiny rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white" onClick={onPromoteClick}>
       <TrendingUp className="h-5 w-5" />
       Boost
     </Button>
@@ -40,7 +40,6 @@ interface ListingBottomActionsProps {
   onDeleteClick?: () => void;
   onMarkSoldClick?: () => void;
   onPromoteClick?: () => void;
-  onAnalyticsClick?: () => void;
   onChatClick?: () => void;
   onRevealPhone?: () => void;
   isPhoneLoading?: boolean;
@@ -74,7 +73,7 @@ export function ListingBottomActions({
   if (variant === "hidden" || !policy.showContextActionBar) {
     return null;
   }
-  if (variant === "owner" || variant === "sold-owner" || variant === "pending-owner") {
+  if (variant === "owner" || variant === "sold-owner" || variant === "pending-owner" || variant === "expired-owner") {
     // If ad is sold, show only sold status
     if (variant === "sold-owner") {
       return (
@@ -118,6 +117,39 @@ export function ListingBottomActions({
               <Button
                 variant="outline"
                 className="flex flex-col gap-1 h-11 text-caption text-destructive border-destructive/20 hover:bg-destructive/10"
+                onClick={onDeleteClick}
+              >
+                <Trash2 className="h-5 w-5" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (variant === "expired-owner") {
+      return (
+        <div className="md:hidden">
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg z-40">
+            <div className="px-4 py-1.5 bg-muted border-b border-border">
+              <p className="text-caption text-center text-foreground-secondary font-medium">
+                <Info className="h-3 w-3 inline mr-1 text-foreground-subtle" />
+                This listing is no longer active
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 px-3 pt-2.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+              <Button
+                variant="outline"
+                className="flex flex-col gap-1 h-11 text-caption font-semibold"
+                onClick={onMarkSoldClick}
+              >
+                <CheckCircle className="h-5 w-5 text-emerald-600" />
+                Mark Sold
+              </Button>
+              <Button
+                variant="outline"
+                className="flex flex-col gap-1 h-11 text-caption font-semibold text-destructive border-destructive/20 hover:bg-destructive/10"
                 onClick={onDeleteClick}
               >
                 <Trash2 className="h-5 w-5" />
@@ -202,20 +234,22 @@ export function ListingBottomActions({
                 onClick={onRevealPhone}
                 disabled={isPhoneLoading}
                 aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                className="w-full h-11 rounded-xl font-semibold gap-2 border-border text-foreground-secondary hover:bg-muted"
+                className="w-full h-11 px-2.5 sm:px-3 rounded-xl font-semibold gap-1.5 border-border text-foreground-secondary hover:bg-muted"
               >
-                <Phone className="h-4 w-4" />
-                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                <Phone className="h-4 w-4 shrink-0" />
+                <span className="truncate text-caption sm:text-small font-semibold tracking-tight">
+                  {phoneButtonLabel}
+                </span>
               </Button>
             ) : null}
             {showChatAction ? (
               <Button
                 onClick={onChatClick}
                 aria-label="Chat with seller"
-                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all"
+                className="w-full h-11 px-2.5 sm:px-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-1.5 shadow-md shadow-blue-100 transition-all text-caption sm:text-small"
               >
-                <MessageCircle className="h-5 w-5" />
-                Chat
+                <MessageCircle className="h-4.5 w-4.5 shrink-0" />
+                <span>Chat</span>
               </Button>
             ) : null}
             {isChatLocked ? (

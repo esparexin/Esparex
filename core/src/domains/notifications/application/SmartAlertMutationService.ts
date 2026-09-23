@@ -1,11 +1,15 @@
-import { PLAN_STATUS } from '@esparex/contracts';
+import { PLAN_STATUS, PLATFORM_QUOTAS } from '@esparex/contracts';
 import { calculateUserPlan } from '../../payments';
 import { UserPlanModel, PlanModel } from '../../payments';
-import { consumeCredit, credit as creditWallet, WalletModel } from '../../payments';
+import { consumeCredit } from '../../payments';
 import { SmartAlertModel, type SmartAlertDocument } from './SmartAlertService';
+import UserWallet from '../../../models/UserWallet';
+import Entitlement from '../../../models/Entitlement';
+import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
 import { resolveMasterDataIds } from '../../../utils/masterDataResolver';
 import { AppError } from '../../../utils/AppError';
 import { GOVERNANCE, MS_IN_DAY } from '../../../config/constants';
+import { sanitizeMongoObjectId } from '@esparex/shared';
 import {
     normalizeCoordinates,
     normalizeLocation,
@@ -66,8 +70,11 @@ const normalizeSmartAlertLocationPayload = async (
         ? { ...payload.criteria }
         : {};
 
+    const rawLocId = (criteria as Record<string, unknown>).locationId;
+    const sanitizedLocId = sanitizeMongoObjectId(rawLocId);
+
     const normalized = await normalizeLocation({
-        locationId: (criteria as Record<string, unknown>).locationId,
+        locationId: sanitizedLocId,
         city: (criteria as Record<string, unknown>).location,
         state: (criteria as Record<string, unknown>).state,
         display: (criteria as Record<string, unknown>).location,
@@ -86,9 +93,13 @@ const normalizeSmartAlertLocationPayload = async (
 
     if (normalized?.locationId) {
         (criteria as Record<string, unknown>).locationId = normalized.locationId;
+    } else if (sanitizedLocId) {
+        (criteria as Record<string, unknown>).locationId = sanitizedLocId;
+    } else {
+        delete (criteria as Record<string, unknown>).locationId;
     }
 
-    if (normalized?.display) {
+    if (normalized?.display && normalized.display !== 'Unknown Location') {
         (criteria as Record<string, unknown>).location = normalized.display;
     }
 
@@ -147,15 +158,20 @@ const requireOwnedAlert = async ({
     };
 };
 
+const FREE_ALERT_BASE = PLATFORM_QUOTAS.FREE_SMART_ALERT_LIMIT;
+
 const resolvePlanLimit = async (userId: string) => {
     const activeUserPlans = await UserPlanModel.find({
         userId,
         status: PLAN_STATUS.ACTIVE,
         $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
     }).lean();
+    if (activeUserPlans.length === 0) {
+        return FREE_ALERT_BASE;
+    }
     const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: { planId: unknown }) => up.planId) } }).lean();
     const userRights = calculateUserPlan(plans);
-    return userRights.smartAlerts || 0;
+    return userRights.smartAlerts || FREE_ALERT_BASE;
 };
 
 export const createSmartAlertMutation = async ({
@@ -170,32 +186,31 @@ export const createSmartAlertMutation = async ({
         throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
     }
 
-    const activeUserPlans = await UserPlanModel.find({
-        userId,
-        status: PLAN_STATUS.ACTIVE,
-        $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
-    }).lean();
+    const planLimit = await resolvePlanLimit(userId);
+    await syncWalletCycle(userId);
 
-    const plans = await PlanModel.find({ _id: { $in: activeUserPlans.map((up: { planId: unknown }) => up.planId) } }).lean();
-    const userRights = calculateUserPlan(plans);
+    const [wallet, rawEntitlements] = await Promise.all([
+        UserWallet.findOne({ userId }).lean(),
+        Entitlement.find({
+            userId,
+            type: 'SMART_ALERT_SLOT',
+            status: 'ACTIVE',
+            remaining: { $gt: 0 },
+            $or: [{ expiresAt: { $gte: new Date() } }, { expiresAt: null }],
+        }).lean(),
+    ]);
 
-    const wallet = await WalletModel.findOne({ userId }).lean();
-    const walletSlots = (wallet?.smartAlertSlots as number | undefined) || 0;
-    const DEFAULT_FREE_SMART_ALERT_LIMIT = 5;
-    const planLimit = activeUserPlans.length > 0
-        ? (userRights.smartAlerts || 0)
-        : DEFAULT_FREE_SMART_ALERT_LIMIT;
+    const activePaidSlots = rawEntitlements.length > 0
+        ? rawEntitlements.reduce((acc, e) => acc + (typeof e.remaining === 'number' ? e.remaining : 0), 0)
+        : Math.max(0, ((wallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE);
 
-    const alertsUsed = await SmartAlertModel.countDocuments({
-        userId,
-        isActive: true,
-    });
+    const monthlyUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
+    const requiresWalletSlot = monthlyUsed >= planLimit;
 
-    const requiresWalletSlot = alertsUsed >= planLimit;
-    if (requiresWalletSlot && walletSlots <= 0) {
-        const totalLimit = planLimit + walletSlots;
+    if (requiresWalletSlot && activePaidSlots <= 0) {
+        const totalLimit = planLimit + activePaidSlots;
         throw new AppError(
-            `Smart Alert limit reached (${alertsUsed}/${totalLimit}). Upgrade plan or buy slots.`,
+            `Smart Alert monthly limit reached (${monthlyUsed}/${totalLimit}). Upgrade plan or buy slots.`,
             403,
             'SMART_ALERT_LIMIT_REACHED'
         );
@@ -214,6 +229,12 @@ export const createSmartAlertMutation = async ({
             reason: 'Smart Alert slot consumed',
             metadata: { action: 'create_smart_alert' },
         });
+    } else {
+        await UserWallet.updateOne(
+            { userId },
+            { $inc: { monthlyFreeAlertsUsed: 1 } },
+            { upsert: true }
+        );
     }
 
     return SmartAlertModel.create({
@@ -274,22 +295,15 @@ export const deleteSmartAlertMutation = async ({
     user?: { id?: string; _id?: string | { toString(): string } };
     admin?: AdminContext;
 }) => {
-    const { alert, ownerId } = await requireOwnedAlert({
+    await requireOwnedAlert({
         alertId,
         user,
         admin,
         allowAdmin: true,
     });
 
-    if (alert.isActive) {
-        await creditWallet({
-            userId: ownerId,
-            amount: { smartAlertSlots: 1 },
-            reason: 'Smart Alert slot restored',
-            metadata: { action: 'delete_smart_alert', alertId },
-        });
-    }
-
+    // Consumed Smart Alert quota slots are non-refundable upon alert deletion.
+    // Quota resets strictly via the monthly billing cycle (syncWalletCycle).
     await SmartAlertModel.findByIdAndDelete(alertId);
     return { id: alertId, deleted: true };
 };
@@ -301,34 +315,11 @@ export const toggleSmartAlertStatusMutation = async ({
     alertId: string;
     user?: { id?: string; _id?: string | { toString(): string } };
 }): Promise<SmartAlertDocument> => {
-    const { alert, ownerId } = await requireOwnedAlert({ alertId, user });
-
-    const activeAlertCount = await SmartAlertModel.countDocuments({
-        userId: ownerId,
-        isActive: true,
-    });
-    const planLimit = await resolvePlanLimit(ownerId);
+    const { alert } = await requireOwnedAlert({ alertId, user });
 
     if (alert.isActive) {
         alert.isActive = false;
-        if (activeAlertCount > planLimit) {
-            await creditWallet({
-                userId: ownerId,
-                amount: { smartAlertSlots: 1 },
-                reason: 'Smart Alert slot restored',
-                metadata: { action: 'deactivate_smart_alert', alertId },
-            });
-        }
     } else {
-        if (activeAlertCount >= planLimit) {
-            await consumeCredit({
-                userId: ownerId,
-                creditType: 'smartAlertSlots',
-                amount: 1,
-                reason: 'Smart Alert slot consumed',
-                metadata: { action: 'activate_smart_alert', alertId },
-            });
-        }
         alert.isActive = true;
         alert.expiryWarningSentAt = undefined;
         alert.expiryWarningCount = 0;

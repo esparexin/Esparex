@@ -33,11 +33,11 @@ export function ListingDetailShell({
     if (notFound) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-                <div className="bg-gray-100 p-4 rounded-full mb-4">
+                <div className="bg-muted p-4 rounded-full mb-4">
                     <SearchX className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">{notFoundTitle || "Listing Not Found"}</h2>
-                <p className="text-muted-foreground max-w-md mb-6">
+                <h2 className="text-h2 font-bold text-foreground mb-2">{notFoundTitle || "Listing Not Found"}</h2>
+                <p className="text-body text-muted-foreground max-w-md mb-6">
                     {notFoundMessage || "The listing you are looking for might have been removed, expired, or the link is incorrect."}
                 </p>
                 <Button onClick={() => void router.push(ROUTES.BROWSE)} variant="default" className="h-11 gap-2">
@@ -52,11 +52,11 @@ export function ListingDetailShell({
     if (error) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
-                <div className="bg-red-50 p-4 rounded-full mb-4">
-                    <AlertCircle className="h-8 w-8 text-red-500" />
+                <div className="bg-destructive/10 p-4 rounded-full mb-4">
+                    <AlertCircle className="h-8 w-8 text-destructive" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground mb-2">Unable to Load Listing</h2>
-                <p className="text-muted-foreground max-w-md mb-6">
+                <h2 className="text-h3 font-bold text-foreground mb-2">Unable to Load Listing</h2>
+                <p className="text-body text-muted-foreground max-w-md mb-6">
                     {error || "We encountered an unexpected error while loading this listing. Please try again."}
                 </p>
                 <div className="flex gap-3">

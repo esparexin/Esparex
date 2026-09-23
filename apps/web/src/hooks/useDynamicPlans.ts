@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getPlans } from "@/lib/api/user/plans";
 import type { ProfilePlan, ProfilePlanType } from "@/components/user/profile/types";
 import type { User } from "@esparex/contracts";
+import { isApprovedBusiness } from "@/guards/businessGuards";
 import logger from "@/lib/logger";
 
 export function getPlanEntitlementFeatures(p: {
@@ -60,11 +61,6 @@ export function getPlanEntitlementFeatures(p: {
         list.push(`${freq.charAt(0).toUpperCase() + freq.slice(1)} Deal Notifications (${channels})`);
         list.push("First Access to Newly Listed Parts & Vehicles");
         list.push(validityStr);
-    } else if (p.type === "FREE_DEFAULT") {
-        const slots = p.limits?.maxAds ?? p.credits ?? 5;
-        list.push(`${slots} Monthly Free Ad Posting Slots`);
-        list.push("Full Access to Marketplace Search & Chat");
-        list.push("Lifetime Access");
     }
 
     if (p.description && p.description.trim() && p.description.trim() !== p.name && !list.includes(p.description.trim())) {
@@ -79,12 +75,11 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
     const [loadingPlans, setLoadingPlans] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     const fetchDynamicPlans = useCallback(async () => {
         setLoadingPlans(true);
         try {
             const userType =
-                user?.role === "business" || user?.businessStatus === "live"
+                user?.role === "business" || isApprovedBusiness(user)
                     ? "business"
                     : "normal";
             const data = await getPlans({ userType });
@@ -94,11 +89,13 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
                     case "AD_PACK": return "More Ads";
                     case "BOOST_AD": return "Top Ad";
                     case "SMART_ALERT": return "Alert Slots";
-                    case "FREE_DEFAULT": return "More Ads";
                     default: return "More Ads";
                 }
             };
-            const mapped: ProfilePlan[] = data.map((p) => ({
+            // Exclude FREE_DEFAULT system plans — they are not purchasable
+            const mapped: ProfilePlan[] = data
+                .filter(p => p.type !== 'FREE_DEFAULT')
+                .map((p) => ({
                 id: p.id,
                 name: p.name,
                 price: p.price,
@@ -115,7 +112,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
         } finally {
             setLoadingPlans(false);
         }
-    }, [user?.role, user?.businessStatus]);
+    }, [user]);
 
     useEffect(() => {
         if (activeTab === 'plans' || activeTab === 'buyplans' || activeTab === 'purchases') {

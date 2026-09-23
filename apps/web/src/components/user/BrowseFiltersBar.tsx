@@ -1,26 +1,27 @@
 "use client";
 
 import { memo, useState } from "react";
-import { Search, SlidersHorizontal, Check } from "@esparex/ui";
+import { SlidersHorizontal } from "@esparex/ui";
 import type { Category } from "@/lib/api/user/categories";
 import { Button, Drawer } from "@esparex/ui";
-import { Input } from "@esparex/ui";
-import { Label } from "@esparex/ui";
-import { Checkbox } from "@esparex/ui";
 import { cn } from "@/lib/utils";
+import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
+import { BrowseFiltersDrawerPanels, type FilterTab } from "./BrowseFiltersDrawerPanels";
 
 export interface BrowseFiltersHeaderTriggerProps {
   inputId?: string;
-  inputValue: string;
+  inputValue?: string;
   selectedCategory: string;
   categories: Category[];
-  searchAriaLabel: string;
-  searchPlaceholder: string;
-  onInputChange: (value: string) => void;
+  searchAriaLabel?: string;
+  searchPlaceholder?: string;
+  onInputChange?: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onReset: () => void;
   getCategoryValue?: (category: Category) => string;
   activeFilterCount?: number;
+  browseType?: PublicBrowseType;
+  onTypeChange?: (type: PublicBrowseType) => void;
   minPrice?: number;
   maxPrice?: number;
   onPriceChange?: (min?: number, max?: number) => void;
@@ -28,20 +29,20 @@ export interface BrowseFiltersHeaderTriggerProps {
   onDeviceConditionChange?: (condition: string) => void;
 }
 
-type FilterTab = "category" | "budget" | "condition";
-
 export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigger({
-  inputId,
-  inputValue,
+  inputId: _inputId,
+  inputValue: _inputValue,
   selectedCategory,
   categories,
-  searchAriaLabel,
-  searchPlaceholder,
-  onInputChange,
+  searchAriaLabel: _searchAriaLabel,
+  searchPlaceholder: _searchPlaceholder,
+  onInputChange: _onInputChange,
   onCategoryChange,
   onReset,
   getCategoryValue = (category) => category.slug || category.id,
   activeFilterCount = 0,
+  browseType,
+  onTypeChange,
   minPrice,
   maxPrice,
   onPriceChange,
@@ -56,10 +57,9 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
 
   const handleApply = () => {
     if (onPriceChange && (localMin || localMax)) {
-      onPriceChange(
-        localMin ? Number.parseInt(localMin, 10) : undefined,
-        localMax ? Number.parseInt(localMax, 10) : undefined
-      );
+      const min = localMin ? Number(localMin) : undefined;
+      const max = localMax ? Number(localMax) : undefined;
+      onPriceChange(min, max);
     }
     setOpen(false);
   };
@@ -73,7 +73,8 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
 
   return (
     <Drawer
-      title="FILTERS & SORT"
+      title="Filters"
+      titleClassName="text-body-lg font-semibold tracking-tight text-foreground"
       open={open}
       onOpenChange={setOpen}
       trigger={
@@ -93,57 +94,57 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
         </Button>
       }
     >
-      <div className="flex flex-col h-[min(560px,calc(var(--visual-viewport-height,100dvh)-2rem))] max-h-[calc(var(--visual-viewport-height,100dvh)-1rem)] -mx-4 -mb-4">
-        {/* Search Bar Header */}
-        <div className="px-4 py-2 border-b border-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              id={inputId}
-              aria-label={searchAriaLabel}
-              placeholder={searchPlaceholder}
-              className="pl-9 h-9 text-body-lg md:text-body rounded-xl bg-background border-input"
-              value={inputValue}
-              onChange={(event) => onInputChange(event.target.value)}
-            />
-          </div>
-        </div>
-
+      <div className="flex flex-col h-[min(380px,calc(var(--visual-viewport-height,100dvh)-5rem))] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] -mx-4 -mb-4">
         {/* 2-Panel Layout: Left Tabs + Right Options */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Left Vertical Navigation Tabs */}
-          <div className="w-[125px] shrink-0 bg-muted/50 border-r border-border overflow-y-auto">
+          <div className="w-[115px] shrink-0 bg-muted/50 border-r border-border overflow-y-auto">
+            {onTypeChange && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("type")}
+                className={cn(
+                  "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
+                  activeTab === "type"
+                    ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                    : "text-muted-foreground border-transparent hover:text-foreground"
+                )}
+              >
+                Listing Type
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => setActiveTab("category")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
                 activeTab === "category"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
             >
-              By Category
+              Category
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("budget")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
                 activeTab === "budget"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
               )}
             >
-              By Budget
+              Budget
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("condition")}
               className={cn(
-                "w-full text-left px-3 py-3.5 text-small font-semibold border-l-4 transition-colors",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
                 activeTab === "condition"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
                   : "text-muted-foreground border-transparent hover:text-foreground"
@@ -154,140 +155,32 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           </div>
 
           {/* Right Content Panel */}
-          <div className="flex-1 p-4 overflow-y-auto bg-card">
-            {activeTab === "category" && (
-              <div className="space-y-1">
-                <button
-                  type="button"
-                  onClick={() => onCategoryChange("all")}
-                  className={cn(
-                    "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
-                    !selectedCategory || selectedCategory === "all"
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-foreground-secondary hover:bg-muted"
-                  )}
-                >
-                  <span>All Categories</span>
-                  {(!selectedCategory || selectedCategory === "all") && (
-                    <Check className="size-4 shrink-0" />
-                  )}
-                </button>
-
-                {categories.map((cat) => {
-                  const val = getCategoryValue(cat);
-                  const isSelected = selectedCategory === val || selectedCategory === cat.slug || selectedCategory === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => onCategoryChange(val)}
-                      className={cn(
-                        "flex w-full items-center justify-between p-2.5 rounded-lg text-small font-medium transition-colors",
-                        isSelected
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "text-foreground-secondary hover:bg-muted"
-                      )}
-                    >
-                      <span className="truncate">{cat.name}</span>
-                      {isSelected && <Check className="size-4 shrink-0" />}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {activeTab === "budget" && (
-              <div className="space-y-4">
-                <Label className="text-caption font-bold text-foreground-subtle uppercase tracking-wider">
-                  Price Range (₹)
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min Price"
-                    value={localMin}
-                    onChange={(e) => setLocalMin(e.target.value)}
-                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
-                  />
-                  <span className="text-muted-foreground">-</span>
-                  <Input
-                    type="number"
-                    placeholder="Max Price"
-                    value={localMax}
-                    onChange={(e) => setLocalMax(e.target.value)}
-                    className="h-9 text-body-lg md:text-body rounded-xl border-input"
-                  />
-                </div>
-
-                <div className="pt-2 space-y-2">
-                  <Label className="text-tiny font-semibold text-muted-foreground">Quick Presets</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { label: "Under ₹5,000", min: "", max: "5000" },
-                      { label: "₹5k - ₹15k", min: "5000", max: "15000" },
-                      { label: "₹15k - ₹30k", min: "15000", max: "30000" },
-                      { label: "Above ₹30k", min: "30000", max: "" },
-                    ].map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => {
-                          setLocalMin(preset.min);
-                          setLocalMax(preset.max);
-                        }}
-                        className="px-3 py-1.5 rounded-full border border-border text-tiny font-medium text-foreground-secondary hover:border-primary hover:bg-muted transition-colors"
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "condition" && (
-              <div className="space-y-3">
-                <Label className="text-caption font-bold text-foreground-subtle uppercase tracking-wider">
-                  Device Condition
-                </Label>
-                <div className="space-y-2">
-                  {[
-                    { id: "power_on", label: "Powers On (Working)" },
-                    { id: "power_off", label: "Powers Off (Parts / Repair)" },
-                  ].map((item) => {
-                    const isChecked = deviceCondition === item.id;
-                    return (
-                      <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border hover:bg-muted">
-                        <Checkbox
-                          id={`drawer-cond-${item.id}`}
-                          checked={isChecked}
-                          onCheckedChange={(checked) => {
-                            onDeviceConditionChange?.(checked ? item.id : "");
-                          }}
-                        />
-                        <Label
-                          htmlFor={`drawer-cond-${item.id}`}
-                          className="text-small font-medium text-foreground-secondary cursor-pointer flex-1"
-                        >
-                          {item.label}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
+          <BrowseFiltersDrawerPanels
+            activeTab={activeTab}
+            browseType={browseType}
+            onTypeChange={onTypeChange}
+            onClose={() => setOpen(false)}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={onCategoryChange}
+            getCategoryValue={getCategoryValue}
+            localMin={localMin}
+            setLocalMin={setLocalMin}
+            localMax={localMax}
+            setLocalMax={setLocalMax}
+            deviceCondition={deviceCondition}
+            onDeviceConditionChange={onDeviceConditionChange}
+          />
         </div>
 
         {/* Sticky Bottom Action Footer (Protected from Floating Elements) */}
-        <div className="p-3 bg-card border-t border-border flex items-center gap-3 pb-8 sm:pb-3">
+        <div className="p-3 bg-card border-t border-border flex items-center gap-3 pb-5 sm:pb-3">
           <Button
             variant="outline"
             onClick={handleClearAll}
             className="flex-1 h-10 text-small font-semibold rounded-xl border-border text-foreground-secondary"
           >
-            Clear all
+            Clear All
           </Button>
           <Button
             onClick={handleApply}

@@ -18,15 +18,15 @@ export function PersonalProfileMobileVisibilitySection({
     control,
 }: PersonalProfileMobileVisibilitySectionProps) {
     return (
-        <div className="space-y-1">
-            <Label className="text-caption font-semibold text-foreground-secondary">
+        <div className="space-y-1 scroll-mt-[calc(6rem+env(safe-area-inset-top,0px))]">
+            <Label className="text-body font-semibold text-foreground-secondary">
                 Phone Number Privacy
             </Label>
             <Controller
                 name="mobileVisibility"
                 control={control}
                 render={({ field }) => (
-                    <div className="grid grid-cols-3 gap-1 p-1 h-10 rounded-xl border border-border bg-card items-center" role="radiogroup" aria-label="Phone Number Privacy">
+                    <div className="grid grid-cols-3 gap-1 p-1 h-11 rounded-xl border border-border bg-card items-center" role="radiogroup" aria-label="Phone Number Privacy">
                         {VISIBILITY_OPTIONS.map((opt) => {
                             const isSelected = field.value === opt.value;
                             return (
@@ -36,7 +36,7 @@ export function PersonalProfileMobileVisibilitySection({
                                     role="radio"
                                     aria-checked={isSelected}
                                     onClick={() => field.onChange(opt.value)}
-                                    className={`h-8 px-1.5 text-tiny font-semibold rounded-lg transition-all flex items-center justify-center text-center truncate ${
+                                    className={`h-9 px-2 text-caption font-semibold rounded-lg transition-all flex items-center justify-center text-center truncate cursor-pointer ${
                                         isSelected
                                             ? "bg-primary text-primary-foreground shadow-2xs"
                                             : "text-foreground-secondary hover:bg-muted hover:text-foreground"

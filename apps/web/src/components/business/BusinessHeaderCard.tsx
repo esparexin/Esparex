@@ -122,7 +122,7 @@ export function BusinessHeaderCard({
               )}
             </div>
             {business.tagline && (
-              <p className="text-caption sm:text-body text-foreground-secondary mt-0.5 font-medium leading-relaxed">
+              <p className="text-body text-foreground-secondary mt-0.5 font-medium leading-relaxed">
                 {business.tagline}
               </p>
             )}

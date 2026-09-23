@@ -1,45 +1,32 @@
 import React, { useState } from 'react';
+import { Button } from '@esparex/ui';
 import { usePlansWalletDashboard } from '@/hooks/usePlansWalletDashboard';
 import { ActiveSubscriptionCard } from '../cards/ActiveSubscriptionCard';
 import { WalletOverviewCard } from '../cards/WalletOverviewCard';
-import { CreditPackListCard } from '../cards/CreditPackListCard';
-import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
 import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
 import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
-import { DynamicPlanCard } from '../cards/DynamicPlanCard';
+import { BuyPlansSection, type PlanCard } from './BuyPlansSection';
 import { formatPrice } from '@/lib/formatters';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
-import type { ProfilePlan } from '../types';
 
-type PlanCard = Omit<ProfilePlan, 'type'> & { type: string };
+import type { LedgerFilterType } from '../cards/CreditLedgerFormatters';
 
 interface PlansTabProps {
   dynamicPlans: PlanCard[];
   currentPlan: string;
-  isError?: boolean;
-  setSelectedPlan?: (id: string) => void;
-  onPlanSelected?: (plan: ProfilePlan) => void;
-  setShowPlanDialog?: (show: boolean) => void;
-  formatCurrency?: (price: number) => string;
   initialTab?: DashboardHubTab;
 }
 
-type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'INVOICES' | 'BUY_PLANS';
-
-const DEFAULT_CATEGORIES: string[] = ['More Ads', 'Spotlight', 'Top Ad', 'Alert Slots'];
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_HISTORY' | 'INVOICES' | 'BUY_PLANS';
 
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
   currentPlan,
-  setSelectedPlan,
-  onPlanSelected,
-  setShowPlanDialog,
-  formatCurrency: _formatCurrency,
   initialTab = 'OVERVIEW',
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
-  const [selectedCategory, setSelectedCategory] = useState<string>('More Ads');
+  const [historyFilter, setHistoryFilter] = useState<LedgerFilterType>('ALL');
   const [dialogSelectedPlan, setDialogSelectedPlan] = useState<string | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState<boolean>(false);
   const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
@@ -49,72 +36,69 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     trackPlansWalletEvent('plans_tab_switched', { tabName: tab });
   };
 
-  // Derive unique categories from dynamic plans, merging with defaults
-  const availableCategories = Array.from(
-    new Set([
-      ...dynamicPlans.map((p) => p.type).filter(Boolean),
-      ...DEFAULT_CATEGORIES,
-    ])
-  );
-
-  // Ensure selected category is valid
-  const currentCategory = availableCategories.includes(selectedCategory)
-    ? selectedCategory
-    : availableCategories[0] || 'More Ads';
-
-  const filteredPlans = dynamicPlans.filter((plan) => plan.type === currentCategory);
+  const handleNavigateToHistory = (filterType?: string) => {
+    let mapped: LedgerFilterType = 'ALL';
+    if (filterType) {
+      const lower = filterType.toLowerCase();
+      if (lower.includes('more ads') || lower.includes('ad_posting')) mapped = 'MORE_ADS';
+      else if (lower.includes('spotlight')) mapped = 'SPOTLIGHT';
+      else if (lower.includes('top ad') || lower.includes('boost')) mapped = 'TOP_AD';
+      else if (lower.includes('alert')) mapped = 'SMART_ALERT';
+    }
+    setHistoryFilter(mapped);
+    setActiveTab('CREDIT_HISTORY');
+    trackPlansWalletEvent('plans_tab_switched', { tabName: 'CREDIT_HISTORY', metadata: { filter: mapped } });
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header Navigation: 3-Tab Navigation for Wallet view */}
+    <div className="w-full space-y-4 sm:space-y-6">
+      {/* Clean Underline Sub-Tabs (Esparex Design System SSOT) */}
       {initialTab !== 'BUY_PLANS' && (
-        <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2">
-          <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
-            <button
-              id="tab-overview"
-              role="tab"
-              aria-selected={activeTab === 'OVERVIEW'}
-              aria-controls="panel-overview"
-              onClick={() => handleTabSwitch('OVERVIEW')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'OVERVIEW'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              My Plan
-            </button>
+        <div className="flex gap-4 sm:gap-6 border-b border-border overflow-x-auto scrollbar-hide pb-px mb-1" role="tablist" aria-label="Wallet Navigation">
+          <button
+            id="tab-overview"
+            role="tab"
+            aria-selected={activeTab === 'OVERVIEW'}
+            aria-controls="panel-overview"
+            onClick={() => handleTabSwitch('OVERVIEW')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'OVERVIEW'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>Wallet & Balances</span>
+          </button>
 
-            <button
-              id="tab-credit-packs"
-              role="tab"
-              aria-selected={activeTab === 'CREDIT_PACKS'}
-              aria-controls="panel-credit-packs"
-              onClick={() => handleTabSwitch('CREDIT_PACKS')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'CREDIT_PACKS'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              Ad Credits
-            </button>
+          <button
+            id="tab-credit-history"
+            role="tab"
+            aria-selected={activeTab === 'CREDIT_HISTORY'}
+            aria-controls="panel-credit-history"
+            onClick={() => handleTabSwitch('CREDIT_HISTORY')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'CREDIT_HISTORY'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>My Usage</span>
+          </button>
 
-            <button
-              id="tab-invoices"
-              role="tab"
-              aria-selected={activeTab === 'INVOICES'}
-              aria-controls="panel-invoices"
-              onClick={() => handleTabSwitch('INVOICES')}
-              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                activeTab === 'INVOICES'
-                  ? 'bg-card text-foreground shadow-xs'
-                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
-              }`}
-            >
-              Invoices
-            </button>
-          </nav>
+          <button
+            id="tab-invoices"
+            role="tab"
+            aria-selected={activeTab === 'INVOICES'}
+            aria-controls="panel-invoices"
+            onClick={() => handleTabSwitch('INVOICES')}
+            className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'INVOICES'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-foreground-secondary hover:text-foreground'
+            }`}
+          >
+            <span>Invoices</span>
+          </button>
         </div>
       )}
 
@@ -130,122 +114,66 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       {isError && (
         <div role="alert" className="bg-destructive/10 text-destructive p-4 rounded-xl text-body flex items-center justify-between border border-destructive/20">
           <span>Unable to load live plans and wallet data. Please refresh or try again later.</span>
-          <button
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
             onClick={() => void refetch()}
-            className="px-3 py-1 bg-destructive text-destructive-foreground rounded-lg text-caption font-semibold hover:bg-destructive/90 transition-colors"
+            className="h-8 px-3 rounded-lg text-caption font-semibold cursor-pointer"
           >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
-      {/* TAB 1: OVERVIEW & BALANCES */}
+      {/* TAB 1: CONSOLIDATED PLAN & ALLOWANCES OVERVIEW */}
       {activeTab === 'OVERVIEW' && !isLoading && (
         <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
-            subscription={dashboardData?.subscription || null}
-            onBrowsePlans={() => setActiveTab('BUY_PLANS')}
+            subscription={dashboardData?.subscription ?? null}
+            nextMonthlyResetDate={dashboardData?.wallet?.nextMonthlyResetDate}
+            onBrowsePlans={() => handleTabSwitch('BUY_PLANS')}
           />
-
           {dashboardData?.wallet && (
-            <WalletOverviewCard wallet={dashboardData.wallet} />
+            <WalletOverviewCard
+              wallet={dashboardData.wallet}
+              creditPacks={dashboardData.creditPacks ?? []}
+              onNavigateToHistory={handleNavigateToHistory}
+            />
           )}
-
-          <ActivePromotionsCard promotions={dashboardData?.activePromotions || []} />
         </div>
       )}
 
-      {/* TAB 2: ITEMIZED CREDIT PACKS & AUDIT HISTORY */}
-      {activeTab === 'CREDIT_PACKS' && !isLoading && (
-        <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="flex flex-col gap-3 sm:gap-4">
-          <CreditPackListCard creditPacks={dashboardData?.creditPacks || []} />
-          <CreditLedgerHistoryCard />
+      {/* TAB 2: DE-BOXED CREDIT HISTORY WITH DYNAMIC FILTERS */}
+      {activeTab === 'CREDIT_HISTORY' && !isLoading && (
+        <div id="panel-credit-history" role="tabpanel" aria-labelledby="tab-credit-history" className="flex flex-col gap-3 sm:gap-4">
+          <CreditLedgerHistoryCard
+            creditPacks={dashboardData?.creditPacks || []}
+            initialFilter={historyFilter}
+          />
         </div>
       )}
 
       {/* TAB 3: INVOICES & PAYMENT HISTORY */}
       {activeTab === 'INVOICES' && !isLoading && (
         <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="flex flex-col gap-3 sm:gap-4">
-          <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />
+          <RecentPaymentsCard
+            payments={dashboardData?.recentPayments || []}
+            onBrowsePlans={() => handleTabSwitch('BUY_PLANS')}
+          />
         </div>
       )}
 
       {/* TAB 3: BUY PLANS & TOP-UPS (Mobile-First Category Pills Navigation) */}
       {activeTab === 'BUY_PLANS' && (
-        <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="flex flex-col gap-3 sm:gap-4">
-          {/* Free-Flowing Category Filter Pills Bar */}
-          <div className="overflow-x-auto no-scrollbar scrollbar-none py-1 -mx-1 px-1">
-            <div
-              className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none w-max sm:w-auto"
-              role="tablist"
-              aria-label="Plan Categories"
-            >
-              {availableCategories.map((catType) => {
-                const count = dynamicPlans.filter((p) => p.type === catType).length;
-                const isSelected = currentCategory === catType;
-
-                return (
-                  <button
-                    key={catType}
-                    id={`cat-tab-${catType.replace(/\s+/g, '-').toLowerCase()}`}
-                    role="tab"
-                    aria-selected={isSelected}
-                    onClick={() => setSelectedCategory(catType)}
-                    className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
-                      isSelected
-                        ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-2xs'
-                    }`}
-                  >
-                    <span>{catType}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded-full text-tiny font-extrabold ${
-                        isSelected
-                          ? 'bg-primary-foreground/20 text-primary-foreground'
-                          : 'bg-muted text-foreground-secondary'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Standardized Compact Package Cards Grid */}
-          {filteredPlans.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-              {filteredPlans.map((plan) => (
-                <DynamicPlanCard
-                  key={plan.id}
-                  plan={plan}
-                  isCurrent={currentPlan === plan.id}
-                  onSelect={(p) => {
-                    setDialogSelectedPlan(p.id);
-                    setIsPurchaseDialogOpen(true);
-                    if (setSelectedPlan) {
-                      setSelectedPlan(p.id);
-                    }
-                    if (onPlanSelected) {
-                      onPlanSelected(p as ProfilePlan);
-                    }
-                    if (setShowPlanDialog) {
-                      setShowPlanDialog(true);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-xs">
-              <h4 className="text-body font-bold text-foreground">No Packages Available</h4>
-              <p className="text-caption text-foreground-subtle">
-                There are currently no active packages in the {currentCategory} category.
-              </p>
-            </div>
-          )}
-        </div>
+        <BuyPlansSection
+          dynamicPlans={dynamicPlans}
+          currentPlan={currentPlan}
+          onSelectPlan={(plan) => {
+            setDialogSelectedPlan(plan.id);
+            setIsPurchaseDialogOpen(true);
+          }}
+        />
       )}
 
       {/* Plan Purchase Confirmation Dialog */}
@@ -260,7 +188,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           features: p.features || [],
           price: p.price,
         }))}
-        formatCurrency={_formatCurrency || formatPrice}
+        formatCurrency={formatPrice}
       />
     </div>
   );

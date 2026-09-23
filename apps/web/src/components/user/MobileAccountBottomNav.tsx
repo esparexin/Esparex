@@ -16,11 +16,18 @@ interface BottomNavItem {
   badge?: number;
 }
 
+export function resolveBottomNavActiveTab(activeTab: ProfileTabValue): ProfileTabValue {
+  const primaryTabs: ProfileTabValue[] = ["personal", "mylistings", "messages", "smartalerts"];
+  return primaryTabs.includes(activeTab) ? activeTab : "more";
+}
+
 export function MobileAccountBottomNav({
   activeTab,
   onTabChange,
   unreadCount = 0,
 }: MobileAccountBottomNavProps) {
+  const resolvedActiveTab = resolveBottomNavActiveTab(activeTab);
+
   const items: BottomNavItem[] = [
     { value: "personal", label: "Account", icon: User },
     { value: "mylistings", label: "Listings", icon: Package },
@@ -36,7 +43,7 @@ export function MobileAccountBottomNav({
     >
       {items.map((item) => {
         const Icon = item.icon;
-        const isActive = activeTab === item.value;
+        const isActive = resolvedActiveTab === item.value;
         return (
           <button
             key={item.value}

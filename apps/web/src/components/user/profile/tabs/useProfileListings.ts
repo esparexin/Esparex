@@ -2,6 +2,7 @@ import {
     useUserListingManagement,
     type ListingStatus,
     type ListingSoldReason,
+    type ListingActionApis,
 } from "@/hooks/useUserListingManagement";
 import { 
     getMyListings, 
@@ -16,29 +17,32 @@ import { LISTING_TYPE } from "@esparex/contracts";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@esparex/contracts";
 
-export type ProfileListingType = "ads" | "services" | "spare-parts";
+type ProfileListingType = "ads" | "services" | "spare-parts";
 
-type ListingManagerConfig = {
-    fetchApi: () => Promise<Listing[]>;
-    deleteApi: (id: string) => Promise<unknown>;
-    markSoldApi: (id: string, reason?: ListingSoldReason) => Promise<unknown>;
-    deactivateApi: (id: string) => Promise<unknown>;
-    activateApi?: (id: string) => Promise<unknown>;
-    repostApi: (id: string) => Promise<unknown>;
-    queryKey: readonly unknown[];
-};
+export interface UseProfileListingsOptions {
+    type: ProfileListingType;
+    activeSubTab: string;
+    user: User | null;
+    statusFilter?: ListingStatus;
+    page?: number;
+    limit?: number;
+}
 
-export function useProfileListings(
-    type: ProfileListingType,
-    activeSubTab: string,
-    user: User | null,
-    statusFilter: ListingStatus = "live"
-) {
+type ListingManagerConfig = ListingActionApis<Listing>;
+
+export function useProfileListings({
+    type,
+    activeSubTab,
+    user,
+    statusFilter = "live",
+    page = 1,
+    limit = 10,
+}: UseProfileListingsOptions) {
     const isActive = activeSubTab === type;
 
     const configMap: Record<ProfileListingType, ListingManagerConfig> = {
         ads: {
-            fetchApi: async () => (await getMyListings(LISTING_TYPE.AD, statusFilter)).data,
+            fetchApi: () => getMyListings(LISTING_TYPE.AD, statusFilter, page, limit),
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.AD),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: (id: string) => deactivateListing(id),
@@ -47,7 +51,7 @@ export function useProfileListings(
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.AD)
         },
         services: {
-            fetchApi: async () => (await getMyListings(LISTING_TYPE.SERVICE, statusFilter)).data,
+            fetchApi: () => getMyListings(LISTING_TYPE.SERVICE, statusFilter, page, limit),
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SERVICE),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
@@ -56,7 +60,7 @@ export function useProfileListings(
             queryKey: queryKeys.ads.myAds(statusFilter, LISTING_TYPE.SERVICE)
         },
         "spare-parts": {
-            fetchApi: async () => (await getMyListings(LISTING_TYPE.SPARE_PART, statusFilter)).data,
+            fetchApi: () => getMyListings(LISTING_TYPE.SPARE_PART, statusFilter, page, limit),
             deleteApi: (id: string) => deleteListing(id, LISTING_TYPE.SPARE_PART),
             markSoldApi: (id: string, reason?: ListingSoldReason) => markListingAsSold(id, reason, statusFilter === 'expired'),
             deactivateApi: deactivateListing,
@@ -69,6 +73,7 @@ export function useProfileListings(
 
     const {
         listings,
+        pagination,
         loading,
         error,
         refetch,
@@ -82,11 +87,14 @@ export function useProfileListings(
         activeTab: isActive ? type : "",
         user,
         statusFilter,
+        page,
+        limit,
         ...config
     });
 
     return {
         listings,
+        pagination,
         loading,
         error,
         refetch,

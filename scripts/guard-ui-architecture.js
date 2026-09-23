@@ -73,7 +73,22 @@ const RULES = {
     severity: "warning",
     description: "Inline style with color value — prefer design tokens",
   },
+  LUCIDE_DIRECT_IMPORT: {
+    id: "lucide-direct-import",
+    severity: "warning",
+    description: "Direct import from 'lucide-react' in apps/web. Import from @esparex/ui instead.",
+  },
+  RAW_INLINE_SVG: {
+    id: "raw-inline-svg",
+    severity: "warning",
+    description: "Inline <svg> element — must use canonical icons exported from @esparex/ui",
+  },
 };
+
+const NATIVE_BUTTON_BASELINE = 138;
+const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
+const RAW_INLINE_SVG_BASELINE = 0;
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -210,6 +225,22 @@ function auditFile(filePath) {
     }
   });
 
+  // ── Warning: Direct lucide-react import ───────────────────────────────────
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/from\s+["']lucide-react["']/.test(l) && !isIgnored(l, RULES.LUCIDE_DIRECT_IMPORT.id, prevLine)) {
+      report(RULES.LUCIDE_DIRECT_IMPORT, i, l);
+    }
+  });
+
+  // ── Warning: Inline <svg> element ─────────────────────────────────────────
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/<svg[\s>]/.test(l) && !isIgnored(l, RULES.RAW_INLINE_SVG.id, prevLine)) {
+      report(RULES.RAW_INLINE_SVG, i, l);
+    }
+  });
+
   return violations;
 }
 
@@ -226,6 +257,49 @@ function run() {
 
   const errors = allViolations.filter((v) => v.rule.severity === "error");
   const warnings = allViolations.filter((v) => v.rule.severity === "warning");
+
+  // Ratchet checks
+  const nativeButtonCount = allViolations.filter((v) => v.rule.id === RULES.NATIVE_BUTTON.id).length;
+  if (nativeButtonCount > NATIVE_BUTTON_BASELINE) {
+    errors.push({
+      rule: {
+        id: "native-button-ratchet",
+        severity: "error",
+        description: `Native <button> count (${nativeButtonCount}) exceeds baseline (${NATIVE_BUTTON_BASELINE}). Use @esparex/ui Button primitive.`,
+      },
+      file: "apps/web",
+      line: 0,
+      content: `Current: ${nativeButtonCount}, Baseline: ${NATIVE_BUTTON_BASELINE}`,
+    });
+  }
+
+  const lucideImportCount = allViolations.filter((v) => v.rule.id === RULES.LUCIDE_DIRECT_IMPORT.id).length;
+  if (lucideImportCount > LUCIDE_DIRECT_IMPORT_BASELINE) {
+    errors.push({
+      rule: {
+        id: "lucide-import-ratchet",
+        severity: "error",
+        description: `Direct 'lucide-react' imports count (${lucideImportCount}) exceeds baseline (${LUCIDE_DIRECT_IMPORT_BASELINE}). Import from @esparex/ui.`,
+      },
+      file: "apps/web",
+      line: 0,
+      content: `Current: ${lucideImportCount}, Baseline: ${LUCIDE_DIRECT_IMPORT_BASELINE}`,
+    });
+  }
+
+  const rawSvgCount = allViolations.filter((v) => v.rule.id === RULES.RAW_INLINE_SVG.id).length;
+  if (rawSvgCount > RAW_INLINE_SVG_BASELINE) {
+    errors.push({
+      rule: {
+        id: "raw-svg-ratchet",
+        severity: "error",
+        description: `Raw inline <svg> count (${rawSvgCount}) exceeds baseline (${RAW_INLINE_SVG_BASELINE}). Use @esparex/ui icons.`,
+      },
+      file: "apps/web",
+      line: 0,
+      content: `Current: ${rawSvgCount}, Baseline: ${RAW_INLINE_SVG_BASELINE}`,
+    });
+  }
 
   // ── Print report ──────────────────────────────────────────────────────────
   console.log(`\n🛡️  Esparex UI Architecture Guard`);

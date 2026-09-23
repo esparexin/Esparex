@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 import type {
   ProfileUser,
@@ -28,14 +28,10 @@ export function useProfileSettings({
     deleteFeedback, setDeleteFeedback,
     deleteAccountErrors,
     deleteAccountGlobalError,
+    isDeleting,
     handleDeleteAccount,
   } = useProfileTermination({ onLogout });
 
-  // Smart alerts state moved back to useSmartAlerts entirely
-
-  // ── Non-Domain UI State ─────────────────────────────────────────────────────
-  const [showPlanDialog, setShowPlanDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   // ── Propagation: Sync user prop changes to all hooks ────────────────────────
   useEffect(() => {
@@ -53,11 +49,8 @@ export function useProfileSettings({
     deleteFeedback, setDeleteFeedback,
     deleteAccountErrors,
     deleteAccountGlobalError,
+    isDeleting,
     handleDeleteAccount,
-
-    // UI Dialogs
-    showPlanDialog, setShowPlanDialog,
-    selectedPlan, setSelectedPlan,
 
     // Smart alerts logic moved to ProfileSettingsSidebar directly using useSmartAlerts
   };

@@ -110,7 +110,7 @@ export function ListingImageTile({
               e.stopPropagation();
               onSetMain(index);
             }}
-            className="w-full py-1 text-3xs font-bold text-white bg-black/70 rounded backdrop-blur-xs hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
+            className="w-full py-1 text-tiny font-bold text-white bg-black/70 rounded backdrop-blur-xs hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
           >
             Make Cover
           </button>
@@ -118,7 +118,7 @@ export function ListingImageTile({
       </div>
 
       {index === 0 && (
-        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-3xs font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs backdrop-blur-xs">
+        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-tiny font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs backdrop-blur-xs">
           {firstImageBadgeLabel}
         </div>
       )}

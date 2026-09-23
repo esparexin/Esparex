@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogTitle, Stack } from "@esparex/ui";
+import { Button, Check, Dialog, DialogContent, DialogDescription, DialogTitle, Stack } from "@esparex/ui";
 
 interface ListingSubmissionSuccessModalProps {
     entityLabel: string;
@@ -28,16 +28,14 @@ export function ListingSubmissionSuccessModal({
             >
                 <Stack gap="md">
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 ring-4 ring-emerald-50">
-                        <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Check className="h-5 w-5 text-emerald-600" strokeWidth={2.5} />
                     </div>
 
                     <Stack gap="xs">
                         <DialogTitle className="text-body-lg sm:text-h4 font-bold text-foreground">
                             {titleText}
                         </DialogTitle>
-                        <DialogDescription id="submission-success-description" className="text-caption sm:text-body text-foreground-secondary leading-relaxed">
+                        <DialogDescription id="submission-success-description" className="text-body text-foreground-secondary leading-relaxed">
                             Your {entityLabel.toLowerCase()} is pending admin review.<br />
                             It will go live after approval.
                         </DialogDescription>
@@ -47,14 +45,14 @@ export function ListingSubmissionSuccessModal({
                     <div className="flex flex-col gap-2 pt-1">
                         <Button
                             onClick={onPrimaryAction}
-                            className="w-full h-9 sm:h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-caption sm:text-body rounded-xl shadow-xs cursor-pointer"
+                            className="w-full h-9 sm:h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-body rounded-xl shadow-xs cursor-pointer"
                         >
                             Done
                         </Button>
                         <Button
                             variant="outline"
                             onClick={onSecondaryAction}
-                            className="w-full h-9 sm:h-10 border-border text-foreground-secondary hover:bg-muted font-medium text-caption sm:text-body rounded-xl cursor-pointer"
+                            className="w-full h-9 sm:h-10 border-border text-foreground-secondary hover:bg-muted font-medium text-body rounded-xl cursor-pointer"
                         >
                             {pendingActionLabel}
                         </Button>

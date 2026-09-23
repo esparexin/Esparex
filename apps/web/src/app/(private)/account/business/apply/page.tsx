@@ -80,7 +80,7 @@ export default function BusinessApplyPage() {
         );
     }
 
-    const status = normalizeBusinessStatus(businessData?.status || user?.businessStatus, "pending");
+    const status = normalizeBusinessStatus(businessData?.status || user?.businessStatus, "none");
     const hasExistingBusiness = Boolean(businessData?.id || user?.businessId);
 
     // If user clicked edit to update application details (pending or rejected status)
@@ -116,8 +116,8 @@ export default function BusinessApplyPage() {
                     title={
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-                            <span className="text-xl font-bold text-slate-900">{businessData?.name || "Verified Business"}</span>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                            <span className="text-h3 font-bold text-foreground">{businessData?.name || "Verified Business"}</span>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-caption font-semibold text-emerald-800">
                                 Verified
                             </span>
                         </div>

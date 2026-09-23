@@ -9,6 +9,7 @@ interface BrowseBreadcrumbProps {
   locationLabel?: string | null;
   total?: number;
   className?: string;
+  query?: string | null;
 }
 
 export function BrowseBreadcrumb({
@@ -16,13 +17,21 @@ export function BrowseBreadcrumb({
   locationLabel,
   total: _total,
   className,
+  query,
 }: BrowseBreadcrumbProps) {
-  const displayTitle = categoryName ? categoryName : "All Categories";
+  const trimmedQuery = query?.trim();
+  const displayTitle = trimmedQuery
+    ? categoryName
+      ? `"${trimmedQuery}" in ${categoryName}`
+      : `"${trimmedQuery}"`
+    : categoryName
+    ? categoryName
+    : "All Categories";
 
   return (
     <div className={cn("space-y-1 py-1 md:py-2", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-caption md:text-small text-muted-foreground font-normal overflow-x-auto no-scrollbar">
+      <nav aria-label="Breadcrumb" className="flex items-center text-caption md:text-small text-muted-foreground font-normal overflow-x-auto scrollbar-hide">
         <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
           <li>
             <Link
@@ -40,9 +49,9 @@ export function BrowseBreadcrumb({
               href="/browse"
               className={cn(
                 "hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm",
-                !categoryName && "text-foreground font-medium"
+                !categoryName && !trimmedQuery && "text-foreground font-medium"
               )}
-              aria-current={!categoryName ? "page" : undefined}
+              aria-current={!categoryName && !trimmedQuery ? "page" : undefined}
             >
               Browse
             </Link>
@@ -52,8 +61,24 @@ export function BrowseBreadcrumb({
               <li aria-hidden="true" className="text-muted-foreground/40">
                 <ChevronRight className="size-3" />
               </li>
-              <li className="text-foreground/90 font-normal truncate max-w-[160px] md:max-w-[300px]" aria-current="page">
+              <li
+                className={cn(
+                  "text-foreground/90 truncate max-w-[160px] md:max-w-[300px]",
+                  !trimmedQuery ? "font-medium" : "font-normal"
+                )}
+                aria-current={!trimmedQuery ? "page" : undefined}
+              >
                 {categoryName}
+              </li>
+            </>
+          )}
+          {trimmedQuery && (
+            <>
+              <li aria-hidden="true" className="text-muted-foreground/40">
+                <ChevronRight className="size-3" />
+              </li>
+              <li className="text-foreground/90 font-medium truncate max-w-[160px] md:max-w-[300px]" aria-current="page">
+                &ldquo;{trimmedQuery}&rdquo;
               </li>
             </>
           )}

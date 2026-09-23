@@ -89,7 +89,7 @@ export function MessageBubble({ message, isOwn, onRetry }: MessageBubbleProps) {
                     return (
                       <div
                         key={`${attachment.url}-${index}`}
-                        className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium flex items-center gap-2"
+                        className="p-3 bg-red-50 border border-red-200 rounded-lg text-caption text-destructive font-medium flex items-center gap-2"
                         role="alert"
                       >
                         <span>🔒</span>

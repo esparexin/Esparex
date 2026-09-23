@@ -26,6 +26,7 @@ export function isWizardPathname(pathname: string | null | undefined): boolean {
     pathname.startsWith("/edit-ad") ||
     pathname.startsWith("/edit-service") ||
     pathname.startsWith("/edit-spare-part") ||
+    pathname.startsWith("/business/edit") ||
     pathname === "/account/business/apply"
   );
 }
@@ -34,6 +35,7 @@ export type UserPage =
     | "home"
     | "browse"
     | "browse-service-listings"
+    | "browse-spare-part-listings"
     | "category"
     | "post-ad"
     | "business-register"  // Business registration page
@@ -50,12 +52,14 @@ export type UserPage =
     | "service-detail"
     | "my-business"
     | "my-services"  // My services page
+    | "services"     // Alias for my-services
     | "spare-parts"  // My spare parts page
     | "purchases"
     | "edit-ad"  // Edit ad page
     | "edit-service"  // Edit service page
     | "edit-spare-part"  // Edit spare part listing page
     | "edit-business"  // Edit business profile page
+    | "business-edit"  // Edit business profile page (alias)
     | "post-service"  // Service posting form
     | "faq"  // FAQ / Help Center page
     | "safety-tips"  // Safety Tips page
@@ -111,6 +115,8 @@ export type UserPage =
 export const ROUTES = {
     HOME: "home",
     BROWSE: "browse",
+    BROWSE_SERVICES: "browse-service-listings",
+    BROWSE_SPARE_PARTS: "browse-spare-part-listings",
     CATEGORY: "category",
     POST_AD: "post-ad",
     LOGIN: "login",
@@ -122,6 +128,7 @@ export const ROUTES = {
     EDIT_AD: "edit-ad",
     EDIT_SERVICE: "edit-service",
     EDIT_SPARE_PART: "edit-spare-part",
+    EDIT_BUSINESS: "business-edit",
 } as const satisfies Record<string, UserPage>;
 
 export type RouteKey = typeof ROUTES[keyof typeof ROUTES];
@@ -130,18 +137,22 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
     browse: buildPublicBrowseRoute({ type: "ad" }),
     "browse-service-listings": buildPublicBrowseRoute({ type: "service" }),
+    "browse-spare-part-listings": buildPublicBrowseRoute({ type: "spare_part" }),
     "post-ad": "/post-ad",
     login: "/?login=true",
     // ── /account/* namespace (SSOT for all private account pages) ──
     account: "/account",
     "my-ads": "/account/ads",
     "my-services": "/account/services",
+    services: "/account/services",
     "spare-parts": "/account/spare-parts",
     "saved-ads": "/account/saved",
     messages: "/account/messages",
     profile: "/account/profile",
     "profile-settings": "/account/settings",
     "profile-settings-business": "/business/edit",
+    "business-edit": "/business/edit",
+    "edit-business": "/business/edit",
     "business-entry": "/account/business",
     "my-business": "/account/business",
     "business-register": "/account/business/apply",
@@ -199,8 +210,11 @@ export const PROTECTED_USER_PAGE_KEYS = [
     "profile",
     "profile-settings",
     "profile-settings-business",
+    "business-edit",
+    "edit-business",
     "my-ads",
     "my-services",
+    "services",
     "saved-ads",
     "messages",
     "notifications",

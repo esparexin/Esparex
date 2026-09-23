@@ -22,15 +22,96 @@ type WaitForCreditConfig = {
 };
 
 type RazorpayPaymentFailedResponse = {
-  error?: {
-    code?: string;
-    description?: string;
-    reason?: string;
-  };
+  error?: RazorpayErrorDetail;
 };
 
 const isPaymentFailedResponse = (value: unknown): value is RazorpayPaymentFailedResponse =>
   typeof value === "object" && value !== undefined;
+
+export interface RazorpayErrorDetail {
+  code?: string;
+  description?: string;
+  reason?: string;
+  source?: string;
+  step?: string;
+}
+
+export function mapRazorpayPaymentFailure(errorDetail?: RazorpayErrorDetail): string {
+  if (!errorDetail) {
+    return "Payment could not be processed. Please verify your details or try using UPI, Netbanking, or an Indian domestic card.";
+  }
+
+  const code = (errorDetail.code || "").toUpperCase();
+  const reason = (errorDetail.reason || "").toLowerCase();
+  const desc = (errorDetail.description || "").toLowerCase();
+
+  // 1. International Cards / Non-domestic methods
+  if (
+    reason.includes("international") ||
+    desc.includes("international") ||
+    desc.includes("foreign") ||
+    desc.includes("country not supported") ||
+    reason.includes("currency_not_supported")
+  ) {
+    return "International cards are not supported. Please use an Indian domestic debit/credit card, UPI, or Netbanking.";
+  }
+
+  // 2. User cancellation / modal dismiss
+  if (
+    reason.includes("cancelled") ||
+    reason.includes("closed") ||
+    desc.includes("cancelled") ||
+    desc.includes("closed")
+  ) {
+    return "Payment process was closed without completing.";
+  }
+
+  // 3. Rate limiting / Security checks
+  if (
+    code.includes("RATE_LIMIT") ||
+    reason.includes("rate_limit") ||
+    desc.includes("rate limit") ||
+    desc.includes("too many")
+  ) {
+    return "Too many payment attempts detected. Please wait a few moments before trying again.";
+  }
+
+  // 4. Bank / Card decline or insufficient funds
+  if (
+    reason.includes("declined") ||
+    desc.includes("declined") ||
+    reason.includes("insufficient") ||
+    desc.includes("insufficient") ||
+    reason.includes("card_limit")
+  ) {
+    return "Payment was declined by your bank or card issuer. Please check your card balance or try UPI / another card.";
+  }
+
+  // 5. OTP / Authentication failure / Timeout
+  if (
+    reason.includes("auth") ||
+    desc.includes("auth") ||
+    reason.includes("otp") ||
+    desc.includes("otp") ||
+    reason.includes("timed_out") ||
+    desc.includes("timeout") ||
+    desc.includes("timed out")
+  ) {
+    return "Payment authentication failed or timed out. Please try again.";
+  }
+
+  // 6. Payment method temporarily unavailable
+  if (
+    reason.includes("method_not_available") ||
+    desc.includes("temporarily unavailable") ||
+    desc.includes("gateway error")
+  ) {
+    return "The selected payment method is temporarily unavailable. Please try an alternative such as UPI or Netbanking.";
+  }
+
+  // 7. General fallback for post-initiation failure
+  return "Payment could not be processed. Please verify your details or try using UPI, Netbanking, or an Indian domestic card.";
+}
 
 type StartPlanCheckoutInput = {
   planId: string;
@@ -141,20 +222,7 @@ export function usePlanCheckout() {
         const errorDetail = isPaymentFailedResponse(response) ? response.error : undefined;
         logger.error("Payment failed detail", errorDetail);
 
-        const userFriendlyReason = (() => {
-          const code = (errorDetail?.code || "").toUpperCase();
-          const desc = (errorDetail?.description || errorDetail?.reason || "").toLowerCase();
-          if (code.includes("RATE_LIMIT") || desc.includes("too many") || desc.includes("rate limit")) {
-            return "Too many payment attempts were detected. Please wait a short time and try again.";
-          }
-          if (desc.includes("cancelled") || desc.includes("closed")) {
-            return "Payment process was closed without completing.";
-          }
-          if (desc.includes("declined") || desc.includes("insufficient")) {
-            return "Payment couldn't be processed. Please check your payment details or try a different method.";
-          }
-          return "Payment couldn't be started right now. Please try again in a few moments.";
-        })();
+        const userFriendlyReason = mapRazorpayPaymentFailure(errorDetail);
 
         onPaymentFailed?.(userFriendlyReason);
         setIsProcessing(false);
@@ -165,7 +233,6 @@ export function usePlanCheckout() {
       const userMessage = mapErrorToMessage(error, "Payment couldn't be started right now. Please try again in a few moments.");
       onPaymentFailed?.(userMessage);
       setIsProcessing(false);
-      throw error;
     }
   };
 

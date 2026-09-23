@@ -66,33 +66,33 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
                 <DialogContent
                     style={{ zIndex: Z_INDEX.debugLayer }}
-                    className="!rounded-xl !p-5 sm:!max-w-[440px]"
+                    className="rounded-xl sm:max-w-[440px]"
                 >
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500 mt-0.5" />
                         <div className="min-w-0 flex-1">
-                            <DialogHeader className="!mb-0">
-                                <DialogTitle className="text-lg font-semibold">
+                            <DialogHeader className="mb-0">
+                                <DialogTitle className="text-h4 font-semibold">
                                     Unsaved Changes
                                 </DialogTitle>
-                                <DialogDescription className="text-sm text-foreground-subtle mt-1">
+                                <DialogDescription className="text-body text-foreground-subtle mt-1">
                                     Leave this page? Your changes won&apos;t be saved.
                                 </DialogDescription>
                             </DialogHeader>
                         </div>
                     </div>
-                    <DialogFooter className="!mt-5 !flex !flex-row items-center gap-2.5">
+                    <DialogFooter className="mt-5 flex-row items-center gap-2.5">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
-                            className="h-10 flex-1 text-sm border-2 border-black"
+                            className="h-10 flex-1 text-body border-2 border-black"
                         >
                             Cancel
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleConfirm}
-                            className="h-10 flex-1 text-sm"
+                            className="h-10 flex-1 text-body"
                         >
                             Leave
                         </Button>

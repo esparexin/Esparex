@@ -124,6 +124,8 @@ const listingSectionSchema = z.object({
     }).strict().optional(),
     thresholds: z.object({
         proSparePartLimit: optionalNonNegativeInt,
+        businessServiceLimit: optionalNonNegativeInt,
+        businessSparePartLimit: optionalNonNegativeInt,
     }).strict().optional(),
 }).strict();
 

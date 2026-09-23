@@ -48,6 +48,7 @@ export interface ListingFormConfig {
     descriptionProps: {
         label?: string;
         placeholder: string;
+        helperText?: string;
         maxLength: number;
     };
 

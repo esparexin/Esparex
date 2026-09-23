@@ -13,13 +13,16 @@ export function canPublishBusiness(status: BusinessStatus | undefined) {
     return normalized === 'active' || normalized === 'live';
 }
 
-export function canRegisterBusiness(user: User) {
+export function canRegisterBusiness(user: User | null | undefined): boolean {
     // Require OTP-verified mobile to prevent spam registrations
-    if (!user.isPhoneVerified) return false;
-    return canEditBusiness(user.businessStatus);
+    if (!user || !user.isPhoneVerified) return false;
+    // Users who already have an active/live business cannot register another
+    if (isApprovedBusiness(user)) return false;
+    return true;
 }
 
-export function isBusinessPending(user: User) {
+export function isBusinessPending(user: User | null | undefined) {
+    if (!user) return false;
     return normalizeBusinessStatus(user.businessStatus, 'none') === "pending";
 }
 
@@ -28,6 +31,7 @@ export function isApprovedBusiness(user: User | null | undefined) {
     return canPublishBusiness(user.businessStatus);
 }
 
-export function isRejectedBusiness(user: User) {
+export function isRejectedBusiness(user: User | null | undefined) {
+    if (!user) return false;
     return normalizeBusinessStatus(user.businessStatus, 'none') === "rejected";
 }

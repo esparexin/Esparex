@@ -45,8 +45,8 @@ export function RelatedBusinessSidebar({
     <div className="space-y-3 pt-2">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm md:text-base font-bold text-foreground">{title}</h3>
-          <p className="text-xs text-foreground-subtle line-clamp-1">{description}</p>
+          <h3 className="text-body md:text-body-lg font-bold text-foreground">{title}</h3>
+          <p className="text-caption text-foreground-subtle line-clamp-1">{description}</p>
         </div>
         {!isLoading && businesses.length > 0 && (
           <div className="flex items-center gap-1 shrink-0">
@@ -81,13 +81,13 @@ export function RelatedBusinessSidebar({
       ) : null}
 
       {!isLoading && isError ? (
-        <div className="rounded-xl border border-amber-200/80 bg-amber-50/70 p-2.5 text-xs text-amber-900">
+        <div className="rounded-xl border border-amber-200/80 bg-amber-50/70 p-2.5 text-caption text-amber-900">
           <span>Unable to load repair shops.</span>
         </div>
       ) : null}
 
       {!isLoading && !isError && businesses.length === 0 ? (
-        <div className="rounded-xl border border-border bg-muted/40 p-2.5 text-xs text-foreground-subtle">
+        <div className="rounded-xl border border-border bg-muted/40 p-2.5 text-caption text-foreground-subtle">
           {emptyCopy}
         </div>
       ) : null}
@@ -126,10 +126,10 @@ export function RelatedBusinessSidebar({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs md:text-small font-bold text-foreground group-hover:text-primary truncate transition-colors">
+                  <h4 className="text-caption md:text-small font-bold text-foreground group-hover:text-primary truncate transition-colors">
                     {business.name}
                   </h4>
-                  <div className="flex items-center gap-1.5 text-xs text-foreground-subtle mt-0.5">
+                  <div className="flex items-center gap-1.5 text-caption text-foreground-subtle mt-0.5">
                     <span className="text-amber-500 font-bold flex items-center">★ 4.5</span>
                     <span>·</span>
                     <span className="truncate">{locationLabel}</span>
@@ -145,7 +145,7 @@ export function RelatedBusinessSidebar({
       <div className="text-center pt-1">
         <Link
           href="/search?type=service"
-          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
+          className="text-caption font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
         >
           <span>View more services</span>
           <ChevronRight className="h-3.5 w-3.5" />

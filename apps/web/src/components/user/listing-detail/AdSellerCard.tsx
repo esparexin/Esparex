@@ -1,4 +1,4 @@
-import { Badge } from "@esparex/ui";
+import { CheckCircle } from "@esparex/ui";
 import { Building2, MessageCircle, MessageSquareOff, Phone } from "@esparex/ui";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
@@ -61,7 +61,7 @@ export function AdSellerCard({
         }
         return (
             <div className={`h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-primary text-sm">
+                <span className="font-bold text-primary text-body">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>
@@ -76,12 +76,24 @@ export function AdSellerCard({
                 avatar={renderAvatar()}
                 name={sellerDisplayName}
                 subtitle={
-                    <p className="text-xs text-foreground-subtle font-medium">
-                        {ad.isBusiness ? "Verified Business Account" : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
+                    <p className="text-caption text-foreground-subtle font-medium">
+                        {ad.listingType === "service"
+                            ? "Verified Service Center"
+                            : ad.listingType === "spare_part"
+                            ? "Verified Parts Supplier"
+                            : ad.isBusiness
+                            ? "Verified Business Account"
+                            : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
                     </p>
                 }
-                badge={ad.isBusiness && ad.verified ? (
-                    <Badge className="bg-primary text-primary-foreground text-tiny h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                badge={ad.isBusiness || ad.verified ? (
+                    <span
+                        title={ad.listingType === "service" ? "Verified Service Center" : ad.listingType === "spare_part" ? "Verified Parts Supplier" : "Verified Business"}
+                        aria-label={ad.listingType === "service" ? "Verified Service Center" : ad.listingType === "spare_part" ? "Verified Parts Supplier" : "Verified Business"}
+                        className="inline-flex items-center justify-center shrink-0"
+                    >
+                        <CheckCircle className="h-4 w-4 text-primary" />
+                    </span>
                 ) : undefined}
                 trailing={undefined}
             />
@@ -95,19 +107,19 @@ export function AdSellerCard({
                                 variant="outline"
                                 disabled={isPhoneLoading}
                                 aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                                className="w-full h-10 rounded-xl text-xs sm:text-sm font-semibold gap-2 border-border text-foreground-secondary hover:bg-muted cursor-pointer"
+                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl font-semibold gap-1.5 border-border text-foreground-secondary hover:bg-muted cursor-pointer"
                             >
-                                <Phone className="h-4 w-4" />
-                                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                                <Phone className="h-4 w-4 shrink-0" />
+                                <span className="min-w-0 truncate text-caption sm:text-small font-semibold tracking-tight">{phoneButtonLabel}</span>
                             </Button>
                         )}
                         {showInlineChat && (
                             <Button
                                 onClick={onChat}
                                 aria-label="Chat with seller"
-                                className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-semibold gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption sm:text-small font-semibold gap-1.5 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
                             >
-                                <MessageCircle className="h-4 w-4" />
+                                <MessageCircle className="h-4 w-4 shrink-0" />
                                 <span>Chat</span>
                             </Button>
                         )}

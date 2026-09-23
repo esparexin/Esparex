@@ -20,4 +20,9 @@ describe("account listing routes", () => {
         expect(normalizeAccountListingStatus("spare-parts", "expired")).toBe("expired");
         expect(buildAccountListingRoute("spare-parts", "expired")).toBe("/account/spare-parts?status=expired");
     });
+
+    it("appends page parameter when page is greater than 1", () => {
+        expect(buildAccountListingRoute("ads", "live", 2)).toBe("/account/ads?status=live&page=2");
+        expect(buildAccountListingRoute("ads", "live", 1)).toBe("/account/ads?status=live");
+    });
 });

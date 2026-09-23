@@ -14,18 +14,19 @@ export function StepBasicDetails({
     setFormData,
 }: StepBasicDetailsProps) {
     return (
-        <div className="space-y-4">
-            <div className="grid gap-3.5 md:grid-cols-2">
+        <div className="space-y-3.5">
+            <div className="grid gap-3 md:grid-cols-2">
                 <Field
                     label="Business name"
+                    labelClassName="text-body font-semibold text-foreground-secondary"
                     required
                     error={formData.errors?.name}
                     headerExtra={
-                        <span className={cn("text-xs font-medium", formData.name.length > 100 ? "text-destructive" : "text-muted-foreground")}>
+                        <span className={cn("text-tiny font-normal tabular-nums", formData.name.length > 100 ? "text-destructive" : "text-foreground-subtle")}>
                             {formData.name.length}/100
                         </span>
                     }
-                    className="space-y-1"
+                    className="space-y-1.5"
                 >
                     <Input
                         id="reg-business-name"
@@ -33,16 +34,17 @@ export function StepBasicDetails({
                         onChange={(e) => setFormData({ ...formData, name: e.target.value.slice(0, 100) })}
                         placeholder="e.g. Tech Repair Solutions"
                         maxLength={100}
-                        className="h-10 text-body-lg md:text-body"
+                        className="h-11 rounded-xl text-body-lg md:text-body font-normal placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                         aria-invalid={Boolean(formData.errors?.name)}
                     />
                 </Field>
 
                 <Field
                     label="Business email"
+                    labelClassName="text-body font-semibold text-foreground-secondary"
                     required
                     error={formData.errors?.email}
-                    className="space-y-1"
+                    className="space-y-1.5"
                 >
                     <Input
                         id="reg-email"
@@ -51,7 +53,7 @@ export function StepBasicDetails({
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="business@example.com"
-                        className="h-10 text-body-lg md:text-body"
+                        className="h-11 rounded-xl text-body-lg md:text-body font-normal placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                         aria-invalid={Boolean(formData.errors?.email)}
                     />
                 </Field>
@@ -59,14 +61,15 @@ export function StepBasicDetails({
 
             <Field
                 label="About your business"
+                labelClassName="text-body font-semibold text-foreground-secondary"
                 required
                 error={formData.errors?.description}
                 headerExtra={
-                    <span className={cn("text-xs font-medium", formData.description.length > 2000 ? "text-destructive" : "text-muted-foreground")}>
+                    <span className={cn("text-tiny font-normal tabular-nums", formData.description.length > 2000 ? "text-destructive" : "text-foreground-subtle")}>
                         {formData.description.length}/2000
                     </span>
                 }
-                className="space-y-1"
+                className="space-y-1.5"
             >
                 <Textarea
                     id="reg-business-desc"
@@ -74,8 +77,7 @@ export function StepBasicDetails({
                     onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 2000) })}
                     placeholder="Describe your business, specialties, and services..."
                     maxLength={2000}
-                    rows={2}
-                    className="min-h-[64px] text-body-lg md:text-body"
+                    className="min-h-[84px] sm:min-h-[92px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
                     aria-invalid={Boolean(formData.errors?.description)}
                 />
             </Field>

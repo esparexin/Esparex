@@ -13,6 +13,7 @@ import {
   Share2,
   Sparkles,
   Zap,
+  Button,
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import {
@@ -90,19 +91,21 @@ export function ListingItemActions({
         {hasOverflowItems ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 aria-label="More actions"
                 className={cn(
-                  "h-6 w-6 flex items-center justify-center cursor-pointer",
+                  "size-7 md:size-6 flex items-center justify-center cursor-pointer p-0",
                   "rounded text-muted-foreground",
                   "hover:text-foreground hover:bg-muted",
-                  "transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+                  "relative before:absolute before:-inset-2 before:content-['']",
+                  "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                 )}
               >
                 <MoreVertical className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -112,7 +115,7 @@ export function ListingItemActions({
               {showMarkSold && (
                 <DropdownMenuItem
                   onClick={onMarkSold}
-                  className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <CheckSquare className="h-3 w-3 mr-1.5 shrink-0" />
                   Mark as Sold
@@ -121,7 +124,7 @@ export function ListingItemActions({
               {showDeactivate && (
                 <DropdownMenuItem
                   onClick={onDeactivate}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <PowerOff className="h-3 w-3 mr-1.5 shrink-0" />
                   Deactivate
@@ -130,7 +133,7 @@ export function ListingItemActions({
               {showActivate && (
                 <DropdownMenuItem
                   onClick={onActivate}
-                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Power className="h-3 w-3 mr-1.5 shrink-0" />
                   Activate
@@ -139,7 +142,7 @@ export function ListingItemActions({
               {showBoost && (
                 <DropdownMenuItem
                   onClick={onBoost}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-amber-500" />
                   Apply Boost / Spotlight
@@ -148,7 +151,7 @@ export function ListingItemActions({
               {showRenew && (
                 <DropdownMenuItem
                   onClick={onRenew}
-                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-primary focus:text-primary focus:bg-primary/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <RefreshCw className="h-3 w-3 mr-1.5 shrink-0" />
                   Renew
@@ -156,7 +159,7 @@ export function ListingItemActions({
               )}
               {(showMarkSold || showDeactivate || showActivate || showRenew) &&
                 showDelete && <DropdownMenuSeparator className="my-1" />}
-              {detailHref && (
+              {detailHref && isActive && (
                 <DropdownMenuItem
                   onClick={() => {
                     if (typeof window !== "undefined" && navigator.share) {
@@ -167,7 +170,7 @@ export function ListingItemActions({
                       );
                     }
                   }}
-                  className="cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center text-foreground"
+                  className="cursor-pointer text-tiny font-medium py-1 px-2 flex items-center text-foreground"
                 >
                   <Share2 className="h-3 w-3 mr-1.5 shrink-0" />
                   Share
@@ -176,7 +179,7 @@ export function ListingItemActions({
               {showDelete && (
                 <DropdownMenuItem
                   onClick={onDelete}
-                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <Trash2 className="h-3 w-3 mr-1.5 shrink-0" />
                   Delete
@@ -197,15 +200,17 @@ export function ListingItemActions({
             Spotlight
           </span>
         ) : onBoost && isActive ? (
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="icon"
             onClick={onBoost}
             aria-label="Promote listing"
             title="Promote / Boost Ad"
-            className="h-8 w-8 md:h-7 md:w-7 flex items-center justify-center shrink-0 rounded-md border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
+            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
           >
             <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
-          </button>
+          </Button>
         ) : null}
 
         {showEdit ? (

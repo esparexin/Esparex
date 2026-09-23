@@ -10,8 +10,10 @@ export default async function AccountAdsPage(props: {
     const rawStatus = typeof searchParams.status === "string" ? searchParams.status : undefined;
     const normalizedStatus = normalizeAccountListingStatus("ads", rawStatus);
 
+    const pageParam = typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : undefined;
+
     if (rawStatus !== normalizedStatus) {
-        redirect(buildAccountListingRoute("ads", normalizedStatus));
+        redirect(buildAccountListingRoute("ads", normalizedStatus, pageParam));
     }
 
     return <AccountPageShell tab="mylistings" />;

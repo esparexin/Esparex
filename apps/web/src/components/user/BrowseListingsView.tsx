@@ -157,6 +157,13 @@ export function BrowseListingsView<TItem, TFilters>({
     [updateFiltersInUrl]
   );
 
+  const handleTypeChange = useCallback(
+    (type: PublicBrowseType) => {
+      updateFiltersInUrl({ type: type === "all" ? undefined : type, page: undefined });
+    },
+    [updateFiltersInUrl]
+  );
+
   const selectedCategoryObj = categories.find((c: Category) =>
     getCategoryValue
       ? getCategoryValue(c) === selectedCategory
@@ -185,6 +192,8 @@ export function BrowseListingsView<TItem, TFilters>({
     onPriceChange: handlePriceChange,
     deviceCondition: deviceConditionParam,
     onDeviceConditionChange: handleConditionChange,
+    browseType,
+    onTypeChange: handleTypeChange,
   };
 
   return (
@@ -200,8 +209,12 @@ export function BrowseListingsView<TItem, TFilters>({
         query={query}
         categoryName={categoryName}
         locationLabel={locationLabel}
+        browseType={browseType}
+        onTypeChange={handleTypeChange}
         sidebarNode={
           <BrowseFilterSidebar
+            browseType={browseType}
+            onTypeChange={handleTypeChange}
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
@@ -217,6 +230,8 @@ export function BrowseListingsView<TItem, TFilters>({
         filterNode={
           <BrowseFiltersHeaderTrigger
             {...sharedFilterProps}
+            browseType={browseType}
+            onTypeChange={handleTypeChange}
             activeFilterCount={activeFilterCount}
           />
         }

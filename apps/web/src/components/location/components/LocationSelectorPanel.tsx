@@ -44,7 +44,7 @@ export function LocationSelectorPanel({
                 {/* Title and Close Button */}
                 <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                        <p className="text-body font-bold text-foreground">Choose location</p>
+                        <p className="text-body-lg font-semibold text-foreground">Choose location</p>
                         <p className="text-caption text-foreground-subtle">Use GPS or search by city and state.</p>
                     </div>
                     {onClose ? (
@@ -65,8 +65,8 @@ export function LocationSelectorPanel({
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        placeholder="Search city, area, district..."
-                        className="h-11 sm:h-10 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+                        placeholder="Search city, area or district..."
+                        className="h-11 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={onKeyDown}
@@ -90,7 +90,7 @@ export function LocationSelectorPanel({
                     type="button"
                     variant="outline"
                     className={cn(
-                        "h-auto min-h-[44px] sm:min-h-[40px] w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
+                        "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
                         isDetecting && "border-primary/50 bg-primary/10"
                     )}
                     disabled={isDetecting || !!successFeedback}
@@ -104,16 +104,16 @@ export function LocationSelectorPanel({
                         )}
                         <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
                             {successFeedback ? (
-                                <span className="text-emerald-600 font-semibold truncate w-full text-caption sm:text-body">{successFeedback}</span>
+                                <span className="text-emerald-600 font-semibold truncate w-full text-body">{successFeedback}</span>
                             ) : isDetecting ? (
                                 <span className="truncate w-full text-caption text-primary">{detectFeedback || "Detecting location..."}</span>
                             ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                 <>
-                                    <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
+                                    <span className="truncate w-full font-semibold text-foreground text-body">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
                                     <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                 </>
                             ) : (
-                                <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">Use Current Location</span>
+                                <span className="truncate w-full font-semibold text-foreground text-body">Use Current Location</span>
                             )}
                         </div>
                     </div>

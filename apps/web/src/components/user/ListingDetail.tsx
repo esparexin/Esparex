@@ -6,6 +6,7 @@ import type { User } from "@esparex/contracts";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import dynamic from "next/dynamic";
+import type { ListingCanonicalBasePath } from "@/app/(public)/ads/[slug]/ListingPageClient";
 
 import { ListingBottomActions } from "./listing-detail/ListingBottomActions";
 import { ListingDetailSidebar } from "./listing-detail/ListingDetailSidebar";
@@ -44,6 +45,8 @@ interface ListingDetailProps {
   navigateTo: (page: UserPage, adId?: string | number, category?: string, sellerIdOrBusinessId?: string, serviceId?: string, sellerId?: string, sellerType?: "business" | "individual") => void;
   navigateBack?: () => void;
   user?: User | null;
+  /** Canonical domain context from the server render factory. Drives breadcrumbs and tab sets. */
+  canonicalBasePath?: ListingCanonicalBasePath;
   navigationContext?: {
     returnPage?: string;
     returnBusinessId?: string;
@@ -58,6 +61,7 @@ export function ListingDetail({
   navigateTo,
   navigateBack,
   user: userProp,
+  canonicalBasePath,
 }: ListingDetailProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -89,9 +93,14 @@ export function ListingDetail({
   const locationLabel = resolveListingLocationLabel(ad?.location, "full");
 
   const viewCount = typeof ad?.views === "number" ? ad.views : (ad?.views && typeof ad.views === "object" ? (ad.views as { total: number }).total || 0 : 0);
+
+  // Derive listing domain context from canonicalBasePath (authoritative) with
+  // ad.listingType as a safe fallback for cases where the prop is unavailable.
+  const isService = canonicalBasePath === "/services" || ad?.listingType === "service";
+  const isSparePart = canonicalBasePath === "/spare-part-listings" || ad?.listingType === "spare_part";
   const { adStatus, setSoldOverride } = useAdStatus(ad);
   const { revealedPhone, phoneMessage, isPhoneLoading, handleRevealPhone } = usePhoneReveal(ad, user, router);
-  const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary, handleViewAnalytics } = useAnalyticsDialog(ad, viewCount);
+  const { showAnalyticsDialog, setShowAnalyticsDialog, isAnalyticsLoading, analyticsSummary } = useAnalyticsDialog(ad, viewCount);
 
   const isFavorited = useMemo(() => Boolean(user && adId && savedAds.some((saved) => String(saved.id) === String(adId))), [adId, savedAds, user]);
   const isOwner = canUserPerformAction(ad ? { sellerId: ad.sellerId } : null, user || null);
@@ -150,7 +159,14 @@ export function ListingDetail({
           <Breadcrumbs
             items={[
               { label: "Home", onClick: () => navigateTo(ROUTES.HOME) },
-              { label: "Browse Ads", onClick: () => navigateTo(ROUTES.BROWSE) },
+              {
+                label: isService ? "Browse Services" : isSparePart ? "Browse Spare Parts" : "Browse Ads",
+                onClick: () => navigateTo(
+                  isService ? ROUTES.BROWSE_SERVICES
+                  : isSparePart ? ROUTES.BROWSE_SPARE_PARTS
+                  : ROUTES.BROWSE
+                ),
+              },
               {
                 label: categoryLabel,
                 onClick: () => categoryRoute
@@ -188,7 +204,7 @@ export function ListingDetail({
                     />
                   </div>
 
-                  <ListingDescriptionCard ad={ad} navigateTo={navigateTo} />
+                  <ListingDescriptionCard ad={ad} navigateTo={navigateTo} listingType={isService ? "service" : isSparePart ? "spare_part" : "ad"} />
 
                   {/* API-driven ad placement — resolves from MonetizationService */}
                   <AdPlacementSlot placement="listing_detail_below_description" />
@@ -213,7 +229,6 @@ export function ListingDetail({
                     onDelete={handleDeleteClick}
                     onMarkSold={handleMarkSoldClick}
                     onPromote={handlePromote}
-                    onViewAnalytics={handleViewAnalytics}
                     onReport={handleReport}
                   />
                 </div>
@@ -227,7 +242,6 @@ export function ListingDetail({
               onDeleteClick={handleDeleteClick}
               onMarkSoldClick={() => handleMarkSoldClick()}
               onPromoteClick={handlePromote}
-              onAnalyticsClick={handleViewAnalytics}
               onChatClick={handleChatWithSeller}
               onRevealPhone={handleRevealPhone}
               isPhoneLoading={isPhoneLoading}

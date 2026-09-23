@@ -15,10 +15,11 @@ interface ListingModalLayoutProps {
     subtitle?: string;
     onClose: () => void;
     fullScreen?: boolean;
+    className?: string;
     children: React.ReactNode;
 }
 
-export function ListingModalLayout({ title, subtitle, onClose, fullScreen, children }: ListingModalLayoutProps) {
+export function ListingModalLayout({ title, subtitle, onClose, fullScreen, className, children }: ListingModalLayoutProps) {
     if (fullScreen) {
         return (
             <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -40,7 +41,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 <X className="w-4 h-4" />
                             </Button>
                             <div className="flex-1 flex items-center gap-2.5 ml-2">
-                                <DialogTitle className="font-bold text-foreground text-body-lg sm:text-h4 tracking-tight">
+                                <DialogTitle className="font-semibold text-foreground text-body-lg sm:text-h4 tracking-tight">
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
@@ -64,6 +65,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
             <DialogContent
                 hideClose
                 variant="bottomSheet"
+                className={className}
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <header className="shrink-0 bg-card border-b border-border flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
@@ -78,7 +80,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                         <X className="w-4 h-4" />
                     </Button>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2.5 min-w-0">
-                        <DialogTitle className="font-bold text-foreground text-body-lg sm:text-h4 tracking-tight truncate">
+                        <DialogTitle className="font-semibold text-foreground text-body-lg sm:text-h4 tracking-tight truncate">
                             {title}
                         </DialogTitle>
                         {subtitle && (

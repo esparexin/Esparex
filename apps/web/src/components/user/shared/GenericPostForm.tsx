@@ -5,7 +5,6 @@ import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
 import { Button, Spinner } from "@esparex/ui";
-import { cn } from "@/lib/utils";
 import type { ListingImage } from "@/types/listing";
 
 type GenericPostFormValues = FieldValues & {
@@ -27,6 +26,7 @@ interface GenericPostFormProps<TFormValues extends GenericPostFormValues> {
     children: ReactNode;
     submitLabel?: string;
     formId: string;
+    priceSlot?: ReactNode;
 }
 
 export function GenericPostForm<TFormValues extends GenericPostFormValues>({
@@ -43,11 +43,12 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
     children,
     submitLabel,
     formId,
+    priceSlot,
 }: GenericPostFormProps<TFormValues>) {
     const imagesError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).images);
     const locationError = getFirstFormErrorMessage((form.formState.errors as Record<string, unknown>).location);
     const locationHelperText = locationDisplay
-        ? "This listing uses your Business profile location. Update it in Business Hub if needed."
+        ? undefined
         : "Add a Business profile location in Business Hub before publishing.";
 
     return (
@@ -67,12 +68,24 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                                     helperText="Add clear product photos. The first photo will be used as the cover image."
                                 />
 
-                                <ListingLocationField 
-                                    display={locationDisplay || ''} 
-                                    fixedLabel="Fixed" 
-                                    error={locationError}
-                                    helperText={locationHelperText}
-                                />
+                                {priceSlot ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+                                        {priceSlot}
+                                        <ListingLocationField 
+                                            display={locationDisplay || ''} 
+                                            fixedLabel="Fixed" 
+                                            error={locationError}
+                                            helperText={locationHelperText}
+                                        />
+                                    </div>
+                                ) : (
+                                    <ListingLocationField 
+                                        display={locationDisplay || ''} 
+                                        fixedLabel="Fixed" 
+                                        error={locationError}
+                                        helperText={locationHelperText}
+                                    />
+                                )}
                             </div>
                         </ListingModalBody>
 
@@ -80,12 +93,9 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                             <Button
                                 type="submit"
                                 form={formId}
-                                size="lg"
+                                variant="primary"
                                 disabled={isSubmitting}
-                                className={cn(
-                                    "w-full font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                    "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
-                                )}
+                                className="w-full h-11 rounded-xl font-semibold text-body transition-all active:scale-[0.98] shadow-xs"
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">

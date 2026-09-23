@@ -12,6 +12,7 @@
 - **Single-Instance Responsive UI**: Unified responsive layouts across Web and Mobile with zero component duplication (`hidden md:flex`).
 - **Platform Reliability Probes**: Express `/health/liveness` and `/health/readiness` endpoints monitoring Redis & MongoDB connectivity.
 - **Design System SSOT**: 100% design token compliance across all 11 workspace packages with 0 suppressions.
+- **Mobile Frontend UI/UX SSOT & Viewport Zoom Prevention**: Normalized 100% of user forms, eliminated sub-16px input zoom jumps on iOS Safari (`text-body-lg md:text-body`), enforced 44px minimum mobile touch targets, and standardized all action buttons to `@esparex/ui/Button` variants.
 - **High-Performance Feeds**: `@shopify/flash-list` mobile feed rendering for 60fps scrolling performance.
 
 ---
@@ -33,6 +34,7 @@
 | **Admin Governance** | Select, Multi-Select & Checkbox Indeterminate Remediation | ✅ Beta Ready | `packages/ui`, `apps/admin` |
 | **Admin Governance** | Admin Dashboard Semantic Token Alignment | ✅ Beta Ready | `apps/admin` Layout Primitives |
 | **Design System** | Mobile & Shared UI Design Token Remediation | ✅ Beta Ready | `@esparex/design-tokens`, `packages/mobile-ui`, `apps/mobile` |
+| **Marketplace Experience** | Mobile Frontend UI/UX SSOT Remediation & Viewport Zoom Prevention | ✅ Beta Ready | `apps/web` Form Controls, Dialogs & Touch Targets |
 | **Platform Reliability** | Express Health Probes | ✅ Beta Ready | `backend/api/src/routes/health.ts` |
 | **Performance** | FlashList Feed Integration | ✅ Beta Ready | `apps/mobile/src/features/listings` |
 | **Security** | CORS & Secure Cookies | ✅ Beta Ready | `backend/api` Middleware |

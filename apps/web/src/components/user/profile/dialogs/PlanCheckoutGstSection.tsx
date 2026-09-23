@@ -26,14 +26,14 @@ export function PlanCheckoutGstSection({
                     checked={wantsGst}
                     onCheckedChange={(checked) => onWantsGstChange(Boolean(checked))}
                 />
-                <Label htmlFor="checkout-wants-gst" className="text-caption font-medium text-foreground cursor-pointer">
+                <Label htmlFor="checkout-wants-gst" className="text-body font-medium text-foreground cursor-pointer">
                     I need a B2B Tax Invoice for Input Tax Credit (ITC)
                 </Label>
             </div>
 
             {wantsGst && (
                 <div className="pl-6 flex flex-col gap-1.5 pt-1">
-                    <Label htmlFor="checkout-gstin" className="text-caption font-semibold text-foreground-secondary">
+                    <Label htmlFor="checkout-gstin" className="text-body font-semibold text-foreground-secondary">
                         GSTIN Number
                     </Label>
                     <Input
@@ -43,14 +43,14 @@ export function PlanCheckoutGstSection({
                         maxLength={15}
                         value={gstin}
                         onChange={(e) => onGstinChange(e.target.value.toUpperCase())}
-                        className="h-8 rounded-lg text-caption bg-card uppercase font-mono"
+                        className="h-11 rounded-xl text-body-lg md:text-body bg-card border-border px-3.5 uppercase font-mono font-normal text-foreground placeholder:text-foreground-subtle placeholder:normal-case shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                     />
                     {gstin && !isGstValid && (
-                        <p className="text-tiny text-amber-600">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>
+                        <p className="text-caption font-medium text-destructive">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>
                     )}
                     {isGstValid && (
-                        <p className="text-tiny text-emerald-600 font-medium flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3 inline" /> Valid GSTIN. B2B Tax Invoice enabled.
+                        <p className="text-caption font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> Valid GSTIN. B2B Tax Invoice enabled.
                         </p>
                     )}
                 </div>

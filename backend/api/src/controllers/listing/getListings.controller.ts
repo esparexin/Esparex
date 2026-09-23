@@ -3,9 +3,8 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import { isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
-import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
-import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
+import * as AdAggregationService from '@esparex/core/domains/listings/application/ad/ad/AdAggregationService';
+import * as AdDetailService from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';
 import * as trendingService from '@esparex/core/domains/discovery';
 
@@ -110,7 +109,15 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
                 : sellerNode
         );
         const isOwner = Boolean(viewerId && sellerId && String(sellerId) === viewerId);
-        if (!isAdmin && !isOwner && !isPublicAdVisible(ad as Record<string, unknown>)) {
+
+        const moderationStatus = typeof (ad as { moderationStatus?: unknown }).moderationStatus === 'string'
+            ? ((ad as { moderationStatus: string }).moderationStatus).trim().toLowerCase()
+            : '';
+        const isModerationBlocked = moderationStatus === 'rejected' || moderationStatus === 'suspended' || moderationStatus === 'removed';
+
+        // Only deleted ads (checked above) and moderation-blocked ads (for non-owners) return 404.
+        // Expired and sold listings remain accessible so users and owners can view expired ad details.
+        if (!isAdmin && !isOwner && isModerationBlocked) {
             return sendErrorResponse(req, res, 404, 'Listing not found');
         }
 
@@ -312,6 +319,7 @@ export const getHomeFeed = async (req: Request, res: Response, next: NextFunctio
             lng: query.lng,
             radiusKm: query.radiusKm,
             categoryId: query.categoryId,
+            listingType: query.listingType,
         });
 
         const payload = respond<ApiResponse<HomeFeedResponse>>({

@@ -67,4 +67,11 @@ export const queryKeys = {
         detail: (id: string) => [...queryKeys.spare.details(), id] as const,
         myListings: (status?: string) => [...queryKeys.spare.all, 'mine', { status }] as const,
     },
+
+    // Smart Alerts
+    alerts: {
+        all: ['smart-alerts'] as const,
+        matches: (params?: { page?: number; limit?: number; alertId?: string }) =>
+            [...queryKeys.alerts.all, 'matches', params ?? {}] as const,
+    },
 };

@@ -59,7 +59,7 @@ export function LoginFlow({
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <div className="space-y-3 text-center">
             <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-body text-muted-foreground">
               Setting up your account...
             </p>
           </div>

@@ -20,6 +20,9 @@ import {
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';
 
+/**
+ * @deprecated Legacy parallel endpoint. Prefer /api/plans-wallet/v1 (PlansWalletV1Controller) or /api/payments/credits/wallet (creditController.getCreditWalletSummary).
+ */
 export const getWalletSummary = async (req: Request, res: Response) => {
     try {
         const userId = req.user?._id;
@@ -33,6 +36,9 @@ export const getWalletSummary = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * @deprecated Legacy transaction list endpoint. Prefer /api/plans-wallet/v1 (PlansWalletV1Controller) or /api/payments/credits/ledger (creditController.getCreditLedgerHistory).
+ */
 export const getTransactionHistory = async (req: Request, res: Response) => {
     try {
         const userId = req.user?._id;

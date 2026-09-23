@@ -1,9 +1,8 @@
 "use client";
 
 import { ListingForm } from "@/components/user/shared/ListingForm";
-import { PostSparePartFormSchema } from "@/schemas/postSparePartForm.schema";
 import { CircuitBoard } from "@esparex/ui";
-import { LISTING_TYPE } from "@esparex/contracts";
+import { LISTING_TYPE, PostSparePartFormSchema } from "@esparex/contracts";
 import type { ListingFormConfig } from "@/components/user/shared/listingFormConfig";
 
 export const sparePartFormConfig: ListingFormConfig = {
@@ -24,8 +23,9 @@ export const sparePartFormConfig: ListingFormConfig = {
         maxLength: 120,
     },
     descriptionProps: {
-        label: "Description",
-        placeholder: "Describe origin, quality, compatibility notes...",
+        label: "Description & Supported Models",
+        placeholder: "List compatible device models (e.g. MacBook Pro A2338, iPhone 14 Pro), part condition, warranty, or specifications...",
+        helperText: "Specify all compatible models, part numbers, and condition to help buyers find your part.",
         maxLength: 2000,
     },
     defaultValues: {

@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/api/user/listings/normalizer";
 import type { ListingImage, ListingLocation } from "@/types/listing";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { useNavigation } from "@/context/NavigationContext";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
@@ -38,8 +39,8 @@ export function PostAdProvider({
     const sparePartCatalog = useSparePartCatalog({ listingType: LISTING_TYPE.AD, onError: setFormError });
     const categorySchemaCatalog = useCategorySchemaCatalog();
     const { dynamicCategories, categoryMap } = categoryCatalog;
-    const { brandMap, availableBrands, availableModels, availableSizes, loadBrandsForCategory, loadModelsForBrand, refreshBrands, brandsError, isLoadingBrands, isLoadingModels } = brandCatalog;
-    const { availableSpareParts, isLoadingSpareParts, sparePartsError, loadSparePartsForCategory } = sparePartCatalog;
+    const { brandMap, availableBrands, availableModels, availableSizes, loadBrandsForCategory, loadModelsForBrand, refreshBrands, brandsError, isLoadingBrands, isLoadingModels, activeCategoryId: brandActiveCategoryId } = brandCatalog;
+    const { availableSpareParts, isLoadingSpareParts, sparePartsError, loadSparePartsForCategory, activeCategoryId: sparePartActiveCategoryId } = sparePartCatalog;
     const { categorySchema, loadCategorySchema } = categorySchemaCatalog;
 
     const handleImagesChange = useCallback((images: ListingImage[]) => {
@@ -85,13 +86,50 @@ export function PostAdProvider({
     useEffect(() => { return () => setIsDirty(false); }, [setIsDirty]);
 
     useEffect(() => {
-        if (isLoadingSpareParts || availableSpareParts.length === 0) return;
+        // Guard 1: Skip while spare parts are loading for the current category.
+        if (isLoadingSpareParts) return;
+        // Guard 2: Skip if the spare part catalog has not yet loaded data for the
+        // currently selected category. This prevents pruning valid spare parts that
+        // were selected in a previous category context, or incorrectly pruning
+        // during rapid category switches when the catalog is mid-flight.
+        const selectedCategoryId = form.getValues("categoryId") || form.getValues("category");
+        if (!sparePartActiveCategoryId || !selectedCategoryId || sparePartActiveCategoryId !== selectedCategoryId) return;
+        // Guard 3: Nothing to prune if available list is empty (e.g. no spare parts for category).
+        if (availableSpareParts.length === 0) return;
         const currentParts = (form.getValues("spareParts") || []) as string[];
         if (currentParts.length === 0) return;
         const validIds = new Set(availableSpareParts.map((p) => normalizeOptionalObjectId(p.id)).filter((id): id is string => Boolean(id)));
         const next = currentParts.filter((id) => validIds.has(id));
         if (next.length !== currentParts.length) form.setValue("spareParts", next, { shouldDirty: true });
-    }, [availableSpareParts, isLoadingSpareParts, form]);
+    }, [availableSpareParts, isLoadingSpareParts, sparePartActiveCategoryId, form]);
+
+    // Catalog hydration effect:
+    // When categoryId is populated (e.g. restored from localStorage draft or initial props),
+    // trigger dependent catalog queries if they have not yet loaded for this category.
+    const watchedCategoryId = form.watch("categoryId") || form.watch("category");
+    useEffect(() => {
+        if (!watchedCategoryId) return;
+        const normalizedCatId = sanitizeMongoObjectId(watchedCategoryId) || watchedCategoryId;
+        if (!normalizedCatId) return;
+
+        if (sparePartActiveCategoryId !== normalizedCatId) {
+            void loadSparePartsForCategory(normalizedCatId);
+        }
+        if (brandActiveCategoryId !== normalizedCatId) {
+            void loadBrandsForCategory(normalizedCatId);
+        }
+        if (categorySchema?.categoryId !== normalizedCatId) {
+            void loadCategorySchema(normalizedCatId);
+        }
+    }, [
+        watchedCategoryId,
+        sparePartActiveCategoryId,
+        brandActiveCategoryId,
+        categorySchema?.categoryId,
+        loadSparePartsForCategory,
+        loadBrandsForCategory,
+        loadCategorySchema,
+    ]);
 
     const initializeFromListing = useCallback(async (data: Listing) => {
         setMode('edit'); setListingId(String(data.id || (data as { _id?: string })._id || "")); setCurrentStep(2);
@@ -104,13 +142,37 @@ export function PostAdProvider({
         if (categoryId) { const p: Promise<unknown>[] = [loadBrandsForCategory(categoryId), loadSparePartsForCategory(categoryId)]; if (data.brandId) p.push(loadModelsForBrand(data.brandId, categoryId)); await Promise.all(p); }
         if (data.location) setValue("location", { city: data.location.city, state: data.location.state, display: data.location.display, coordinates: data.location.coordinates, locationId: (data.location.locationId as string) || (data.location as { id?: string }).id || undefined });
         if (Array.isArray(data.images)) { const mappedIds = data.images.map((url: string) => ({ id: crypto.randomUUID(), preview: url, isRemote: true })); setListingImages(mappedIds); setValue("images", mappedIds.map((i) => i.preview)); }
+
+        // Pre-populate selected spare parts from the persisted listing data
+        const resolvedSparePartIds: string[] = (() => {
+            if (Array.isArray(data.sparePartIds) && data.sparePartIds.length > 0) {
+                return data.sparePartIds.filter((id): id is string => typeof id === 'string' && id.length > 0);
+            }
+            if (Array.isArray(data.spareParts) && data.spareParts.length > 0) {
+                return data.spareParts
+                    .map((part) => {
+                        if (typeof part === 'string') return part;
+                        if (part && typeof part === 'object') {
+                            const rec = part as Record<string, unknown>;
+                            return typeof rec.id === 'string' ? rec.id : typeof rec._id === 'string' ? rec._id : null;
+                        }
+                        return null;
+                    })
+                    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+            }
+            return [];
+        })();
+        if (resolvedSparePartIds.length > 0) {
+            setValue("spareParts", resolvedSparePartIds, { shouldDirty: false });
+        }
+
         setIsLoading(false);
     }, [clearCategoryDependents, setValue, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
     const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); imagesHook.setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
     const { generateDescription, isGeneratingAI, isAiAvailable, aiCache } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setFormError);
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form, availableSpareParts);
-    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });
+    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger, availableSpareParts });
     const { submitAd, isSubmitting } = usePostAdSubmissionFlow({
         form,
         listingImages,
@@ -122,7 +184,7 @@ export function PostAdProvider({
         setSubmittedAd,
     });
 
-    const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels]);
+    const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels, sparePartActiveCategoryId }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending, isLoadingBrands, isLoadingModels, sparePartActiveCategoryId]);
     const locationState = useMemo<PostAdLocationState>(() => ({ listingLocation, locationDisplay: locationDisplay || "", coordinates, isLocationLocked }), [listingLocation, locationDisplay, coordinates, isLocationLocked]);
     const imagesState = useMemo<PostAdImagesState>(() => ({ listingImages, isUploadingImages: imagesHook.isUploadingImages, imageUploadError: imagesHook.imageUploadError }), [listingImages, imagesHook.isUploadingImages, imagesHook.imageUploadError]);
     const flowState = useMemo<PostAdFlowState>(() => ({ currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isAiAvailable, aiCache, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId }), [currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isAiAvailable, aiCache, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId]);

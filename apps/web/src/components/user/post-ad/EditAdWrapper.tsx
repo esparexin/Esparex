@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { getListingById } from "@/lib/api/user/listings";
 import { usePostAdAction } from "./context";
@@ -14,6 +14,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(!!id);
     const [error, setError] = useState<string | null>(!id ? "No listing ID provided in route" : null);
 
+    const initializedIdRef = useRef<string | null>(null);
     const [prevId, setPrevId] = useState(id);
     if (prevId !== id) {
         setPrevId(id);
@@ -23,6 +24,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!id) return;
+        if (initializedIdRef.current === id) return;
 
         let isMounted = true;
 
@@ -33,6 +35,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
                     throw new Error("Listing not found or you do not have permission to edit it.");
                 }
                 if (isMounted) {
+                    initializedIdRef.current = id ?? null;
                     await initializeFromListing(data);
                     // Ensure loading state clears in the component regardless
                     // of what initializeFromListing does to context state.
@@ -53,8 +56,6 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
         return () => {
             isMounted = false;
         };
-        // Now that initializeFromListing is stable (uses setListingImages, not imagesHook),
-        // this effect will only re-run if id changes — no more infinite loop.
     }, [id, initializeFromListing, setLoadError]);
 
     if (isLoading) {
@@ -70,8 +71,8 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
                 <div className="border border-red-200/80 bg-red-50/50 text-red-900 p-6 rounded-xl max-w-md w-full">
-                    <h3 className="font-semibold text-lg mb-2">Error Loading Listing</h3>
-                    <p className="text-sm text-red-700">{error}</p>
+                    <h3 className="font-semibold text-h4 mb-2">Error Loading Listing</h3>
+                    <p className="text-body text-destructive">{error}</p>
                 </div>
             </div>
         );
@@ -79,7 +80,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="edit-ad-wrapper relative">
-            <div className="bg-amber-50 border-b border-amber-200 p-4 text-amber-800 text-sm text-center">
+            <div className="bg-amber-50 border-b border-amber-200 p-4 text-amber-800 text-body text-center">
                 <strong>Editing Listing:</strong> Changes to title, description, price, or images may require re-approval.
             </div>
             {children}

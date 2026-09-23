@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loginFormSchema } from "@/schemas/login.schema";
+import { loginFormSchema } from "@esparex/contracts";
 import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
 
 describe("Login Form Schema & Step 1 Validation Suite", () => {

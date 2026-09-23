@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Badge, Bell, Button, Card, CardContent, Crown, Edit2, Eye, Plus, Separator, Trash2 } from "@esparex/ui";
+import { Button, Plus } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertListItem } from "../types";
 import { CreateSmartAlertDialog } from "../dialogs/CreateSmartAlertDialog";
-import { SavedSearchesListSection } from "./SavedSearchesListSection";
 import type { Location } from "@/lib/api/user/locations";
 import { useSmartAlertModal } from "@/context/SmartAlertModalContext";
+import { useSmartAlertMatches } from "@/hooks/useSmartAlertMatches";
+import type { SmartAlertQuotaDTO } from "@esparex/contracts";
+import { SmartAlertRulesSection } from "./SmartAlertRulesSection";
+import { SmartAlertMatchesSection } from "./SmartAlertMatchesSection";
 
 type SmartAlertSelection = Pick<Location, "id" | "locationId" | "name" | "display" | "city" | "coordinates">;
 
@@ -21,24 +24,36 @@ interface SmartAlertsTabProps {
     handleToggleAlertStatus: (id: string) => void;
     handleDeleteAlert: (id: string) => void;
     handleDeleteSavedSearch: (id: string) => void;
-    handleViewAlertMatches: (alert: SmartAlertListItem) => void;
     handleEditAlert: (alert: SmartAlertListItem) => void;
     editingAlertId: string | null;
     resetAlertForm: () => void;
     setActiveTab: (tab: string) => void;
     userPlan?: string;
     loading?: boolean;
+    quota?: SmartAlertQuotaDTO | null;
     smartAlertErrors?: SmartAlertFieldErrors;
     smartAlertGlobalError?: string | null;
     clearSmartAlertError?: (field: keyof SmartAlertFieldErrors) => void;
 }
 
 export function SmartAlertsTab({
-    smartAlerts, savedSearches, smartAlertForm, updateSmartAlertForm,
-    handleCreateAlert, handleToggleAlertStatus, handleDeleteAlert,
-    handleDeleteSavedSearch, handleViewAlertMatches, handleEditAlert,
-    editingAlertId, resetAlertForm, setActiveTab, userPlan = "Free",
-    loading, smartAlertErrors, smartAlertGlobalError,
+    smartAlerts,
+    savedSearches,
+    smartAlertForm,
+    updateSmartAlertForm,
+    handleCreateAlert,
+    handleToggleAlertStatus,
+    handleDeleteAlert,
+    handleDeleteSavedSearch,
+    handleEditAlert,
+    editingAlertId,
+    resetAlertForm,
+    setActiveTab,
+    userPlan: _userPlan = "Free",
+    loading,
+    quota,
+    smartAlertErrors,
+    smartAlertGlobalError,
 }: SmartAlertsTabProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -48,8 +63,21 @@ export function SmartAlertsTab({
     const isDialogOpen = isInternalOpen || isCreateAction;
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-    // Register tab handler with global modal context so that FAB clicks on this page
-    // delegate to this tab's instance instead of spawning a duplicate modal.
+    // Sub-tab navigation: "rules" vs "matches"
+    const [activeSubTab, setActiveSubTab] = useState<"rules" | "matches">("rules");
+    const [selectedAlertFilter, setSelectedAlertFilter] = useState<string | undefined>(undefined);
+    const [matchesPage, setMatchesPage] = useState<number>(1);
+
+    const {
+        data: matchesData,
+        isLoading: isLoadingMatches,
+    } = useSmartAlertMatches({
+        page: matchesPage,
+        limit: 4,
+        alertId: selectedAlertFilter,
+    });
+
+    // Register tab handler with global modal context
     useEffect(() => {
         registerTabHandler(() => { resetAlertForm(); setIsInternalOpen(true); });
         return () => registerTabHandler(null);
@@ -62,9 +90,6 @@ export function SmartAlertsTab({
 
     const activeAlerts = smartAlerts.filter((alert) => alert.active !== false).length;
     const isEditing = Boolean(editingAlertId);
-    const isPremium = userPlan.toLowerCase() !== "free";
-    const freeSlotsLimit = 5;
-    const remainingFreeSlots = Math.max(0, freeSlotsLimit - smartAlerts.length);
 
     const handleCloseDialog = () => {
         setIsInternalOpen(false);
@@ -83,151 +108,100 @@ export function SmartAlertsTab({
         }
     };
 
+    const handleViewMatchesForAlert = (alert: SmartAlertListItem) => {
+        setSelectedAlertFilter(alert.id);
+        setMatchesPage(1);
+        setActiveSubTab("matches");
+    };
+
     if (loading) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading Alerts...</div>;
 
     return (
-        <div className="space-y-4 w-full">
-            <Card className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
-                <CardContent className="p-4 sm:p-5 space-y-4">
-                    {/* Header & Create Action with Explicit Alert Balance (Free vs Purchased & Active vs Saved) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
-                        <div className="flex items-start gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
-                                <Bell className="h-5 w-5" />
-                            </div>
-                            <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-body-lg font-bold text-foreground tracking-tight">Smart Alerts</h3>
-                                </div>
-                                <p className="text-caption text-foreground-subtle truncate mt-0.5">
-                                    Get instant notifications when new listings match your criteria.
-                                </p>
-                                {/* Balance & Status Badges */}
-                                <div className="flex flex-wrap items-center gap-2 mt-2">
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                                        {activeAlerts} Active Alert{activeAlerts === 1 ? "" : "s"}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-primary/10 text-primary border border-primary/20">
-                                        <Crown className="h-3 w-3 text-primary" />
-                                        {isPremium
-                                            ? "Purchased Plan: Unlimited Alert Slots"
-                                            : `Free Balance: ${remainingFreeSlots} Free Slots (${smartAlerts.length}/${freeSlotsLimit} Used)`
-                                        }
-                                    </span>
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-muted text-foreground-secondary border border-border">
-                                        <Eye className="h-3 w-3 text-foreground-subtle" />
-                                        {savedSearches.length} Saved Search{savedSearches.length === 1 ? "" : "es"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+        <div className="w-full max-w-3xl space-y-5">
+            {/* Header Row */}
+            <div className="flex items-center justify-between gap-3 pb-1">
+                <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                    <h3 className="text-body-lg sm:text-h4 font-semibold text-foreground">Smart Alerts</h3>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                        {activeAlerts} Active
+                    </span>
+                </div>
 
-                        <Button
-                            onClick={handleOpenCreateModal}
-                            size="sm"
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 rounded-xl shadow-xs gap-1.5 shrink-0"
-                        >
-                            <Plus className="h-4 w-4" />
-                            Create Smart Alert
-                        </Button>
-                    </div>
+                <Button
+                    type="button"
+                    onClick={handleOpenCreateModal}
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-3 sm:px-4 rounded-xl shadow-xs gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+                >
+                    <Plus className="h-4 w-4" />
+                    <span>Create Alert</span>
+                </Button>
+            </div>
 
-                    {/* Active Alerts Section */}
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <h4 className="text-body font-bold text-foreground">Your Active Alerts</h4>
-                            <span className="text-caption font-medium text-foreground-subtle">{smartAlerts.length} total</span>
-                        </div>
+            {/* Clean Underline Sub-Tabs (Esparex Design System SSOT) */}
+            <div className="flex gap-6 border-b border-border overflow-x-auto scrollbar-hide" role="tablist" aria-label="Smart alert views">
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeSubTab === "rules"}
+                    onClick={() => setActiveSubTab("rules")}
+                    className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        activeSubTab === "rules"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-foreground-secondary hover:text-foreground"
+                    }`}
+                >
+                    <span>Alert Rules ({smartAlerts.length})</span>
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeSubTab === "matches"}
+                    onClick={() => { setActiveSubTab("matches"); setMatchesPage(1); }}
+                    className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        activeSubTab === "matches"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-foreground-secondary hover:text-foreground"
+                    }`}
+                >
+                    <span>Matched Listings ({matchesData?.total ?? 0})</span>
+                </button>
+            </div>
 
-                        {smartAlerts.length === 0 ? (
-                            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/40 border border-dashed border-border">
-                                <Bell className="h-5 w-5 text-foreground-subtle shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-caption font-bold text-foreground">No smart alerts set up yet</p>
-                                    <p className="text-tiny text-foreground-subtle truncate">Create an alert using the button above to get notified automatically.</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {smartAlerts.map((alert) => (
-                                    <div key={alert.id} className="border border-border rounded-xl p-3.5 space-y-3 bg-card shadow-2xs hover:border-primary/30 transition-colors">
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                    <h4 className="font-bold text-foreground text-caption sm:text-body tracking-tight truncate">{alert.name}</h4>
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className={`text-tiny font-semibold ${
-                                                            alert.active === false
-                                                                ? "bg-muted text-foreground-secondary"
-                                                                : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                                        }`}
-                                                    >
-                                                        {alert.active === false ? "Paused" : "Active"}
-                                                    </Badge>
-                                                </div>
-                                                {alert.keywords && (
-                                                    <p className="text-caption text-foreground-secondary font-medium">
-                                                        Keywords: <span className="text-foreground font-semibold">{alert.keywords}</span>
-                                                    </p>
-                                                )}
-                                                <p className="text-tiny text-foreground-subtle mt-0.5">
-                                                    Category: {alert.category || "All"} • Location: {alert.location || "Any"} {alert.radiusKm ? `(${alert.radiusKm} km)` : ""}
-                                                </p>
-                                            </div>
-                                        </div>
+            {/* Sub-Tab 1: Alert Rules */}
+            {activeSubTab === "rules" && (
+                <SmartAlertRulesSection
+                    smartAlerts={smartAlerts}
+                    savedSearches={savedSearches}
+                    pendingDeleteId={pendingDeleteId}
+                    setPendingDeleteId={setPendingDeleteId}
+                    handleOpenCreateModal={handleOpenCreateModal}
+                    handleOpenEditModal={handleOpenEditModal}
+                    handleToggleAlertStatus={handleToggleAlertStatus}
+                    handleDeleteAlert={handleDeleteAlert}
+                    handleDeleteSavedSearch={handleDeleteSavedSearch}
+                    handleViewMatchesForAlert={handleViewMatchesForAlert}
+                    setActiveTab={setActiveTab}
+                    quota={quota}
+                />
+            )}
 
-                                        {/* Action Buttons */}
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                            <Button variant="outline" size="sm" className="gap-1.5 text-caption font-semibold h-8 rounded-lg border-border text-foreground-secondary hover:bg-muted" onClick={() => handleViewAlertMatches(alert)}>
-                                                <Eye className="h-3.5 w-3.5 text-foreground-subtle" /> View Ads
-                                            </Button>
-                                            <Button variant="outline" size="sm" className="gap-1.5 text-caption font-semibold h-8 rounded-lg border-border text-foreground-secondary hover:bg-muted" onClick={() => handleOpenEditModal(alert)}>
-                                                <Edit2 className="h-3.5 w-3.5 text-foreground-subtle" /> Edit
-                                            </Button>
-                                            <Button variant="outline" size="sm" className="gap-1.5 text-caption font-semibold h-8 rounded-lg border-border text-foreground-secondary hover:bg-muted" onClick={() => handleToggleAlertStatus(alert.id)}>
-                                                <Bell className="h-3.5 w-3.5 text-foreground-subtle" /> {alert.active === false ? "Resume" : "Pause"}
-                                            </Button>
-                                            {pendingDeleteId === alert.id ? (
-                                                <Button variant="outline" size="sm" className="gap-1.5 text-caption font-semibold h-8 rounded-lg text-destructive border-destructive/20 bg-destructive/10 hover:bg-destructive/20" onClick={() => { setPendingDeleteId(null); handleDeleteAlert(alert.id); }}>
-                                                    <Trash2 className="h-3.5 w-3.5" /> Confirm
-                                                </Button>
-                                            ) : (
-                                                <Button variant="outline" size="sm" className="gap-1.5 text-caption font-semibold h-8 rounded-lg text-destructive hover:bg-destructive/10 border-border" onClick={() => setPendingDeleteId(alert.id)}>
-                                                    <Trash2 className="h-3.5 w-3.5 text-destructive" /> Delete
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Upgrade Micro-Banner */}
-                    <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-3 flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                            <Crown className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-caption text-purple-950">Want more smart alerts?</h4>
-                            <p className="text-tiny text-purple-700/90 truncate">Upgrade your plan to unlock more alert slots.</p>
-                        </div>
-                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-caption h-8 px-3 rounded-lg shrink-0 shadow-xs" onClick={() => setActiveTab("plans")}>
-                            Upgrade
-                        </Button>
-                    </div>
-
-                    <Separator className="my-1" />
-
-                    {/* Saved Searches Sub-Module */}
-                    <SavedSearchesListSection
-                        savedSearches={savedSearches}
-                        handleDeleteSavedSearch={handleDeleteSavedSearch}
-                    />
-                </CardContent>
-            </Card>
+            {/* Sub-Tab 2: Matched Listings */}
+            {activeSubTab === "matches" && (
+                <SmartAlertMatchesSection
+                    smartAlerts={smartAlerts}
+                    selectedAlertFilter={selectedAlertFilter}
+                    onClearFilter={() => {
+                        setSelectedAlertFilter(undefined);
+                        setMatchesPage(1);
+                    }}
+                    isLoadingMatches={isLoadingMatches}
+                    matchesData={matchesData}
+                    onPageChange={(p) => setMatchesPage(p)}
+                    onNavigateToAd={(url) => router.push(url)}
+                />
+            )}
 
             {/* Dedicated Creation / Edit Modal */}
             <CreateSmartAlertDialog

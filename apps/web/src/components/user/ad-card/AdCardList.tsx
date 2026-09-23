@@ -12,6 +12,7 @@ import {
   getPlanBadge,
   getConditionBadge,
   isSpotlightAd,
+  ListingTypeBadge,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -42,7 +43,8 @@ function areAdCardListPropsEqual(
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
     prevProps.href === nextProps.href &&
-    prevProps.className === nextProps.className
+    prevProps.className === nextProps.className &&
+    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType
   );
 }
 
@@ -78,10 +80,10 @@ export const AdCardList = memo(function AdCardList({
         className
       )}
     >
-      <CardContent className="p-3 sm:p-4">
-        <div className="flex min-w-0 items-start gap-3 sm:gap-5">
+      <CardContent className="p-2.5 sm:p-3.5">
+        <div className="flex min-w-0 items-start gap-2.5 sm:gap-4">
           {/* List View Image */}
-          <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
+          <div className="relative h-24 w-24 sm:h-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-muted/20">
             {imageUrl ? (
               <SafeImage
                 src={imageUrl}
@@ -89,7 +91,7 @@ export const AdCardList = memo(function AdCardList({
                 fill
                 priority={priority}
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
-                sizes="(max-width: 768px) 112px, 144px"
+                sizes="(max-width: 768px) 96px, 128px"
               />
             ) : (
               <div
@@ -100,14 +102,17 @@ export const AdCardList = memo(function AdCardList({
               </div>
             )}
             {planBadge && (
-              <div className="absolute top-1.5 left-1.5 z-10">
+              <div className="absolute top-1 left-1 z-10 flex flex-wrap items-center gap-1 pointer-events-none">
                 {planBadge}
               </div>
             )}
+            <div className="absolute bottom-1 left-1 z-10 flex items-center pointer-events-none">
+              <ListingTypeBadge ad={ad} />
+            </div>
           </div>
 
           {/* List View Content */}
-          <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[7rem] sm:min-h-[8rem]">
+          <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[5.5rem] sm:min-h-[6.5rem]">
             <div className="flex min-w-0 items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <AdCardMeta ad={ad} variant="list" />
@@ -116,11 +121,11 @@ export const AdCardList = memo(function AdCardList({
                 adId={adId}
                 isSaved={isSaved}
                 onToggleSave={onToggleSave}
-                className="relative static shrink-0 -mt-1 -mr-1 shadow-none bg-transparent hover:bg-muted/40"
+                className="relative static shrink-0 -mt-0.5 -mr-0.5 shadow-none bg-transparent hover:bg-muted/40"
               />
             </div>
 
-            <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2">
+            <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2">
               <span className="rounded-full bg-muted px-2 py-0.5 text-tiny font-normal text-muted-foreground uppercase tracking-wide">
                 {categoryLabel}
               </span>

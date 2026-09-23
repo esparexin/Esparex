@@ -121,7 +121,19 @@ describe("listingPresentation", () => {
         ).toEqual({
             type: "service",
             label: "Service",
-            className: "bg-emerald-50 text-emerald-700 border-emerald-100",
+            icon: "wrench",
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        });
+
+        expect(
+            resolveListingTypeBadge({
+                listingType: "spare_part",
+            })
+        ).toEqual({
+            type: "spare_part",
+            label: "Parts",
+            icon: "cpu",
+            className: "bg-purple-50 text-purple-700 border-purple-200",
         });
 
         expect(
@@ -131,8 +143,9 @@ describe("listingPresentation", () => {
             } as Parameters<typeof resolveListingTypeBadge>[0])
         ).toEqual({
             type: "ad",
-            label: "Device",
-            className: "bg-blue-50 text-link-dark border-blue-100",
+            label: "Ad",
+            icon: "device",
+            className: "bg-blue-50 text-blue-700 border-blue-200",
         });
     });
 
