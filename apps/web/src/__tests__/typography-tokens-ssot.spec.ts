@@ -91,36 +91,32 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
         expect(content).toContain('pathname?.startsWith("/admin")');
     });
 
-    it("ensures zero text-caption sm:text-body anti-pattern in account and profile components", () => {
-        const profileDir = path.join(WEB_SRC, "components", "user", "profile");
-        const profileFiles = collectSourceFiles(profileDir, [".tsx"]);
-        const accountFiles = [
-            path.join(WEB_SRC, "components", "user", "AccountNavItemList.tsx"),
-            path.join(WEB_SRC, "components", "user", "AccountHeader.tsx"),
-            path.join(WEB_SRC, "components", "user", "MobileAccountBottomNav.tsx"),
-            path.join(WEB_SRC, "components", "user", "ProfileSettingsSidebar.tsx"),
-        ];
-        const allFiles = [...profileFiles, ...accountFiles.filter((f) => fs.existsSync(f))];
+    it("ensures zero text-caption sm:text-body anti-pattern across all web components and pages", () => {
+        const sourceFiles = collectSourceFiles(WEB_SRC, [".tsx", ".ts"]);
         const violations: string[] = [];
 
-        for (const file of allFiles) {
+        for (const file of sourceFiles) {
             const content = fs.readFileSync(file, "utf-8");
-            if (/text-caption\s+(sm|md):text-body/.test(content)) {
-                violations.push(
-                    `${path.relative(WEB_SRC, file)}: contains anti-pattern "text-caption sm:text-body" which causes mobile typography inconsistency`,
-                );
-            }
+            const lines = content.split("\n");
+            lines.forEach((line, idx) => {
+                if (line.trim().startsWith("//") || line.trim().startsWith("*")) return;
+                if (/text-caption\s+(sm|md):text-body/.test(line)) {
+                    violations.push(
+                        `${path.relative(WEB_SRC, file)}:${idx + 1}: contains anti-pattern "text-caption sm/md:text-body" which causes mobile typography inconsistency`,
+                    );
+                }
+            });
         }
 
         expect(violations).toEqual([]);
     });
 
-    it("ensures zero non-SSOT typography tokens in account profile components", () => {
-        const profileDir = path.join(WEB_SRC, "components", "user", "profile");
-        const profileFiles = collectSourceFiles(profileDir, [".tsx"]);
+    it("ensures zero raw Tailwind scale tokens across all web source components and pages", () => {
+        const sourceFiles = collectSourceFiles(WEB_SRC, [".tsx", ".ts"]);
         const FORBIDDEN_DEFAULT_TOKENS = [
             /\btext-xs\b/,
-            /\btext-sm\b(?!\s*:\s*)/,
+            /\btext-sm\b/,
+            /\btext-base\b/,
             /\btext-lg\b/,
             /\btext-xl\b/,
             /\btext-2xl\b/,
@@ -129,20 +125,16 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
         ];
         const violations: string[] = [];
 
-        for (const file of profileFiles) {
+        for (const file of sourceFiles) {
             const content = fs.readFileSync(file, "utf-8");
-            // Strip out className="... text-body-lg ..." or "sm:text-..." or "placeholder:text-..."
             const lines = content.split("\n");
             lines.forEach((line, idx) => {
                 // Ignore comments
                 if (line.trim().startsWith("//") || line.trim().startsWith("*")) return;
-                // Check each forbidden token
+                const cleanedLine = line
+                    .replace(/\btext-body-lg\b/g, "")
+                    .replace(/placeholder:text-\w+/g, "");
                 for (const tokenRegex of FORBIDDEN_DEFAULT_TOKENS) {
-                    // Make sure it's not preceded by body- or sm: or md: or placeholder:
-                    const cleanedLine = line
-                        .replace(/\btext-body-lg\b/g, "")
-                        .replace(/\b(sm|md|lg|xl|2xl):text-\w+/g, "")
-                        .replace(/placeholder:text-\w+/g, "");
                     if (tokenRegex.test(cleanedLine)) {
                         violations.push(
                             `${path.relative(WEB_SRC, file)}:${idx + 1}: contains non-SSOT typography token: "${line.trim()}"`,
@@ -189,18 +181,21 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
         expect(violations).toEqual([]);
     });
 
-    it("ensures zero alien font weights (font-black, font-extrabold) in profile components", () => {
-        const profileDir = path.join(WEB_SRC, "components", "user", "profile");
-        const files = collectSourceFiles(profileDir, [".tsx"]);
+    it("ensures zero alien font weights (font-black, font-extrabold) across all web components and pages", () => {
+        const files = collectSourceFiles(WEB_SRC, [".tsx", ".ts"]);
         const violations: string[] = [];
 
         for (const file of files) {
             const content = fs.readFileSync(file, "utf-8");
-            if (/\bfont-(black|extrabold)\b/.test(content)) {
-                violations.push(
-                    `${path.relative(WEB_SRC, file)}: contains alien font weight (only normal, medium, semibold, bold are permitted)`,
-                );
-            }
+            const lines = content.split("\n");
+            lines.forEach((line, idx) => {
+                if (line.trim().startsWith("//") || line.trim().startsWith("*")) return;
+                if (/\bfont-(black|extrabold)\b/.test(line)) {
+                    violations.push(
+                        `${path.relative(WEB_SRC, file)}:${idx + 1}: contains alien font weight (only normal, medium, semibold, bold are permitted)`,
+                    );
+                }
+            });
         }
 
         expect(violations).toEqual([]);
