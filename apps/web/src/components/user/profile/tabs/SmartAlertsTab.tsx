@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bell, Button, Compass, Plus } from "@esparex/ui";
+import { Button, Plus } from "@esparex/ui";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";
 import type { SmartAlertFieldErrors, SmartAlertFormData, SmartAlertListItem } from "../types";
 import { CreateSmartAlertDialog } from "../dialogs/CreateSmartAlertDialog";
@@ -146,13 +146,12 @@ export function SmartAlertsTab({
                     role="tab"
                     aria-selected={activeSubTab === "rules"}
                     onClick={() => setActiveSubTab("rules")}
-                    className={`flex items-center gap-2 pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "rules"
                             ? "border-primary text-primary"
                             : "border-transparent text-foreground-secondary hover:text-foreground"
                     }`}
                 >
-                    <Bell className="h-4 w-4" />
                     <span>Alert Rules ({smartAlerts.length})</span>
                 </button>
                 <button
@@ -160,13 +159,12 @@ export function SmartAlertsTab({
                     role="tab"
                     aria-selected={activeSubTab === "matches"}
                     onClick={() => { setActiveSubTab("matches"); setMatchesPage(1); }}
-                    className={`flex items-center gap-2 pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "matches"
                             ? "border-primary text-primary"
                             : "border-transparent text-foreground-secondary hover:text-foreground"
                     }`}
                 >
-                    <Compass className="h-4 w-4" />
                     <span>Matched Listings ({matchesData?.total ?? 0})</span>
                 </button>
             </div>
