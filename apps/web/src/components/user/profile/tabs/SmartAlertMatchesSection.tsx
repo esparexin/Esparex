@@ -4,7 +4,6 @@ import {
     Bell,
     Button,
     Calendar,
-    Compass,
     ExternalLink,
     ImageOff,
     MapPin,
@@ -59,18 +58,13 @@ export function SmartAlertMatchesSection({
                     ))}
                 </div>
             ) : !matchesData?.matches || matchesData.matches.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 sm:p-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-3">
-                    <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
-                        <Compass className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-body-lg text-foreground">No matched listings yet</h4>
-                        <p className="text-caption text-foreground-secondary max-w-sm mx-auto mt-1">
-                            {selectedAlertFilter
-                                ? "No listings have matched this alert yet."
-                                : "Matching listings will appear here when published."}
-                        </p>
-                    </div>
+                <div className="flex flex-col items-center justify-center p-8 sm:p-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-1.5">
+                    <h4 className="font-semibold text-body-lg text-foreground">No matched listings yet</h4>
+                    <p className="text-caption text-foreground-secondary max-w-sm mx-auto">
+                        {selectedAlertFilter
+                            ? "No listings have matched this alert yet."
+                            : "Matching listings will appear here when published."}
+                    </p>
                     {selectedAlertFilter && (
                         <Button
                             type="button"

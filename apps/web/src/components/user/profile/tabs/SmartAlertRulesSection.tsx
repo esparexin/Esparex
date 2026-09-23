@@ -1,11 +1,9 @@
 "use client";
 
 import {
-    Bell,
     Button,
     Calendar,
     Compass,
-    Crown,
     Edit2,
     MapPin,
     Power,
@@ -60,16 +58,11 @@ export function SmartAlertRulesSection({
     return (
         <div className="space-y-5">
             {smartAlerts.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 sm:p-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
-                        <Bell className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-body-lg text-foreground">No alerts yet</h4>
-                        <p className="text-caption text-foreground-secondary max-w-sm mx-auto mt-1">
-                            Get notified immediately when matching items are posted.
-                        </p>
-                    </div>
+                <div className="flex flex-col items-center justify-center p-8 sm:p-12 rounded-2xl border border-dashed border-border bg-card text-center space-y-1.5">
+                    <h4 className="font-semibold text-body-lg text-foreground">No alerts yet</h4>
+                    <p className="text-caption text-foreground-secondary max-w-sm mx-auto">
+                        Get notified immediately when matching items are posted.
+                    </p>
                 </div>
             ) : (
                 <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border overflow-hidden">
@@ -186,14 +179,9 @@ export function SmartAlertRulesSection({
 
             {/* Clean Upgrade Banner */}
             <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
-                        <Crown className="h-4.5 w-4.5" />
-                    </div>
-                    <div className="min-w-0">
-                        <h4 className="font-semibold text-body text-foreground">Need more alerts?</h4>
-                        <p className="text-caption text-foreground-secondary truncate">Upgrade your plan for additional slots.</p>
-                    </div>
+                <div className="min-w-0">
+                    <h4 className="font-semibold text-body text-foreground">Need more alerts?</h4>
+                    <p className="text-caption text-foreground-secondary truncate">Upgrade your plan for additional slots.</p>
                 </div>
                 <Button
                     type="button"
