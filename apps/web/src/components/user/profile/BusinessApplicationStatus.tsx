@@ -4,10 +4,8 @@ import {
     Button,
     AlertDialog,
     AlertDialogContent,
-    AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogAction,
     AlertDialogCancel,
     AlertTriangle,
@@ -103,26 +101,34 @@ function WithdrawModal({
 }) {
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="max-w-md rounded-2xl bg-card p-6 shadow-2xl border border-border">
-                <AlertDialogHeader>
-                    <AlertDialogTitle className="text-h4 font-bold text-foreground">
-                        Withdraw Business Application?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-body text-muted-foreground mt-2">
-                        Are you sure you want to withdraw your business application? This action cannot be undone.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
-                    <AlertDialogCancel className="h-9 rounded-xl px-4 font-semibold text-caption border-border">
-                        Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={onConfirm}
-                        className="h-9 rounded-xl bg-destructive text-destructive-foreground font-semibold text-caption hover:bg-destructive/90"
-                    >
-                        Withdraw
-                    </AlertDialogAction>
-                </AlertDialogFooter>
+            <AlertDialogContent className="max-w-[calc(100%-2rem)] sm:max-w-md rounded-2xl bg-card p-5 sm:p-6 shadow-2xl border border-border">
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3.5">
+                        <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive mt-0.5">
+                            <AlertTriangle className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1.5 text-left min-w-0">
+                            <AlertDialogTitle className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight leading-snug">
+                                Withdraw application?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-caption sm:text-body text-foreground-secondary leading-relaxed">
+                                Are you sure you want to withdraw your business application? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row items-center justify-end gap-2.5 pt-2">
+                        <AlertDialogCancel className="h-10 flex-1 sm:flex-initial rounded-xl px-4 text-caption sm:text-body font-semibold border-border text-foreground-secondary hover:bg-muted mt-0 cursor-pointer">
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={onConfirm}
+                            className="h-10 flex-1 sm:flex-initial rounded-xl bg-destructive text-destructive-foreground px-5 text-caption sm:text-body font-semibold hover:bg-destructive/90 shadow-xs cursor-pointer"
+                        >
+                            Withdraw
+                        </AlertDialogAction>
+                    </div>
+                </div>
             </AlertDialogContent>
         </AlertDialog>
     );
@@ -136,7 +142,7 @@ export function BusinessApplicationStatus({
 }: BusinessApplicationStatusProps) {
     const [isWithdrawing, setIsWithdrawing] = useState(false);
     const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
-    const status = businessData ? normalizeBusinessStatus(businessData.status, "pending") : "pending";
+    const status = businessData ? normalizeBusinessStatus(businessData.status, "none") : "none";
     const businessLabel = businessData?.name || "Pending Business";
     const category = businessData?.businessType ?? businessData?.businessTypes?.[0];
 
@@ -154,7 +160,7 @@ export function BusinessApplicationStatus({
         }
     };
 
-    if (status === "pending") {
+    if (businessData && status === "pending") {
         return (
             <div className="max-w-2xl space-y-2.5">
                 <WithdrawModal open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog} onConfirm={confirmWithdraw} />

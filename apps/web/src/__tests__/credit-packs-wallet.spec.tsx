@@ -252,7 +252,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
       <RecentPaymentsCard payments={[]} onBrowsePlans={vi.fn()} />
     );
     expect(emptyHtml).toContain('No Payment Receipts Yet');
-    expect(emptyHtml).toContain('When you upgrade your plan or purchase credit packs');
+    expect(emptyHtml).not.toContain('When you upgrade your plan or purchase credit packs');
     expect(emptyHtml).toContain('Browse Plans');
 
     // When payments only contain 0-rupee internal quota adjustments

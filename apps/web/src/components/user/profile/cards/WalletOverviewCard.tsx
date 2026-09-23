@@ -1,15 +1,10 @@
 import React from 'react';
 import type { WalletSummaryDTO, CreditPackDTO } from '@esparex/contracts';
 import {
-  Package,
-  Bell,
-  Sparkles,
-  TrendingUp,
   Card,
   CardContent,
   ArrowRight,
   Clock,
-  Grid,
 } from '@esparex/ui';
 
 export interface WalletOverviewCardProps {
@@ -40,8 +35,6 @@ function nearestExpiry(
 }
 
 interface StatTileProps {
-  icon: React.ReactNode;
-  iconBgClass: string;
   label: string;
   value: number | string;
   unit: string;
@@ -52,8 +45,6 @@ interface StatTileProps {
 }
 
 const StatTile: React.FC<StatTileProps> = ({
-  icon,
-  iconBgClass,
   label,
   value,
   unit,
@@ -80,36 +71,31 @@ const StatTile: React.FC<StatTileProps> = ({
           : undefined
       }
       aria-label={ariaLabel}
-      className={`group relative flex flex-col justify-between p-3 sm:p-4 rounded-xl border border-border bg-card text-left transition-all ${
+      className={`group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl border border-border bg-card text-left transition-all ${
         isClickable
           ? 'hover:border-primary/40 hover:bg-muted/30 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
           : 'cursor-default select-none'
       }`}
     >
-      <div className="flex items-center justify-between gap-2 w-full mb-2">
-        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${iconBgClass}`}>
-            {icon}
-          </div>
-          <span className="text-small sm:text-body font-semibold text-foreground truncate">{label}</span>
-        </div>
+      <div className="flex items-center justify-between gap-2 w-full mb-1.5">
+        <span className="text-small sm:text-body font-semibold text-foreground truncate">{label}</span>
         {isClickable && (
           <ArrowRight className="hidden sm:block w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
         )}
       </div>
 
       <div className="flex flex-col gap-1 w-full mt-auto">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-h3 sm:text-h2 font-bold text-foreground tracking-tight">{value}</span>
+        <div className="flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-body-lg sm:text-h3 font-bold text-foreground tracking-tight tabular-nums">{value}</span>
           <span className="text-caption font-medium text-muted-foreground">{` ${unit}`}</span>
         </div>
         {subtext && (
-          <p className="text-tiny font-medium text-muted-foreground">
+          <p className="text-tiny font-medium text-muted-foreground truncate">
             {subtext}
           </p>
         )}
         {expiry && (
-          <span className="inline-flex items-center gap-1 text-tiny text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+          <span className="inline-flex items-center gap-1 text-tiny text-amber-600 dark:text-amber-400 font-medium mt-0.5 truncate">
             <Clock className="w-3 h-3 shrink-0" />
             Expires {expiry}
           </span>
@@ -140,8 +126,8 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   const hasFreeAdsUsage = freeAdsUsed > 0;
 
   return (
-    <Card className="rounded-2xl border border-border bg-card shadow-xs">
-      <CardContent className="p-4 sm:p-5 space-y-4">
+    <Card className="border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs rounded-none sm:rounded-2xl">
+      <CardContent className="p-0 sm:p-5 space-y-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -165,10 +151,8 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               Free Plans
             </h4>
           </div>
-          <Grid cols={2} gap="sm">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <StatTile
-              icon={<Package className="w-4 h-4" />}
-              iconBgClass="bg-primary/10 text-primary border border-primary/20"
               label="Free Ads"
               value={freeAdsRemaining}
               unit="Available"
@@ -177,8 +161,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               onClick={hasFreeAdsUsage ? () => onNavigateToHistory?.('MORE_ADS') : undefined}
             />
             <StatTile
-              icon={<Bell className="w-4 h-4" />}
-              iconBgClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
               label="Smart Alerts"
               value={freeAlerts}
               unit="Active"
@@ -186,7 +168,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               ariaLabel={`Free Smart Alerts: ${freeAlerts} Active, 0 Used`}
               onClick={undefined}
             />
-          </Grid>
+          </div>
         </div>
 
         {/* Section 2: Purchased Credits */}
@@ -196,10 +178,8 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               Purchased Credits
             </h4>
           </div>
-          <Grid cols={4} gap="sm">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
             <StatTile
-              icon={<Sparkles className="w-4 h-4" />}
-              iconBgClass="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
               label="Spotlight"
               value={wallet.spotlightCredits ?? 0}
               unit="Credits"
@@ -208,8 +188,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               onClick={(wallet.spotlightCredits ?? 0) > 0 ? () => onNavigateToHistory?.('SPOTLIGHT') : undefined}
             />
             <StatTile
-              icon={<TrendingUp className="w-4 h-4" />}
-              iconBgClass="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20"
               label="Top Ad"
               value={wallet.topAdCredits ?? 0}
               unit="Credits"
@@ -218,8 +196,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               onClick={(wallet.topAdCredits ?? 0) > 0 ? () => onNavigateToHistory?.('TOP_AD') : undefined}
             />
             <StatTile
-              icon={<Package className="w-4 h-4" />}
-              iconBgClass="bg-primary/10 text-primary border border-primary/20"
               label="More Ads"
               value={paidAds}
               unit="Credits"
@@ -228,8 +204,6 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               onClick={paidAds > 0 ? () => onNavigateToHistory?.('MORE_ADS') : undefined}
             />
             <StatTile
-              icon={<Bell className="w-4 h-4" />}
-              iconBgClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
               label="Smart Alerts"
               value={extraAlerts}
               unit="Active"
@@ -237,7 +211,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
               ariaLabel={`Purchased Smart Alerts: ${extraAlerts} Active`}
               onClick={extraAlerts > 0 ? () => onNavigateToHistory?.('SMART_ALERTS') : undefined}
             />
-          </Grid>
+          </div>
         </div>
       </CardContent>
     </Card>

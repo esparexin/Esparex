@@ -15,10 +15,11 @@ interface ListingModalLayoutProps {
     subtitle?: string;
     onClose: () => void;
     fullScreen?: boolean;
+    className?: string;
     children: React.ReactNode;
 }
 
-export function ListingModalLayout({ title, subtitle, onClose, fullScreen, children }: ListingModalLayoutProps) {
+export function ListingModalLayout({ title, subtitle, onClose, fullScreen, className, children }: ListingModalLayoutProps) {
     if (fullScreen) {
         return (
             <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -64,6 +65,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
             <DialogContent
                 hideClose
                 variant="bottomSheet"
+                className={className}
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <header className="shrink-0 bg-card border-b border-border flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">

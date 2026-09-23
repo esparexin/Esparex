@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    Z_INDEX,
 } from "@esparex/ui";
 import { Camera, FileText, Upload, Trash2 } from "@esparex/ui";
 import { useIsMobileDevice } from "@/hooks/useMobile";
@@ -72,6 +73,9 @@ export function UploadSourcePicker({
             <DialogContent
                 hideClose
                 variant="bottomSheet"
+                overlayZIndex={Z_INDEX.alertDialogOverlay}
+                // design-token-ignore: z-index must use Z_INDEX token via inline style per zIndex.ts governance
+                style={{ zIndex: Z_INDEX.alertDialogContent }}
                 className="sm:!max-w-[320px] md:!max-w-[320px] border-none shadow-2xl p-0 overflow-hidden bg-card rounded-t-2xl sm:rounded-2xl"
             >
                 {/* Header */}

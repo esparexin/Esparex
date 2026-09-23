@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Target } from "@esparex/ui";
 
 import { Button } from "@esparex/ui";
@@ -82,7 +82,7 @@ function CompactReadonlyField({
     return (
         <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-                <label className="text-body font-semibold leading-snug text-foreground-secondary" htmlFor={id}>
+                <label className="text-body font-semibold text-foreground-secondary" htmlFor={id}>
                     {label}
                 </label>
                 {badge}
@@ -94,7 +94,7 @@ function CompactReadonlyField({
                     value={value}
                     readOnly
                     placeholder={placeholder}
-                    className="h-11 flex-1 rounded-xl border-border bg-muted/40 font-normal text-foreground-secondary focus-visible:ring-2 focus-visible:ring-primary/20"
+                    className="h-11 flex-1 rounded-xl border-border bg-muted/40 font-normal text-body-lg md:text-body text-foreground-secondary placeholder:text-foreground-subtle focus-visible:ring-2 focus-visible:ring-primary/20"
                     aria-invalid={Boolean(error)}
                 />
                 {fieldAction ? <div className="shrink-0">{fieldAction}</div> : null}
@@ -111,11 +111,38 @@ export function StepAddress({
 }: StepAddressProps) {
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
+    const addressSectionRef = useRef<HTMLDivElement>(null);
 
     const hasCurrentLocation = useMemo(
         () => Boolean(asOptionalString(formData.currentLocationDisplay) && formData.coordinates),
         [formData.coordinates, formData.currentLocationDisplay],
     );
+    const scrollToAddress = () => {
+        setTimeout(() => {
+            const container = document.getElementById("business-wizard-body");
+            const target = addressSectionRef.current || document.getElementById("reg-full-address");
+            if (container && target) {
+                const containerRect = container.getBoundingClientRect();
+                const targetRect = target.getBoundingClientRect();
+                const targetScroll = container.scrollTop + (targetRect.top - containerRect.top) - 16;
+                container.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+            } else if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+            const textarea = document.getElementById("reg-full-address");
+            textarea?.focus({ preventScroll: true });
+        }, 150);
+    };
+
+    const previousHasLocationRef = useRef(hasCurrentLocation);
+
+    useEffect(() => {
+        if (!previousHasLocationRef.current && hasCurrentLocation) {
+            scrollToAddress();
+        }
+        previousHasLocationRef.current = hasCurrentLocation;
+        return undefined;
+    }, [hasCurrentLocation]);
     const currentLocationError = formData.errors?.currentLocationDisplay || formData.errors?.coordinates;
     const sourceLabel = getCurrentLocationSourceLabel(formData.currentLocationSource);
 
@@ -152,6 +179,8 @@ export function StepAddress({
                 detectedLocation: detectionResult.location,
                 setFormData,
             });
+
+            scrollToAddress();
         } catch (error) {
             logger.error("Current location detection failed", error);
             setDetectFeedback("We couldn't detect your current location right now. Please try again.");
@@ -161,8 +190,8 @@ export function StepAddress({
     };
 
     return (
-        <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-3.5">
+            <div className="grid gap-3 md:grid-cols-2">
                 <CompactReadonlyField
                     id="reg-contact-number"
                     label="Business contact"
@@ -217,44 +246,55 @@ export function StepAddress({
                 </CompactReadonlyField>
 
                 {asOptionalString(formData.currentLocationPincode) ? (
-                  <CompactReadonlyField
-                      id="reg-detected-pincode"
-                      label="Detected pincode"
-                      value={asOptionalString(formData.currentLocationPincode)}
-                      placeholder="—"
-                      error={formData.errors?.currentLocationPincode}
-                  />
+                    <CompactReadonlyField
+                        id="reg-detected-pincode"
+                        label="Detected pincode"
+                        value={asOptionalString(formData.currentLocationPincode)}
+                        placeholder="—"
+                        helperText="Auto-detected from GPS"
+                        error={formData.errors?.currentLocationPincode}
+                        badge={(
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-tiny font-medium text-emerald-600">
+                                Auto-filled
+                            </span>
+                        )}
+                    />
                 ) : null}
             </div>
 
             {hasCurrentLocation ? (
-                <Field
-                    label="Full address"
-                    labelClassName="text-body font-semibold text-foreground-secondary"
-                    required
-                    error={formData.errors?.address}
-                    headerExtra={
-                        <span className={cn("shrink-0 text-tiny font-normal tabular-nums", formData.address.length >= 300 ? "text-destructive" : "text-foreground-subtle")}>
-                            {formData.address.length}/300
-                        </span>
-                    }
-                    className="space-y-1.5"
-                >
-                    <Textarea
-                        id="reg-full-address"
-                        value={formData.address}
-                        onChange={(event) =>
-                            setFormData({
-                                ...formData,
-                                address: event.target.value.slice(0, 300),
-                            })
+                <div ref={addressSectionRef} className="space-y-1.5">
+                    <Field
+                        label="Full address"
+                        labelClassName="text-body font-semibold text-foreground-secondary"
+                        required
+                        error={formData.errors?.address}
+                        headerExtra={
+                            <span className={cn("shrink-0 text-tiny font-normal tabular-nums", formData.address.length >= 300 ? "text-destructive" : "text-foreground-subtle")}>
+                                {formData.address.length}/300
+                            </span>
                         }
-                        placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
-                        maxLength={300}
-                        className="min-h-[110px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
-                        aria-invalid={Boolean(formData.errors?.address)}
-                    />
-                </Field>
+                        className="space-y-1.5"
+                    >
+                        <Textarea
+                            id="reg-full-address"
+                            value={formData.address}
+                            onChange={(event) =>
+                                setFormData({
+                                    ...formData,
+                                    address: event.target.value.slice(0, 300),
+                                })
+                            }
+                            placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
+                            maxLength={300}
+                            className="min-h-[84px] sm:min-h-[92px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
+                            aria-invalid={Boolean(formData.errors?.address)}
+                        />
+                    </Field>
+                    <p className="text-caption text-foreground-subtle">
+                        Include shop/building number, street, landmark, and mandatory 6-digit pincode (e.g. 522413).
+                    </p>
+                </div>
             ) : null}
         </div>
     );

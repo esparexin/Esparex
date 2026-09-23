@@ -247,7 +247,7 @@ function resolveBusinessItem(
   item: WebNavigationItem,
   user: AppUser | null
 ): ResolvedNavigationItem {
-  const status = normalizeBusinessStatus(user?.businessStatus, "pending");
+  const status = normalizeBusinessStatus(user?.businessStatus, "none");
   const isLive = isBusinessActiveStatus(user?.businessStatus);
   const hasPendingBusinessApplication =
     status === "pending" && Boolean(user?.businessId);

@@ -20,7 +20,7 @@ export default function BusinessEditPage() {
         silent: true,
     });
     
-    const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'pending');
+    const businessStatus = normalizeBusinessStatus(businessData?.status || user?.businessStatus, 'none');
     const hasBusinessId = Boolean(businessData?.id || user?.businessId);
     
     const isHydrated = !authLoading && !businessLoading && businessFetched;

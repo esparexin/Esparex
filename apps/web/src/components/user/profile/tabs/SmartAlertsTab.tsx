@@ -51,7 +51,7 @@ export function SmartAlertsTab({
     setActiveTab,
     userPlan: _userPlan = "Free",
     loading,
-    quota: _quota,
+    quota,
     smartAlertErrors,
     smartAlertGlobalError,
 }: SmartAlertsTabProps) {
@@ -183,6 +183,7 @@ export function SmartAlertsTab({
                     handleDeleteSavedSearch={handleDeleteSavedSearch}
                     handleViewMatchesForAlert={handleViewMatchesForAlert}
                     setActiveTab={setActiveTab}
+                    quota={quota}
                 />
             )}
 

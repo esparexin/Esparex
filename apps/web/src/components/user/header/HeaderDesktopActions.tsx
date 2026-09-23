@@ -46,7 +46,7 @@ export function HeaderDesktopActions({
 }: HeaderDesktopActionsProps) {
   const router = useRouter();
 
-  const businessStatus = normalizeBusinessStatus(user?.businessStatus, "pending");
+  const businessStatus = normalizeBusinessStatus(user?.businessStatus, "none");
   const isBusinessLive = Boolean(user && isApprovedBusiness(user));
   const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
   const canRegister = Boolean(user && canRegisterBusiness(user));
