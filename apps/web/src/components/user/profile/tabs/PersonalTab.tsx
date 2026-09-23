@@ -219,7 +219,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
 
                     <FormError message={globalError} />
 
-                    <div className="pt-3 border-t border-border sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] md:static md:bottom-auto bg-card/95 backdrop-blur-sm -mx-4 px-4 py-3 sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none flex items-center justify-end z-20">
+                    <div className="pt-4 border-t border-border flex items-center justify-end">
                         <Button type="submit" size="sm" disabled={isSaving || !isFormDirty} className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
                             {isSaving ? "Saving..." : "Save changes"}
                         </Button>
