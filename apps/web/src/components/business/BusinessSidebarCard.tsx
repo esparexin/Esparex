@@ -35,7 +35,7 @@ export function BusinessSidebarCard({
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2.5 px-4 sm:px-5 pb-4">
-            <p className="leading-relaxed text-caption sm:text-body text-foreground-secondary font-normal whitespace-pre-wrap">
+            <p className="leading-relaxed text-body text-foreground-secondary font-normal whitespace-pre-wrap">
               {business.description}
             </p>
             {business.website ? (

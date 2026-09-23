@@ -107,7 +107,7 @@ export function ListingImagesField({
                                     onClick={handleOpenPicker}
                                     aria-label="Add product photos"
                                     className={cn(
-                                        "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-caption sm:text-body font-semibold transition-all cursor-pointer select-none active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-body font-semibold transition-all cursor-pointer select-none active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                         isDraggingOver
                                             ? "border-primary bg-primary/10 text-primary scale-[1.01] shadow-sm"
                                             : "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary text-primary"

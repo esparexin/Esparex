@@ -54,7 +54,7 @@ export function DeviceConditionSection() {
                     render={({ field }) => (
                         <FormItem className="flex flex-col gap-1.5 space-y-0">
                             <div className="flex flex-row items-center gap-x-4">
-                                <FieldLabel className="text-caption sm:text-body font-semibold m-0 leading-none text-foreground-secondary">
+                                <FieldLabel className="text-body font-semibold m-0 leading-none text-foreground-secondary">
                                     Device Condition <span className="text-destructive">*</span>
                                 </FieldLabel>
                                 <FieldControl animateOnError>
@@ -134,7 +134,7 @@ export function DeviceConditionSection() {
                 <section className="space-y-2" data-field="spareParts">
                     <label 
                         htmlFor="working-spare-parts-select" 
-                        className="text-caption sm:text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
+                        className="text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
                     >
                         Working Spare Parts <span className="text-destructive">*</span>
                     </label>

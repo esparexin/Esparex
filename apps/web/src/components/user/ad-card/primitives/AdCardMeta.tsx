@@ -88,7 +88,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
           "font-normal line-clamp-2 leading-snug text-foreground tracking-tight",
-          isList ? "text-caption sm:text-small" : "text-caption sm:text-body"
+          isList ? "text-small" : "text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>

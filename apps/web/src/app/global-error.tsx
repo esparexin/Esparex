@@ -40,10 +40,10 @@ export default function GlobalError({
                                 <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-tiny font-bold uppercase tracking-wider text-rose-700">
                                     500 · System Error
                                 </div>
-                                <h1 className="text-xl font-extrabold text-foreground sm:text-2xl">
+                                <h1 className="text-h3 sm:text-h2 font-bold text-foreground">
                                     Critical System Error
                                 </h1>
-                                <p className="mx-auto max-w-xs text-caption sm:text-body text-foreground-secondary leading-relaxed">
+                                <p className="mx-auto max-w-xs text-body text-foreground-secondary leading-relaxed">
                                     An unexpected system error occurred. Please refresh or try returning to homepage.
                                 </p>
                             </div>
@@ -53,14 +53,14 @@ export default function GlobalError({
                                 <button
                                     type="button"
                                     onClick={reset}
-                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-caption font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95 sm:text-body"
+                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-body font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
                                 >
                                     <RefreshCcw className="h-4 w-4" />
                                     <span>Try Again</span>
                                 </button>
                                 <Link
                                     href="/"
-                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-caption font-bold text-foreground-secondary shadow-sm transition-all hover:bg-muted active:scale-95 sm:text-body"
+                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-body font-bold text-foreground-secondary shadow-sm transition-all hover:bg-muted active:scale-95"
                                 >
                                     <Home className="h-4 w-4 text-foreground-subtle" />
                                     <span>Homepage</span>

@@ -168,12 +168,12 @@ export function ListingItem({
       <div className="flex-1 min-w-0 self-center flex flex-col gap-1.5">
         {detailHref ? (
           <Link href={detailHref} className="min-w-0 hover:text-primary transition-colors cursor-pointer">
-            <h3 className="text-caption md:text-body font-semibold text-foreground leading-normal line-clamp-1">
+            <h3 className="text-body font-semibold text-foreground leading-normal line-clamp-1">
               {title}
             </h3>
           </Link>
         ) : (
-          <h3 className="text-caption md:text-body font-semibold text-foreground leading-normal line-clamp-1">
+          <h3 className="text-body font-semibold text-foreground leading-normal line-clamp-1">
             {title}
           </h3>
         )}

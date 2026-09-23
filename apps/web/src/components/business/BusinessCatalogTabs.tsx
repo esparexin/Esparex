@@ -167,7 +167,7 @@ export function BusinessCatalogTabs({
               <LayoutGrid className="size-5" />
             </div>
             <div className="space-y-1">
-              <p className="font-semibold text-foreground text-caption sm:text-body">
+              <p className="font-semibold text-foreground text-body">
                 {query ? `No items found matching "${query}"` : `No ${activeTabLabel.toLowerCase()} currently available.`}
               </p>
               <p className="text-caption text-foreground-subtle max-w-xs leading-relaxed">

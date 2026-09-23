@@ -104,16 +104,16 @@ export function LocationSelectorPanel({
                         )}
                         <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
                             {successFeedback ? (
-                                <span className="text-emerald-600 font-semibold truncate w-full text-caption sm:text-body">{successFeedback}</span>
+                                <span className="text-emerald-600 font-semibold truncate w-full text-body">{successFeedback}</span>
                             ) : isDetecting ? (
                                 <span className="truncate w-full text-caption text-primary">{detectFeedback || "Detecting location..."}</span>
                             ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                 <>
-                                    <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
+                                    <span className="truncate w-full font-semibold text-foreground text-body">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
                                     <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                 </>
                             ) : (
-                                <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">Use Current Location</span>
+                                <span className="truncate w-full font-semibold text-foreground text-body">Use Current Location</span>
                             )}
                         </div>
                     </div>

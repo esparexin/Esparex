@@ -60,7 +60,7 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <fieldset disabled={isEditMode} className="w-full border-0 p-0 m-0">
-                    <Field label="Screen Size" labelClassName="text-caption sm:text-body font-semibold text-foreground-secondary" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
+                    <Field label="Screen Size" labelClassName="text-body font-semibold text-foreground-secondary" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
                         <div className="flex flex-wrap gap-2 mt-1">
                             {availableSizes.map((size) => {
                                 const isSelected = screenSize === size;
@@ -72,7 +72,7 @@ export function SpecificationSection() {
                                         onClick={() => onScreenSizeChange(size)}
                                         aria-pressed={isSelected}
                                         className={cn(
-                                            "h-8 sm:h-9 px-3 sm:px-4 rounded-xl border text-caption sm:text-body font-medium transition-all duration-200 cursor-pointer select-none",
+                                            "h-8 sm:h-9 px-3 sm:px-4 rounded-xl border text-body font-medium transition-all duration-200 cursor-pointer select-none",
                                             isSelected
                                                 ? "bg-primary border-primary text-primary-foreground font-medium shadow-2xs"
                                                 : "bg-card border-border text-foreground-secondary hover:border-primary/40 hover:bg-muted/30",

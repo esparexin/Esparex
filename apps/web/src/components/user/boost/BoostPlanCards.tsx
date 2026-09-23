@@ -63,7 +63,7 @@ export function WalletCreditCard({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-caption sm:text-body font-bold text-foreground">
+            <h4 className="text-body font-bold text-foreground">
               Use {creditType} Credit
             </h4>
             <span

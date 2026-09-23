@@ -46,10 +46,10 @@ export default function NotFound() {
 
                     {/* Compact Typography */}
                     <div className="space-y-1.5 sm:space-y-2">
-                        <h1 className="text-h3 sm:text-h2 font-extrabold text-foreground tracking-tight">
+                        <h1 className="text-h3 sm:text-h2 font-bold text-foreground tracking-tight">
                             Lost in the <span className="text-primary">Marketplace?</span>
                         </h1>
-                        <p className="text-muted-foreground text-caption sm:text-body max-w-xs sm:max-w-sm mx-auto leading-relaxed">
+                        <p className="text-muted-foreground text-body max-w-xs sm:max-w-sm mx-auto leading-relaxed">
                             Oops! It seems this item or page has been moved, sold, or taken off the shelf. Let{"'"}s get you back on track.
                         </p>
                     </div>
@@ -59,7 +59,7 @@ export default function NotFound() {
                         <Button
                             asChild
                             variant="primary"
-                            className="min-h-[44px] rounded-xl text-caption sm:text-body font-semibold"
+                            className="min-h-[44px] rounded-xl text-body font-semibold"
                         >
                             <Link href="/">
                                 <Home size={16} />
@@ -69,7 +69,7 @@ export default function NotFound() {
                         <Button
                             asChild
                             variant="outline"
-                            className="min-h-[44px] rounded-xl text-caption sm:text-body font-semibold"
+                            className="min-h-[44px] rounded-xl text-body font-semibold"
                         >
                             <Link href="/search">
                                 <Search size={16} className="text-primary" />
