@@ -93,7 +93,7 @@ export function ListingTypeTabs({
       role="tablist"
       aria-label="Listing type filter"
       className={cn(
-        "flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 touch-pan-x",
+        "flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide scroll-smooth py-1 touch-pan-x",
         className
       )}
     >

@@ -60,7 +60,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             <div className="pb-2 md:pt-1 md:pb-2.5">
                 {/* Sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
-                    <div className="flex gap-0 border-b border-border overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3" role="tablist" aria-label="Listing category tabs">
+                    <div className="flex gap-0 border-b border-border overflow-x-auto scrollbar-hide touch-pan-x py-1 mb-3" role="tablist" aria-label="Listing category tabs">
                         {subTabs.map(t => (
                             <button
                                 key={t.value}

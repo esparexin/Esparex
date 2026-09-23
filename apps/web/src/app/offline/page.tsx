@@ -16,9 +16,6 @@ export default function OfflinePage() {
             // design-token-ignore: offline fallback page must inline system font in case CSS bundle fails
             style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
         >
-            <style>{`
-                svg { max-width: 32px !important; max-height: 32px !important; flex-shrink: 0 !important; }
-            `}</style>
             <Card
                 className="w-full max-w-sm mx-auto bg-background border border-border/80 rounded-2xl shadow-xl p-8 sm:p-10 text-center transition-all"
             >

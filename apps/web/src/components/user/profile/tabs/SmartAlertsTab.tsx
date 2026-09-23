@@ -140,7 +140,7 @@ export function SmartAlertsTab({
             </div>
 
             {/* Clean Underline Sub-Tabs (Esparex Design System SSOT) */}
-            <div className="flex gap-6 border-b border-border overflow-x-auto no-scrollbar" role="tablist" aria-label="Smart alert views">
+            <div className="flex gap-6 border-b border-border overflow-x-auto scrollbar-hide" role="tablist" aria-label="Smart alert views">
                 <button
                     type="button"
                     role="tab"

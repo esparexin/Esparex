@@ -54,7 +54,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     <div className="w-full space-y-4 sm:space-y-6">
       {/* Clean Underline Sub-Tabs (Esparex Design System SSOT) */}
       {initialTab !== 'BUY_PLANS' && (
-        <div className="flex gap-4 sm:gap-6 border-b border-border overflow-x-auto no-scrollbar scrollbar-none pb-px mb-1" role="tablist" aria-label="Wallet Navigation">
+        <div className="flex gap-4 sm:gap-6 border-b border-border overflow-x-auto scrollbar-hide pb-px mb-1" role="tablist" aria-label="Wallet Navigation">
           <button
             id="tab-overview"
             role="tab"
