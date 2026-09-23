@@ -71,8 +71,8 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
                 <div className="border border-red-200/80 bg-red-50/50 text-red-900 p-6 rounded-xl max-w-md w-full">
-                    <h3 className="font-semibold text-lg mb-2">Error Loading Listing</h3>
-                    <p className="text-sm text-red-700">{error}</p>
+                    <h3 className="font-semibold text-h4 mb-2">Error Loading Listing</h3>
+                    <p className="text-body text-destructive">{error}</p>
                 </div>
             </div>
         );
@@ -80,7 +80,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="edit-ad-wrapper relative">
-            <div className="bg-amber-50 border-b border-amber-200 p-4 text-amber-800 text-sm text-center">
+            <div className="bg-amber-50 border-b border-amber-200 p-4 text-amber-800 text-body text-center">
                 <strong>Editing Listing:</strong> Changes to title, description, price, or images may require re-approval.
             </div>
             {children}

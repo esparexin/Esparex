@@ -361,7 +361,7 @@
   background: var(--chat-action);
   color: #fff;
   border-radius: 999px;
-  font-size: 0.625rem;
+  font-size: 0.6875rem; /* 11px SSOT minimum */
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -827,7 +827,7 @@
 
 .chat-bubble__time {
   display: inline-block;
-  font-size: 0.625rem;
+  font-size: 0.6875rem; /* 11px SSOT minimum */
   color: var(--chat-text-subtle);
   margin-top: 0.2rem;
 }
@@ -838,7 +838,7 @@
 
 .chat-bubble--own .chat-bubble__receipt {
   color: rgba(255, 255, 255, 0.85);
-  font-size: 0.625rem;
+  font-size: 0.6875rem; /* 11px SSOT minimum */
 }
 
 .chat-bubble--own .chat-bubble__receipt--read {
@@ -914,7 +914,7 @@
 }
 
 .quick-replies-body__label {
-  font-size: 0.625rem;
+  font-size: 0.6875rem; /* 11px SSOT minimum */
   font-weight: 700;
   color: var(--chat-text-subtle);
   text-transform: uppercase;

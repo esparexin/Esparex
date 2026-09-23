@@ -39,19 +39,19 @@ export function BusinessListingGatePage({
     const isLive = isBusinessActiveStatus(businessData?.status) || canPublishBusiness(businessData?.status) || isBusinessActiveStatus(user?.businessStatus);
     if (!isLive) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-6">
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+                <div className="bg-card border border-border p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-6">
                     <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
                         <Building2 className="w-8 h-8" />
                     </div>
-                    <h1 className="text-xl font-bold text-foreground">Business Verification Required</h1>
-                    <p className="text-foreground-tertiary">
+                    <h1 className="text-h3 font-bold text-foreground">Business Verification Required</h1>
+                    <p className="text-body text-foreground-secondary">
                         Only admin-verified business accounts can post {listingTypeLabel}. Your account is{" "}
                         <strong>{businessData?.status ?? "not registered"}</strong>.
                     </p>
                     <Button
                         onClick={() => router.push("/account/business")}
-                        className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold"
+                        className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 font-bold"
                     >
                         Go to Business Hub
                     </Button>

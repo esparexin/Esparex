@@ -139,7 +139,7 @@ export function ListingDescriptionTab({
                         <CheckCircle2 className="h-4 w-4 text-primary" />
                         What&apos;s Included in Service
                     </h3>
-                    <div className="text-caption sm:text-body text-foreground leading-relaxed bg-primary/5 dark:bg-primary/10 p-3.5 rounded-xl border border-primary/20 whitespace-pre-wrap">
+                    <div className="text-body text-foreground leading-relaxed bg-primary/5 dark:bg-primary/10 p-3.5 rounded-xl border border-primary/20 whitespace-pre-wrap">
                         {String(ad.included)}
                     </div>
                 </div>
@@ -152,7 +152,7 @@ export function ListingDescriptionTab({
                         <XCircle className="h-4 w-4 text-muted-foreground/70" />
                         What&apos;s Excluded
                     </h3>
-                    <div className="text-caption sm:text-body text-muted-foreground leading-relaxed bg-muted/50 p-3.5 rounded-xl border border-border/60 whitespace-pre-wrap">
+                    <div className="text-body text-muted-foreground leading-relaxed bg-muted/50 p-3.5 rounded-xl border border-border/60 whitespace-pre-wrap">
                         {String(ad.excluded)}
                     </div>
                 </div>
@@ -166,7 +166,7 @@ export function ListingDescriptionTab({
                         {description}
                     </div>
                 ) : (
-                    <p className="text-muted-foreground italic text-caption sm:text-body">
+                    <p className="text-muted-foreground italic text-body">
                         No description provided.
                     </p>
                 )}

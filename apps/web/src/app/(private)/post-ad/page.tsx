@@ -81,7 +81,7 @@ export default async function PostAdPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <h1 className="text-xl font-bold text-foreground tracking-tight">
+                        <h1 className="text-h3 font-bold text-foreground tracking-tight">
                             No Ad Posting Slots Remaining
                         </h1>
                         <p className="text-body text-foreground-secondary leading-relaxed">
@@ -92,7 +92,7 @@ export default async function PostAdPage() {
                     <div className="flex flex-col gap-3 pt-2">
                         <Link
                             href="/account/plans"
-                            className="w-full inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-sm h-11 px-4 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                            className="w-full inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-body h-11 px-4 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                         >
                             Buy Ad Pack
                         </Link>

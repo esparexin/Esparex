@@ -116,7 +116,7 @@ export function BoostPlanDialog({
                 <Sparkles className="h-3.5 w-3.5" />
                 Spotlight Ad
                 {spotlightCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-warning text-primary-foreground font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-warning text-primary-foreground font-bold">
                     {spotlightCredits}
                   </span>
                 )}
@@ -136,7 +136,7 @@ export function BoostPlanDialog({
                 <Zap className="h-3.5 w-3.5 fill-current" />
                 Top Ad
                 {topAdCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-link text-primary-foreground font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-link text-primary-foreground font-bold">
                     {topAdCredits}
                   </span>
                 )}

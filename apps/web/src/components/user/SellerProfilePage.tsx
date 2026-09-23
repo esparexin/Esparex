@@ -104,7 +104,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                             <SafeImage src={profile.user.profilePhoto} alt={sellerName} fill className="object-cover" sizes="96px" />
                                         </div>
                                     ) : (
-                                        <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-2xl sm:text-3xl font-bold">
+                                        <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-h2 sm:text-h1 font-bold">
                                             {initials}
                                         </div>
                                     )}

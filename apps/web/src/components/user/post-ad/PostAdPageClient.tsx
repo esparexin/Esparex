@@ -13,7 +13,7 @@ function PostAdPageBackdrop() {
             {/* Header Shell */}
             <header className="w-full bg-card border-b border-border/80 px-4 py-3 sm:px-6 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base">E</div>
+                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-body-lg">E</div>
                     <span className="font-bold text-foreground text-h4 tracking-tight">Esparex</span>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 max-w-md w-full mx-8">
@@ -23,7 +23,7 @@ function PostAdPageBackdrop() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="w-20 h-8 rounded-full bg-muted" />
-                    <div className="w-24 h-9 rounded-xl bg-blue-600/10 border border-blue-200" />
+                    <div className="w-24 h-9 rounded-xl bg-primary/10 border border-primary/20" />
                 </div>
             </header>
 
@@ -45,7 +45,7 @@ function PostAdPageBackdrop() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
                         {["Mobiles", "Laptops", "LED TVs", "Tablets", "Drones", "Audio"].map((cat, i) => (
                             <div key={i} className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 shadow-sm">
-                                <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-caption">
                                     {cat.substring(0, 2).toUpperCase()}
                                 </div>
                                 <span className="text-caption font-semibold text-foreground-secondary">{cat}</span>

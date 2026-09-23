@@ -97,7 +97,7 @@ export function NotificationItemCard({
                 <div className="flex items-center justify-between gap-1.5">
                     <p
                         className={cn(
-                            "text-caption sm:text-body truncate leading-snug",
+                            "text-body truncate leading-snug",
                             notification.isRead ? "font-medium text-foreground-secondary" : "font-bold text-foreground"
                         )}
                     >

@@ -65,6 +65,9 @@ let sizeViolations = [];
 let weightViolations = [];
 let emptySuppressions = [];
 let inputZoomViolations = [];
+let rawScaleViolations = [];
+let rawWeightViolations = [];
+let responsiveJumpViolations = [];
 
 const checkLineForSuppression = (lines, lineIndex) => {
     // Check current line and preceding line for suppression comment
@@ -139,6 +142,46 @@ const walkDir = (dir) => {
                                 file: relPath,
                                 line: index + 1,
                                 matches: weightMatches,
+                                code: line.trim(),
+                            });
+                        }
+                    }
+                }
+
+                // Web application zero-tolerance checks
+                if (relPath.startsWith("apps/web/src") && !relPath.includes("__tests__")) {
+                    if (!line.trim().startsWith("//") && !line.trim().startsWith("*")) {
+                        const cleanedLine = line
+                            .replace(/\btext-body-lg\b/g, "")
+                            .replace(/placeholder:text-\w+/g, "");
+                        const rawScaleMatch = cleanedLine.match(/\btext-(xs|sm|base|lg|xl|2xl|3xl|4xl)\b/);
+                        if (rawScaleMatch) {
+                            rawScaleViolations.push({
+                                file: relPath,
+                                line: index + 1,
+                                token: rawScaleMatch[0],
+                                remedy: "Use canonical SSOT tokens: text-tiny, text-caption, text-small, text-body, text-body-lg, text-h4, text-h3, text-h2, text-h1, text-display.",
+                                code: line.trim(),
+                            });
+                        }
+
+                        const nonSsotWeightMatch = line.match(/\bfont-(thin|extralight|light|black|extrabold)\b/);
+                        if (nonSsotWeightMatch) {
+                            rawWeightViolations.push({
+                                file: relPath,
+                                line: index + 1,
+                                token: nonSsotWeightMatch[0],
+                                remedy: "Use canonical SSOT font weights: font-normal (400), font-medium (500), font-semibold (600), font-bold (700).",
+                                code: line.trim(),
+                            });
+                        }
+
+                        if (/\btext-caption\s+(sm|md):text-body\b/.test(line)) {
+                            responsiveJumpViolations.push({
+                                file: relPath,
+                                line: index + 1,
+                                token: "text-caption sm/md:text-body",
+                                remedy: "Eliminate responsive typography jumps. Use single canonical token across all viewports.",
                                 code: line.trim(),
                             });
                         }
@@ -253,8 +296,48 @@ if (inputZoomViolations.length > 0) {
     }
 }
 
+if (rawScaleViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Raw Tailwind Type Scale Classes Detected!");
+    console.error("Raw Tailwind size classes (text-xs, text-sm, text-base, text-lg, text-xl, etc.) bypass the SSOT token contract.");
+    console.error("Remedy: Use canonical SSOT tokens from @esparex/design-tokens:");
+    console.error("  - text-tiny (11px), text-caption (12px), text-small (13px), text-body (14px), text-body-lg (16px), text-h4 (18px), text-h3 (20px), text-h2 (24px), text-h1 (30px), text-display (36px)\n");
+    for (const v of rawScaleViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Token:  ${v.token}`);
+        console.error(`    Remedy: ${v.remedy}`);
+        console.error(`    Code:   ${v.code}\n`);
+    }
+}
+
+if (rawWeightViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Non-SSOT Font Weight Utilities Detected!");
+    console.error("Font weights outside the SSOT set (font-black, font-extrabold, font-thin, etc.) degrade Geist typography consistency.");
+    console.error("Use approved SSOT font weights: font-normal (400), font-medium (500), font-semibold (600), font-bold (700).\n");
+    for (const v of rawWeightViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Token:  ${v.token}`);
+        console.error(`    Remedy: ${v.remedy}`);
+        console.error(`    Code:   ${v.code}\n`);
+    }
+}
+
+if (responsiveJumpViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Responsive Typography Jumps Detected!");
+    console.error("Responsive jumps like `text-caption sm:text-body` cause layout shifting and mobile font inconsistency.");
+    console.error("Remedy: Use a single canonical token across all viewports.\n");
+    for (const v of responsiveJumpViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Token:  ${v.token}`);
+        console.error(`    Remedy: ${v.remedy}`);
+        console.error(`    Code:   ${v.code}\n`);
+    }
+}
+
 if (hasErrors) {
     process.exit(1);
 } else {
-    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 unexempted arbitrary typography utilities, 0 mobile input zoom vulnerabilities found.");
+    console.log("✅ Typography SSOT Governance Gate Passed — 0 banned tokens, 0 raw type scale tokens, 0 non-SSOT weights, 0 responsive jumps, 0 mobile input zoom vulnerabilities found.");
 }

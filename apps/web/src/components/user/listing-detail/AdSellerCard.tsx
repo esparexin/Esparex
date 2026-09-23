@@ -61,7 +61,7 @@ export function AdSellerCard({
         }
         return (
             <div className={`h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-primary text-sm">
+                <span className="font-bold text-primary text-body">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>

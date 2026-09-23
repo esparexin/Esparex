@@ -89,7 +89,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                     <h3 className="text-body sm:text-body-lg font-bold text-foreground">Working Spare Parts</h3>
                 </div>
                 {resolvedSpareParts.length > 0 && (
-                    <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
+                    <span className="text-caption font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
                         {resolvedSpareParts.length} {resolvedSpareParts.length === 1 ? "Part" : "Parts"}
                     </span>
                 )}
@@ -107,7 +107,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                                     <CircuitBoard className="size-4" />
                                 </div>
                                 <div className="min-w-0">
-                                    <h4 className="text-xs sm:text-small font-bold text-foreground truncate">{part.name}</h4>
+                                    <h4 className="text-body font-semibold text-foreground truncate">{part.name}</h4>
                                     <p className="text-tiny text-foreground-subtle mt-0.5 truncate">
                                         {part.brand ? `Brand: ${part.brand}` : (ad.brandName ? `Compatible with ${ad.brandName}` : "Component")}
                                     </p>
@@ -137,8 +137,8 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                     <div className="size-10 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
                         <CircuitBoard className="size-5" />
                     </div>
-                    <h4 className="text-xs sm:text-small font-bold text-foreground">No individual spare parts tagged</h4>
-                    <p className="text-tiny sm:text-caption text-foreground-subtle max-w-md mx-auto">
+                    <h4 className="text-body font-semibold text-foreground">No individual spare parts tagged</h4>
+                    <p className="text-caption text-foreground-subtle max-w-md mx-auto">
                         No specific working components have been tagged individually. Check the full description or contact the seller to verify available parts.
                     </p>
                 </div>

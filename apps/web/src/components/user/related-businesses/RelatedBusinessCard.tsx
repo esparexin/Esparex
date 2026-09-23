@@ -44,7 +44,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
-              <h3 className="line-clamp-1 text-xs font-bold text-foreground group-hover:text-primary transition-colors flex-1">
+              <h3 className="line-clamp-1 text-body font-bold text-foreground group-hover:text-primary transition-colors flex-1">
                 {business.name}
               </h3>
               {business.status === "live" && (

@@ -42,10 +42,10 @@ export default function Error({
                         <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-tiny font-bold uppercase tracking-wider text-rose-700">
                             500 · Server Error
                         </div>
-                        <h1 className="text-h3 sm:text-h2 font-extrabold text-foreground">
+                        <h1 className="text-h3 sm:text-h2 font-bold text-foreground">
                             Something Went Wrong
                         </h1>
-                        <p className="mx-auto max-w-xs text-caption sm:text-body text-muted-foreground leading-relaxed">
+                        <p className="mx-auto max-w-xs text-body text-muted-foreground leading-relaxed">
                             We hit a temporary bump while loading this page. Don&apos;t worry, your account and data are safe.
                         </p>
                     </div>
@@ -73,7 +73,7 @@ export default function Error({
                             type="button"
                             variant="primary"
                             onClick={reset}
-                            className="flex-1 min-h-[44px] rounded-xl text-caption sm:text-body font-semibold"
+                            className="flex-1 min-h-[44px] rounded-xl text-body font-semibold"
                         >
                             <RefreshCcw className="h-4 w-4" />
                             <span>Try Again</span>
@@ -81,7 +81,7 @@ export default function Error({
                         <Button
                             asChild
                             variant="outline"
-                            className="flex-1 min-h-[44px] rounded-xl text-caption sm:text-body font-semibold"
+                            className="flex-1 min-h-[44px] rounded-xl text-body font-semibold"
                         >
                             <Link href="/">
                                 <Home className="h-4 w-4 text-foreground-subtle" />

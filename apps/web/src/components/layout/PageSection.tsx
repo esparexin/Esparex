@@ -45,7 +45,7 @@ export function PageSection({
                 <div className="text-h4 font-semibold leading-7 text-foreground">{title}</div>
               )
             )}
-            {subtitle && <p className="text-caption md:text-body text-foreground-secondary mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-body text-foreground-secondary mt-0.5">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
