@@ -111,19 +111,19 @@ function WithdrawModal({
                             <AlertDialogTitle className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight leading-snug">
                                 Withdraw application?
                             </AlertDialogTitle>
-                            <AlertDialogDescription className="text-caption sm:text-body text-foreground-secondary leading-relaxed">
+                            <AlertDialogDescription className="text-body text-foreground-secondary leading-relaxed">
                                 Are you sure you want to withdraw your business application? This action cannot be undone.
                             </AlertDialogDescription>
                         </div>
                     </div>
 
                     <div className="flex flex-row items-center justify-end gap-2.5 pt-2">
-                        <AlertDialogCancel className="h-10 flex-1 sm:flex-initial rounded-xl px-4 text-caption sm:text-body font-semibold border-border text-foreground-secondary hover:bg-muted mt-0 cursor-pointer">
+                        <AlertDialogCancel className="h-10 flex-1 sm:flex-initial rounded-xl px-4 text-body font-semibold border-border text-foreground-secondary hover:bg-muted mt-0 cursor-pointer">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={onConfirm}
-                            className="h-10 flex-1 sm:flex-initial rounded-xl bg-destructive text-destructive-foreground px-5 text-caption sm:text-body font-semibold hover:bg-destructive/90 shadow-xs cursor-pointer"
+                            className="h-10 flex-1 sm:flex-initial rounded-xl bg-destructive text-destructive-foreground px-5 text-body font-semibold hover:bg-destructive/90 shadow-xs cursor-pointer"
                         >
                             Withdraw
                         </AlertDialogAction>
