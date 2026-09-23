@@ -180,7 +180,7 @@ export function CreateSmartAlertDialog({
                         </div>
                         <span>{isEditing ? "Edit Smart Alert" : "Create Smart Alert"}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-caption text-muted-foreground leading-relaxed">
+                    <DialogDescription className="sr-only">
                         Set search criteria to receive real-time notifications for matching ads.
                     </DialogDescription>
                 </DialogHeader>
@@ -226,7 +226,7 @@ export function CreateSmartAlertDialog({
                                         ? "Derived from selected Model"
                                         : "Enter keywords (e.g., LED TV 55, OLED)"
                                 }
-                                className="h-11 rounded-xl text-body-lg md:text-body font-normal text-foreground border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-foreground-subtle disabled:cursor-not-allowed"
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal text-foreground border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-foreground-subtle disabled:cursor-not-allowed placeholder:text-caption sm:placeholder:text-body"
                                 value={formData.keywords || ""}
                                 maxLength={150}
                                 onChange={(e) => updateFormData({ keywords: e.target.value })}
