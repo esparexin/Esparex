@@ -6,8 +6,6 @@ import {
   CircuitBoard,
   Container,
   LayoutGrid,
-  MessageCircle,
-  Phone,
 } from "@esparex/ui";
 import { BusinessCatalogTabs, type ListingTab } from "./BusinessCatalogTabs";
 import { BusinessHeaderCard } from "./BusinessHeaderCard";
@@ -22,9 +20,6 @@ interface BusinessPublicProfileProps {
   spareParts: Ad[];
   shareUrl?: string;
 }
-
-const buildWhatsappHref = (mobile: string): string =>
-  `https://wa.me/${mobile.replace(/\D/g, "")}`;
 
 export function BusinessPublicProfile({
   business,
@@ -94,10 +89,8 @@ export function BusinessPublicProfile({
     };
   }, [business]);
 
-  const whatsappNumber = business.whatsappNumber || business.mobile;
-
   return (
-    <Container variant="lg" className="flex flex-col gap-4 py-4 sm:py-6 pb-20 sm:pb-8">
+    <Container variant="lg" className="flex flex-col gap-4 py-4 sm:py-6 pb-8">
       {/* 1. Hero Header Card */}
       <BusinessHeaderCard
         business={business}
@@ -127,34 +120,6 @@ export function BusinessPublicProfile({
           />
         </div>
       </div>
-
-      {/* 3. Mobile Floating Contact Bar */}
-      {(business.mobile || whatsappNumber) && (
-        <div
-          className="z-[60] sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur border-t border-border shadow-lg flex items-center gap-2"
-        >
-          {business.mobile && (
-            <a
-              href={`tel:${business.mobile}`}
-              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-caption flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98 transition-all"
-            >
-              <Phone className="size-4" />
-              Call Store
-            </a>
-          )}
-          {whatsappNumber && (
-            <a
-              href={buildWhatsappHref(whatsappNumber)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-caption flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98 transition-all"
-            >
-              <MessageCircle className="size-4" />
-              WhatsApp
-            </a>
-          )}
-        </div>
-      )}
     </Container>
   );
 }

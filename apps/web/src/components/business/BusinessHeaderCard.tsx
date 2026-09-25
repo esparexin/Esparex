@@ -182,7 +182,7 @@ export function BusinessHeaderCard({
             <Button
               asChild
               variant="outline"
-              className="h-9 px-3.5 rounded-xl border-border bg-card hover:bg-muted/70 text-foreground-secondary text-caption font-semibold gap-1.5 cursor-pointer flex-1 sm:flex-initial"
+              className="h-9 px-3.5 rounded-xl border-border bg-card hover:bg-muted/70 hover:text-primary text-foreground text-caption font-semibold gap-1.5 cursor-pointer flex-1 sm:flex-initial"
             >
               <a href={`mailto:${business.email}`}>
                 <Mail className="size-3.5" />
@@ -194,7 +194,7 @@ export function BusinessHeaderCard({
           <Button
             variant="outline"
             onClick={handleShare}
-            className="h-9 px-3.5 rounded-xl border-border text-foreground-secondary text-caption font-semibold gap-1.5 hover:bg-muted/70 cursor-pointer flex-1 sm:flex-initial ml-auto"
+            className="w-full sm:w-auto h-9 px-3.5 rounded-xl border-border text-foreground hover:text-primary text-caption font-semibold gap-1.5 hover:bg-muted/70 cursor-pointer sm:ml-auto"
           >
             {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
             {copied ? "Link Copied!" : "Share Store"}

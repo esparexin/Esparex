@@ -2072,4 +2072,46 @@ packages/ui/src/navigation/Pagination.tsx
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
 - ✅ `npx playwright test tests/a11y-wcag-suite.spec.ts -g "Automated Axe"` ──► PASS (6/6 tests green, 0 Axe violations)
 
+---
+
+### EA-044
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UX & Component Anti-Duplication Governance  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Eliminated Duplicate Mobile Floating Contact Bar**:
+   - Resolved the issue where both the top hero card (`BusinessHeaderCard`) and the floating bottom bar in `BusinessPublicProfile.tsx` simultaneously rendered `Call Store` and `WhatsApp` action buttons on mobile screens.
+   - Removed the duplicate `sm:hidden fixed bottom-0` floating action container from `BusinessPublicProfile.tsx`.
+   - Consolidated all store contact actions (`WhatsApp`, `Call Store`, `Email`, and `Share Store`) into a single, clean, accessible location within `BusinessHeaderCard`.
+2. **Reclaimed Mobile Screen Real Estate**:
+   - Removed the artificial `pb-20` padding on the profile container (reduced to standard `pb-8`), preventing catalog tabs and product items from being obstructed by an unnecessary persistent bottom overlay.
+   - Cleaned up unused imports (`Phone`, `MessageCircle`) and helper routines.
+3. **Harmonized Action Button Styling**:
+   - Refined `Email` and `Share Store` buttons in `BusinessHeaderCard.tsx` to use high-contrast `text-foreground hover:text-primary` and responsive row-wrap styling (`w-full sm:w-auto`).
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessHeaderCard.tsx
+apps/web/src/components/business/BusinessPublicProfile.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Duplicate bottom CTA bar removed; store contact actions consolidated cleanly in BusinessHeaderCard.
+- [x] **Automated Testing**: Monorepo type check and 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, no blocking overlays.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+
+
 
