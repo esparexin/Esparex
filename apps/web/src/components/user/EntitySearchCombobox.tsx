@@ -54,6 +54,7 @@ export function EntitySearchCombobox<T>({
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const mobileInputRef = useRef<HTMLInputElement>(null);
     const isMobile = useIsMobile();
 
     const selectedName = displayValue || value || "";
@@ -102,6 +103,15 @@ export function EntitySearchCombobox<T>({
         if (activeIndex < 0 || !isListOpen) return;
         document.getElementById(`select-option-${sanitizedTitle}-${activeIndex}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }, [activeIndex, isListOpen, sanitizedTitle]);
+
+    // Safely focus mobile drawer search input after slide animation with preventScroll
+    useEffect(() => {
+        if (!isListOpen || !isMobile) return;
+        const timer = setTimeout(() => {
+            mobileInputRef.current?.focus({ preventScroll: true });
+        }, 150);
+        return () => clearTimeout(timer);
+    }, [isListOpen, isMobile]);
 
     // Close dropdown on click outside for desktop listbox
     useEffect(() => {
@@ -245,12 +255,13 @@ export function EntitySearchCombobox<T>({
             {isListOpen && (
                 isMobile ? (
                     <Drawer title={title} open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
-                        <div className="flex flex-col max-h-[70vh] px-2 pb-4">
+                        <div className="flex flex-col max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))] px-2 pb-2">
                             <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle" />
                                     <Input
-                                        autoFocus
+                                        ref={mobileInputRef}
+                                        id={`drawer-search-input-${sanitizedTitle}`}
                                         value={search}
                                         onChange={(e) => {
                                              const val = e.target.value;

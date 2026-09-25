@@ -13,6 +13,7 @@
 - **Platform Reliability Probes**: Express `/health/liveness` and `/health/readiness` endpoints monitoring Redis & MongoDB connectivity.
 - **Design System SSOT**: 100% design token compliance across all 11 workspace packages with 0 suppressions.
 - **Mobile Frontend UI/UX SSOT & Viewport Zoom Prevention**: Normalized 100% of user forms, eliminated sub-16px input zoom jumps on iOS Safari (`text-body-lg md:text-body`), enforced 44px minimum mobile touch targets, and standardized all action buttons to `@esparex/ui/Button` variants.
+- **Mobile Virtual Keyboard & Overlay Viewport Elevation**: Dynamic `--keyboard-height` computation, seamless bottom sheet elevation above virtual keyboards, safe delayed focus preventing WebKit layout jumps, Android `interactiveWidget: 'resizes-content'`, and sticky primary CTA accessibility across all mobile dialogs and drawers.
 - **High-Performance Feeds**: `@shopify/flash-list` mobile feed rendering for 60fps scrolling performance.
 
 ---
@@ -26,6 +27,7 @@
 | **Marketplace Experience** | Buyer-Seller Real-Time Chat & Thread Controls | ✅ Beta Ready | `@esparex/core`, `backend/api`, `apps/web`, `apps/mobile` |
 | **Marketplace Experience** | Buyer-Seller Chat Accessibility & Design Token Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
 | **Marketplace Experience** | Real-Time Notifications & Push Engine Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
+| **Marketplace Experience** | Mobile Virtual Keyboard & Overlay Viewport Elevation | ✅ Beta Ready | `apps/web`, `packages/ui` |
 | **Finance & Payments** | FEFO Entitlements, Payments & Invoice Engine | ✅ Beta Ready | `@esparex/core`, `backend/api` |
 | **Finance & Payments** | Invoice PDF Design & Order Details Integration | ✅ Beta Ready | `@esparex/core` InvoicePdfService |
 | **Finance & Payments** | Optional GST & Unconfigured Email System Handling | ✅ Beta Ready | `@esparex/contracts`, `@esparex/core`, `backend/api`, `apps/web` |

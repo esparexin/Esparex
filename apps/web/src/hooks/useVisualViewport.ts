@@ -12,8 +12,15 @@ import { useEffect, useState } from "react";
  * Android Chrome to accurately bound their max-height and positioning above
  * the on-screen virtual keyboard without manual calculation or layout jitter.
  */
-export function useVisualViewport() {
+export interface VisualViewportState {
+  viewportHeight: number | null;
+  keyboardHeight: number;
+  isKeyboardOpen: boolean;
+}
+
+export function useVisualViewport(): VisualViewportState {
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   useEffect(() => {
@@ -31,13 +38,28 @@ export function useVisualViewport() {
 
         // Detect if software keyboard is active (typically shrinks visual viewport by >18%)
         const keyboardActive = currentHeight < layoutHeight * 0.82;
+        const computedKeyboardHeight = keyboardActive
+          ? Math.max(0, Math.round(layoutHeight - currentHeight))
+          : 0;
 
         setViewportHeight(currentHeight);
+        setKeyboardHeight(computedKeyboardHeight);
         setIsKeyboardOpen(keyboardActive);
 
         const root = document.documentElement;
         root.style.setProperty("--visual-viewport-height", `${Math.round(currentHeight)}px`);
+        root.style.setProperty("--keyboard-height", `${computedKeyboardHeight}px`);
         root.setAttribute("data-keyboard-open", keyboardActive ? "true" : "false");
+
+        // When the keyboard dismisses on iOS, reset any residual window scroll that WebKit created
+        if (!keyboardActive && window.scrollY !== 0) {
+          const hasOpenOverlay = document.querySelector(
+            '[data-slot="dialog-content"], [data-slot="sheet-content"], [data-slot="sheet-overlay"], [data-state="open"][role="dialog"]'
+          );
+          if (hasOpenOverlay) {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          }
+        }
       });
     };
 
@@ -62,5 +84,5 @@ export function useVisualViewport() {
     };
   }, []);
 
-  return { viewportHeight, isKeyboardOpen };
+  return { viewportHeight, keyboardHeight, isKeyboardOpen };
 }

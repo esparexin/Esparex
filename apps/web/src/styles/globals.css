@@ -187,3 +187,20 @@ select {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.03);
 }
 
+/* =========================================
+   MOBILE KEYBOARD & OVERLAY SAFETY
+   ========================================= */
+/* Instantly suppress mobile bottom navigation bars while on-screen software keyboard is active */
+html[data-keyboard-open="true"] nav[aria-label="Mobile footer navigation"],
+html[data-keyboard-open="true"] nav[aria-label="Mobile account navigation"] {
+  display: none !important;
+}
+
+/* Compact decorative elements on small mobile viewports when virtual keyboard is active */
+@media (max-width: 640px) {
+  html[data-keyboard-open="true"] [data-keyboard-hide-on-mobile="true"] {
+    display: none !important;
+  }
+}
+
+

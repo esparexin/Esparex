@@ -32,4 +32,26 @@ describe("Platform Dialog System Governance & Infrastructure Audit", () => {
     const { useIsMobileDevice } = await import("@/hooks/useMobile");
     expect(typeof useIsMobileDevice).toBe("function");
   });
+
+  it("enforces keyboard height elevation variables across bottom sheets, dialogs, and drawers", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+
+    const sheetPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Sheet.tsx");
+    const dialogPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Dialog.tsx");
+    const drawerPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Drawer.tsx");
+
+    const sheetContent = fs.readFileSync(sheetPath, "utf-8");
+    const dialogContent = fs.readFileSync(dialogPath, "utf-8");
+    const drawerContent = fs.readFileSync(drawerPath, "utf-8");
+
+    // Sheet bottom variant must anchor to --keyboard-height
+    expect(sheetContent).toContain("bottom-[var(--keyboard-height,0px)]");
+
+    // Dialog bottomSheet variant must anchor to --keyboard-height
+    expect(dialogContent).toContain("bottom-[var(--keyboard-height,0px)]");
+
+    // Drawer must anchor to --keyboard-height
+    expect(drawerContent).toContain("bottom-[var(--keyboard-height,0px)]");
+  });
 });
