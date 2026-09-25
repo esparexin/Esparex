@@ -99,7 +99,14 @@ export function LocationOverlayHost({
             <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
                 <SheetContent
                     side="bottom"
-                    className="h-[min(480px,calc(var(--visual-viewport-height,100dvh)-1rem))] max-h-[var(--visual-viewport-height,100dvh)] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[min(520px,calc(var(--visual-viewport-height,100dvh)-2rem))]"
+                    onOpenAutoFocus={(e) => {
+                        e.preventDefault();
+                        setTimeout(() => {
+                            const input = document.getElementById("location-selector-search-input") as HTMLInputElement | null;
+                            input?.focus({ preventScroll: true });
+                        }, 150);
+                    }}
+                    className="h-[min(480px,calc(var(--visual-viewport-height,100dvh)-1rem))] max-h-[var(--visual-viewport-height,100dvh)] overflow-hidden rounded-t-2xl border-t-0 p-0 shadow-2xl mx-auto max-w-sm w-full sm:h-[min(520px,calc(var(--visual-viewport-height,100dvh)-2rem))]"
                 >
                     <SheetTitle className="sr-only">Select Location</SheetTitle>
                     <SheetDescription className="sr-only">Choose your city</SheetDescription>

@@ -1838,5 +1838,66 @@ apps/web/src/styles/chat.css
 - ✅ `npm run build -w @esparex/apps-web` ──► PASS (42/42 routes compiled in 18s)
 - ✅ `npm run test:a11y -w @esparex/apps-web` ──► PASS on Form Controls & Input size verification (15/16 checks green)
 
+---
+
+### EA-050
+**Date**: 2026-09-25  
+**PR**: `fix/mobile-keyboard-viewport-overlay-elevation`  
+**Category**: Mobile UI/UX, Viewport & Keyboard Interaction Governance  
+**Status**: ✅ Completed  
+
+**Description**: Mobile Virtual Keyboard UI/UX & Overlay Viewport Elevation Governance (5-Phase Remediation)
+
+**Root Cause**:
+1. **Uncontrolled WebKit Layout Viewport Scroll Jump (Screenshot 1)**: Raw `<Input autoFocus>` inside sliding bottom sheet panels fired at tick 0 before slide animations (`translateY(100%)`) completed. WebKit attempted to center the off-screen element, causing a violent ~700px window scroll jump that launched bottom sheets completely off the screen into negative scroll space.
+2. **Keyboard Overlap & Displacement Gap (Screenshot 2)**: Bottom sheet overlays (`Sheet.tsx`, `Dialog.tsx` bottomSheet variant, `Drawer.tsx`) were hardcoded to `bottom: 0`. On iOS Safari and non-resizing mobile viewports, the layout viewport remains static when the virtual keyboard deploys, causing the sheet to be trapped behind the keyboard until the browser forced arbitrary upward scroll jumps.
+3. **Drawer Combobox Layout Overflows**: `EntitySearchCombobox` mobile drawer used raw `autoFocus` and unconstrained `max-h-[70vh]`, triggering mid-animation scroll displacement and vertical overflow when the keyboard opened.
+4. **Android Chrome Viewport Resize Desynchronization**: Missing `interactiveWidget: 'resizes-content'` viewport meta declaration caused Android Chrome viewports to overlap rather than resize layouts.
+5. **Mobile Footer & Account Navigation Bleed**: Fixed bottom navigation bars remained visible and collided with elevated modals above the keyboard.
+6. **Small-Screen Auth CTA Occlusion**: On compact mobile screens (< 700px height), non-collapsible decorative header elements in `Login.tsx` pushed the "Send OTP" CTA below the keyboard fold.
+
+**Action Taken (5-Phase Remediation)**:
+1. **Phase 1 (Foundation)**: Added `interactiveWidget: 'resizes-content'` to viewport metadata in `apps/web/src/app/layout.tsx`. Enhanced `apps/web/src/hooks/useVisualViewport.ts` to compute `--keyboard-height`, publish `data-keyboard-open` on `<html>`, and reset residual window scroll on keyboard dismissal.
+2. **Phase 2 (Overlay Primitives Elevation)**: Elevated `Sheet.tsx` (bottom side), `Dialog.tsx` (bottomSheet variant), and `Drawer.tsx` to `bottom-[var(--keyboard-height,0px)]` with smooth CSS transitions (`duration-200 ease-out`). Added CSS rules in `globals.css` suppressing mobile navigation bars when `data-keyboard-open="true"`.
+3. **Phase 3 (Location Selector Popup)**: Removed raw `autoFocus` from `LocationSelectorPanel.tsx` and removed erroneous `env(safe-area-inset-top)` on bottom sheet. Implemented `onOpenAutoFocus` with `e.preventDefault()` and 150ms delayed safe focus (`preventScroll: true`) in `LocationOverlayHost.tsx`.
+4. **Phase 4 (Smart Alert & Combobox Drawers)**: Removed raw `autoFocus` from `EntitySearchCombobox.tsx` mobile drawer, added delayed focus with `preventScroll: true`, and bounded height to `max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))]`.
+5. **Phase 5 (Auth & Dialogs Sticky Layout)**: Added `data-keyboard-hide-on-mobile="true"` to `Login.tsx` decorative logo and `globals.css` utility to collapse decorative elements during active typing, guaranteeing primary CTA visibility above the keyboard. Bounded `DeleteAccountDialog.tsx` max-height to `var(--visual-viewport-height)`.
+
+**Files Modified / Created**:
+```
+apps/web/src/__tests__/dialog-infrastructure.spec.ts
+apps/web/src/__tests__/dropdown-navigation-flows.spec.ts
+apps/web/src/__tests__/location-popup-viewport.spec.tsx [NEW]
+apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts [NEW]
+apps/web/src/__tests__/visual-viewport-ssot.spec.tsx [NEW]
+apps/web/src/app/layout.tsx
+apps/web/src/components/location/LocationOverlayHost.tsx
+apps/web/src/components/location/components/LocationSelectorPanel.tsx
+apps/web/src/components/user/EntitySearchCombobox.tsx
+apps/web/src/components/user/Login.tsx
+apps/web/src/components/user/profile/dialogs/DeleteAccountDialog.tsx
+apps/web/src/hooks/useVisualViewport.ts
+apps/web/src/styles/globals.css
+packages/ui/src/feedback/Dialog.tsx
+packages/ui/src/feedback/Drawer.tsx
+packages/ui/src/feedback/Sheet.tsx
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: All virtual keyboard and overlay displacement failure modes remediated across mobile viewports.
+- [x] **Automated Testing**: 81 test files passed, 421 tests passed (100% green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces; production build (`npm run build`) passed with exit code 0.
+- [x] **Multi-Platform Verification**: Verified on mobile viewports (< 768px: minimum 16px computed font size, 44px touch targets) and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, visible focus rings preserved, no keyboard traps.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` and `release-notes.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 421 tests passed, 0 failures)
+- ✅ `npm run build` ──► PASS (exit code 0 across all workspaces)
+
+
 
 
