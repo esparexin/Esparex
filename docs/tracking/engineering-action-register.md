@@ -2277,7 +2277,42 @@ docs/tracking/engineering-action-register.md
 - [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
 
 **Verification**:
-- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
-- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+---
 
+### EA-049
 
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UI/UX & Quality  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Suppressed Duplicate Category Badges in Listing Cards (`shared.tsx`, `AdCardList.tsx`)**:
+   - Implemented canonical SSOT helper `shouldDisplayCategoryBadge(categoryLabel, ad)` in `@/components/user/ad-card/shared.tsx`.
+   - Suppresses redundant bottom category pill badges when the category label duplicates the listing type badge rendered on the thumbnail (e.g., green `SERVICE` badge on image + duplicate grey `SERVICE` pill below, or `PARTS` + `SPARE PART`, or `AD` + `GENERAL`).
+   - Retains category badges when they represent distinct, non-duplicate subcategories (e.g., "Screen Replacement", "Smartphones").
+   - Omitted the empty bottom metadata row in `AdCardList.tsx` when both category pill and condition badge are absent, resulting in a cleaner, more compact list item layout.
+2. **Added Automated Regression Unit Tests (`AdCardBadge.spec.tsx`)**:
+   - Added unit tests covering service, spare part, and device listing type badge de-duplication, empty/fallback handling, and preservation of distinct subcategories.
+
+**Files Modified**:
+```
+apps/web/src/components/user/ad-card/shared.tsx
+apps/web/src/components/user/ad-card/AdCardList.tsx
+apps/web/src/__tests__/AdCardBadge.spec.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Duplicate category badge eliminated in list cards while preserving genuine subcategories.
+- [x] **Automated Testing**: 81 web test suites passed (427/427 tests green, +4 new unit tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check -w @esparex/apps-web`) passed with 0 errors.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check -w @esparex/apps-web` ──► PASS (0 errors)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 427 tests passed)
