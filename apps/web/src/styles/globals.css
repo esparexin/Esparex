@@ -14,7 +14,7 @@
   /* Extended foreground text tokens — cool slate scale */
   --foreground-secondary: 215.4 16.3% 46.9%; /* ≈ #475569 (slate-600) — secondary body text */
   --foreground-tertiary: 215.3 25% 26.7%;    /* ≈ #334155 (slate-700) — captions, labels */
-  --foreground-subtle: 217.9 10.6% 64.9%;    /* ≈ #94A3B8 (slate-400) — placeholder, disabled, secondary metadata */
+  --foreground-subtle: 215.4 16.3% 38%;      /* ≈ #525f73 (slate-600) — WCAG 4.5:1 ratio against #F1F5F9 */
 
   /* Sidebar Tokens */
   --sidebar: 210 40% 98%;
