@@ -31,34 +31,59 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-border sm:shadow-lg rounded-none sm:rounded-2xl bg-transparent sm:bg-card",
+        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex-1 flex flex-col justify-between h-full",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-1 sm:space-y-1.5 text-center p-0 mb-2 sm:mb-4">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-1 sm:mb-2 w-fit">
-          <div className="h-11 w-11 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2 sm:p-2.5 shadow-xs">
+      <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
+        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 w-fit">
+          <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
-              width={48}
-              height={48}
-              className="w-full h-full object-contain"
+              width={44}
+              height={44}
+              priority
+              className="w-full h-full object-contain brightness-0 invert drop-shadow-xs"
             />
           </div>
         </div>
-        <div>
-          <CardTitle className="text-h4 sm:text-h3 font-bold tracking-tight text-foreground">
-            {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+        <div className="space-y-1">
+          <CardTitle
+            className={cn(
+              "text-h3 font-semibold tracking-tight text-foreground",
+              step === "enterMobile" && "flex items-center justify-center gap-1.5"
+            )}
+            aria-label={step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+          >
+            {step === "enterMobile" ? (
+              <>
+                <span>Welcome to</span>
+                <Image
+                  src="/icons/logo.png"
+                  alt="Esparex"
+                  width={495}
+                  height={112}
+                  unoptimized
+                  priority
+                  className="h-5 w-auto inline-block object-contain"
+                />
+              </>
+            ) : (
+              "Verify OTP"
+            )}
           </CardTitle>
-          <p className="mt-0.5 text-caption text-muted-foreground font-medium">
-            {step === "enterMobile"
-              ? "Login to buy & sell mobile spares"
-              : "Enter the code sent to your mobile"}
-          </p>
+          {step === "enterMobile" && (
+            <p
+              data-keyboard-hide-on-mobile="true"
+              className="text-body text-muted-foreground font-normal leading-normal"
+            >
+              Login to buy & sell mobile spares
+            </p>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 space-y-2.5 sm:space-y-4">
+      <CardContent className="p-0 w-full flex-1 flex flex-col justify-between min-h-0">
         <LoginForm flow={flow} onBack={onBack} />
       </CardContent>
     </Card>
@@ -199,7 +224,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       <form
         key={`step-${step}`}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
+        className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex-1 flex flex-col justify-between h-full"
       >
         {step === "enterMobile" ? (
           <LoginMobileStep
