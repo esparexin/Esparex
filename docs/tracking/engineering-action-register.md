@@ -1928,6 +1928,7 @@ packages/ui/src/feedback/Sheet.tsx
 7. **Square-Proportional OTP Cells**: Upgraded `OtpInput.tsx` cells from `rounded-2xl` pill lozenges and oversized 56px boxes to crisp, square-proportional 48px rounded-xl boxes (`h-12 min-h-[48px]`) with bold monospace digits (`font-mono text-xl sm:text-2xl font-bold`).
 8. **Simplified Validation Message**: Streamlined mobile validation message to `'Invalid mobile number.'` in `@esparex/contracts`.
 9. **Accessibility & Tests**: Preserved `role="group"`, `aria-label`, `role="status"`, `aria-live="polite"`, `before:inset-[-9px]` touch expansion, and verified against all 81 web test suites.
+10. **Side-by-Side CTA Buttons**: Arranged the action controls side-by-side in both Mobile Step (`[ Back ]` + `[ Send OTP ]`) and OTP Step (`[ Back ]` + `[ Verify OTP ]`). The `[ Back ]` button renders as a secondary outline action with fixed horizontal padding (`px-4 sm:px-5 shrink-0`) alongside the flex-expanded primary CTA (`flex-1 h-12`), providing immediate intuitive bi-directional navigation without vertical stacking clutter.
 
 **Files Modified**:
 ```

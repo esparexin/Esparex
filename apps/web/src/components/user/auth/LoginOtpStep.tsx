@@ -1,7 +1,7 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
-import { Loader2, Pencil } from "@esparex/ui";
+import { Loader2, Pencil, ArrowLeft } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
 import {
   Button,
@@ -176,7 +176,17 @@ export function LoginOtpStep({
         ) : null}
       </div>
 
-      <div className="pt-1 transition-transform active:scale-[0.985]">
+      <div className="flex items-center gap-3 pt-1">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleEditMobile}
+          disabled={isVerifying}
+          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0"
+        >
+          <ArrowLeft size={16} className="mr-1.5" />
+          Back
+        </Button>
         <Button
           type="submit"
           disabled={
@@ -187,7 +197,7 @@ export function LoginOtpStep({
             !isOtpComplete ||
             (requiresName && !nameValue.trim())
           }
-          className="w-full h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="flex-1 h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
           Verify OTP

@@ -106,7 +106,18 @@ export function LoginMobileStep({
         </div>
       )}
 
-      <div className="pt-1 transition-transform active:scale-[0.985]">
+      <div className="flex items-center gap-3 pt-1">
+        {onBack && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBack}
+            className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0"
+          >
+            <ArrowLeft size={16} className="mr-1.5" />
+            Back
+          </Button>
+        )}
         <Button
           type="submit"
           disabled={
@@ -116,24 +127,12 @@ export function LoginMobileStep({
             Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
             !backendReady
           }
-          className="w-full h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="flex-1 h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
           {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
         </Button>
       </div>
-
-      {onBack && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onBack}
-          className="w-full h-10 text-body font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
-        >
-          <ArrowLeft size={16} className="mr-1.5" />
-          Back
-        </Button>
-      )}
     </div>
   );
 }
