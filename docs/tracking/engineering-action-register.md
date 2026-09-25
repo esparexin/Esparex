@@ -2113,5 +2113,44 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
 
+---
 
+### EA-045
 
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: UI/UX & Component Anti-Duplication Governance  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Elevated Trust Badge Inline Beside Business Name**:
+   - Updated `BusinessHeaderCard.tsx` to render the verification badge (`ShieldCheck` with `Verified Partner` or `Registered Store`) directly adjacent to the store `h1` business name.
+   - Added accessible `aria-label` for screen readers (WCAG 2.2 AA).
+   - Applied SSOT token styling (`bg-primary/10 text-primary border border-primary/20 text-tiny font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1`).
+2. **Eliminated Redundant Standalone Trust Card**:
+   - Removed the separate `Trust & Verification` card from `BusinessSidebarCard.tsx` that previously consumed ~120px of vertical space for a single label.
+   - Preserved `gstNumber` by neatly nesting it in the About Business / Credentials card when present.
+   - Removed unused `ShieldCheck` import from `BusinessSidebarCard.tsx`.
+3. **Fixed Mobile Discoverability**:
+   - Store trust indicators are now immediately visible at the top of the mobile viewport on initial page load, eliminating the need to scroll past all catalog items to discover store credibility.
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessHeaderCard.tsx
+apps/web/src/components/business/BusinessSidebarCard.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Trust badge elevated to header next to store name; redundant sidebar card removed.
+- [x] **Automated Testing**: 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, accessible aria-label on verification status badge.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)

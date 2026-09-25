@@ -114,12 +114,13 @@ export function BusinessHeaderCard({
           <div className="flex-1 min-w-0 text-center sm:text-left">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
               <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight">{business.name}</h1>
-              {business.status === "live" && (
-                <Badge className="bg-primary/10 text-primary border border-primary/20 text-tiny font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
-                  <ShieldCheck className="size-3.5" />
-                  Verified Store
-                </Badge>
-              )}
+              <Badge
+                className="bg-primary/10 text-primary border border-primary/20 text-tiny font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0"
+                aria-label={`Verification status: ${business.status === "live" ? "Verified Partner" : "Registered Store"}`}
+              >
+                <ShieldCheck className="size-3.5" aria-hidden="true" />
+                {business.status === "live" ? "Verified Partner" : "Registered Store"}
+              </Badge>
             </div>
             {business.tagline && (
               <p className="text-body text-foreground-secondary mt-0.5 font-medium leading-relaxed">
