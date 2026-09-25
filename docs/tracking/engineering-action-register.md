@@ -2198,3 +2198,50 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
 
+---
+
+### EA-047
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UI/UX & Layout Quality  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Calibrated Profile Card Height & Title Typography (`BusinessHeaderCard.tsx`)**:
+   - Reduced cover banner height from `h-28` to `h-20 sm:h-32 md:h-40` (~32px vertical savings).
+   - Scaled profile avatar to `size-16 sm:size-22` with tightened margins `-mt-8 sm:-mt-11 mb-2.5` (~16px vertical savings).
+   - Scaled avatar trust shield badge to `size-5 sm:size-6` with `<ShieldCheck className="size-3 sm:size-3.5" />`.
+   - Calibrated store title typography to canonical SSOT `text-body-lg sm:text-h3 font-bold leading-snug`, fitting long business names comfortably on 1–2 compact lines.
+   - Tightened card padding to `pt-0 px-3.5 sm:px-5 pb-3 sm:pb-3.5` and action buttons to `h-9`.
+   - Reduced total profile card height by ~75px, dropping its viewport footprint from ~60% to ~35%.
+2. **Fixed CSS Grid Overflow Trap & Enabled Robust Horizontal Scrolling (`BusinessPublicProfile.tsx`, `BusinessCatalogTabs.tsx`)**:
+   - Added `min-w-0` to the left grid column in `BusinessPublicProfile.tsx` (`<div className="lg:col-span-2 min-w-0">`), eliminating the CSS Grid `min-width: auto` overflow trap.
+   - Wrapped the catalog tablist in `w-full sm:w-auto min-w-0 overflow-x-auto scrollbar-none overscroll-x-contain touch-pan-x` with `inline-flex min-w-max`, guaranteeing smooth horizontal touch scrolling across all mobile screens.
+3. **Included "Ads" Tab Unconditionally with Post-Only Empty State (`BusinessPublicProfile.tsx`, `BusinessCatalogTabs.tsx`)**:
+   - Added the **Ads** tab alongside **Services** and **Spare Parts** unconditionally.
+   - Intelligent default tab selection defaults to the active catalog with items (`services` or `spare-parts`) when `ads` count is 0.
+   - When the user selects the **Ads** tab and has no live ads, it renders **ONLY a clean "Post" button** linking to `/post`, with zero text, zero empty-state messages, and zero clutter.
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessHeaderCard.tsx
+apps/web/src/components/business/BusinessCatalogTabs.tsx
+apps/web/src/components/business/BusinessPublicProfile.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Profile card height reduction, title font calibration, robust tab horizontal scrolling, and ads post-only state fully implemented.
+- [x] **Automated Testing**: 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, accessible aria-labels, touch targets preserved.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+
