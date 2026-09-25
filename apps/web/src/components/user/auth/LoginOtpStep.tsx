@@ -60,13 +60,13 @@ export function LoginOtpStep({
   return (
     <div className="space-y-4 sm:space-y-5">
       {/* Unified Recipient Header & Greeting */}
-      <div className="flex flex-col items-center justify-center gap-1.5 text-center pb-1.5">
+      <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center pb-1">
         {existingUserName && step === "enterOtp" && (
-          <p className="text-body-lg font-semibold text-emerald-700 dark:text-emerald-400">
+          <p className="text-body-lg leading-relaxed font-semibold text-emerald-700 dark:text-emerald-400">
             Welcome back, <span className="font-bold">{existingUserName}</span>!
           </p>
         )}
-        <div className="inline-flex items-center gap-1.5 text-body text-muted-foreground font-medium">
+        <div className="inline-flex items-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium">
           <span>Code sent to <span className="font-semibold text-foreground">+91 {mobileValue}</span></span>
           <button
             type="button"
