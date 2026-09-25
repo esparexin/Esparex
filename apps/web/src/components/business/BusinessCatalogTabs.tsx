@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { AdCardList } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
@@ -156,9 +157,9 @@ export function BusinessCatalogTabs({
           <div className="flex items-center justify-center py-10 sm:py-14">
             <Button
               asChild
-              className="h-10 px-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs cursor-pointer"
+              className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs cursor-pointer"
             >
-              <a href="/post">Post</a>
+              <Link href="/post-ad">Post Free Ad</Link>
             </Button>
           </div>
         ) : (
