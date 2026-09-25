@@ -73,14 +73,14 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
               "Verify OTP"
             )}
           </CardTitle>
-          <p
-            data-keyboard-hide-on-mobile="true"
-            className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed"
-          >
-            {step === "enterMobile"
-              ? "Login to buy & sell mobile spares"
-              : "Enter the 6-digit code sent to your mobile"}
-          </p>
+          {step === "enterMobile" && (
+            <p
+              data-keyboard-hide-on-mobile="true"
+              className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed"
+            >
+              Login to buy & sell mobile spares
+            </p>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 w-full">

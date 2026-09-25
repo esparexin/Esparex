@@ -59,15 +59,15 @@ export function LoginOtpStep({
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Unified Recipient Header & Greeting */}
-      <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-3 text-center pb-1">
+      {/* Recipient Notice & Change */}
+      <div className="flex flex-col items-center justify-center gap-1 text-center -mt-2 sm:-mt-3 pb-1">
         {existingUserName && step === "enterOtp" && (
-          <p className="text-body-lg leading-relaxed font-semibold text-emerald-700 dark:text-emerald-400">
+          <p className="text-body font-semibold text-emerald-700 dark:text-emerald-400">
             Welcome back, <span className="font-bold">{existingUserName}</span>!
           </p>
         )}
         <div className="inline-flex items-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium">
-          <span>Code sent to <span className="font-semibold text-foreground">+91 {mobileValue}</span></span>
+          <span>Successfully sent the OTP to <span className="font-semibold text-foreground">+91 {mobileValue}</span></span>
           <button
             type="button"
             onClick={handleEditMobile}
@@ -138,46 +138,52 @@ export function LoginOtpStep({
         />
       )}
 
-      <ControlledOtp<LoginFormValues, "otp">
-        name="otp"
-        length={6}
-        disabled={otpInputDisabled}
-        autoFocus={step === "enterOtp"}
-        className="justify-center py-2"
-        animateOnError
-      />
-
-      {/* Inline Status / Timer & Error Area */}
-      <div className="flex flex-col items-center gap-1.5 my-2">
-        {otpErrorMessage && (
-          <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
-        )}
-
-        {resendRemainingSeconds > 0 && !isLocked && (
-          <p
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            className="text-center text-body text-muted-foreground font-medium"
-          >
-            Resend available in <span className="font-semibold text-foreground">{formatSeconds(resendRemainingSeconds)}</span>
-          </p>
-        )}
+      <div className="space-y-2 text-center">
+        <ControlledOtp<LoginFormValues, "otp">
+          name="otp"
+          length={6}
+          disabled={otpInputDisabled}
+          autoFocus={step === "enterOtp"}
+          className="justify-center py-1 sm:py-2"
+          animateOnError
+        />
+        <p className="text-body text-muted-foreground font-normal">
+          Enter the 6-digit code sent
+        </p>
       </div>
 
+      {otpErrorMessage && (
+        <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
+      )}
+
+      {/* Screen Reader Live Status for Timer */}
+      <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {resendRemainingSeconds > 0
+          ? `Resend available in ${formatSeconds(resendRemainingSeconds)}`
+          : "Resend OTP is now available"}
+      </span>
+
       <div className="flex items-center gap-3 pt-1">
-        {canResend && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleResend}
-            disabled={isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited}
-            className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0"
-          >
-            {isSendingOTP && <Loader2 className="animate-spin mr-1.5" size={16} />}
-            {isSendRateLimited ? `Resend (${formatSeconds(rateLimitRemainingSeconds)})` : "Resend OTP"}
-          </Button>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleResend}
+          disabled={!canResend || isSendingOTP || isVerifying}
+          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60"
+        >
+          {isSendingOTP ? (
+            <>
+              <Loader2 className="animate-spin mr-1.5" size={16} />
+              Sending…
+            </>
+          ) : resendRemainingSeconds > 0 ? (
+            `Resend in ${formatSeconds(resendRemainingSeconds)}`
+          ) : isSendRateLimited ? (
+            `Resend (${formatSeconds(rateLimitRemainingSeconds)})`
+          ) : (
+            "Resend OTP"
+          )}
+        </Button>
         <Button
           type="submit"
           disabled={
