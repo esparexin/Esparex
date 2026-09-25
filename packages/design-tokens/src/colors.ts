@@ -73,10 +73,10 @@ export const semantic = {
     'card-foreground': base.slate[900],
     popover: base.white,
     'popover-foreground': base.slate[900],
-    primary: base.slate[900], // #0F172A (Obsidian Slate CTA - 15:1 contrast against white)
+    primary: '#2563eb', // Royal Blue (#2563EB - 5.17:1 contrast with white text, WCAG 2.2 AA compliant)
     'primary-foreground': base.white,
-    'primary-hover': base.slate[800], // #1E293B
-    'primary-subtle': base.slate[100], // #F1F5F9
+    'primary-hover': '#1d4ed8', // Blue-700 (#1D4ED8)
+    'primary-subtle': '#eff6ff', // Blue-50 (#EFF6FF)
     secondary: base.slate[100],
     'secondary-foreground': base.slate[900],
     destructive: base.error, // #DC2626
@@ -100,9 +100,9 @@ export const semantic = {
     'accent-foreground': base.slate[900],
     border: base.slate[200], // #E2E8F0 (Crisp Slate-200, WCAG 2.2 AA compliant)
     input: base.slate[200],  // #E2E8F0
-    ring: base.slate[900],
+    ring: '#2563eb',
     // Primary interactive control color
-    action: base.slate[900],
+    action: '#2563eb',
     // Inverse surface (dark card in light mode context)
     'inverse-surface': base.slate[900],
     'inverse-muted': base.slate[400],
@@ -118,11 +118,11 @@ export const semantic = {
     'card-foreground': base.slate[50],
     popover: base.slate[900],
     'popover-foreground': base.slate[50],
-    primary: base.slate[50], // #F8FAFC (High-contrast inverse action)
-    'primary-foreground': base.slate[950], // #020617
-    'primary-hover': base.slate[200], // #E2E8F0
-    'primary-subtle': base.slate[800], // #1E293B
-    action: base.slate[50],
+    primary: '#3b82f6', // Blue-500 (#3B82F6 - vivid and legible on dark surfaces)
+    'primary-foreground': base.white,
+    'primary-hover': '#60a5fa', // Blue-400
+    'primary-subtle': '#1e3a8a', // Blue-900
+    action: '#3b82f6',
     secondary: base.slate[800],
     'secondary-foreground': base.slate[50],
     destructive: base.error,

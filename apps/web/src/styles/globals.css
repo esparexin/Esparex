@@ -19,29 +19,29 @@
   /* Sidebar Tokens */
   --sidebar: 210 40% 98%;
   --sidebar-foreground: 222.2 47.4% 11.2%;
-  --sidebar-primary: 222.2 47.4% 11.2%;
+  --sidebar-primary: 221.2 83.2% 53.3%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 210 40% 96.1%;
   --sidebar-accent-foreground: 222.2 47.4% 11.2%;
   --sidebar-border: 214.3 31.8% 91.4%;
-  --sidebar-ring: 222.2 47.4% 11.2%;
+  --sidebar-ring: 221.2 83.2% 53.3%;
 
   /* Chart Colors */
-  --chart-1: 222.2 47.4% 11.2%;
-  /* Obsidian */
+  --chart-1: 221.2 83.2% 53.3%;
+  /* Royal Blue */
   --chart-2: 161.4 93.5% 30.4%;
   /* Emerald */
-  --chart-3: 221.2 83.2% 53.3%;
-  /* Royal Blue */
+  --chart-3: 222.2 47.4% 11.2%;
+  /* Obsidian */
   --chart-4: 258.3 89.5% 66.3%;
   /* Purple #8b5cf6 */
   --chart-5: 32.1 94.6% 43.7%;
   /* Amber */
 
   /* Mesh Gradients */
-  --mesh-1: #0f172a;
+  --mesh-1: #2563eb;
   --mesh-2: #059669;
-  --mesh-3: #2563eb;
+  --mesh-3: #0f172a;
 
   /* Legacy Bridge Tokens */
   --color-surface: #ffffff;
@@ -58,12 +58,12 @@
   /* Sidebar Tokens (Dark) */
   --sidebar: 228.6 84% 4.9%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 210 40% 98%;
-  --sidebar-primary-foreground: 228.6 84% 4.9%;
+  --sidebar-primary: 217.2 91.2% 59.8%;
+  --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 217.2 32.6% 17.5%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
-  --sidebar-ring: 215 20.2% 65.1%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 
   /* Extended foreground text tokens (dark mode) */
   --foreground-secondary: 215 20.2% 75.1%;
