@@ -68,7 +68,7 @@ export const semantic = {
   light: {
     background: base.slate[50], // #F8FAFC (Crisp Ice Slate)
     foreground: base.slate[900], // #0F172A (Deep Obsidian Ink)
-    'foreground-secondary': base.slate[600], // #475569
+    'foreground-secondary': base.slate[700], // #334155 (Crisp Charcoal Slate: high-contrast secondary text, labels, and metadata)
     card: base.white, // #FFFFFF
     'card-foreground': base.slate[900],
     popover: base.white,

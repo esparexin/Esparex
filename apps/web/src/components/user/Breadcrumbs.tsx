@@ -23,7 +23,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
               {item.onClick ? (
                 <button
                   onClick={item.onClick}
-                  className="text-muted-foreground hover:text-foreground transition-colors font-medium truncate max-w-[120px] sm:max-w-[180px]"
+                  className="text-muted-foreground hover:text-primary transition-colors font-medium truncate max-w-[120px] sm:max-w-[180px] cursor-pointer"
                 >
                   {item.label}
                 </button>

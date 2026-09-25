@@ -29,11 +29,21 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 | `bg-background` | App root background | `slate-50` (`#f8fafc`) | `slate-950` (`#020617`) |
 | `bg-card` / `bg-surface` | Data surface container | `#ffffff` | `slate-900` (`#0f172a`) |
 | `text-foreground` | Main body & title text | `slate-900` (`#0f172a`) | `slate-50` (`#f8fafc`) |
+| `text-foreground-secondary` | Secondary text, form labels, card subtitles | `slate-700` (`#334155`) | `slate-300` (`#cbd5e1`) |
 | `text-muted-foreground` | Timestamps, helper text, subtitles | `slate-500` (`#64748b`) | `slate-400` (`#94a3b8`) |
 | `border-border` / `border-subtle` | Structural dividers, input borders | `slate-200` (`#e2e8f0`) | `slate-800` (`#1e293b`) |
 | `bg-primary` / `text-action` | Primary interactive controls & CTAs | `blue-600` (`#2563eb` Royal Blue) | `blue-500` (`#3b82f6`) |
 | `text-success` / `bg-success` | Trust signals, prices, condition ON | `emerald-600` (`#059669`) | `emerald-500` (`#10b981`) |
 | `bg-destructive` | Danger buttons & destructive actions | `error` (`#dc2626`) | `error` (`#dc2626`) |
+
+---
+
+## Interactive Text Hover Governance Rule (MANDATORY)
+
+Interactive text elements (navigation links, breadcrumbs, accordion headers, inactive tab buttons, search dropdown action triggers) MUST NOT perform low-contrast grayscale shifts (e.g. `text-muted-foreground hover:text-foreground` or `text-foreground-secondary hover:text-foreground`).
+- **Interactive links and triggers**: MUST hover to brand accent: `hover:text-primary` (`#2563EB` Royal Blue).
+- **Listing titles on cards**: MUST transition to primary on hover: `group-hover:text-primary transition-colors`.
+- **Surface controls**: When hovering over bordered tiles or buttons, combine with surface hover: `hover:bg-muted hover:text-primary`.
 
 ---
 

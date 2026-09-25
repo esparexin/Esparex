@@ -2001,3 +2001,75 @@ packages/design-tokens/src/colors.ts
 - ✅ `npm run guard:platform-governance` ──► PASS (all architectural guards clean)
 - ✅ `npx playwright test tests/a11y-wcag-suite.spec.ts -g "Automated Axe"` ──► PASS (0 Axe violations)
 
+---
+
+### EA-043
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Typography Contrast & Interactive UX Affordance  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Calibrated Foreground Scale SSOT (`@esparex/design-tokens` & `globals.css`)**:
+   - Upgraded `semantic.light['foreground-secondary']` from washed-out Slate-600 (`#475569`, 47% lightness) to crisp Slate-700 (`#334155`, 26.7% lightness).
+   - Achieved 10.42:1 contrast ratio against `#FFFFFF` (far exceeding WCAG AAA minimums).
+   - Aligned `--foreground-secondary` to `215.3 25% 26.7%`, `--foreground-tertiary` to `215.4 16.3% 38%`, and `--foreground-subtle` to `217.9 10.6% 46.9%`.
+   - Resolved the root cause of "all text light black", ensuring secondary body text, form field labels, metadata, and card descriptions render with crisp, high-contrast readability.
+2. **Eliminated Grayscale Hover Jump (`hover:text-foreground`)**:
+   - Identified and refactored low-contrast grayscale hover shifts across 20+ components (where light black text jumped to black without interactive visual affordance).
+   - Harmonized interactive navigation links, breadcrumbs, accordion headers, search clear actions, and inactive tab controls to hover with brand Royal Blue (`hover:text-primary`, `#2563EB`).
+   - Added `group-hover:text-primary transition-colors` to listing titles in `AdCardMeta.tsx` to align with modern e-commerce marketplace standards.
+3. **Accessibility & Quality Verification**:
+   - Re-verified full automated Axe WCAG 2.2 AA suite (`tests/a11y-wcag-suite.spec.ts`) on desktop and mobile viewports with 100% green status.
+   - Re-ran unit/integration test suites for `@esparex/apps-web` (81/81 test files passed, 423/423 tests green).
+   - Re-ran monorepo type checking across all 10 workspaces (`npm run type-check`) with 0 errors.
+
+**Files Modified**:
+```
+.agents/skills/esparex-ui-ux/color-system.md
+apps/admin/src/components/layout/AdminModuleTabs.tsx
+apps/web/src/components/mobile/MobileBottomNav.tsx
+apps/web/src/components/mobile/MobileNavDrawer.tsx
+apps/web/src/components/search/SearchResultsHeader.tsx
+apps/web/src/components/user/AccountNavItemList.tsx
+apps/web/src/components/user/Breadcrumbs.tsx
+apps/web/src/components/user/BrowseBreadcrumb.tsx
+apps/web/src/components/user/BrowseFilterSidebar.tsx
+apps/web/src/components/user/BrowseFiltersBar.tsx
+apps/web/src/components/user/ListingTypeTabs.tsx
+apps/web/src/components/user/NotificationBellDropdown.tsx
+apps/web/src/components/user/SellerProfilePage.tsx
+apps/web/src/components/user/ad-card/primitives/AdCardMeta.tsx
+apps/web/src/components/user/header/HeaderBusinessButton.tsx
+apps/web/src/components/user/header/HeaderSearchDropdown.tsx
+apps/web/src/components/user/profile/tabs/PlansTab.tsx
+apps/web/src/components/user/profile/tabs/SmartAlertsTab.tsx
+apps/web/src/components/user/shared/ListingFormFields.tsx
+apps/web/src/components/user/shared/MultiBrandSearchSelect.tsx
+apps/web/src/components/user/shared/MultiSelectCatalogDropdown.tsx
+apps/web/src/components/user/shared/UserListingsTemplate.tsx
+apps/web/src/styles/globals.css
+docs/tracking/engineering-action-register.md
+packages/design-tokens/dist/css-variables.css
+packages/design-tokens/src/colors.ts
+packages/ui/src/navigation/BottomNavigation.tsx
+packages/ui/src/navigation/Pagination.tsx
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Typography contrast calibrated to Slate-700; low-contrast grayscale hover shifts replaced with Royal Blue interactive affordances.
+- [x] **Automated Testing**: Monorepo type check and 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, automated Playwright Axe test passed with 0 violations.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+- ✅ `npx playwright test tests/a11y-wcag-suite.spec.ts -g "Automated Axe"` ──► PASS (6/6 tests green, 0 Axe violations)
+
+

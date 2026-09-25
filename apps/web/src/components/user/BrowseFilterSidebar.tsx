@@ -106,7 +106,7 @@ export function BrowseFilterSidebar({
                     "flex items-center justify-center rounded-xl px-2.5 py-1.5 text-caption font-medium transition-all border text-center cursor-pointer",
                     isSelected
                       ? "bg-primary text-primary-foreground border-primary shadow-2xs font-semibold"
-                      : "border-border/80 bg-background text-foreground-secondary hover:bg-muted/80 hover:text-foreground"
+                      : "border-border/80 bg-background text-foreground hover:bg-muted/80 hover:text-primary"
                   )}
                 >
                   <span className="truncate">{tab.label}</span>
@@ -124,7 +124,7 @@ export function BrowseFilterSidebar({
           aria-expanded={categoryExpanded}
           aria-controls="filter-categories-section"
           onClick={() => setCategoryExpanded(!categoryExpanded)}
-          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors cursor-pointer"
         >
           <span>Categories</span>
           <ChevronDown className={cn("size-4 transition-transform text-foreground-subtle", !categoryExpanded && "-rotate-90")} />
@@ -136,10 +136,10 @@ export function BrowseFilterSidebar({
               type="button"
               onClick={() => onCategoryChange("all")}
               className={cn(
-                "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all",
+                "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all cursor-pointer",
                 !selectedCategory || selectedCategory === "all"
                   ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                  : "text-foreground-secondary hover:bg-muted/80 hover:text-foreground"
+                  : "text-foreground hover:bg-muted/80 hover:text-primary"
               )}
             >
               <span>All Categories</span>
@@ -152,10 +152,10 @@ export function BrowseFilterSidebar({
                   type="button"
                   onClick={() => onCategoryChange(cat.slug || cat.id)}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all",
+                    "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all cursor-pointer",
                     isSelected
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                      : "text-foreground-secondary hover:bg-muted/80 hover:text-foreground"
+                      : "text-foreground hover:bg-muted/80 hover:text-primary"
                   )}
                 >
                   <span className="truncate">{cat.name}</span>
@@ -174,7 +174,7 @@ export function BrowseFilterSidebar({
           aria-expanded={priceExpanded}
           aria-controls="filter-price-section"
           onClick={() => setPriceExpanded(!priceExpanded)}
-          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors cursor-pointer"
         >
           <span>Price Range (₹)</span>
           <ChevronDown className={cn("size-4 transition-transform text-foreground-subtle", !priceExpanded && "-rotate-90")} />
@@ -184,7 +184,7 @@ export function BrowseFilterSidebar({
           <div id="filter-price-section" className="space-y-3 pt-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-min-price" className="text-caption text-foreground-secondary font-medium">Min</Label>
+                <Label htmlFor="sidebar-min-price" className="text-caption text-foreground font-medium">Min</Label>
                 <Input
                   id="sidebar-min-price"
                   type="number"
@@ -194,9 +194,9 @@ export function BrowseFilterSidebar({
                   className="h-10 text-body-lg md:text-body font-normal rounded-xl border-border bg-background"
                 />
               </div>
-              <span className="text-foreground-secondary pt-4">-</span>
+              <span className="text-foreground pt-4">-</span>
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-max-price" className="text-caption text-foreground-secondary font-medium">Max</Label>
+                <Label htmlFor="sidebar-max-price" className="text-caption text-foreground font-medium">Max</Label>
                 <Input
                   id="sidebar-max-price"
                   type="number"
@@ -207,7 +207,7 @@ export function BrowseFilterSidebar({
                 />
               </div>
             </div>
-            <Button size="sm" variant="outline" onClick={handleApplyPrice} className="w-full h-9 text-small font-semibold rounded-xl border-border bg-secondary hover:bg-secondary/80 min-h-[36px]">
+            <Button size="sm" variant="outline" onClick={handleApplyPrice} className="w-full h-9 text-small font-semibold rounded-xl border-border bg-secondary hover:bg-secondary/80 min-h-[36px] cursor-pointer">
               Apply Price
             </Button>
           </div>
@@ -221,7 +221,7 @@ export function BrowseFilterSidebar({
           aria-expanded={conditionExpanded}
           aria-controls="filter-condition-section"
           onClick={() => setConditionExpanded(!conditionExpanded)}
-          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors cursor-pointer"
         >
           <span>Condition</span>
           <ChevronDown className={cn("size-4 transition-transform text-foreground-subtle", !conditionExpanded && "-rotate-90")} />
@@ -240,7 +240,7 @@ export function BrowseFilterSidebar({
                       onDeviceConditionChange?.(checked ? cond.id : "");
                     }}
                   />
-                  <Label htmlFor={`sidebar-cond-${cond.id}`} className="text-small font-medium text-foreground-secondary cursor-pointer hover:text-foreground">
+                  <Label htmlFor={`sidebar-cond-${cond.id}`} className="text-small font-medium text-foreground cursor-pointer hover:text-primary">
                     {cond.label}
                   </Label>
                 </div>

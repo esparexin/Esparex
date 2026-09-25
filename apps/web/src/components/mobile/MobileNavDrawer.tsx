@@ -148,7 +148,7 @@ export function MobileNavDrawer({
               <Button
                 key={item.id}
                 variant="ghost"
-                className="w-full justify-start px-3 h-11 text-body font-medium text-foreground-secondary hover:bg-muted hover:text-foreground rounded-xl cursor-pointer"
+                className="w-full justify-start px-3 h-11 text-body font-medium text-foreground hover:bg-muted hover:text-primary rounded-xl cursor-pointer"
                 onClick={() => handleNavigationItemClick(item)}
               >
                 {item.label}
