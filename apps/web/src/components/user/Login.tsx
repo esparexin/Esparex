@@ -59,7 +59,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="max-w-[340px] sm:max-w-[360px] mx-auto w-full">
+        <div className="max-w-[300px] sm:max-w-[330px] mx-auto w-full">
           <LoginForm flow={flow} onBack={onBack} />
         </div>
       </CardContent>

@@ -115,7 +115,7 @@ export function LoginOtpStep({
               <FieldControl animateOnError>
                 <Input
                   placeholder="Enter your name"
-                  className="h-13 sm:h-14 px-4 text-body-lg sm:text-h4 font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs"
+                  className="h-14 px-4 text-body-lg sm:text-h4 font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs"
                   disabled={isBlocked || isLocked}
                   autoComplete="name"
                   {...field}
@@ -187,7 +187,7 @@ export function LoginOtpStep({
             !isOtpComplete ||
             (requiresName && !nameValue.trim())
           }
-          className="w-full h-13 sm:h-14 rounded-xl font-bold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="w-full h-14 rounded-xl font-bold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
           Verify OTP
