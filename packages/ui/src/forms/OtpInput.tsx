@@ -146,7 +146,13 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     );
 
     return (
-      <div ref={ref} className={cn("flex items-center justify-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 py-1.5 max-w-full", className)} {...props}>
+      <div
+        ref={ref}
+        role="group"
+        aria-label={`${length}-digit verification code`}
+        className={cn("flex items-center justify-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 py-1.5 max-w-full", className)}
+        {...props}
+      >
         {otp.map((digit, index) => (
           <Input
             key={index}

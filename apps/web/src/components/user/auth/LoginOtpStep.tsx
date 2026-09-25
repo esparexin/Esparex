@@ -72,7 +72,7 @@ export function LoginOtpStep({
             onClick={handleEditMobile}
             disabled={isSendingOTP}
             aria-label="Edit mobile number"
-            className="h-6 w-6 text-primary hover:text-primary/90 hover:bg-primary/10 rounded-full shrink-0 cursor-pointer"
+            className="relative h-6 w-6 text-primary hover:text-primary/90 hover:bg-primary/10 rounded-full shrink-0 cursor-pointer before:absolute before:inset-[-9px] before:content-['']"
           >
             <Pencil size={12} />
           </Button>
@@ -163,7 +163,12 @@ export function LoginOtpStep({
         )}
 
         {resendRemainingSeconds > 0 && !isLocked ? (
-          <p className="text-center text-caption text-foreground-subtle font-medium">
+          <p
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="text-center text-caption text-foreground-subtle font-medium"
+          >
             Resend available in <span className="font-semibold text-foreground-secondary">{formatSeconds(resendRemainingSeconds)}</span>
           </p>
         ) : canResend ? (

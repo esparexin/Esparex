@@ -37,7 +37,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
     >
       <CardHeader className="relative space-y-1 sm:space-y-1.5 text-center p-0 mb-2 sm:mb-4">
         <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-1 sm:mb-2 w-fit">
-          <div className="h-11 w-11 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2 sm:p-2.5 shadow-xs">
+          <div className="h-11 w-11 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-emerald-50/80 border border-emerald-200/60 dark:bg-emerald-950/40 dark:border-emerald-800/40 flex items-center justify-center p-2 sm:p-2.5 shadow-xs">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
