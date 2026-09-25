@@ -1,7 +1,7 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
-import { Loader2, Pencil, ArrowLeft } from "@esparex/ui";
+import { Loader2, Pencil } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
 import {
   Button,
@@ -147,13 +147,13 @@ export function LoginOtpStep({
         animateOnError
       />
 
-      {/* Inline Resend & Error Area */}
+      {/* Inline Status / Timer & Error Area */}
       <div className="flex flex-col items-center gap-1.5 my-2">
         {otpErrorMessage && (
           <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
         )}
 
-        {resendRemainingSeconds > 0 && !isLocked ? (
+        {resendRemainingSeconds > 0 && !isLocked && (
           <p
             role="status"
             aria-live="polite"
@@ -162,31 +162,22 @@ export function LoginOtpStep({
           >
             Resend available in <span className="font-semibold text-foreground">{formatSeconds(resendRemainingSeconds)}</span>
           </p>
-        ) : canResend ? (
-          <Button
-            type="button"
-            variant="link"
-            disabled={isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited}
-            onClick={handleResend}
-            className="h-auto p-0 text-body font-bold text-primary hover:text-primary/90 cursor-pointer"
-          >
-            {isSendingOTP && <Loader2 className="animate-spin mr-1.5" size={14} />}
-            {isSendRateLimited ? `Resend OTP in ${formatSeconds(rateLimitRemainingSeconds)}` : "Resend OTP"}
-          </Button>
-        ) : null}
+        )}
       </div>
 
       <div className="flex items-center gap-3 pt-1">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleEditMobile}
-          disabled={isVerifying}
-          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0"
-        >
-          <ArrowLeft size={16} className="mr-1.5" />
-          Back
-        </Button>
+        {canResend && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleResend}
+            disabled={isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited}
+            className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0"
+          >
+            {isSendingOTP && <Loader2 className="animate-spin mr-1.5" size={16} />}
+            {isSendRateLimited ? `Resend (${formatSeconds(rateLimitRemainingSeconds)})` : "Resend OTP"}
+          </Button>
+        )}
         <Button
           type="submit"
           disabled={
