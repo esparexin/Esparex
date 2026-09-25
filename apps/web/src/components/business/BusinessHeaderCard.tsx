@@ -73,7 +73,7 @@ export function BusinessHeaderCard({
   return (
     <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border shadow-xs bg-card">
       {/* Cover Banner */}
-      <div className="relative h-28 sm:h-40 md:h-48 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-border/60 overflow-hidden">
+      <div className="relative h-20 sm:h-32 md:h-40 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-border/60 overflow-hidden">
         {hasValidCover && (
           <SafeImage
             src={rawCover as string}
@@ -91,63 +91,63 @@ export function BusinessHeaderCard({
           variant="secondary"
           size="icon"
           onClick={handleShare}
-          className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 size-8 sm:size-9 rounded-full bg-card/85 hover:bg-card text-foreground backdrop-blur-md shadow-xs border border-border/60 transition-all cursor-pointer z-10"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 size-7.5 sm:size-8.5 rounded-full bg-card/85 hover:bg-card text-foreground backdrop-blur-md shadow-xs border border-border/60 transition-all cursor-pointer z-10"
           aria-label="Share Store"
           title={copied ? "Link Copied!" : "Share Store"}
         >
           {copied ? (
-            <Check className="size-3.5 sm:size-4 text-primary" />
+            <Check className="size-3.5 text-primary" />
           ) : (
-            <Share2 className="size-3.5 sm:size-4" />
+            <Share2 className="size-3.5" />
           )}
         </Button>
       </div>
 
       {/* Profile Header Details */}
-      <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-5">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 -mt-10 sm:-mt-14 mb-4">
+      <CardContent className="pt-0 px-3.5 sm:px-5 pb-3 sm:pb-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3 -mt-8 sm:-mt-11 mb-2.5">
           {/* Business Logo Avatar with Integrated Trust/Verified Icon */}
-          <div className="relative size-20 sm:size-28 shrink-0 rounded-2xl bg-card p-1 shadow-md ring-4 ring-card border border-border/80 flex items-center justify-center mx-auto sm:mx-0">
+          <div className="relative size-16 sm:size-22 shrink-0 rounded-2xl bg-card p-1 shadow-md ring-3 ring-card border border-border/80 flex items-center justify-center mx-auto sm:mx-0">
             {hasValidLogo ? (
               <SafeImage
                 src={rawLogo as string}
                 alt={`${business.name} logo`}
                 fill
                 className="object-cover rounded-xl"
-                sizes="112px"
+                sizes="88px"
               />
             ) : (
               <div className="size-full rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <Building2 className="size-9 sm:size-12" />
+                <Building2 className="size-8 sm:size-10" />
               </div>
             )}
 
             {/* Trust & Verification Icon on Avatar */}
             <span
-              className="absolute -bottom-1 -right-1 size-6 sm:size-7 rounded-full bg-card p-0.5 shadow-xs flex items-center justify-center"
+              className="absolute -bottom-1 -right-1 size-5 sm:size-6 rounded-full bg-card p-0.5 shadow-xs flex items-center justify-center"
               title={business.status === "live" ? "Verified Partner" : "Registered Store"}
               aria-label={`Verification status: ${business.status === "live" ? "Verified Partner" : "Registered Store"}`}
             >
               <span className="size-full rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                <ShieldCheck className="size-3.5 sm:size-4" />
+                <ShieldCheck className="size-3 sm:size-3.5" />
               </span>
             </span>
           </div>
 
           {/* Title & Metadata */}
           <div className="flex-1 min-w-0 text-center sm:text-left">
-            <h1 className="text-h3 sm:text-h2 font-bold text-foreground tracking-tight leading-snug">
+            <h1 className="text-body-lg sm:text-h3 font-bold text-foreground tracking-tight leading-snug">
               {business.name}
             </h1>
 
             {business.tagline && (
-              <p className="text-body text-foreground-secondary mt-0.5 font-medium leading-relaxed">
+              <p className="text-caption text-foreground-secondary mt-0.5 font-medium leading-relaxed">
                 {business.tagline}
               </p>
             )}
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2 text-caption">
-              <span className="inline-flex items-center gap-1 text-foreground-secondary font-medium bg-muted px-2.5 py-0.5 rounded-lg text-tiny">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 mt-1.5 text-caption">
+              <span className="inline-flex items-center gap-1 text-foreground-secondary font-medium bg-muted px-2 py-0.5 rounded-lg text-tiny">
                 <Store className="size-3 text-primary" />
                 {primaryBusinessType}
               </span>
@@ -171,21 +171,21 @@ export function BusinessHeaderCard({
         {hasContactActions ? (
           <div
             className={cn(
-              "grid gap-2.5 pt-3 border-t border-border",
+              "grid gap-2 pt-2.5 border-t border-border",
               hasBothContactActions ? "grid-cols-2" : "grid-cols-1"
             )}
           >
             {business.whatsappNumber || business.mobile ? (
               <Button
                 asChild
-                className="h-10 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
+                className="h-9 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
               >
                 <a
                   href={buildWhatsappHref(business.whatsappNumber || business.mobile!)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MessageCircle className="size-4 shrink-0" />
+                  <MessageCircle className="size-3.5 shrink-0" />
                   <span>WhatsApp</span>
                 </a>
               </Button>
@@ -194,10 +194,10 @@ export function BusinessHeaderCard({
             {business.mobile ? (
               <Button
                 asChild
-                className="h-10 px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
+                className="h-9 px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
               >
                 <a href={`tel:${business.mobile}`}>
-                  <Phone className="size-4 shrink-0" />
+                  <Phone className="size-3.5 shrink-0" />
                   <span>Call Store</span>
                 </a>
               </Button>
