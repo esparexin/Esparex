@@ -109,7 +109,7 @@ export function LoginOtpStep({
           name="name"
           render={({ field }) => (
             <div className="space-y-2 text-left">
-              <FieldLabel className="text-body sm:text-body-lg font-semibold text-foreground">
+              <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
                 Your Full Name <span className="text-destructive">*</span>
               </FieldLabel>
               <FieldControl animateOnError>
@@ -187,7 +187,7 @@ export function LoginOtpStep({
             !isOtpComplete ||
             (requiresName && !nameValue.trim())
           }
-          className="w-full h-12 rounded-xl font-bold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="w-full h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
           Verify OTP

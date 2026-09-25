@@ -47,14 +47,14 @@ export function LoginMobileStep({
         name="mobile"
         render={({ field }) => (
           <div className="space-y-2 text-left">
-            <FieldLabel className="text-body sm:text-body-lg font-semibold text-foreground">
+            <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
               Mobile Number
             </FieldLabel>
             <FieldControl animateOnError>
               <div className="flex items-center gap-2">
                 <div
                   aria-hidden="true"
-                  className="flex items-center justify-center h-12 w-14 rounded-xl border border-border/80 bg-muted/40 text-foreground font-bold text-body-lg shrink-0 select-none shadow-xs"
+                  className="flex items-center justify-center h-12 w-14 rounded-xl border border-border/80 bg-muted/40 text-foreground-secondary font-medium text-body-lg shrink-0 select-none shadow-xs"
                 >
                   +91
                 </div>
@@ -62,7 +62,7 @@ export function LoginMobileStep({
                   placeholder="9876543210"
                   maxLength={10}
                   className={cn(
-                    "h-12 px-4 text-body-lg sm:text-body tracking-wider font-semibold text-foreground bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs flex-1 min-w-0",
+                    "h-12 px-4 text-body-lg sm:text-body tracking-wider font-normal text-foreground bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs flex-1 min-w-0",
                     isValidMobile && "border-emerald-600 ring-4 ring-emerald-600/15"
                   )}
                   autoComplete="tel"
@@ -116,7 +116,7 @@ export function LoginMobileStep({
             Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
             !backendReady
           }
-          className="w-full h-12 rounded-xl font-bold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="w-full h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
           {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
@@ -128,7 +128,7 @@ export function LoginMobileStep({
           type="button"
           variant="ghost"
           onClick={onBack}
-          className="w-full h-10 text-body font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
+          className="w-full h-10 text-body font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
         >
           <ArrowLeft size={16} className="mr-1.5" />
           Back

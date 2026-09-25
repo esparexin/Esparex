@@ -167,7 +167,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
             onPaste={(e) => handlePaste(index, e)}
             disabled={disabled}
             className={cn(
-              "h-12 min-h-[48px] w-10.5 xs:w-11 sm:w-12 px-0 text-center font-mono text-xl sm:text-2xl font-bold rounded-xl bg-background hover:bg-muted/30 focus-visible:bg-background border-border/80 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-xs flex-1 max-w-[50px] min-w-0",
+              "h-12 min-h-[48px] w-10.5 xs:w-11 sm:w-12 px-0 text-center font-mono text-xl sm:text-2xl font-semibold rounded-xl bg-background hover:bg-muted/30 focus-visible:bg-background border-border/80 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-xs flex-1 max-w-[50px] min-w-0",
               hasError && "border-destructive ring-4 ring-destructive/15 focus-visible:ring-destructive/20 focus-visible:border-destructive"
             )}
             inputMode="numeric"

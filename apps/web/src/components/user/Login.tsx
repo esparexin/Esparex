@@ -51,7 +51,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
         <div className="space-y-1 sm:space-y-1.5">
           <CardTitle
             className={cn(
-              "text-h3 sm:text-h2 font-bold tracking-tight text-foreground",
+              "text-h3 sm:text-h2 font-semibold tracking-tight text-foreground",
               step === "enterMobile" && "flex items-center justify-center gap-2"
             )}
             aria-label={step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
