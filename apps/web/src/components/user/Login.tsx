@@ -31,7 +31,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   return (
     <Card
       className={cn(
-        "w-full max-w-[420px] mx-auto border-0 shadow-none sm:border-border sm:shadow-lg rounded-none sm:rounded-3xl bg-transparent sm:bg-card",
+        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
@@ -58,10 +58,8 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
           </p>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="max-w-[300px] sm:max-w-[330px] mx-auto w-full">
-          <LoginForm flow={flow} onBack={onBack} />
-        </div>
+      <CardContent className="p-0 w-full">
+        <LoginForm flow={flow} onBack={onBack} />
       </CardContent>
     </Card>
   );

@@ -24,7 +24,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         hideClose
         variant="bottomSheet"
         className={cn(
-          "max-w-none sm:max-w-[420px] h-auto p-5 sm:p-7 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-3xl shadow-2xl"
+          "max-w-none sm:max-w-sm h-auto p-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl"
         )}
       >
         {/* Mobile Drawer Drag Handle Notch */}
