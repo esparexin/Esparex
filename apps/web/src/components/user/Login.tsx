@@ -31,19 +31,20 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-border sm:shadow-lg rounded-none sm:rounded-2xl bg-transparent sm:bg-card",
+        "w-full max-w-[420px] mx-auto border-0 shadow-none sm:border-border sm:shadow-lg rounded-none sm:rounded-3xl bg-transparent sm:bg-card",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-1 sm:space-y-1.5 text-center p-0 mb-2 sm:mb-4">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-1 sm:mb-2 w-fit">
-          <div className="h-11 w-11 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-emerald-50/80 border border-emerald-200/60 dark:bg-emerald-950/40 dark:border-emerald-800/40 flex items-center justify-center p-2 sm:p-2.5 shadow-xs">
+      <CardHeader className="relative space-y-1.5 sm:space-y-2 text-center p-0 mb-3 sm:mb-5">
+        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-1.5 sm:mb-2.5 w-fit">
+          <div className="relative flex items-center justify-center h-13 w-13 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-b from-primary/15 via-primary/10 to-transparent dark:from-primary/25 dark:via-primary/15 dark:to-transparent ring-1 ring-primary/25 dark:ring-primary/35 p-2.5 sm:p-3 shadow-xs">
+            <div className="absolute inset-0 rounded-2xl bg-primary/10 blur-sm pointer-events-none -z-10" />
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
               width={48}
               height={48}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain drop-shadow-xs"
             />
           </div>
         </div>

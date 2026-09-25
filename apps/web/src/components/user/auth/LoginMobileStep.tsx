@@ -61,8 +61,8 @@ export function LoginMobileStep({
                   placeholder="9876543210"
                   maxLength={10}
                   className={cn(
-                    "pl-12 pr-4 h-11 text-body-lg md:text-body tracking-wider font-semibold text-foreground border-border rounded-xl focus-visible:border-primary focus-visible:ring-primary/20",
-                    isValidMobile && "border-primary ring-2 ring-primary/10"
+                    "pl-12 pr-4 h-12 text-body-lg md:text-body tracking-wider font-semibold text-foreground bg-muted/40 hover:bg-muted/60 focus-visible:bg-background border-border/70 rounded-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-2xs",
+                    isValidMobile && "border-primary bg-background ring-4 ring-primary/15 shadow-xs"
                   )}
                   autoComplete="tel"
                   inputMode="numeric"
@@ -82,24 +82,24 @@ export function LoginMobileStep({
       />
 
       {authError?.type === "generic" && (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-2.5">
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3">
           <UiFormError message={authError.message} className="mt-0 text-caption text-destructive" />
         </div>
       )}
 
       {authError?.type === "blocked" && (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-2.5 text-center">
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-center">
           <p className="text-caption font-semibold text-destructive">{authError.message}</p>
         </div>
       )}
 
       {!backendReady && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 space-y-0.5">
-          <p className="text-caption font-semibold text-amber-900 flex items-center gap-2">
-            <Loader2 className="animate-spin h-3.5 w-3.5 text-amber-600" />
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 dark:bg-amber-950/30 dark:border-amber-800/40 p-3 space-y-1">
+          <p className="text-caption font-semibold text-amber-900 dark:text-amber-300 flex items-center gap-2">
+            <Loader2 className="animate-spin h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
             Waking up server...
           </p>
-          <p className="text-tiny text-amber-700">
+          <p className="text-tiny text-amber-700 dark:text-amber-400">
             Our high-security backend is initializing. Please wait a few seconds.
           </p>
         </div>
@@ -116,7 +116,7 @@ export function LoginMobileStep({
             Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
             !backendReady
           }
-          className="w-full h-11 rounded-xl font-bold text-body shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full h-12 rounded-2xl font-bold text-body shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all disabled:opacity-50 cursor-pointer"
         >
           {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
           {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}

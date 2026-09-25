@@ -24,7 +24,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         hideClose
         variant="mobileSafe"
         className={cn(
-          "max-w-sm h-auto border border-border rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 overflow-y-auto overscroll-contain"
+          "max-w-[420px] h-auto border border-border/80 rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-7 overflow-y-auto overscroll-contain bg-card"
         )}
       >
         {/* Accessible Title & Description for Screen Readers */}

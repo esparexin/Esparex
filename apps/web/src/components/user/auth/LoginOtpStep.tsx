@@ -59,12 +59,10 @@ export function LoginOtpStep({
 
   return (
     <div className="space-y-2.5 sm:space-y-3">
-      {/* Streamlined Status & Recipient Info Bar */}
-      <div className="py-1.5 px-3 bg-muted/60 rounded-xl border border-border/80 shadow-2xs space-y-0.5">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-caption text-foreground-secondary font-medium truncate">
-            OTP sent to <span className="font-bold text-foreground">+91 {mobileValue}</span>
-          </p>
+      {/* Unboxed Fluid Recipient Pill & Greeting */}
+      <div className="flex flex-col items-center justify-center gap-1.5 py-1 text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 dark:bg-primary/20 text-caption font-semibold text-primary">
+          <span>Sent to +91 {mobileValue}</span>
           <Button
             type="button"
             variant="ghost"
@@ -72,37 +70,37 @@ export function LoginOtpStep({
             onClick={handleEditMobile}
             disabled={isSendingOTP}
             aria-label="Edit mobile number"
-            className="relative h-6 w-6 text-primary hover:text-primary/90 hover:bg-primary/10 rounded-full shrink-0 cursor-pointer before:absolute before:inset-[-9px] before:content-['']"
+            className="relative h-5 w-5 text-primary hover:text-primary/90 hover:bg-primary/20 rounded-full shrink-0 cursor-pointer before:absolute before:inset-[-9px] before:content-[''] p-0"
           >
-            <Pencil size={12} />
+            <Pencil size={11} />
           </Button>
         </div>
         {existingUserName && step === "enterOtp" && (
-          <p className="text-caption text-emerald-700 font-semibold border-t border-border/60 pt-0.5">
+          <p className="text-caption text-emerald-700 dark:text-emerald-400 font-semibold animate-in fade-in-0 duration-200">
             Welcome back, <span className="font-bold">{existingUserName}</span>!
           </p>
         )}
       </div>
 
       {authError?.type === "blocked" && (
-        <div className="text-center py-2 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
+        <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-2xl border border-destructive/20">
           <p className="text-caption text-destructive font-semibold">{authError.message}</p>
         </div>
       )}
 
       {step === "locked" && (
-        <div className="text-center p-2.5 bg-amber-50 rounded-xl border border-amber-300 space-y-0.5">
-          <p className="text-caption font-bold text-amber-900">
+        <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-2xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
+          <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
             Too many incorrect OTP attempts.
           </p>
-          <p className="text-caption text-amber-800">
+          <p className="text-caption text-amber-800 dark:text-amber-400">
             Account locked. Try again in {formatSeconds(lockRemainingSeconds)}
           </p>
         </div>
       )}
 
       {!isLocked && otpRateLimitMessage && (
-        <div className="text-center py-2 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
+        <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-2xl border border-destructive/20">
           <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
         </div>
       )}
@@ -118,7 +116,7 @@ export function LoginOtpStep({
               <FieldControl animateOnError>
                 <Input
                   placeholder="Enter your name"
-                  className="h-11 text-body-lg md:text-body font-medium border-border rounded-xl"
+                  className="h-12 text-body-lg md:text-body font-medium bg-muted/40 hover:bg-muted/60 focus-visible:bg-background border-border/70 rounded-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-2xs"
                   disabled={isBlocked || isLocked}
                   autoComplete="name"
                   {...field}
@@ -152,12 +150,12 @@ export function LoginOtpStep({
         length={6}
         disabled={otpInputDisabled}
         autoFocus={step === "enterOtp"}
-        className="justify-center"
+        className="justify-center py-1"
         animateOnError
       />
 
       {/* Inline Resend & Error Area */}
-      <div className="flex flex-col items-center gap-0.5 my-0.5">
+      <div className="flex flex-col items-center gap-0.5 my-1">
         {otpErrorMessage && (
           <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
         )}
@@ -197,7 +195,7 @@ export function LoginOtpStep({
             !isOtpComplete ||
             (requiresName && !nameValue.trim())
           }
-          className="w-full h-11 rounded-xl font-bold text-body shadow-md shadow-primary/20 transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full h-12 rounded-2xl font-bold text-body shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all disabled:opacity-50 cursor-pointer"
         >
           {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
           Verify OTP

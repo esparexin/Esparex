@@ -167,8 +167,8 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
             onPaste={(e) => handlePaste(index, e)}
             disabled={disabled}
             className={cn(
-              "h-11 min-h-[44px] w-9 px-0 text-center text-body-lg font-semibold xs:w-10 sm:h-12 sm:w-11 md:w-12 sm:text-h4 rounded-xl flex-1 max-w-[48px] min-w-0",
-              hasError && "border-destructive ring-destructive/20 focus-visible:ring-destructive"
+              "h-12 min-h-[48px] w-9.5 px-0 text-center text-body-lg font-bold xs:w-10.5 sm:h-13 sm:w-12 md:w-12.5 sm:text-h3 rounded-2xl bg-muted/40 hover:bg-muted/70 focus-visible:bg-background border-border/70 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-2xs flex-1 max-w-[50px] min-w-0",
+              hasError && "border-destructive ring-4 ring-destructive/15 focus-visible:ring-destructive/20 focus-visible:border-destructive"
             )}
             inputMode="numeric"
             aria-label={`OTP digit ${index + 1}`}
