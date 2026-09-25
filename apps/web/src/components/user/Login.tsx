@@ -31,28 +31,28 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent",
+        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex-1 flex flex-col justify-between h-full",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-2 sm:space-y-2.5 text-center p-0 mb-5 sm:mb-6">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 sm:mb-3 w-fit">
-          <div className="flex items-center justify-center h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 p-2.5 sm:p-3">
+      <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
+        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 w-fit">
+          <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
-              width={48}
-              height={48}
+              width={44}
+              height={44}
               priority
               className="w-full h-full object-contain brightness-0 invert drop-shadow-xs"
             />
           </div>
         </div>
-        <div className="space-y-1 sm:space-y-1.5">
+        <div className="space-y-1">
           <CardTitle
             className={cn(
-              "text-h3 sm:text-h2 font-semibold tracking-tight text-foreground",
-              step === "enterMobile" && "flex items-center justify-center gap-2"
+              "text-h3 font-semibold tracking-tight text-foreground",
+              step === "enterMobile" && "flex items-center justify-center gap-1.5"
             )}
             aria-label={step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
           >
@@ -66,7 +66,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
                   height={112}
                   unoptimized
                   priority
-                  className="h-6 sm:h-7 w-auto inline-block object-contain"
+                  className="h-5 w-auto inline-block object-contain"
                 />
               </>
             ) : (
@@ -76,14 +76,14 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
           {step === "enterMobile" && (
             <p
               data-keyboard-hide-on-mobile="true"
-              className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed"
+              className="text-body text-muted-foreground font-normal leading-normal"
             >
               Login to buy & sell mobile spares
             </p>
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 w-full">
+      <CardContent className="p-0 w-full flex-1 flex flex-col justify-between min-h-0">
         <LoginForm flow={flow} onBack={onBack} />
       </CardContent>
     </Card>
@@ -224,7 +224,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       <form
         key={`step-${step}`}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
+        className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex-1 flex flex-col justify-between h-full"
       >
         {step === "enterMobile" ? (
           <LoginMobileStep

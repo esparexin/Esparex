@@ -58,103 +58,105 @@ export function LoginOtpStep({
   const isOtpComplete = otpValue.length === 6;
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      {/* Recipient Notice & Change */}
-      <div className="flex flex-col items-center justify-center gap-1 text-center -mt-2 sm:-mt-3 pb-1">
-        {existingUserName && step === "enterOtp" && (
-          <p className="text-body font-semibold text-emerald-700 dark:text-emerald-400">
-            Welcome back, <span className="font-bold">{existingUserName}</span>!
-          </p>
-        )}
-        <div className="inline-flex items-center justify-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium text-center">
-          <span>OTP sent to <span className="font-semibold text-foreground whitespace-nowrap">+91 {mobileValue}</span></span>
-          <button
-            type="button"
-            onClick={handleEditMobile}
-            disabled={isSendingOTP}
-            aria-label="Edit mobile number"
-            className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold underline underline-offset-2 cursor-pointer shrink-0 before:absolute before:inset-[-9px] before:content-['']"
-          >
-            <span>Change</span>
-            <Pencil size={11} />
-          </button>
-        </div>
-      </div>
-
-      {authError?.type === "blocked" && (
-        <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-          <p className="text-caption text-destructive font-semibold">{authError.message}</p>
-        </div>
-      )}
-
-      {step === "locked" && (
-        <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
-          <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
-            Too many incorrect OTP attempts.
-          </p>
-          <p className="text-caption text-amber-800 dark:text-amber-400">
-            Account locked. Try again in {formatSeconds(lockRemainingSeconds)}
-          </p>
-        </div>
-      )}
-
-      {!isLocked && otpRateLimitMessage && (
-        <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-          <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
-        </div>
-      )}
-
-      {step === "enterNameAndOtp" && (
-        <FieldRoot<LoginFormValues, "name">
-          name="name"
-          render={({ field }) => (
-            <div className="space-y-2 text-left">
-              <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
-                Your Full Name <span className="text-destructive">*</span>
-              </FieldLabel>
-              <FieldControl animateOnError>
-                <Input
-                  placeholder="Enter your name"
-                  className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs"
-                  disabled={isBlocked || isLocked}
-                  autoComplete="name"
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    form.clearErrors("name");
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && field.value?.trim()) {
-                      e.preventDefault();
-                      const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
-                      firstOtpInput?.focus({ preventScroll: true });
-                    }
-                  }}
-                />
-              </FieldControl>
-              <FieldMessage className="text-caption mt-1" />
-            </div>
+    <div className="flex-1 flex flex-col justify-between h-full">
+      <div className="space-y-4">
+        {/* Recipient Notice & Change */}
+        <div className="flex flex-col items-center justify-center gap-1 text-center -mt-2 sm:-mt-3 pb-1">
+          {existingUserName && step === "enterOtp" && (
+            <p className="text-body font-semibold text-emerald-700 dark:text-emerald-400">
+              Welcome back, <span className="font-bold">{existingUserName}</span>!
+            </p>
           )}
-        />
-      )}
+          <div className="inline-flex items-center justify-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium text-center">
+            <span>OTP sent to <span className="font-semibold text-foreground whitespace-nowrap">+91 {mobileValue}</span></span>
+            <button
+              type="button"
+              onClick={handleEditMobile}
+              disabled={isSendingOTP}
+              aria-label="Edit mobile number"
+              className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold underline underline-offset-2 cursor-pointer shrink-0 before:absolute before:inset-[-9px] before:content-['']"
+            >
+              <span>Change</span>
+              <Pencil size={11} />
+            </button>
+          </div>
+        </div>
 
-      <div className="space-y-2 text-center">
-        <ControlledOtp<LoginFormValues, "otp">
-          name="otp"
-          length={6}
-          disabled={otpInputDisabled}
-          autoFocus={step === "enterOtp"}
-          className="justify-center py-1 sm:py-2"
-          animateOnError
-        />
-        <p className="text-body text-muted-foreground font-normal">
-          Enter the 6-digit code sent
-        </p>
+        {authError?.type === "blocked" && (
+          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
+            <p className="text-caption text-destructive font-semibold">{authError.message}</p>
+          </div>
+        )}
+
+        {step === "locked" && (
+          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
+            <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
+              Too many incorrect OTP attempts.
+            </p>
+            <p className="text-caption text-amber-800 dark:text-amber-400">
+              Account locked. Try again in {formatSeconds(lockRemainingSeconds)}
+            </p>
+          </div>
+        )}
+
+        {!isLocked && otpRateLimitMessage && (
+          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
+            <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
+          </div>
+        )}
+
+        {step === "enterNameAndOtp" && (
+          <FieldRoot<LoginFormValues, "name">
+            name="name"
+            render={({ field }) => (
+              <div className="space-y-2 text-left">
+                <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
+                  Your Full Name <span className="text-destructive">*</span>
+                </FieldLabel>
+                <FieldControl animateOnError>
+                  <Input
+                    placeholder="Enter your name"
+                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-xs"
+                    disabled={isBlocked || isLocked}
+                    autoComplete="name"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      form.clearErrors("name");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && field.value?.trim()) {
+                        e.preventDefault();
+                        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+                        firstOtpInput?.focus({ preventScroll: true });
+                      }
+                    }}
+                  />
+                </FieldControl>
+                <FieldMessage className="text-caption mt-1" />
+              </div>
+            )}
+          />
+        )}
+
+        <div className="space-y-2 text-center">
+          <ControlledOtp<LoginFormValues, "otp">
+            name="otp"
+            length={6}
+            disabled={otpInputDisabled}
+            autoFocus={step === "enterOtp"}
+            className="justify-center py-1 sm:py-2"
+            animateOnError
+          />
+          <p className="text-body text-muted-foreground font-normal">
+            Enter the 6-digit code sent
+          </p>
+        </div>
+
+        {otpErrorMessage && (
+          <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
+        )}
       </div>
-
-      {otpErrorMessage && (
-        <UiFormError message={otpErrorMessage} className="text-center text-caption text-destructive m-0" />
-      )}
 
       {/* Screen Reader Live Status for Timer */}
       <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
@@ -163,13 +165,13 @@ export function LoginOtpStep({
           : "Resend OTP is now available"}
       </span>
 
-      <div className="flex items-center gap-3 pt-1">
+      <div className="flex items-center gap-3 pt-6 mt-auto">
         <Button
           type="button"
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border-border/80 hover:bg-muted text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60"
+          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60 shadow-xs"
         >
           {isSendingOTP ? (
             <>
@@ -194,7 +196,7 @@ export function LoginOtpStep({
             !isOtpComplete ||
             (requiresName && !nameValue.trim())
           }
-          className="flex-1 h-12 rounded-xl font-semibold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:opacity-100 disabled:bg-muted disabled:text-muted-foreground/80 disabled:border disabled:border-border/60 disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
+          className="flex-1 h-12 rounded-xl font-semibold text-body bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 transition-all disabled:opacity-40 disabled:bg-emerald-600 disabled:text-white disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
           Verify OTP

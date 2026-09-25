@@ -24,7 +24,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         hideClose
         variant="bottomSheet"
         className={cn(
-          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:min-h-[480px] p-5 sm:p-7 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between"
+          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:min-h-[480px] p-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between"
         )}
       >
         {/* Mobile Drawer Drag Handle Notch */}
@@ -44,7 +44,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           <X className="h-4 w-4" />
         </DialogClose>
         
-        <div className="flex-1 flex flex-col justify-center my-auto min-h-0">
+        <div className="flex-1 flex flex-col justify-between min-h-0">
           <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} onBack={() => onOpenChange(false)} />
         </div>
       </DialogContent>
