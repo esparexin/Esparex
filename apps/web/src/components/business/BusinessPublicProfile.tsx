@@ -23,18 +23,27 @@ export function BusinessPublicProfile({
   spareParts,
   shareUrl,
 }: BusinessPublicProfileProps) {
-  const [activeTab, setActiveTab] = useState<ListingTab>("ads");
-
   const tabs = useMemo(() => {
     const allTabs: { key: ListingTab; label: string; count: number }[] = [
-      { key: "ads", label: "Listings", count: ads.length },
+      { key: "ads", label: "Ads", count: ads.length },
       { key: "services", label: "Services", count: services.length },
       { key: "spare-parts", label: "Spare Parts", count: spareParts.length },
     ];
-    return allTabs.filter((tab) => tab.count > 0);
+    return allTabs.filter((tab) => tab.key === "ads" || tab.count > 0);
   }, [ads.length, services.length, spareParts.length]);
 
-  const effectiveActiveTab = tabs.some((tab) => tab.key === activeTab) ? activeTab : (tabs[0]?.key || "ads");
+  const defaultTab = useMemo<ListingTab>(() => {
+    if (ads.length > 0) return "ads";
+    if (services.length > 0) return "services";
+    if (spareParts.length > 0) return "spare-parts";
+    return "ads";
+  }, [ads.length, services.length, spareParts.length]);
+
+  const [activeTab, setActiveTab] = useState<ListingTab>(defaultTab);
+
+  const effectiveActiveTab = tabs.some((tab) => tab.key === activeTab)
+    ? activeTab
+    : (tabs[0]?.key || "ads");
 
   const activeItems: (Ad | Service)[] = useMemo(() => {
     if (effectiveActiveTab === "services") return services;
@@ -91,7 +100,7 @@ export function BusinessPublicProfile({
       {/* 2. Main Content Grid (Catalog + Sidebar) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column: Store Catalog Tabs */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 min-w-0">
           <BusinessCatalogTabs
             tabs={tabs}
             activeTab={activeTab}
