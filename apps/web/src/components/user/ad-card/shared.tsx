@@ -259,6 +259,69 @@ export function ListingTypeBadge({
   );
 }
 
+/**
+ * Determines whether a category pill should be displayed on a listing card.
+ * Prevents redundant/duplicate badges when the category matches the listing type badge
+ * (e.g. Service badge on thumbnail + duplicate "SERVICE" pill below), or is a generic fallback.
+ */
+export function shouldDisplayCategoryBadge(
+  categoryLabel: string | null | undefined,
+  ad: AdCardData
+): boolean {
+  if (!categoryLabel) return false;
+
+  const normalized = categoryLabel.trim().toLowerCase();
+  if (normalized === "general" || normalized === "category" || normalized === "") {
+    return false;
+  }
+
+  const adRecord = toAdRecord(ad);
+  const typeBadge = resolveListingTypeBadge(adRecord);
+  const typeLabel = (typeBadge?.label || "").trim().toLowerCase();
+  const rawType = (
+    typeof adRecord.listingType === "string" ? adRecord.listingType : ""
+  ).trim().toLowerCase();
+
+  // If the category label directly matches the listing type badge or listingType property
+  if (normalized === typeLabel || normalized === rawType) {
+    return false;
+  }
+
+  // Handle service plural/singular variations (e.g. "service", "services", "repair services")
+  if (
+    (typeLabel === "service" || rawType === "service") &&
+    (normalized === "service" ||
+      normalized === "services" ||
+      normalized === "repair services" ||
+      normalized === "repair service")
+  ) {
+    return false;
+  }
+
+  // Handle parts variations (e.g. "parts", "spare part", "spare parts", "spare_part", "spare_parts")
+  if (
+    (typeLabel === "parts" || rawType === "spare_part" || rawType === "spare-part") &&
+    (normalized === "parts" ||
+      normalized === "part" ||
+      normalized === "spare part" ||
+      normalized === "spare parts" ||
+      normalized === "spare_part" ||
+      normalized === "spare_parts")
+  ) {
+    return false;
+  }
+
+  // Handle ad variations (e.g. "ad", "ads")
+  if (
+    (typeLabel === "ad" || rawType === "ad") &&
+    (normalized === "ad" || normalized === "ads")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function getPlanBadge(
   ad: AdCardData,
   className?: string
