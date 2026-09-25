@@ -2316,3 +2316,38 @@ docs/tracking/engineering-action-register.md
 **Verification**:
 - ✅ `npm run type-check -w @esparex/apps-web` ──► PASS (0 errors)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 427 tests passed)
+
+---
+
+### EA-050
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UI/UX & SSOT Navigation  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Renamed Ads Empty State Action to Canonical SSOT (`BusinessCatalogTabs.tsx`)**:
+   - Renamed empty state action button label from `"Post"` to canonical `"Post Free Ad"`, matching SSOT conventions in `HomePromoAdCard.tsx`.
+   - Replaced raw anchor `<a href="/post">` with Next.js client `<Link href="/post-ad">` linking to the canonical authenticated post ad route (`/post-ad`).
+   - Maintained design tokens and `@esparex/ui` canonical `Button asChild` primitive with zero duplicate components or non-standard styles.
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessCatalogTabs.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Renamed Ads empty state action to "Post Free Ad" linking to `/post-ad`.
+- [x] **Automated Testing**: 81 web test suites passed (427/427 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check -w @esparex/apps-web`) passed with 0 errors.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: Accessible Link element with clear semantic action text.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check -w @esparex/apps-web` ──► PASS (0 errors)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 427 tests passed)
