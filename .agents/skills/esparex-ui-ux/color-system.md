@@ -31,7 +31,7 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 | `text-foreground` | Main body & title text | `slate-900` (`#0f172a`) | `slate-50` (`#f8fafc`) |
 | `text-muted-foreground` | Timestamps, helper text, subtitles | `slate-500` (`#64748b`) | `slate-400` (`#94a3b8`) |
 | `border-border` / `border-subtle` | Structural dividers, input borders | `slate-200` (`#e2e8f0`) | `slate-800` (`#1e293b`) |
-| `bg-primary` / `text-action` | Primary interactive controls & CTAs | `slate-900` (`#0f172a` Obsidian) | `slate-50` (`#f8fafc`) |
+| `bg-primary` / `text-action` | Primary interactive controls & CTAs | `blue-600` (`#2563eb` Royal Blue) | `blue-500` (`#3b82f6`) |
 | `text-success` / `bg-success` | Trust signals, prices, condition ON | `emerald-600` (`#059669`) | `emerald-500` (`#10b981`) |
 | `bg-destructive` | Danger buttons & destructive actions | `error` (`#dc2626`) | `error` (`#dc2626`) |
 
