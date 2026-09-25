@@ -16,10 +16,9 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 
 ### Layer 1: Base Primitives (`packages/design-tokens/src/colors.ts`)
 
-- **Brand (Electric Sky Blue)**: `brand-50` (`#f0f9ff`), `brand-500` (`#0ea5e9`), `brand-600` (`#0284c7`), `brand-950` (`#082f49`).
-- **Action (Interactive Indigo)**: `action` (`#2563eb`). Primary interactive controls, buttons, links, price highlights.
-- **Slate (Neutrals)**: `slate-50` (`#f8fafc`), `slate-100` (`#f1f5f9`), `slate-200` (`#e2e8f0`), `slate-500` (`#64748b`), `slate-700` (`#334155`), `slate-900` (`#0f172a`), `slate-950` (`#020617`).
-- **Status Signals**: `success` (`#10b981`), `error` (`#ef4444`), `warning` (`#f59e0b`), `info` (`#3b82f6`).
+- **Obsidian / Slate (Neutrals & Primary Action)**: `slate-50` (`#f8fafc`), `slate-100` (`#f1f5f9`), `slate-200` (`#e2e8f0`), `slate-500` (`#64748b`), `slate-700` (`#334155`), `slate-900` (`#0f172a`), `slate-950` (`#020617`).
+- **Precision Emerald (Trust & Hardware Signal)**: `success` (`#059669` light / `#10b981` dark), `success-subtle` (`#ecfdf5` light / `#064e3b` dark) — dedicated to Verified badges, "Power ON", and pricing.
+- **Status Signals**: `warning` (`#d97706`), `error` (`#dc2626`), `info` (`#2563eb`).
 
 ---
 
@@ -27,13 +26,14 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 
 | Semantic Token | Intended Meaning | Light Base | Dark Base |
 |---|---|---|---|
-| `bg-background` | App root background | `slate-50` | `slate-950` |
-| `bg-card` / `bg-surface` | Data surface container | `#ffffff` | `slate-900` |
-| `text-foreground` | Main body & title text | `slate-950` | `slate-50` |
-| `text-muted-foreground` | Timestamps, helper text, subtitles | `slate-500` | `slate-400` |
-| `border-border` / `border-subtle` | Structural dividers, input borders | `slate-200` | `slate-800` |
-| `bg-primary` / `text-action` | Primary interactive controls & badges | `brand-600` / `action` | `brand-500` |
-| `bg-destructive` | Danger buttons & destructive actions | `error` | `error` |
+| `bg-background` | App root background | `slate-50` (`#f8fafc`) | `slate-950` (`#020617`) |
+| `bg-card` / `bg-surface` | Data surface container | `#ffffff` | `slate-900` (`#0f172a`) |
+| `text-foreground` | Main body & title text | `slate-900` (`#0f172a`) | `slate-50` (`#f8fafc`) |
+| `text-muted-foreground` | Timestamps, helper text, subtitles | `slate-500` (`#64748b`) | `slate-400` (`#94a3b8`) |
+| `border-border` / `border-subtle` | Structural dividers, input borders | `slate-200` (`#e2e8f0`) | `slate-800` (`#1e293b`) |
+| `bg-primary` / `text-action` | Primary interactive controls & CTAs | `slate-900` (`#0f172a` Obsidian) | `slate-50` (`#f8fafc`) |
+| `text-success` / `bg-success` | Trust signals, prices, condition ON | `emerald-600` (`#059669`) | `emerald-500` (`#10b981`) |
+| `bg-destructive` | Danger buttons & destructive actions | `error` (`#dc2626`) | `error` (`#dc2626`) |
 
 ---
 

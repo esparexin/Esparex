@@ -1957,3 +1957,47 @@ packages/ui/src/forms/OtpInput.tsx
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed, 0 failures)
 - ✅ `npm run build` ──► PASS (exit code 0 across all workspaces)
+
+---
+
+### EA-042
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Design Token SSOT & Governance Standards  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **SSOT Token Modernization (`@esparex/design-tokens`)**: Upgraded core semantic tokens to the high-contrast **Obsidian & Precision Emerald** standard (`packages/design-tokens/src/colors.ts`). Mapped light mode background to crisp Ice Slate (`#F8FAFC`), card surfaces to pure elevated white (`#FFFFFF`), primary actions to Obsidian Slate (`#0F172A`, 15:1 WCAG ratio), and status signals to Precision Emerald (`#059669`). Mapped dark mode background to OLED Slate-950 (`#020617`) and primary action to Slate-50 (`#F8FAFC`).
+2. **Eliminated Semantic Overlap & Green Collision**: Separated interactive primary actions ("Post Ad", filter triggers, checkout CTAs) into definitive Obsidian Black while dedicating vibrant Emerald strictly to trust signals (Verified Seller, condition "Power ON", money/pricing).
+3. **Global CSS & Sidebar Harmonization**: Replaced warm neutral Stone-50 (`#FAFAF8`) variables in `apps/web/src/styles/globals.css` with cool Slate variables, and harmonized `--sidebar-*` and mesh gradient tokens.
+4. **Header & Badge Alignment**: Harmonized mobile login button in `Header.tsx` to standard semantic ghost button tokens, and ensured listing condition badges maintain dark mode contrast.
+5. **A11y & Contrast Verification**: Verified that light mode background and text exceed WCAG 2.2 AA (Axe scan passed on Home Page and Browse Results container with 0 contrast violations).
+
+**Files Modified**:
+```
+.agents/skills/esparex-ui-ux/color-system.md
+apps/web/src/components/user/Header.tsx
+apps/web/src/components/user/ad-card/shared.tsx
+apps/web/src/styles/globals.css
+docs/tracking/engineering-action-register.md
+packages/design-tokens/dist/css-variables.css
+packages/design-tokens/src/colors.ts
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Obsidian & Precision Emerald palette active across design tokens and web app.
+- [x] **Automated Testing**: Monorepo type check and 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, automated Playwright Axe test passed with 0 violations.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+- ✅ `npm run guard:platform-governance` ──► PASS (all architectural guards clean)
+- ✅ `npx playwright test tests/a11y-wcag-suite.spec.ts -g "Automated Axe"` ──► PASS (0 Axe violations)
+
