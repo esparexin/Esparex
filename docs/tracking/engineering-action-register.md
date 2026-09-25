@@ -1903,34 +1903,45 @@ packages/ui/src/feedback/Sheet.tsx
 ### EA-051
 **Date**: 2026-09-25  
 **PR**: `fix/login-otp-ui-ux-a11y`  
-**Category**: Authentication UI/UX & WCAG 2.2 AA Accessibility Governance  
+**Category**: Authentication UI/UX & Responsive Drawer Governance  
 **Status**: ✅ Completed  
 
-**Description**: Login & OTP Screen UI/UX, WCAG 2.2 AA Accessibility, and Touch Target Governance
+**Description**: Responsive Down-to-Up Mobile Drawer, Prefix Separation, Standard Ergonomic Field Heights, Spacing & OTP Redesign
 
 **Issues Addressed**:
 1. **Screen Reader Grouping on OTP Inputs**: In `packages/ui/src/forms/OtpInput.tsx`, the outer `<div>` container lacked `role="group"` and `aria-label`, resulting in screen readers announcing disjointed individual digit boxes without declaring the overall 6-digit verification code input purpose.
 2. **Dynamic Timer Announcements**: The resend cooldown timer (`Resend available in Xs`) in `LoginOtpStep.tsx` lacked `aria-live` semantics, preventing screen reader users from being informed when the countdown completed and the "Resend OTP" button became active.
-3. **Mobile Touch Target Ergonomics**: The mobile number edit pencil button (`h-6 w-6` = 24px) met minimum WCAG bounds but was difficult to tap with precision on mobile devices.
-4. **Dark Mode Brand Aesthetic Cohesion**: The brand recycle badge in `Login.tsx` used hardcoded light-theme tokens (`bg-emerald-50/80 border-emerald-200/60`), appearing inverted against dark-mode surfaces.
+3. **Mobile Touch Target Ergonomics**: The mobile number edit pencil button met minimum WCAG bounds but had a small hit area.
+4. **Mobile Prefix Overlap**: Absolute-positioned country code `+91` inside `InputGroup` collided with typed digits due to non-standard Tailwind class `pl-13`.
+5. **Mobile Viewport Drawer Architecture**: Login dialog on mobile was a centered box rather than a native down-to-up drawer/bottom sheet.
+6. **Field Dimensions & Spacing**: The mobile input was horizontally over-stretched (`w-full`) while having a constrained 48px height (`h-12`), and sections were visually crowded.
+7. **OTP Cell Aspect Ratio**: OTP cells were stretched `rounded-2xl` lozenge pills instead of modern square-proportional rounded boxes.
+8. **Validation Error Verbosity**: Mobile format validation error message in contracts was verbose and over-technical.
 
 **Action Taken**:
-1. **OTP Group Semantics**: Added `role="group"` and `aria-label={`${length}-digit verification code`}` to `packages/ui/src/forms/OtpInput.tsx` outer container.
-2. **Live Region Status**: Added `role="status"`, `aria-live="polite"`, and `aria-atomic="true"` to the cooldown timer paragraph in `apps/web/src/components/user/auth/LoginOtpStep.tsx`.
-3. **Touch Target Expansion**: Added `before:absolute before:inset-[-9px] before:content-[''] relative` to the mobile edit button in `LoginOtpStep.tsx`, expanding its interactive hit area to ~42-44px.
-4. **Dark Mode Badge Tokens**: Added `dark:bg-emerald-950/40 dark:border-emerald-800/40` to `apps/web/src/components/user/Login.tsx`.
-5. **Contract Tests**: Added static invariant and accessibility tests to `apps/web/src/__tests__/otp-input-ux.spec.ts`.
+1. **Single-Instance Responsive Drawer**: Configured `AuthModal.tsx` to consume canonical `variant="bottomSheet"` with a mobile drag handle notch (`h-1.5 w-12 rounded-full bg-muted-foreground/25 sm:hidden`), rendering a smooth down-to-up drawer on mobile and a centered modal on desktop with zero component duplication.
+2. **Separated Country Code Badge & Overlap Fix**: Disentangled country code `+91` into a dedicated `h-13 sm:h-14 px-3.5` badge (`bg-muted/40 border border-border/80 rounded-xl`) placed side-by-side with `<Input>`, completely eliminating text/help overlap.
+3. **Ergonomic Field & Button Height**: Scaled mobile input, name input, and primary action buttons to standard comfortable `h-13 sm:h-14` (52px–56px) with generous touch padding.
+4. **Focused Field Width**: Centered and constrained form controls to `max-w-[340px] sm:max-w-[360px] mx-auto w-full` to eliminate horizontal over-stretching.
+5. **Generous Spacing & Typography Hierarchy**: Increased vertical spacing (`space-y-4 sm:space-y-5`, `mb-5 sm:mb-6`) and aligned all font tokens to canonical `@esparex/design-tokens` SSOT (`text-h3`, `text-h2`, `text-body`, `text-body-lg`, `text-h4`).
+6. **Square-Proportional OTP Cells**: Upgraded `OtpInput.tsx` cells from `rounded-2xl` pill lozenges to crisp `rounded-xl` square-proportional boxes with bold monospace digits (`font-mono text-xl sm:text-2xl font-bold`).
+7. **Simplified Validation Message**: Streamlined mobile validation message to `'Invalid mobile number.'` in `@esparex/contracts`.
+8. **Accessibility & Tests**: Preserved `role="group"`, `aria-label`, `role="status"`, `aria-live="polite"`, `before:inset-[-9px]` touch expansion, and verified against all 81 web test suites.
 
 **Files Modified**:
 ```
 apps/web/src/__tests__/otp-input-ux.spec.ts
+apps/web/src/components/auth/AuthModal.tsx
 apps/web/src/components/user/Login.tsx
+apps/web/src/components/user/auth/LoginMobileStep.tsx
 apps/web/src/components/user/auth/LoginOtpStep.tsx
+docs/tracking/engineering-action-register.md
+packages/contracts/src/v1/authentication/schema/auth.schema.ts
 packages/ui/src/forms/OtpInput.tsx
 ```
 
 **Definition of Done Checklist**:
-- [x] **Feature Implementation**: All Login and OTP UI/UX and accessibility findings remediated.
+- [x] **Feature Implementation**: Responsive drawer, prefix separation, comfortable field heights, generous spacing, and square OTP cells complete.
 - [x] **Automated Testing**: 81 test files passed, 423 tests passed (100% green).
 - [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces; production build (`npm run build`) passed with exit code 0.
 - [x] **Multi-Platform Verification**: Verified on mobile viewports (< 768px: minimum 16px computed font size, 44px touch targets) and desktop viewports.

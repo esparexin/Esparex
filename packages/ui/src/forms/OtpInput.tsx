@@ -150,7 +150,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
         ref={ref}
         role="group"
         aria-label={`${length}-digit verification code`}
-        className={cn("flex items-center justify-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 py-1.5 max-w-full", className)}
+        className={cn("flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3 py-2 max-w-full", className)}
         {...props}
       >
         {otp.map((digit, index) => (
@@ -167,7 +167,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
             onPaste={(e) => handlePaste(index, e)}
             disabled={disabled}
             className={cn(
-              "h-12 min-h-[48px] w-9.5 px-0 text-center text-body-lg font-bold xs:w-10.5 sm:h-13 sm:w-12 md:w-12.5 sm:text-h3 rounded-2xl bg-muted/40 hover:bg-muted/70 focus-visible:bg-background border-border/70 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-2xs flex-1 max-w-[50px] min-w-0",
+              "h-12.5 min-h-[50px] xs:h-13 sm:h-14 w-10 xs:w-11 sm:w-12 px-0 text-center font-mono text-xl sm:text-2xl font-bold rounded-xl bg-background hover:bg-muted/30 focus-visible:bg-background border-border/80 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-xs flex-1 max-w-[50px] min-w-0",
               hasError && "border-destructive ring-4 ring-destructive/15 focus-visible:ring-destructive/20 focus-visible:border-destructive"
             )}
             inputMode="numeric"

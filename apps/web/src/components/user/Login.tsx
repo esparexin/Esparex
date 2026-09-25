@@ -35,32 +35,33 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-1.5 sm:space-y-2 text-center p-0 mb-3 sm:mb-5">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-1.5 sm:mb-2.5 w-fit">
-          <div className="relative flex items-center justify-center h-13 w-13 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-b from-primary/15 via-primary/10 to-transparent dark:from-primary/25 dark:via-primary/15 dark:to-transparent ring-1 ring-primary/25 dark:ring-primary/35 p-2.5 sm:p-3 shadow-xs">
-            <div className="absolute inset-0 rounded-2xl bg-primary/10 blur-sm pointer-events-none -z-10" />
+      <CardHeader className="relative space-y-2 sm:space-y-2.5 text-center p-0 mb-5 sm:mb-6">
+        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 sm:mb-3 w-fit">
+          <div className="flex items-center justify-center h-13 w-13 sm:h-15 sm:w-15 rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/25 p-2.5 sm:p-3">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
               width={48}
               height={48}
-              className="w-full h-full object-contain drop-shadow-xs"
+              className="w-full h-full object-contain brightness-0 invert drop-shadow-xs"
             />
           </div>
         </div>
-        <div>
-          <CardTitle className="text-h4 sm:text-h3 font-bold tracking-tight text-foreground">
+        <div className="space-y-1 sm:space-y-1.5">
+          <CardTitle className="text-h3 sm:text-h2 font-bold tracking-tight text-foreground">
             {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
           </CardTitle>
-          <p className="mt-0.5 text-caption text-muted-foreground font-medium">
+          <p className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed">
             {step === "enterMobile"
               ? "Login to buy & sell mobile spares"
-              : "Enter the code sent to your mobile"}
+              : "Enter the 6-digit code sent to your mobile"}
           </p>
         </div>
       </CardHeader>
-      <CardContent className="p-0 space-y-2.5 sm:space-y-4">
-        <LoginForm flow={flow} onBack={onBack} />
+      <CardContent className="p-0">
+        <div className="max-w-[340px] sm:max-w-[360px] mx-auto w-full">
+          <LoginForm flow={flow} onBack={onBack} />
+        </div>
       </CardContent>
     </Card>
   );

@@ -22,11 +22,14 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideClose
-        variant="mobileSafe"
+        variant="bottomSheet"
         className={cn(
-          "max-w-[420px] h-auto border border-border/80 rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-7 overflow-y-auto overscroll-contain bg-card"
+          "max-w-none sm:max-w-[420px] h-auto p-5 sm:p-7 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-3xl shadow-2xl"
         )}
       >
+        {/* Mobile Drawer Drag Handle Notch */}
+        <div className="mx-auto -mt-1 mb-3 h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/25 sm:hidden" />
+
         {/* Accessible Title & Description for Screen Readers */}
         <DialogTitle className="sr-only">Authentication</DialogTitle>
         <DialogDescription className="sr-only">Sign in or create an account.</DialogDescription>
@@ -34,7 +37,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         {/* Close Button */}
         <DialogClose
           className={cn(
-            "absolute right-3.5 top-3.5 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 text-foreground-subtle hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
+            "absolute right-3.5 top-3.5 sm:top-4 sm:right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
           )}
           aria-label="Close"
         >

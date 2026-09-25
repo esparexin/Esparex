@@ -10,8 +10,6 @@ import {
   FieldControl,
   FieldLabel,
   FieldMessage,
-  InputGroup,
-  InputPrefix,
   Input,
   FormError as UiFormError,
 } from "@esparex/ui";
@@ -44,25 +42,28 @@ export function LoginMobileStep({
   } = flow;
 
   return (
-    <div className="space-y-3 sm:space-y-3.5">
+    <div className="space-y-4 sm:space-y-5">
       <FieldRoot<LoginFormValues, "mobile">
         name="mobile"
         render={({ field }) => (
-          <div className="space-y-1.5">
-            <FieldLabel className="text-body font-semibold text-foreground-secondary">
+          <div className="space-y-2 text-left">
+            <FieldLabel className="text-body sm:text-body-lg font-semibold text-foreground">
               Mobile Number
             </FieldLabel>
             <FieldControl animateOnError>
-              <InputGroup>
-                <InputPrefix className="text-body font-bold text-foreground-tertiary pointer-events-none pl-3.5">
+              <div className="flex items-center gap-2">
+                <div
+                  aria-hidden="true"
+                  className="flex items-center justify-center h-13 sm:h-14 px-3.5 rounded-xl border border-border/80 bg-muted/40 text-foreground font-bold text-body-lg shrink-0 select-none shadow-xs"
+                >
                   +91
-                </InputPrefix>
+                </div>
                 <Input
                   placeholder="9876543210"
                   maxLength={10}
                   className={cn(
-                    "pl-12 pr-4 h-12 text-body-lg md:text-body tracking-wider font-semibold text-foreground bg-muted/40 hover:bg-muted/60 focus-visible:bg-background border-border/70 rounded-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 transition-all shadow-2xs",
-                    isValidMobile && "border-primary bg-background ring-4 ring-primary/15 shadow-xs"
+                    "h-13 sm:h-14 px-4 text-body-lg sm:text-h4 tracking-wider font-semibold text-foreground bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-4 focus-visible:ring-emerald-600/15 transition-all shadow-xs flex-1 min-w-0",
+                    isValidMobile && "border-emerald-600 ring-4 ring-emerald-600/15"
                   )}
                   autoComplete="tel"
                   inputMode="numeric"
@@ -74,9 +75,9 @@ export function LoginMobileStep({
                     clearAuthErrorOfTypes(["generic"]);
                   }}
                 />
-              </InputGroup>
+              </div>
             </FieldControl>
-            <FieldMessage className="text-caption" />
+            <FieldMessage className="text-caption mt-1" />
           </div>
         )}
       />
@@ -105,10 +106,9 @@ export function LoginMobileStep({
         </div>
       )}
 
-      <div className="transition-transform active:scale-[0.985]">
+      <div className="pt-1 transition-transform active:scale-[0.985]">
         <Button
           type="submit"
-          variant="primary"
           disabled={
             isSendingOTP ||
             !isValidMobile ||
@@ -116,7 +116,7 @@ export function LoginMobileStep({
             Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
             !backendReady
           }
-          className="w-full h-12 rounded-2xl font-bold text-body shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full h-13 sm:h-14 rounded-xl font-bold text-body-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed cursor-pointer"
         >
           {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
           {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
@@ -128,9 +128,9 @@ export function LoginMobileStep({
           type="button"
           variant="ghost"
           onClick={onBack}
-          className="w-full h-9 text-caption font-semibold text-foreground-secondary hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
+          className="w-full h-10 text-body font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl cursor-pointer"
         >
-          <ArrowLeft size={14} className="mr-1.5" />
+          <ArrowLeft size={16} className="mr-1.5" />
           Back
         </Button>
       )}
