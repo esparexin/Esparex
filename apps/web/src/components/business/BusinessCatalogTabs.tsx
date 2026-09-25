@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { AdCardGrid } from "@/components/user/ad-card";
+import { AdCardList } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { Service } from "@/lib/api/user/businesses";
 import type { Ad } from "@/schemas/ad.schema";
@@ -138,12 +138,12 @@ export function BusinessCatalogTabs({
         aria-labelledby={`tab-${effectiveActiveTab}`}
       >
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3.5">
+          <div className="flex flex-col gap-2.5 sm:gap-3">
             {filteredItems.map((item, index) => {
               const record = item as Record<string, unknown>;
               const id = String(record.id || record._id || "");
               return (
-                <AdCardGrid
+                <AdCardList
                   key={id}
                   ad={item as Ad}
                   href={buildListingHref(item)}

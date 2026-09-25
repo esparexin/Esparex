@@ -2245,3 +2245,39 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
 
+---
+
+### EA-048
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UI/UX & Layout Quality  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Switched Catalog Display to List View (`BusinessCatalogTabs.tsx`)**:
+   - Replaced multi-column grid (`grid-cols-2`) and `AdCardGrid` with canonical `AdCardList` in a single-column layout (`flex flex-col gap-2.5 sm:gap-3`).
+   - Enabled rich horizontal card presentation showing thumbnail, title, price, badges, location, and date in a streamlined vertical scrolling flow.
+   - Reused canonical SSOT primitive `AdCardList` from `@/components/user/ad-card` with zero duplicate components or logic.
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessCatalogTabs.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Catalog items switched to AdCardList layout.
+- [x] **Automated Testing**: 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, accessible keyboard focus and link structure.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+
+
