@@ -66,14 +66,14 @@ export function LoginOtpStep({
             Welcome back, <span className="font-bold">{existingUserName}</span>!
           </p>
         )}
-        <div className="inline-flex items-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium">
-          <span>Successfully sent the OTP to <span className="font-semibold text-foreground">+91 {mobileValue}</span></span>
+        <div className="inline-flex items-center justify-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium text-center">
+          <span>OTP sent to <span className="font-semibold text-foreground whitespace-nowrap">+91 {mobileValue}</span></span>
           <button
             type="button"
             onClick={handleEditMobile}
             disabled={isSendingOTP}
             aria-label="Edit mobile number"
-            className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold underline underline-offset-2 cursor-pointer before:absolute before:inset-[-9px] before:content-['']"
+            className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold underline underline-offset-2 cursor-pointer shrink-0 before:absolute before:inset-[-9px] before:content-['']"
           >
             <span>Change</span>
             <Pencil size={11} />
