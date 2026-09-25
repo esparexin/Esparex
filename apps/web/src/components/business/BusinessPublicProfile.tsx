@@ -1,12 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Briefcase,
-  CircuitBoard,
-  Container,
-  LayoutGrid,
-} from "@esparex/ui";
+import { Container } from "@esparex/ui";
 import { BusinessCatalogTabs, type ListingTab } from "./BusinessCatalogTabs";
 import { BusinessHeaderCard } from "./BusinessHeaderCard";
 import { BusinessSidebarCard } from "./BusinessSidebarCard";
@@ -31,15 +26,10 @@ export function BusinessPublicProfile({
   const [activeTab, setActiveTab] = useState<ListingTab>("ads");
 
   const tabs = useMemo(() => {
-    const allTabs: { key: ListingTab; label: string; count: number; icon: React.ReactNode }[] = [
-      { key: "ads", label: "Listings", icon: <LayoutGrid size={14} />, count: ads.length },
-      { key: "services", label: "Services", icon: <Briefcase size={14} />, count: services.length },
-      {
-        key: "spare-parts",
-        label: "Spare Parts",
-        icon: <CircuitBoard size={14} />,
-        count: spareParts.length,
-      },
+    const allTabs: { key: ListingTab; label: string; count: number }[] = [
+      { key: "ads", label: "Listings", count: ads.length },
+      { key: "services", label: "Services", count: services.length },
+      { key: "spare-parts", label: "Spare Parts", count: spareParts.length },
     ];
     return allTabs.filter((tab) => tab.count > 0);
   }, [ads.length, services.length, spareParts.length]);
