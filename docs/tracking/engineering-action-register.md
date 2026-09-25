@@ -2149,8 +2149,52 @@ docs/tracking/engineering-action-register.md
 - [x] **Accessibility Audit**: WCAG 2.2 AA compliant, accessible aria-label on verification status badge.
 - [x] **Zero Suppression Policy**: 0 suppressions added.
 - [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+
+---
+
+### EA-046
+
+**Sprint**: Marketplace Design System & Color Palette Modernization  
+**PR**: PR on `feat/obsidian-emerald-palette`  
+**Category**: Mobile UI/UX & Layout Quality  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Header Visual Streamlining & CTA Action Alignment (`BusinessHeaderCard.tsx`)**:
+   - Moved **Share Store** to the upper-right corner of the cover banner as an accessible icon button (`size-8 sm:size-9 rounded-full bg-card/85 backdrop-blur-md shadow-xs border border-border/60`).
+   - Removed decorative background noise (`Building2` watermark, radial dot grid, blur circles) from the cover banner.
+   - Reduced business title font size from `text-h2 sm:text-h1` to balanced `text-h3 sm:text-h2 font-bold leading-snug`, preventing long titles from dominating the screen.
+   - Integrated the verified trust indicator cleanly on the profile avatar with a `ShieldCheck` badge.
+   - Removed unused `Email` button and redundant full-width `Share Store` bottom button.
+   - Re-engineered `WhatsApp` and `Call Store` into a balanced, predictable 50/50 2-button grid (`grid grid-cols-2 gap-2.5 pt-3 border-t border-border`) with consistent `h-10` height and centered alignment on both mobile and desktop.
+   - Pruned unused `Mail` import.
+2. **Catalog Tabs Streamlining & Automatic Horizontal Scroll (`BusinessCatalogTabs.tsx`, `BusinessPublicProfile.tsx`)**:
+   - Removed tab icons and listing count pills for clean, uncluttered tab labels (`Services`, `Spare Parts`, `Listings`).
+   - Added automatic touch horizontal scrolling (`overflow-x-auto scrollbar-none overscroll-x-contain flex-nowrap touch-pan-x`) with `shrink-0 whitespace-nowrap` on tab buttons.
+   - Pruned unused icon imports (`LayoutGrid`, `Briefcase`, `CircuitBoard`) in `BusinessPublicProfile.tsx`.
+
+**Files Modified**:
+```
+apps/web/src/components/business/BusinessHeaderCard.tsx
+apps/web/src/components/business/BusinessCatalogTabs.tsx
+apps/web/src/components/business/BusinessPublicProfile.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Header visual streamlining, CTA 50/50 action grid, and catalog tabs horizontal scrolling fully implemented.
+- [x] **Automated Testing**: 81 web test suites passed (423/423 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) passed with 0 errors across 10 workspaces.
+- [x] **Multi-Platform Verification**: Verified on mobile and desktop viewports.
+- [x] **Accessibility Audit**: WCAG 2.2 AA compliant, accessible aria-labels, no zoom or touch target regressions.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
 - [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
 
 **Verification**:
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 workspaces)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 423 tests passed)
+
