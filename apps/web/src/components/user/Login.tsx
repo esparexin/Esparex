@@ -36,22 +36,48 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
       )}
     >
       <CardHeader className="relative space-y-2 sm:space-y-2.5 text-center p-0 mb-5 sm:mb-6">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 sm:mb-3 w-fit">
-          <div className="flex items-center justify-center h-13 w-13 sm:h-15 sm:w-15 rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/25 p-2.5 sm:p-3">
+        {step !== "enterMobile" && (
+          <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 sm:mb-3 w-fit">
             <Image
-              src="/images/recycle-icon.png"
-              alt="Esparex Recycle Logo"
-              width={48}
-              height={48}
-              className="w-full h-full object-contain brightness-0 invert drop-shadow-xs"
+              src="/icons/logo.png"
+              alt="Esparex Logo"
+              width={495}
+              height={112}
+              unoptimized
+              priority
+              className="h-6 sm:h-7 w-auto object-contain"
             />
           </div>
-        </div>
+        )}
         <div className="space-y-1 sm:space-y-1.5">
-          <CardTitle className="text-h3 sm:text-h2 font-bold tracking-tight text-foreground">
-            {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+          <CardTitle
+            className={cn(
+              "text-h3 sm:text-h2 font-bold tracking-tight text-foreground",
+              step === "enterMobile" && "flex items-center justify-center gap-2"
+            )}
+            aria-label={step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+          >
+            {step === "enterMobile" ? (
+              <>
+                <span>Welcome to</span>
+                <Image
+                  src="/icons/logo.png"
+                  alt="Esparex"
+                  width={495}
+                  height={112}
+                  unoptimized
+                  priority
+                  className="h-6 sm:h-7 w-auto inline-block object-contain"
+                />
+              </>
+            ) : (
+              "Verify OTP"
+            )}
           </CardTitle>
-          <p className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed">
+          <p
+            data-keyboard-hide-on-mobile="true"
+            className="text-body sm:text-body-lg text-muted-foreground font-normal leading-relaxed"
+          >
             {step === "enterMobile"
               ? "Login to buy & sell mobile spares"
               : "Enter the 6-digit code sent to your mobile"}
