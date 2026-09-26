@@ -74,9 +74,6 @@ export const emailSchema = z.string()
 // Optional email schema accepting empty string literal per Form & Zod Governance
 export const optionalEmailSchema = z.union([emailSchema, z.literal('')]).optional();
 
-// Common aliases for cross-layer SSOT compliance
-export const commonEmailSchema = emailSchema;
-
 // URL validation (optional)
 export const urlSchema = z.string()
     .url('Invalid URL format')
