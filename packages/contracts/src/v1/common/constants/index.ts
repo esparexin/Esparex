@@ -6,5 +6,6 @@ export * from './locationEvents';
 export * from './mobileVisibility';
 export * from './notificationRetention';
 export * from './serviceTypes';
+export * from './brand';
 import * as imageDomainRegistry from './image-domain-registry.json';
 export { imageDomainRegistry };
