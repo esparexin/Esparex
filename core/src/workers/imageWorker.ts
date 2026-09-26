@@ -11,6 +11,7 @@ import { enqueueDeadLetter } from "../queues/deadLetterQueue";
 import { queueWorkerBackoffStrategy } from "../queues/queueDefaults";
 import { TraceContext } from '@esparex/shared';
 import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
+import { applyListingWatermark } from '../utils/watermark';
 
 // Use a strict concurrency of 2 to avoid memory overloads when processing 10MB raw JPEGs natively.
 const createNoopWorker = <T>(): Worker<T> => {
@@ -188,7 +189,11 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                             .webp({ quality: 80, effort: 4 })
                             .toBuffer();
 
-                        const uploadedHdUrl = await uploadToS3(hdBuffer, hdKey, "image/webp");
+                        const finalHdBuffer = (entityType === 'ad' && ad)
+                            ? await applyListingWatermark(hdBuffer)
+                            : hdBuffer;
+
+                        const uploadedHdUrl = await uploadToS3(finalHdBuffer, hdKey, "image/webp");
 
                         const thumbBuffer = await sharp(rawBuffer, { failOn: 'none' })
                             .rotate()
