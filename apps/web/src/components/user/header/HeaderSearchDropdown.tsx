@@ -36,7 +36,7 @@ export function HeaderSearchDropdown({
               e.stopPropagation();
               onClearHistory();
             }}
-            className="text-caption text-muted-foreground hover:text-foreground font-medium"
+            className="text-caption text-muted-foreground hover:text-primary transition-colors font-medium cursor-pointer"
           >
             Clear
           </button>

@@ -13,6 +13,7 @@ import {
   getConditionBadge,
   isSpotlightAd,
   ListingTypeBadge,
+  shouldDisplayCategoryBadge,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -67,6 +68,7 @@ export const AdCardList = memo(function AdCardList({
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
   const planBadge = getPlanBadge(ad);
   const conditionBadge = getConditionBadge(ad);
+  const showCategoryBadge = shouldDisplayCategoryBadge(categoryLabel, ad);
 
   return (
     <AdCardShell
@@ -125,12 +127,16 @@ export const AdCardList = memo(function AdCardList({
               />
             </div>
 
-            <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-tiny font-normal text-muted-foreground uppercase tracking-wide">
-                {categoryLabel}
-              </span>
-              {conditionBadge}
-            </div>
+            {(showCategoryBadge || conditionBadge) && (
+              <div className="mt-1.5 flex min-w-0 items-center gap-2">
+                {showCategoryBadge && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-tiny font-normal text-muted-foreground uppercase tracking-wide">
+                    {categoryLabel}
+                  </span>
+                )}
+                {conditionBadge}
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

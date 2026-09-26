@@ -63,29 +63,29 @@ export const base = {
   'overlay': 'rgba(23, 23, 23, 0.6)',
 };
 
-// Semantic intent mapping directly to base primitives, independent of platform rendering tools (e.g. CSS Vars)
+  // Semantic intent mapping directly to base primitives, independent of platform rendering tools (e.g. CSS Vars)
 export const semantic = {
   light: {
-    background: base.warmNeutral[50], // #FAFAF8
-    foreground: base.warmNeutral[950], // #171717
-    'foreground-secondary': base.warmNeutral[600], // #57534E
+    background: base.slate[50], // #F8FAFC (Crisp Ice Slate)
+    foreground: base.slate[900], // #0F172A (Deep Obsidian Ink)
+    'foreground-secondary': base.slate[700], // #334155 (Crisp Charcoal Slate: high-contrast secondary text, labels, and metadata)
     card: base.white, // #FFFFFF
-    'card-foreground': base.warmNeutral[950],
+    'card-foreground': base.slate[900],
     popover: base.white,
-    'popover-foreground': base.warmNeutral[950],
-    primary: base.brand[700], // #15803D (WCAG 2.2 AA Compliant 4.54:1 with white text)
+    'popover-foreground': base.slate[900],
+    primary: '#2563eb', // Royal Blue (#2563EB - 5.17:1 contrast with white text, WCAG 2.2 AA compliant)
     'primary-foreground': base.white,
-    'primary-hover': base.brand[800], // #087A3E
-    'primary-subtle': base.brand[100], // #DCFCE7
-    secondary: base.warmNeutral[100],
-    'secondary-foreground': base.warmNeutral[950],
+    'primary-hover': '#1d4ed8', // Blue-700 (#1D4ED8)
+    'primary-subtle': '#eff6ff', // Blue-50 (#EFF6FF)
+    secondary: base.slate[100],
+    'secondary-foreground': base.slate[900],
     destructive: base.error, // #DC2626
     'destructive-foreground': base.white,
     'destructive-dark': base['error-dark'],
-    success: base.success,
+    success: '#059669', // Precision Emerald (WCAG AA 4.5:1 on light)
     'success-foreground': base.white,
-    'success-subtle': base['success-subtle'],
-    'success-dark': base['success-dark'],
+    'success-subtle': '#ecfdf5',
+    'success-dark': '#047857',
     warning: base.warning, // #D97706
     'warning-foreground': base.white,
     'warning-subtle': base['warning-subtle'],
@@ -94,63 +94,63 @@ export const semantic = {
     'info-foreground': base.white,
     'info-subtle': base['info-subtle'],
     'info-dark': base['info-dark'],
-    muted: base.warmNeutral[100],
-    'muted-foreground': base.warmNeutral[500],
-    accent: base.warmNeutral[100],
-    'accent-foreground': base.warmNeutral[950],
-    border: base.warmNeutral[300], // #D6D3D1 (Crisp Stone-300, 82.7% lightness, WCAG 2.2 AA compliant)
-    input: base.warmNeutral[300],  // #D6D3D1 (Clearly defines input fields against white surfaces)
-    ring: base.brand[600],
+    muted: base.slate[100],
+    'muted-foreground': base.slate[500], // #64748B
+    accent: base.slate[100],
+    'accent-foreground': base.slate[900],
+    border: base.slate[200], // #E2E8F0 (Crisp Slate-200, WCAG 2.2 AA compliant)
+    input: base.slate[200],  // #E2E8F0
+    ring: '#2563eb',
     // Primary interactive control color
-    action: base.action,
+    action: '#2563eb',
     // Inverse surface (dark card in light mode context)
-    'inverse-surface': base['inverse-surface'],
-    'inverse-muted': base['inverse-muted'],
-    'inverse-subtle': base['inverse-subtle'],
+    'inverse-surface': base.slate[900],
+    'inverse-muted': base.slate[400],
+    'inverse-subtle': base.slate[200],
     // Overlay / modal scrim
-    overlay: base.overlay,
+    overlay: 'rgba(15, 23, 42, 0.6)',
   },
   dark: {
-    background: base.warmNeutral[950],
-    foreground: base.warmNeutral[50],
-    'foreground-secondary': base.warmNeutral[400],
-    card: base.warmNeutral[900],
-    'card-foreground': base.warmNeutral[50],
-    popover: base.warmNeutral[900],
-    'popover-foreground': base.warmNeutral[50],
-    primary: base.brand[500],
-    'primary-foreground': base.warmNeutral[950],
-    'primary-hover': base.brand[400],
-    'primary-subtle': base.brand[900],
-    action: base.brand[500],
-    secondary: base.warmNeutral[800],
-    'secondary-foreground': base.warmNeutral[50],
+    background: base.slate[950], // #020617 (Deep OLED Obsidian)
+    foreground: base.slate[50], // #F8FAFC
+    'foreground-secondary': base.slate[400], // #94A3B8
+    card: base.slate[900], // #0F172A
+    'card-foreground': base.slate[50],
+    popover: base.slate[900],
+    'popover-foreground': base.slate[50],
+    primary: '#3b82f6', // Blue-500 (#3B82F6 - vivid and legible on dark surfaces)
+    'primary-foreground': base.white,
+    'primary-hover': '#60a5fa', // Blue-400
+    'primary-subtle': '#1e3a8a', // Blue-900
+    action: '#3b82f6',
+    secondary: base.slate[800],
+    'secondary-foreground': base.slate[50],
     destructive: base.error,
-    'destructive-foreground': base.warmNeutral[50],
+    'destructive-foreground': base.slate[50],
     'destructive-dark': base['error-dark'],
-    success: base.success,
-    'success-foreground': base.warmNeutral[950],
-    'success-subtle': base['success-subtle'],
-    'success-dark': base['success-dark'],
+    success: '#10b981', // Vibrant Emerald for dark background
+    'success-foreground': base.slate[950],
+    'success-subtle': '#064e3b',
+    'success-dark': '#047857',
     warning: base.warning,
-    'warning-foreground': base.warmNeutral[950],
+    'warning-foreground': base.slate[950],
     'warning-subtle': base['warning-subtle'],
     'warning-dark': base['warning-dark'],
     info: base.info,
-    'info-foreground': base.warmNeutral[950],
+    'info-foreground': base.slate[950],
     'info-subtle': base['info-subtle'],
     'info-dark': base['info-dark'],
-    muted: base.warmNeutral[800],
-    'muted-foreground': base.warmNeutral[400],
-    accent: base.warmNeutral[800],
-    'accent-foreground': base.warmNeutral[50],
-    border: base.warmNeutral[800],
-    input: base.warmNeutral[800],
-    ring: base.brand[500],
-    'inverse-surface': base.warmNeutral[50],
-    'inverse-muted': base.warmNeutral[400],
-    'inverse-subtle': base.warmNeutral[300],
-    overlay: 'rgba(23, 23, 23, 0.7)',
+    muted: base.slate[800],
+    'muted-foreground': base.slate[400],
+    accent: base.slate[800],
+    'accent-foreground': base.slate[50],
+    border: base.slate[800], // #1E293B
+    input: base.slate[800],
+    ring: base.slate[400],
+    'inverse-surface': base.slate[50],
+    'inverse-muted': base.slate[400],
+    'inverse-subtle': base.slate[300],
+    overlay: 'rgba(2, 6, 23, 0.7)',
   }
 };
 

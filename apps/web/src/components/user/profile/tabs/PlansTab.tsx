@@ -64,7 +64,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
             className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
               activeTab === 'OVERVIEW'
                 ? 'border-primary text-primary'
-                : 'border-transparent text-foreground-secondary hover:text-foreground'
+                : 'border-transparent text-foreground-secondary hover:text-primary'
             }`}
           >
             <span>Wallet & Balances</span>
@@ -79,7 +79,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
             className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
               activeTab === 'CREDIT_HISTORY'
                 ? 'border-primary text-primary'
-                : 'border-transparent text-foreground-secondary hover:text-foreground'
+                : 'border-transparent text-foreground-secondary hover:text-primary'
             }`}
           >
             <span>My Usage</span>
@@ -94,7 +94,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
             className={`pb-2.5 sm:pb-3 text-small sm:text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
               activeTab === 'INVOICES'
                 ? 'border-primary text-primary'
-                : 'border-transparent text-foreground-secondary hover:text-foreground'
+                : 'border-transparent text-foreground-secondary hover:text-primary'
             }`}
           >
             <span>Invoices</span>

@@ -24,8 +24,8 @@ export function HeaderBusinessButton({
       variant="ghost"
       size="sm"
       className={`hidden md:flex gap-2 ${
-        isBusinessLive ? "text-primary font-semibold" : "text-muted-foreground"
-      } hover:text-foreground cursor-pointer`}
+        isBusinessLive ? "text-primary font-semibold" : "text-foreground-secondary"
+      } hover:text-primary cursor-pointer`}
       onClick={() => {
         if (isBusinessLive || shouldShowPendingReview || !canRegister) {
           onNavigate("business-entry");

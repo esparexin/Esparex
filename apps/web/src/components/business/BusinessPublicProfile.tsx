@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Briefcase,
-  CircuitBoard,
-  Container,
-  LayoutGrid,
-  MessageCircle,
-  Phone,
-} from "@esparex/ui";
+import { Container } from "@esparex/ui";
 import { BusinessCatalogTabs, type ListingTab } from "./BusinessCatalogTabs";
 import { BusinessHeaderCard } from "./BusinessHeaderCard";
 import { BusinessSidebarCard } from "./BusinessSidebarCard";
@@ -23,9 +16,6 @@ interface BusinessPublicProfileProps {
   shareUrl?: string;
 }
 
-const buildWhatsappHref = (mobile: string): string =>
-  `https://wa.me/${mobile.replace(/\D/g, "")}`;
-
 export function BusinessPublicProfile({
   business,
   ads,
@@ -33,23 +23,27 @@ export function BusinessPublicProfile({
   spareParts,
   shareUrl,
 }: BusinessPublicProfileProps) {
-  const [activeTab, setActiveTab] = useState<ListingTab>("ads");
-
   const tabs = useMemo(() => {
-    const allTabs: { key: ListingTab; label: string; count: number; icon: React.ReactNode }[] = [
-      { key: "ads", label: "Listings", icon: <LayoutGrid size={14} />, count: ads.length },
-      { key: "services", label: "Services", icon: <Briefcase size={14} />, count: services.length },
-      {
-        key: "spare-parts",
-        label: "Spare Parts",
-        icon: <CircuitBoard size={14} />,
-        count: spareParts.length,
-      },
+    const allTabs: { key: ListingTab; label: string; count: number }[] = [
+      { key: "ads", label: "Ads", count: ads.length },
+      { key: "services", label: "Services", count: services.length },
+      { key: "spare-parts", label: "Spare Parts", count: spareParts.length },
     ];
-    return allTabs.filter((tab) => tab.count > 0);
+    return allTabs.filter((tab) => tab.key === "ads" || tab.count > 0);
   }, [ads.length, services.length, spareParts.length]);
 
-  const effectiveActiveTab = tabs.some((tab) => tab.key === activeTab) ? activeTab : (tabs[0]?.key || "ads");
+  const defaultTab = useMemo<ListingTab>(() => {
+    if (ads.length > 0) return "ads";
+    if (services.length > 0) return "services";
+    if (spareParts.length > 0) return "spare-parts";
+    return "ads";
+  }, [ads.length, services.length, spareParts.length]);
+
+  const [activeTab, setActiveTab] = useState<ListingTab>(defaultTab);
+
+  const effectiveActiveTab = tabs.some((tab) => tab.key === activeTab)
+    ? activeTab
+    : (tabs[0]?.key || "ads");
 
   const activeItems: (Ad | Service)[] = useMemo(() => {
     if (effectiveActiveTab === "services") return services;
@@ -94,10 +88,8 @@ export function BusinessPublicProfile({
     };
   }, [business]);
 
-  const whatsappNumber = business.whatsappNumber || business.mobile;
-
   return (
-    <Container variant="lg" className="flex flex-col gap-4 py-4 sm:py-6 pb-20 sm:pb-8">
+    <Container variant="lg" className="flex flex-col gap-4 py-4 sm:py-6 pb-8">
       {/* 1. Hero Header Card */}
       <BusinessHeaderCard
         business={business}
@@ -108,7 +100,7 @@ export function BusinessPublicProfile({
       {/* 2. Main Content Grid (Catalog + Sidebar) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column: Store Catalog Tabs */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 min-w-0">
           <BusinessCatalogTabs
             tabs={tabs}
             activeTab={activeTab}
@@ -127,34 +119,6 @@ export function BusinessPublicProfile({
           />
         </div>
       </div>
-
-      {/* 3. Mobile Floating Contact Bar */}
-      {(business.mobile || whatsappNumber) && (
-        <div
-          className="z-[60] sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur border-t border-border shadow-lg flex items-center gap-2"
-        >
-          {business.mobile && (
-            <a
-              href={`tel:${business.mobile}`}
-              className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-caption flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98 transition-all"
-            >
-              <Phone className="size-4" />
-              Call Store
-            </a>
-          )}
-          {whatsappNumber && (
-            <a
-              href={buildWhatsappHref(whatsappNumber)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-caption flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-98 transition-all"
-            >
-              <MessageCircle className="size-4" />
-              WhatsApp
-            </a>
-          )}
-        </div>
-      )}
     </Container>
   );
 }

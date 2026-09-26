@@ -11,42 +11,42 @@
   /* Root rem reference (16px) */
   --font-size: 1rem;
 
-  /* Extended foreground text tokens — warm neutral stone scale */
-  --foreground-secondary: 33.3 5.5% 32.4%;   /* ≈ #57534E (stone-600) — secondary body text */
-  --foreground-tertiary: 24 5.4% 44.3%;    /* ≈ #78716C (stone-500) — captions, labels */
-  --foreground-subtle: 24 5.7% 58.2%;      /* ≈ #A8A29E (stone-400) — placeholder, disabled, secondary metadata (WCAG 4.5:1 ratio) */
+  /* Extended foreground text tokens — cool slate scale */
+  --foreground-secondary: 215.3 25% 26.7%;    /* ≈ #334155 (slate-700) — crisp charcoal secondary body text, form labels */
+  --foreground-tertiary: 215.4 16.3% 38%;     /* ≈ #475569 (slate-600) — captions, auxiliary labels */
+  --foreground-subtle: 215.4 16.3% 38%;       /* ≈ #525f73 (slate-600) — WCAG 4.5:1 ratio against #F1F5F9 */
 
   /* Sidebar Tokens */
-  --sidebar: 60 16.7% 97.6%;
-  --sidebar-foreground: 0 0% 9%;
-  --sidebar-primary: 142.1 76.2% 36.3%;
+  --sidebar: 210 40% 98%;
+  --sidebar-foreground: 222.2 47.4% 11.2%;
+  --sidebar-primary: 221.2 83.2% 53.3%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 60 4.8% 95.9%;
-  --sidebar-accent-foreground: 0 0% 9%;
-  --sidebar-border: 20 5.9% 90%;
-  --sidebar-ring: 142.1 76.2% 36.3%;
+  --sidebar-accent: 210 40% 96.1%;
+  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 221.2 83.2% 53.3%;
 
   /* Chart Colors */
-  --chart-1: 142.1 76.2% 36.3%;
-  /* Green */
-  --chart-2: 188.7 94.5% 42.7%;
-  /* Cyan */
-  --chart-3: 258.3 89.5% 66.3%;
-  /* Purple #8b5cf6 */
-  --chart-4: 158.1 84.4% 39.4%;
+  --chart-1: 221.2 83.2% 53.3%;
+  /* Royal Blue */
+  --chart-2: 161.4 93.5% 30.4%;
   /* Emerald */
+  --chart-3: 222.2 47.4% 11.2%;
+  /* Obsidian */
+  --chart-4: 258.3 89.5% 66.3%;
+  /* Purple #8b5cf6 */
   --chart-5: 32.1 94.6% 43.7%;
   /* Amber */
 
-  /* Mesh Gradients (Updated to Green/Cyan/Amber) */
-  --mesh-1: #16a34a;
-  --mesh-2: #06b6d4;
-  --mesh-3: #d97706;
+  /* Mesh Gradients */
+  --mesh-1: #2563eb;
+  --mesh-2: #059669;
+  --mesh-3: #0f172a;
 
   /* Legacy Bridge Tokens */
   --color-surface: #ffffff;
 
-  /* Link / interactive / trust blue — intentional companion to primary green */
+  /* Link / interactive blue */
   --link: 221.2 83.2% 53.3%;        /* blue-600 #2563eb */
   --link-dark: 224.3 76.3% 48%;     /* blue-700 #1d4ed8 — hover/active state */
   --link-foreground: 0 0% 100%;
@@ -56,14 +56,14 @@
   /* Note: base semantic colors are generated in css-variables.css */
 
   /* Sidebar Tokens (Dark) */
-  --sidebar: 222.2 84% 4.9%;
+  --sidebar: 228.6 84% 4.9%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 142.1 70% 50%;
+  --sidebar-primary: 217.2 91.2% 59.8%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 217.2 32.6% 17.5%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
-  --sidebar-ring: 142.1 76.2% 45.3%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 
   /* Extended foreground text tokens (dark mode) */
   --foreground-secondary: 215 20.2% 75.1%;

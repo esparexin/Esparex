@@ -104,10 +104,10 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                 type="button"
                 onClick={() => setActiveTab("type")}
                 className={cn(
-                  "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
+                  "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                   activeTab === "type"
                     ? "bg-card text-foreground border-primary font-bold shadow-xs"
-                    : "text-muted-foreground border-transparent hover:text-foreground"
+                    : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
                 )}
               >
                 Listing Type
@@ -118,10 +118,10 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               type="button"
               onClick={() => setActiveTab("category")}
               className={cn(
-                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "category"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
+                  : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
               Category
@@ -131,10 +131,10 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               type="button"
               onClick={() => setActiveTab("budget")}
               className={cn(
-                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "budget"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
+                  : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
               Budget
@@ -144,10 +144,10 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               type="button"
               onClick={() => setActiveTab("condition")}
               className={cn(
-                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px]",
+                "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "condition"
                   ? "bg-card text-foreground border-primary font-bold shadow-xs"
-                  : "text-muted-foreground border-transparent hover:text-foreground"
+                  : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
               Condition

@@ -163,14 +163,14 @@ export function CategorySelectorGrid({
                             "flex flex-col items-center justify-center gap-1 h-[56px] sm:h-[60px] py-1 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border",
                             selected
                                 ? "bg-primary/10 border border-primary text-primary font-medium shadow-2xs"
-                                : "bg-card hover:bg-muted border-border text-foreground-secondary hover:border-border shadow-2xs",
+                                : "bg-card hover:bg-muted border-border text-foreground hover:border-border shadow-2xs",
                             disabled && !selected ? "opacity-40 cursor-not-allowed" : ""
                         )}
                     >
                         <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 transition-colors", selected ? "text-primary stroke-2" : "text-foreground-subtle group-hover:text-primary")} />
                         <span className={cn(
                             "text-tiny sm:text-caption text-center leading-tight tracking-tight w-full px-0.5",
-                            selected ? "text-primary font-medium" : "text-foreground-secondary font-normal group-hover:text-foreground line-clamp-2"
+                            selected ? "text-primary font-medium" : "text-foreground font-normal group-hover:text-primary line-clamp-2"
                         )}>
                             {cat.name}
                         </span>
