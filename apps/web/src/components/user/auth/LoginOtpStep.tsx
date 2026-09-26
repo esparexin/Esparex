@@ -3,6 +3,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Loader2, Pencil } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
+import { WhatsAppIcon } from "./LoginMobileStep";
 import {
   Button,
   FieldRoot,
@@ -61,23 +62,28 @@ export function LoginOtpStep({
     <div className="flex-1 flex flex-col justify-between h-full">
       <div className="space-y-4">
         {/* Recipient Notice & Change */}
-        <div className="flex flex-col items-center justify-center gap-1 text-center -mt-2 sm:-mt-3 pb-1">
+        <div className="flex flex-col items-center justify-center gap-0.5 text-center -mt-2 sm:-mt-3 pb-1">
           {existingUserName && step === "enterOtp" && (
             <p className="text-body font-semibold text-emerald-700 dark:text-emerald-400">
               Welcome back, <span className="font-bold">{existingUserName}</span>!
             </p>
           )}
-          <div className="inline-flex items-center justify-center gap-1.5 text-body leading-relaxed text-muted-foreground font-medium text-center">
-            <span>OTP sent to <span className="font-semibold text-foreground whitespace-nowrap">+91 {mobileValue}</span></span>
+          <p className="text-body text-muted-foreground font-medium leading-normal">
+            Code sent via WhatsApp to
+          </p>
+          <div className="inline-flex items-center justify-center gap-2 mt-0.5">
+            <span className="font-bold text-foreground tracking-wide text-body leading-normal whitespace-nowrap">
+              +91 {mobileValue}
+            </span>
             <button
               type="button"
               onClick={handleEditMobile}
               disabled={isSendingOTP}
               aria-label="Edit mobile number"
-              className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold underline underline-offset-2 cursor-pointer shrink-0 before:absolute before:inset-[-9px] before:content-['']"
+              className="relative inline-flex items-center gap-1 text-primary hover:text-primary/80 font-semibold text-caption leading-normal underline underline-offset-2 cursor-pointer shrink-0 before:absolute before:inset-[-9px] before:content-['']"
             >
               <span>Change</span>
-              <Pencil size={11} />
+              <Pencil size={11} className="shrink-0" />
             </button>
           </div>
         </div>
@@ -149,7 +155,7 @@ export function LoginOtpStep({
             animateOnError
           />
           <p className="text-body text-muted-foreground font-normal">
-            Enter the 6-digit code sent
+            Enter the 6-digit code sent to your WhatsApp
           </p>
         </div>
 
@@ -162,7 +168,7 @@ export function LoginOtpStep({
       <span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {resendRemainingSeconds > 0
           ? `Resend available in ${formatSeconds(resendRemainingSeconds)}`
-          : "Resend OTP is now available"}
+          : "Resend on WhatsApp is now available"}
       </span>
 
       <div className="flex items-center gap-3 pt-6 mt-auto">
@@ -171,7 +177,7 @@ export function LoginOtpStep({
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 sm:px-5 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60 shadow-xs"
+          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
         >
           {isSendingOTP ? (
             <>
@@ -183,7 +189,10 @@ export function LoginOtpStep({
           ) : isSendRateLimited ? (
             `Resend (${formatSeconds(rateLimitRemainingSeconds)})`
           ) : (
-            "Resend OTP"
+            <>
+              <WhatsAppIcon className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-500 fill-current" />
+              <span>Resend OTP</span>
+            </>
           )}
         </Button>
         <Button

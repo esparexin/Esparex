@@ -6,6 +6,8 @@ import logger from '../../../../utils/logger';
 import { generateSecureOtp } from '../../../../utils/otpGenerator';
 import { normalizeBusinessStatus } from '../../../../utils/businessStatus';
 import { hashOtp, verifyOtpHash } from '../../../../utils/otpSecurity';
+import { env } from '../../../../config/env';
+import { OtpProvider } from '@esparex/contracts';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
@@ -17,6 +19,8 @@ import {
     type VerifyOtpResult,
     OTP_EXPIRY_SECONDS,
     OTP_MAX_ATTEMPTS,
+    OTP_RESEND_COOLDOWN_SECONDS,
+    OTP_MAX_RESEND_ATTEMPTS,
     isLocalOtpLockBypass,
     isStaticOtpBypassMatch,
     createFailure,
@@ -25,7 +29,11 @@ import {
     getUserAuthFailure,
     handleOtpAttemptFailure,
 } from './authOtpHelpers';
-import { dispatchOtpSms } from './authSmsDispatcher';
+import {
+    dispatchOtpWhatsApp,
+    retryOtpWhatsApp,
+    verifyOtpWithProvider
+} from './authSmsDispatcher';
 import { provisionNewUser } from './authRegistrationHelper';
 
 export type { SendOtpResult, VerifyOtpResult };
@@ -52,7 +60,7 @@ export class AuthService {
         const mobileVariants = getMobileVariants(mobileDigits);
         const now = new Date();
 
-        const [user] = await Promise.all([
+        const [user, existingOtp] = await Promise.all([
             findUserByMobile(mobileDigits),
             Otp.findOne({ mobile: { $in: mobileVariants } }).sort({ createdAt: -1 })
         ]);
@@ -63,27 +71,94 @@ export class AuthService {
             return userFailure;
         }
 
-        const otpValue = generateSecureOtp();
-        const otpHash = hashOtp(otpValue);
-        const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
-
         if (effectiveUser && (effectiveUser.failedLoginAttempts || effectiveUser.lockUntil)) {
             effectiveUser.failedLoginAttempts = 0;
             effectiveUser.lockUntil = undefined;
             await effectiveUser.save();
         }
 
+        // Check if there is an active OTP session eligible for resend
+        if (existingOtp && existingOtp.expiresAt > now) {
+            const lastSentTime = existingOtp.lastSentAt
+                ? existingOtp.lastSentAt.getTime()
+                : existingOtp.createdAt.getTime();
+            const elapsedMs = now.getTime() - lastSentTime;
+            const cooldownMs = OTP_RESEND_COOLDOWN_SECONDS * 1000;
+
+            if (elapsedMs < cooldownMs) {
+                const remainingSeconds = Math.ceil((cooldownMs - elapsedMs) / 1000);
+                return createFailure(429, `Please wait ${remainingSeconds} seconds before requesting another OTP.`, {
+                    code: 'OTP_RESEND_COOLDOWN'
+                });
+            }
+
+            if (existingOtp.resendAttempts >= OTP_MAX_RESEND_ATTEMPTS) {
+                return createFailure(429, 'Maximum resend attempts reached. Please try again later.', {
+                    code: 'OTP_RESEND_LIMIT_REACHED'
+                });
+            }
+
+            // Perform WhatsApp OTP resend
+            existingOtp.resendAttempts += 1;
+            existingOtp.lastSentAt = now;
+
+            if (env.OTP_PROVIDER === OtpProvider.MSG91) {
+                const retryResult = await retryOtpWhatsApp(canonicalMobile, existingOtp.reqId);
+                if (!retryResult.success) {
+                    return createFailure(502, retryResult.error || 'Failed to deliver OTP via WhatsApp. Please try again.', {
+                        code: 'OTP_DELIVERY_FAILED'
+                    });
+                }
+                if (retryResult.reqId && retryResult.reqId !== existingOtp.reqId) {
+                    existingOtp.reqId = retryResult.reqId;
+                }
+            }
+
+            await existingOtp.save();
+            logger.info('WhatsApp OTP resent for login', {
+                phone: canonicalMobile.slice(-4),
+                resendAttempts: existingOtp.resendAttempts
+            });
+
+            return {
+                success: true,
+                isNewUser: !effectiveUser,
+                otpExpiresIn: Math.max(0, Math.floor((existingOtp.expiresAt.getTime() - now.getTime()) / 1000)),
+                name: effectiveUser?.name || undefined
+            };
+        }
+
+        // New OTP session
+        const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
+        let reqId: string | undefined;
+
+        if (env.OTP_PROVIDER === OtpProvider.MSG91) {
+            const dispatchResult = await dispatchOtpWhatsApp(canonicalMobile);
+            if (!dispatchResult.success) {
+                return createFailure(502, dispatchResult.error || 'Failed to deliver OTP via WhatsApp. Please try again.', {
+                    code: 'OTP_DELIVERY_FAILED'
+                });
+            }
+            reqId = dispatchResult.reqId;
+        }
+
+        const otpValue = generateSecureOtp();
+        const otpHash = hashOtp(otpValue);
+
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         await Otp.create({
             mobile: canonicalMobile,
             otpHash,
+            reqId,
+            channel: 'whatsapp',
             attempts: 0,
+            resendAttempts: 0,
+            lastSentAt: now,
             expiresAt,
             createdAt: now
         });
 
-        await dispatchOtpSms(canonicalMobile, otpValue);
-        logger.info('OTP generated for login', { phone: canonicalMobile.slice(-4) });
+        logger.info('WhatsApp OTP generated for login', { phone: canonicalMobile.slice(-4) });
 
         return {
             success: true,
@@ -123,7 +198,7 @@ export class AuthService {
                 reason: 'invalid_otp',
                 userId: userFromMobile?._id ? String(userFromMobile._id) : undefined,
             });
-            return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
+            return createFailure(400, 'Invalid or already used OTP. Please request a new code.', { code: 'OTP_ALREADY_USED' });
         } else {
             if (otpRecord.expiresAt < now) {
                 const isDefaultOtp = isStaticOtpBypassMatch(otp);
@@ -141,7 +216,25 @@ export class AuthService {
                 return await handleOtpAttemptFailure(mobileDigits, userFromMobile, now);
             }
 
-            const isOtpValid = verifyOtpHash(otp, otpRecord.otpHash);
+            let isOtpValid = false;
+
+            if (env.OTP_PROVIDER === OtpProvider.MSG91 && otpRecord.reqId) {
+                const providerResult = await verifyOtpWithProvider(otpRecord.reqId, otp);
+                if (providerResult.isExpired) {
+                    await Otp.deleteOne({ _id: otpRecord._id });
+                    return createFailure(400, 'OTP expired', {
+                        code: 'OTP_EXPIRED'
+                    });
+                }
+                if (!providerResult.success && !providerResult.isInvalid) {
+                    return createFailure(502, providerResult.error || 'Server-side OTP verification failed. Please try again.', {
+                        code: 'OTP_VERIFICATION_FAILED'
+                    });
+                }
+                isOtpValid = providerResult.success;
+            } else {
+                isOtpValid = verifyOtpHash(otp, otpRecord.otpHash || '');
+            }
 
             if (!isOtpValid) {
                 otpRecord.attempts += 1;
