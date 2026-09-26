@@ -219,9 +219,92 @@ describe('AuthService', () => {
                 expect(result.code).toBe('OTP_LOCKED');
             }
         });
+
+        it('should reject resend before 30-second cooldown expires with OTP_RESEND_COOLDOWN', async () => {
+            const activeOtp = {
+                ...mockOtpRecord,
+                createdAt: new Date(),
+                lastSentAt: new Date(Date.now() - 10000), // 10s ago, cooldown is 30s
+                expiresAt: new Date(Date.now() + 890000),
+                resendAttempts: 0,
+                save: jest.fn().mockResolvedValue(true)
+            };
+            mockUserModel.findOne.mockResolvedValue(mockUser);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(activeOtp)
+            });
+
+            const result = await AuthService.sendLoginOtp(MOBILE);
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.status).toBe(429);
+                expect(result.code).toBe('OTP_RESEND_COOLDOWN');
+                expect(result.error).toContain('Please wait');
+            }
+        });
+
+        it('should allow resend after 30-second cooldown and increment resendAttempts', async () => {
+            const activeOtp = {
+                ...mockOtpRecord,
+                createdAt: new Date(Date.now() - 40000),
+                lastSentAt: new Date(Date.now() - 35000), // 35s ago, cooldown is 30s
+                expiresAt: new Date(Date.now() + 865000),
+                resendAttempts: 1,
+                save: jest.fn().mockResolvedValue(true)
+            };
+            mockUserModel.findOne.mockResolvedValue(mockUser);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(activeOtp)
+            });
+
+            const result = await AuthService.sendLoginOtp(MOBILE);
+
+            expect(result.success).toBe(true);
+            expect(activeOtp.resendAttempts).toBe(2);
+            expect(activeOtp.save).toHaveBeenCalled();
+        });
+
+        it('should block resend when maximum resend attempts (3) reached with OTP_RESEND_LIMIT_REACHED', async () => {
+            const activeOtp = {
+                ...mockOtpRecord,
+                createdAt: new Date(Date.now() - 120000),
+                lastSentAt: new Date(Date.now() - 40000), // Cooldown passed
+                expiresAt: new Date(Date.now() + 780000),
+                resendAttempts: 3, // Max resends reached
+                save: jest.fn().mockResolvedValue(true)
+            };
+            mockUserModel.findOne.mockResolvedValue(mockUser);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(activeOtp)
+            });
+
+            const result = await AuthService.sendLoginOtp(MOBILE);
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.status).toBe(429);
+                expect(result.code).toBe('OTP_RESEND_LIMIT_REACHED');
+            }
+        });
     });
 
     describe('verifyLoginOtp', () => {
+        it('should reject verification when OTP record not found or already used with OTP_ALREADY_USED', async () => {
+            mockUserModel.findOne.mockResolvedValue(mockUser);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(null)
+            });
+
+            const result = await AuthService.verifyLoginOtp(MOBILE, '999999');
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.status).toBe(400);
+                expect(result.code).toBe('OTP_ALREADY_USED');
+            }
+        });
+
         it('should verify correct OTP and return token for existing user', async () => {
             mockUserModel.findOne.mockResolvedValue(mockUser);
             mockOtpModel.findOne.mockReturnValue({
