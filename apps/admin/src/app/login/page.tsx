@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { emailSchema } from "@esparex/contracts";
 
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { normalizeAdminRedirectUrl } from "@/lib/normalizeAdminRedirect";
@@ -33,7 +34,7 @@ import {
 } from "@esparex/ui";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+  email: emailSchema,
   password: z.string().min(1, "Password is required."),
   twoFactorCode: z.string().optional(),
 });

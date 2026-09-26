@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalEmailSchema } from "../../common";
 
 export const DELETE_ACCOUNT_REASONS = [
   "not_useful",
@@ -16,10 +17,7 @@ export const personalProfileSchema = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name cannot exceed 100 characters")
     .refine((val) => /^[\p{L}\p{N}\s.\-'_,]+$/u.test(val.trim()), "Name contains invalid characters"),
-  email: z.union([
-    z.string().email("Please enter a valid email address").toLowerCase(),
-    z.literal(""),
-  ]).optional(),
+  email: optionalEmailSchema,
   businessName: z.union([
     z.string().max(120, "Business name cannot exceed 120 characters"),
     z.literal(""),
