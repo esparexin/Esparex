@@ -54,20 +54,33 @@ export const queryNotificationsForUser = async (
  * Thin wrapper around NotificationDispatcher so all writes go through
  * the single gateway: DB save → version increment → WebSocket emit → FCM.
  */
+export interface CreateNotificationOptions {
+    data?: Record<string, unknown>;
+    channels?: string[];
+}
+
 export const createInAppNotification = async (
     userId: string,
     type: NotificationTypeValue,
     title: string,
     message: string,
-    data: Record<string, unknown> = {}
+    optionsOrData: CreateNotificationOptions | Record<string, unknown> = {}
 ): Promise<void> => {
     try {
+        const isOptions = 'channels' in optionsOrData || ('data' in optionsOrData && typeof optionsOrData.data === 'object');
+        const payloadData: Record<string, unknown> | undefined = isOptions
+            ? (optionsOrData as CreateNotificationOptions).data
+            : (optionsOrData as Record<string, unknown>);
+        const channels = isOptions && (optionsOrData as CreateNotificationOptions).channels?.length
+            ? (optionsOrData as CreateNotificationOptions).channels
+            : ['in-app', 'push'];
+
         const intent = new NotificationIntent({
             userId,
             type,
             entityRef: { domain: 'system', id: userId },
-            message: { title, body: message, data },
-            channels: ['in-app', 'push'],
+            message: { title, body: message, data: payloadData },
+            channels,
             priority: 'medium',
         });
         await NotificationDispatcher.dispatch(intent);

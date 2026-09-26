@@ -5,6 +5,7 @@ import {
     renderPurchaseConfirmationEmail,
     renderInvoiceEmail,
     renderContactInquiryEmail,
+    renderNotificationEmail,
 } from '../templates/EmailLayout';
 
 describe('EmailLayout & Template Engine', () => {
@@ -112,4 +113,23 @@ describe('EmailLayout & Template Engine', () => {
             expect(html).toContain('Hello, please review listing #12345 as soon as possible.');
         });
     });
+
+    describe('renderNotificationEmail', () => {
+        it('renders notification title, message, and call to action', () => {
+            const html = renderNotificationEmail({
+                title: 'Listing Approved',
+                body: 'Your spare part listing "Brembo Brake Pads" has been verified and published.',
+                actionUrl: 'https://esparex.in/ads/brembo-pads-123',
+                actionLabel: 'View Listing',
+                userName: 'Arjun Kapoor',
+            });
+
+            expect(html).toContain('Listing Approved');
+            expect(html).toContain('Hello Arjun Kapoor,');
+            expect(html).toContain('Brembo Brake Pads');
+            expect(html).toContain('https://esparex.in/ads/brembo-pads-123');
+            expect(html).toContain('View Listing');
+        });
+    });
 });
+

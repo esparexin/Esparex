@@ -263,3 +263,33 @@ export function renderContactInquiryEmail(params: {
         footerNote: 'Respond directly to the sender at their provided email address.',
     });
 }
+
+/**
+ * Generic System / In-App Notification Email
+ */
+export function renderNotificationEmail(params: {
+    title: string;
+    body: string;
+    actionUrl?: string;
+    actionLabel?: string;
+    userName?: string;
+}): string {
+    const greeting = params.userName ? `Hello ${escapeHtml(params.userName)},` : 'Hello,';
+    const contentHtml = `
+        <p>${greeting}</p>
+        <p style="font-size: 15px; line-height: 1.6; color: #334155; white-space: pre-wrap;">${escapeHtml(params.body)}</p>
+    `;
+
+    return renderEmailLayout({
+        title: params.title,
+        preheader: params.body.slice(0, 120),
+        contentHtml,
+        ...(params.actionUrl ? {
+            callToAction: {
+                label: params.actionLabel || 'View Details',
+                url: params.actionUrl,
+            }
+        } : {}),
+    });
+}
+
