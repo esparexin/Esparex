@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,14 +8,13 @@ import * as z from "zod";
 import { emailSchema } from "@esparex/contracts";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
+import { AdminAuthCard } from "@/components/auth/AdminAuthCard";
 import {
   Mail,
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Lock,
-  Heading,
   Form,
   FieldRoot,
   FieldControl,
@@ -68,36 +66,15 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-background p-4 overflow-hidden selection:bg-primary/20 selection:text-primary">
-      {/* Decorative ambient background glows */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[360px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-3xl rounded-full" />
-      <div className="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-gradient-to-t from-primary/10 via-primary/5 to-transparent blur-3xl rounded-full" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:28px_28px] text-foreground/[0.04]" />
-
-      <div className="relative w-full max-w-[420px] space-y-6">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-2 animate-in zoom-in duration-500">
-            <Image
-              src="/icons/logo.png"
-              alt="Esparex Logo"
-              width={160}
-              height={40}
-              priority
-              className="h-8 w-auto object-contain"
-            />
-          </div>
-          <Heading variant="h2" className="font-extrabold tracking-tight">
-            {isSuccess ? "Check Your Email" : "Forgot Password"}
-          </Heading>
-          <p className="text-body-sm text-foreground-secondary">
-            {isSuccess
-              ? "If your email is registered in our system, you will receive a password reset link shortly."
-              : "Enter your registered email address and we will send you a link to reset your password."}
-          </p>
-        </div>
-
-        <div className="bg-card/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-xl border border-border isolate animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {isSuccess ? (
+    <AdminAuthCard
+      title={isSuccess ? "Check Your Email" : "Forgot Password"}
+      subtitle={
+        isSuccess
+          ? "If your email is registered in our system, you will receive a password reset link shortly."
+          : "Enter your registered email address and we will send you a link to reset your password."
+      }
+    >
+      {isSuccess ? (
             <div className="space-y-6 text-center">
               <div className="mx-auto w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 animate-in zoom-in-75 duration-300">
                 <CheckCircle2 size={32} />
@@ -179,17 +156,6 @@ export default function ForgotPasswordPage() {
               </form>
             </Form>
           )}
-
-          <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-center gap-1.5 text-tiny text-foreground-subtle">
-            <Lock size={12} className="text-primary/70" />
-            <span>256-bit Encrypted Admin Session</span>
-          </div>
-        </div>
-
-        <p className="text-center text-foreground-subtle text-caption font-medium">
-          &copy; {new Date().getFullYear()} Esparex Master Admin. All rights reserved.
-        </p>
-      </div>
-    </div>
+    </AdminAuthCard>
   );
 }
