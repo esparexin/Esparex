@@ -73,7 +73,7 @@ export function BusinessCatalogTabs({
     <div className="flex flex-col gap-3 sm:gap-4 w-full min-w-0">
       {/* Tab Segment Controls & In-Store Search Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 w-full min-w-0">
-        <div className="w-full sm:w-auto min-w-0 overflow-x-auto scrollbar-none overscroll-x-contain touch-pan-x">
+        <div className="w-full sm:w-auto min-w-0 overflow-x-auto scrollbar-hide overscroll-x-contain touch-pan-x">
           <div
             role="tablist"
             aria-label="Store catalog categories"
