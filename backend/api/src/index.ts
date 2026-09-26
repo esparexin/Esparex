@@ -2,8 +2,6 @@ import "@esparex/core/config/loadEnv";
 import logger from "@esparex/core/utils/logger";
 import { waitForRedisReady } from '@esparex/core/config/redis';
 
-export * from "./infrastructure";
-
 const role = process.env.PROCESS_ROLE || 'api';
 
 if (role === 'worker') {

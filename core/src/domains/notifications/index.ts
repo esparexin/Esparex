@@ -11,6 +11,7 @@ export * from './application/SmartAlertService';
 export * from './application/PlansWalletNotificationService';
 export * from './domain/NotificationIntent';
 export * from './ports/EmailServicePort';
+export * from './application/EmailService';
 export * from './application/SmartAlertQueryService';
 export * from './application/SmartAlertMutationService';
 
