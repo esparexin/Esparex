@@ -200,6 +200,83 @@ describe("NotificationService & Dispatcher", () => {
             expect(result.skipped).toBe(true);
             expect(Notification).not.toHaveBeenCalled();
         });
+
+        it("dispatches email when email channel is requested and recipient email is present", async () => {
+            const { resolveNotificationDeliveryPlan } = require("../../domains/notifications/application/NotificationPreferenceService");
+            resolveNotificationDeliveryPlan.mockResolvedValueOnce({
+                suppress: false,
+                channels: ['email']
+            });
+
+            mockFindById.mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                    lean: jest.fn().mockResolvedValue({
+                        email: "recipient@example.com",
+                        name: "Karan Johar"
+                    })
+                })
+            });
+
+            const { emailService } = require("../../domains/notifications/application/EmailService");
+            const emailSpy = jest.spyOn(emailService, 'send').mockResolvedValueOnce({
+                success: true,
+                provider: 'smtp',
+                messageId: 'msg-123'
+            });
+
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "Order Update", body: "Your order is ready." },
+                channels: ['email']
+            });
+
+            const result = await NotificationDispatcher.executeDispatch(intent);
+
+            expect(result.success).toBe(true);
+            expect(emailSpy).toHaveBeenCalledWith(expect.objectContaining({
+                to: {
+                    email: "recipient@example.com",
+                    name: "Karan Johar"
+                },
+                subject: "Order Update",
+                html: expect.stringContaining("Order Update")
+            }));
+        });
+
+        it("marks email deliveryStatus as skipped if user has no registered email", async () => {
+            const { resolveNotificationDeliveryPlan } = require("../../domains/notifications/application/NotificationPreferenceService");
+            resolveNotificationDeliveryPlan.mockResolvedValueOnce({
+                suppress: false,
+                channels: ['email']
+            });
+
+            mockFindById.mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                    lean: jest.fn().mockResolvedValue({
+                        email: undefined,
+                        name: "No Email User"
+                    })
+                })
+            });
+
+            const { emailService } = require("../../domains/notifications/application/EmailService");
+            const emailSpy = jest.spyOn(emailService, 'send');
+
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "No Email Alert", body: "Cannot send email." },
+                channels: ['email']
+            });
+
+            const result = await NotificationDispatcher.executeDispatch(intent);
+
+            expect(result.success).toBe(true);
+            expect(emailSpy).not.toHaveBeenCalled();
+        });
     });
 
     // ── Helper Service Tests ─────────────────────────────────────────────────

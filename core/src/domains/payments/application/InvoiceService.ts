@@ -7,6 +7,8 @@ import { generateInvoiceNumber } from '../../../utils/invoiceNumber';
 import { generateInvoicePdf } from './InvoicePdfService';
 import { type ITransaction } from '../../../models/Transaction';
 import logger, { logBusiness } from '../../../utils/logger';
+import { emailService } from '../../../domains/notifications/application/EmailService';
+import { renderInvoiceEmail } from '../../../domains/notifications/templates/EmailLayout';
 
 export const PAYMENT_SAC_CODE = '998599';
 
@@ -282,6 +284,34 @@ export const ensureInvoicePdf = async (invoiceId?: string) => {
             invoiceNumber: invoice.invoiceNumber,
             pdfUrl
         });
+
+        if (pdfUser?.email && typeof pdfUser.email === 'string' && pdfUser.email.includes('@')) {
+            try {
+                const invoiceDate = invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                }) : new Date().toLocaleDateString('en-IN');
+                const invoiceHtml = renderInvoiceEmail({
+                    invoiceNumber: invoice.invoiceNumber,
+                    planName: invoice.items?.[0]?.description || 'Subscription Plan',
+                    amount: `₹${(invoice.total || invoice.amount || 0).toLocaleString('en-IN')}`,
+                    formattedDate: invoiceDate,
+                    downloadUrl: pdfUrl,
+                    userName: pdfUser.name,
+                });
+                await emailService.sendEmail(
+                    pdfUser.email,
+                    `Tax Invoice ${invoice.invoiceNumber} - Esparex`,
+                    invoiceHtml
+                );
+                logger.info(`[InvoiceService] Sent invoice email to ${pdfUser.email} for invoice ${invoice.invoiceNumber}`);
+            } catch (emailErr) {
+                logger.warn(`[InvoiceService] Failed to send invoice email for invoice ${invoice.invoiceNumber}`, {
+                    error: emailErr instanceof Error ? emailErr.message : String(emailErr)
+                });
+            }
+        }
     } catch (error) {
         logger.error('Failed to generate invoice PDF after payment commit', {
             invoiceId: invoice._id.toString(),
