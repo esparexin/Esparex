@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -220,9 +221,17 @@ function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <div className="space-y-1.5">
-                    <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5">
-                      Password
-                    </FieldLabel>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5">
+                        Password
+                      </FieldLabel>
+                      <Link
+                        href="/forgot-password"
+                        className="text-caption font-medium text-primary hover:text-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
                     <FieldControl animateOnError>
                       <InputGroup>
                         <InputPrefix>
