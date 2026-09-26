@@ -2,6 +2,8 @@ import logger from '@esparex/core/utils/logger';
 import { z } from 'zod';
 import { Request, Response } from 'express';
 import { createContactSubmission } from '@esparex/core/services/ContactService';
+import { emailSchema } from '@esparex/contracts';
+import { emailService, renderContactInquiryEmail } from '@esparex/core/domains/notifications';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
 
@@ -15,7 +17,7 @@ import { respond } from "../../utils/respond";
  */
 const contactBodySchema = z.object({
     name:     z.string().min(2).max(100),
-    email:    z.string().email(),
+    email:    emailSchema,
     mobile:   z.string().optional(),
     subject:  z.string().max(200).optional(),
     category: z.string().optional(),
@@ -43,6 +45,29 @@ export const submitContactForm = async (req: Request, res: Response) => {
                 createdAt: submission.createdAt
             }
         }));
+
+        setImmediate(() => {
+            void (async () => {
+                try {
+                    const inquiryHtml = renderContactInquiryEmail({
+                        name: parsed.name,
+                        email: parsed.email,
+                        mobile: parsed.mobile,
+                        subject: parsed.subject || 'Support Request',
+                        message: parsed.message,
+                    });
+                    await emailService.sendEmail(
+                        process.env.SUPPORT_EMAIL || 'support@esparex.com',
+                        `New Contact Inquiry: ${parsed.subject || 'Support Request'}`,
+                        inquiryHtml
+                    );
+                } catch (err) {
+                    logger.warn('Failed to send contact inquiry notification email', {
+                        error: err instanceof Error ? err.message : String(err),
+                    });
+                }
+            })();
+        });
 
     } catch (error: unknown) {
         logger.error('Contact submission error:', error);
