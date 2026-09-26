@@ -28,7 +28,7 @@ import {
 
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
-import { emailService } from '@esparex/core/domains/notifications/application/EmailService';
+import { emailService, renderPasswordResetEmail } from '@esparex/core/domains/notifications';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core/utils/auth';
 import { USER_STATUS } from "@esparex/contracts";
@@ -81,14 +81,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         // Create reset URL
         const resetUrl = `${getAdminAppUrl()}/admin/reset-password/${resetToken}`;
-
-        const message = `
-            <h1>Password Reset Request</h1>
-            <p>You requested a password reset for Esparex Admin.</p>
-            <p>Click the link below to verify it's you and set a new password:</p>
-            <a href="${resetUrl}" clicktracking=off>${resetUrl}</a>
-            <p>This link expires in 10 minutes.</p>
-        `;
+        const message = renderPasswordResetEmail({ resetUrl, expiryMinutes: 10 });
 
         const sent = await emailService.sendEmail(
             admin.email,

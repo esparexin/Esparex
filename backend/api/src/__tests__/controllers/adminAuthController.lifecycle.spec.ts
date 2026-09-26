@@ -56,12 +56,12 @@ jest.mock("@esparex/core/services/AdminSessionService", () => ({
     ),
 }));
 
-jest.mock("@esparex/core/domains/notifications/application/EmailService", () => ({
+jest.mock("@esparex/core/domains/notifications", () => ({
     __esModule: true,
-
     emailService: {
         sendEmail: jest.fn().mockResolvedValue(true),
     },
+    renderPasswordResetEmail: jest.fn(({ resetUrl }) => `<html>password reset: ${resetUrl}</html>`),
 }));
 
 jest.mock("../../utils/adminLogger", () => ({
@@ -78,7 +78,7 @@ import {
     revokeAdminSessionsForAdmin,
 } from "@esparex/core/services/AdminSessionService";
 
-import { emailService } from "@esparex/core/domains/notifications/application/EmailService";
+import { emailService } from "@esparex/core/domains/notifications";
 import {
     adminLogin,
     forgotPassword,
@@ -508,7 +508,7 @@ describe(
                 expect(emailService.sendEmail).toHaveBeenCalledWith(
                     "admin@example.com",
                     "Esparex Admin Password Reset",
-                    expect.stringContaining("Password Reset Request")
+                    expect.stringContaining("password reset")
                 );
                 expect(res.status).toHaveBeenCalledWith(200);
                 expect(res.json).toHaveBeenCalledWith(
