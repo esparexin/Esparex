@@ -100,7 +100,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
             admin.resetPasswordToken = undefined;
             admin.resetPasswordExpire = undefined;
             await saveAdmin(admin);
-            return sendAdminError(req, res, 'Email could not be sent', 500);
+            logger.warn('[AdminAuth] Password reset email failed to send', { email: admin.email });
+            return sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });
         }
 
         sendSuccessResponse(res, { message: 'If that email exists, a reset link has been sent.' });

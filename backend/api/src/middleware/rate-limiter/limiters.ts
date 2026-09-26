@@ -32,3 +32,20 @@ export const chatStartLimiter = createLimiter({ windowMs: 10 * 60 * 1000, max: e
 export const chatReportLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 3 : 30, keyPrefix: 'chat:report:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const contactFormLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 3 : 30, keyPrefix: 'contact:form:', keyGenerator: (req) => resolveRequestIp(req), errorCode: 'CONTACT_FORM_RATE_LIMIT' });
 export const catalogSuggestionLimiter = createLimiter({ windowMs: 24 * 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 5 : 50, keyPrefix: 'catalog:suggest:', errorCode: 'CATALOG_SUGGESTION_RATE_LIMIT', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
+export const authForgotPasswordLimiter = createLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: env.NODE_ENV === 'production' ? 5 : 20,
+    keyPrefix: 'auth:forgot-password:',
+    errorCode: 'FORGOT_PASSWORD_RATE_LIMIT',
+    keyGenerator: (req) => {
+        const email = ((req.body as { email?: string })?.email)?.trim().toLowerCase();
+        return email ? `${resolveRequestIp(req)}:${email}` : resolveRequestIp(req);
+    }
+});
+export const authResetPasswordLimiter = createLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: env.NODE_ENV === 'production' ? 5 : 20,
+    keyPrefix: 'auth:reset-password:',
+    errorCode: 'RESET_PASSWORD_RATE_LIMIT',
+    keyGenerator: (req) => resolveRequestIp(req)
+});

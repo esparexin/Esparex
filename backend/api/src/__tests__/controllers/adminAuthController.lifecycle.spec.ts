@@ -78,8 +78,10 @@ import {
     revokeAdminSessionsForAdmin,
 } from "@esparex/core/services/AdminSessionService";
 
+import { emailService } from "@esparex/core/domains/notifications/application/EmailService";
 import {
     adminLogin,
+    forgotPassword,
     resetPassword,
 } from "../../controllers/admin/system/adminAuthController";
 
@@ -449,5 +451,106 @@ describe(
                 );
             }
         );
+
+        describe("forgotPassword", () => {
+            it("returns generic 200 message even when email is missing or empty (constant-response anti-enumeration)", async () => {
+                const req = { body: {} } as any;
+                const res = createMockRes(req);
+
+                await forgotPassword(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        success: true,
+                        data: expect.objectContaining({
+                            message: "If that email exists, a reset link has been sent.",
+                        }),
+                    })
+                );
+            });
+
+            it("returns generic 200 message when admin is not found to prevent enumeration", async () => {
+                mockAdmin.findOne.mockResolvedValue(null);
+
+                const req = { body: { email: "nonexistent@example.com" } } as any;
+                const res = createMockRes(req);
+
+                await forgotPassword(req, res);
+
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        success: true,
+                        data: expect.objectContaining({
+                            message: "If that email exists, a reset link has been sent.",
+                        }),
+                    })
+                );
+            });
+
+            it("generates reset token, saves admin, and sends reset email", async () => {
+                const save = jest.fn().mockResolvedValue(undefined);
+                const adminDoc = {
+                    _id: "507f1f77bcf86cd799439011",
+                    email: "admin@example.com",
+                    save,
+                };
+                mockAdmin.findOne.mockResolvedValue(adminDoc);
+                (emailService.sendEmail as jest.Mock).mockResolvedValue(true);
+
+                const req = { body: { email: "admin@example.com" } } as any;
+                const res = createMockRes(req);
+
+                await forgotPassword(req, res);
+
+                expect(adminDoc.save).toHaveBeenCalled();
+                expect(emailService.sendEmail).toHaveBeenCalledWith(
+                    "admin@example.com",
+                    "Esparex Admin Password Reset",
+                    expect.stringContaining("Password Reset Request")
+                );
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        success: true,
+                        data: expect.objectContaining({
+                            message: "If that email exists, a reset link has been sent.",
+                        }),
+                    })
+                );
+            });
+
+            it("returns generic 200 and unsets token when email sending fails (enumeration protection)", async () => {
+                const save = jest.fn().mockResolvedValue(undefined);
+                const adminDoc = {
+                    _id: "507f1f77bcf86cd799439011",
+                    email: "admin@example.com",
+                    resetPasswordToken: "some-token",
+                    resetPasswordExpire: new Date(),
+                    save,
+                };
+                mockAdmin.findOne.mockResolvedValue(adminDoc);
+                (emailService.sendEmail as jest.Mock).mockResolvedValue(false);
+
+                const req = { body: { email: "admin@example.com" } } as any;
+                const res = createMockRes(req);
+
+                await forgotPassword(req, res);
+
+                expect(adminDoc.resetPasswordToken).toBeUndefined();
+                expect(adminDoc.resetPasswordExpire).toBeUndefined();
+                expect(adminDoc.save).toHaveBeenCalled();
+                expect(res.status).toHaveBeenCalledWith(200);
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        success: true,
+                        data: expect.objectContaining({
+                            message: "If that email exists, a reset link has been sent.",
+                        }),
+                    })
+                );
+            });
+        });
     }
 );
