@@ -1,9 +1,12 @@
 import { pLimit } from '../../../utils/pLimit';
 import { notificationDeliveryQueue } from '../../../queues/adQueue';
 import Notification from '../../../models/Notification';
+import User from '../../../models/User';
 import { NotificationVersionService } from './NotificationVersionService';
 import { getIO } from '../../../config/socket';
 import { sendNotification } from './PushGatewayService';
+import { emailService } from './EmailService';
+import { renderNotificationEmail } from '../templates/EmailLayout';
 import { NotificationIntent } from '../domain/NotificationIntent';
 import logger from '../../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
@@ -155,7 +158,7 @@ export class NotificationDispatcher {
                 isRead: false,
                 deliveryStatus: {
                     fcm: intent.channels.includes('push') ? 'pending' : 'skipped',
-                    email: 'skipped',
+                    email: intent.channels.includes('email') ? 'pending' : 'skipped',
                     sms: 'skipped'
                 },
                 actionUrl:
@@ -204,12 +207,12 @@ export class NotificationDispatcher {
 
             // 3. Shadow Mode Guard
             if (shadowDispatch) {
-                logger.info(`[Dispatcher:SHADOW] Skipped push dispatch for NotificationIntent`, { recordId: dbRecord._id });
+                logger.info(`[Dispatcher:SHADOW] Skipped channel dispatch for NotificationIntent`, { recordId: dbRecord._id });
                 return { success: true, skipped: true };
             }
 
             // 4. Channel Dispatch (FCM Push)
-            if (intent.channels.includes('push')) {
+            if (intent.channels.includes('push') && dbRecord.deliveryStatus?.fcm !== 'sent') {
                 try {
                     // FCM expects string values for all data keys
                     const fcmData = (intent.message.data as Record<string, string>) || {};
@@ -227,6 +230,76 @@ export class NotificationDispatcher {
                     logger.error(`[Dispatcher] FCM push failed`, { error: (pushError as Error).message, recordId: dbRecord._id });
                     // Throw to BullMQ for exponential backoff if running in a worker context
                     throw pushError;
+                }
+            }
+
+            // 5. Channel Dispatch (Email)
+            if (intent.channels.includes('email') && dbRecord.deliveryStatus?.email !== 'sent') {
+                try {
+                    let recipientEmail = typeof intent.message.data?.email === 'string'
+                        ? intent.message.data.email
+                        : typeof intent.message.data?.userEmail === 'string'
+                            ? intent.message.data.userEmail
+                            : undefined;
+
+                    let recipientName = typeof intent.message.data?.userName === 'string'
+                        ? intent.message.data.userName
+                        : undefined;
+
+                    if (!recipientEmail) {
+                        const recipient = await User.findById(intent.userId).select('email name').lean();
+                        if (recipient?.email) {
+                            recipientEmail = recipient.email;
+                            recipientName = recipientName || recipient.name;
+                        }
+                    }
+
+                    if (!recipientEmail) {
+                        logger.debug('[Dispatcher] Skipped email dispatch: recipient has no registered email', {
+                            userId: intent.userId,
+                            recordId: dbRecord._id,
+                        });
+                        dbRecord.deliveryStatus = dbRecord.deliveryStatus || { fcm: 'skipped', email: 'skipped', sms: 'skipped' };
+                        dbRecord.deliveryStatus.email = 'skipped';
+                        await dbRecord.save();
+                    } else {
+                        const emailHtml = renderNotificationEmail({
+                            title: intent.message.title,
+                            body: intent.message.body,
+                            actionUrl: dbRecord.actionUrl,
+                            userName: recipientName,
+                        });
+
+                        const emailResult = await emailService.send({
+                            to: {
+                                email: recipientEmail,
+                                name: recipientName,
+                            },
+                            subject: intent.message.title,
+                            html: emailHtml,
+                        });
+
+                        dbRecord.deliveryStatus = dbRecord.deliveryStatus || { fcm: 'skipped', email: 'skipped', sms: 'skipped' };
+                        dbRecord.deliveryStatus.email = emailResult.success ? 'sent' : 'failed';
+                        await dbRecord.save();
+
+                        if (!emailResult.success && emailResult.skippedReason !== 'DISABLED_BY_USER' && emailResult.skippedReason !== 'UNCONFIGURED') {
+                            logger.warn('[Dispatcher] Email delivery failed', {
+                                userId: intent.userId,
+                                recipientEmail,
+                                skippedReason: emailResult.skippedReason,
+                            });
+                        }
+                    }
+                } catch (emailError: unknown) {
+                    dbRecord.deliveryStatus = dbRecord.deliveryStatus || { fcm: 'skipped', email: 'skipped', sms: 'skipped' };
+                    dbRecord.deliveryStatus.email = 'failed';
+                    await dbRecord.save();
+
+                    logger.error('[Dispatcher] Email dispatch unexpected error', {
+                        error: emailError instanceof Error ? emailError.message : String(emailError),
+                        recordId: dbRecord._id,
+                    });
                 }
             }
             return { success: true };

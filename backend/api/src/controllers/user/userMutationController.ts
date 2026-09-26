@@ -101,6 +101,23 @@ export const updateMe = async (
     delete updateRecord.password;
     delete updateRecord.salt;
     delete updateRecord.mobile;
+    delete updateRecord.isVerified;
+    delete updateRecord.isEmailVerified;
+    delete updateRecord.isPhoneVerified;
+    delete updateRecord.trustScore;
+    delete updateRecord.status;
+    delete updateRecord.wallet;
+
+    if (typeof updates.email === 'string') {
+      const trimmed = updates.email.trim().toLowerCase();
+      if (trimmed) {
+        updates.email = trimmed;
+      } else {
+        delete updateRecord.email;
+      }
+    } else if (updates.email === null || updates.email === undefined) {
+      delete updateRecord.email;
+    }
 
     if (req.body.removePhoto === 'true' || req.body.profilePhoto === '') {
       updates.avatar = '';

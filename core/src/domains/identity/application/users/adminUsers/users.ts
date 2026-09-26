@@ -124,13 +124,24 @@ export const getUserManagementOverview = async () => {
 export const createAdminUser = async (data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {
     const name = data.name as string | undefined; const mobile = data.mobile as string | undefined; const email = data.email as string | undefined; const password = data.password as string | undefined; const isVerified = data.isVerified;
     if (!mobile || !name) throw new AppError('Name and Mobile are required', 400);
+    const safeName = typeof name === 'string' ? name.trim() : '';
     const safeMobile = String(mobile).trim();
-    const safeEmail = email ? String(email).trim().toLowerCase() : undefined;
+    const safeEmail = typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : undefined;
     const exists = await User.findOne({ $or: [{ mobile: { $eq: safeMobile } }, ...(safeEmail ? [{ email: { $eq: safeEmail } }] : [])] });
     if (exists) throw new AppError('User with this mobile or email already exists', 409, 'USER_ALREADY_EXISTS');
-    const userData: Record<string, unknown> = { name, mobile, role: Role.USER, email, isVerified: !!isVerified, isPhoneVerified: !!isVerified, isEmailVerified: !!isVerified && !!email, status: USER_STATUS.LIVE, createdBy: actorId };
+    const userData: Record<string, unknown> = {
+        name: safeName,
+        mobile: safeMobile,
+        role: Role.USER,
+        email: safeEmail,
+        isVerified: !!isVerified,
+        isPhoneVerified: !!isVerified,
+        isEmailVerified: !!isVerified && !!safeEmail,
+        status: USER_STATUS.LIVE,
+        createdBy: actorId,
+    };
     if (password?.trim()) userData.password = await hashPassword(password);
     const newUser = await User.create(userData);
     const uo = normalizeAdminManagedUser(newUser); delete uo.password;
-    await logFn('CREATE_USER', 'User', String(uo._id), { name, mobile, role: Role.USER }); return uo;
+    await logFn('CREATE_USER', 'User', String(uo._id), { name: safeName, mobile: safeMobile, role: Role.USER }); return uo;
 };

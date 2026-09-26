@@ -20,7 +20,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 const FILE_LIMITS = [
-  { type: 'Hook', max: 250, test: (f) => f.includes('/hooks/') || path.basename(f).startsWith('use') },
+  { type: 'Hook', max: 250, test: (f) => f.includes('/hooks/') || /^use[A-Z]/.test(path.basename(f)) },
   { type: 'Service', max: 450, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
   { type: 'Utility/Helper', max: 250, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
   { type: 'Component', max: 400, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') }

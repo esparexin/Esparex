@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { BUSINESS_LIMITS, CONTACT_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
 import { coordinatesSchema } from '../../common/schema/coordinates.schema';
+import { emailSchema } from '../../common/schema/common.schemas';
 import { ID_PROOF_TYPE_VALUES } from '../../identity/enums/idProofType';
 
 const FULL_ADDRESS_PINCODE_PATTERN = /\b[1-9]\d{5}\b/;
@@ -65,7 +66,7 @@ export const BaseBusinessPayloadShape = {
     businessTypes: z.array(z.string().trim().min(2).max(50)).min(1, 'Select at least one business type').optional(),
     location: businessLocationSchema,
     mobile: businessPhoneSchema.optional(),
-    email: z.string().email('Invalid email format').max(CONTACT_LIMITS.EMAIL.MAX).toLowerCase(),
+    email: emailSchema,
     website: z.union([z.string().url('Invalid URL format').max(CONTACT_LIMITS.WEBSITE.MAX), z.literal('')]).optional(),
     gstNumber: z.union([
         z.string().regex(BUSINESS_LIMITS.GST.PATTERN, BUSINESS_LIMITS.GST.ERROR_FORMAT),

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ObjectIdSchema } from "@esparex/contracts";
+import { ObjectIdSchema, emailSchema } from "@esparex/contracts";
 import { CreateCategorySchema, CreateBrandSchema, CreateModelSchema } from "@esparex/contracts";
 
 /**
@@ -75,7 +75,7 @@ const permissionsTextSchema = z
 const adminUserBaseFormSchema = z.object({
     firstName: z.string().trim().min(1, 'First name is required').max(50, 'First name is too long'),
     lastName: z.string().trim().min(1, 'Last name is required').max(50, 'Last name is too long'),
-    email: z.string().trim().email('Enter a valid email address'),
+    email: emailSchema,
     role: adminRoleSchema,
     permissionsText: permissionsTextSchema,
 });
