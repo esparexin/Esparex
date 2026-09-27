@@ -19,8 +19,8 @@ export const ESPAREX_COMPANY_IDENTITY = {
         country: 'India',
         formatted: '123 Tech Park, Sector 5, Bangalore, Karnataka 560100, India',
     },
-    supportEmail: 'support@esparex.com',
-    websiteUrl: 'https://esparex.com',
+    supportEmail: 'support@esparex.in',
+    websiteUrl: 'https://esparex.in',
     logo: {
         width: 495,
         height: 112,
