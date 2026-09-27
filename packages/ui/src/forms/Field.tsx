@@ -60,7 +60,7 @@ export function Field({
                         <label
                             htmlFor={resolvedId}
                             className={cn(
-                                "text-sm font-semibold leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                                "text-caption sm:text-small font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
                                 labelClassName
                             )}
                         >
@@ -71,7 +71,7 @@ export function Field({
                     </div>
                 )}
                 {children}
-                <FormError id={errorId} message={error} className="text-sm font-normal text-destructive" />
+                <FormError id={errorId} message={error} className="text-caption font-normal text-destructive" />
             </div>
         </FieldContext.Provider>
     );
