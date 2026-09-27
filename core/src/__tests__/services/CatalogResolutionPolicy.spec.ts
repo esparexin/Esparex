@@ -1,4 +1,4 @@
-import { CatalogResolutionPolicy, CatalogResolutionDecision } from '../../domains/catalog/application/services/CatalogResolutionPolicy';
+import { CatalogResolutionPolicy, CatalogResolutionDecision } from '../../domains/catalog';
 import { CatalogValidationService } from '../../domains/catalog/application/services/CatalogValidationService';
 
 describe('CatalogResolutionPolicy & CatalogValidationService Pipeline', () => {
