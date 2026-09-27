@@ -38,7 +38,7 @@ import {
     getAdminSessionTtlMs,
     revokeAdminSession,
     revokeAdminSessionsForAdmin
-} from '@esparex/core/services/AdminSessionService';
+} from '@esparex/core/domains/identity';
 
 const normalizeIp = (value: string) => value.replace(/^::ffff:/, '').trim();
 

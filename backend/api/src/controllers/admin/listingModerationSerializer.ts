@@ -3,7 +3,7 @@ import { LISTING_TYPE } from "@esparex/contracts";
 import type {
     ModerationListingType,
     ModerationStatus,
-} from '@esparex/core/services/ListingModerationQueryService';
+} from '@esparex/core/domains/listings';
 
 const MODERATION_STATUS_SET = new Set<ModerationStatus>([
     AD_STATUS.PENDING,

@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { extractDeviceFingerprint } from '../utils/deviceFingerprint';
-import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel } from '@esparex/core/services/FraudDetectionService';
-import { detectSpam } from '@esparex/core/services/SpamDetectorService';
+import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel, detectSpam } from '@esparex/core/domains/fraud';
 import { detectAiSpam } from '@esparex/core/utils/aiSpamDetector';
 import logger from '@esparex/core/utils/logger';
 import { getUserConnection } from '@esparex/core/config/db';

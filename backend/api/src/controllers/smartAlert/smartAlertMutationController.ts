@@ -13,7 +13,7 @@ import {
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
     updateSmartAlertMutation,
-} from '@esparex/core/services/smartAlert/SmartAlertMutationService';
+} from '@esparex/core/domains/notifications';
 
 const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     const appError = error instanceof AppError ? error : null;

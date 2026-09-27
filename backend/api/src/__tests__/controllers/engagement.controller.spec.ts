@@ -38,11 +38,11 @@ jest.mock('../../utils/requestParams', () => ({
     getSingleParam: (...args: unknown[]) => mockGetSingleParam(...args),
 }));
 
-jest.mock('@esparex/core/services/AdEngagementService', () => ({
+jest.mock('@esparex/core/domains/listings', () => ({
     incrementAdViewByFilter: (...args: unknown[]) => mockIncrementAdViewByFilter(...args),
 }));
 
-jest.mock('@esparex/core/services/ContactRevealService', () => ({
+jest.mock('@esparex/core/domains/communications', () => ({
     getSellerPhone: (...args: unknown[]) => mockGetSellerPhone(...args),
 }));
 

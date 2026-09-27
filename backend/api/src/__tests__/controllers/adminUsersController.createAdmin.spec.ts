@@ -21,14 +21,14 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/services/AdminUsersService", () => ({
+jest.mock("@esparex/core/domains/identity", () => ({
     __esModule: true,
     createAdminAccount: jest.fn(),
 }));
 
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import type { Request, Response } from "express";
-import { createAdminAccount } from "@esparex/core/services/AdminUsersService";
+import { createAdminAccount } from "@esparex/core/domains/identity";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {
