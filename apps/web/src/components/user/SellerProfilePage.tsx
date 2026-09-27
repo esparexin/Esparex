@@ -149,8 +149,8 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 <section id="seller-active-listings" className="space-y-3 pt-1">
                     <div className="flex items-center justify-between border-b border-border pb-2.5">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight">Active Listings</h2>
-                            <Badge className="bg-muted text-foreground-secondary font-semibold px-2 py-0.5 rounded-full text-tiny border-none">{ads.length}</Badge>
+                            <h2 className="text-body sm:text-body-lg font-semibold text-foreground tracking-tight">Active Listings</h2>
+                            <Badge className="bg-muted text-foreground-secondary font-medium px-2 py-0.5 rounded-full text-tiny border-none">{ads.length}</Badge>
                         </div>
                     </div>
 
