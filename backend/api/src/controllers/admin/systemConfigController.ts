@@ -121,3 +121,55 @@ export const updateSystemConfig = async (req: Request, res: Response) => {
         return sendAdminError(req, res, error);
     }
 };
+
+/**
+ * Send a diagnostic verification probe to test active SMTP settings
+ */
+export const sendTestEmail = async (req: Request, res: Response) => {
+    try {
+        const { recipientEmail } = (req.body ?? {}) as { recipientEmail?: string };
+        const target = typeof recipientEmail === 'string' ? recipientEmail.trim() : '';
+        if (!target || !target.includes('@')) {
+            return sendAdminError(req, res, 'Valid recipient email address is required', 400);
+        }
+
+        const { emailService } = await import('@esparex/core/domains/notifications/application/EmailService');
+        const isConfigured = await emailService.isConfigured();
+        if (!isConfigured) {
+            return sendAdminError(req, res, 'SMTP credentials are not configured or email is disabled in settings', 400);
+        }
+
+        const { renderEmailLayout } = await import('@esparex/core/domains/notifications/templates/EmailLayout');
+        const testHtml = renderEmailLayout({
+            title: 'Esparex SMTP Diagnostic Probe',
+            preheader: 'This is a test email confirming that your Esparex SMTP service is active.',
+            contentHtml: `
+                <p>Hello Administrator,</p>
+                <p>This automated test message confirms that your SMTP delivery credentials and connection parameters are correctly configured on Esparex.</p>
+                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 14px; color: #166534;">
+                    <strong>Status:</strong> Active &amp; Operational<br/>
+                    <strong>Timestamp:</strong> ${new Date().toISOString()}<br/>
+                    <strong>Dispatched To:</strong> ${target}
+                </div>
+            `,
+            footerNote: 'Sent from Admin Dashboard > Settings > Notifications.',
+        });
+
+        const result = await emailService.send({
+            to: target,
+            subject: 'Esparex SMTP Connection Test — Successful',
+            html: testHtml,
+        });
+
+        if (!result.success) {
+            const reason = result.skippedReason || 'Delivery failure';
+            return sendAdminError(req, res, `SMTP test failed: ${reason}`, 502);
+        }
+
+        await logAdminAction(req, 'TEST_SMTP_EMAIL', 'Config', 'notifications.email', { recipient: target, messageId: result.messageId });
+        sendSuccessResponse(res, { messageId: result.messageId, recipient: target }, `Test email sent successfully to ${target}`);
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
