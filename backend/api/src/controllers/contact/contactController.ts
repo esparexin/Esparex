@@ -1,7 +1,7 @@
 import logger from '@esparex/core/utils/logger';
 import { z } from 'zod';
 import { Request, Response } from 'express';
-import { createContactSubmission } from '@esparex/core/services/ContactService';
+import { createContactSubmission } from '@esparex/core/domains/communications';
 import { emailSchema } from '@esparex/contracts';
 import { emailService, renderContactInquiryEmail } from '@esparex/core/domains/notifications';
 import { sendErrorResponse } from "../../utils/errorResponse";

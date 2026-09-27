@@ -10,7 +10,7 @@ jest.mock("@esparex/core/utils/auth", () => ({
     verifyAdminToken: jest.fn(),
 }));
 
-jest.mock("@esparex/core/services/AdminSessionService", () => ({
+jest.mock("@esparex/core/domains/identity", () => ({
     __esModule: true,
     validateAdminSession: jest.fn(),
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
@@ -25,7 +25,7 @@ jest.mock("@esparex/core/utils/cookieHelper", () => ({
 import { Request, Response } from "express";
 import Admin from "@esparex/core/models/Admin";
 import { verifyAdminToken } from "@esparex/core/utils/auth";
-import { validateAdminSession } from "@esparex/core/services/AdminSessionService";
+import { validateAdminSession } from "@esparex/core/domains/identity";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 
 const createMockRes = () => {

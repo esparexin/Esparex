@@ -7,7 +7,7 @@ import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/co
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/contracts';
 import { getUserConnection } from '../config/db';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
-import { syncConversationAvailabilityForListing } from '../services/ChatAvailabilityService';
+import { syncConversationAvailabilityForListing } from '../domains/communications/application/services/ChatAvailabilityService';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {

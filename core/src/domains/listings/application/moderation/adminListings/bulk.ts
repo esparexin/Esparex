@@ -1,5 +1,5 @@
 import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../../../../utils/pLimit';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import { dispatchTemplatedNotification } from '../../../../notifications/application/NotificationService';
 import Ad from '../../../../../models/Ad';
 import type { AdminLogFn } from './types';

@@ -42,7 +42,7 @@ jest.mock("@esparex/core/utils/auth", () => ({
     })),
 }));
 
-jest.mock("@esparex/core/services/AdminSessionService", () => ({
+jest.mock("@esparex/core/domains/identity", () => ({
     __esModule: true,
 
     createAdminSession: jest.fn().mockResolvedValue(undefined),
@@ -76,7 +76,7 @@ import Admin from "@esparex/core/models/Admin";
 import { USER_STATUS } from "@esparex/contracts";
 import {
     revokeAdminSessionsForAdmin,
-} from "@esparex/core/services/AdminSessionService";
+} from "@esparex/core/domains/identity";
 
 import { emailService } from "@esparex/core/domains/notifications";
 import {

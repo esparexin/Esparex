@@ -4,7 +4,7 @@ import { CATALOG_STATUS } from '@esparex/contracts';
 import Brand from '../../../../models/Brand';
 import CatalogModel from '../../../../models/Model';
 import type { ICatalogRequest } from '../../../../models/CatalogRequest';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { buildCatalogSlug, resolveRequestCanonicalName, NON_DELETED_QUERY } from './validation';
 import { buildApprovalTrustMetadata, ensureEntityActiveAndTrusted } from './entity';
 

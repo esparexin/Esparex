@@ -2,3 +2,7 @@ export * from './application/services/FeedDecisionEngine';
 export * from './application/services/FeedService';
 export * from './application/services/SavedSearchService';
 export * from './application/services/TrendingService';
+export * from './application/services/feed/FeedCacheService';
+export * from './application/services/feed/FeedCursorService';
+export * from './application/services/feed/FeedQueryService';
+export * from './application/services/feed/FeedRankerService';

@@ -14,7 +14,7 @@ import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { ZodError } from 'zod';
 import { isZodError } from '@esparex/core/utils/errorHelpers';
-import { AuditService } from '@esparex/core/services/AuditService';
+import { AuditService } from '@esparex/core/domains/analytics';
 import type { IAuthUser } from '@esparex/core/types/auth';
 
 

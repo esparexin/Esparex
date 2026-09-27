@@ -66,7 +66,7 @@ import {
     createSmartAlertMutation,
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
-} from '../../services/smartAlert/SmartAlertMutationService';
+} from '../../domains/notifications';
 
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 const mockedUserPlanFind = UserPlanModel.find as jest.Mock;

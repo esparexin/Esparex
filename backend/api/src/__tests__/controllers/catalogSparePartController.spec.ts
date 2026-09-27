@@ -209,7 +209,6 @@ describe("catalogSparePartController Category Filtering & Caching", () => {
 
             // - Let's inspect the exact cache keys generated
             const cachedKeys = Object.keys(localCacheStore);
-            console.log("Cached keys in local cache store:", cachedKeys);
             // Verify that the generated key DOES contain the categoryId string
             const mobileKey = cachedKeys.find(k => k.includes("69c24a14a58d20c75c6b09d8"));
             const tvKey = cachedKeys.find(k => k.includes("69c24a14a58d20c75c6b09d9"));

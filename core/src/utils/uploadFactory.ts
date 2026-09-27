@@ -1,7 +1,7 @@
 import multer from 'multer';
 import os from 'os';
 import path from 'path';
-import { AppError } from './AppError';
+import { AppError } from '../shared-kernel/errors/AppError';
 
 /**
  * Universal Multer Upload Factory
