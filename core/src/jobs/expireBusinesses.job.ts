@@ -4,6 +4,8 @@ import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 import { expireBusinesses } from '../services/business/BusinessLifecycleService';
 import { cascadeExpireBusinessListings } from '../services/AdminBusinessService';
 import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
+import { renderBusinessExpiredEmail } from '../domains/notifications/templates/EmailLayout';
+import { getFrontendAppUrl } from '../utils/appUrl';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';
 
@@ -21,6 +23,7 @@ export const runExpireBusinessesJob = async () => {
                     logger.info(`Successfully expired ${expiredBusinesses.length} businesses.`);
 
                     const actor = { type: ACTOR_TYPE.SYSTEM, id: 'cron_expireBusinesses' };
+                    const renewUrl = `${getFrontendAppUrl()}/account/business`;
 
                     for (const biz of expiredBusinesses) {
                         try {
@@ -33,13 +36,27 @@ export const runExpireBusinessesJob = async () => {
                             
                             logger.info('Cascaded expiry to listings', { businessId: biz._id, count: cascadedCount });
 
-                            // 2. Dispatch notifications
+                            // 2. Render canonical email template
+                            const businessEmail = typeof biz.email === 'string' && biz.email.includes('@') ? biz.email : undefined;
+                            const emailHtml = renderBusinessExpiredEmail({
+                                businessName: biz.name,
+                                renewUrl,
+                            });
+
+                            // 3. Dispatch notification with email channel
                             await dispatchTemplatedNotification(
                                 biz.userId.toString(),
                                 'BUSINESS_STATUS',
                                 'BUSINESS_EXPIRED',
                                 { name: biz.name },
-                                { businessId: biz._id.toString(), status: BUSINESS_STATUS.EXPIRED }
+                                {
+                                    businessId: biz._id.toString(),
+                                    status: BUSINESS_STATUS.EXPIRED,
+                                    channels: ['in-app', 'push', 'email'],
+                                    email: businessEmail,
+                                    emailHtml,
+                                    emailSubject: 'Your Business Subscription Has Expired — Esparex',
+                                }
                             );
                         } catch (err) {
                             logger.error('Error handling secondary effects for expired business', {
@@ -55,3 +72,4 @@ export const runExpireBusinessesJob = async () => {
         }
     );
 };
+

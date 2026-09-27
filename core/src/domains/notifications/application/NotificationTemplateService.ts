@@ -26,6 +26,14 @@ const TEMPLATES: Record<string, (params: TemplateParams) => NotificationTemplate
         title: 'Business Expiring Soon ⚠️',
         body: `Your business "${p.name}" will expire on ${p.date}. Renew now to keep your listings active.`
     }),
+    BUSINESS_EXPIRED: (p) => ({
+        title: 'Business Subscription Expired',
+        body: `Your Esparex Business subscription for "${p.name}" has expired. Renew to restore your profile and listings.`
+    }),
+    BUSINESS_RENEWED: (p) => ({
+        title: 'Business Subscription Renewed ✅',
+        body: `Your Esparex Business subscription for "${p.name}" has been renewed until ${p.expiresAt || 'N/A'}.`
+    }),
     BUSINESS_EXPIRY_WARNING_3D: (p) => ({
         title: 'Business Renewal Reminder 🏢',
         body: `Your business profile "${p.name}" expires in 3 days (${p.date}). Renew today to avoid any service interruption.`
