@@ -34,11 +34,12 @@ export function buildWebPageSchema({
         inLanguage: "en-IN",
         publisher: {
             "@type": "Organization",
-            name: LEGAL_COMPANY_NAME,
+            name: "Esparex",
+            legalName: LEGAL_COMPANY_NAME,
             url: CANONICAL_ORIGIN,
             logo: {
                 "@type": "ImageObject",
-                url: `${CANONICAL_ORIGIN}/icons/brand-mark.png`
+                url: `${CANONICAL_ORIGIN}/icons/logo.png`
             }
         }
     };
@@ -53,8 +54,18 @@ export function buildContactPageSchema() {
         url: `${CANONICAL_ORIGIN}/contact`,
         mainEntity: {
             "@type": "Organization",
-            name: LEGAL_COMPANY_NAME,
+            name: "Esparex",
+            legalName: LEGAL_COMPANY_NAME,
             url: CANONICAL_ORIGIN,
+            logo: {
+                "@type": "ImageObject",
+                url: `${CANONICAL_ORIGIN}/icons/logo.png`
+            },
+            sameAs: [
+                "https://x.com/esparexin",
+                "https://twitter.com/esparexin",
+                "https://github.com/esparexin"
+            ],
             address: {
                 "@type": "PostalAddress",
                 addressLocality: "Hyderabad",
@@ -91,8 +102,18 @@ export function buildAboutPageSchema() {
         url: `${CANONICAL_ORIGIN}/about`,
         mainEntity: {
             "@type": "Organization",
-            name: LEGAL_COMPANY_NAME,
+            name: "Esparex",
+            legalName: LEGAL_COMPANY_NAME,
             url: CANONICAL_ORIGIN,
+            logo: {
+                "@type": "ImageObject",
+                url: `${CANONICAL_ORIGIN}/icons/logo.png`
+            },
+            sameAs: [
+                "https://x.com/esparexin",
+                "https://twitter.com/esparexin",
+                "https://github.com/esparexin"
+            ],
             location: LEGAL_COMPANY_LOCATION
         }
     };

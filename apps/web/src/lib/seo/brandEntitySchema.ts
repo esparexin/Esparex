@@ -15,13 +15,19 @@ export function buildOrganizationSchema() {
         "@type": "Organization",
         "@id": `${CANONICAL_ORIGIN}/#organization`,
         name: "Esparex",
-        alternateName: ["Esparex Marketplace", "Esparex India", "Esparex.in"],
         legalName: LEGAL_COMPANY_NAME,
         url: CANONICAL_ORIGIN,
         logo: {
             "@type": "ImageObject",
-            url: `${CANONICAL_ORIGIN}/icons/brand-mark.png`,
+            url: `${CANONICAL_ORIGIN}/icons/logo.png`,
+            width: 495,
+            height: 112,
         },
+        sameAs: [
+            "https://x.com/esparexin",
+            "https://twitter.com/esparexin",
+            "https://github.com/esparexin",
+        ],
         description: "India's marketplace for genuine mobile spare parts, refurbished electronics, and repair services.",
         areaServed: {
             "@type": "Country",
