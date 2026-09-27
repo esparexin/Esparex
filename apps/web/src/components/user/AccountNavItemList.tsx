@@ -73,14 +73,14 @@ export function AccountNavItemList({
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
                 ${isActive
                   ? "bg-primary/10 text-primary shadow-xs ring-1 ring-primary/20"
-                  : "text-foreground-tertiary hover:bg-muted/60 hover:text-foreground"
+                  : "text-foreground-secondary hover:bg-muted/70 hover:text-primary"
                 }`}
             >
               <Icon
                 className={`h-4 w-4 flex-shrink-0 transition-colors ${
                   isActive
                     ? "text-primary"
-                    : "text-foreground-subtle group-hover:text-foreground-tertiary"
+                    : "text-foreground-subtle group-hover:text-primary"
                 }`}
               />
               <span>{item.label}</span>

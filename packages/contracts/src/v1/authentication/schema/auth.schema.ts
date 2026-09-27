@@ -26,7 +26,7 @@ export const authMobileSchema = z.string()
             }
             return /^\d{10}$/.test(val);
         },
-        'Invalid mobile format (must be a valid 10-digit Indian number starting with 6-9)'
+        'Invalid mobile number.'
     );
 
 export const authNameSchema = z.string()

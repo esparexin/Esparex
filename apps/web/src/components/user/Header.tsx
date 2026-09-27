@@ -214,7 +214,7 @@ export function Header({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
+                  className="h-11 w-11 rounded-xl text-foreground hover:bg-muted cursor-pointer"
                   onClick={onShowLogin}
                   aria-label="Log in to Esparex"
                 >

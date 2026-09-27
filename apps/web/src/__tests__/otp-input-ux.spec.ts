@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import { OtpInput } from "@esparex/ui";
 
 describe("OtpInput UX & Mobile WebKit Autofill Contract Verification", () => {
@@ -41,5 +43,23 @@ describe("OtpInput UX & Mobile WebKit Autofill Contract Verification", () => {
   it("verifies preventScroll option structure for mobile WebKit focus calls", () => {
     const focusOptions: FocusOptions = { preventScroll: true };
     expect(focusOptions.preventScroll).toBe(true);
+  });
+
+  it("enforces role='group' and aria-label on OtpInput container for WCAG 2.2 AA", () => {
+    const otpInputPath = path.resolve(__dirname, "../../../../packages/ui/src/forms/OtpInput.tsx");
+    const content = fs.readFileSync(otpInputPath, "utf-8");
+
+    expect(content).toContain('role="group"');
+    expect(content).toContain('aria-label={`${length}-digit verification code`}');
+  });
+
+  it("enforces aria-live='polite' and role='status' on cooldown timer in LoginOtpStep", () => {
+    const loginOtpStepPath = path.resolve(__dirname, "../components/user/auth/LoginOtpStep.tsx");
+    const content = fs.readFileSync(loginOtpStepPath, "utf-8");
+
+    expect(content).toContain('role="status"');
+    expect(content).toContain('aria-live="polite"');
+    expect(content).toContain('aria-atomic="true"');
+    expect(content).toContain('before:inset-[-9px]');
   });
 });

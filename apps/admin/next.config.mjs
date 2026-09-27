@@ -77,6 +77,16 @@ const nextConfig = {
         destination: '/categories?tab=spare-parts',
         permanent: true,
       },
+      {
+        source: '/admin/reset-password/:token',
+        destination: '/reset-password/:token',
+        permanent: false,
+      },
+      {
+        source: '/admin/forgot-password',
+        destination: '/forgot-password',
+        permanent: false,
+      },
     ];
   },
   async headers() {

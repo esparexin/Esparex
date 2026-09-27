@@ -18,6 +18,7 @@ interface OtpGuardConfig {
     isTest: boolean;
     msg91AuthKey?: string;
     msg91SenderId?: string;
+    msg91WidgetId?: string;
     authBypassOtpLock?: string;
     otpProvider: OtpProvider;
 }
@@ -43,7 +44,7 @@ const otpGuardState: {
  * @throws {Error} If critical OTP requirements not met in production
  */
 export function validateOtpConfiguration(config: OtpGuardConfig): void {
-    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, authBypassOtpLock, otpProvider } = config;
+    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
 
     otpGuardState.warnings = [];
 
@@ -55,14 +56,14 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         return;
     }
 
-    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS provider validation
+    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS/WhatsApp provider validation
     if (otpProvider === OtpProvider.TEST) {
-        if (!msg91AuthKey || !msg91SenderId) {
-            const warning = 'SMS provider (MSG91) not configured; testing OTP (123456) will be used';
+        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+            const warning = 'MSG91 provider not configured; testing OTP (123456) will be used';
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);
         } else {
-            bootstrapLogger.info('✅ OTP Guard: SMS provider configured; testing OTP (123456) is still active (OTP_PROVIDER=test)');
+            bootstrapLogger.info('✅ OTP Guard: MSG91 provider configured; testing OTP (123456) is still active (OTP_PROVIDER=test)');
         }
         otpGuardState.isSafeToProceed = true;
         otpGuardState.isConfigured = true;
@@ -77,12 +78,12 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         if (!msg91AuthKey) {
             missingKeys.push('MSG91_AUTH_KEY');
         }
-        if (!msg91SenderId) {
-            missingKeys.push('MSG91_SENDER_ID');
+        if (!msg91WidgetId && !msg91SenderId) {
+            missingKeys.push('MSG91_WIDGET_ID');
         }
 
         if (missingKeys.length > 0) {
-            const errorMsg = `🚨 CRITICAL: OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive OTP SMS.`;
+            const errorMsg = `🚨 CRITICAL: OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive WhatsApp OTP.`;
             bootstrapLogger.error(errorMsg);
 
             if (authBypassOtpLock === 'true') {
@@ -104,15 +105,15 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
             return;
         }
 
-        bootstrapLogger.info(`✅ OTP Guard: Production provider "${otpProvider}" configured and validated`);
+        bootstrapLogger.info(`✅ OTP Guard: Production provider "${otpProvider}" configured and validated (WhatsApp OTP enabled)`);
         otpGuardState.isSafeToProceed = true;
         otpGuardState.isConfigured = true;
     }
 
     // Development environment with a real provider: warn but allow
     if (isDevelopment) {
-        if (!msg91AuthKey || !msg91SenderId) {
-            const warning = `OTP provider "${otpProvider}" not configured; SMS dispatch will be skipped in dev mode`;
+        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+            const warning = `OTP provider "${otpProvider}" not fully configured; WhatsApp dispatch will use mock in dev mode`;
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);
 
@@ -120,7 +121,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
                 bootstrapLogger.info('ℹ️  OTP lock bypass ENABLED for local development (AUTH_BYPASS_OTP_LOCK=true)');
             }
         } else {
-            bootstrapLogger.info(`✅ OTP Guard: Provider "${otpProvider}" configured in development`);
+            bootstrapLogger.info(`✅ OTP Guard: Provider "${otpProvider}" configured in development (WhatsApp OTP enabled)`);
         }
         otpGuardState.isSafeToProceed = true;
         otpGuardState.isConfigured = true;

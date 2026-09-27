@@ -149,7 +149,7 @@ export function SmartAlertsTab({
                     className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "rules"
                             ? "border-primary text-primary"
-                            : "border-transparent text-foreground-secondary hover:text-foreground"
+                            : "border-transparent text-foreground-secondary hover:text-primary"
                     }`}
                 >
                     <span>Alert Rules ({smartAlerts.length})</span>
@@ -162,7 +162,7 @@ export function SmartAlertsTab({
                     className={`pb-3 text-body font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                         activeSubTab === "matches"
                             ? "border-primary text-primary"
-                            : "border-transparent text-foreground-secondary hover:text-foreground"
+                            : "border-transparent text-foreground-secondary hover:text-primary"
                     }`}
                 >
                     <span>Matched Listings ({matchesData?.total ?? 0})</span>

@@ -48,7 +48,7 @@ export function LoginFlow({
   }, [mode, status, safeCallbackUrl, router]);
 
   return (
-    <div className="relative">
+    <div className="relative flex-1 flex flex-col justify-between h-full">
       <Login
         mode={mode}
         onLoginSuccess={handleLoginSuccess}

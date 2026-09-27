@@ -1,7 +1,7 @@
 import express from 'express';
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
-import { authLoginLimiter } from '../middleware/rate-limiter/limiters';
+import { authLoginLimiter, authForgotPasswordLimiter, authResetPasswordLimiter } from '../middleware/rate-limiter/limiters';
 import * as adminSystem from '../controllers/admin/system';
 import * as adminAnalytics from '../controllers/admin/adminAnalyticsController';
 import * as adminAudit from '../controllers/admin/adminAuditController';
@@ -29,8 +29,8 @@ const router = express.Router();
 // Public admin auth surface
 router.get('/csrf-token', setCsrfToken, getCsrfToken);
 router.post('/auth/login', authLoginLimiter, adminSystem.adminLogin);
-router.post('/forgot-password', adminSystem.forgotPassword);
-router.post('/reset-password/:token', adminSystem.resetPassword);
+router.post('/forgot-password', authForgotPasswordLimiter, adminSystem.forgotPassword);
+router.post('/reset-password/:token', authResetPasswordLimiter, adminSystem.resetPassword);
 // Protected admin surface
 router.use(requireAdmin);
 router.post('/auth/logout', adminSystem.adminLogout);

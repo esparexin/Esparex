@@ -8,10 +8,11 @@ export type { PresignedUploadResult };
 
 /**
  * Requests a pre-signed S3 URL for direct file upload.
+ * Note: User avatars must use updateProfile() and are isolated from listing media presign.
  */
 export const getListingImagePresignedUrl = async (
     contentType: string,
-    folder: 'ads' | 'staging' | 'business' | 'avatars' | 'service' = 'ads',
+    folder: 'ads' | 'staging' | 'business' | 'service' = 'ads',
     adId?: string
 ): Promise<PresignedUploadResult> => {
     const { data: result } = await toApiResult<PresignedUploadResult>(

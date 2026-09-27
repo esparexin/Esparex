@@ -4,19 +4,25 @@ import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IOtp extends Document {
     mobile: string;
-    otpHash: string;
+    otpHash?: string;
+    reqId?: string;
+    channel?: string;
     attempts: number;
+    resendAttempts: number;
+    lastSentAt: Date;
     expiresAt: Date;
-
     createdAt: Date;
 }
 
 const OtpSchema = new Schema<IOtp>({
     mobile: { type: String, required: true },
-    otpHash: { type: String, required: true },
+    otpHash: { type: String, required: false },
+    reqId: { type: String, required: false },
+    channel: { type: String, default: 'whatsapp' },
     attempts: { type: Number, default: 0, min: 0 },
+    resendAttempts: { type: Number, default: 0, min: 0 },
+    lastSentAt: { type: Date, default: Date.now },
     expiresAt: { type: Date, required: true },
-
     createdAt: { type: Date, default: Date.now }
 });
 

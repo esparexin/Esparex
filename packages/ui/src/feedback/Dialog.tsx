@@ -109,7 +109,7 @@ const DialogContent = React.forwardRef<
         ];
       case "bottomSheet":
         return [
-          "fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 w-full max-w-none h-auto max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] rounded-t-2xl border-none p-0 bg-background flex flex-col overflow-hidden shadow-2xl",
+          "fixed bottom-[var(--keyboard-height,0px)] left-0 right-0 top-auto translate-x-0 translate-y-0 transition-[bottom] duration-200 ease-out w-full max-w-none h-auto max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] rounded-t-2xl border-none p-0 bg-background flex flex-col overflow-hidden shadow-2xl",
           "sm:fixed sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%]",
           "sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[calc(100dvh-3rem)]",
           "sm:rounded-2xl sm:shadow-2xl sm:shadow-slate-900/15 sm:border sm:border-border",

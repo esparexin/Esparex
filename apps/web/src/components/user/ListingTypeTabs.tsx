@@ -125,7 +125,7 @@ export function ListingTypeTabs({
                 : "h-8 sm:h-8.5 px-3 sm:px-3.5 text-caption font-medium",
               isActive
                 ? "border-primary bg-primary text-primary-foreground shadow-2xs font-semibold"
-                : "border-border/80 bg-card text-foreground-secondary hover:bg-muted hover:text-foreground active:scale-95"
+                : "border-border/80 bg-card text-foreground hover:bg-muted hover:text-primary active:scale-95"
             )}
           >
             {showIcons && (

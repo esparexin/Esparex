@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import {
-  Badge,
   Building2,
   Button,
   Card,
   CardContent,
   Check,
   MapPin,
-  Mail,
   MessageCircle,
   Phone,
   Share2,
@@ -17,6 +15,7 @@ import {
   Star,
   Store,
 } from "@esparex/ui";
+import { cn } from "@/lib/utils";
 import { SafeImage } from "@/components/common/SafeImage";
 import type { Business } from "@/lib/api/user/businesses";
 
@@ -68,11 +67,14 @@ export function BusinessHeaderCard({
     }
   };
 
+  const hasContactActions = Boolean(business.whatsappNumber || business.mobile);
+  const hasBothContactActions = Boolean((business.whatsappNumber || business.mobile) && business.mobile);
+
   return (
     <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border shadow-xs bg-card">
       {/* Cover Banner */}
-      <div className="relative h-28 sm:h-40 md:h-48 w-full bg-gradient-to-r from-primary/20 via-emerald-500/15 to-teal-500/20 dark:from-primary/25 dark:to-muted border-b border-primary/15 overflow-hidden">
-        {hasValidCover ? (
+      <div className="relative h-20 sm:h-32 md:h-40 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-border/60 overflow-hidden">
+        {hasValidCover && (
           <SafeImage
             src={rawCover as string}
             alt={business.name}
@@ -81,54 +83,71 @@ export function BusinessHeaderCard({
             className="object-cover opacity-90"
             sizes="100vw"
           />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-between px-8 opacity-10 pointer-events-none text-primary">
-            <Building2 className="size-44" />
-          </div>
         )}
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#16a34a_1px,transparent_1px)] [background-size:16px_16px]" />
-        <div className="absolute -top-10 -right-10 size-60 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Share Button: Upper-Right Icon Only */}
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          onClick={handleShare}
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 size-7.5 sm:size-8.5 rounded-full bg-card/85 hover:bg-card text-foreground backdrop-blur-md shadow-xs border border-border/60 transition-all cursor-pointer z-10"
+          aria-label="Share Store"
+          title={copied ? "Link Copied!" : "Share Store"}
+        >
+          {copied ? (
+            <Check className="size-3.5 text-primary" />
+          ) : (
+            <Share2 className="size-3.5" />
+          )}
+        </Button>
       </div>
 
       {/* Profile Header Details */}
-      <CardContent className="pt-0 px-4 sm:px-6 pb-4 sm:pb-5">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 -mt-10 sm:-mt-14 mb-4">
-          {/* Business Logo Avatar */}
-          <div className="relative size-20 sm:size-28 shrink-0 rounded-2xl bg-card p-1 shadow-md ring-4 ring-card border border-border/80 overflow-hidden flex items-center justify-center mx-auto sm:mx-0">
+      <CardContent className="pt-0 px-3.5 sm:px-5 pb-3 sm:pb-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3 -mt-8 sm:-mt-11 mb-2.5">
+          {/* Business Logo Avatar with Integrated Trust/Verified Icon */}
+          <div className="relative size-16 sm:size-22 shrink-0 rounded-2xl bg-card p-1 shadow-md ring-3 ring-card border border-border/80 flex items-center justify-center mx-auto sm:mx-0">
             {hasValidLogo ? (
               <SafeImage
                 src={rawLogo as string}
                 alt={`${business.name} logo`}
                 fill
                 className="object-cover rounded-xl"
-                sizes="112px"
+                sizes="88px"
               />
             ) : (
               <div className="size-full rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                <Building2 className="size-9 sm:size-12" />
+                <Building2 className="size-8 sm:size-10" />
               </div>
             )}
+
+            {/* Trust & Verification Icon on Avatar */}
+            <span
+              className="absolute -bottom-1 -right-1 size-5 sm:size-6 rounded-full bg-card p-0.5 shadow-xs flex items-center justify-center"
+              title={business.status === "live" ? "Verified Partner" : "Registered Store"}
+              aria-label={`Verification status: ${business.status === "live" ? "Verified Partner" : "Registered Store"}`}
+            >
+              <span className="size-full rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <ShieldCheck className="size-3 sm:size-3.5" />
+              </span>
+            </span>
           </div>
 
           {/* Title & Metadata */}
           <div className="flex-1 min-w-0 text-center sm:text-left">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight">{business.name}</h1>
-              {business.status === "live" && (
-                <Badge className="bg-primary/10 text-primary border border-primary/20 text-tiny font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0">
-                  <ShieldCheck className="size-3.5" />
-                  Verified Store
-                </Badge>
-              )}
-            </div>
+            <h1 className="text-body-lg sm:text-h3 font-bold text-foreground tracking-tight leading-snug">
+              {business.name}
+            </h1>
+
             {business.tagline && (
-              <p className="text-body text-foreground-secondary mt-0.5 font-medium leading-relaxed">
+              <p className="text-caption text-foreground-secondary mt-0.5 font-medium leading-relaxed">
                 {business.tagline}
               </p>
             )}
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2 text-caption">
-              <span className="inline-flex items-center gap-1 text-foreground-secondary font-medium bg-muted px-2.5 py-0.5 rounded-lg text-tiny">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 mt-1.5 text-caption">
+              <span className="inline-flex items-center gap-1 text-foreground-secondary font-medium bg-muted px-2 py-0.5 rounded-lg text-tiny">
                 <Store className="size-3 text-primary" />
                 {primaryBusinessType}
               </span>
@@ -148,58 +167,43 @@ export function BusinessHeaderCard({
           </div>
         </div>
 
-        {/* Quick Action Contact Buttons Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border">
-          {(business.whatsappNumber || business.mobile) && (
-            <Button
-              asChild
-              className="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer flex-1 sm:flex-initial"
-            >
-              <a
-                href={buildWhatsappHref(business.whatsappNumber || business.mobile!)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle className="size-3.5" />
-                WhatsApp
-              </a>
-            </Button>
-          )}
-
-          {business.mobile && (
-            <Button
-              asChild
-              className="h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer flex-1 sm:flex-initial"
-            >
-              <a href={`tel:${business.mobile}`}>
-                <Phone className="size-3.5" />
-                Call Store
-              </a>
-            </Button>
-          )}
-
-          {business.email && (
-            <Button
-              asChild
-              variant="outline"
-              className="h-9 px-3.5 rounded-xl border-border bg-card hover:bg-muted/70 text-foreground-secondary text-caption font-semibold gap-1.5 cursor-pointer flex-1 sm:flex-initial"
-            >
-              <a href={`mailto:${business.email}`}>
-                <Mail className="size-3.5" />
-                Email
-              </a>
-            </Button>
-          )}
-
-          <Button
-            variant="outline"
-            onClick={handleShare}
-            className="h-9 px-3.5 rounded-xl border-border text-foreground-secondary text-caption font-semibold gap-1.5 hover:bg-muted/70 cursor-pointer flex-1 sm:flex-initial ml-auto"
+        {/* Quick Action Contact Buttons Row: WhatsApp & Call Store 50/50 Action Grid */}
+        {hasContactActions ? (
+          <div
+            className={cn(
+              "grid gap-2 pt-2.5 border-t border-border",
+              hasBothContactActions ? "grid-cols-2" : "grid-cols-1"
+            )}
           >
-            {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
-            {copied ? "Link Copied!" : "Share Store"}
-          </Button>
-        </div>
+            {business.whatsappNumber || business.mobile ? (
+              <Button
+                asChild
+                className="h-9 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
+              >
+                <a
+                  href={buildWhatsappHref(business.whatsappNumber || business.mobile!)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="size-3.5 shrink-0" />
+                  <span>WhatsApp</span>
+                </a>
+              </Button>
+            ) : null}
+
+            {business.mobile ? (
+              <Button
+                asChild
+                className="h-9 px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center"
+              >
+                <a href={`tel:${business.mobile}`}>
+                  <Phone className="size-3.5 shrink-0" />
+                  <span>Call Store</span>
+                </a>
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

@@ -61,14 +61,14 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                     "rounded-full border px-3 py-2 text-caption",
                     isActive
                         ? "border-primary/30 bg-primary/10 text-primary"
-                        : "border-border bg-card text-foreground-tertiary hover:border-border/80 hover:text-foreground-secondary"
+                        : "border-border bg-card text-foreground-secondary hover:border-primary/40 hover:text-primary"
                 );
 
                 const primaryStyles = cn(
                     "text-body pb-3 border-b-2 -mb-[1px]",
                     isActive
                         ? "border-primary text-primary"
-                        : "border-transparent text-foreground-tertiary hover:text-foreground hover:border-border"
+                        : "border-transparent text-foreground-secondary hover:text-primary hover:border-primary/40"
                 );
 
                 return (

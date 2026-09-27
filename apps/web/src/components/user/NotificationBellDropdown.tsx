@@ -142,7 +142,7 @@ export function NotificationBellDropdown({
     const triggerClassName =
         variant === "mobile"
             ? "h-11 w-11 rounded-full hover:bg-muted relative"
-            : "h-9 w-9 rounded-full relative text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer";
+            : "h-9 w-9 rounded-full relative text-foreground-secondary hover:text-primary hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer";
     const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-4.5 w-4.5";
 
     if (variant === "mobile") {

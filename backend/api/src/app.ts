@@ -32,6 +32,7 @@ validateOtpConfiguration({
     isTest: env.NODE_ENV === 'test',
     msg91AuthKey: env.MSG91_AUTH_KEY,
     msg91SenderId: env.MSG91_SENDER_ID,
+    msg91WidgetId: env.MSG91_WIDGET_ID,
     authBypassOtpLock: env.AUTH_BYPASS_OTP_LOCK,
     otpProvider: env.OTP_PROVIDER,
 });

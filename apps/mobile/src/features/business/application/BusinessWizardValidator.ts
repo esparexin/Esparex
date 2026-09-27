@@ -1,5 +1,6 @@
 import { BusinessWizardStep } from '../domain/BusinessWizardStep';
 import { BusinessFormState } from '../domain/BusinessFormState';
+import { emailSchema } from '@esparex/contracts';
 
 export interface BusinessValidationError {
   title: string;
@@ -26,7 +27,7 @@ export class BusinessWizardValidator {
             message: 'Please enter a valid 10-digit Indian mobile number.',
           };
         }
-        if (!formState.email.trim() || !formState.email.includes('@')) {
+        if (!emailSchema.safeParse(formState.email.trim()).success) {
           return {
             title: 'Validation Error',
             message: 'Please enter a valid email address.',
