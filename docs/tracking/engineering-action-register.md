@@ -2351,3 +2351,49 @@ docs/tracking/engineering-action-register.md
 **Verification**:
 - ✅ `npm run type-check -w @esparex/apps-web` ──► PASS (0 errors)
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (81 test suites, 427 tests passed)
+
+---
+
+### EA-051
+
+**Sprint**: Catalog Quality & Spare Parts Essentials  
+**PR**: PR on `feat/catalog-spare-parts-essentials`  
+**Category**: Catalog Architecture & Data Integrity  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Drone Spare Parts Visibility Alignment**:
+   - Fixed missing `listingType` on all 15 active Drone spare parts in MongoDB, setting `listingType: ["ad", "spare_part"]`.
+   - Resolves live defect where drone parts were omitted from frontend public queries (`GET /api/catalog/spare-parts?categoryId=<drones>&listingType=spare_part`) and unselected in Admin Dashboard.
+2. **Curated Primary Essential Spare Parts (Zero-Clutter Architecture)**:
+   - Added only genuine, high-frequency primary hardware components:
+     - LED TVs: `Power Supply Board` (Restores essential SMPS repair board)
+     - Mobiles & Tablets: `Back Panel / Back Glass`
+     - Laptops: `Hinges`, `Charger / Power Adapter`
+   - Strict category isolation preserved: Mobiles (15 parts), Tablets (15 parts), Laptops (14 parts), LED TVs (5 parts), Drones (15 parts). Total: 43 clean platform-wide parts.
+3. **Idempotent Operational Utility**:
+   - Added `scripts/catalog-spare-parts-essentials.ts` with `--dry-run` and `--apply` flags.
+   - Registered `ops:catalog:spare-parts-essentials` in root `package.json` to satisfy `SCRIPT-001` gate.
+
+**Files Modified**:
+```
+package.json
+scripts/catalog-spare-parts-essentials.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Aligned 15 drone parts listingType and added 4 primary essential parts across 5 active categories.
+- [x] **Automated Testing**: 72 test suites passed (306/306 unit/integration tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Multi-Platform Verification**: Verified on Web, Admin, and Mobile.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm test` ──► PASS (72 test suites, 306 tests passed)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+
