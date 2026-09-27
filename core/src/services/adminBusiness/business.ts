@@ -236,6 +236,28 @@ export const expireAdminBusiness = async (id: string, actorId: string, logFn: Ad
     const count = await cascadeExpireBusinessListings(business._id, actor, 'Cascaded from admin manual expiry');
     await logFn('EXPIRE_BUSINESS', 'Business', id, { cascadedListings: count });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
-    await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRED', { name: business.name }, { businessId: id, status: BUSINESS_STATUS.EXPIRED });
+    const { renderBusinessExpiredEmail } = await import('../../domains/notifications/templates/EmailLayout');
+    const { getFrontendAppUrl } = await import('../../utils/appUrl');
+    const businessName = String(business.name ?? '');
+    const businessEmail = typeof business.email === 'string' && business.email.includes('@') ? business.email : undefined;
+    const emailHtml = renderBusinessExpiredEmail({
+        businessName,
+        renewUrl: `${getFrontendAppUrl()}/account/business`,
+    });
+    await dispatchTemplatedNotification(
+        business.userId.toString(),
+        'BUSINESS_STATUS',
+        'BUSINESS_EXPIRED',
+        { name: businessName },
+        {
+            businessId: id,
+            status: BUSINESS_STATUS.EXPIRED,
+            channels: ['in-app', 'push', 'email'],
+            email: businessEmail,
+            emailHtml,
+            emailSubject: 'Your Business Subscription Has Expired — Esparex',
+        }
+    );
     return Business.findById(id).lean();
 };
+

@@ -490,6 +490,61 @@ export function renderBusinessRejectedEmail(params: {
         },
         footerNote: 'If you believe this was an error, please reach out to our support team.',
     });
+}/**
+ * Business Profile Expired Email
+ */
+export function renderBusinessExpiredEmail(params: {
+    businessName: string;
+    userName?: string;
+    renewUrl: string;
+}): string {
+    const greeting = params.userName ? `Hello ${escapeHtml(params.userName)},` : 'Hello,';
+    const contentHtml = `
+        <p>${greeting}</p>
+        <p>Your Esparex Business subscription for <strong>${escapeHtml(params.businessName)}</strong> has expired.</p>
+        <p>Your business profile and associated listings are no longer visible to buyers. Renew your subscription to restore access and keep your inventory active.</p>
+        <p style="font-size: 13px; color: #6b7280;">If you believe this is an error or need assistance, please contact our support team.</p>
+    `;
+
+    return renderEmailLayout({
+        title: 'Business Subscription Expired',
+        preheader: `Your Esparex Business subscription for "${params.businessName}" has expired.`,
+        contentHtml,
+        callToAction: {
+            label: 'Renew Now',
+            url: params.renewUrl,
+        },
+        footerNote: 'Renewing restores your verified status, listings, and business tools.',
+    });
 }
 
+/**
+ * Business Plan Renewed Confirmation Email
+ */
+export function renderBusinessRenewedEmail(params: {
+    businessName: string;
+    userName?: string;
+    expiresAt: string;
+    manageUrl: string;
+}): string {
+    const greeting = params.userName ? `Hello ${escapeHtml(params.userName)},` : 'Hello,';
+    const contentHtml = `
+        <p>${greeting}</p>
+        <p>Great news! Your Esparex Business subscription for <strong>${escapeHtml(params.businessName)}</strong> has been successfully renewed.</p>
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 14px; color: #166534;">
+            <strong>Renewed Until:</strong> ${escapeHtml(params.expiresAt)}
+        </div>
+        <p>Your business profile and all active listings remain live and visible to buyers without interruption.</p>
+    `;
 
+    return renderEmailLayout({
+        title: 'Business Subscription Renewed ✅',
+        preheader: `Your Esparex Business subscription for "${params.businessName}" has been renewed.`,
+        contentHtml,
+        callToAction: {
+            label: 'Manage My Business',
+            url: params.manageUrl,
+        },
+        footerNote: 'Thank you for being part of the Esparex verified dealer network.',
+    });
+}
