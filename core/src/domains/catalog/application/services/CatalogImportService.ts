@@ -64,8 +64,15 @@ export class CatalogImportService {
             const allCategories = await Category.find({}, { _id: 1, name: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
             const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
 
-            const allBrands = await Brand.find({}).setOptions({ withDeleted: true }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
-            const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
+            const allBrands = await Brand.find({}).setOptions({ withDeleted: true }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[], isDeleted?: boolean }[]>();
+            const brandMap = new Map<string, typeof allBrands[0]>();
+            for (const b of allBrands) {
+                const key = b.name.toLowerCase();
+                const existing = brandMap.get(key);
+                if (!existing || (existing.isDeleted && !b.isDeleted)) {
+                    brandMap.set(key, b);
+                }
+            }
 
              
             const ops: unknown[] = [];
@@ -133,8 +140,15 @@ export class CatalogImportService {
             const allCategories = await Category.find({}, { _id: 1, name: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
             const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
 
-            const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[] }[]>();
-            const brandMap = new Map(allBrands.map(b => [b.name.toLowerCase(), b]));
+            const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1, isDeleted: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[], isDeleted?: boolean }[]>();
+            const brandMap = new Map<string, typeof allBrands[0]>();
+            for (const b of allBrands) {
+                const key = b.name.toLowerCase();
+                const existing = brandMap.get(key);
+                if (!existing || (existing.isDeleted && !b.isDeleted)) {
+                    brandMap.set(key, b);
+                }
+            }
 
              
             const ops: unknown[] = [];
