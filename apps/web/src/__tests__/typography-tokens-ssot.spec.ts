@@ -327,7 +327,7 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
         expect(violations).toEqual([]);
     });
 
-    it("ensures zero banned legacy tokens exist in @esparex/ui and apps/admin", () => {
+    it("ensures zero banned obsolete tokens exist in @esparex/ui and apps/admin", () => {
         const targetDirs = [ADMIN_SRC, UI_SRC];
         const BANNED = ["text-3xs", ["text", "2xs"].join("-"), "text-heading-sm", "text-headline", "text-title"];
         const violations: string[] = [];

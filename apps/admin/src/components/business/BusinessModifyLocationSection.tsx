@@ -9,7 +9,6 @@ import {
 } from "./businessModifyTypes";
 
 export type { BusinessModifyFormState };
-export { formatLocationLabel };
 
 interface BusinessModifyLocationSectionProps {
   form: BusinessModifyFormState;
