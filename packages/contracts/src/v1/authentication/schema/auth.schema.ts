@@ -6,7 +6,12 @@ import { CONTACT_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits'
  * Strips non-digits, strips leading +91 / 91 / 0, and returns the 10-digit number.
  */
 export function normalizeIndianMobileInput(raw: string): string {
-    const digits = (raw || '').replace(/\D/g, '');
+    const str = raw || '';
+    const hasPlusCountry = str.trim().startsWith('+');
+    const digits = str.replace(/\D/g, '');
+    if (hasPlusCountry && digits.startsWith('91')) {
+        return digits.slice(2, 12);
+    }
     if (digits.length >= 12 && digits.startsWith('91')) {
         return digits.slice(2, 12);
     }

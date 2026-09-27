@@ -3,40 +3,26 @@
  * SSOT for all mobile/phone transformations across the web app.
  */
 
-import { CONTACT_LIMITS } from "@esparex/contracts";
+import { CONTACT_LIMITS, normalizeIndianMobileInput } from "@esparex/contracts";
 
 /**
  * Strips country code and normalizes any mobile string to a bare 10-digit number.
+ * SSOT: delegates to canonical @esparex/contracts normalizeIndianMobileInput.
  */
 export const normalizeTo10Digits = (mobile: string): string => {
   if (!mobile) return "";
   const trimmed = mobile.trim();
-  const hasPlusCountryCode = trimmed.startsWith("+");
   const digits = trimmed.replace(/\D/g, "");
 
-  if (hasPlusCountryCode) {
-    if (digits.startsWith("91")) {
-      return digits.slice(2);
-    }
-    return digits;
-  }
-
-  if (digits.length === 12 && digits.startsWith("91")) {
-    return digits.slice(2);
-  }
-
-  if (digits.length === 11 && digits.startsWith("0")) {
-    return digits.slice(1);
-  }
-
-  if (digits.length <= 10 && digits.startsWith("91")) {
+  // Legacy incomplete autofill handling where 91 prefix was tested without plus
+  if (digits.length <= 10 && digits.startsWith("91") && !trimmed.startsWith("+")) {
     const stripped = digits.slice(2);
     if (stripped.length > 0 && /^[6-9]/.test(stripped)) {
       return stripped;
     }
   }
 
-  return digits.length > 10 ? digits.slice(-10) : digits;
+  return normalizeIndianMobileInput(mobile);
 };
 
 /**
