@@ -48,14 +48,14 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
     title: {
-        absolute: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+        absolute: "Esparex — India's Marketplace for Mobile Spare Parts & Tech Repair",
     },
     description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services. Buy and sell electronics online across India — free to post.",
     alternates: {
         canonical: toCanonicalUrl('/'),
     },
     openGraph: {
-        title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+        title: "Esparex — India's Marketplace for Mobile Spare Parts & Tech Repair",
         description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services.",
         url: toCanonicalUrl('/'),
         siteName: "Esparex",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Buy & Sell Mobile Spare Parts Online India | Esparex",
+        title: "Esparex — India's Marketplace for Mobile Spare Parts & Tech Repair",
         description: "India's marketplace for mobile spare parts, used phones, laptops, tablets and repair services.",
         images: ["/og-image.png"],
     },
@@ -98,9 +98,9 @@ export default async function Home() {
                 }}
             />
 
-            {/* Keyword-rich H1 — always server-rendered for Googlebot */}
+            {/* Semantic brand-first H1 — always server-rendered for Googlebot and screen readers */}
             <h1 className="sr-only">
-                Buy &amp; Sell Mobile Spare Parts Online India — Esparex Marketplace
+                Esparex — India&apos;s Marketplace for Mobile Spare Parts &amp; Tech Repair
             </h1>
 
             <section data-primary className="flex flex-col isolate">

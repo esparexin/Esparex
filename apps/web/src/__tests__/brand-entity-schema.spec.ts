@@ -94,4 +94,25 @@ describe("Brand Entity Schema & Google Disambiguation Verification", () => {
             expect(ESPAREX_COMPANY_IDENTITY.legalName).toBe("Esparex Marketplace Private Limited");
         });
     });
+
+    describe("5. Public Layout & Homepage Brand Title Hardening", () => {
+        it("homepage metadata begins with canonical brand 'Esparex'", async () => {
+            const { metadata } = await import("@/app/(public)/page");
+            const titleObj = metadata.title as { absolute?: string };
+            expect(titleObj?.absolute).toBeDefined();
+            expect(titleObj?.absolute?.startsWith("Esparex")).toBe(true);
+            expect(titleObj?.absolute).toBe("Esparex — India's Marketplace for Mobile Spare Parts & Tech Repair");
+            expect(metadata.openGraph?.title).toBe("Esparex — India's Marketplace for Mobile Spare Parts & Tech Repair");
+            expect(metadata.openGraph?.siteName).toBe("Esparex");
+        });
+
+        it("public layout default title begins with canonical brand 'Esparex'", async () => {
+            const { metadata } = await import("@/app/(public)/layout");
+            const titleObj = metadata.title as { default?: string; template?: string };
+            expect(titleObj?.default).toBeDefined();
+            expect(titleObj?.default?.startsWith("Esparex")).toBe(true);
+            expect(titleObj?.template).toBe("%s | Esparex");
+        });
+    });
 });
+
