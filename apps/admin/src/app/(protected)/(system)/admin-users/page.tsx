@@ -139,11 +139,33 @@ export default function AdminUsersPage() {
             },
             {
                 header: "Permissions",
-                cell: (admin) => (
-                    <div className="max-w-[280px] text-xs text-foreground-secondary">
-                        {admin.permissions.length > 0 ? admin.permissions.join(", ") : "No explicit permissions"}
-                    </div>
-                ),
+                cell: (admin) => {
+                    const isSuper = normalizeRole(admin.role) === Role.SUPER_ADMIN || admin.permissions.includes("all");
+                    if (isSuper) {
+                        return (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-tiny font-bold uppercase tracking-wider bg-purple-100 text-purple-800">
+                                All Permissions (Super Admin)
+                            </span>
+                        );
+                    }
+                    if (admin.permissions.length === 0) {
+                        return <span className="text-caption italic text-foreground-subtle">No explicit permissions</span>;
+                    }
+                    const visible = admin.permissions.slice(0, 3);
+                    const remaining = admin.permissions.length - 3;
+                    return (
+                        <div className="flex flex-wrap items-center gap-1 max-w-[280px]">
+                            {visible.map((p) => (
+                                <span key={p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
+                            ))}
+                            {remaining > 0 && (
+                                <span className="rounded bg-muted/60 px-1.5 py-0.5 text-tiny font-bold text-foreground-tertiary">
+                                    +{remaining} more
+                                </span>
+                            )}
+                        </div>
+                    );
+                },
             },
             {
                 header: "Last Login",

@@ -161,7 +161,7 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
     },
     {
         key: "administration",
-        label: "System Administration",
+        label: "Admin User Management",
         icon: ShieldCheck,
         href: "/admin-users",
         roles: ["superAdmin"],

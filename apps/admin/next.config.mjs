@@ -8,6 +8,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/',
+        destination: '/dashboard',
+        permanent: false,
+      },
+      {
         source: '/moderation',
         destination: '/ads?status=pending',
         permanent: true,

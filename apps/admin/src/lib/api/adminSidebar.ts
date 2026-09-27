@@ -28,9 +28,7 @@ export async function fetchAdminSidebarCounts(): Promise<SidebarCounters> {
         : {};
 
     return {
-        ads: moderationSummary
-            ? `${moderationSummary.total} (P:${moderationSummary.pending}/L:${moderationSummary.live})`
-            : 0,
+        ads: moderationSummary?.pending ?? 0,
         reports: reportPagination?.total ?? 0,
         businesses: Number(businessOverview.pending || 0),
     };
