@@ -1,6 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import type { ListingUpdate } from '../../../ports/ListingRepositoryPort';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
 import { LISTING_STATUS } from '@esparex/contracts';

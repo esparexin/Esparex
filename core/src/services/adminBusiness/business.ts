@@ -6,7 +6,7 @@ import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { BUSINESS_STATUS, LISTING_STATUS, LISTING_TYPE, ACTOR_TYPE } from '@esparex/contracts';
 import type { ActorMetadata } from '@esparex/contracts';
 import { mutateStatuses, mutateStatus } from '../lifecycle/StatusMutationService';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
 import logger from '../../utils/logger';
 
@@ -146,7 +146,7 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: A
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     const { renderBusinessApprovedEmail } = await import('../../domains/notifications/templates/EmailLayout');
     const { getFrontendAppUrl } = await import('../../utils/appUrl');
-    const { recalculateTrustScore } = await import('../TrustService');
+    const { recalculateTrustScore } = await import('../../domains/trust');
     const { assignDefaultPlan } = await import('../business/BusinessSubscriptionService');
 
     const userIdStr = String(business.userId ?? '');

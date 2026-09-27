@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@esparex/core/services/AdminSessionService';
+import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@esparex/core/domains/identity';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../../utils/adminBaseController';
 import { getSingleParam } from '../../utils/requestParams';
 import { logAdminAction } from '../../utils/adminLogger';

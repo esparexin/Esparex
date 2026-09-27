@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import type { ListingFilter, ListingUpdate } from '../../ports/ListingRepositoryPort';
 import { getListingRepository } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
-import { touchLocationAnalytics } from '../../../../services/location/LocationAnalyticsService';
+import { touchLocationAnalytics } from '../../../analytics/application/services/location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from '../../../discovery';
 import { LISTING_STATUS } from '@esparex/contracts';
 

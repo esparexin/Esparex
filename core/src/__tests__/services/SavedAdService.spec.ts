@@ -42,7 +42,7 @@ jest.mock("@esparex/core/domains/discovery", () => ({
 
 import SavedAd from "../../models/SavedAd";
 import Ad from "../../models/Ad";
-import { saveAd, unsaveAd } from "../../services/SavedAdService";
+import { saveAd, unsaveAd } from "../../domains/listings/application";
 
 const mockSavedAd = SavedAd as any;
 const mockAd = Ad as any;

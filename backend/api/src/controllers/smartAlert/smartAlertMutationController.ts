@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { sendErrorResponse } from "../../utils/errorResponse";
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 import {
     getErrorMessage,
     getRequiredAlertId,
@@ -13,7 +13,7 @@ import {
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
     updateSmartAlertMutation,
-} from '@esparex/core/services/smartAlert/SmartAlertMutationService';
+} from '@esparex/core/domains/notifications';
 
 const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     const appError = error instanceof AppError ? error : null;

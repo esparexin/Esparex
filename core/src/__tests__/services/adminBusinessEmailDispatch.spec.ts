@@ -33,13 +33,13 @@ jest.mock('../../models/Ad', () => ({
 jest.mock('../../services/business/BusinessLifecycleService');
 jest.mock('../../domains/notifications/application/NotificationService');
 jest.mock('../../services/business/BusinessSubscriptionService');
-jest.mock('../../services/TrustService');
+jest.mock('../../domains/trust');
 
 import { approveAdminBusiness, rejectAdminBusiness } from '../../services/adminBusiness/business';
 import * as businessLifecycleService from '../../services/business/BusinessLifecycleService';
 import * as NotificationService from '../../domains/notifications/application/NotificationService';
 import * as BusinessSubscriptionService from '../../services/business/BusinessSubscriptionService';
-import * as TrustService from '../../services/TrustService';
+import * as TrustService from '../../domains/trust';
 
 describe('Admin Business Approval & Rejection Email Integration', () => {
     const mockLogFn = jest.fn().mockResolvedValue(undefined);

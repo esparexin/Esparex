@@ -5,7 +5,7 @@ import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
 import * as AdAggregationService from '@esparex/core/domains/listings/application/ad/ad/AdAggregationService';
 import * as AdDetailService from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
-import * as feedService from '@esparex/core/services/FeedService';
+import * as feedService from '@esparex/core/domains/discovery';
 import * as trendingService from '@esparex/core/domains/discovery';
 
 import { z } from 'zod';

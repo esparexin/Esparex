@@ -15,7 +15,7 @@ jest.mock('../../utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/PromotionPolicyService', () => ({
+jest.mock('@esparex/core/domains/boosts', () => ({
     PromotionPolicyService: {
         canPromote: jest.fn(),
     },

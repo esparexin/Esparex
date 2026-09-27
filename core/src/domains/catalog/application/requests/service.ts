@@ -4,7 +4,7 @@ import { scoreModeratorTrust } from '../services/CatalogSearchGovernanceService'
 import { assertValidObjectId, coerceOptionalNotes, assertRequestCategoryIsActive, assertParentBrandIsActiveForModelRequest, loadRequestForReview } from './validation';
 import { resolveOrCreateBrand, resolveOrCreateModel, resolveDuplicateEntity } from './resolvers';
 import type { CatalogRequestApprovalResult, CatalogRequestRejectionResult } from './types';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 
 export async function approveCatalogRequest(params: {
     requestId: string; adminId: string; adminNotes?: string | null;

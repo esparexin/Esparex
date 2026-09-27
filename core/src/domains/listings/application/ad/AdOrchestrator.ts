@@ -2,14 +2,14 @@ import type { ClientSession } from 'mongoose';
 import { type Listing } from '../../../../domains/listings';
 import { getListingRepository, getListingUnitOfWork } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { generateId } from '../../../../utils/idUtils';
 
 
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
-import { analyzeFraudRisk, FraudContext } from '../../../../services/FraudDetectionService';
+import { analyzeFraudRisk, FraudContext } from '../../../../domains/fraud';
 import { AdCreationService } from './AdCreationService';
 import { ListingSubmissionPolicy } from '../../application/policies/ListingSubmissionPolicy';
 import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';

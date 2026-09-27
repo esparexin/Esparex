@@ -5,6 +5,7 @@ import { AdminApiError, AdminNetworkError, adminFetch, setAdminAccessToken, fetc
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { AdminUser } from "@/types/admin";
+import logger from "@/lib/logger";
 
 type LoginInput = {
   email: string;
@@ -83,8 +84,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
           const message = err instanceof Error ? err.message : String(err);
           const networkError = err instanceof AdminNetworkError ? err : new AdminNetworkError(message, err);
           setState(prev => ({ ...prev, loading: false, error: networkError }));
-          // eslint-disable-next-line no-console -- diagnostic boundary: transient auth refresh failures are surfaced here
-          console.warn("[AdminAuth] Refresh failed. Preserving session state.", message);
+          logger.warn("[AdminAuth] Refresh failed. Preserving session state.", message);
         }
       }
     }

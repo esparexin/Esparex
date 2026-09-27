@@ -13,7 +13,7 @@ import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
 import { getCache } from '@esparex/core/utils/redisCache';
 import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
