@@ -44,7 +44,7 @@ const SETTINGS_TABS: Array<{ key: SettingsTab; label: string; icon: LucideIcon }
   { key: "platform", label: "Platform", icon: Globe },
   { key: "listing", label: "Listing Rules", icon: ListChecks },
   { key: "moderation", label: "Moderation", icon: Cpu },
-  { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "notifications", label: "Email", icon: Bell },
   { key: "payments", label: "Payments", icon: CreditCard },
   { key: "monetization", label: "Monetization & Ads", icon: Settings },
   { key: "security", label: "Security", icon: Shield },

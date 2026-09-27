@@ -6,10 +6,10 @@ import logger from '../utils/logger';
 import Business from '../models/Business';
 import Ad from '../models/Ad';
 import SmartAlert from '../models/SmartAlert';
-import { BUSINESS_STATUS } from '@esparex/contracts';
-import { LISTING_STATUS } from '@esparex/contracts';
+import { BUSINESS_STATUS, LISTING_STATUS, ACTOR_TYPE } from '@esparex/contracts';
 import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
-import { ACTOR_TYPE } from '@esparex/contracts';
+import { renderBusinessExpiryAlertEmail } from '../domains/notifications/templates/EmailLayout';
+import { getFrontendAppUrl } from '../utils/appUrl';
 import AdminLog from '../models/AdminLog';
 
 const expiryWarningQueue = shouldDisableQueueConnection
@@ -40,22 +40,37 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
             isDeleted: false
         });
 
+        const renewUrl = `${getFrontendAppUrl()}/account/business`;
+
         for (const biz of expiringBusinesses) {
             try {
+                const expiryDateStr = biz.expiresAt?.toLocaleDateString() || 'N/A';
+                const daysLeft = biz.expiresAt
+                    ? Math.max(1, Math.ceil((biz.expiresAt.getTime() - Date.now()) / 86_400_000))
+                    : 3;
+                const emailHtml = renderBusinessExpiryAlertEmail({
+                    businessName: biz.name,
+                    expiryDate: expiryDateStr,
+                    daysLeft,
+                    renewUrl,
+                });
+
                 await dispatchTemplatedNotification(
                     biz.userId.toString(),
                     'BUSINESS_STATUS',
                     'BUSINESS_EXPIRY_WARNING_3D',
-                    { 
-                        name: biz.name, 
-                        date: biz.expiresAt?.toLocaleDateString() || 'N/A' 
-                    },
-                    { businessId: biz._id.toString() }
+                    { name: biz.name, date: expiryDateStr },
+                    {
+                        businessId: biz._id.toString(),
+                        channels: ['in-app', 'push', 'email'],
+                        emailHtml,
+                        emailSubject: `Your Business Expires in ${daysLeft} Day${daysLeft === 1 ? '' : 's'} — Esparex`,
+                    }
                 );
 
                 biz.expiryWarningSentAt = new Date();
                 biz.expiryWarningCount = (biz.expiryWarningCount || 0) + 1;
-                biz.lastExpiryWarningChannel = 'in-app';
+                biz.lastExpiryWarningChannel = 'email';
                 await biz.save();
 
                 await AdminLog.create({
@@ -64,7 +79,8 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     targetId: biz._id,
                     metadata: {
                         entityType: 'Business',
-                        channel: 'in-app',
+                        channel: 'email',
+                        daysLeft,
                         expiresAt: biz.expiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
                     }
@@ -88,16 +104,20 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     ad.sellerId.toString(),
                     'SYSTEM',
                     'LISTING_EXPIRY_WARNING_3D',
-                    { 
-                        title: ad.title, 
-                        date: ad.expiresAt?.toLocaleDateString() || 'N/A' 
+                    {
+                        title: ad.title,
+                        date: ad.expiresAt?.toLocaleDateString() || 'N/A'
                     },
-                    { adId: ad._id.toString() }
+                    {
+                        adId: ad._id.toString(),
+                        channels: ['in-app', 'push', 'email'],
+                        emailSubject: `Your Listing Expires Soon — Esparex`,
+                    }
                 );
 
                 ad.expiryWarningSentAt = new Date();
                 ad.expiryWarningCount = (ad.expiryWarningCount || 0) + 1;
-                ad.lastExpiryWarningChannel = 'in-app';
+                ad.lastExpiryWarningChannel = 'email';
                 await ad.save();
 
                 await AdminLog.create({
@@ -106,7 +126,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     targetId: ad._id,
                     metadata: {
                         entityType: 'Ad',
-                        channel: 'in-app',
+                        channel: 'email',
                         expiresAt: ad.expiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
                     }
@@ -130,11 +150,16 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     ad.sellerId.toString(),
                     'SYSTEM',
                     'SPOTLIGHT_EXPIRY_WARNING_3D',
-                    { 
-                        title: ad.title, 
-                        date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' 
+                    {
+                        title: ad.title,
+                        date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A'
                     },
-                    { adId: ad._id.toString(), type: 'spotlight' }
+                    {
+                        adId: ad._id.toString(),
+                        type: 'spotlight',
+                        channels: ['in-app', 'push', 'email'],
+                        emailSubject: `Your Spotlight Promotion Expires Soon — Esparex`,
+                    }
                 );
 
                 ad.spotlightWarningSentAt = new Date();
@@ -147,7 +172,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     targetId: ad._id,
                     metadata: {
                         type: 'spotlight',
-                        channel: 'in-app',
+                        channel: 'email',
                         expiresAt: ad.spotlightExpiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
                     }
@@ -170,16 +195,20 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     alert.userId.toString(),
                     'SYSTEM',
                     'SMART_ALERT_EXPIRY_WARNING_3D',
-                    { 
-                        name: alert.name || 'Saved Search', 
-                        date: alert.expiresAt?.toLocaleDateString() || 'N/A' 
+                    {
+                        name: alert.name || 'Saved Search',
+                        date: alert.expiresAt?.toLocaleDateString() || 'N/A'
                     },
-                    { alertId: alert._id.toString() }
+                    {
+                        alertId: alert._id.toString(),
+                        channels: ['in-app', 'push', 'email'],
+                        emailSubject: `Your Saved Search Expires Soon — Esparex`,
+                    }
                 );
 
                 alert.expiryWarningSentAt = new Date();
                 alert.expiryWarningCount = (alert.expiryWarningCount || 0) + 1;
-                alert.lastExpiryWarningChannel = 'in-app';
+                alert.lastExpiryWarningChannel = 'email';
                 await alert.save();
 
                 await AdminLog.create({
@@ -188,7 +217,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     targetId: alert._id,
                     metadata: {
                         subType: 'SmartAlert',
-                        channel: 'in-app',
+                        channel: 'email',
                         expiresAt: alert.expiresAt,
                         actorType: ACTOR_TYPE.SYSTEM
                     }

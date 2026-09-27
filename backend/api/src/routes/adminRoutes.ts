@@ -169,6 +169,7 @@ router.get('/cache/health', adminSystem.getCacheHealth);
 
 router.get('/system/config', adminSystemConfig.getSystemConfig);
 router.patch('/system/config', requirePermission('system:config'), adminSystemConfig.updateSystemConfig);
+router.post('/system/config/test-email', requirePermission('system:config'), adminSystemConfig.sendTestEmail);
 
 router.get('/support/contact', adminSystem.getContactSubmissions);
 router.patch('/support/contact/:id/status', adminSystem.updateContactSubmissionStatus);
