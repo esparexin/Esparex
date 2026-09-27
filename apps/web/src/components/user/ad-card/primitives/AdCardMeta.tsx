@@ -87,7 +87,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Title — Snug line-height and discrete Geist font size */}
       <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
-          "font-normal line-clamp-2 leading-snug text-foreground tracking-tight",
+          "font-normal line-clamp-2 leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors",
           isList ? "text-small" : "text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}

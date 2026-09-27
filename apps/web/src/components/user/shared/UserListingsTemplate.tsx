@@ -71,7 +71,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                                 className={`flex items-center gap-1.5 px-4 py-2 text-caption font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
                                     ${activeSubTab === t.value
                                         ? activeTabClass
-                                        : "border-transparent text-muted-foreground hover:text-foreground-secondary"
+                                        : "border-transparent text-foreground-secondary hover:text-primary"
                                     }`}
                             >
                                 {t.icon}
@@ -97,7 +97,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             onClick={() => onStatusChange(status)}
                             className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${selectedStatus === status
                                 ? "bg-card text-foreground shadow-xs"
-                                : "text-foreground-tertiary hover:text-foreground hover:bg-muted/60"
+                                : "text-foreground-secondary hover:text-primary hover:bg-card/60"
                                 }`}
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}

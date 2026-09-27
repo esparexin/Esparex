@@ -6,6 +6,7 @@ import { PAYMENT_STATUS } from "@esparex/contracts";
 import { generateInvoiceNumber } from '@esparex/core/utils/invoiceNumber';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
 import * as invoiceService from '@esparex/core/domains/payments/application/InvoiceService';
+import { renderInvoiceHtml } from '@esparex/core/domains/payments/application/InvoicePdfService';
 import {
     createPaymentTransaction,
     findTransactionForUpdate,
@@ -318,83 +319,30 @@ export const getPrintableInvoice = async (req: Request, res: Response) => {
             tax?: { gst?: number };
         };
 
-        // Simple HTML template for printing
-        const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Invoice - ${inv.invoiceNumber}</title>
-                <style>
-                    body { font-family: sans-serif; padding: 40px; }
-                    .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
-                    .company-info h1 { color: #f97316; margin: 0; }
-                    .invoice-info { text-align: right; }
-                    .bill-to { margin-bottom: 40px; }
-                    table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-                    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-                    th { background: #f9fafb; }
-                    .totals { float: right; width: 300px; }
-                    .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
-                    .grand-total { font-weight: bold; font-size: 1.2em; border-top: 2px solid #eee; margin-top: 10px; padding-top: 10px; }
-                    @media print { .no-print { display: none; } }
-                </style>
-            </head>
-            <body>
-                <div class="no-print" style="background: #fffbeb; padding: 10px; border: 1px solid #fde68a; margin-bottom: 20px;">
-                    <button onclick="window.print()">Print to PDF</button>
-                </div>
-                <div class="header">
-                    <div class="company-info">
-                        <h1>ESPAREX</h1>
-                        <p>Structural Data Platform</p>
-                    </div>
-                    <div class="invoice-info">
-                        <h2>INVOICE</h2>
-                        <p># ${inv.invoiceNumber}</p>
-                        <p>Date: ${new Date(inv.issuedAt).toLocaleDateString()}</p>
-                    </div>
-                </div>
-                <div class="bill-to">
-                    <strong>BILL TO:</strong>
-                    <p>${inv.userId?.name || 'Customer'}</p>
-                    <p>${inv.userId?.email || ''}</p>
-                    <p>${inv.userId?.mobile || ''}</p>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th>Plan Type</th>
-                            <th>Credits/Limit</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>${inv.planSnapshot?.name || 'Subscription Plan'}</td>
-                            <td>${inv.planSnapshot?.type || ''}</td>
-                            <td>${inv.planSnapshot?.credits || 0} credits</td>
-                            <td>${inv.currency} ${inv.planSnapshot?.price?.toFixed(2) || '0.00'}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="totals">
-                    <div class="total-row">
-                        <span>Subtotal</span>
-                        <span>${inv.currency} ${(inv.amount - (inv.tax?.gst || 0)).toFixed(2)}</span>
-                    </div>
-                    <div class="total-row">
-                        <span>GST (18%)</span>
-                        <span>${inv.currency} ${(inv.tax?.gst || 0).toFixed(2)}</span>
-                    </div>
-                    <div class="total-row grand-total">
-                        <span>Total Due</span>
-                        <span>${inv.currency} ${inv.amount.toFixed(2)}</span>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
+        const planName = inv.planSnapshot?.name || 'Subscription Plan';
+        const planType = inv.planSnapshot?.type || 'Service';
+        const taxGst = inv.tax?.gst || 0;
+        const subtotal = inv.amount - taxGst;
+        const date = new Date(inv.issuedAt).toLocaleDateString('en-IN', {
+            year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        const html = renderInvoiceHtml({
+            invoiceNumber: inv.invoiceNumber,
+            date,
+            orderId: String(inv.transactionId || inv.invoiceNumber),
+            planName,
+            planType,
+            subtotal,
+            taxGst,
+            totalAmount: inv.amount,
+            currency: inv.currency || 'INR',
+            user: {
+                name: inv.userId?.name,
+                email: inv.userId?.email,
+                mobile: inv.userId?.mobile,
+            }
+        });
 
         // Explicit contract exemption: printable invoice endpoint intentionally returns HTML.
         res.set('X-Esparex-Response-Mode', 'html-printable');

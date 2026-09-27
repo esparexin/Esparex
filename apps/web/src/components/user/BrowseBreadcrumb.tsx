@@ -36,7 +36,7 @@ export function BrowseBreadcrumb({
           <li>
             <Link
               href="/"
-              className="hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm"
+              className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm"
             >
               Home
             </Link>
@@ -48,7 +48,7 @@ export function BrowseBreadcrumb({
             <Link
               href="/browse"
               className={cn(
-                "hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm",
+                "hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm",
                 !categoryName && !trimmedQuery && "text-foreground font-medium"
               )}
               aria-current={!categoryName && !trimmedQuery ? "page" : undefined}

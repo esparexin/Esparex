@@ -25,17 +25,26 @@ export const getUserByIdForAdmin = async (id: string) => User.findById(id).selec
 export const updateAdminUser = async (userId: string, data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {
     if (!Types.ObjectId.isValid(userId)) throw new AppError('Invalid User ID format', 400);
     const { name, email, mobile } = data as { name?: string; email?: string; mobile?: string };
-    if (email || mobile) {
+    const safeEmail = typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : undefined;
+    const safeMobile = typeof mobile === 'string' && mobile.trim() ? mobile.trim() : undefined;
+    if (safeEmail || safeMobile) {
         const orClauses: Record<string, unknown>[] = [];
-        if (email) orClauses.push({ email: { $eq: String(email).trim().toLowerCase() } });
-        if (mobile) orClauses.push({ mobile: { $eq: String(mobile).trim() } });
+        if (safeEmail) orClauses.push({ email: { $eq: safeEmail } });
+        if (safeMobile) orClauses.push({ mobile: { $eq: safeMobile } });
         if (orClauses.length > 0) { const exists = await User.findOne({ _id: { $ne: userId }, $or: orClauses }); if (exists) throw new AppError('Email or Mobile already in use', 409, 'USER_ALREADY_EXISTS'); }
     }
     const updateData: Record<string, unknown> = { updatedBy: actorId };
-    if (name !== undefined) updateData.name = name;
-    if (email !== undefined) updateData.email = email;
-    if (mobile !== undefined) updateData.mobile = mobile;
-    const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select('-password');
+    const updateQuery: { $set: Record<string, unknown>; $unset?: Record<string, unknown> } = { $set: updateData };
+    if (name !== undefined) updateData.name = typeof name === 'string' ? name.trim() : name;
+    if (email !== undefined) {
+        if (safeEmail) {
+            updateData.email = safeEmail;
+        } else {
+            updateQuery.$unset = { email: 1 };
+        }
+    }
+    if (mobile !== undefined && safeMobile) updateData.mobile = safeMobile;
+    const user = await User.findByIdAndUpdate(userId, updateQuery, { new: true }).select('-password');
     if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     await logFn('UPDATE_USER', 'User', userId, { changes: Object.keys(data) });
     return normalizeAdminManagedUser(user);

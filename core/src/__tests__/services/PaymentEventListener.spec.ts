@@ -18,6 +18,27 @@ jest.mock('../../services/business/BusinessPlanSyncService', () => ({
     syncPriorityScore: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../../models/User', () => ({
+    __esModule: true,
+    default: {
+        findById: jest.fn(() => ({
+            select: jest.fn(() => ({
+                lean: jest.fn().mockResolvedValue({
+                    name: 'Test Customer',
+                    email: 'customer@example.com',
+                }),
+            })),
+        })),
+    },
+}));
+
+jest.mock('../../domains/notifications/application/EmailService', () => ({
+    __esModule: true,
+    emailService: {
+        sendEmail: jest.fn().mockResolvedValue(true),
+    },
+}));
+
 jest.mock('../../utils/logger', () => ({
     __esModule: true,
     default: {

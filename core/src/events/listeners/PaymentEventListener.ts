@@ -2,6 +2,9 @@ import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import type { PaymentCompletedEvent } from '../LifecycleEventDispatcher';
 import { upgradePlan } from '../../services/business/BusinessSubscriptionService';
+import User from '../../models/User';
+import { emailService } from '../../domains/notifications/application/EmailService';
+import { renderPurchaseConfirmationEmail } from '../../domains/notifications/templates/EmailLayout';
 
 /**
  * 💳 Payment Event Listener
@@ -41,6 +44,33 @@ export const registerPaymentEventListener = () => {
                         userId: payload.userId,
                         planId: payload.planId,
                     });
+                }
+            }
+
+            // 2. Transactional Purchase Confirmation Email
+            if (payload.userId) {
+                const user = await User.findById(payload.userId).select('name email').lean();
+                if (user && typeof user.email === 'string' && user.email.includes('@')) {
+                    const planName = payload.planId || 'Esparex Subscription';
+                    const amountStr = `₹${(payload.amount / 100).toLocaleString('en-IN')}`;
+                    const formattedDate = new Date().toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                    const confirmHtml = renderPurchaseConfirmationEmail({
+                        orderId: payload.gatewayPaymentId || payload.transactionId,
+                        planName,
+                        amount: amountStr,
+                        formattedDate,
+                        userName: typeof user.name === 'string' ? user.name : undefined,
+                    });
+                    await emailService.sendEmail(
+                        user.email,
+                        `Purchase Confirmation: ${planName}`,
+                        confirmHtml
+                    );
+                    logger.info(`[PaymentEventListener] Sent purchase confirmation email to ${user.email} for tx ${payload.transactionId}`);
                 }
             }
         } catch (error) {

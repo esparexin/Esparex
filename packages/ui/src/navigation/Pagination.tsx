@@ -63,7 +63,7 @@ export function Pagination({
                     type="button"
                     onClick={() => onPageChange?.(Math.max(1, currentPage - 1))}
                     disabled={currentPage <= 1 || !onPageChange}
-                    className="inline-flex items-center justify-center h-8 px-3 text-caption font-semibold rounded-lg border border-border bg-background text-foreground-secondary hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
+                    className="inline-flex items-center justify-center h-8 px-3 text-caption font-semibold rounded-lg border border-border bg-background text-foreground hover:bg-muted hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
                     aria-label="Previous page"
                 >
                     <ChevronLeft className="h-4 w-4 mr-1 shrink-0" aria-hidden="true" />
@@ -78,7 +78,7 @@ export function Pagination({
                     type="button"
                     onClick={() => onPageChange?.(Math.min(effectiveTotalPages, currentPage + 1))}
                     disabled={currentPage >= effectiveTotalPages || !onPageChange}
-                    className="inline-flex items-center justify-center h-8 px-3 text-caption font-semibold rounded-lg border border-border bg-background text-foreground-secondary hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
+                    className="inline-flex items-center justify-center h-8 px-3 text-caption font-semibold rounded-lg border border-border bg-background text-foreground hover:bg-muted hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
                     aria-label="Next page"
                 >
                     <span>Next</span>

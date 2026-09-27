@@ -18,7 +18,7 @@ export interface GeoJSONPoint {
 export interface IUser extends Document {
   mobile: string;
   name: string;
-  email: string;
+  email?: string;
   gstin?: string;
   password?: string;
   avatar?: string;
@@ -247,6 +247,11 @@ UserSchema.pre('save', function (this: IUser) {
     this.role = normalizeRole(this.role);
   }
 
+  if (typeof this.email === 'string') {
+    const trimmed = this.email.trim().toLowerCase();
+    this.email = trimmed ? trimmed : undefined;
+  }
+
   this.location = normalizeUserLocation(this.location) as IUser['location'];
   this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility);
 });
@@ -283,8 +288,25 @@ UserSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function () {
     }
   }
 
+  if ('email' in update) {
+    if (typeof update.email === 'string' && update.email.trim()) {
+      update.email = update.email.trim().toLowerCase();
+    } else {
+      delete update.email;
+      update.$unset = { ...((update.$unset as Record<string, unknown>) || {}), email: 1 };
+    }
+  }
+
   if (update.$set && typeof update.$set === 'object' && !Array.isArray(update.$set)) {
     const setObj = update.$set as Record<string, unknown>;
+    if ('email' in setObj) {
+      if (typeof setObj.email === 'string' && setObj.email.trim()) {
+        setObj.email = setObj.email.trim().toLowerCase();
+      } else {
+        delete setObj.email;
+        update.$unset = { ...((update.$unset as Record<string, unknown>) || {}), email: 1 };
+      }
+    }
     if ('location' in setObj) {
       setObj.location = normalizeUserLocation(setObj.location);
     }

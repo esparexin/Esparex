@@ -85,7 +85,7 @@ export function DeleteAccountDialog({
                 </DialogHeader>
 
                 {/* Form Body */}
-                <div className="max-h-[min(65vh,500px)] overflow-y-auto px-4 py-3.5 sm:px-5 sm:py-4 space-y-3">
+                <div className="max-h-[min(60vh,calc(var(--visual-viewport-height,100dvh)-12rem),500px)] overflow-y-auto px-4 py-3.5 sm:px-5 sm:py-4 space-y-3">
                     {/* Compact Notice */}
                     <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2 text-tiny text-destructive/90 flex items-start gap-2">
                         <span className="font-bold text-destructive shrink-0">Notice:</span>

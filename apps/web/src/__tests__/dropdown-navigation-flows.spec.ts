@@ -177,15 +177,36 @@ describe("Dropdown Navigation & Viewport Constraint Regression Suite", () => {
         expect(fileContent).toContain("relative z-20");
     });
 
-    it("ensures CreateSmartAlertDialog constrains dialog width and reserves content scroll padding", () => {
+    it("ensures CreateSmartAlertDialog constrains dialog width, uses bottomSheet variant, and reserves content scroll padding", () => {
         const dialogPath = path.resolve(
             __dirname,
             "../components/user/profile/dialogs/CreateSmartAlertDialog.tsx"
         );
         const fileContent = fs.readFileSync(dialogPath, "utf-8");
 
+        expect(fileContent).toContain('variant="bottomSheet"');
         expect(fileContent).toContain("max-w-[500px]");
         expect(fileContent).toContain("pr-2 sm:pr-2.5");
+        expect(fileContent).toContain("DialogHeader");
+        expect(fileContent).toContain("DialogFooter");
+    });
+
+    it("ensures EntitySearchCombobox mobile drawer avoids raw autoFocus and bounds height to visual viewport", () => {
+        const comboboxPath = path.resolve(
+            __dirname,
+            "../components/user/EntitySearchCombobox.tsx"
+        );
+        const fileContent = fs.readFileSync(comboboxPath, "utf-8");
+
+        // Must not have raw autoFocus in mobile Drawer branch
+        const mobileDrawerSection = fileContent.slice(fileContent.indexOf("<Drawer title={title}"));
+        expect(mobileDrawerSection).not.toMatch(/<Input[^>]*autoFocus/);
+
+        // Must use delayed focus with preventScroll
+        expect(fileContent).toContain("mobileInputRef.current?.focus({ preventScroll: true })");
+
+        // Must bound drawer max-height using visual viewport SSOT
+        expect(fileContent).toContain("var(--visual-viewport-height,100dvh)");
     });
 
     it("ensures BusinessListingGatePage renders BusinessListingPageBackdrop behind dialogs", () => {

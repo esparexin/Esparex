@@ -4,7 +4,9 @@ import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { getAdminAppUrl } from '../../../utils/appUrl';
 import { env } from '../../../config/env';
 
-export class EmailService {
+import type { EmailServicePort, EmailPayload, EmailDispatchResult } from '../ports/EmailServicePort';
+
+export class EmailService implements EmailServicePort {
     private transporter: nodemailer.Transporter | null = null;
     private configSignature = '';
 
@@ -78,32 +80,68 @@ export class EmailService {
         return { config, available: true };
     }
 
-    public async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-        const { config, available } = await this.ensureTransporter();
+    public async isConfigured(): Promise<boolean> {
+        const { available } = await this.ensureTransporter();
+        return available;
+    }
 
+    public async send(payload: EmailPayload): Promise<EmailDispatchResult> {
+        const to = typeof payload.to === 'string' ? payload.to : payload.to.email;
+        if (!to || !to.includes('@')) {
+            return {
+                success: false,
+                provider: 'smtp',
+                skippedReason: 'INVALID_RECIPIENT',
+            };
+        }
+
+        const { config, available } = await this.ensureTransporter();
         if (!config.enabled) {
-            logger.info('Email skipped because notifications.email.enabled is false', { to, subject });
-            return false;
+            logger.info('Email skipped because notifications.email.enabled is false', { to, subject: payload.subject });
+            return {
+                success: false,
+                provider: 'smtp',
+                skippedReason: 'DISABLED_BY_USER',
+            };
         }
 
         if (!available || !this.transporter) {
-            logger.warn('Email not sent because SMTP runtime settings are incomplete', { to, subject });
-            return false;
+            logger.warn('Email not sent because SMTP runtime settings are incomplete', { to, subject: payload.subject });
+            return {
+                success: false,
+                provider: 'smtp',
+                skippedReason: 'UNCONFIGURED',
+            };
         }
 
         try {
             const info = await this.transporter.sendMail({
                 from: `"${config.senderName}" <${config.senderEmail}>`,
                 to,
-                subject,
-                html,
+                subject: payload.subject,
+                html: payload.html,
+                attachments: payload.attachments,
             }) as { messageId?: string };
+
             logger.info('Email sent successfully', { messageId: info.messageId, to });
-            return true;
+            return {
+                success: true,
+                provider: 'smtp',
+                messageId: info.messageId,
+            };
         } catch (error) {
             logger.error('Failed to send email', { error: error instanceof Error ? error.message : String(error), to });
-            return false;
+            return {
+                success: false,
+                provider: 'smtp',
+                skippedReason: 'SEND_ERROR',
+            };
         }
+    }
+
+    public async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+        const result = await this.send({ to, subject, html });
+        return result.success;
     }
 
     // Template for Risk Alert

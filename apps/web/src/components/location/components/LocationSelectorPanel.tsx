@@ -39,8 +39,7 @@ export function LocationSelectorPanel({
     return (
         <div className={cn("flex h-full min-h-0 flex-col bg-background", className)} onKeyDown={onKeyDown}>
             {/* Sticky Header: 1. Title Row -> 2. Search Field -> 3. Auto-Detect / GPS Tile */}
-            {/* design-token-ignore: safe area padding for sticky mobile panel */}
-            <div className="sticky top-0 z-10 border-b border-border/80 bg-background/95 p-3.5 pb-3 backdrop-blur flex flex-col gap-2.5" style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }} /* design-token-ignore: safe area padding for sticky mobile panel */>
+            <div className="sticky top-0 z-10 border-b border-border/80 bg-background/95 p-3.5 pb-3 backdrop-blur flex flex-col gap-2.5">
                 {/* Title and Close Button */}
                 <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -65,12 +64,12 @@ export function LocationSelectorPanel({
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
+                        id="location-selector-search-input"
                         placeholder="Search city, area or district..."
                         className="h-11 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={onKeyDown}
-                        autoFocus
                         disabled={disabled}
                     />
                     {isSearching ? (

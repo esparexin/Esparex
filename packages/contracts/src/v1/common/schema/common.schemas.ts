@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { coordinatesSchema } from './coordinates.schema';
 export { coordinatesSchema } from './coordinates.schema';
 
-// Re-export field limits constants (SINGLE SOURCE OF TRUTH)
+import { CONTACT_LIMITS } from '../constants/fieldLimits';
 export {
+    CONTACT_LIMITS,
 } from '../constants/fieldLimits';
 
 // Re-export centralized text validation schemas
@@ -62,11 +63,16 @@ export const phoneSchema = z.string()
         'Phone number must contain at least 10 digits'
     );
 
-// Email validation
+// Email validation (Strict canonical SSOT)
 export const emailSchema = z.string()
-    .email('Invalid email format')
-    .max(255, 'Email must be less than 255 characters')
+    .trim()
+    .min(1, 'Email is required')
+    .email(CONTACT_LIMITS.EMAIL.ERROR_FORMAT)
+    .max(CONTACT_LIMITS.EMAIL.MAX, CONTACT_LIMITS.EMAIL.ERROR_MAX)
     .toLowerCase();
+
+// Optional email schema accepting empty string literal per Form & Zod Governance
+export const optionalEmailSchema = z.union([emailSchema, z.literal('')]).optional();
 
 // URL validation (optional)
 export const urlSchema = z.string()

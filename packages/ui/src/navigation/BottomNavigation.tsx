@@ -42,7 +42,7 @@ export function BottomNavigation({
             href={item.href}
             className={cn(
               "flex flex-col items-center justify-center min-w-[48px] min-h-[48px] gap-1 px-2 py-1 transition-colors",
-              isActive ? "text-primary" : "text-foreground-secondary hover:text-foreground",
+              isActive ? "text-primary" : "text-foreground-secondary hover:text-primary",
               item.disabled && "pointer-events-none opacity-50"
             )}
             aria-current={isActive ? "page" : undefined}

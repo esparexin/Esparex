@@ -198,7 +198,7 @@ export function MultiBrandSearchSelect({
                                         "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-body transition-colors select-none",
                                         isSelected
                                             ? "bg-primary/10 font-medium text-primary"
-                                            : "text-foreground-secondary hover:bg-muted hover:text-foreground"
+                                            : "text-foreground hover:bg-muted hover:text-primary cursor-pointer"
                                     )}
                                 >
                                     <span>{brandName}</span>

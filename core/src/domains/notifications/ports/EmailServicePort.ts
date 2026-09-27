@@ -4,20 +4,21 @@ export interface EmailRecipient {
 }
 
 export interface EmailPayload {
-    to: EmailRecipient;
-    templateId: string;
-    variables: Record<string, unknown>;
-    attachments?: Array<{ filename: string; url: string }>;
+    to: string | EmailRecipient;
+    subject: string;
+    html: string;
+    attachments?: Array<{ filename: string; content?: string | Buffer; path?: string }>;
 }
 
 export interface EmailDispatchResult {
     success: boolean;
     provider: string;
     messageId?: string;
-    skippedReason?: 'UNCONFIGURED' | 'DISABLED_BY_USER' | 'INVALID_RECIPIENT';
+    skippedReason?: 'UNCONFIGURED' | 'DISABLED_BY_USER' | 'INVALID_RECIPIENT' | 'SEND_ERROR';
 }
 
 export interface EmailServicePort {
-    sendEmail(payload: EmailPayload): Promise<EmailDispatchResult>;
-    isConfigured(): boolean;
+    sendEmail(to: string, subject: string, html: string): Promise<boolean>;
+    send(payload: EmailPayload): Promise<EmailDispatchResult>;
+    isConfigured(): Promise<boolean>;
 }

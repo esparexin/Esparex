@@ -378,7 +378,7 @@ export class PlansWalletMapper {
         currency: (pay.currency as string) || 'INR',
         status,
         description: (pay.description as string) || (pay.title as string) || (planSnapshot?.name as string) || 'Payment Order',
-        invoicePdfUrl: (pay.invoicePdfUrl as string) || (pay.invoiceUrl as string) || `/api/v1/payment/invoice/${payId}`,
+        invoicePdfUrl: (pay.invoicePdfUrl as string) || (pay.invoiceUrl as string) || `/api/v1/payments/invoice/${payId}`,
         createdAt: pay.createdAt ? new Date(String(pay.createdAt)).toISOString() : new Date().toISOString(),
       };
     });
