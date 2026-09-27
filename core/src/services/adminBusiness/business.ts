@@ -144,12 +144,35 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: A
     if (!business) throw new AppError('Business not found', 404);
     await logFn('APPROVE_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
+    const { renderBusinessApprovedEmail } = await import('../../domains/notifications/templates/EmailLayout');
+    const { getFrontendAppUrl } = await import('../../utils/appUrl');
     const { recalculateTrustScore } = await import('../TrustService');
     const { assignDefaultPlan } = await import('../business/BusinessSubscriptionService');
 
     const userIdStr = String(business.userId ?? '');
     const businessIdStr = String(business._id ?? '');
-    await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_APPROVED', { name: String(business.name ?? '') }, { businessId: businessIdStr, status: String(BUSINESS_STATUS.LIVE) });
+    const businessName = String(business.name ?? '');
+    const businessEmail = typeof business.email === 'string' && business.email.includes('@') ? business.email : undefined;
+
+    const emailHtml = renderBusinessApprovedEmail({
+        businessName,
+        manageUrl: `${getFrontendAppUrl()}/account/business`,
+    });
+
+    await dispatchTemplatedNotification(
+        userIdStr,
+        'BUSINESS_STATUS',
+        'BUSINESS_APPROVED',
+        { name: businessName },
+        {
+            businessId: businessIdStr,
+            status: String(BUSINESS_STATUS.LIVE),
+            channels: ['in-app', 'push', 'email'],
+            email: businessEmail,
+            emailHtml,
+            emailSubject: 'Your Business Profile is Approved — Esparex',
+        }
+    );
     
     // Assign default business plan dynamically (wrapped so errors don't block approval)
     try {
@@ -173,9 +196,34 @@ export const rejectAdminBusiness = async (id: string, reason: string, actorId: s
     if (!business) throw new AppError('Business not found', 404);
     await logFn('REJECT_BUSINESS', 'Business', id, { reason });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
+    const { renderBusinessRejectedEmail } = await import('../../domains/notifications/templates/EmailLayout');
+    const { getFrontendAppUrl } = await import('../../utils/appUrl');
+
     const userIdStr = String(business.userId ?? '');
     const businessIdStr = String(business._id ?? '');
-    await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_REJECTED', { name: String(business.name ?? ''), reason }, { businessId: businessIdStr, status: String(BUSINESS_STATUS.REJECTED) });
+    const businessName = String(business.name ?? '');
+    const businessEmail = typeof business.email === 'string' && business.email.includes('@') ? business.email : undefined;
+
+    const emailHtml = renderBusinessRejectedEmail({
+        businessName,
+        rejectionReason: reason,
+        applyUrl: `${getFrontendAppUrl()}/account/business/apply`,
+    });
+
+    await dispatchTemplatedNotification(
+        userIdStr,
+        'BUSINESS_STATUS',
+        'BUSINESS_REJECTED',
+        { name: businessName, reason },
+        {
+            businessId: businessIdStr,
+            status: String(BUSINESS_STATUS.REJECTED),
+            channels: ['in-app', 'push', 'email'],
+            email: businessEmail,
+            emailHtml,
+            emailSubject: 'Business Application Update — Esparex',
+        }
+    );
     await cascadeExpireBusinessListings(business._id, { type: ACTOR_TYPE.ADMIN, id: actorId }, `Cascaded from business rejection: ${reason}`);
     return business;
 };
