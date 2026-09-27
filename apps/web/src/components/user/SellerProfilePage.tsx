@@ -19,7 +19,7 @@ import {
     Tag,
     X,
 } from "@esparex/ui";
-import { AdCardGrid } from "@/components/user/ad-card";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
@@ -78,7 +78,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
         <div className="bg-background pb-12 min-h-screen">
             <Container variant="lg" className="py-4 md:py-6 space-y-4">
                 {/* Breadcrumbs */}
-                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-caption text-foreground-subtle">
+                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-caption text-foreground-subtle overflow-x-auto scrollbar-hide py-0.5">
                     <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                     <ChevronRight className="size-3 text-muted-foreground" />
                     <span className="text-foreground-secondary font-medium">Sellers</span>
@@ -94,7 +94,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                         <div className="absolute -top-10 -right-10 size-48 bg-primary/15 rounded-full blur-2xl pointer-events-none" />
                     </div>
 
-                    <CardContent className="pt-0 px-4 sm:px-6 md:px-8 pb-6">
+                    <CardContent className="pt-0 px-4 sm:px-6 md:px-8 pb-5 sm:pb-6">
                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 -mt-10 sm:-mt-12 relative">
                             {/* Avatar */}
                             <div className="shrink-0 mx-auto sm:mx-0">
@@ -116,7 +116,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                     <div>
                                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                                            <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight">{sellerName}</h1>
+                                            <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight break-words">{sellerName}</h1>
                                             {profile.user.isVerified && (
                                                 <Badge className="bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full text-caption font-semibold gap-1 inline-flex items-center">
                                                     <ShieldCheck className="size-3.5" /> Verified Seller
@@ -135,19 +135,6 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                         {copied ? "Link Copied!" : "Share Profile"}
                                     </Button>
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Marketplace Trust Strip */}
-                        <div className="mt-5 p-3 sm:p-3.5 rounded-2xl bg-muted/40 border border-border/70 flex items-center gap-3">
-                            <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                <ShieldCheck className="size-4.5" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <p className="text-caption font-bold text-foreground">Verified Individual Seller</p>
-                                <p className="text-tiny text-foreground-secondary leading-snug">
-                                    Click any listing below to inspect item photos, negotiate via real-time chat, and connect safely on Esparex.
-                                </p>
                             </div>
                         </div>
                     </CardContent>
@@ -189,11 +176,31 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             {searchFilter && <Button variant="outline" size="sm" onClick={() => setSearchFilter("")} className="h-8 rounded-lg text-caption font-semibold mt-1">Clear search filter</Button>}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 md:gap-4">
-                            {filteredAds.map((ad, index) => (
-                                <AdCardGrid key={String(ad.id)} ad={ad} href={buildAdHref(ad)} priority={index < 4} />
-                            ))}
-                        </div>
+                        <>
+                            {/* Mobile View: Strictly existing List view format (SSOT AdCardList) */}
+                            <div className="flex flex-col gap-2.5 sm:hidden">
+                                {filteredAds.map((ad, index) => (
+                                    <AdCardList
+                                        key={`list-${String(ad.id)}`}
+                                        ad={ad}
+                                        href={buildAdHref(ad)}
+                                        priority={index < 4}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Tablet & Desktop View: Existing Grid view format (SSOT AdCardGrid) */}
+                            <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                                {filteredAds.map((ad, index) => (
+                                    <AdCardGrid
+                                        key={`grid-${String(ad.id)}`}
+                                        ad={ad}
+                                        href={buildAdHref(ad)}
+                                        priority={index < 4}
+                                    />
+                                ))}
+                            </div>
+                        </>
                     )}
                 </section>
             </Container>
