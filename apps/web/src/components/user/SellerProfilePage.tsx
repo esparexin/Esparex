@@ -64,7 +64,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
     return (
         <div className="bg-background pb-12 min-h-screen">
-            <Container variant="lg" className="py-4 md:py-6 space-y-4">
+            <Container variant="lg" className="py-3 md:py-6 space-y-3 md:space-y-4">
                 {/* Breadcrumbs */}
                 <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-caption text-foreground-subtle overflow-x-auto scrollbar-hide py-0.5">
                     <Link href="/" className="hover:text-primary transition-colors">Home</Link>
@@ -77,59 +77,68 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 {/* Profile Identity Card */}
                 <Card className="relative border border-border shadow-xs overflow-hidden rounded-2xl md:rounded-3xl bg-card">
                     {/* Share Profile Icon Button in Top Right */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+                    <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10">
                         <Button
+                            type="button"
                             variant="secondary"
                             size="icon"
                             onClick={handleShare}
                             aria-label={copied ? "Link copied to clipboard" : "Share seller profile"}
                             title={copied ? "Link copied!" : "Share Profile"}
-                            className="size-9 rounded-full bg-card/85 backdrop-blur-md border border-border/80 text-foreground hover:bg-card hover:text-primary transition-colors shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+                            className="size-8 sm:size-8.5 rounded-full bg-card/85 backdrop-blur-md border border-border/80 text-foreground hover:bg-card hover:text-primary transition-colors shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
                         >
-                            {copied ? <Check className="size-4 text-primary" /> : <Share2 className="size-4" />}
+                            {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
                         </Button>
                     </div>
 
                     {/* Soft Brand Header Canvas */}
-                    <div className="relative h-24 sm:h-32 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
+                    <div className="relative h-20 sm:h-28 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
                         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#16a34a_1px,transparent_1px)] [background-size:16px_16px]" />
                         <div className="absolute -top-10 -right-10 size-48 bg-primary/15 rounded-full blur-2xl pointer-events-none" />
                     </div>
 
-                    <CardContent className="pt-0 px-4 sm:px-6 md:px-8 pb-5 sm:pb-6">
-                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 -mt-10 sm:-mt-12 relative">
+                    <CardContent className="pt-0 px-3.5 sm:px-5 pb-3.5 sm:pb-4">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 -mt-8 sm:-mt-10 relative">
                             {/* Avatar with Trust Badge on Top-Right Side */}
                             <div className="shrink-0 mx-auto sm:mx-0">
                                 <div className="relative inline-block">
-                                    <div className="size-20 sm:size-24 rounded-2xl bg-card p-1 shadow-md ring-4 ring-card border border-border/80 overflow-hidden flex items-center justify-center">
+                                    <div className="size-16 sm:size-20 rounded-2xl bg-card p-1 shadow-md ring-3 ring-card border border-border/80 overflow-hidden flex items-center justify-center">
                                         {profile.user.profilePhoto ? (
                                             <div className="relative size-full rounded-xl overflow-hidden">
-                                                <SafeImage src={profile.user.profilePhoto} alt={sellerName} fill className="object-cover" sizes="96px" />
+                                                <SafeImage src={profile.user.profilePhoto} alt={sellerName} fill className="object-cover" sizes="80px" />
                                             </div>
                                         ) : (
-                                            <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-h2 sm:text-h1 font-bold">
+                                            <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-body-lg sm:text-h3 font-bold">
                                                 {initials}
                                             </div>
                                         )}
                                     </div>
                                     {profile.user.isVerified && (
                                         <div
-                                            className="absolute -top-1.5 -right-1.5 z-10 size-6 sm:size-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md ring-2 ring-card"
+                                            className="absolute -top-1 -right-1 z-10 size-5 sm:size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xs ring-2 ring-card"
                                             title="Verified Seller"
                                             aria-label="Verified Seller"
                                         >
-                                            <ShieldCheck className="size-3.5 sm:size-4" />
+                                            <ShieldCheck className="size-3 sm:size-3.5" />
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             {/* Seller Details */}
-                            <div className="flex-1 pt-1 text-center sm:text-left">
-                                <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight break-words mb-1">{sellerName}</h1>
-                                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-caption text-foreground-secondary font-medium mt-1">
-                                    <span className="inline-flex items-center gap-1"><Calendar className="size-3.5 text-foreground-subtle" /> Active since {joinDate}</span>
-                                    {locationLabel && <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-foreground-subtle" /> {locationLabel}</span>}
+                            <div className="flex-1 min-w-0 pt-1 text-center sm:text-left">
+                                <h1 className="text-body-lg sm:text-h3 font-bold text-foreground tracking-tight leading-snug break-words mb-0.5">
+                                    {sellerName}
+                                </h1>
+                                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-tiny sm:text-caption text-foreground-secondary font-medium mt-1">
+                                    <span className="inline-flex items-center gap-1">
+                                        <Calendar className="size-3 sm:size-3.5 text-foreground-subtle" /> Active since {joinDate}
+                                    </span>
+                                    {locationLabel && (
+                                        <span className="inline-flex items-center gap-1">
+                                            <MapPin className="size-3 sm:size-3.5 text-foreground-subtle" /> {locationLabel}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -137,19 +146,19 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 </Card>
 
                 {/* Seller's Listings Showcase */}
-                <section id="seller-active-listings" className="space-y-4 pt-2">
-                    <div className="flex items-center justify-between border-b border-border pb-3">
+                <section id="seller-active-listings" className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between border-b border-border pb-2.5">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-h3 font-bold text-foreground tracking-tight">Active Listings</h2>
-                            <Badge className="bg-muted text-foreground-secondary font-bold px-2.5 py-0.5 rounded-full text-tiny border-none">{ads.length}</Badge>
+                            <h2 className="text-body-lg sm:text-h4 font-bold text-foreground tracking-tight">Active Listings</h2>
+                            <Badge className="bg-muted text-foreground-secondary font-semibold px-2 py-0.5 rounded-full text-tiny border-none">{ads.length}</Badge>
                         </div>
                     </div>
 
                     {ads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 py-14 text-center rounded-2xl border border-border bg-card shadow-xs">
-                            <div className="size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground"><LayoutGrid className="size-6" /></div>
-                            <div className="space-y-1">
-                                <p className="font-semibold text-foreground text-body">No active listings</p>
+                        <div className="flex flex-col items-center justify-center gap-2.5 py-10 sm:py-14 text-center rounded-2xl border border-border bg-card shadow-xs">
+                            <div className="size-10 sm:size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground"><LayoutGrid className="size-5 sm:size-6" /></div>
+                            <div className="space-y-0.5">
+                                <p className="font-semibold text-foreground text-body-lg">No active listings</p>
                                 <p className="text-caption text-foreground-secondary max-w-xs">{sellerName} does not have any active listings right now.</p>
                             </div>
                         </div>
