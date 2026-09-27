@@ -84,7 +84,7 @@ export const getSystemConfig = async (req: Request, res: Response) => {
                 maxLoginAttempts: 5
             },
             notifications: {
-                email: { enabled: true, provider: 'smtp', senderName: 'Esparex Team', senderEmail: 'noreply@esparex.com' },
+                email: { enabled: true, provider: 'smtp', senderName: 'Esparex Team', senderEmail: 'noreply@esparex.in' },
                 push: { enabled: false, provider: 'firebase' }
             },
             platform: {

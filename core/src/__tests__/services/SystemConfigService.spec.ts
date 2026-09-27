@@ -110,7 +110,7 @@ describe("systemConfigService.updateSystemConfigSections", () => {
     it("uses ensureSystemConfig fallback when singleton does not exist", async () => {
         const fallbackDoc = createMockConfigDoc({
             notifications: {
-                email: { enabled: true, senderEmail: "noreply@esparex.com" },
+                email: { enabled: true, senderEmail: "noreply@esparex.in" },
             },
         });
         mockModel.findOne.mockResolvedValue(null);

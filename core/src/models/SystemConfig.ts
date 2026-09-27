@@ -265,7 +265,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             enabled: { type: Boolean, default: true },
             provider: { type: String, enum: ['smtp', 'sendgrid', 'aws-ses'], default: 'smtp' },
             senderName: { type: String, default: 'Esparex Team' },
-            senderEmail: { type: String, default: 'noreply@esparex.com' },
+            senderEmail: { type: String, default: 'noreply@esparex.in' },
             host: { type: String },
             port: { type: Number },
             username: { type: String },
