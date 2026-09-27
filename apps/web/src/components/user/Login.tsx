@@ -124,6 +124,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
   const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
   // Auto-focus management with preventScroll to stop iOS WebKit focus-scrolling
+  // Delayed by 250ms so drawer slide-in animation (200ms) completes before virtual keyboard deploys
   useEffect(() => {
     if (step === "enterMobile") {
       const id = setTimeout(() => {
@@ -133,7 +134,10 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         } else {
           form.setFocus("mobile");
         }
-      }, 0);
+        if (typeof window !== "undefined" && window.scrollY !== 0) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+      }, 250);
       return () => clearTimeout(id);
     }
     if (step === "enterNameAndOtp") {
@@ -144,7 +148,10 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         } else {
           form.setFocus("name");
         }
-      }, 0);
+        if (typeof window !== "undefined" && window.scrollY !== 0) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+      }, 250);
       return () => clearTimeout(id);
     }
     if (step === "enterOtp") {

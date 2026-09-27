@@ -27,6 +27,7 @@ export function useVisualViewport(): VisualViewportState {
     if (typeof window === "undefined") return;
 
     let rafId: number | null = null;
+    let maxObservedHeight = typeof window !== "undefined" ? window.innerHeight : 0;
 
     const updateViewport = () => {
       if (rafId) cancelAnimationFrame(rafId);
@@ -36,8 +37,19 @@ export function useVisualViewport(): VisualViewportState {
         const currentHeight = vv ? vv.height : window.innerHeight;
         const layoutHeight = window.innerHeight;
 
-        // Detect if software keyboard is active (typically shrinks visual viewport by >18%)
-        const keyboardActive = currentHeight < layoutHeight * 0.82;
+        // On Android with interactiveWidget: 'resizes-content', window.innerHeight shrinks when keyboard opens.
+        // On iOS Safari, window.innerHeight stays constant while visualViewport shrinks.
+        // Track maximum observed height to reliably detect keyboard across both operating systems.
+        if (layoutHeight > maxObservedHeight) {
+          maxObservedHeight = layoutHeight;
+        }
+
+        const benchmarkHeight = Math.max(maxObservedHeight, layoutHeight);
+        const keyboardActive = currentHeight < benchmarkHeight * 0.82;
+
+        // On Android (where window.innerHeight shrank), the layout already sits above the keyboard,
+        // so computedKeyboardHeight for CSS elevation must remain 0px to prevent double-elevation.
+        // On iOS Safari (where layoutHeight did not shrink), computedKeyboardHeight elevates by the delta.
         const computedKeyboardHeight = keyboardActive
           ? Math.max(0, Math.round(layoutHeight - currentHeight))
           : 0;
