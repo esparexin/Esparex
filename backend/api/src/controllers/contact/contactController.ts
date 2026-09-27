@@ -57,7 +57,7 @@ export const submitContactForm = async (req: Request, res: Response) => {
                         message: parsed.message,
                     });
                     await emailService.sendEmail(
-                        process.env.SUPPORT_EMAIL || 'support@esparex.com',
+                        process.env.SUPPORT_EMAIL || 'support@esparex.in',
                         `New Contact Inquiry: ${parsed.subject || 'Support Request'}`,
                         inquiryHtml
                     );

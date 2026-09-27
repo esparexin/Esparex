@@ -45,7 +45,7 @@ export function MobileHeaderTopBar({
         >
           <Image
             src="/icons/logo.png"
-            alt="Esparex Logo"
+            alt="Esparex"
             width={495}
             height={112}
             unoptimized

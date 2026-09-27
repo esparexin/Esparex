@@ -5,9 +5,9 @@ import { CommonLayout } from '@/components/layout/CommonLayout';
 export const metadata: Metadata = {
     title: {
         template: '%s | Esparex',
-        default: 'Esparex – Buy & Sell Electronics Smartly',
+        default: 'Esparex — India\'s Marketplace for Mobile Spare Parts & Tech Repair',
     },
-    description: 'Buy and sell electronics, smartphones, laptops, tablets, and spare parts.',
+    description: 'India\'s marketplace for genuine mobile spare parts, refurbished electronics, and repair services.',
 };
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
