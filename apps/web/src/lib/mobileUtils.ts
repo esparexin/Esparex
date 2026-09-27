@@ -11,17 +11,6 @@ import { CONTACT_LIMITS, normalizeIndianMobileInput } from "@esparex/contracts";
  */
 export const normalizeTo10Digits = (mobile: string): string => {
   if (!mobile) return "";
-  const trimmed = mobile.trim();
-  const digits = trimmed.replace(/\D/g, "");
-
-  // Legacy incomplete autofill handling where 91 prefix was tested without plus
-  if (digits.length <= 10 && digits.startsWith("91") && !trimmed.startsWith("+")) {
-    const stripped = digits.slice(2);
-    if (stripped.length > 0 && /^[6-9]/.test(stripped)) {
-      return stripped;
-    }
-  }
-
   return normalizeIndianMobileInput(mobile);
 };
 
