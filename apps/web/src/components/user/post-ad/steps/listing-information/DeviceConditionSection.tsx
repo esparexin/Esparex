@@ -51,73 +51,71 @@ export function DeviceConditionSection() {
                     name="deviceCondition"
                     render={({ field }) => (
                         <FormItem className="flex flex-col gap-1.5 space-y-0">
-                            <div className="flex flex-row items-center gap-x-4">
-                                <FieldLabel required className="text-caption sm:text-small font-medium text-foreground-secondary m-0 leading-none">
-                                    Device Condition
-                                </FieldLabel>
-                                <FieldControl animateOnError>
-                                    <RadioGroupPrimitive.Root
-                                        onValueChange={(val) => {
-                                            if (field.value !== val) {
-                                                field.onChange(val);
-                                                form.clearErrors("deviceCondition");
-                                                clearStep2GeneratedDetails(form);
-                                            }
-                                        }}
-                                        value={field.value || ""}
-                                        className="flex"
-                                        orientation="horizontal"
-                                    >
-                                        <div className="w-fit inline-flex items-center p-1 rounded-xl border border-border bg-muted/40 shadow-2xs gap-1.5">
-                                            <RadioGroupPrimitive.Item 
-                                                value="power_off"
-                                                title="Power Off"
-                                                aria-label="Power Off"
+                            <FieldLabel required className="text-caption sm:text-small font-medium text-foreground-secondary">
+                                Device Condition
+                            </FieldLabel>
+                            <FieldControl animateOnError>
+                                <RadioGroupPrimitive.Root
+                                    onValueChange={(val) => {
+                                        if (field.value !== val) {
+                                            field.onChange(val);
+                                            form.clearErrors("deviceCondition");
+                                            clearStep2GeneratedDetails(form);
+                                        }
+                                    }}
+                                    value={field.value || ""}
+                                    className="flex"
+                                    orientation="horizontal"
+                                >
+                                    <div className="w-fit inline-flex items-center p-1 rounded-xl border border-border bg-muted/40 shadow-2xs gap-1.5">
+                                        <RadioGroupPrimitive.Item 
+                                            value="power_off"
+                                            title="Power Off"
+                                            aria-label="Power Off"
+                                            className={cn(
+                                                "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
+                                                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
+                                                "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
+                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-foreground data-[state=checked]:shadow-2xs"
+                                            )}
+                                        >
+                                            <Leaf 
                                                 className={cn(
-                                                    "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
-                                                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
-                                                    "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
-                                                    "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-foreground data-[state=checked]:shadow-2xs"
-                                                )}
-                                            >
-                                                <Leaf 
-                                                    className={cn(
-                                                        "w-4 h-4 transition-all duration-200 text-foreground-subtle", 
-                                                        "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-emerald-600"
-                                                    )} 
-                                                    strokeWidth={2}
-                                                />
-                                                <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-foreground group-data-[state=checked]:font-semibold transition-colors duration-200">
-                                                    Power Off
-                                                </span>
-                                            </RadioGroupPrimitive.Item>
+                                                    "w-4 h-4 transition-all duration-200 text-foreground-subtle shrink-0", 
+                                                    "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-emerald-600"
+                                                )} 
+                                                strokeWidth={2}
+                                            />
+                                            <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-foreground group-data-[state=checked]:font-semibold transition-colors duration-200 whitespace-nowrap">
+                                                Power Off
+                                            </span>
+                                        </RadioGroupPrimitive.Item>
 
-                                            <RadioGroupPrimitive.Item 
-                                                value="power_on"
-                                                title="Power On"
-                                                aria-label="Power On"
+                                        <RadioGroupPrimitive.Item 
+                                            value="power_on"
+                                            title="Power On"
+                                            aria-label="Power On"
+                                            className={cn(
+                                                "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
+                                                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
+                                                "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
+                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-destructive data-[state=checked]:shadow-2xs"
+                                            )}
+                                        >
+                                            <Zap 
                                                 className={cn(
-                                                    "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
-                                                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
-                                                    "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
-                                                    "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-destructive data-[state=checked]:shadow-2xs"
-                                                )}
-                                            >
-                                                <Zap 
-                                                    className={cn(
-                                                        "w-4 h-4 transition-all duration-200 text-destructive/80", 
-                                                        "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-destructive"
-                                                    )} 
-                                                    strokeWidth={2}
-                                                />
-                                                <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-destructive group-data-[state=checked]:font-semibold transition-colors duration-200">
-                                                    Power On
-                                                </span>
-                                            </RadioGroupPrimitive.Item>
-                                        </div>
-                                    </RadioGroupPrimitive.Root>
-                                </FieldControl>
-                            </div>
+                                                    "w-4 h-4 transition-all duration-200 text-destructive/80 shrink-0", 
+                                                    "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-destructive"
+                                                )} 
+                                                strokeWidth={2}
+                                            />
+                                            <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-destructive group-data-[state=checked]:font-semibold transition-colors duration-200 whitespace-nowrap">
+                                                Power On
+                                            </span>
+                                        </RadioGroupPrimitive.Item>
+                                    </div>
+                                </RadioGroupPrimitive.Root>
+                            </FieldControl>
                             <FieldMessage className="text-caption text-destructive" />
                         </FormItem>
                     )}
