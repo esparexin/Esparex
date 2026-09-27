@@ -69,6 +69,7 @@
     "audit:monetization-db": "npx tsx scripts/db-consistency-audit.ts",
     "ops:listings:sweep-expired": "npx tsx scripts/sweep-expired-listings.ts",
     "ops:listings:backfill-watermarks": "npx tsx scripts/backfill-listing-watermarks.ts",
+    "ops:catalog:spare-parts-essentials": "npx tsx scripts/catalog-spare-parts-essentials.ts",
     "lint:admin": "eslint apps/admin --cache --cache-location .eslintcache/admin",
     "lint:web": "eslint apps/web --cache --cache-location .eslintcache/web",
     "lint:backend": "eslint backend --cache --cache-location .eslintcache/backend",
