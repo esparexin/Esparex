@@ -134,9 +134,12 @@ export const sendTestEmail = async (req: Request, res: Response) => {
         }
 
         const { emailService } = await import('@esparex/core/domains/notifications/application/EmailService');
-        const isConfigured = await emailService.isConfigured();
-        if (!isConfigured) {
-            return sendAdminError(req, res, 'SMTP credentials are not configured or email is disabled in settings', 400);
+
+        // Probe the SMTP server before attempting a send — surfaces auth/TLS errors immediately
+        const verifyResult = await emailService.verify();
+        if (!verifyResult.ok) {
+            const diagnostic = verifyResult.error || 'SMTP credentials are not configured or email is disabled in settings';
+            return sendAdminError(req, res, `SMTP connection failed: ${diagnostic}`, 400);
         }
 
         const { renderEmailLayout } = await import('@esparex/core/domains/notifications/templates/EmailLayout');
@@ -162,8 +165,8 @@ export const sendTestEmail = async (req: Request, res: Response) => {
         });
 
         if (!result.success) {
-            const reason = result.skippedReason || 'Delivery failure';
-            return sendAdminError(req, res, `SMTP test failed: ${reason}`, 502);
+            const detail = result.errorMessage || result.skippedReason || 'Delivery failure';
+            return sendAdminError(req, res, `SMTP send failed: ${detail}`, 502);
         }
 
         await logAdminAction(req, 'TEST_SMTP_EMAIL', 'Config', 'notifications.email', { recipient: target, messageId: result.messageId });

@@ -1,10 +1,9 @@
 import nodemailer from 'nodemailer';
 import logger from '../../../utils/logger';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
-import { getAdminAppUrl } from '../../../utils/appUrl';
 import { env } from '../../../config/env';
 
-import type { EmailServicePort, EmailPayload, EmailDispatchResult } from '../ports/EmailServicePort';
+import type { EmailServicePort, EmailPayload, EmailDispatchResult, EmailVerifyResult } from '../ports/EmailServicePort';
 
 export class EmailService implements EmailServicePort {
     private transporter: nodemailer.Transporter | null = null;
@@ -130,11 +129,15 @@ export class EmailService implements EmailServicePort {
                 messageId: info.messageId,
             };
         } catch (error) {
-            logger.error('Failed to send email', { error: error instanceof Error ? error.message : String(error), to });
+            const rawMessage = error instanceof Error ? error.message : String(error);
+            // Sanitize: strip any credentials that nodemailer may embed in error strings
+            const sanitized = rawMessage.replace(/pass(?:word)?\s*[:=]\s*\S+/gi, '[redacted]');
+            logger.error('Failed to send email', { error: sanitized, to });
             return {
                 success: false,
                 provider: 'smtp',
                 skippedReason: 'SEND_ERROR',
+                errorMessage: sanitized,
             };
         }
     }
@@ -144,23 +147,31 @@ export class EmailService implements EmailServicePort {
         return result.success;
     }
 
-    // Template for Risk Alert
-    public generateRiskAlertTemplate(stats: { score: number, riskLevel: string, findings: number }) {
-        const color = stats.riskLevel === 'critical' ? '#dc2626' : '#ea580c';
-        return `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                <h2 style="color: ${color};">⚠️ Code Health Risk Alert</h2>
-                <p>Your codebase health has dropped to a <strong>${stats.riskLevel.toUpperCase()}</strong> risk level.</p>
-                
-                <div style="background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                    <p><strong>Health Score:</strong> ${stats.score}/100</p>
-                    <p><strong>Total Issues:</strong> ${stats.findings}</p>
-                    <p><strong>Risk Level:</strong> <span style="color: ${color}; font-weight: bold;">${stats.riskLevel}</span></p>
-                </div>
+    /**
+     * Probes the configured SMTP server without sending a message.
+     * Returns ok=true when the server accepts the connection and credentials.
+     * Returns ok=false with a sanitized error string on any failure.
+     */
+    public async verify(): Promise<EmailVerifyResult> {
+        const { config, available } = await this.ensureTransporter();
 
-                <p>Please review the issues in the <a href="${getAdminAppUrl()}/admin/system">Admin Dashboard</a>.</p>
-            </div>
-        `;
+        if (!config.enabled) {
+            return { ok: false, error: 'Email notifications are disabled in system config.' };
+        }
+
+        if (!available || !this.transporter) {
+            return { ok: false, error: 'SMTP credentials are incomplete. Check host, username, and password.' };
+        }
+
+        try {
+            await this.transporter.verify();
+            return { ok: true };
+        } catch (error) {
+            const rawMessage = error instanceof Error ? error.message : String(error);
+            const sanitized = rawMessage.replace(/pass(?:word)?\s*[:=]\s*\S+/gi, '[redacted]');
+            logger.warn('[EmailService] SMTP verify failed', { error: sanitized, host: config.host });
+            return { ok: false, error: sanitized };
+        }
     }
 }
 
