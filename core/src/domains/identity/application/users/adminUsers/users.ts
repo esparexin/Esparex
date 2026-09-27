@@ -2,7 +2,7 @@ import User from '../../../../../models/User';
 import Ad from '../../../../../models/Ad';
 import { USER_STATUS, Role } from '@esparex/contracts';
 import { hashPassword } from '../../auth/auth';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import type { UserFilters } from './types';
 import { buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';

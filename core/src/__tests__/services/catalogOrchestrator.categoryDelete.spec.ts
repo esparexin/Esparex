@@ -1,5 +1,5 @@
 import { CatalogOrchestratorImpl } from '../../domains/catalog/application/services/CatalogOrchestrator';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { LISTING_TYPE, CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import {
     CatalogUnitOfWorkPort,

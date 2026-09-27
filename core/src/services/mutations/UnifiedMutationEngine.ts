@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { getUserConnection } from '../../config/db';
 import type { MutationOptions } from './types';
 

@@ -1,7 +1,7 @@
 import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../utils/pLimit';
 import Business from '../../models/Business';
 import { ACTOR_TYPE } from '@esparex/contracts';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../utils/adminLogger';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
 import * as businessUtils from '../business/BusinessUtils';

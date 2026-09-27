@@ -3,7 +3,7 @@ import Admin, { IAdmin } from '../../../../../models/Admin';
 import User from '../../../../../models/User';
 import { USER_STATUS, Role } from '@esparex/contracts';
 import { hashPassword } from '../../auth/auth';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import { recalculateTrustScore } from '../../../../../services/TrustService';
 import { revokeAdminSessionsForAdmin } from '../../sessions/AdminSessionService';

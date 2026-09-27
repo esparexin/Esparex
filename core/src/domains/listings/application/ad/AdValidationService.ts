@@ -4,7 +4,7 @@
  * Note: Duplicate detection logic has been moved to AdDuplicateService.ts
  */
 
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { BusinessErrorCode } from '@esparex/contracts';
 import { 
     DuplicatePayload, 

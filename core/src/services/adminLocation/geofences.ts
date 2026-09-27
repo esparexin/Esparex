@@ -1,4 +1,4 @@
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { getAllGeofences, getGeofenceById, createGeofenceRecord, updateGeofenceById, deleteGeofenceById } from '../location/GeofenceService';
 import type { AdminLogFn } from '../AdminListingsService';
 

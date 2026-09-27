@@ -12,7 +12,7 @@ import { ApiResponse } from "./apiResponse";
 import logger from '@esparex/core/utils/logger';
 import { logAdminActionDirect } from "./adminLogger";
 import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER

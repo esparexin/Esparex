@@ -5,7 +5,7 @@ import User from '../../models/User';
 import Ad from '../../models/Ad';
 import { normalizeAdImagesForResponse } from "../../domains/listings/application/queries/adQuery/AdQueryHelpers";
 import { LISTING_STATUS } from '@esparex/contracts';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { getUserConnection } from '../../config/db';
 import logger from '../../utils/logger';
 import { normalizeLocation } from "../location/LocationNormalizer";
@@ -25,6 +25,20 @@ import {
     DEFAULT_BUSINESS_TYPES,
     cleanupRemovedS3Objects
 } from './BusinessUtils';
+
+function getConflictFieldName(
+    existing: { mobile?: string; email?: string; gstNumber?: string; registrationNumber?: string },
+    mobile?: string,
+    email?: string,
+    gst?: string,
+    reg?: string
+): string {
+    if (existing.mobile === mobile) return 'Phone number';
+    if (existing.email === email) return 'Email';
+    if (existing.gstNumber === gst) return 'GST number';
+    if (existing.registrationNumber === reg) return 'Registration number';
+    return 'business details';
+}
 
 export const registerBusiness = async (data: BusinessPayload, userId: string) => {
     let business = await Business.findOne({ userId });
@@ -46,12 +60,7 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
         : null;
 
     if (existingChecks) {
-        let field = 'business details';
-        if (existingChecks.mobile === normalizedMobile) field = 'Phone number';
-        else if (existingChecks.email === normalizedEmail) field = 'Email';
-        else if (existingChecks.gstNumber === normalizedGst) field = 'GST number';
-        else if (existingChecks.registrationNumber === normalizedRegistration) field = 'Registration number';
-
+        const field = getConflictFieldName(existingChecks, normalizedMobile, normalizedEmail, normalizedGst, normalizedRegistration);
         throw new AppError(`${field} is already registered with another business account.`, 409, 'BUSINESS_ALREADY_EXISTS');
     }
 
@@ -164,12 +173,7 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
         });
 
         if (existingChecks) {
-            let field = 'business details';
-            if (existingChecks.mobile === normalizedMobile) field = 'Phone number';
-            else if (existingChecks.email === normalizedEmail) field = 'Email';
-            else if (existingChecks.gstNumber === normalizedGst) field = 'GST number';
-            else if (existingChecks.registrationNumber === normalizedRegistration) field = 'Registration number';
-
+            const field = getConflictFieldName(existingChecks, normalizedMobile, normalizedEmail, normalizedGst, normalizedRegistration);
             throw new AppError(`${field} is already registered with another business account.`, 409, 'BUSINESS_ALREADY_EXISTS');
         }
     }

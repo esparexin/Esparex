@@ -2,7 +2,7 @@ import type { ClientSession } from 'mongoose';
 import { type Listing } from '../../../../domains/listings';
 import { getListingRepository, getListingUnitOfWork } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { generateId } from '../../../../utils/idUtils';
 
 

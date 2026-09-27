@@ -1,4 +1,4 @@
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingUnitOfWork } from '../../../../../composition/listings';
 import { type Listing } from '../../../../../domains/listings';

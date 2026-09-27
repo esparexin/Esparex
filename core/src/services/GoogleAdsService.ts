@@ -6,7 +6,7 @@ import {
     type InContentPlacementId,
     type GoogleAdStatusValue,
 } from "@esparex/contracts";
-import { AppError } from "../utils/AppError";
+import { AppError } from "../shared-kernel/errors/AppError";
 import { getCache, setCache, delCache } from "../utils/redisCache";
 
 const PUBLIC_ADS_CACHE_KEY = "sys:google_ads:active_placements";

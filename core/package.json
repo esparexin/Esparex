@@ -10,6 +10,7 @@
     "./utils/*": "./dist/utils/*.js",
     "./models/*": "./dist/models/*.js",
     "./services/*": "./dist/services/*.js",
+    "./shared-kernel/*": "./dist/shared-kernel/*.js",
     "./domains/admin": "./dist/domains/admin/index.js",
     "./domains/analytics": "./dist/domains/analytics/index.js",
     "./domains/boosts": "./dist/domains/boosts/index.js",

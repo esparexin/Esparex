@@ -1,5 +1,5 @@
 import logger from '../../utils/logger';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { processImages } from '../../utils/imageProcessor';
 import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
 import { normalizeLocation } from "../location/LocationNormalizer";

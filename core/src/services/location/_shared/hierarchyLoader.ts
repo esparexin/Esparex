@@ -6,7 +6,7 @@ import { normalizeGeoPoint } from '@esparex/shared';
 
 export { normalizeGeoPoint };
 import { CACHE_KEYS } from '../../../utils/redisCache';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../../utils/locationHierarchy';
 import {
     asString,

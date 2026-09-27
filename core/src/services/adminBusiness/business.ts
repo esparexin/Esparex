@@ -6,7 +6,7 @@ import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { BUSINESS_STATUS, LISTING_STATUS, LISTING_TYPE, ACTOR_TYPE } from '@esparex/contracts';
 import type { ActorMetadata } from '@esparex/contracts';
 import { mutateStatuses, mutateStatus } from '../lifecycle/StatusMutationService';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
 import logger from '../../utils/logger';
 

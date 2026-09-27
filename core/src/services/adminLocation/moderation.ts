@@ -1,6 +1,6 @@
 import { LOCATION_STATUS } from '@esparex/contracts';
 import logger from '../../utils/logger';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { findLocationById } from '../location/LocationQueryService';
 import { getModerationQueuePaginated } from '../location/LocationQueryService';
 import { saveLocation } from '../location/LocationMutationService';

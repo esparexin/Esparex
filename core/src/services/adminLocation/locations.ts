@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { escapeRegExp } from '../../utils/stringUtils';
 import { getCache, setCache } from '../../utils/redisCache';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { findLocationById, findLocationByIdLean, findActiveParentById, locationExists, findLocationParent, findDuplicateLocation, getDistinctStateLocations, getLocationsPaginated, countAdsForLocation, countUsersForLocation } from '../location/LocationQueryService';
 import { generateLocationId, createLocationRecord, saveLocation, softDeleteLocation } from '../location/LocationMutationService';
 import { normalizeCoordinates, normalizeLocationResponse } from '../location/LocationNormalizer';

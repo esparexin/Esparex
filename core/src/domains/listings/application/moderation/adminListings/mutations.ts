@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { LISTING_STATUS, LISTING_TYPE, REPORT_STATUS } from '@esparex/contracts';
 import type { ListingTypeValue } from '@esparex/contracts';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import { createAd } from '../../ad/AdOrchestrator';
 import { updateAdTransactional, extendListingExpiry } from '../../mutations/AdMutationService';
 import { bulkResolveReports } from '../../../../../services/ReportService';
