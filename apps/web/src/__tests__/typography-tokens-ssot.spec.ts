@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const WEB_SRC = path.resolve(__dirname, "..");
+const ADMIN_SRC = path.resolve(WEB_SRC, "../../admin/src");
+const UI_SRC = path.resolve(WEB_SRC, "../../../packages/ui/src");
 
 function collectSourceFiles(dir: string, ext: string[]): string[] {
     const results: string[] = [];
@@ -278,4 +280,72 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
         expect(content).toContain("<Textarea");
         expect(content).not.toContain("⚑");
     });
+
+    it("ensures zero raw oversize typography scale tokens (text-5xl through text-9xl) across web, admin, and ui primitives", () => {
+        const targetDirs = [WEB_SRC, ADMIN_SRC, UI_SRC];
+        const FORBIDDEN_OVERSIZE = [/\btext-5xl\b/, /\btext-6xl\b/, /\btext-7xl\b/, /\btext-8xl\b/, /\btext-9xl\b/];
+        const violations: string[] = [];
+
+        for (const dir of targetDirs) {
+            const files = collectSourceFiles(dir, [".tsx", ".ts"]);
+            for (const file of files) {
+                const content = fs.readFileSync(file, "utf-8");
+                const lines = content.split("\n");
+                lines.forEach((line, idx) => {
+                    if (line.trim().startsWith("//") || line.trim().startsWith("*")) return;
+                    for (const regex of FORBIDDEN_OVERSIZE) {
+                        if (regex.test(line)) {
+                            violations.push(
+                                `${path.relative(path.resolve(WEB_SRC, "../.."), file)}:${idx + 1}: contains oversize typography token: "${line.trim()}"`
+                            );
+                        }
+                    }
+                });
+            }
+        }
+
+        expect(violations).toEqual([]);
+    });
+
+    it("ensures form labels in @esparex/ui primitives enforce font-medium and never use font-bold or font-semibold", () => {
+        const formDir = path.join(UI_SRC, "forms");
+        const formFiles = collectSourceFiles(formDir, [".tsx", ".ts"]);
+        const violations: string[] = [];
+
+        for (const file of formFiles) {
+            const content = fs.readFileSync(file, "utf-8");
+            // Check for <label or Label declarations with font-bold or font-semibold
+            const labelRegex = /<(?:label|Label|FieldLabel)\b[^>]*className=[^>]*\bfont-(?:bold|semibold)\b/g;
+            const matches = content.match(labelRegex);
+            if (matches) {
+                violations.push(
+                    `${path.relative(UI_SRC, file)}: form label uses heavy font weight (${matches.join(", ")}) — must use font-medium`
+                );
+            }
+        }
+
+        expect(violations).toEqual([]);
+    });
+
+    it("ensures zero banned obsolete tokens exist in @esparex/ui and apps/admin", () => {
+        const targetDirs = [ADMIN_SRC, UI_SRC];
+        const BANNED = ["text-3xs", ["text", "2xs"].join("-"), "text-heading-sm", "text-headline", "text-title"];
+        const violations: string[] = [];
+
+        for (const dir of targetDirs) {
+            const files = collectSourceFiles(dir, [".tsx", ".ts"]);
+            for (const file of files) {
+                const content = fs.readFileSync(file, "utf-8");
+                for (const token of BANNED) {
+                    const regex = new RegExp(`\\b${token}\\b`);
+                    if (regex.test(content)) {
+                        violations.push(`${path.relative(path.resolve(WEB_SRC, "../.."), file)}: found banned token "${token}"`);
+                    }
+                }
+            }
+        }
+
+        expect(violations).toEqual([]);
+    });
 });
+

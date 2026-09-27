@@ -16,12 +16,14 @@ const config: Config = {
                 ...TYPOGRAPHY_TOKENS.fontSize,
                 // Standard Tailwind scale harmonization mapped to canonical design tokens
                 xs: TYPOGRAPHY_TOKENS.fontSize['caption']!,
-                sm: TYPOGRAPHY_TOKENS.fontSize['body']!,
-                base: TYPOGRAPHY_TOKENS.fontSize['body-lg']!,
+                sm: TYPOGRAPHY_TOKENS.fontSize['small']!,
+                base: TYPOGRAPHY_TOKENS.fontSize['body']!,
+                'body-lg': TYPOGRAPHY_TOKENS.fontSize['body-lg']!,
                 lg: TYPOGRAPHY_TOKENS.fontSize['h4']!,
                 xl: TYPOGRAPHY_TOKENS.fontSize['h3']!,
                 '2xl': TYPOGRAPHY_TOKENS.fontSize['h2']!,
                 '3xl': TYPOGRAPHY_TOKENS.fontSize['h1']!,
+                '4xl': TYPOGRAPHY_TOKENS.fontSize['display']!,
             },
             fontWeight: TYPOGRAPHY_TOKENS.fontWeight,
             colors: {

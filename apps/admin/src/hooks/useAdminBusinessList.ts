@@ -150,7 +150,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
     const handleModify = async (id: string, patch: Partial<Business>) => {
         try {
             await adminFetch(ADMIN_ROUTES.BUSINESS_UPDATE(id), {
-                method: "PUT",
+                method: "PATCH",
                 body: patch,
             });
             showAdminPopup({ type: "success", title: "Success", message: "Business updated" });

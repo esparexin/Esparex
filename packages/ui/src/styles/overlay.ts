@@ -6,7 +6,7 @@
  */
 
 export const OVERLAY_STYLES = {
-  modalTitle: "text-h3 font-semibold text-foreground",
-  panelTitle: "text-h4 font-semibold text-foreground",
-  description: "text-body text-muted-foreground",
+  modalTitle: "text-body-lg sm:text-h4 font-semibold text-foreground",
+  panelTitle: "text-body-lg sm:text-h4 font-semibold text-foreground",
+  description: "text-caption text-muted-foreground",
 } as const;

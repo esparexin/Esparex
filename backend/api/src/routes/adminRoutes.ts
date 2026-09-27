@@ -82,6 +82,7 @@ router.patch('/businesses/:id/reject', requirePermission('business:approve'), ad
 router.patch('/businesses/:id/renew', requirePermission('business:approve'), adminBusiness.renewBusinessAccount);
 router.patch('/businesses/:id/expire', requirePermission('business:approve'), adminBusiness.expireBusinessAccount);
 router.patch('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
+router.put('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
 
 router.delete('/businesses/:id', requirePermission('business:approve'), adminBusiness.deleteBusinessAccount);
 // Bulk Operations

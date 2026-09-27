@@ -2,7 +2,7 @@
   "threshold": 2.5,
   "minLines": 8,
   "minTokens": 100,
-  "languages": ["typescript", "tsx"],
+  "format": ["typescript", "tsx"],
   "path": [
     "backend/api/src",
     "apps/web/src",
