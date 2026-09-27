@@ -95,7 +95,7 @@ async function run(): Promise<void> {
         throw new Error('Category "drones" not found in active categories.');
     }
 
-    // 2. Audit & align Drone spare parts listingType
+    // 2. Audit & align Drone spare parts (listingType & clean semantic slugs)
     const droneParts = await sparePartsCollection
         .find({
             categoryIds: droneCat._id,
@@ -103,29 +103,28 @@ async function run(): Promise<void> {
         })
         .toArray();
 
-    console.log(`\nAuditing ${droneParts.length} Drone spare parts for listingType alignment...`);
-    const dronePartsToUpdate = droneParts.filter((p) => {
+    console.log(`\nAuditing ${droneParts.length} Drone spare parts for listingType & slug alignment...`);
+    for (const p of droneParts) {
         const types = Array.isArray(p.listingType) ? p.listingType : [];
-        return !types.includes('ad') || !types.includes('spare_part');
-    });
+        const hasCorrectListingType = types.includes('ad') && types.includes('spare_part');
+        const cleanSlug = p.slug.replace(/-[a-z0-9]{5}$/, '');
+        const needsSlugClean = cleanSlug !== p.slug;
 
-    console.log(`Drone parts requiring listingType update: ${dronePartsToUpdate.length}`);
-    dronePartsToUpdate.forEach((p) => {
-        console.log(`  - [${p.slug}] "${p.name}" (current: ${JSON.stringify(p.listingType)})`);
-    });
-
-    if (!isDryRun && dronePartsToUpdate.length > 0) {
-        const droneIds = dronePartsToUpdate.map((p) => p._id);
-        const updateResult = await sparePartsCollection.updateMany(
-            { _id: { $in: droneIds } },
-            {
-                $set: {
-                    listingType: ['ad', 'spare_part'],
-                    updatedAt: new Date(),
-                },
+        if (!hasCorrectListingType || needsSlugClean) {
+            console.log(`  - [${p.slug}] -> slug: "${cleanSlug}", listingType: ['ad', 'spare_part']`);
+            if (!isDryRun) {
+                await sparePartsCollection.updateOne(
+                    { _id: p._id },
+                    {
+                        $set: {
+                            slug: cleanSlug,
+                            listingType: ['ad', 'spare_part'],
+                            updatedAt: new Date(),
+                        },
+                    }
+                );
             }
-        );
-        console.log(`✅ Updated ${updateResult.modifiedCount} drone spare parts with listingType: ['ad', 'spare_part']`);
+        }
     }
 
     // 3. Add / align Primary Essential Spare Parts
