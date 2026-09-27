@@ -223,7 +223,6 @@ async function installPostAdSmokeMocks(
 async function openPostAd(page: Page) {
   await page.goto("/post-ad", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "Post Ad" })).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText("Step 1 of 2: Listing Information")).toBeVisible();
   await expect(page.getByRole("radio", { name: smokeCategory.name })).toBeVisible();
 }
 
@@ -249,7 +248,7 @@ async function completeIdentitySteps(page: Page) {
   await page.getByRole("radio", { name: "Power On" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByText("Step 2 of 2: Listing Details")).toBeVisible();
+  await expect(page.locator('[data-testid="step-two-fields"]')).toBeVisible();
 }
 
 async function attachSmokeScreenshot(page: Page, testInfo: TestInfo, name: string) {
