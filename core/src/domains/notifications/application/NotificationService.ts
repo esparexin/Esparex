@@ -57,6 +57,7 @@ export const queryNotificationsForUser = async (
 export interface CreateNotificationOptions {
     data?: Record<string, unknown>;
     channels?: string[];
+    [key: string]: unknown;
 }
 
 export const createInAppNotification = async (
@@ -67,13 +68,21 @@ export const createInAppNotification = async (
     optionsOrData: CreateNotificationOptions | Record<string, unknown> = {}
 ): Promise<void> => {
     try {
-        const isOptions = 'channels' in optionsOrData || ('data' in optionsOrData && typeof optionsOrData.data === 'object');
-        const payloadData: Record<string, unknown> | undefined = isOptions
-            ? (optionsOrData as CreateNotificationOptions).data
-            : (optionsOrData as Record<string, unknown>);
-        const channels = isOptions && (optionsOrData as CreateNotificationOptions).channels?.length
-            ? (optionsOrData as CreateNotificationOptions).channels
-            : ['in-app', 'push'];
+        let payloadData: Record<string, unknown> | undefined;
+        let channels: string[] = ['in-app', 'push'];
+
+        if (optionsOrData && typeof optionsOrData === 'object') {
+            const rawOptions = optionsOrData as CreateNotificationOptions;
+            if (Array.isArray(rawOptions.channels) && rawOptions.channels.length > 0) {
+                channels = rawOptions.channels;
+            }
+            if (rawOptions.data && typeof rawOptions.data === 'object') {
+                payloadData = rawOptions.data;
+            } else {
+                const { channels: _ch, ...rest } = rawOptions;
+                payloadData = Object.keys(rest).length > 0 ? rest : undefined;
+            }
+        }
 
         const intent = new NotificationIntent({
             userId,
@@ -102,7 +111,12 @@ export const dispatchTemplatedNotification = async (
     data: Record<string, unknown> = {}
 ): Promise<void> => {
     const { title, body } = getNotificationTemplate(templateKey, params);
-    return createInAppNotification(userId, type, title, body, { ...params, ...data });
+    const channels = Array.isArray(data?.channels) ? (data.channels as string[]) : undefined;
+    return createInAppNotification(userId, type, title, body, {
+        ...params,
+        ...data,
+        ...(channels ? { channels } : {}),
+    });
 };
 
 
