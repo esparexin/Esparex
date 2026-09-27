@@ -134,10 +134,10 @@ export function NotificationSettings(props: SectionProps) {
     <div className="space-y-6">
       <GenericSettingsSection
         {...props}
-        title="Notifications"
-        description="SMTP email and push delivery controls backed by the live runtime."
+        title="Email"
+        description="SMTP delivery configuration and push notification controls."
         configPath="notifications"
-        successMessage="Notification settings updated"
+        successMessage="Email settings updated"
         fields={FIELDS}
         columns={2}
       />
