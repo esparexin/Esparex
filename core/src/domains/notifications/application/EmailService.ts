@@ -21,7 +21,7 @@ export class EmailService implements EmailServicePort {
             enabled: emailConfig?.enabled ?? true,
             provider: emailConfig?.provider || 'smtp',
             senderName: emailConfig?.senderName?.trim() || 'Esparex Admin',
-            senderEmail: emailConfig?.senderEmail?.trim() || env.SMTP_FROM || 'noreply@esparex.com',
+            senderEmail: emailConfig?.senderEmail?.trim() || env.SMTP_FROM || 'noreply@esparex.in',
             host: emailConfig?.host?.trim() || env.SMTP_HOST || '',
             port: Number(emailConfig?.port || env.SMTP_PORT || 587),
             username: emailConfig?.username?.trim() || env.SMTP_USER || '',
