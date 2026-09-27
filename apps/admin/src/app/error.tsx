@@ -1,8 +1,8 @@
 'use client';
-/* eslint-disable no-console */
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import logger from '@/lib/logger';
 
 export default function Error({
     error,
@@ -12,8 +12,7 @@ export default function Error({
     reset: () => void;
 }) {
     useEffect(() => {
-        // Log to console in dev; Sentry picks it up automatically in production
-        console.error('[Admin] Route error:', error);
+        logger.error('[Admin] Route error:', error);
     }, [error]);
 
     return (
