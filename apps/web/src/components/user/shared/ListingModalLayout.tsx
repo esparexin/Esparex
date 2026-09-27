@@ -65,7 +65,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, class
             <DialogContent
                 hideClose
                 variant="bottomSheet"
-                className={className}
+                className={cn("h-[88dvh] sm:h-[82dvh] sm:max-h-[760px] sm:min-h-[580px]", className)}
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <header className="shrink-0 bg-card border-b border-border flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">

@@ -7,7 +7,7 @@ import { CatalogSelectDropdown } from "@/components/user/shared/CatalogSelectDro
 import type { FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
-import { Leaf, Contrast, Zap } from "@esparex/ui";
+import { Leaf, Zap } from "@esparex/ui";
 import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {
@@ -17,8 +17,6 @@ export function DeviceConditionSection() {
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const spareParts = (watch("spareParts") || []) as string[];
-    const deviceCondition = watch("deviceCondition");
-    const hasSelection = deviceCondition === "power_on" || deviceCondition === "power_off";
     const sparePartsErrorMsg = errors.spareParts?.message as string | undefined;
 
     const handleSparePartsChange = useCallback((selectedIds: string | string[]) => {
@@ -54,8 +52,8 @@ export function DeviceConditionSection() {
                     render={({ field }) => (
                         <FormItem className="flex flex-col gap-1.5 space-y-0">
                             <div className="flex flex-row items-center gap-x-4">
-                                <FieldLabel className="text-body font-semibold m-0 leading-none text-foreground-secondary">
-                                    Device Condition <span className="text-destructive">*</span>
+                                <FieldLabel required className="text-caption sm:text-small font-medium text-foreground-secondary m-0 leading-none">
+                                    Device Condition
                                 </FieldLabel>
                                 <FieldControl animateOnError>
                                     <RadioGroupPrimitive.Root
@@ -70,53 +68,49 @@ export function DeviceConditionSection() {
                                         className="flex"
                                         orientation="horizontal"
                                     >
-                                        <div className="w-fit inline-flex items-center p-1 rounded-full border border-border bg-card shadow-2xs">
+                                        <div className="w-fit inline-flex items-center p-1 rounded-xl border border-border bg-muted/40 shadow-2xs gap-1.5">
                                             <RadioGroupPrimitive.Item 
                                                 value="power_off"
                                                 title="Power Off"
                                                 aria-label="Power Off"
                                                 className={cn(
-                                                    "group flex items-center justify-center gap-1.5 px-3 h-8 rounded-full transition-all duration-200 cursor-pointer select-none", 
+                                                    "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
                                                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
-                                                    "data-[state=checked]:bg-muted data-[state=checked]:shadow-inner"
+                                                    "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
+                                                    "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-foreground data-[state=checked]:shadow-2xs"
                                                 )}
                                             >
                                                 <Leaf 
                                                     className={cn(
                                                         "w-4 h-4 transition-all duration-200 text-foreground-subtle", 
-                                                        "group-data-[state=checked]:scale-110 group-data-[state=checked]:text-foreground"
+                                                        "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-emerald-600"
                                                     )} 
-                                                    strokeWidth={2.5}
+                                                    strokeWidth={2}
                                                 />
-                                                <span className="text-caption font-medium text-foreground-subtle group-data-[state=checked]:text-foreground group-data-[state=checked]:font-semibold transition-colors duration-200">
+                                                <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-foreground group-data-[state=checked]:font-semibold transition-colors duration-200">
                                                     Power Off
                                                 </span>
                                             </RadioGroupPrimitive.Item>
-
-                                            {!hasSelection && (
-                                                <div className="flex items-center justify-center px-1 h-8 rounded-full pointer-events-none">
-                                                    <Contrast className="w-4 h-4 text-primary" strokeWidth={2.5} />
-                                                </div>
-                                            )}
 
                                             <RadioGroupPrimitive.Item 
                                                 value="power_on"
                                                 title="Power On"
                                                 aria-label="Power On"
                                                 className={cn(
-                                                    "group flex items-center justify-center gap-1.5 px-3 h-8 rounded-full transition-all duration-200 cursor-pointer select-none", 
+                                                    "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
                                                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
-                                                    "data-[state=checked]:bg-muted data-[state=checked]:shadow-inner"
+                                                    "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
+                                                    "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-destructive data-[state=checked]:shadow-2xs"
                                                 )}
                                             >
                                                 <Zap 
                                                     className={cn(
                                                         "w-4 h-4 transition-all duration-200 text-destructive/80", 
-                                                        "group-data-[state=checked]:scale-110 group-data-[state=checked]:text-destructive"
+                                                        "group-data-[state=checked]:scale-105 group-data-[state=checked]:text-destructive"
                                                     )} 
-                                                    strokeWidth={2.5}
+                                                    strokeWidth={2}
                                                 />
-                                                <span className="text-caption font-medium text-foreground-subtle group-data-[state=checked]:text-destructive group-data-[state=checked]:font-semibold transition-colors duration-200">
+                                                <span className="text-caption font-medium text-foreground-secondary group-data-[state=checked]:text-destructive group-data-[state=checked]:font-semibold transition-colors duration-200">
                                                     Power On
                                                 </span>
                                             </RadioGroupPrimitive.Item>
@@ -134,9 +128,9 @@ export function DeviceConditionSection() {
                 <section className="space-y-2" data-field="spareParts">
                     <label 
                         htmlFor="working-spare-parts-select" 
-                        className="text-body font-semibold text-foreground-secondary leading-snug block mb-1.5"
+                        className="text-caption sm:text-small font-medium text-foreground-secondary leading-snug block mb-1.5"
                     >
-                        Working Spare Parts <span className="text-destructive">*</span>
+                        Working Spare Parts <span className="text-destructive ml-1" aria-hidden="true">*</span>
                     </label>
                     {isSparePartsPending ? (
                         <div className="h-11 rounded-xl bg-muted animate-pulse border border-border" />
