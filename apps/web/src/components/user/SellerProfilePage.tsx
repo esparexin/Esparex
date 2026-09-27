@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
     Badge,
@@ -13,11 +13,8 @@ import {
     ChevronRight,
     LayoutGrid,
     MapPin,
-    Search,
     Share2,
     ShieldCheck,
-    Tag,
-    X,
 } from "@esparex/ui";
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import { type Listing as Ad } from "@/lib/api/user/listings";
@@ -41,22 +38,13 @@ const buildAdHref = (ad: Ad): string => {
 };
 
 export function SellerProfilePage({ profile }: SellerProfilePageProps) {
-    const [searchFilter, setSearchFilter] = useState("");
     const [copied, setCopied] = useState(false);
 
     const sellerName = profile.user.name || "Seller";
     const joinDate = profile.user.createdAt ? formatStableDate(profile.user.createdAt) : "N/A";
     const initials = sellerName.trim().charAt(0).toUpperCase() || "S";
     const locationLabel = LocationFacade.format(profile.user.location);
-    const totalActive = profile.ads?.length || 0;
-
-    const filteredAds = useMemo(() => {
-        if (!searchFilter.trim()) return profile.ads || [];
-        const query = searchFilter.toLowerCase().trim();
-        return (profile.ads || []).filter((ad) =>
-            ad.title?.toLowerCase().includes(query) || ad.category?.toLowerCase().includes(query)
-        );
-    }, [profile.ads, searchFilter]);
+    const ads = profile.ads || [];
 
     const handleShare = async () => {
         const url = typeof window !== "undefined" ? window.location.href : "";
@@ -87,7 +75,21 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 </nav>
 
                 {/* Profile Identity Card */}
-                <Card className="border border-border shadow-xs overflow-hidden rounded-2xl md:rounded-3xl bg-card">
+                <Card className="relative border border-border shadow-xs overflow-hidden rounded-2xl md:rounded-3xl bg-card">
+                    {/* Share Profile Icon Button in Top Right */}
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+                        <Button
+                            variant="secondary"
+                            size="icon"
+                            onClick={handleShare}
+                            aria-label={copied ? "Link copied to clipboard" : "Share seller profile"}
+                            title={copied ? "Link copied!" : "Share Profile"}
+                            className="size-9 rounded-full bg-card/85 backdrop-blur-md border border-border/80 text-foreground hover:bg-card hover:text-primary transition-colors shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                            {copied ? <Check className="size-4 text-primary" /> : <Share2 className="size-4" />}
+                        </Button>
+                    </div>
+
                     {/* Soft Brand Header Canvas */}
                     <div className="relative h-24 sm:h-32 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
                         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#16a34a_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -96,44 +98,38 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
                     <CardContent className="pt-0 px-4 sm:px-6 md:px-8 pb-5 sm:pb-6">
                         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 -mt-10 sm:-mt-12 relative">
-                            {/* Avatar */}
+                            {/* Avatar with Trust Badge on Top-Right Side */}
                             <div className="shrink-0 mx-auto sm:mx-0">
-                                <div className="size-20 sm:size-24 rounded-2xl bg-card p-1 shadow-md ring-4 ring-card border border-border/80 overflow-hidden flex items-center justify-center">
-                                    {profile.user.profilePhoto ? (
-                                        <div className="relative size-full rounded-xl overflow-hidden">
-                                            <SafeImage src={profile.user.profilePhoto} alt={sellerName} fill className="object-cover" sizes="96px" />
-                                        </div>
-                                    ) : (
-                                        <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-h2 sm:text-h1 font-bold">
-                                            {initials}
+                                <div className="relative inline-block">
+                                    <div className="size-20 sm:size-24 rounded-2xl bg-card p-1 shadow-md ring-4 ring-card border border-border/80 overflow-hidden flex items-center justify-center">
+                                        {profile.user.profilePhoto ? (
+                                            <div className="relative size-full rounded-xl overflow-hidden">
+                                                <SafeImage src={profile.user.profilePhoto} alt={sellerName} fill className="object-cover" sizes="96px" />
+                                            </div>
+                                        ) : (
+                                            <div className="size-full rounded-xl bg-primary/10 text-primary flex items-center justify-center text-h2 sm:text-h1 font-bold">
+                                                {initials}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {profile.user.isVerified && (
+                                        <div
+                                            className="absolute -top-1.5 -right-1.5 z-10 size-6 sm:size-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md ring-2 ring-card"
+                                            title="Verified Seller"
+                                            aria-label="Verified Seller"
+                                        >
+                                            <ShieldCheck className="size-3.5 sm:size-4" />
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Seller Details & Primary Actions */}
-                            <div className="flex-1 pt-1 text-center sm:text-left flex flex-col justify-between">
-                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                                    <div>
-                                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-                                            <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight break-words">{sellerName}</h1>
-                                            {profile.user.isVerified && (
-                                                <Badge className="bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full text-caption font-semibold gap-1 inline-flex items-center">
-                                                    <ShieldCheck className="size-3.5" /> Verified Seller
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-caption text-foreground-secondary font-medium mt-1">
-                                            <span className="inline-flex items-center gap-1"><Calendar className="size-3.5 text-foreground-subtle" /> Active since {joinDate}</span>
-                                            {locationLabel && <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-foreground-subtle" /> {locationLabel}</span>}
-                                            <span className="inline-flex items-center gap-1 text-primary font-semibold"><Tag className="size-3.5" /> {totalActive} live ads</span>
-                                        </div>
-                                    </div>
-
-                                    <Button variant="outline" size="sm" onClick={handleShare} className="h-9 px-3.5 rounded-xl border-border hover:bg-muted/70 text-caption font-semibold gap-1.5 self-center sm:self-start cursor-pointer shadow-2xs">
-                                        {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
-                                        {copied ? "Link Copied!" : "Share Profile"}
-                                    </Button>
+                            {/* Seller Details */}
+                            <div className="flex-1 pt-1 text-center sm:text-left">
+                                <h1 className="text-h2 sm:text-h1 font-bold text-foreground tracking-tight break-words mb-1">{sellerName}</h1>
+                                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-caption text-foreground-secondary font-medium mt-1">
+                                    <span className="inline-flex items-center gap-1"><Calendar className="size-3.5 text-foreground-subtle" /> Active since {joinDate}</span>
+                                    {locationLabel && <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-foreground-subtle" /> {locationLabel}</span>}
                                 </div>
                             </div>
                         </div>
@@ -142,44 +138,26 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
                 {/* Seller's Listings Showcase */}
                 <section id="seller-active-listings" className="space-y-4 pt-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+                    <div className="flex items-center justify-between border-b border-border pb-3">
                         <div className="flex items-center gap-2">
                             <h2 className="text-h3 font-bold text-foreground tracking-tight">Active Listings</h2>
-                            <Badge className="bg-muted text-foreground-secondary font-bold px-2.5 py-0.5 rounded-full text-tiny border-none">{filteredAds.length}</Badge>
+                            <Badge className="bg-muted text-foreground-secondary font-bold px-2.5 py-0.5 rounded-full text-tiny border-none">{ads.length}</Badge>
                         </div>
-                        {totalActive > 3 && (
-                            <div className="relative w-full sm:w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                                <input
-                                    type="text"
-                                    placeholder="Search in seller's ads..."
-                                    value={searchFilter}
-                                    onChange={(e) => setSearchFilter(e.target.value)}
-                                    className="w-full pl-8 pr-7 h-9 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
-                                />
-                                {searchFilter && (
-                                    <button type="button" onClick={() => setSearchFilter("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary p-0.5 cursor-pointer" aria-label="Clear search">
-                                        <X className="size-3.5" />
-                                    </button>
-                                )}
-                            </div>
-                        )}
                     </div>
 
-                    {filteredAds.length === 0 ? (
+                    {ads.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-3 py-14 text-center rounded-2xl border border-border bg-card shadow-xs">
                             <div className="size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground"><LayoutGrid className="size-6" /></div>
                             <div className="space-y-1">
-                                <p className="font-semibold text-foreground text-body">{searchFilter ? "No matching listings" : "No active listings"}</p>
-                                <p className="text-caption text-foreground-secondary max-w-xs">{searchFilter ? `No ads matched "${searchFilter}". Try another keyword.` : `${sellerName} does not have any active listings right now.`}</p>
+                                <p className="font-semibold text-foreground text-body">No active listings</p>
+                                <p className="text-caption text-foreground-secondary max-w-xs">{sellerName} does not have any active listings right now.</p>
                             </div>
-                            {searchFilter && <Button variant="outline" size="sm" onClick={() => setSearchFilter("")} className="h-8 rounded-lg text-caption font-semibold mt-1">Clear search filter</Button>}
                         </div>
                     ) : (
                         <>
                             {/* Mobile View: Strictly existing List view format (SSOT AdCardList) */}
                             <div className="flex flex-col gap-2.5 sm:hidden">
-                                {filteredAds.map((ad, index) => (
+                                {ads.map((ad, index) => (
                                     <AdCardList
                                         key={`list-${String(ad.id)}`}
                                         ad={ad}
@@ -191,7 +169,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
                             {/* Tablet & Desktop View: Existing Grid view format (SSOT AdCardGrid) */}
                             <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-                                {filteredAds.map((ad, index) => (
+                                {ads.map((ad, index) => (
                                     <AdCardGrid
                                         key={`grid-${String(ad.id)}`}
                                         ad={ad}
@@ -207,3 +185,4 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
         </div>
     );
 }
+
