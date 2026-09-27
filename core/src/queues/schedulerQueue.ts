@@ -7,7 +7,6 @@ import { withQueueDefaults } from './queueDefaults';
 export type SchedulerJobName =
     | 'expire_ads_job'
     | 'expire_businesses'
-    | 'notify_business_expiry'
     | 'payment_reconciliation'
     | 'monthly_slot_reset'
     | 'expire_user_plans'
@@ -32,7 +31,6 @@ const shouldDisableSchedulerQueue =
 const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     expire_ads_job: '1 0 * * *',
     expire_businesses: '10 0 * * *',
-    notify_business_expiry: '0 9 * * *',
     payment_reconciliation: '*/10 * * * *',
     monthly_slot_reset: '5 0 1 * *',
     expire_user_plans: '0 1 * * *',

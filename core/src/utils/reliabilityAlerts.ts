@@ -3,6 +3,7 @@ import { captureException } from '../config/sentry';
 import logger from './logger';
 import { TraceContext } from '@esparex/shared';
 import { getReliabilityContextSnapshot } from './reliabilityContext';
+import { renderReliabilityAlertEmail } from '../domains/notifications/templates/EmailLayout';
 
 export type ReliabilitySeverity = 'critical' | 'high' | 'warning' | 'info';
 
@@ -197,26 +198,6 @@ const toSlackText = (event: ReliabilityAlertEvent): string => {
     ].join('\n');
 };
 
-const toEmailHtml = (event: ReliabilityAlertEvent): string => {
-    const metadataJson = safeJsonStringify(event.metadata || {})
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-    return [
-        '<div style="font-family:Arial,sans-serif;max-width:900px;">',
-        `<h2>${event.title}</h2>`,
-        `<p><strong>Severity:</strong> ${event.severity.toUpperCase()}</p>`,
-        `<p><strong>Type:</strong> ${event.type}</p>`,
-        `<p><strong>Service:</strong> ${event.service || 'unknown'}</p>`,
-        `<p><strong>Module:</strong> ${event.module || 'unknown'}</p>`,
-        `<p><strong>Summary:</strong> ${event.summary}</p>`,
-        `<p><strong>Timestamp:</strong> ${event.timestamp || new Date().toISOString()}</p>`,
-        '<h3>Metadata</h3>',
-        `<pre style="background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto;">${metadataJson}</pre>`,
-        '</div>',
-    ].join('');
-};
 
 const sendSlackAlert = async (event: ReliabilityAlertEvent): Promise<ChannelDelivery> => {
     const webhookUrl = env.RELIABILITY_SLACK_WEBHOOK_URL?.trim();
@@ -255,7 +236,20 @@ const sendEmailAlert = async (event: ReliabilityAlertEvent): Promise<ChannelDeli
     }
 
     const subject = `[${event.severity.toUpperCase()}] ${event.title}`;
-    const html = toEmailHtml(event);
+    const metadataJson = safeJsonStringify(event.metadata || {})
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    const html = renderReliabilityAlertEmail({
+        title: event.title,
+        severity: event.severity,
+        type: event.type,
+        service: event.service || 'unknown',
+        module: event.module || 'unknown',
+        summary: event.summary,
+        timestamp: event.timestamp || new Date().toISOString(),
+        metadataJson,
+    });
 
     let delivered = 0;
     const failures: string[] = [];

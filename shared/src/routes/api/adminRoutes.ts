@@ -151,6 +151,7 @@ export const ADMIN_ROUTES = {
   SYSTEM_FIX: "/system/fix",
   CACHE_HEALTH: "/cache/health",
   SYSTEM_CONFIG: "/system/config",
+  SYSTEM_CONFIG_TEST_EMAIL: "/system/config/test-email",
   SYSTEM_AI_CONFIG: "/system/ai-config",
   SYSTEM_AI_TEST: "/system/ai-config/test",
   SUPPORT_CONTACT: "/support/contact",

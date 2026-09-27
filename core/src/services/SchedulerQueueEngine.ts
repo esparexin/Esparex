@@ -8,7 +8,6 @@ import {
 } from '../queues/schedulerQueue';
 import { runExpireAdsJob } from '../jobs/expireAds.job';
 import { runExpireBusinessesJob } from '../jobs/expireBusinesses.job';
-import { runNotifyBusinessJob } from '../jobs/notifyBusiness.job';
 import { runPaymentReconciliationJob } from '../jobs/reconcilePayments.job';
 import { runMonthlySlotResetJob } from '../jobs/resetMonthlySlots.job';
 import { runExpireUserPlansJob } from '../jobs/expireUserPlans.job';
@@ -27,7 +26,6 @@ import { runExpireEntitlementsJob } from '../jobs/expireEntitlements.job';
 const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     expire_ads_job: runExpireAdsJob,
     expire_businesses: runExpireBusinessesJob,
-    notify_business_expiry: runNotifyBusinessJob,
     payment_reconciliation: runPaymentReconciliationJob,
     monthly_slot_reset: runMonthlySlotResetJob,
     expire_user_plans: runExpireUserPlansJob,
