@@ -1,5 +1,6 @@
 import Business from '../models/Business';
 import { emailService } from '../domains/notifications/application/EmailService';
+import { renderBusinessExpiryAlertEmail } from '../domains/notifications/templates/EmailLayout';
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
@@ -38,18 +39,19 @@ export const runNotifyBusinessJob = async () => {
                     for (const business of expiringBusinesses) {
                         if (!business.email) continue;
 
-                        const subject = `Action Required: Your Esparex Business Plan Expires in ${days} Day${days > 1 ? 's' : ''}`;
-                        const html = `
-                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                            <h2>Business Plan Expiration Alert</h2>
-                            <p>Hello <strong>${business.name}</strong>,</p>
-                            <p>This is a reminder that your Esparex Business Subscription will expire on <strong>${new Date(business.expiresAt!).toLocaleDateString()}</strong>.</p>
-                            <p>To ensure your business profile remains active and visible to customers, please renew your plan before it expires.</p>
-                            <p>If your plan expires, your profile will be automatically suspended.</p>
-                            <br/>
-                            <a href="${getFrontendAppUrl()}/my-business" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Renew Now</a>
-                        </div>
-                    `;
+                        const expiryDateStr = new Date(business.expiresAt!).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                        const daysText = days === 1 ? '1 Day' : `${days} Days`;
+                        const subject = `Action Required: Your Esparex Business Plan Expires in ${daysText}`;
+                        const html = renderBusinessExpiryAlertEmail({
+                            businessName: business.name,
+                            expiryDate: expiryDateStr,
+                            daysLeft: days,
+                            renewUrl: `${getFrontendAppUrl()}/account/business`,
+                        });
 
                         await emailService.sendEmail(business.email, subject, html);
                         totalNotified++;
