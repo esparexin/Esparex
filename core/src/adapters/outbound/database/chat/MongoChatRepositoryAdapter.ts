@@ -16,7 +16,7 @@ import {
     type CreateSystemMessageData,
     type PopulatedConv,
 } from '../../../../domains/chat';
-import { PAGE_SIZE_INBOX, PAGE_SIZE_MESSAGES } from '../../../../services/chat/ChatUtils';
+import { PAGE_SIZE_INBOX, PAGE_SIZE_MESSAGES } from '../../../../domains/communications/application/services/chat/ChatUtils';
 
 export class MongoChatRepositoryAdapter implements ChatRepositoryPort {
     public async findConversationById(conversationId: string): Promise<ChatConversationEntity | null> {

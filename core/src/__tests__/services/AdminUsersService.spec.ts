@@ -44,7 +44,7 @@ import Admin from "../../models/Admin";
 import {
     normalizeAdminManagedUser,
     isLastActiveSuperAdmin,
-} from "../../services/AdminUsersService";
+} from "../../domains/identity";
 
 const mockAdmin = Admin as any;
 

@@ -1,6 +1,6 @@
 import { AppError } from '../../shared-kernel/errors/AppError';
 import { getAllGeofences, getGeofenceById, createGeofenceRecord, updateGeofenceById, deleteGeofenceById } from '../location/GeofenceService';
-import type { AdminLogFn } from '../AdminListingsService';
+import type { AdminLogFn } from '../../utils/adminLogger';
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
     Object.prototype.toString.call(value) === '[object Object]';

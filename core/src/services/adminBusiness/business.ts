@@ -144,7 +144,7 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: A
     if (!business) throw new AppError('Business not found', 404);
     await logFn('APPROVE_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
-    const { recalculateTrustScore } = await import('../TrustService');
+    const { recalculateTrustScore } = await import('../../domains/trust');
     const { assignDefaultPlan } = await import('../business/BusinessSubscriptionService');
 
     const userIdStr = String(business.userId ?? '');

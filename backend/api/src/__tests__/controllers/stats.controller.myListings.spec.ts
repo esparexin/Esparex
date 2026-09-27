@@ -9,7 +9,7 @@ const mockLogger = {
     debug: jest.fn(),
 };
 
-jest.mock('@esparex/core/domains/listings', () => ({
+jest.mock('@esparex/core/domains/listings/application', () => ({
     getOwnerListings: mockGetOwnerListings,
 }));
 

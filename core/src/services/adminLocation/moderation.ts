@@ -7,7 +7,7 @@ import { saveLocation } from '../location/LocationMutationService';
 import { dispatchTemplatedNotification } from '../../domains/notifications/application/NotificationService';
 import { resolveLocationSummary } from '../../utils/locationHierarchy';
 import { invalidateLocationStateCache } from './helpers';
-import type { AdminLogFn } from '../AdminListingsService';
+import type { AdminLogFn } from '../../utils/adminLogger';
 import type { AdminLocationPaginationQuery } from './types';
 import { parsePaginationParams } from './helpers';
 

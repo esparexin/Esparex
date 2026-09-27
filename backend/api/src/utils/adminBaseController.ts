@@ -11,7 +11,7 @@ import type { IAuthUser as AuthUser } from '@esparex/core/types/auth';
 import { ApiResponse } from "./apiResponse";
 import logger from '@esparex/core/utils/logger';
 import { logAdminActionDirect } from "./adminLogger";
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
+import type { AdminLogFn } from '@esparex/core/utils/adminLogger';
 import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 
 /**

@@ -7,7 +7,7 @@ import { generateLocationId, createLocationRecord, saveLocation, softDeleteLocat
 import { normalizeCoordinates, normalizeLocationResponse } from '../location/LocationNormalizer';
 import { buildHierarchyPath, resolveParentLocation, resolveLocationScope, resolveLocationSummary, asString as resolveStringField } from '../../utils/locationHierarchy';
 import type { CanonicalLocationDoc } from '../../utils/locationHierarchy';
-import type { AdminLogFn } from '../AdminListingsService';
+import type { AdminLogFn } from '../../utils/adminLogger';
 import type { AdminLocationPaginationQuery, AdminCreateLocationBody, AdminUpdateLocationBody } from './types';
 import { safeSlugify, toScopeQuery, hydrateLocationResponses, invalidateLocationStateCache, parsePaginationParams, ADMIN_STATES_CACHE_KEY } from './helpers';
 

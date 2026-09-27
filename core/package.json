@@ -23,6 +23,7 @@
     "./domains/fraud": "./dist/domains/fraud/index.js",
     "./domains/identity": "./dist/domains/identity/index.js",
     "./domains/listings": "./dist/domains/listings/index.js",
+    "./domains/listings/application": "./dist/domains/listings/application.js",
     "./domains/location": "./dist/domains/location/index.js",
     "./domains/moderation": "./dist/domains/moderation/index.js",
     "./domains/monetization": "./dist/domains/monetization/index.js",

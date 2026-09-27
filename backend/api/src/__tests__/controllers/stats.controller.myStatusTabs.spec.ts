@@ -19,7 +19,7 @@ jest.mock('@esparex/core/models/Ad', () => ({
     },
 }));
 
-jest.mock('@esparex/core/domains/listings', () => ({
+jest.mock('@esparex/core/domains/listings/application', () => ({
     getOwnerListings: mockGetOwnerListings,
 }));
 

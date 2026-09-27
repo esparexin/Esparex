@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 import logger from '../../../utils/logger';
 import { buildGeoNearStage } from '../../../utils/mongoGeoUtils';
 import { dispatchTemplatedNotification } from './NotificationService';
-import type { AdminLogFn } from '../../../services/AdminListingsService';
+import type { AdminLogFn } from '../../../utils/adminLogger';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 
 import { getCache, setCache } from '../../../utils/redisCache';

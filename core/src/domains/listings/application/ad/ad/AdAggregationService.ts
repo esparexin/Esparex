@@ -1,1 +1,1 @@
-export * from '../../../../../services/adAggregation';
+export * from '../../aggregation/adAggregation';

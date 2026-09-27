@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import * as AdEngagementService from '@esparex/core/domains/listings';
+import * as AdEngagementService from '@esparex/core/domains/listings/application';
 import { getSellerPhone } from '@esparex/core/domains/communications';
 import { LISTING_TYPE } from "@esparex/contracts";
 /**
