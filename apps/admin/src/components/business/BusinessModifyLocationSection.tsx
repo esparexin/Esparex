@@ -35,9 +35,7 @@ export function BusinessModifyLocationSection({
     locationSearchLoading,
     locationSearchError,
     selectedLocationLabel,
-    detecting,
     handleCanonicalLocationSelect,
-    handleDetectLocation,
   } = useBusinessLocationSearch({
     form,
     setForm,
@@ -47,23 +45,8 @@ export function BusinessModifyLocationSection({
 
   return (
     <section className="space-y-3">
-      <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest flex items-center justify-between gap-1.5">
-        <span className="flex items-center gap-1.5">
-          <MapPin size={12} /> Location
-        </span>
-        <button
-          type="button"
-          onClick={handleDetectLocation}
-          disabled={detecting || loading}
-          className="text-primary hover:text-primary/80 transition-colors flex items-center gap-1 normal-case font-semibold h-6 px-2 rounded-md hover:bg-primary/5 cursor-pointer text-caption"
-        >
-          {detecting ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : (
-            <MapPin size={12} />
-          )}
-          {detecting ? "Detecting..." : "Detect Current Location"}
-        </button>
+      <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest flex items-center gap-1.5">
+        <MapPin size={12} /> Location
       </p>
       <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
         <div className="space-y-1">
