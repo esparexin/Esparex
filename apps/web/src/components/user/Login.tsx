@@ -123,23 +123,9 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
   const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
   const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
-  // Auto-focus management with preventScroll to stop iOS WebKit focus-scrolling
-  // Delayed by 250ms so drawer slide-in animation (200ms) completes before virtual keyboard deploys
+  // Auto-focus management for step transitions within the sheet
+  // Initial mobile focus is handled by Sheet onOpenAutoFocus
   useEffect(() => {
-    if (step === "enterMobile") {
-      const id = setTimeout(() => {
-        const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
-        if (input) {
-          input.focus({ preventScroll: true });
-        } else {
-          form.setFocus("mobile");
-        }
-        if (typeof window !== "undefined" && window.scrollY !== 0) {
-          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-        }
-      }, 250);
-      return () => clearTimeout(id);
-    }
     if (step === "enterNameAndOtp") {
       const id = setTimeout(() => {
         const input = document.querySelector<HTMLInputElement>('input[name="name"]');
@@ -147,9 +133,6 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           input.focus({ preventScroll: true });
         } else {
           form.setFocus("name");
-        }
-        if (typeof window !== "undefined" && window.scrollY !== 0) {
-          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
         }
       }, 250);
       return () => clearTimeout(id);
