@@ -145,12 +145,12 @@ export function DataTable<T extends { id: string | number }>({
     };
 
     return (
-        <div className="w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
             {isLoading ? (
-                <div className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden animate-pulse">
-                    <div className="h-12 bg-slate-50 border-b border-slate-100" />
+                <div className="w-full bg-card border border-border rounded-xl overflow-hidden animate-pulse">
+                    <div className="h-12 bg-muted border-b border-border" />
                     {loadingRows.map((i) => (
-                        <div key={i} className="h-16 border-b border-slate-50 mx-4" />
+                        <div key={i} className="h-16 border-b border-border/50 mx-4" />
                     ))}
                 </div>
             ) : (
