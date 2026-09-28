@@ -124,6 +124,14 @@ export class EmailTemplateCatalogService {
 
     /**
      * Resolves the runtime subject line for a given template key.
+     *
+     * This method is the dispatch-time API consumed by email dispatch services
+     * (e.g. EmailService, NotificationDispatcher) when sending real emails.
+     * It applies any admin-configured subject overlay from SystemConfig.emailTemplates,
+     * then interpolates dynamic runtime parameters (e.g. `{{planName}}`).
+     *
+     * It is NOT called from admin controllers, which use `getAllTemplates()` /
+     * `getTemplateByKey()` for catalog management instead.
      */
     public resolveSubject(
         key: EmailTemplateKey,

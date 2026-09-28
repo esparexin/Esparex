@@ -17,15 +17,6 @@ export async function listEmailTemplates(): Promise<EmailTemplateDTO[]> {
 }
 
 /**
- * Retrieves a single email template by key.
- */
-export async function getEmailTemplate(key: EmailTemplateKey): Promise<EmailTemplateDTO> {
-    const res = await adminFetch<EmailTemplateDTO>(ADMIN_ROUTES.EMAIL_TEMPLATE_BY_KEY(key));
-    if (!res.data) throw new Error(res.error || "Email template not found");
-    return res.data;
-}
-
-/**
  * Generates an HTML live preview with sample data and optional draft overrides.
  */
 export async function getEmailTemplatePreview(
@@ -48,7 +39,7 @@ export async function updateEmailTemplate(
     payload: UpdateEmailTemplatePayload
 ): Promise<EmailTemplateDTO> {
     const res = await adminFetch<EmailTemplateDTO>(ADMIN_ROUTES.EMAIL_TEMPLATE_BY_KEY(key), {
-        method: "PUT",
+        method: "PATCH",
         body: JSON.stringify(payload),
     });
     if (!res.data) throw new Error(res.error || "Failed to update email template");

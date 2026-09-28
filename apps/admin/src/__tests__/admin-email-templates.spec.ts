@@ -64,18 +64,6 @@ describe("Admin Email Templates UI & API Integration", () => {
             expect(result).toHaveLength(2);
         });
 
-        it("getEmailTemplate calls ADMIN_ROUTES.EMAIL_TEMPLATE_BY_KEY with key", async () => {
-            mockedAdminFetch.mockResolvedValueOnce({
-                success: true,
-                data: mockTemplates[0],
-            } as any);
-
-            const result = await api.getEmailTemplate(EMAIL_TEMPLATE_KEY.PASSWORD_RESET);
-            expect(mockedAdminFetch).toHaveBeenCalledWith(
-                ADMIN_ROUTES.EMAIL_TEMPLATE_BY_KEY(EMAIL_TEMPLATE_KEY.PASSWORD_RESET)
-            );
-            expect(result.key).toBe(EMAIL_TEMPLATE_KEY.PASSWORD_RESET);
-        });
 
         it("getEmailTemplatePreview calls POST to preview route with overrides", async () => {
             const previewResponse = {
@@ -117,7 +105,7 @@ describe("Admin Email Templates UI & API Integration", () => {
             expect(mockedAdminFetch).toHaveBeenCalledWith(
                 ADMIN_ROUTES.EMAIL_TEMPLATE_BY_KEY(EMAIL_TEMPLATE_KEY.PASSWORD_RESET),
                 expect.objectContaining({
-                    method: "PUT",
+                    method: "PATCH",
                     body: JSON.stringify({ subject: "Updated Subject" }),
                 })
             );

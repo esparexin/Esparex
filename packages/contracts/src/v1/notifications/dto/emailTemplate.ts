@@ -59,9 +59,3 @@ export interface UpdateEmailTemplatePayload {
     customNote?: string;
 }
 
-/**
- * Test email payload for a specific template.
- */
-export interface SendTestEmailTemplatePayload {
-    recipientEmail: string;
-}

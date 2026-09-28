@@ -139,7 +139,6 @@ router.get('/notifications/recipients', adminNotifications.getRecipients);
 router.get('/notifications/email-templates', adminEmailTemplates.listEmailTemplates);
 router.get('/notifications/email-templates/:key', adminEmailTemplates.getEmailTemplate);
 router.post('/notifications/email-templates/:key/preview', adminEmailTemplates.getEmailTemplatePreview);
-router.put('/notifications/email-templates/:key', requirePermission('system:config'), adminEmailTemplates.updateEmailTemplate);
 router.patch('/notifications/email-templates/:key', requirePermission('system:config'), adminEmailTemplates.updateEmailTemplate);
 router.post('/notifications/email-templates/:key/reset', requirePermission('system:config'), adminEmailTemplates.resetEmailTemplate);
 router.post('/notifications/email-templates/:key/test', requirePermission('system:config'), adminEmailTemplates.sendTestEmailTemplate);
