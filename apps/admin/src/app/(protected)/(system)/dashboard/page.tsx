@@ -14,6 +14,7 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import { fetchAuditLogs } from "@/lib/api/auditLogs";
+import { fetchAdminModerationSummary } from "@/lib/api/moderation";
 import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
 
@@ -73,8 +74,9 @@ export default function DashboardPage() {
       () => Promise.all([
         adminFetch<AdminDashboardStatsDTO>(ADMIN_ROUTES.STATS),
         adminFetch<{ totalUsers?: number; suspendedUsers?: number }>(ADMIN_ROUTES.USER_OVERVIEW).catch(() => null),
+        fetchAdminModerationSummary().catch(() => null),
       ]),
-      ([statsPayload, userOverviewPayload]) => {
+      ([statsPayload, userOverviewPayload, moderationSummary]) => {
         const statsData = parseAdminResponse<never, AdminDashboardStatsDTO>(statsPayload).data || ({} as AdminDashboardStatsDTO);
         const userOverviewData = userOverviewPayload
           ? parseAdminResponse<never, { totalUsers?: number; suspendedUsers?: number }>(userOverviewPayload).data || {}
@@ -84,11 +86,11 @@ export default function DashboardPage() {
           suspendedUsers: Number(userOverviewData.suspendedUsers ?? 0),
         });
         setModerationCounts({
-          total: Number(statsData.totalAds || 0),
-          pending: Number(statsData.pendingAds || 0),
-          live: Number(statsData.activeAds || 0),
-          rejected: 0,
-          expired: 0
+          total: Number(moderationSummary?.total ?? statsData.totalAds ?? 0),
+          pending: Number(moderationSummary?.pending ?? statsData.pendingAds ?? 0),
+          live: Number(moderationSummary?.live ?? statsData.activeAds ?? 0),
+          rejected: Number(moderationSummary?.rejected ?? 0),
+          expired: Number(moderationSummary?.expired ?? 0),
         });
         setPendingServices(Number(statsData.pendingServices || 0));
         setPendingSpareParts(Number(statsData.pendingSpareParts || 0));
