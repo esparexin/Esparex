@@ -125,4 +125,29 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
 
         expect(fileContent).toContain("keyboard: '300ms'");
     });
+
+    it("ensures SheetContent safely merges props.style with zIndex and supports hideClose", () => {
+        const sheetPath = path.join(packagesUiSrc, "feedback", "Sheet.tsx");
+        const fileContent = fs.readFileSync(sheetPath, "utf-8");
+
+        expect(fileContent).toContain("zIndex: Z_INDEX.sheetContent, ...style");
+        expect(fileContent).toContain("hideClose = false");
+        expect(fileContent).toContain("!hideClose &&");
+        expect(fileContent).not.toContain("!opacity-100");
+    });
+
+    it("ensures globals.css defines --duration-keyboard linking design tokens to CSS environment", () => {
+        const cssPath = path.join(webSrc, "styles", "globals.css");
+        const fileContent = fs.readFileSync(cssPath, "utf-8");
+
+        expect(fileContent).toContain("--duration-keyboard: 300ms");
+    });
+
+    it("ensures AuthModal passes hideClose and avoids asynchronous setTimeout focus hacks", () => {
+        const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
+        const fileContent = fs.readFileSync(authModalPath, "utf-8");
+
+        expect(fileContent).toContain("hideClose");
+        expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
+    });
 });

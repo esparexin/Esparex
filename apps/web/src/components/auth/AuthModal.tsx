@@ -79,13 +79,14 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
       <SheetContent
         ref={contentRef}
         side="bottom"
+        hideClose
         onOpenAutoFocus={(e) => {
-          // Prevent Radix default autofocus jump before slide-in animation settles
+          // Prevent scroll jump on initial modal presentation
           e.preventDefault();
-          setTimeout(() => {
+          if (typeof window !== "undefined" && window.innerWidth >= 640) {
             const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
             input?.focus({ preventScroll: true });
-          }, 150);
+          }
         }}
         /* design-token-ignore: dynamic drag gesture translation */
         style={{
@@ -93,7 +94,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           transition: isDragging ? "none" : undefined,
         }}
         className={cn(
-          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between"
+          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between",
+          "sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0 sm:duration-200"
         )}
       >
         {/* Mobile Drawer Interactive Drag Handle Zone */}
