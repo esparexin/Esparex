@@ -220,17 +220,10 @@ select {
 /* =========================================
    MOBILE KEYBOARD & OVERLAY SAFETY
    ========================================= */
-/* Instantly suppress mobile bottom navigation bars while on-screen software keyboard is active */
+   /* Instantly suppress mobile bottom navigation bars while on-screen software keyboard is active */
 html[data-keyboard-open="true"] nav[aria-label="Mobile footer navigation"],
 html[data-keyboard-open="true"] nav[aria-label="Mobile account navigation"] {
   display: none !important;
-}
-
-/* Compact decorative elements on small mobile viewports when virtual keyboard is active */
-@media (max-width: 640px) {
-  html[data-keyboard-open="true"] [data-keyboard-hide-on-mobile="true"] {
-    display: none !important;
-  }
 }
 
 

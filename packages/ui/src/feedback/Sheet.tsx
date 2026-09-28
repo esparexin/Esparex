@@ -53,9 +53,11 @@ function SheetContent({
   className,
   children,
   side = "right",
+  onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
+  onOpenAutoFocus?: (e: React.FocusEvent<HTMLElement>) => void;
 }) {
   return (
     <SheetPortal>
@@ -72,9 +74,10 @@ function SheetContent({
           side === "top" &&
           "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
           side === "bottom" &&
-          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-[var(--keyboard-height,0px)] transition-[bottom,transform] duration-200 ease-out h-auto max-h-[var(--visual-viewport-height,100dvh)] border-t",
+          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-[var(--keyboard-height,0px)] transition-[bottom,transform] duration-[var(--duration-keyboard)] ease-out h-auto max-h-[var(--visual-viewport-height,100dvh)] border-t",
           className,
         )}
+        onOpenAutoFocus={onOpenAutoFocus}
         {...props}
       >
         {children}

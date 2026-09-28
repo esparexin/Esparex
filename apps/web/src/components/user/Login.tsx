@@ -36,7 +36,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
       )}
     >
       <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 w-fit">
+        <div className="mx-auto mb-2 w-fit">
           <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
             <Image
               src="/images/recycle-icon.png"
@@ -74,10 +74,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
             )}
           </CardTitle>
           {step === "enterMobile" && (
-            <p
-              data-keyboard-hide-on-mobile="true"
-              className="text-body text-muted-foreground font-normal leading-normal"
-            >
+            <p className="text-body text-muted-foreground font-normal leading-normal">
               Login to buy & sell mobile spares
             </p>
           )}
@@ -123,19 +120,9 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
   const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
   const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
-  // Auto-focus management with preventScroll to stop iOS WebKit focus-scrolling
+  // Auto-focus management for step transitions within the sheet
+  // Initial mobile focus is handled by Sheet onOpenAutoFocus
   useEffect(() => {
-    if (step === "enterMobile") {
-      const id = setTimeout(() => {
-        const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
-        if (input) {
-          input.focus({ preventScroll: true });
-        } else {
-          form.setFocus("mobile");
-        }
-      }, 0);
-      return () => clearTimeout(id);
-    }
     if (step === "enterNameAndOtp") {
       const id = setTimeout(() => {
         const input = document.querySelector<HTMLInputElement>('input[name="name"]');
@@ -144,7 +131,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         } else {
           form.setFocus("name");
         }
-      }, 0);
+      }, 250);
       return () => clearTimeout(id);
     }
     if (step === "enterOtp") {

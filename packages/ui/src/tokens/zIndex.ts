@@ -40,8 +40,6 @@ export const Z_INDEX = {
   // ── Sheet/Drawer System ─────────────────────────────────────────────────
   sheetOverlay: 1050,           // Sheet/drawer backdrop (must be above userHeader: 999)
   sheetContent: 1051,           // Sheet/drawer content (must be above userHeader: 999)
-  drawerOverlay: 1060,          // Drawer backdrop (above sheet and listing/auth modals)
-  drawerContent: 1061,          // Drawer content (above sheet and listing/auth modals)
 
   // ── Dialog System ────────────────────────────────────────────────────────
   // Architectural Stacking Invariant:

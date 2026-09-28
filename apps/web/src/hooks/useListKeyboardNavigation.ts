@@ -2,19 +2,19 @@
 
 import { useState, useCallback } from "react";
 
-interface UseKeyboardNavigationProps<T> {
+interface UseListKeyboardNavigationProps<T> {
     items: T[];
     isOpen: boolean;
     onSelect: (item: T) => void;
     onClose?: () => void;
 }
 
-export function useKeyboardNavigation<T>({
+export function useListKeyboardNavigation<T>({
     items,
     isOpen,
     onSelect,
     onClose,
-}: UseKeyboardNavigationProps<T>) {
+}: UseListKeyboardNavigationProps<T>) {
     const [activeIndex, setActiveIndex] = useState(-1);
 
     const handleKeyDown = useCallback(

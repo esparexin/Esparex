@@ -67,8 +67,6 @@ DialogOverlay.displayName = "DialogOverlay";
 export type DialogContentProps = React.ComponentPropsWithoutRef<typeof RadixDialog.Content> & {
   /** When true, hides the default close (×) button in the top-right corner. */
   hideClose?: boolean;
-  /** When true, uses a mobile keyboard-safe top anchored layout. */
-  mobileSafe?: boolean;
   /** Layout positioning variant: 'centered' (default), 'bottomSheet', 'mobileSafe', or 'fullscreen'. */
   variant?: "centered" | "bottomSheet" | "mobileSafe" | "fullscreen";
   /** Padding scale for DialogContent: 'default' (p-5 for centered), 'none' (p-0), or 'compact' (p-3 sm:p-4). */
@@ -82,8 +80,8 @@ export type DialogContentProps = React.ComponentPropsWithoutRef<typeof RadixDial
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof RadixDialog.Content>,
   DialogContentProps
->(({ className, children, hideClose = false, mobileSafe = false, variant, padding = "default", overlayZIndex, overlayClassName, ...props }, ref) => {
-  const activeVariant = variant ?? (mobileSafe ? "mobileSafe" : "centered");
+>(({ className, children, hideClose = false, variant, padding = "default", overlayZIndex, overlayClassName, ...props }, ref) => {
+  const activeVariant = variant ?? "centered";
 
   const getPaddingClass = () => {
     if (padding === "none") return "p-0";
