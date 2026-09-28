@@ -53,7 +53,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           transition: isDragging ? "none" : undefined,
         }}
         className={cn(
-          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between",
+          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-4 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between",
           "sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0 sm:duration-200"
         )}
       >
