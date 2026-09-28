@@ -2,7 +2,7 @@
 
 import { Badge, Button } from "@esparex/ui";
 import { Zap, Sparkles, CheckCircle2 } from "@esparex/ui";
-import { formatPrice } from "@/lib/formatters";
+import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { formatPlanName, type BoostPlan, type PromotionCategory } from "@/hooks/useBoostPlanDialog";
 
 /* -------------------------------------------------------------------------- */
@@ -263,11 +263,7 @@ export function PromotionValidityPreview({
         <div className="flex items-center justify-between border-t border-border/40 pt-1.5">
           <span className="text-foreground-secondary">{promoName} expires:</span>
           <span className={`font-bold ${isSpotlight ? "text-warning" : "text-link"}`}>
-            {effectiveExpiresAt.toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {formatStableDate(effectiveExpiresAt)}
           </span>
         </div>
       </div>
