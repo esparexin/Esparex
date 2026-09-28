@@ -2626,6 +2626,31 @@ docs/tracking/engineering-action-register.md
 - ✅ `node scripts/guard-type-cast-baseline.js` ──► PASS (0 double casts, 0 suppressions, 0 unsafe casts)
 - ✅ `node scripts/enforce-design-token-adoption.js` ──► PASS (0 raw palette/inline style violations)
 
+---
 
+### EA-056
+**Date**: 2026-09-28  
+**Description**: Web Proxy Canonical Host Redundancy Elimination & Subdomain Hazard Mitigation  
+**Root Cause**: `apps/web/src/proxy.ts` contained a redundant host-level canonicalization block that duplicated the router-level redirect in `apps/web/next.config.mjs` (and Vercel edge domain routing). It introduced an HTTP status code discrepancy (301 in proxy vs 308 in router/edge) and a broad subdomain pattern matching hazard (`cleanHost.endsWith(".esparex.in") && cleanHost !== "admin.esparex.in"`) that risked redirecting administrative subdomains such as `www.admin.esparex.in` to the public apex.  
+**Action**:
+1. **Redundant Host Check Removal**: Removed lines 26–35 in `apps/web/src/proxy.ts`, preserving Next.js Edge proxy execution exclusively for category alias normalization (`/category/[slug]`), admin IP protection, and route authentication guards.
+2. **SSOT Application Router Fallback**: Retained lines 251–262 in `apps/web/next.config.mjs` as the canonical HTTP 308 router-level fallback for non-Vercel/containerized environments.
+3. **Hygiene & Import Cleanup**: Eliminated unused `CANONICAL_ORIGIN` import from `@/lib/seo/canonicalHost` in `proxy.ts`.
 
+**Files Modified**:
+```
+apps/web/src/proxy.ts
+docs/tracking/engineering-action-register.md
+```
 
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Removed duplicate host redirect in proxy.ts while preserving next.config.mjs and Vercel edge routing.
+- [x] **Automated Testing**: Monorepo test suites passed cleanly (83 test files, 444 tests in apps/web).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (83 suites, 444 tests)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
