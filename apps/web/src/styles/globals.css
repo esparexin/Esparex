@@ -50,6 +50,9 @@
   --link: 221.2 83.2% 53.3%;        /* blue-600 #2563eb */
   --link-dark: 224.3 76.3% 48%;     /* blue-700 #1d4ed8 — hover/active state */
   --link-foreground: 0 0% 100%;
+
+  /* Keyboard animation synchronization (matches durations.keyboard: 300ms) */
+  --duration-keyboard: 300ms;
 }
 
 .dark {
