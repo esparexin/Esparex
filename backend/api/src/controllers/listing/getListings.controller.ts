@@ -17,8 +17,79 @@ import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
+import type { AdFilters, PaginationOptions, AdsListResult } from '@esparex/core/domains/listings/application/ad/ad/_shared/adFilterHelpers';
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+/**
+ * Build common filter options for getAds calls.
+ * Centralizes the repetitive filter object construction shared by getListings and getNearbyListings.
+ */
+const buildGetAdsFilters = (query: ReturnType<typeof getAdsQuerySchema.parse>, overrides: Partial<AdFilters> = {}): AdFilters => ({
+    listingType: query.listingType as ListingTypeValue | undefined,
+    status: query.status || LISTING_STATUS.LIVE,
+    categoryId: query.categoryId,
+    category: query.category,
+    brandId: query.brandId,
+    modelId: query.modelId,
+    locationId: query.locationId,
+    level: query.level,
+    sellerId: query.sellerId,
+    isSpotlight: query.isSpotlight,
+    search: query.q,
+    minPrice: query.minPrice,
+    maxPrice: query.maxPrice,
+    deviceCondition: query.deviceCondition,
+    sortBy: query.sortBy,
+    radiusKm: query.radiusKm,
+    lat: query.lat,
+    lng: query.lng,
+    ...overrides,
+});
+
+/**
+ * Build pagination options from query.
+ */
+const buildPaginationOptions = (query: ReturnType<typeof getAdsQuerySchema.parse>): PaginationOptions => ({
+    page: query.page,
+    limit: query.limit,
+    cursor: query.cursor,
+});
+
+/**
+ * Apply pagination defaults to result.
+ */
+const normalizePagination = (result: AdsListResult, query: ReturnType<typeof getAdsQuerySchema.parse>) => ({
+    ...result.pagination,
+    page: result.pagination.page ?? query.page ?? 1,
+    limit: result.pagination.limit ?? query.limit ?? 20
+});
+
+/**
+ * Send paginated response with consistent formatting.
+ */
+const sendPaginatedResponse = <T,>(
+    req: Request,
+    res: Response,
+    data: T[],
+    pagination: ReturnType<typeof normalizePagination>,
+    etagData?: unknown
+) => {
+    const payload = respond<PaginatedResponse<T>>({
+        success: true,
+        data: data as T[],
+        pagination
+    });
+    if (etagData) {
+        const etagValue = `W/"${Buffer.from(JSON.stringify(etagData)).toString('base64').substring(0, 24)}"`;
+        res.setHeader('ETag', etagValue);
+        if (req.headers['if-none-match'] === etagValue) {
+            return res.status(304).end();
+        }
+    }
+    return res.json(payload);
+};
 
 type CachedSearchResult = {
     data: unknown;
@@ -178,31 +249,8 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         }
 
         const result = await AdAggregationService.getAds(
-            {
-                listingType: query.listingType as ListingTypeValue | undefined,
-                status: query.status || LISTING_STATUS.LIVE,
-                categoryId: query.categoryId,
-                category: query.category,
-                brandId: query.brandId,
-                modelId: query.modelId,
-                locationId: query.locationId,
-                level: query.level,
-                sellerId: query.sellerId,
-                isSpotlight: query.isSpotlight,
-                search: query.q,
-                minPrice: query.minPrice,
-                maxPrice: query.maxPrice,
-                deviceCondition: query.deviceCondition,
-                sortBy: query.sortBy,
-                radiusKm: query.radiusKm,
-                lat: query.lat,
-                lng: query.lng
-            },
-            {
-                page: query.page,
-                limit: query.limit,
-                cursor: query.cursor,
-            },
+            buildGetAdsFilters(query),
+            buildPaginationOptions(query),
             { enforcePublicVisibility: true, viewerId }
         );
 
@@ -211,17 +259,9 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 
-        const pagination = {
-            ...result.pagination,
-            page: result.pagination.page ?? query.page ?? 1,
-            limit: result.pagination.limit ?? query.limit ?? 20
-        };
+        const pagination = normalizePagination(result, query);
 
-        res.json(respond<PaginatedResponse<Ad>>({
-            success: true,
-            data: result.data as Ad[],
-            pagination
-        }));
+        return sendPaginatedResponse(req, res, result.data as Ad[], pagination, pagination);
     } catch (error: unknown) {
         next(error);
     }
@@ -247,31 +287,11 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
         }
 
         const result = await AdAggregationService.getAds(
-            {
-                listingType: query.listingType as ListingTypeValue | undefined,
-                status: query.status || LISTING_STATUS.LIVE,
-                categoryId: query.categoryId,
-                category: query.category,
-                brandId: query.brandId,
-                modelId: query.modelId,
-                locationId: query.locationId,
-                level: query.level,
-                sellerId: query.sellerId,
-                isSpotlight: query.isSpotlight,
-                search: query.q,
-                minPrice: query.minPrice,
-                maxPrice: query.maxPrice,
-                deviceCondition: query.deviceCondition,
+            buildGetAdsFilters(query, {
                 sortBy: 'distance',
                 radiusKm: query.radiusKm || 25,
-                lat: query.lat,
-                lng: query.lng
-            },
-            {
-                page: query.page,
-                limit: query.limit,
-                cursor: query.cursor,
-            },
+            }),
+            buildPaginationOptions(query),
             {
                 enforcePublicVisibility: true,
                 disableLocationIntelligence: true,
@@ -279,17 +299,9 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
             }
         );
 
-        const pagination = {
-            ...result.pagination,
-            page: result.pagination.page ?? query.page ?? 1,
-            limit: result.pagination.limit ?? query.limit ?? 20
-        };
+        const pagination = normalizePagination(result, query);
 
-        return res.json(respond<PaginatedResponse<Ad>>({
-            success: true,
-            data: result.data as Ad[],
-            pagination
-        }));
+        return sendPaginatedResponse(req, res, result.data as Ad[], pagination);
     } catch (error: unknown) {
         next(error);
     }
