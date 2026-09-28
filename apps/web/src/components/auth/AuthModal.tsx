@@ -2,11 +2,11 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetDescription,
+  SheetClose,
 } from "@esparex/ui";
 import { X } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -75,14 +75,17 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   }, [dragOffsetY, onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
         ref={contentRef}
-        hideClose
-        variant="bottomSheet"
+        side="bottom"
         onOpenAutoFocus={(e) => {
           // Prevent Radix default autofocus jump before slide-in animation settles
           e.preventDefault();
+          setTimeout(() => {
+            const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
+            input?.focus({ preventScroll: true });
+          }, 150);
         }}
         /* design-token-ignore: dynamic drag gesture translation */
         style={{
@@ -112,23 +115,23 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         </div>
 
         {/* Accessible Title & Description for Screen Readers */}
-        <DialogTitle className="sr-only">Authentication</DialogTitle>
-        <DialogDescription className="sr-only">Sign in or create an account.</DialogDescription>
+        <SheetTitle className="sr-only">Authentication</SheetTitle>
+        <SheetDescription className="sr-only">Sign in or create an account.</SheetDescription>
         
         {/* Close Button */}
-        <DialogClose
+        <SheetClose
           className={cn(
             "absolute right-3.5 top-3.5 sm:top-4 sm:right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
           )}
           aria-label="Close"
         >
           <X className="h-4 w-4" />
-        </DialogClose>
+        </SheetClose>
         
         <div className="flex-1 flex flex-col justify-between min-h-0">
           <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} onBack={() => onOpenChange(false)} />
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
