@@ -116,6 +116,8 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                     formData.append("image", img.file);
                     formData.append("folder", "ads");
 
+                    // Same-origin Next.js route proxy (app/api/upload/ad-image) — intentionally
+                    // not via buildUserApiUrl (backend URL); route forwards to backend with CSRF.
                     const response = await fetch("/api/upload/ad-image", {
                         method: "POST",
                         headers,

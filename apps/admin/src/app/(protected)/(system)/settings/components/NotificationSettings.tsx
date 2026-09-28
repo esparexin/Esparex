@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Mail } from "@esparex/ui";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { adminFetch, AdminApiError } from "@/lib/api/adminClient";
 import { GenericSettingsSection, type SettingsFieldSchema } from "./GenericSettingsSection";

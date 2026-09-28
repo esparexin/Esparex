@@ -33,6 +33,7 @@ export function BackendStatusProvider({
 
     const recheckHealth = useCallback(async () => {
         try {
+            // ui-guard-ignore: raw-fetch-ui — health probe must bypass apiClient to avoid 401/refresh loops; URL built via API_ROUTES SSOT.
             const res = await fetch(`${apiBaseUrl}/${API_ROUTES.USER.HEALTH}`, { method: "GET" });
             setIsBackendUp(res.ok);
         } catch {
@@ -44,6 +45,7 @@ export function BackendStatusProvider({
 
     useEffect(() => {
         const check = () => {
+            // ui-guard-ignore: raw-fetch-ui — interval health probe bypasses apiClient interceptors intentionally; uses API_ROUTES SSOT.
             fetch(`${apiBaseUrl}/${API_ROUTES.USER.HEALTH}`, { method: "GET" })
                 .then((res) => setIsBackendUp(res.ok))
                 .catch(() => setIsBackendUp(false))

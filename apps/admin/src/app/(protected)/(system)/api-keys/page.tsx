@@ -9,6 +9,7 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { useApiKeys } from "@/hooks/useApiKeys";
+import { formatAppDateTime } from "@esparex/shared";
 
 export default function ApiKeysPage() {
     const [name, setName] = useState("");
@@ -74,11 +75,11 @@ export default function ApiKeysPage() {
         },
         {
             header: "Created",
-            cell: (item) => new Date(item.createdAt).toLocaleString(),
+            cell: (item) => formatAppDateTime(item.createdAt),
         },
         {
             header: "Last Used",
-            cell: (item) => item.lastUsedAt ? new Date(item.lastUsedAt).toLocaleString() : "Never",
+            cell: (item) => item.lastUsedAt ? formatAppDateTime(item.lastUsedAt) : "Never",
         },
         {
             header: "Actions",

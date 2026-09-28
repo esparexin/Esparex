@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Sparkles, Zap, Package, BellRing } from "@esparex/ui";
+import { formatStableNumber } from "@/lib/formatters";
 import type { ProfilePlan } from "../types";
 
 type PlanCardItem = Omit<ProfilePlan, 'type'> & { type: string };
@@ -64,7 +65,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
         <h4 className="text-body-lg font-semibold text-foreground tracking-tight">{plan.name}</h4>
         <div className="mt-2 flex items-baseline gap-1.5">
-          <span className="text-h2 font-bold text-foreground">₹{plan.price.toLocaleString()}</span>
+          <span className="text-h2 font-bold text-foreground">₹{formatStableNumber(plan.price)}</span>
           <span className="text-caption font-semibold text-foreground-subtle">/ {plan.duration}</span>
         </div>
 

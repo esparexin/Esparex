@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     type EmailTemplateCustomization,
     type EmailTemplateDTO,
@@ -52,13 +52,14 @@ export function EmailTemplateEditorModal({
     const [resetting, setResetting] = useState(false);
     const [sendingTest, setSendingTest] = useState(false);
 
-    useEffect(() => {
-        if (template) {
-            setSubject(template.customSubject || template.defaultSubject || "");
-            setCustomHeadline(template.customHeadline || "");
-            setCustomNote(template.customNote || "");
-        }
-    }, [template]);
+    const [prevTemplateKey, setPrevTemplateKey] = useState<string | null>(null);
+
+    if (template && template.key !== prevTemplateKey) {
+        setPrevTemplateKey(template.key);
+        setSubject(template.customSubject || template.defaultSubject || "");
+        setCustomHeadline(template.customHeadline || "");
+        setCustomNote(template.customNote || "");
+    }
 
     if (!template) return null;
 

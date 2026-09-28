@@ -41,7 +41,7 @@ export const AdCardActions = memo(function AdCardActions({
       }}
       aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
     >
-      <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+      <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 transition-colors", isSaved ? "fill-destructive text-destructive" : "text-muted-foreground")} />
     </Button>
   );
 });

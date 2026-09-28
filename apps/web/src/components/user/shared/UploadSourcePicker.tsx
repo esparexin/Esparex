@@ -35,6 +35,7 @@ export function UploadSourcePicker({
     cameraLabel,
     galleryLabel,
 }: UploadSourcePickerProps) {
+    // responsive-exception: device-capability branching for camera/gallery picker (dynamic behavior).
     const isMobileDevice = useIsMobileDevice();
 
     const defaultTitle = 

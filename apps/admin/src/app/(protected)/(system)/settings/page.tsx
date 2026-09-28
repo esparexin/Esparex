@@ -15,10 +15,10 @@ import {
   Search,
   Shield,
   Settings,
-} from "lucide-react";
+  type LucideIcon,
+} from "@esparex/ui";
 
 import Link from "next/link";
-import { type LucideIcon } from "lucide-react";
 import { PlatformSettings } from "./components/PlatformSettings";
 import { ListingSettings } from "./components/ListingSettings";
 import { ModerationSettings } from "./components/ModerationSettings";

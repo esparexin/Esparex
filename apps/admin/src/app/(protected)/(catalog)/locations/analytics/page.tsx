@@ -17,6 +17,7 @@ import {
     updateSearchParams,
 } from "@/lib/urlSearchParams";
 import { MapPin, TrendingUp, BarChart2, Users, Search, Flame } from "@esparex/ui";
+import { formatStableNumber } from "@esparex/shared";
 
 function LocationAnalyticsPageContent({
     initialCity,
@@ -323,7 +324,7 @@ function StatCard({ icon, label, value, color }: {
                 {icon}
             </div>
             <div>
-                <div className="text-body-lg font-bold text-foreground leading-tight">{value?.toLocaleString() ?? "—"}</div>
+                <div className="text-body-lg font-bold text-foreground leading-tight">{value != null ? formatStableNumber(value) : "—"}</div>
                 <div className="text-tiny font-medium text-foreground-tertiary uppercase tracking-wider">{label}</div>
             </div>
         </div>

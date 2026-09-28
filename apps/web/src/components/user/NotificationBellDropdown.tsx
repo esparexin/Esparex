@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, Z_INDEX } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
+import logger from "@/lib/logger";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 import { NotificationDropdownBody } from "./NotificationDropdownBody";
 
@@ -152,8 +153,8 @@ export function NotificationBellDropdown({
                 onOpenChange={handleOpenChange}
                 notifications={notifications}
                 unreadCount={unreadCount}
-                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => {})}
-                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => {})}
+                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => undefined).catch((err) => { logger.warn("[notifications] mark-read failed:", err); })}
+                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => undefined).catch((err) => { logger.warn("[notifications] mark-all-read failed:", err); })}
                 onSelect={handleNotificationSelect}
                 trigger={
                     <Button

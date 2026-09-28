@@ -7,6 +7,7 @@ import {
   Clock,
   Grid,
 } from '@esparex/ui';
+import { formatStableDate } from '@/lib/formatters';
 
 export interface WalletOverviewCardProps {
   wallet: WalletSummaryDTO;
@@ -30,9 +31,7 @@ function nearestExpiry(
   if (!active.length) return null;
   active.sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
   const first = active[0];
-  return first
-    ? new Date(first.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
-    : null;
+  return first ? formatStableDate(first.expiresAt) : null;
 }
 
 interface StatTileProps {

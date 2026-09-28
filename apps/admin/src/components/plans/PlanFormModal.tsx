@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useForm, Controller, useWatch, type SubmitErrorHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, CreditCard, AlertCircle } from "@esparex/ui";
+import { X, CreditCard, AlertCircle, Dialog, DialogContent, DialogDescription, DialogTitle } from "@esparex/ui";
 import { createPlan, updatePlan } from "@/lib/api/plans";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
@@ -89,9 +89,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
     }
   };
 
-  if (!open) return null;
-
-  const inputCls = "w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-body text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+  const inputCls = "w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-body-lg md:text-body text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
   const labelCls = "block text-caption font-semibold text-foreground-secondary mb-1";
 
   const validationErrorList = Object.entries(errors)
@@ -106,8 +104,8 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
   const hasSummaryErrors = hasValidationErrors || Boolean(rootError);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
-      <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-card shadow-2xl">
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="w-full max-w-lg max-h-[85dvh] overflow-hidden rounded-2xl bg-card shadow-2xl p-0 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <div className="flex items-center gap-2.5">
@@ -115,18 +113,19 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
               <CreditCard size={16} />
             </div>
             <div>
-              <h2 className="text-body font-semibold text-foreground">
+              <DialogTitle className="text-body font-semibold text-foreground">
                 {isEdit ? "Edit Plan" : "Create New Plan"}
-              </h2>
-              <p className="text-tiny text-foreground-tertiary">
+              </DialogTitle>
+              <DialogDescription className="text-tiny text-foreground-tertiary">
                 {isEdit ? `Editing: ${editPlan?.name}` : "Configure plan type, pricing, and limits"}
-              </p>
+              </DialogDescription>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-foreground-subtle hover:bg-muted hover:text-foreground-secondary cursor-pointer"
+            aria-label="Close dialog"
           >
             <X size={16} />
           </button>
@@ -303,7 +302,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                   type="checkbox"
                   {...register(PLAN_ACTIVE_FIELD)}
                   disabled={Boolean(editPlan?.isDefault && (editPlan?.status === 'ACTIVE' || editPlan?.active))}
-                  className="accent-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="accent-primary disabled:opacity-60 disabled:cursor-not-allowed"
                 />
                 Active (visible to users)
               </label>
@@ -316,7 +315,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
               </p>
             )}
             {formType === "FREE_DEFAULT" && isDefault && !editPlan?.isDefault && (
-              <p className="text-caption text-amber-800 bg-amber-50 border border-amber-200 p-2.5 rounded-lg">
+              <p className="text-caption text-warning bg-warning/10 border border-warning/20 p-2.5 rounded-lg">
                 ⚠️ Designating this plan as Default will automatically demote the current Default Free Plan.
               </p>
             )}
@@ -341,7 +340,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

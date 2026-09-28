@@ -3,6 +3,7 @@ import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
 import { Eye, Download, FileText, Button, Card } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
+import { formatStableDate, formatStableNumber } from '@/lib/formatters';
 
 interface RecentPaymentsCardProps {
   payments: PaymentSummaryDTO[];
@@ -24,12 +25,7 @@ const formatOrderDescription = (desc?: string): string => {
 const formatInvoiceDate = (dateStr?: string): string => {
   if (!dateStr) return '—';
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatStableDate(dateStr);
   } catch {
     return String(dateStr);
   }
@@ -129,7 +125,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     {formatOrderDescription(pay.description)}
                   </td>
                   <td className="py-2.5 px-3 font-bold text-foreground tabular-nums">
-                    ₹{pay.amount.toLocaleString()}
+                    ₹{formatStableNumber(pay.amount)}
                   </td>
                   <td className="py-2.5 px-3">
                     {renderStatusBadge(pay.status)}
@@ -186,7 +182,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                   {renderStatusBadge(pay.status)}
                 </div>
                 <span className="text-body sm:text-body-lg font-bold text-foreground tabular-nums shrink-0">
-                  ₹{pay.amount.toLocaleString()}
+                  ₹{formatStableNumber(pay.amount)}
                 </span>
               </div>
 

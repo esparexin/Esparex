@@ -150,4 +150,5 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         expect(fileContent).toContain("hideClose");
         expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
     });
+
 });
