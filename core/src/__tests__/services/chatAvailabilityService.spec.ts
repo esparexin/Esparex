@@ -8,7 +8,7 @@ import { Conversation } from '../../models/Conversation';
 import {
   isListingChatClosed,
   syncConversationAvailabilityForListing,
-} from '../../services/ChatAvailabilityService';
+} from '../../domains/communications';
 
 const mockedConversation = Conversation as any;
 

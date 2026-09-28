@@ -93,11 +93,17 @@ export default function FinancePage() {
     const columns: ColumnDef<Transaction>[] = [
         {
             header: "Transaction ID",
-            cell: (t) => (
-                <div className="font-mono text-tiny text-foreground-tertiary bg-muted/40 px-2 py-1 rounded border border-border uppercase">
-                    {t.gatewayPaymentId || t.id.substring(0, 12)}
-                </div>
-            )
+            cell: (t) => {
+                const displayId = t.gatewayPaymentId || (t.id.length > 14 ? `${t.id.slice(0, 8)}...${t.id.slice(-6)}` : t.id);
+                return (
+                    <div 
+                        className="font-mono text-tiny text-foreground-tertiary bg-muted/40 px-2 py-1 rounded border border-border uppercase inline-block"
+                        title={t.gatewayPaymentId || t.id}
+                    >
+                        {displayId}
+                    </div>
+                );
+            }
         },
         {
             header: "User",
@@ -163,7 +169,7 @@ export default function FinancePage() {
             tabs={<AdminModuleTabs tabs={financeTabs} />}
         >
             <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                     <DashboardCard
                         title="Total Revenue"
                         value={`₹${stats?.totalRevenue.toLocaleString() || '0'}`}

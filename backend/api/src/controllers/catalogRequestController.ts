@@ -6,7 +6,7 @@ import * as CatalogRequestService from '@esparex/core/domains/catalog/applicatio
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { logAdminAction } from '../utils/adminLogger';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 import {
     approveCatalogRequest,
     markCatalogRequestDuplicate,

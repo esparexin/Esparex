@@ -44,9 +44,9 @@ jest.mock('../../models/Brand', () => ({
 }));
 
 // Dynamic Import Mocks
-jest.mock('../../services/SparePartListingService', () => ({
+jest.mock('../../domains/listings/application/ad/SparePartListingService', () => ({
     generateUniqueSparePartSlug: jest.fn().mockResolvedValue('unique-spare-part-slug'),
-}), { virtual: true });
+}));
 
 jest.mock('../../utils/serviceQuality', () => ({
     calculateServiceQuality: jest.fn().mockReturnValue(85),

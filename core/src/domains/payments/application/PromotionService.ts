@@ -2,7 +2,7 @@ import mongoose, { type ClientSession } from 'mongoose';
 import Boost, { type IBoost } from '../../../models/Boost';
 import UserWallet from '../../../models/UserWallet';
 import CreditTransaction from '../../../models/CreditTransaction';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import logger from '../../../utils/logger';
 
 export interface ApplyBoostParams {

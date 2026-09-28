@@ -6,7 +6,7 @@ import {
     adminGetConversation,
     adminMuteConversation,
     adminExportConversation
-} from '@esparex/core/services/chat/ChatAdminService';
+} from '@esparex/core/domains/communications';
 import { logAdminAction } from '../../utils/adminLogger';
 
 export const getAdminChats = async (req: Request, res: Response) => {

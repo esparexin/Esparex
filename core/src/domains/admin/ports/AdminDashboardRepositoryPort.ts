@@ -34,20 +34,6 @@ export interface DashboardOverviewStatsRaw {
     catalogHealth: CatalogHealthMetricsDTO;
 }
 
-export interface DashboardCardAdStatsFacet {
-    live: FacetCountItem[];
-    pending: FacetCountItem[];
-}
-
-export interface DashboardCardStatsRaw {
-    totalUsers: number;
-    adStats: [DashboardCardAdStatsFacet];
-    totalReports: number;
-    totalBusinesses: number;
-    totalRevenueAgg: RevenueTotalAggItem[];
-    catalogHealth: CatalogHealthMetricsDTO;
-}
-
 export interface AdminLogAdminUser {
     _id?: unknown;
     firstName?: string;
@@ -127,7 +113,6 @@ export interface AdminLocationSummary {
 export interface AdminDashboardRepositoryPort {
     getDashboardOverviewStats(publicAdFilter: Record<string, unknown>): Promise<DashboardOverviewStatsRaw>;
     getCatalogHealthMetrics(): Promise<CatalogHealthMetricsDTO>;
-    getDashboardCardStats(publicAdFilter: Record<string, unknown>): Promise<DashboardCardStatsRaw>;
     getRecentAdminLogs(limit: number): Promise<AdminLogSummary[]>;
     getContactSubmissionsPaginated(query: Record<string, unknown>, skip: number, limit: number): Promise<[ContactSubmissionDocument[], number]>;
     updateContactSubmissionById(id: string, status: string): Promise<ContactSubmissionDocument | null>;

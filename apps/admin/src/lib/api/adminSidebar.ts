@@ -8,7 +8,7 @@ export type SidebarCounters = Partial<
 >;
 
 export async function fetchAdminSidebarCounts(): Promise<SidebarCounters> {
-    const [moderationSummary, reportPayload, businessOverviewPayload] = await Promise.all([
+    const [moderationSummary, reportPayload, businessOverviewPayload, servicesSummary] = await Promise.all([
         fetchAdminModerationSummary().catch(() => null),
         adminFetch<unknown>(
             `${ADMIN_ROUTES.REPORTS}?${new URLSearchParams({
@@ -18,6 +18,7 @@ export async function fetchAdminSidebarCounts(): Promise<SidebarCounters> {
             }).toString()}`
         ).catch(() => null),
         adminFetch<unknown>(ADMIN_ROUTES.BUSINESS_OVERVIEW).catch(() => null),
+        fetchAdminModerationSummary("service").catch(() => null),
     ]);
 
     const reportPagination = reportPayload
@@ -28,10 +29,9 @@ export async function fetchAdminSidebarCounts(): Promise<SidebarCounters> {
         : {};
 
     return {
-        ads: moderationSummary
-            ? `${moderationSummary.total} (P:${moderationSummary.pending}/L:${moderationSummary.live})`
-            : 0,
+        ads: moderationSummary?.pending ?? 0,
         reports: reportPagination?.total ?? 0,
         businesses: Number(businessOverview.pending || 0),
+        services: servicesSummary?.pending ?? 0,
     };
 }

@@ -14,6 +14,7 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import { fetchAuditLogs } from "@/lib/api/auditLogs";
+import { fetchAdminModerationSummary } from "@/lib/api/moderation";
 import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
 
@@ -30,7 +31,7 @@ const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").t
 
 export default function DashboardPage() {
   const { admin } = useAdminAuth();
-  const [stats, setStats] = useState<{ totalUsers: number; activeUsers: number; suspendedUsers: number; verifiedUsers: number } | null>(null);
+  const [stats, setStats] = useState<{ totalUsers: number; suspendedUsers: number } | null>(null);
   const [financeStats, setFinanceStats] = useState<FinanceStats | null>(null);
   const [trends, setTrends] = useState<TrendPoint[]>([]);
   const [moderationCounts, setModerationCounts] = useState({
@@ -68,23 +69,28 @@ export default function DashboardPage() {
       }
     };
 
-    // Panel Group 1: Unified System Overview Stats & Catalog Health
+    // Panel Group 1: Unified System Overview Stats, User Metrics & Catalog Health
     void safeSettle(
-      () => adminFetch<AdminDashboardStatsDTO>(ADMIN_ROUTES.STATS),
-      (statsPayload) => {
+      () => Promise.all([
+        adminFetch<AdminDashboardStatsDTO>(ADMIN_ROUTES.STATS),
+        adminFetch<{ totalUsers?: number; suspendedUsers?: number }>(ADMIN_ROUTES.USER_OVERVIEW).catch(() => null),
+        fetchAdminModerationSummary().catch(() => null),
+      ]),
+      ([statsPayload, userOverviewPayload, moderationSummary]) => {
         const statsData = parseAdminResponse<never, AdminDashboardStatsDTO>(statsPayload).data || ({} as AdminDashboardStatsDTO);
+        const userOverviewData = userOverviewPayload
+          ? parseAdminResponse<never, { totalUsers?: number; suspendedUsers?: number }>(userOverviewPayload).data || {}
+          : {};
         setStats({
-          totalUsers: Number(statsData.totalUsers || 0),
-          activeUsers: Number(statsData.activeAds || 0),
-          suspendedUsers: Number(statsData.pendingAds || 0),
-          verifiedUsers: Number(statsData.activeServices || 0),
+          totalUsers: Number(userOverviewData.totalUsers ?? statsData.totalUsers ?? 0),
+          suspendedUsers: Number(userOverviewData.suspendedUsers ?? 0),
         });
         setModerationCounts({
-          total: Number(statsData.totalAds || 0),
-          pending: Number(statsData.pendingAds || 0),
-          live: Number(statsData.activeAds || 0),
-          rejected: 0,
-          expired: 0
+          total: Number(moderationSummary?.total ?? statsData.totalAds ?? 0),
+          pending: Number(moderationSummary?.pending ?? statsData.pendingAds ?? 0),
+          live: Number(moderationSummary?.live ?? statsData.activeAds ?? 0),
+          rejected: Number(moderationSummary?.rejected ?? 0),
+          expired: Number(moderationSummary?.expired ?? 0),
         });
         setPendingServices(Number(statsData.pendingServices || 0));
         setPendingSpareParts(Number(statsData.pendingSpareParts || 0));
@@ -126,13 +132,20 @@ export default function DashboardPage() {
     return () => { controller.abort(); };
   }, []);
 
-  const calculateGrowth = () => {
+  const calculateGrowth = (): { rate: number; label: string } | null => {
     if (trends.length < 2) return null;
-    const latest = trends[trends.length - 1]?.amt ?? trends[trends.length - 1]?.ads ?? 0;
-    const previous = trends[trends.length - 2]?.amt ?? trends[trends.length - 2]?.ads ?? 0;
-    if (previous === 0) return latest > 0 ? 100 : 0;
+    const hasRevenueData = trends.some((t) => (t.amt ?? 0) > 0);
+    const metricKey: "amt" | "ads" = hasRevenueData ? "amt" : "ads";
+    const metricLabel = hasRevenueData ? "Revenue" : "Activity";
+
+    const latest = Number(trends[trends.length - 1]?.[metricKey] ?? 0);
+    const previous = Number(trends[trends.length - 2]?.[metricKey] ?? 0);
+
+    if (previous === 0 && latest === 0) return null;
+    if (previous === 0) return { rate: 100, label: metricLabel };
+
     const rate = ((latest - previous) / previous) * 100;
-    return Number.isFinite(rate) ? rate : 0;
+    return Number.isFinite(rate) ? { rate, label: metricLabel } : null;
   };
 
   const growth = calculateGrowth();
@@ -144,12 +157,12 @@ export default function DashboardPage() {
       tabs={<AdminModuleTabs tabs={[{ label: "Dashboard", href: ADMIN_UI_ROUTES.dashboard() }, { label: "Analytics", href: ADMIN_UI_ROUTES.finance() }, { label: "Ads", href: ADMIN_UI_ROUTES.ads({ status: "pending" }) }]} />}
       actions={
         growth !== null ? (
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-sm ${growth >= 0
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-body ${growth.rate >= 0
               ? "bg-emerald-50 text-emerald-700 border-emerald-100"
               : "bg-red-50 text-red-700 border-red-100"
             }`}>
-            <TrendingUp size={16} className={growth < 0 ? "rotate-180" : ""} />
-            <span>{growth >= 0 ? "+" : ""}{growth.toFixed(1)}% Revenue {growth >= 0 ? "growth" : "decline"}</span>
+            <TrendingUp size={16} className={growth.rate < 0 ? "rotate-180" : ""} />
+            <span>{growth.rate >= 0 ? "+" : ""}{growth.rate.toFixed(1)}% {growth.label} {growth.rate >= 0 ? "growth" : "decline"}</span>
           </div>
         ) : null
       }

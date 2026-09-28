@@ -6,6 +6,12 @@ import {
     renderInvoiceEmail,
     renderContactInquiryEmail,
     renderNotificationEmail,
+    renderListingApprovedEmail,
+    renderListingRejectedEmail,
+    renderListingExpiredEmail,
+    renderBusinessExpiryAlertEmail,
+    renderBusinessApprovedEmail,
+    renderBusinessRejectedEmail,
 } from '../templates/EmailLayout';
 
 describe('EmailLayout & Template Engine', () => {
@@ -131,5 +137,110 @@ describe('EmailLayout & Template Engine', () => {
             expect(html).toContain('View Listing');
         });
     });
+
+    describe('renderListingApprovedEmail', () => {
+        it('renders approval confirmation with title, type, and profile URL', () => {
+            const html = renderListingApprovedEmail({
+                name: 'Karan Mehra',
+                title: 'Honda City 2020 Headlight Assembly',
+                listingType: 'Spare Part',
+                viewUrl: 'https://esparex.in/account/profile',
+            });
+
+            expect(html).toContain('Your Spare Part is Live!');
+            expect(html).toContain('Hello Karan Mehra,');
+            expect(html).toContain('Honda City 2020 Headlight Assembly');
+            expect(html).toContain('https://esparex.in/account/profile');
+            expect(html).toContain('View My Listings');
+        });
+    });
+
+    describe('renderListingRejectedEmail', () => {
+        it('renders rejection notice with moderation reason and edit URL', () => {
+            const html = renderListingRejectedEmail({
+                name: 'Suresh Patel',
+                title: 'iPhone 13 Display Replacement Service',
+                listingType: 'Service',
+                rejectionReason: 'Invalid price specification and missing workshop license',
+                viewUrl: 'https://esparex.in/account/profile',
+            });
+
+            expect(html).toContain('Your Service Needs Attention');
+            expect(html).toContain('Hello Suresh Patel,');
+            expect(html).toContain('Invalid price specification and missing workshop license');
+            expect(html).toContain('Review &amp; Edit Listing');
+            expect(html).toContain('https://esparex.in/account/profile');
+        });
+    });
+
+    describe('renderListingExpiredEmail', () => {
+        it('renders expired listing notice with renew CTA', () => {
+            const html = renderListingExpiredEmail({
+                name: 'Amitabh Sen',
+                title: 'Yamaha R15 Exhaust Pipe',
+                listingType: 'Spare Part',
+                renewUrl: 'https://esparex.in/account/profile',
+            });
+
+            expect(html).toContain('Your Spare Part has Expired');
+            expect(html).toContain('Hello Amitabh Sen,');
+            expect(html).toContain('Yamaha R15 Exhaust Pipe');
+            expect(html).toContain('Renew Listing');
+            expect(html).toContain('https://esparex.in/account/profile');
+        });
+    });
+
+    describe('renderBusinessExpiryAlertEmail', () => {
+        it('renders business expiration warning with days left and renewal URL', () => {
+            const html = renderBusinessExpiryAlertEmail({
+                businessName: 'Apex Auto Spares',
+                expiryDate: '15 Oct 2026',
+                daysLeft: 3,
+                renewUrl: 'https://esparex.in/account/business',
+            });
+
+            expect(html).toContain('Business Subscription Expiring in 3 days');
+            expect(html).toContain('Apex Auto Spares');
+            expect(html).toContain('15 Oct 2026');
+            expect(html).toContain('Renew Business Plan');
+            expect(html).toContain('https://esparex.in/account/business');
+        });
+    });
+
+    describe('renderBusinessApprovedEmail', () => {
+        it('renders business approval confirmation with dealer perks and manage link', () => {
+            const html = renderBusinessApprovedEmail({
+                businessName: 'Royal Enfield Spare Hub',
+                userName: 'Devendra Joshi',
+                manageUrl: 'https://esparex.in/account/business',
+            });
+
+            expect(html).toContain('Business Profile Approved! 🏢');
+            expect(html).toContain('Hello Devendra Joshi,');
+            expect(html).toContain('Royal Enfield Spare Hub');
+            expect(html).toContain('Verified Merchant Badge');
+            expect(html).toContain('Manage My Business');
+            expect(html).toContain('https://esparex.in/account/business');
+        });
+    });
+
+    describe('renderBusinessRejectedEmail', () => {
+        it('renders business rejection notice with structured feedback and reapply link', () => {
+            const html = renderBusinessRejectedEmail({
+                businessName: 'Speedy Garage Services',
+                userName: 'Anil Kumar',
+                rejectionReason: 'GST certificate is blurry and shop address does not match',
+                applyUrl: 'https://esparex.in/account/business/apply',
+            });
+
+            expect(html).toContain('Business Application Update — Esparex');
+            expect(html).toContain('Hello Anil Kumar,');
+            expect(html).toContain('Speedy Garage Services');
+            expect(html).toContain('GST certificate is blurry and shop address does not match');
+            expect(html).toContain('Review &amp; Reapply');
+            expect(html).toContain('https://esparex.in/account/business/apply');
+        });
+    });
 });
+
 

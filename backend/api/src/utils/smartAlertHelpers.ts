@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { normalizeLocationResponse } from '@esparex/core/services/location/LocationNormalizer';
 import { serializeDoc } from '@esparex/core/utils/serialize';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 
 export const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';

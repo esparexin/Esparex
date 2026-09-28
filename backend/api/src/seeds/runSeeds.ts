@@ -5,6 +5,7 @@ import { seedSpareParts } from "./spareParts.seed";
 import { seedDevices } from "./devices.seed";
 import { seedServiceTypes } from "./serviceTypes.seed";
 import { seedScreenSizes } from "./screenSizes.seed";
+import { seedBrandsModelsExpansion } from "./brands-models-expansion.seed";
 import logger from "@esparex/core/utils/logger";
 
 // Load env vars
@@ -17,6 +18,7 @@ async function run() {
 
     await seedDevices();
     await seedScreenSizes();
+    await seedBrandsModelsExpansion();
     await seedSpareParts();
     await seedServiceTypes();
 

@@ -47,7 +47,7 @@ export function ModelSection() {
                         <FieldLabel className="text-caption sm:text-small font-medium text-foreground-secondary">Model</FieldLabel>
                         <FieldControl animateOnError>
                             {!brandNameValue ? (
-                                <div className="h-11 w-full rounded-xl bg-muted/40 border border-border flex items-center px-4 text-body text-foreground-subtle font-normal">
+                                <div className="h-11 w-full rounded-xl bg-muted/40 border border-border flex items-center px-3 text-body-lg md:text-body text-foreground-subtle font-normal">
                                     Select brand first...
                                 </div>
                             ) : (

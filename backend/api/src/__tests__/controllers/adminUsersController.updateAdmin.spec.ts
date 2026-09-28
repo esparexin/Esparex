@@ -22,20 +22,16 @@ jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/services/AdminSessionService", () => ({
+jest.mock("@esparex/core/domains/identity", () => ({
     __esModule: true,
     revokeAdminSessionsForAdmin: jest.fn().mockResolvedValue(undefined),
-}));
-
-jest.mock("@esparex/core/services/AdminUsersService", () => ({
-    __esModule: true,
     updateAdminById: jest.fn(),
 }));
 
 import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import Admin from "@esparex/core/models/Admin";
-import { updateAdminById } from "@esparex/core/services/AdminUsersService";
+import { updateAdminById } from "@esparex/core/domains/identity";
 
 // Valid 24-char hex ObjectId required by isValidObjectId at the controller boundary.
 const VALID_ADMIN_OID = '64b2f3e4c5d6e7f8a9b0c3d1';

@@ -82,6 +82,7 @@ router.patch('/businesses/:id/reject', requirePermission('business:approve'), ad
 router.patch('/businesses/:id/renew', requirePermission('business:approve'), adminBusiness.renewBusinessAccount);
 router.patch('/businesses/:id/expire', requirePermission('business:approve'), adminBusiness.expireBusinessAccount);
 router.patch('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
+router.put('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
 
 router.delete('/businesses/:id', requirePermission('business:approve'), adminBusiness.deleteBusinessAccount);
 // Bulk Operations
@@ -168,6 +169,7 @@ router.get('/cache/health', adminSystem.getCacheHealth);
 
 router.get('/system/config', adminSystemConfig.getSystemConfig);
 router.patch('/system/config', requirePermission('system:config'), adminSystemConfig.updateSystemConfig);
+router.post('/system/config/test-email', requirePermission('system:config'), adminSystemConfig.sendTestEmail);
 
 router.get('/support/contact', adminSystem.getContactSubmissions);
 router.patch('/support/contact/:id/status', adminSystem.updateContactSubmissionStatus);

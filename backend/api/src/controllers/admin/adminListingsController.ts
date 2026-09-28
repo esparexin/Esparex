@@ -5,7 +5,7 @@ import {
     buildLogFn,
     getActorId
 } from '../../utils/adminBaseController';
-import * as adminListingsService from '@esparex/core/services/AdminListingsService';
+import * as adminListingsService from '@esparex/core/domains/listings/application';
 import {
     serializeLegacyCountsAdapter,
     serializeLifecycleActionResponse,

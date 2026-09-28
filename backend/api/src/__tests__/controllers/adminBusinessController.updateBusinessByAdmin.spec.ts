@@ -35,7 +35,7 @@ jest.mock("@esparex/core/domains/notifications/application/NotificationService",
     createInAppNotification: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/services/TrustService", () => ({
+jest.mock("@esparex/core/domains/trust", () => ({
     __esModule: true,
     recalculateTrustScore: jest.fn().mockResolvedValue(undefined),
 }));

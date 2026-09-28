@@ -1,7 +1,7 @@
 import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../utils/pLimit';
 import Business from '../../models/Business';
 import { ACTOR_TYPE } from '@esparex/contracts';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../utils/adminLogger';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
 import * as businessUtils from '../business/BusinessUtils';
@@ -50,9 +50,32 @@ export const renewAdminBusiness = async (id: string, actorId: string, logFn: Adm
     const userIdStr = String(business.userId ?? '');
     const expiresAtStr = business.expiresAt ? new Date(business.expiresAt as string | number | Date).toLocaleDateString() : 'N/A';
     await logFn('RENEW_BUSINESS', 'Business', id, { actorId });
-    await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_RENEWED', { name: String(business.name ?? ''), expiresAt: expiresAtStr }, { businessId: id, status: 'live' });
+    const { renderBusinessRenewedEmail } = await import('../../domains/notifications/templates/EmailLayout');
+    const { getFrontendAppUrl } = await import('../../utils/appUrl');
+    const businessName = String(business.name ?? '');
+    const businessEmail = typeof business.email === 'string' && business.email.includes('@') ? business.email : undefined;
+    const emailHtml = renderBusinessRenewedEmail({
+        businessName,
+        expiresAt: expiresAtStr,
+        manageUrl: `${getFrontendAppUrl()}/account/business`,
+    });
+    await dispatchTemplatedNotification(
+        userIdStr,
+        'BUSINESS_STATUS',
+        'BUSINESS_RENEWED',
+        { name: businessName, expiresAt: expiresAtStr },
+        {
+            businessId: id,
+            status: 'live',
+            channels: ['in-app', 'push', 'email'],
+            email: businessEmail,
+            emailHtml,
+            emailSubject: 'Business Subscription Renewed — Esparex',
+        }
+    );
     return business;
 };
+
 
 export const deleteAdminBusiness = async (id: string, actorId: string, logFn: AdminLogFn) => {
     const business = await findBusinessForAdmin(id);

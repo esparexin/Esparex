@@ -32,7 +32,7 @@ jest.mock('@esparex/core/utils/redisCache', () => ({
     isTokenBlacklisted: jest.fn(async () => false),
 }));
 
-jest.mock('@esparex/core/services/chat/ChatAdminService', () => ({
+jest.mock('@esparex/core/domains/communications', () => ({
     adminListConversations: jest.fn(async () => ({ convs: [], total: 0 })),
     adminGetConversation: jest.fn(async (id: string) => {
         if (id === '507f1f77bcf86cd799439011') {

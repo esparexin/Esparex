@@ -41,7 +41,7 @@ export function ListingPriceField<
         <Stack gap="sm" className={className}>
           <div className="flex justify-between items-center">
             {label && (
-              <FieldLabel required={required} className="text-body font-semibold text-foreground-secondary">
+              <FieldLabel required={required} className="text-caption sm:text-small font-medium text-foreground-secondary">
                 {label}
               </FieldLabel>
             )}

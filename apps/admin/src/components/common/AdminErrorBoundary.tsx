@@ -1,8 +1,8 @@
 "use client";
-/* eslint-disable no-console */
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle } from "@esparex/ui";
+import logger from "@/lib/logger";
 
 interface Props {
     children: ReactNode;
@@ -24,7 +24,7 @@ export class AdminErrorBoundary extends Component<Props, State> {
     }
 
     public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error("Admin UI Error caught by boundary:", error, errorInfo);
+        logger.error("Admin UI Error caught by boundary:", error, errorInfo);
     }
 
     public override render() {

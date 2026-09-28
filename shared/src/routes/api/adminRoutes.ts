@@ -79,6 +79,7 @@ export const ADMIN_ROUTES = {
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
   REPORTS: "/reports",
   REPORT_STATUS: (id: string) => `/reports/${id}/status`,
+  REPORT_RESOLVE: (id: string) => `/reports/${id}/resolve`,
 
   // Catalog
   CATEGORIES: "/catalog/categories",
@@ -151,6 +152,7 @@ export const ADMIN_ROUTES = {
   SYSTEM_FIX: "/system/fix",
   CACHE_HEALTH: "/cache/health",
   SYSTEM_CONFIG: "/system/config",
+  SYSTEM_CONFIG_TEST_EMAIL: "/system/config/test-email",
   SYSTEM_AI_CONFIG: "/system/ai-config",
   SYSTEM_AI_TEST: "/system/ai-config/test",
   SUPPORT_CONTACT: "/support/contact",

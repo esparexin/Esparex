@@ -16,7 +16,7 @@ import {
     clearCategoryCanonicalCache,
 } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
 import type { ICategory } from '@esparex/core/models/Category';
 import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';

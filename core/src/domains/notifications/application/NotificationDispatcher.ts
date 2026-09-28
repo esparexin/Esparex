@@ -263,19 +263,25 @@ export class NotificationDispatcher {
                         dbRecord.deliveryStatus.email = 'skipped';
                         await dbRecord.save();
                     } else {
-                        const emailHtml = renderNotificationEmail({
-                            title: intent.message.title,
-                            body: intent.message.body,
-                            actionUrl: dbRecord.actionUrl,
-                            userName: recipientName,
-                        });
+                        const emailHtml = (typeof intent.message.data?.emailHtml === 'string' && intent.message.data.emailHtml.trim())
+                            ? intent.message.data.emailHtml
+                            : renderNotificationEmail({
+                                title: intent.message.title,
+                                body: intent.message.body,
+                                actionUrl: dbRecord.actionUrl,
+                                userName: recipientName,
+                            });
+
+                        const emailSubject = (typeof intent.message.data?.emailSubject === 'string' && intent.message.data.emailSubject.trim())
+                            ? intent.message.data.emailSubject
+                            : intent.message.title;
 
                         const emailResult = await emailService.send({
                             to: {
                                 email: recipientEmail,
                                 name: recipientName,
                             },
-                            subject: intent.message.title,
+                            subject: emailSubject,
                             html: emailHtml,
                         });
 

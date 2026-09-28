@@ -3,7 +3,7 @@ import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import logger from '@esparex/core/utils/logger';
 import { LISTING_TYPE } from "@esparex/contracts";
-import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
+import * as AdAggregationService from '@esparex/core/domains/listings/application';
 import * as AdMetricsService from '@esparex/core/domains/listings/application/ad/ad/AdMetricsService';
 
 import { ListingExpiryService } from '@esparex/core/services/lifecycle/ListingExpiryService';

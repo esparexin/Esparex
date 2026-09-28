@@ -32,8 +32,6 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
         // Find users matching search term
         const users = await User.find({
             $or: [
-                { firstName: { $regex: safeSearch, $options: 'i' } },
-                { lastName: { $regex: safeSearch, $options: 'i' } },
                 { name: { $regex: safeSearch, $options: 'i' } },
                 { email: { $regex: safeSearch, $options: 'i' } },
                 { mobile: { $regex: safeSearch, $options: 'i' } }
@@ -67,7 +65,7 @@ export const getTransactions = async (filters: TransactionFilters = {}, paginati
 
     const [data, total] = await Promise.all([
         Transaction.find(query)
-            .populate('userId', 'firstName lastName email mobile')
+            .populate('userId', 'name email mobile')
             .populate('planId', 'name')
             .sort({ createdAt: -1 })
             .skip(skip)
