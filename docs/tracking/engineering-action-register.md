@@ -2690,3 +2690,37 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
 - ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-058
+**Date**: 2026-09-28  
+**Description**: Center AuthModal on Desktop Viewports (Single Responsive Instance SSOT)  
+**Root Cause**: In `apps/web/src/components/auth/AuthModal.tsx`, the `SheetContent` primitive uses `side="bottom"`, which applies Tailwind utility `fixed inset-x-0 bottom-0`. On desktop viewports (`sm:` breakpoint), `sm:max-w-sm` constrained the container width to 384px, but without resetting `inset-0` or applying `m-auto`, the CSS anchored the 384px card to `left: 0; bottom: 0`, placing it in the bottom-left corner of desktop screens.  
+**Action**:
+1. **Single Responsive Instance Centering**: In `apps/web/src/components/auth/AuthModal.tsx`, added `sm:inset-0 sm:m-auto sm:h-fit sm:max-h-[calc(100dvh-3rem)]` to `SheetContent`. On desktop (`sm:`), the modal centers horizontally and vertically in the viewport with a fit height and proper margin, avoiding CSS transform collisions with touch-drag handlers.
+2. **Preserve Mobile Bottom Sheet UX**: On mobile viewports (`< sm`), `side="bottom"`, touch-to-dismiss drag gestures, and visual viewport keyboard avoidance (`translateY(-var(--keyboard-height))`) remain 100% intact.
+3. **Automated Regression Suite**: Updated `apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts` to assert `sm:inset-0` and `sm:m-auto` are maintained on `AuthModal` desktop styles.
+4. **Zero Duplication**: Preserved the single responsive component instance across mobile and desktop without introducing separate desktop dialog duplicates.
+
+**Files Modified**:
+```
+apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts
+apps/web/src/components/auth/AuthModal.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: AuthModal perfectly centered on desktop viewports while mobile bottom drawer functionality remains intact.
+- [x] **Automated Testing**: Unit and regression tests passed cleanly (`mobile-keyboard-audit-regression.spec.ts`, 13 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build -w @esparex/apps-web`) pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Single responsive component instance maintained according to architecture governance.
+- [x] **Accessibility & Keyboard**: Radix sheet focus trap, escape key dismissal, and tab navigation preserved.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-058.
+
+**Verification**:
+- ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (13/13 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+- ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
+
