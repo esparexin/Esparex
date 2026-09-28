@@ -1,5 +1,5 @@
-const CACHE_NAME = 'temporary-v4-static';
-const DYNAMIC_CACHE_NAME = 'temporary-v4-dynamic';
+const CACHE_NAME = 'temporary-v5-static';
+const DYNAMIC_CACHE_NAME = 'temporary-v5-dynamic';
 
 // Static assets to cache immediately
 const OFFLINE_URL = '/offline.html';
@@ -32,6 +32,12 @@ const isBlacklisted = (url) => {
 };
 
 const isLocalhost = () => LOCAL_HOSTS.has(self.location.hostname);
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
 
 self.addEventListener('install', (event) => {
     if (isLocalhost()) {

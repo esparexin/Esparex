@@ -2724,3 +2724,50 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
 - ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
 
+---
+
+### EA-060
+**Date**: 2026-09-28  
+**Description**: Remediate Stale Frontend Lifecycle, SW Caching, and Tab Update Detection (PWA / Service Worker SSOT)  
+**Root Cause**:  
+1. `PwaRegister.tsx` registered `/sw.js` without `{ updateViaCache: 'none' }` and never invoked `registration.update()`, never listened for `visibilitychange`, and never listened for `controllerchange`. Consequently, mobile browser tabs (especially on Android Chromium/Brave) suspended in memory or restored from background never polled for updates or reloaded upon service worker activation.
+2. In `sw.js`, `CACHE_NAME` was hardcoded to `temporary-v4-static` and did not handle `SKIP_WAITING` messages, leaving legacy caches unpurged.
+3. In `next.config.mjs`, `/sw.js` had no explicit `no-cache, no-store, must-revalidate` caching headers, permitting intermediate CDN/edge caches to serve stale responses.
+4. Concurrently, forensic investigation proved the visual difference observed between Android and iOS was due to `ThemeProvider` applying `.dark` theme on Android (Brave Night Mode / OS dark mode) vs light theme on iOS Safari Private, and location defaulting to "All India" on Android due to Brave Shields blocking IP geolocation.
+
+**Action**:
+1. **Explicit Edge & HTTP Cache Disabling for `/sw.js`**: In `apps/web/next.config.mjs`, configured `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0` for `/sw.js` so CDN/browser caches never retain stale worker scripts.
+2. **PWA Registration & Lifecycle Hardening**: In `apps/web/src/components/pwa/PwaRegister.tsx`:
+   - Configured `{ updateViaCache: 'none' }` on registration.
+   - Added immediate `registration.update()` call on mount.
+   - Added `visibilitychange` listener to automatically check for updates whenever a mobile tab is foregrounded.
+   - Added `updatefound` / `statechange` and `registration.waiting` handler to immediately dispatch `SKIP_WAITING` message.
+   - Added `controllerchange` listener that triggers a single graceful reload (`window.location.reload()`) once a new worker claims control.
+   - Broadened cache cleanup pattern to purge all legacy `temporary-` caches.
+3. **SW Cache Version Bump & Skip Waiting**: In `apps/web/public/sw.js`:
+   - Bumped cache version to `temporary-v5-static` and `temporary-v5-dynamic`.
+   - Added `message` event handler for `SKIP_WAITING`.
+   - Preserved `activate` cache eviction logic to delete all previous versions (`v4`, `v3`, `v2`, `v1`).
+
+**Files Modified**:
+```
+apps/web/next.config.mjs
+apps/web/public/sw.js
+apps/web/src/components/pwa/PwaRegister.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: PWA service worker update detection, mobile background tab refresh, edge cache headers, and cache eviction fully implemented according to SSOT.
+- [x] **Automated Testing**: Monorepo test suites passed cleanly (Backend 77/77, Core 84/84, Web 84/84, Admin 15/15, Mobile 72/72 — 100% green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Preserved single responsive component instance and unified PWA registration.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-060.
+
+**Verification**:
+- ✅ `npm test` ──► PASS (100% green across all packages)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+- ✅ `npm run build` ──► PASS (Compiled and bundled with exit code 0)
+
+
