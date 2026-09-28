@@ -46,12 +46,15 @@ export const AppText: React.FC<AppTextProps> = ({
 
   const getColorStyles = () => {
     switch (color) {
-      case 'muted': return 'text-slate-500 dark:text-slate-400';
+      case 'muted': return 'text-muted-foreground';
       case 'brand': return 'text-brand-600 dark:text-brand-400';
-      case 'error': return 'text-error';
+      case 'error': return 'text-destructive';
       case 'success': return 'text-success';
       case 'default':
-      default: return 'text-slate-900 dark:text-slate-50';
+      // RC-5 FIX: Use semantic text-foreground instead of the primitive
+      // palette classes whose dark: variants were inert without darkMode (RC-1).
+      // text-foreground resolves to a concrete hex via the fixed NativeWind config.
+      default: return 'text-foreground';
     }
   };
 

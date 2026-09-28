@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useColorScheme } from 'react-native';
 import { MainTabParamList, ROUTES } from './routes';
 import { AppIcon } from '@esparex/mobile-ui';
 import { MarketplaceScreen } from '../features/listings/presentation/screens/MarketplaceScreen';
@@ -9,7 +10,7 @@ import { PostAdScreen } from '../features/postAd/presentation/PostAdScreen';
 import { ChatNavigator } from './ChatNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { useUnreadChatCount } from '../features/chat/presentation/hooks/useConversations';
-import { semantic } from '@esparex/design-tokens';
+import { mobileSemanticColors } from '@esparex/design-tokens';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -37,17 +38,21 @@ const PostAdTab = () => (
 export const MainTabs = () => {
   // Drives the unread-count badge on the Chat tab from conversation threads.
   const unreadChatCount = useUnreadChatCount();
+  // RC-3 FIX: derive tab bar colors from the OS color scheme so light-mode
+  // users are not shown a permanently dark OLED tab bar.
+  const colorScheme = useColorScheme() ?? 'light';
+  const palette = mobileSemanticColors[colorScheme];
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: semantic.dark.background, // formerly #020617 (slate-950) -> Dark theme tab bar
-          borderTopColor: semantic.dark.border,  // formerly #1e293b (slate-800) -> Dark theme tab bar
+          backgroundColor: palette.background,
+          borderTopColor: palette.border,
         },
-        tabBarActiveTintColor: semantic.light.primary,   // formerly #0ea5e9 (sky-500)
-        tabBarInactiveTintColor: semantic.light['muted-foreground'], // formerly #64748b (slate-500)
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette['muted-foreground'],
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof AppIcon>['name'] = 'Home';
 
@@ -82,7 +87,7 @@ export const MainTabs = () => {
         options={{
           title: 'Chat',
           tabBarBadge: unreadChatCount > 0 ? unreadChatCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: semantic.light.destructive, color: semantic.light['destructive-foreground'], fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: palette.destructive, color: palette['destructive-foreground'], fontSize: 10 },
         }}
       />
       <Tab.Screen
