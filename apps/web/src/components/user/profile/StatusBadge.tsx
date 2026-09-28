@@ -3,7 +3,7 @@
 import React from "react";
 import { StatusChip } from "@esparex/ui";
 
-export function getStatusBadge(status: string, _adId?: string | number): React.ReactNode {
+export function getStatusBadge(status: string): React.ReactNode {
   return <StatusChip status={status} />;
 }
 

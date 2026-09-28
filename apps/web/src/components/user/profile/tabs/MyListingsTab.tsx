@@ -21,7 +21,7 @@ interface MyListingsTabProps {
   adCounts: ListingStatsResponse;
   user: User | null;
   navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
-  getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
+  getStatusBadge: (status: string) => React.ReactNode;
   formatDate: (date: string | Date) => string;
   businessStatus: BusinessStatusValue | "none";
   onRegisterBusiness?: () => void;

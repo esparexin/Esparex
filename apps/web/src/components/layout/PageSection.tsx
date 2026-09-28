@@ -50,7 +50,7 @@ export function PageSection({
           {action && <div className="shrink-0">{action}</div>}
         </div>
       )}
-      <div>{children}</div>
+      {children}
     </section>
   );
 }

@@ -64,10 +64,6 @@ export function ListingDetailSidebar({
     onPromote,
     onReport,
 }: ListingDetailSidebarProps) {
-    const ctaPolicy = {
-        businessProfileSurface: "business-card",
-        visitorChatSurface: "sticky-mobile-inline-desktop",
-    } as const;
     const isActiveSpotlight = Boolean(ad.isSpotlight);
 
     return (
@@ -92,12 +88,10 @@ export function ListingDetailSidebar({
                 revealedPhone={revealedPhone}
                 phoneMessage={phoneMessage}
             />
-            {ctaPolicy.businessProfileSurface === "business-card" ? (
-                <AdBusinessCard
-                    ad={ad}
-                    navigateTo={navigateTo}
-                />
-            ) : null}
+            <AdBusinessCard
+                ad={ad}
+                navigateTo={navigateTo}
+            />
 
             {!isOwner && (
                 <AdSafetyTips
