@@ -23,6 +23,10 @@ interface LocationOverlayHostProps {
 /**
  * LocationOverlayHost: Single presentation owner for Location Selector overlay.
  * Viewport Strategy: Mobile = Radix Sheet bottom drawer via BottomSheetManager; Desktop = Anchored dropdown.
+ * Parity: both surfaces share useLocationSearch + LocationResultsList states
+ * (options, loading skeleton, empty, error + retry, keyboard) — LocationSelector
+ * panel internally consumes the same hook/list. JS viewport check routes only
+ * the overlay container (dynamic behavior), layout itself stays single-instance CSS.
  */
 export function LocationOverlayHost({
     isOpen,
@@ -31,6 +35,7 @@ export function LocationOverlayHost({
     locationQuery = "",
     onLocationQueryChange,
 }: LocationOverlayHostProps) {
+    // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     const isMobile = useIsMobile();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { setManualLocation } = useLocationDispatch();
