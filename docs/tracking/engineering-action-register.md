@@ -2447,6 +2447,52 @@ docs/tracking/engineering-action-register.md
 **Verification**:
 - ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
 - ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+---
+
+### EA-053
+
+**Sprint**: Admin Moderation Queue & Reports Workflow  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Moderation UX & Reports Validation Architecture  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Action Menu Comprehensive Architectural Audit**:
+   - Audited the four action items (`Inspect`, `Review`, `Resolve`, `Dismiss`): defined **What**, **Why**, **How**, and **Where** each action operates within the moderation lifecycle.
+   - Identified and addressed critical UX flaws: `Inspect` previously navigated away from the reports queue (losing pagination and filters) instead of presenting the reported ad in-context; `Resolve` previously updated only the report status without providing a direct take-down flow for violating ads.
+2. **In-Context View & Validate Modal (`ViewAdModal` SSOT)**:
+   - Extended `@/components/moderation/ViewAdModal` to accept an optional `reportContext` with abuse signal details (reason, report count, status, auto-hidden indicator, reported timestamp) and direct validation actions.
+   - Reused existing single-instance modal rather than introducing duplicate component definitions.
+   - Provided fallback handling for orphaned/archived listings so moderators can inspect report snapshot details and resolve or dismiss the ticket even if the ad document was deleted.
+3. **Dedicated Row Action & Menu Enhancement**:
+   - Added a prominent, accessible `View` button (`Eye` icon) on every table row in `apps/admin/src/app/(protected)/reports/page.tsx`.
+   - Made the listing title clickable to trigger the same in-context view.
+   - Reorganized the action menu into `View & Validate`, `Inspect in Catalog` (external navigation fallback), `Mark Reviewed`, `Take Down & Resolve`, and `Dismiss Report`.
+4. **Backend Route & Mutation Integration**:
+   - Added canonical `ADMIN_ROUTES.REPORT_RESOLVE(id)` to `@esparex/shared`.
+   - Added `resolveReportAction` to `useModerationReports` to call `PATCH /api/v1/admin/reports/:id/resolve` with `{ action: 'take_down' | 'dismiss' | 'warn_user', note }` to atomically take down violating ads and resolve abuse tickets.
+   - Replaced raw string literals with canonical `REPORT_STATUS` enum values from `@esparex/contracts` and enforced typography design tokens (`text-body`, `text-caption`).
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/reports/page.tsx
+apps/admin/src/components/moderation/ViewAdModal.tsx
+apps/admin/src/hooks/useModerationReports.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Audited action menus, added in-context View & Validate modal, added View button, linked atomic take-down/resolve.
+- [x] **Automated Testing**: 100% test suites passed across apps-admin (14 test files, 103 tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
 - ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
 
 
