@@ -17,6 +17,7 @@ import {
   parsePositiveIntParam,
   updateSearchParams,
 } from "@/lib/urlSearchParams";
+import { formatAppDate } from "@esparex/shared";
 
 type AdminInvoice = {
   id: string;
@@ -132,7 +133,7 @@ export default function InvoicesPage() {
         <div>
           <div className="font-semibold text-foreground">{invoice.invoiceNumber}</div>
           <div className="text-xs text-foreground-tertiary">
-            {new Date(invoice.issuedAt).toLocaleDateString("en-IN")}
+            {formatAppDate(invoice.issuedAt)}
           </div>
         </div>
       )

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CheckCircle2, User as UserIcon, X, StatusChip } from "@esparex/ui";
 import { REPORT_STATUS } from "@esparex/contracts";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
+import { formatAppDateTime } from "@esparex/shared";
 import {
     getUserDisplayName,
     getUserStatusPresentation,
@@ -17,7 +18,7 @@ interface UserQuickDetailsPanelProps {
 
 export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelProps) {
     const statusPresentation = getUserStatusPresentation(user.status);
-    const createdAtLabel = user.createdAt ? new Date(user.createdAt).toLocaleString() : "Unknown";
+    const createdAtLabel = user.createdAt ? formatAppDateTime(user.createdAt) : "Unknown";
 
     return (
         <div className="absolute right-0 top-0 z-10 h-full w-[400px] overflow-y-auto border-l border-border bg-card shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)]">

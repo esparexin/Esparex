@@ -15,6 +15,7 @@ export function useAdPlacement(placementId: InContentPlacementId, category?: str
   const { data, isLoading } = useQuery<ResolveAdResponse>({
     queryKey: ["ad-placement", placementId, category, Boolean(user)],
     queryFn: async () => {
+      // responsive-exception: device classification for ad-density resolution (content decision, not static layout).
       const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
       const isTablet = typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024;
       const device = isMobile ? "mobile" : isTablet ? "tablet" : "desktop";

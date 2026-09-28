@@ -13,6 +13,8 @@ export const fetchInvoiceHtml = async (transactionId: string): Promise<string> =
         });
         return html;
     } catch {
+        // Fallback: direct backend fetch when apiClient cannot handle text/blob;
+        // URL built from runtime base (same backend origin). Intentional exception.
         const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
         const response = await fetch(invoiceUrl, { credentials: 'include' });
         if (!response.ok) {

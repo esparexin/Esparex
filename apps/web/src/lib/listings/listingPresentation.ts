@@ -65,7 +65,7 @@ export function resolveListingTypeBadge(
             type: listingType,
             label: "Service",
             icon: "wrench" as const,
-            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+            className: "bg-primary/10 text-primary border-primary/20",
         };
     }
 
@@ -82,7 +82,7 @@ export function resolveListingTypeBadge(
         type: listingType,
         label: "Ad",
         icon: "device" as const,
-        className: "bg-blue-50 text-blue-700 border-blue-200",
+        className: "bg-primary/10 text-primary border-primary/20",
     };
 }
 

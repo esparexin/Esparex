@@ -154,7 +154,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                     <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4">
                         <Badge className={cn(
                             "border px-2.5 py-0.5 text-tiny md:text-caption",
-                            isDark ? "bg-muted text-primary border-border" : "bg-green-50 text-green-700 border-green-100"
+                            isDark ? "bg-muted text-primary border-border" : "bg-primary/10 text-primary border-primary/20"
                         )}>
                             <CheckCircle className="h-3 w-3 mr-1.5" />
                             Verified Safe Marketplace

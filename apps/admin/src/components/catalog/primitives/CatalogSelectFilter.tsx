@@ -21,8 +21,10 @@ export function CatalogSelectFilter({
     return (
         <div className={`flex items-center gap-2 ${className}`.trim()}>
             {withFilterIcon ? <Filter className="text-foreground-subtle" size={16} /> : null}
+            {/* Native select retained intentionally: filter control with full
+                option-list semantics; see CatalogSelectField for rationale. */}
             <select
-                className="flex-1 bg-background border border-border rounded-lg py-2 px-3 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all cursor-pointer"
+                className="flex-1 bg-background border border-border rounded-lg py-2 px-3 text-body-lg md:text-body text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all cursor-pointer"
                 value={value}
                 aria-label={ariaLabel}
                 onChange={(event) => onChange(event.target.value)}

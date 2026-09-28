@@ -11,11 +11,11 @@ export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
 };
 
 export const MODERATION_STATUS_BADGES: Record<ModerationStatus, string> = {
-    pending: "bg-amber-100 text-amber-700 border-amber-200",
-    live: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    rejected: "bg-red-100 text-red-700 border-red-200",
-    deactivated: "bg-orange-100 text-orange-700 border-orange-200",
-    sold: "bg-blue-100 text-blue-700 border-blue-200",
+    pending: "bg-warning/10 text-warning border-warning/20",
+    live: "bg-primary/10 text-primary border-primary/20",
+    rejected: "bg-destructive/10 text-destructive border-destructive/20",
+    deactivated: "bg-muted text-foreground-secondary border-border",
+    sold: "bg-primary/10 text-primary border-primary/20",
     expired: "bg-muted text-foreground-secondary border-border"
 };
 

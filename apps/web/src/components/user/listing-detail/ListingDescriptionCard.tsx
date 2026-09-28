@@ -73,6 +73,7 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
     const scrollToSection = () => {
         if (sectionRef.current && typeof window !== "undefined") {
             const headerEl = typeof document !== "undefined" ? document.querySelector("header") : null;
+            // responsive-exception: dynamic scroll-offset measurement (permitted canvas calculation).
             const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : (window.innerWidth >= 768 ? 70 : 120);
             const targetY = sectionRef.current.getBoundingClientRect().top + window.pageYOffset - headerHeight - 16;
             window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });

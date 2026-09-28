@@ -14,6 +14,7 @@ import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
 import { ListingTypeValue } from "@esparex/contracts";
+import { formatAppDateTime, formatStableNumber } from "@esparex/shared";
 
 type ViewAdReportContext = {
     reportId: string;
@@ -101,29 +102,29 @@ export function ViewAdModal({
                             <p className="text-body">Fetching listing details...</p>
                         </div>
                     )}
-                    {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-body text-red-600 mb-4">{error}</div>}
+                    {error && <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-body text-destructive mb-4">{error}</div>}
 
                     {reportContext && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50/90 p-4 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+                        <div className="rounded-xl border border-warning/20 bg-warning/10 p-4 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
                             <div className="flex items-start gap-3">
-                                <div className="rounded-lg bg-amber-100 p-2 text-amber-700 shrink-0 mt-0.5">
+                                <div className="rounded-lg bg-warning/10 p-2 text-warning shrink-0 mt-0.5">
                                     <ShieldAlert size={20} />
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-semibold text-amber-950 text-body">Report Abuse Signal</span>
-                                        <span className="rounded-full bg-amber-200/80 px-2 py-0.5 text-tiny font-bold uppercase tracking-wider text-amber-900">
+                                        <span className="font-semibold text-warning text-body">Report Abuse Signal</span>
+                                        <span className="rounded-full bg-warning/20 px-2 py-0.5 text-tiny font-bold uppercase tracking-wider text-warning">
                                             {reportContext.status}
                                         </span>
                                         {reportContext.isAutoHidden && (
-                                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-tiny font-semibold text-red-700">
+                                            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-tiny font-semibold text-destructive">
                                                 Auto-hidden
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-caption text-amber-900 mt-1">
+                                    <p className="text-caption text-warning mt-1">
                                         Reason: <span className="font-semibold">{reportContext.reason}</span> • {reportContext.reportCount} report{reportContext.reportCount === 1 ? "" : "s"}
-                                        {reportContext.reportedAt ? ` • Reported ${new Date(reportContext.reportedAt).toLocaleString()}` : ""}
+                                        {reportContext.reportedAt ? ` • Reported ${formatAppDateTime(reportContext.reportedAt)}` : ""}
                                     </p>
                                 </div>
                             </div>
@@ -173,11 +174,11 @@ export function ViewAdModal({
                                     <div className="text-2xl font-bold text-foreground">
                                         {getListingPriceSummary(ad)}
                                     </div>
-                                    <div className="text-sm text-foreground-secondary">{new Date(ad.createdAt).toLocaleString()}</div>
+                                    <div className="text-caption text-foreground-secondary">{formatAppDateTime(ad.createdAt)}</div>
                                     <div className="text-tiny text-foreground-subtle mt-1">
-                                        Modified: {ad.updatedAt ? new Date(ad.updatedAt).toLocaleString() : "N/A"}
+                                        Modified: {ad.updatedAt ? formatAppDateTime(ad.updatedAt) : "N/A"}
                                         {ad.isDeleted && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1 py-0.5 rounded border border-red-100 uppercase text-tiny">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-destructive font-bold bg-destructive/10 px-1 py-0.5 rounded border border-destructive/20 uppercase text-tiny">
                                                 Deleted
                                             </span>
                                         )}
@@ -185,11 +186,11 @@ export function ViewAdModal({
                                     <div className="space-y-1 text-sm text-foreground-secondary">
                                         <div>
                                             <span className="font-semibold">Approved at:</span>{" "}
-                                            {ad.approvedAt ? new Date(ad.approvedAt).toLocaleString() : "-"}
+                                            {ad.approvedAt ? formatAppDateTime(ad.approvedAt) : "-"}
                                         </div>
                                         <div>
                                             <span className="font-semibold">Expires at:</span>{" "}
-                                            {ad.expiresAt ? new Date(ad.expiresAt).toLocaleString() : "-"}
+                                            {ad.expiresAt ? formatAppDateTime(ad.expiresAt) : "-"}
                                         </div>
                                         <div>
                                             <span className="font-semibold">Days remaining:</span>{" "}
@@ -251,7 +252,7 @@ export function ViewAdModal({
                                     {effectiveListingType === "service" && (<>
                                         {typeof ad.diagnosticFee === "number" && (
                                             <div className="text-sm text-foreground-secondary">
-                                                <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
+                                                <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {formatStableNumber(ad.diagnosticFee)}
                                             </div>
                                         )}
                                         {ad.included && (
@@ -307,7 +308,7 @@ export function ViewAdModal({
                                             <button
                                                 type="button"
                                                 onClick={() => onReject(ad.id)}
-                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-body font-semibold text-white hover:bg-red-700 transition-colors"
+                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-destructive px-4 text-body font-semibold text-destructive-foreground hover:bg-destructive/90 transition-colors"
                                             >
                                                 <X size={15} /> Reject
                                             </button>
@@ -379,7 +380,7 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void reportContext.onReview?.()}
-                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 text-caption font-semibold text-amber-800 hover:bg-amber-100 transition-colors"
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-warning/30 bg-warning/10 px-3.5 text-caption font-semibold text-warning hover:bg-warning/20 transition-colors"
                                     >
                                         <AlertCircle size={14} /> Mark Under Review
                                     </button>

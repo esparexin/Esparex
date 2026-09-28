@@ -6,6 +6,7 @@ import { AdminModerationActions } from "./AdminModerationActions";
 import type { ModerationItem } from "./moderationTypes";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { ListingTypeValue } from "@esparex/contracts";
+import { formatAppDate } from "@esparex/shared";
 // ── Risk badge helpers ────────────────────────────────────────────────────────
 const riskColor = (score: number) => {
     if (score >= 70) return "bg-red-100 text-red-700";
@@ -253,7 +254,7 @@ export function AdsTable({
                 const dateOpts: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' };
                 return (
                     <div className="text-xs text-foreground-secondary">
-                        {new Date(item.createdAt).toLocaleDateString('en-GB', dateOpts)}
+                        {formatAppDate(item.createdAt, dateOpts)}
                     </div>
                 );
             }

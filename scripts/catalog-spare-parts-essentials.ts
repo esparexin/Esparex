@@ -86,7 +86,7 @@ async function run(): Promise<void> {
         .find({ isDeleted: { $ne: true }, isActive: true })
         .toArray();
 
-    const categoryMap = new Map<string, any>(categories.map((c) => [c.slug, c]));
+    const categoryMap = new Map<string, (typeof categories)[number]>(categories.map((c) => [c.slug, c]));
     console.log(`Loaded ${categories.length} active categories: ${Array.from(categoryMap.keys()).join(', ')}`);
 
     // Verify all needed categories exist

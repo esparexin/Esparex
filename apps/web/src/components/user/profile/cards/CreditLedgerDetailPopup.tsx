@@ -17,6 +17,7 @@ import {
   renderTransactionStatus,
   getListingDetailHref,
 } from './CreditLedgerFormatters';
+import { formatStableDateTime } from '@/lib/formatters';
 import Link from 'next/link';
 
 interface CreditLedgerDetailPopupProps {
@@ -34,13 +35,7 @@ const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, ch
 
 const formatDate = (iso?: string | null): string => {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return formatStableDateTime(iso);
 };
 
 export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = ({ tx, open, onClose }) => {

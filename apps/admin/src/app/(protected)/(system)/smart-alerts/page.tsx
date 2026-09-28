@@ -8,7 +8,7 @@ import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
 import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "@esparex/ui";
-import { formatPrice } from "@esparex/shared";
+import { formatAppDate, formatAppTime, formatPrice } from "@esparex/shared";
 import { format } from "date-fns";
 
 type AlertLog = {
@@ -239,10 +239,10 @@ export default function SmartAlertsPage() {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium text-foreground-secondary">
-                                                        {new Date(log.deliveredAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        {formatAppDate(log.deliveredAt, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </span>
                                                     <span className="text-xs text-foreground-subtle mt-0.5">
-                                                        {new Date(log.deliveredAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                        {formatAppTime(log.deliveredAt, { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </td>

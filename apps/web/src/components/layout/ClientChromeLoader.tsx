@@ -2,8 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { BottomActionsBar } from "@/components/BottomActionsBar";
-import { BackendStatusBanner } from "@/components/common/BackendStatusBanner";
-import { ConnectivityBanner } from "@/components/common/ConnectivityBanner";
+import { StatusBannerHost } from "@/components/common/StatusBannerHost";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 
@@ -19,8 +18,7 @@ export function ClientChromeLoader({
 
     return (
         <>
-            <BackendStatusBanner />
-            <ConnectivityBanner apiUnavailable={apiUnavailable} />
+            <StatusBannerHost apiUnavailable={apiUnavailable} />
             <MobileBottomNav enabled={policy.showMobileBottomNav} />
             <BottomActionsBar enabled={policy.showBottomActionsBar} />
         </>

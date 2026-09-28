@@ -1,4 +1,5 @@
-import type { Ad } from '@esparex/contracts/src/v1/listings/schema/ad.schema';
+import type { Ad } from '@esparex/contracts';
+import { formatPrice } from '@esparex/shared';
 import { Listing } from '../../domain/Listing';
 import { normalizeImageUrl } from '../../../../infrastructure/image/imageUrl';
 
@@ -68,7 +69,7 @@ export class ListingMapper {
     const sellerName = ad.sellerName || ad.businessName || 'Seller';
     const priceAmount = typeof ad.price === 'number' ? ad.price : 0;
     const formattedPrice =
-      priceAmount === 0 ? 'Free' : `₹${priceAmount.toLocaleString('en-IN')}`;
+      priceAmount === 0 ? 'Free' : formatPrice(priceAmount);
 
     const mappedSpareParts = Array.isArray(ad.sparePartsSnapshot) && ad.sparePartsSnapshot.length > 0
       ? ad.sparePartsSnapshot.map((part) => ({

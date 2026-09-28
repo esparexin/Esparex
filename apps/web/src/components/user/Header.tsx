@@ -1,15 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import {
-  Search,
-  LogIn,
-  Button,
-  Input,
-  Z_INDEX,
-} from "@esparex/ui";
+import { Search, LogIn, Button, Input, Z_INDEX } from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
@@ -38,13 +32,7 @@ export interface HeaderProps {
 }
 
 export function Header({
-  navigateTo,
-  isLoggedIn,
-  isAuthLoading = false,
-  onLogout = () => {},
-  user = null,
-  onSearch,
-  onShowLogin,
+  navigateTo, isLoggedIn, isAuthLoading = false, onLogout = () => {}, user = null, onSearch, onShowLogin,
 }: HeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -105,6 +93,8 @@ export function Header({
     setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
+  const openMobileLocationSelector = useCallback(() => setShowLocationSelector(true), [setShowLocationSelector]);
+
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
@@ -119,7 +109,10 @@ export function Header({
         <div className="relative" ref={locationDropdownRef}>
           <HeaderLocation
             isOpen={showLocationSelector}
-            onOpenChange={(open) => { setShowLocationSelector(open); if (open) setShowSearchDropdown(false); }}
+            onOpenChange={(open) => { 
+              if (open) setShowSearchDropdown(false);
+              setShowLocationSelector(open);
+            }}
             query={headerLocationQuery}
             onQueryChange={setHeaderLocationQuery}
           />
@@ -169,7 +162,7 @@ export function Header({
           resolvedHeaderLocation={resolvedHeaderLocation}
           showLocation={chromePolicy.showMobileLocation}
           onNavigateHome={() => navigateTo("home")}
-          onOpenLocationSelector={() => setShowLocationSelector(true)}
+          onOpenLocationSelector={openMobileLocationSelector}
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (

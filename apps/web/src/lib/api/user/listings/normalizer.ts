@@ -1,4 +1,4 @@
-import { type Ad, AdSchema } from "@esparex/contracts";
+import { type Ad, AdSchema, type ListingContactNumberResponse } from "@esparex/contracts";
 import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';
@@ -74,10 +74,9 @@ interface RawListingContactNumberResponse {
     masked?: string;
 }
 
-export interface ListingContactNumberResponse {
-    mobile?: string;
-    masked?: string;
-}
+// SSOT: canonical DTO lives in @esparex/contracts; the local duplicate was
+// removed so response shape has a single owner.
+export type { ListingContactNumberResponse };
 
 // --- Helpers ---
 

@@ -122,7 +122,7 @@ describe("listingPresentation", () => {
             type: "service",
             label: "Service",
             icon: "wrench",
-            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+            className: "bg-primary/10 text-primary border-primary/20",
         });
 
         expect(
@@ -145,7 +145,7 @@ describe("listingPresentation", () => {
             type: "ad",
             label: "Ad",
             icon: "device",
-            className: "bg-blue-50 text-blue-700 border-blue-200",
+            className: "bg-primary/10 text-primary border-primary/20",
         });
     });
 

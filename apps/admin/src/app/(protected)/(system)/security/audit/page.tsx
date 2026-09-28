@@ -21,6 +21,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
+import { formatAppDate, formatAppTime } from "@esparex/shared";
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Every Action" },
@@ -158,8 +159,8 @@ export default function AuditLogsPage() {
             header: "Timestamp",
             cell: (log) => (
                 <div className="text-xs text-foreground-tertiary font-medium">
-                    <div className="flex items-center gap-1"><Calendar size={12} className="text-foreground-subtle" /> {new Date(log.createdAt).toLocaleDateString()}</div>
-                    <div className="text-tiny ml-4">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                    <div className="flex items-center gap-1"><Calendar size={12} className="text-foreground-subtle" /> {formatAppDate(log.createdAt)}</div>
+                    <div className="text-tiny ml-4">{formatAppTime(log.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
                 </div>
             )
         }

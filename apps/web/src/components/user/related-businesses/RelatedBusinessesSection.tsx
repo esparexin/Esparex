@@ -158,19 +158,19 @@ export function RelatedBusinessesSection({
       ) : null}
 
       {!isLoading && isError ? (
-        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-5 py-4 text-body text-amber-900">
+        <div className="rounded-2xl border border-warning/20 bg-warning/10 px-5 py-4 text-body text-warning">
           <div className="flex items-center gap-2 font-semibold">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertCircle className="h-4 w-4 text-warning" />
             Unable to load repair shops
           </div>
-          <p className="mt-1 text-caption text-amber-800">
+          <p className="mt-1 text-caption text-warning">
             Try again to check repair shops with matching live services.
           </p>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="mt-3 rounded-xl border-amber-300 bg-transparent text-amber-900 hover:bg-amber-100"
+            className="mt-3 rounded-xl border-warning/30 bg-transparent text-warning hover:bg-warning/10"
             onClick={() => void refetch()}
           >
             <RefreshCcw className="mr-2 h-3.5 w-3.5" />
