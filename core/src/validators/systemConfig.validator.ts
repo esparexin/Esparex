@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { emailTemplateCustomizationSchema } from '@esparex/contracts';
 
 const optionalString = z.string().trim().optional();
 const optionalUrl = z.string().trim().url().optional();
@@ -137,7 +138,7 @@ export const systemConfigUpdateSchema = z.object({
     location: locationSectionSchema.optional(),
     integrations: integrationsSectionSchema.optional(),
     listing: listingSectionSchema.optional(),
-    emailTemplates: z.array(z.unknown()).optional(),
+    emailTemplates: z.array(emailTemplateCustomizationSchema).optional(),
     notificationTemplates: z.array(z.unknown()).optional(),
 }).strict().refine((value) => Object.keys(value).length > 0, {
     message: 'At least one config section is required',
