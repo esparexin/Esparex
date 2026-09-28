@@ -20,21 +20,22 @@ export function PwaRegister() {
             window.location.protocol !== "https:";
 
         if (shouldDisableOnThisHost) {
-            void navigator.serviceWorker.getRegistrations().then(async (registrations) => {
-                await Promise.all(registrations.map((registration) => registration.unregister()));
-
-                if ("caches" in window) {
-                    const cacheKeys = await caches.keys();
-                    await Promise.all(
-                        cacheKeys
-                            .filter((cacheKey) => cacheKey.startsWith("temporary-"))
-                            .map((cacheKey) => caches.delete(cacheKey))
-                    );
-                }
-            }).catch(() => {
-                // Cleanup failures should not block app render.
-            });
-
+            void navigator.serviceWorker
+                .getRegistrations()
+                .then(async (registrations) => {
+                    await Promise.all(registrations.map((r) => r.unregister()));
+                    if ("caches" in window) {
+                        const cacheKeys = await caches.keys();
+                        await Promise.all(
+                            cacheKeys
+                                .filter((k) => k.startsWith("temporary-"))
+                                .map((k) => caches.delete(k))
+                        );
+                    }
+                })
+                .catch(() => {
+                    // Cleanup failures should not block app render.
+                });
             return;
         }
 
@@ -64,18 +65,14 @@ export function PwaRegister() {
                 registration.addEventListener("updatefound", () => {
                     const installingWorker = registration.installing;
                     if (!installingWorker) return;
-
                     installingWorker.addEventListener("statechange", () => {
-                        if (
-                            installingWorker.state === "installed" &&
-                            navigator.serviceWorker.controller
-                        ) {
+                        if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
                             installingWorker.postMessage({ type: "SKIP_WAITING" });
                         }
                     });
                 });
 
-                // Check for new deployments when the tab is restored/foregrounded on mobile
+                // Check for updates when tab is restored/foregrounded on mobile
                 visibilityListener = () => {
                     if (document.visibilityState === "visible") {
                         void registration.update().catch(() => {});

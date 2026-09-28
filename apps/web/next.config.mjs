@@ -247,6 +247,24 @@ const nextConfig = {
                     { key: 'Content-Type', value: 'text/plain' },
                     { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' }
                 ]
+            },
+            {
+                source: '/sw.js',
+                headers: [
+                    { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
+                    { key: 'Expires', value: '0' }
+                ]
+            },
+            {
+                source: '/manifest.json',
+                headers: [
+                    { key: 'Content-Type', value: 'application/manifest+json; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
+                    { key: 'Expires', value: '0' }
+                ]
             }
         ];
     },
