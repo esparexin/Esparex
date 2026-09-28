@@ -1,68 +1,117 @@
 import { type ClientSession, type Types } from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { CATALOG_STATUS } from '@esparex/contracts';
-import Brand from '../../../../models/Brand';
-import CatalogModel from '../../../../models/Model';
+import Brand, { type IBrand } from '../../../../models/Brand';
+import CatalogModel, { type IModel } from '../../../../models/Model';
 import type { ICatalogRequest } from '../../../../models/CatalogRequest';
 import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { buildCatalogSlug, resolveRequestCanonicalName, NON_DELETED_QUERY } from './validation';
 import { buildApprovalTrustMetadata, ensureEntityActiveAndTrusted } from './entity';
 
-export const resolveOrCreateBrand = async (request: ICatalogRequest, session: ClientSession): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
+interface ResolveOrCreateOptions<TDoc> {
+    entityType: 'brand' | 'model';
+    findExisting: (canonicalName: string, session: ClientSession) => Promise<{ _id: Types.ObjectId } | null>;
+    findExistingAfterError: (canonicalName: string, session: ClientSession) => Promise<{ _id: Types.ObjectId } | null>;
+    createEntity: (data: TDoc, session: ClientSession) => Promise<{ _id: Types.ObjectId }[]>;
+    buildCreateData: (request: ICatalogRequest, canonicalName: string) => TDoc;
+}
+
+// Brand creation only needs a subset of IBrand fields (others have schema defaults)
+interface BrandCreateInput extends Partial<IBrand> {
+    name: string;
+    displayName: string;
+    canonicalName: string;
+    slug: string;
+    categoryIds: Types.ObjectId[];
+}
+
+// Model creation only needs a subset of IModel fields
+interface ModelCreateInput extends Partial<IModel> {
+    name: string;
+    displayName: string;
+    canonicalName: string;
+    slug: string;
+    brandId: Types.ObjectId;
+    categoryIds: Types.ObjectId[];
+}
+
+/**
+ * Generic resolve-or-create pattern for catalog entities (brand/model).
+ * Handles: find existing -> create -> on duplicate key error find existing again.
+ */
+const resolveOrCreateEntity = async <TDoc,>(
+    request: ICatalogRequest,
+    session: ClientSession,
+    options: ResolveOrCreateOptions<TDoc>
+): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
     const requestCanonicalName = resolveRequestCanonicalName(request);
-    let existingBrand = await Brand.findOne({
-        canonicalName: requestCanonicalName, ...NON_DELETED_QUERY,
-        approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-    }).session(session);
-    if (existingBrand) {
-        await ensureEntityActiveAndTrusted(existingBrand, request, session, { createdCanonicalEntity: false });
-        return { entityId: existingBrand._id as Types.ObjectId, createdCanonicalEntity: false };
+    
+    // Try to find existing
+    const existing = await options.findExisting(requestCanonicalName, session);
+    if (existing) {
+        await ensureEntityActiveAndTrusted(existing as any, request, session, { createdCanonicalEntity: false });
+        return { entityId: existing._id as Types.ObjectId, createdCanonicalEntity: false };
     }
+    
+    // Try to create
     try {
-        const created = await Brand.create([{
-            name: request.requestedName, displayName: request.requestedName, canonicalName: requestCanonicalName,
-            slug: buildCatalogSlug(request.requestedName, 'brand'), categoryIds: [request.categoryId],
-            isActive: true, approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED, status: CATALOG_STATUS.ACTIVE,
-            suggestedBy: request.requestedBy,
-            marketplaceTrust: buildApprovalTrustMetadata({ requestCount: request.requestCount, createdCanonicalEntity: true }),
-        }], { session });
+        const createData = options.buildCreateData(request, requestCanonicalName);
+        const created = await options.createEntity(createData, session);
         return { entityId: created[0]._id as Types.ObjectId, createdCanonicalEntity: true };
     } catch (error: unknown) {
+        // On duplicate key error, find existing and return it
         if ((error as { code?: number }).code !== 11000) throw error;
-        existingBrand = await Brand.findOne({ canonicalName: requestCanonicalName, ...NON_DELETED_QUERY, approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] } }).session(session);
-        if (!existingBrand) throw error;
-        await ensureEntityActiveAndTrusted(existingBrand, request, session, { createdCanonicalEntity: false });
-        return { entityId: existingBrand._id as Types.ObjectId, createdCanonicalEntity: false };
+        const existingAfterError = await options.findExistingAfterError(requestCanonicalName, session);
+        if (!existingAfterError) throw error;
+        await ensureEntityActiveAndTrusted(existingAfterError as any, request, session, { createdCanonicalEntity: false });
+        return { entityId: existingAfterError._id as Types.ObjectId, createdCanonicalEntity: false };
     }
+};
+
+export const resolveOrCreateBrand = async (request: ICatalogRequest, session: ClientSession): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
+    return resolveOrCreateEntity<BrandCreateInput>(request, session, {
+        entityType: 'brand',
+        findExisting: (canonicalName, session) => Brand.findOne({
+            canonicalName, ...NON_DELETED_QUERY,
+            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
+        }).session(session).lean(),
+        findExistingAfterError: (canonicalName, session) => Brand.findOne({
+            canonicalName, ...NON_DELETED_QUERY,
+            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
+        }).session(session).lean(),
+        createEntity: (data: BrandCreateInput, session: ClientSession) => Brand.create([data], { session }),
+        buildCreateData: (req, canonicalName) => ({
+            name: req.requestedName, displayName: req.requestedName, canonicalName,
+            slug: buildCatalogSlug(req.requestedName, 'brand'), categoryIds: [req.categoryId],
+            isActive: true, approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED, status: CATALOG_STATUS.ACTIVE,
+            suggestedBy: req.requestedBy,
+            marketplaceTrust: buildApprovalTrustMetadata({ requestCount: req.requestCount, createdCanonicalEntity: true }),
+        }),
+    });
 };
 
 export const resolveOrCreateModel = async (request: ICatalogRequest, session: ClientSession): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
     if (!request.parentBrandId) throw new AppError('Model requests require a parentBrandId.', 400, 'CATALOG_REQUEST_PARENT_BRAND_REQUIRED');
-    const requestCanonicalName = resolveRequestCanonicalName(request);
-    let existingModel = await CatalogModel.findOne({
-        brandId: request.parentBrandId, canonicalName: requestCanonicalName, ...NON_DELETED_QUERY,
-        approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-    }).session(session);
-    if (existingModel) {
-        await ensureEntityActiveAndTrusted(existingModel, request, session, { createdCanonicalEntity: false });
-        return { entityId: existingModel._id as Types.ObjectId, createdCanonicalEntity: false };
-    }
-    try {
-        const created = await CatalogModel.create([{
-            name: request.requestedName, displayName: request.requestedName, canonicalName: requestCanonicalName,
-            slug: buildCatalogSlug(request.requestedName, 'model'), brandId: request.parentBrandId,
-            categoryIds: [request.categoryId], isActive: true, approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
-            status: CATALOG_STATUS.ACTIVE, suggestedBy: request.requestedBy,
-            marketplaceTrust: buildApprovalTrustMetadata({ requestCount: request.requestCount, createdCanonicalEntity: true }),
-        }], { session });
-        return { entityId: created[0]._id as Types.ObjectId, createdCanonicalEntity: true };
-    } catch (error: unknown) {
-        if ((error as { code?: number }).code !== 11000) throw error;
-        existingModel = await CatalogModel.findOne({ brandId: request.parentBrandId, canonicalName: requestCanonicalName, ...NON_DELETED_QUERY, approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] } }).session(session);
-        if (!existingModel) throw error;
-        await ensureEntityActiveAndTrusted(existingModel, request, session, { createdCanonicalEntity: false });
-        return { entityId: existingModel._id as Types.ObjectId, createdCanonicalEntity: false };
-    }
+    
+    return resolveOrCreateEntity<ModelCreateInput>(request, session, {
+        entityType: 'model',
+        findExisting: (canonicalName, session) => CatalogModel.findOne({
+            brandId: request.parentBrandId, canonicalName, ...NON_DELETED_QUERY,
+            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
+        }).session(session).lean(),
+        findExistingAfterError: (canonicalName, session) => CatalogModel.findOne({
+            brandId: request.parentBrandId, canonicalName, ...NON_DELETED_QUERY,
+            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
+        }).session(session).lean(),
+        createEntity: (data: ModelCreateInput, session: ClientSession) => CatalogModel.create([data], { session }),
+        buildCreateData: (req, canonicalName) => ({
+            name: req.requestedName, displayName: req.requestedName, canonicalName,
+            slug: buildCatalogSlug(req.requestedName, 'model'), brandId: req.parentBrandId as Types.ObjectId,
+            categoryIds: [req.categoryId], isActive: true, approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
+            status: CATALOG_STATUS.ACTIVE, suggestedBy: req.requestedBy,
+            marketplaceTrust: buildApprovalTrustMetadata({ requestCount: req.requestCount, createdCanonicalEntity: true }),
+        }),
+    });
 };
 
 export const resolveDuplicateEntity = async (request: ICatalogRequest, duplicateOfEntityId: Types.ObjectId, session: ClientSession): Promise<Types.ObjectId> => {
@@ -76,5 +125,5 @@ export const resolveDuplicateEntity = async (request: ICatalogRequest, duplicate
     if (!model) throw new AppError('Duplicate target model was not found.', 404, 'DUPLICATE_ENTITY_NOT_FOUND');
     if (request.parentBrandId && String(model.brandId) !== String(request.parentBrandId)) throw new AppError('Duplicate model must belong to the requested parent brand.', 400, 'DUPLICATE_ENTITY_BRAND_MISMATCH');
     await ensureEntityActiveAndTrusted(model, request, session, { duplicateResolution: true });
-    return model._id as Types.ObjectId;
+    return model._id;
 };
