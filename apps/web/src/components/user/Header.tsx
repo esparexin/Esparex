@@ -3,13 +3,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import {
-  Search,
-  LogIn,
-  Button,
-  Input,
-  Z_INDEX,
-} from "@esparex/ui";
+import { Search, LogIn, Button, Input, Z_INDEX } from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
@@ -38,13 +32,7 @@ export interface HeaderProps {
 }
 
 export function Header({
-  navigateTo,
-  isLoggedIn,
-  isAuthLoading = false,
-  onLogout = () => {},
-  user = null,
-  onSearch,
-  onShowLogin,
+  navigateTo, isLoggedIn, isAuthLoading = false, onLogout = () => {}, user = null, onSearch, onShowLogin,
 }: HeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -105,10 +93,7 @@ export function Header({
     setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
-  const openMobileLocationSelector = useCallback(() => {
-    // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
-    setShowLocationSelector(true);
-  }, [setShowLocationSelector]);
+  const openMobileLocationSelector = useCallback(() => setShowLocationSelector(true), [setShowLocationSelector]);
 
   return (
     <header
@@ -239,10 +224,7 @@ export function Header({
 
       <LocationOverlayHost
         isOpen={showLocationSelector}
-        onClose={() => {
-          setShowLocationSelector(false);
-          setHeaderLocationQuery("");
-        }}
+        onClose={() => { setShowLocationSelector(false); setHeaderLocationQuery(""); }}
         containerRef={locationDropdownRef}
         locationQuery={headerLocationQuery}
         onLocationQueryChange={setHeaderLocationQuery}

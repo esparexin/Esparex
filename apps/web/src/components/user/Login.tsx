@@ -4,14 +4,14 @@ import Image from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useCallback } from "react";
+import { useLoginStepFocus } from "@/hooks/useLoginStepFocus";
 
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
 import { validateIndianMobile } from "@/lib/mobileUtils";
 
-import { Form, ArrowLeft } from "@esparex/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
+import { Form, ArrowLeft, Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
 import { loginFormSchema, type LoginFormValues } from "@esparex/contracts";
 import { LoginMobileStep } from "./auth/LoginMobileStep";
@@ -145,38 +145,14 @@ export function LoginForm({
   const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
   const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
-  // Auto-focus management for step transitions within the sheet
-  // Initial mobile focus is handled by Sheet onOpenAutoFocus
-  useEffect(() => {
-    if (step === "enterNameAndOtp") {
-      const id = setTimeout(() => {
-        const input = document.querySelector<HTMLInputElement>('input[name="name"]');
-        if (input) {
-          input.focus({ preventScroll: true });
-        } else {
-          form.setFocus("name");
-        }
-      }, 250);
-      return () => clearTimeout(id);
-    }
-    if (step === "enterOtp") {
-      let raf2: number | null = null;
-      const raf1 = requestAnimationFrame(() => {
-        raf2 = requestAnimationFrame(() => {
-          const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
-          firstOtpInput?.focus({ preventScroll: true });
-        });
-      });
-      return () => {
-        cancelAnimationFrame(raf1);
-        if (raf2 !== null) cancelAnimationFrame(raf2);
-      };
-    }
-    return undefined;
-  }, [step, form]);
+  // Auto-focus management for step transitions (initial mobile focus handled by Sheet onOpenAutoFocus)
+  useLoginStepFocus(step, form);
 
   const onMobileSubmit = async (values: LoginFormValues) => {
     if (authError?.type === "generic") clearAuthErrorOfTypes(["generic"]);
+
+    const serverErr = mobileServerError(values.mobile);
+    if (serverErr) { form.setError("mobile", { message: serverErr }); return; }
 
     const lockInfo = getMobileLockInfo(values.mobile);
     if (lockInfo && lockInfo.remainingSeconds > 0) {
@@ -235,14 +211,6 @@ export function LoginForm({
   }, [step, onRegisterBackAction, handleEditMobile, onBack]);
 
   const isValidMobile = mobileValue.length === 10 && validateIndianMobile(mobileValue);
-
-  // Sync internal UI errors with form errors
-  useEffect(() => {
-    if (mobileServerError(mobileValue)) {
-      form.setError("mobile", { message: mobileServerError(mobileValue) });
-    }
-  }, [mobileServerError, mobileValue, form]);
-
   return (
     <Form {...form}>
       <form

@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetDescription,
-  SheetClose,
-  X,
-  ArrowLeft,
-} from "@esparex/ui";
+import { useRef, useCallback } from "react";
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetClose, X, ArrowLeft } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { LoginFlow } from "@/components/auth/LoginFlow";
+import { useDrawerDragGesture } from "@/hooks/useDrawerDragGesture";
 
 interface AuthModalProps {
   open: boolean;
@@ -19,77 +12,25 @@ interface AuthModalProps {
   callbackUrl?: string | null;
 }
 
-const DRAG_CLOSE_THRESHOLD = 60; // px displacement
-const VELOCITY_THRESHOLD = 0.4; // px/ms
-
 export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartYRef = useRef<number | null>(null);
-  const touchStartTimeRef = useRef<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const backActionRef = useRef<(() => void) | null>(null);
 
-  const handleOpenChange = useCallback(
-    (nextOpen: boolean) => {
-      if (!nextOpen) {
-        setDragOffsetY(0);
-        setIsDragging(false);
-        touchStartYRef.current = null;
-      }
-      onOpenChange(nextOpen);
-    },
-    [onOpenChange]
-  );
+  const handleOpenChange = useCallback((nextOpen: boolean) => {
+    if (!nextOpen) resetDrag();
+    onOpenChange(nextOpen);
+  }, [onOpenChange]);
+
+  const { dragOffsetY, isDragging, resetDrag, touchHandlers } = useDrawerDragGesture(() => handleOpenChange(false));
 
   const handleBack = useCallback(() => {
-    if (backActionRef.current) {
-      backActionRef.current();
-    } else {
-      handleOpenChange(false);
-    }
+    if (backActionRef.current) backActionRef.current();
+    else handleOpenChange(false);
   }, [handleOpenChange]);
 
   const registerBackAction = useCallback((action: (() => void) | null) => {
     backActionRef.current = action;
   }, []);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    if (!touch) return;
-    touchStartYRef.current = touch.clientY;
-    touchStartTimeRef.current = Date.now();
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (touchStartYRef.current === null) return;
-    const currentY = e.touches[0]?.clientY;
-    if (typeof currentY !== "number") return;
-    const diff = currentY - touchStartYRef.current;
-    if (diff > 0) {
-      // Downward drag - apply real-time translation
-      setDragOffsetY(diff);
-    } else {
-      setDragOffsetY(0);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (touchStartYRef.current === null) return;
-    const elapsed = Date.now() - touchStartTimeRef.current;
-    const velocity = dragOffsetY / Math.max(1, elapsed);
-
-    if (dragOffsetY >= DRAG_CLOSE_THRESHOLD || (dragOffsetY > 25 && velocity > VELOCITY_THRESHOLD)) {
-      // Drag threshold met — dismiss drawer
-      handleOpenChange(false);
-    }
-
-    // Snap back
-    setIsDragging(false);
-    setDragOffsetY(0);
-    touchStartYRef.current = null;
-  }, [dragOffsetY, handleOpenChange]);
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
@@ -98,12 +39,10 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         side="bottom"
         hideClose
         onOpenAutoFocus={(e) => {
-          // Prevent scroll jump on initial modal presentation
           e.preventDefault();
           // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
           if (typeof window !== "undefined" && window.innerWidth >= 640) {
-            const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
-            input?.focus({ preventScroll: true });
+            document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
           }
         }}
         /* design-token-ignore: dynamic drag gesture translation */
@@ -119,42 +58,33 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         {/* Mobile Drawer Interactive Drag Handle Zone */}
         <div
           className="mx-auto -mt-2 mb-2 py-2.5 px-6 flex items-center justify-center cursor-grab active:cursor-grabbing sm:hidden touch-none select-none"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          {...touchHandlers}
           role="button"
           tabIndex={0}
           aria-label="Drag down to close drawer"
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown" || e.key === "Enter" || e.key === "Escape") {
-              handleOpenChange(false);
-            }
+            if (e.key === "ArrowDown" || e.key === "Enter" || e.key === "Escape") handleOpenChange(false);
           }}
         >
           <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30 hover:bg-muted-foreground/50 transition-colors" />
         </div>
 
-        {/* Accessible Title & Description for Screen Readers */}
         <SheetTitle className="sr-only">Authentication</SheetTitle>
         <SheetDescription className="sr-only">Sign in or create an account.</SheetDescription>
 
-        {/* Back Button (Symbol / Icon Left Top Corner) */}
+        {/* Back Button */}
         <button
           type="button"
           onClick={handleBack}
-          className={cn(
-            "absolute left-3.5 top-3.5 sm:top-4 sm:left-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
-          )}
+          className="absolute left-3.5 top-3.5 sm:top-4 sm:left-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
           aria-label="Back"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
 
-        {/* Close Button (Symbol / Icon Right Top Corner) */}
+        {/* Close Button */}
         <SheetClose
-          className={cn(
-            "absolute right-3.5 top-3.5 sm:top-4 sm:right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
-          )}
+          className="absolute right-3.5 top-3.5 sm:top-4 sm:right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
           aria-label="Close"
         >
           <X className="h-4 w-4" />
