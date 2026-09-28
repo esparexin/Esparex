@@ -15,6 +15,7 @@ import { fetchAdminAdDetail } from "@/lib/api/moderation";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
 import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
+import { formatAppDateTime } from "@esparex/shared";
 
 const REPORT_STATUS_OPTIONS = [
     { value: "all", label: "All Reports" },
@@ -245,7 +246,7 @@ export default function ReportsPage() {
                 header: "Reported",
                 cell: (item) => (
                     <div className="text-caption text-foreground-tertiary">
-                        {item.reportedAt ? new Date(item.reportedAt).toLocaleString() : "Unknown"}
+                        {item.reportedAt ? formatAppDateTime(item.reportedAt) : "Unknown"}
                     </div>
                 ),
             },

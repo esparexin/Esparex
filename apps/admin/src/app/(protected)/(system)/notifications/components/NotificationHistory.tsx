@@ -13,6 +13,7 @@ import {
 } from "@esparex/ui";
 import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import type { NotificationLog } from "@/types/notification";
+import { formatAppDate, formatAppTime } from "@esparex/shared";
 
 interface NotificationHistoryProps {
     history: NotificationLog[];
@@ -115,10 +116,10 @@ export function NotificationHistory({
             header: "Date",
             cell: (log) => (
                 <div className="text-xs text-foreground-tertiary">
-                    <div>{new Date(log.createdAt).toLocaleDateString()}</div>
+                    <div>{formatAppDate(log.createdAt)}</div>
                     <div className="text-tiny text-foreground-subtle">
                         {log.status === "scheduled" ? "Scheduled" : "Sent"}{" "}
-                        {new Date(log.sendAt || log.createdAt).toLocaleTimeString([], {
+                        {formatAppTime(log.sendAt || log.createdAt, {
                             hour: "2-digit",
                             minute: "2-digit",
                         })}

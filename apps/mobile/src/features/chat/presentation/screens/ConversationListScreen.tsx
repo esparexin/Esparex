@@ -8,6 +8,7 @@ import { navigate } from '../../../../navigation/navigationRef';
 import { ROUTES } from '../../../../navigation/routes';
 import { useConversations } from '../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';
+import { formatAppDate } from '@esparex/shared';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 interface ConversationListScreenProps {
@@ -38,7 +39,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
       const otherParticipant = item.seller.name || item.buyer.name || 'Chat User';
       const unreadCount = item.unreadBuyer || item.unreadSeller || 0;
       const formattedDate = item.lastMessageAt
-        ? new Date(item.lastMessageAt).toLocaleDateString([], {
+        ? formatAppDate(item.lastMessageAt, {
             month: 'short',
             day: 'numeric',
           })

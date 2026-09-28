@@ -8,6 +8,7 @@ import { useAuth } from '../../../../providers/AuthProvider';
 import { navigate } from '../../../../navigation/navigationRef';
 import { ROUTES } from '../../../../navigation/routes';
 import { PaymentTransaction } from '../../domain/PaymentTransaction';
+import { formatAppDate } from '@esparex/shared';
 
 interface TransactionHistoryScreenProps {
   onBack?: () => void;
@@ -77,7 +78,7 @@ export function TransactionHistoryScreen({ onBack }: TransactionHistoryScreenPro
         </View>
         <View className="flex-row justify-between items-center">
           <AppText variant="caption" className="text-slate-500 dark:text-slate-400">
-            {new Date(item.createdAt).toLocaleDateString()}
+            {formatAppDate(item.createdAt)}
           </AppText>
           <AppText
             variant="caption"

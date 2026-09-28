@@ -14,6 +14,7 @@ import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
 import { ListingTypeValue } from "@esparex/contracts";
+import { formatAppDateTime, formatStableNumber } from "@esparex/shared";
 
 type ViewAdReportContext = {
     reportId: string;
@@ -123,7 +124,7 @@ export function ViewAdModal({
                                     </div>
                                     <p className="text-caption text-warning mt-1">
                                         Reason: <span className="font-semibold">{reportContext.reason}</span> • {reportContext.reportCount} report{reportContext.reportCount === 1 ? "" : "s"}
-                                        {reportContext.reportedAt ? ` • Reported ${new Date(reportContext.reportedAt).toLocaleString()}` : ""}
+                                        {reportContext.reportedAt ? ` • Reported ${formatAppDateTime(reportContext.reportedAt)}` : ""}
                                     </p>
                                 </div>
                             </div>
@@ -173,9 +174,9 @@ export function ViewAdModal({
                                     <div className="text-2xl font-bold text-foreground">
                                         {getListingPriceSummary(ad)}
                                     </div>
-                                    <div className="text-sm text-foreground-secondary">{new Date(ad.createdAt).toLocaleString()}</div>
+                                    <div className="text-caption text-foreground-secondary">{formatAppDateTime(ad.createdAt)}</div>
                                     <div className="text-tiny text-foreground-subtle mt-1">
-                                        Modified: {ad.updatedAt ? new Date(ad.updatedAt).toLocaleString() : "N/A"}
+                                        Modified: {ad.updatedAt ? formatAppDateTime(ad.updatedAt) : "N/A"}
                                         {ad.isDeleted && (
                                             <span className="ml-2 inline-flex items-center gap-1 text-destructive font-bold bg-destructive/10 px-1 py-0.5 rounded border border-destructive/20 uppercase text-tiny">
                                                 Deleted
@@ -185,11 +186,11 @@ export function ViewAdModal({
                                     <div className="space-y-1 text-sm text-foreground-secondary">
                                         <div>
                                             <span className="font-semibold">Approved at:</span>{" "}
-                                            {ad.approvedAt ? new Date(ad.approvedAt).toLocaleString() : "-"}
+                                            {ad.approvedAt ? formatAppDateTime(ad.approvedAt) : "-"}
                                         </div>
                                         <div>
                                             <span className="font-semibold">Expires at:</span>{" "}
-                                            {ad.expiresAt ? new Date(ad.expiresAt).toLocaleString() : "-"}
+                                            {ad.expiresAt ? formatAppDateTime(ad.expiresAt) : "-"}
                                         </div>
                                         <div>
                                             <span className="font-semibold">Days remaining:</span>{" "}
@@ -251,7 +252,7 @@ export function ViewAdModal({
                                     {effectiveListingType === "service" && (<>
                                         {typeof ad.diagnosticFee === "number" && (
                                             <div className="text-sm text-foreground-secondary">
-                                                <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
+                                                <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {formatStableNumber(ad.diagnosticFee)}
                                             </div>
                                         )}
                                         {ad.included && (

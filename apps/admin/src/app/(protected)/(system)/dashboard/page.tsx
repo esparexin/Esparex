@@ -19,6 +19,7 @@ import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
 
 import type { AdminDashboardStatsDTO, CatalogHealthMetricsDTO } from "@esparex/contracts";
+import { formatAppTime, formatStableNumber } from "@esparex/shared";
 
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
@@ -271,7 +272,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <DashboardCard
                 title="Total Revenue"
-                value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
+                value={`₹${formatStableNumber(financeStats?.totalRevenue || 0)}`}
                 icon={DollarSign}
                 variant="success"
                 href={ADMIN_UI_ROUTES.finance()}
@@ -319,7 +320,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-tighter shrink-0">
-                      {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatAppTime(log.createdAt, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 )) : (

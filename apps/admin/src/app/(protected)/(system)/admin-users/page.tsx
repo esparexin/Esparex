@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { UserPlus, Power, Trash2, Save, XCircle, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
 import { USER_STATUS, Role } from "@esparex/contracts";
-import { normalizeRole } from "@esparex/shared";
+import { normalizeRole, formatAppDateTime } from "@esparex/shared";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
             },
             {
                 header: "Last Login",
-                cell: (admin) => (admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : "Never"),
+                cell: (admin) => (admin.lastLogin ? formatAppDateTime(admin.lastLogin) : "Never"),
             },
             {
                 header: "Actions",
