@@ -47,6 +47,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
     }, [admin]);
 
     useEffect(() => {
+        // responsive-exception: resize-driven drawer/inert state (dynamic behavior + a11y focus containment).
         const handleResize = () => {
             if (window.innerWidth >= 1024) {
                 setIsMobileOpen(false);
@@ -69,6 +70,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             el.removeAttribute("inert");
         } else {
             // Apply inert on mobile view when closed
+            // responsive-exception: viewport-gated inert for keyboard containment (a11y requirement).
             if (window.innerWidth < 1024) {
                 el.setAttribute("inert", "");
             } else {

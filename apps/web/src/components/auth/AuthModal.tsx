@@ -100,6 +100,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         onOpenAutoFocus={(e) => {
           // Prevent scroll jump on initial modal presentation
           e.preventDefault();
+          // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
           if (typeof window !== "undefined" && window.innerWidth >= 640) {
             const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
             input?.focus({ preventScroll: true });

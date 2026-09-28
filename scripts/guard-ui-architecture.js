@@ -266,8 +266,12 @@ function auditFile(filePath) {
   });
 
   // ── Warning: JS viewport branching for layout ────────────────────────────
+  // A `responsive-exception:` comment on the same/previous line documents a
+  // permitted dynamic-behavior use (sheet routing, ad density, autofocus,
+  // canvas measurement) and suppresses this warning for that line.
   lines.forEach((l, i) => {
     const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/responsive-exception:/.test(l) || /responsive-exception:/.test(prevLine)) return;
     if ((/useIsMobile|useIsMobileDevice/.test(l) || /window\.innerWidth/.test(l)) && !isIgnored(l, RULES.JS_VIEWPORT_BRANCH.id, prevLine)) {
       report(RULES.JS_VIEWPORT_BRANCH, i, l);
     }

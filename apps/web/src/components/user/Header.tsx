@@ -110,6 +110,7 @@ export function Header({
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
   const openMobileLocationSelector = useCallback(() => {
+    // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     if (isMobile) {
       openSheet("location");
     } else {
