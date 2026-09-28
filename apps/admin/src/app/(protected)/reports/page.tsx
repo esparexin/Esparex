@@ -1,22 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle, DataTable, type ColumnDef } from "@esparex/ui";
+import { AlertCircle, CheckCircle2, ExternalLink, Eye, ShieldAlert, XCircle, DataTable, type ColumnDef } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminActionMenu } from "@/components/layout/AdminActionMenu";
+import { ViewAdModal } from "@/components/moderation/ViewAdModal";
+import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
+import type { ModerationItem } from "@/components/moderation/moderationTypes";
+import { fetchAdminAdDetail } from "@/lib/api/moderation";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
+import { REPORT_STATUS } from "@esparex/contracts";
 
 const REPORT_STATUS_OPTIONS = [
     { value: "all", label: "All Reports" },
-    { value: "open", label: "Open" },
-    { value: "pending", label: "Pending" },
-    { value: "reviewed", label: "Reviewed" },
-    { value: "resolved", label: "Resolved" },
-    { value: "dismissed", label: "Dismissed" },
+    { value: REPORT_STATUS.OPEN, label: "Open" },
+    { value: REPORT_STATUS.PENDING, label: "Pending" },
+    { value: REPORT_STATUS.REVIEWED, label: "Reviewed" },
+    { value: REPORT_STATUS.RESOLVED, label: "Resolved" },
+    { value: REPORT_STATUS.DISMISSED, label: "Dismissed" },
 ];
 
 export default function ReportsPage() {
@@ -31,10 +36,16 @@ export default function ReportsPage() {
         error,
         pagination,
         fetchReports,
-        updateReportStatus
+        updateReportStatus,
+        resolveReportAction,
     } = useModerationReports();
 
     const [searchInput, setSearchInput] = useState("");
+    const [viewItem, setViewItem] = useState<ReportQueueItem | null>(null);
+    const [viewAd, setViewAd] = useState<ModerationItem | null>(null);
+    const [viewLoading, setViewLoading] = useState(false);
+    const [viewError, setViewError] = useState("");
+    const [isViewOpen, setIsViewOpen] = useState(false);
 
     const requestedStatus = searchParams.get("status");
     const requestedSearch = readStringParam(searchParams.get("q") ?? searchParams.get("search"));
@@ -87,13 +98,79 @@ export default function ReportsPage() {
         return () => clearTimeout(timer);
     }, [searchInput, search, status, router]);
 
+    const handleOpenView = useCallback(async (item: ReportQueueItem) => {
+        setViewItem(item);
+        setIsViewOpen(true);
+        setViewLoading(true);
+        setViewError("");
+        setViewAd(null);
+
+        try {
+            const rawListing = await fetchAdminAdDetail(item.id);
+            const normalized = normalizeModerationAd(rawListing);
+            setViewAd(normalized);
+        } catch (detailErr) {
+            if (item.ad?.title) {
+                const fallbackAd: ModerationItem = {
+                    id: item.id,
+                    title: item.ad.title,
+                    description: "Archived or deleted listing. Details taken from report snapshot.",
+                    price: 0,
+                    currency: "INR",
+                    categoryName: "General",
+                    status: (item.ad.status as ModerationItem["status"]) || "rejected",
+                    images: [],
+                    sellerName: "Unknown",
+                    sellerId: item.ad.sellerId,
+                    createdAt: item.reportedAt || new Date().toISOString(),
+                    isDeleted: true,
+                    reportCount: item.reportCount,
+                    fraudScore: 0,
+                };
+                setViewAd(fallbackAd);
+                setViewError("Listing details could not be retrieved from active catalog (listing may be archived or removed). Report snapshot is shown.");
+            } else {
+                setViewError(detailErr instanceof Error ? detailErr.message : "Failed to load listing details");
+            }
+        } finally {
+            setViewLoading(false);
+        }
+    }, []);
+
+    const handleTakeDownAndResolve = useCallback(async (item: ReportQueueItem) => {
+        const res = await resolveReportAction(item.reportId, "take_down");
+        if (res.success) {
+            setIsViewOpen(false);
+        }
+    }, [resolveReportAction]);
+
+    const handleDismiss = useCallback(async (item: ReportQueueItem) => {
+        const res = await resolveReportAction(item.reportId, "dismiss");
+        if (res.success) {
+            setIsViewOpen(false);
+        }
+    }, [resolveReportAction]);
+
+    const handleReview = useCallback(async (item: ReportQueueItem) => {
+        const res = await updateReportStatus(item.reportId, REPORT_STATUS.REVIEWED);
+        if (res.success && viewItem?.reportId === item.reportId) {
+            setViewItem((prev) => (prev ? { ...prev, status: REPORT_STATUS.REVIEWED } : null));
+        }
+    }, [updateReportStatus, viewItem?.reportId]);
+
     const columns = useMemo<ColumnDef<ReportQueueItem>[]>(
         () => [
             {
                 header: "Listing",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <div className="font-semibold text-foreground">{item.ad?.title || "Unknown listing"}</div>
+                        <button
+                            type="button"
+                            onClick={() => void handleOpenView(item)}
+                            className="text-left font-semibold text-foreground hover:text-primary hover:underline transition-colors block cursor-pointer"
+                        >
+                            {item.ad?.title || "Unknown listing"}
+                        </button>
                         <div className="text-tiny font-mono text-foreground-subtle">{item.id}</div>
                     </div>
                 ),
@@ -133,44 +210,60 @@ export default function ReportsPage() {
             {
                 header: "Actions",
                 cell: (item) => (
-                    <AdminActionMenu
-                        items={[
-                            {
-                                label: "Inspect",
-                                icon: Eye,
-                                onClick: () => router.push(ADMIN_UI_ROUTES.ads({ status: "all", q: item.ad?.title || item.id })),
-                            },
-                            ...(item.status === "open" || item.status === "pending"
-                                ? [{
-                                    label: "Review",
-                                    icon: AlertCircle,
-                                    onClick: () => void updateReportStatus(item.reportId, "reviewed"),
-                                    disabled: isMutating,
-                                  }]
-                                : []),
-                            ...(item.status !== "resolved"
-                                ? [{
-                                    label: "Resolve",
-                                    icon: CheckCircle2,
-                                    onClick: () => void updateReportStatus(item.reportId, "resolved"),
-                                    disabled: isMutating,
-                                  }]
-                                : []),
-                            ...(item.status !== "dismissed"
-                                ? [{
-                                    label: "Dismiss",
-                                    icon: XCircle,
-                                    onClick: () => void updateReportStatus(item.reportId, "dismissed"),
-                                    variant: "danger" as const,
-                                    disabled: isMutating,
-                                  }]
-                                : []),
-                        ]}
-                    />
+                    <div className="flex items-center justify-end gap-1.5">
+                        <button
+                            type="button"
+                            onClick={() => void handleOpenView(item)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-caption font-semibold text-foreground-secondary hover:bg-muted hover:text-foreground transition-colors shadow-xs"
+                            aria-label={`View ad ${item.ad?.title || item.id}`}
+                        >
+                            <Eye size={14} />
+                            <span>View</span>
+                        </button>
+                        <AdminActionMenu
+                            items={[
+                                {
+                                    label: "View & Validate",
+                                    icon: Eye,
+                                    onClick: () => void handleOpenView(item),
+                                },
+                                {
+                                    label: "Inspect in Catalog",
+                                    icon: ExternalLink,
+                                    onClick: () => router.push(ADMIN_UI_ROUTES.ads({ status: "all", q: item.ad?.title || item.id })),
+                                },
+                                ...(item.status === REPORT_STATUS.OPEN || item.status === REPORT_STATUS.PENDING
+                                    ? [{
+                                        label: "Mark Reviewed",
+                                        icon: AlertCircle,
+                                        onClick: () => void handleReview(item),
+                                        disabled: isMutating,
+                                      }]
+                                    : []),
+                                ...(item.status !== REPORT_STATUS.RESOLVED
+                                    ? [{
+                                        label: "Take Down & Resolve",
+                                        icon: CheckCircle2,
+                                        onClick: () => void handleTakeDownAndResolve(item),
+                                        disabled: isMutating,
+                                      }]
+                                    : []),
+                                ...(item.status !== REPORT_STATUS.DISMISSED
+                                    ? [{
+                                        label: "Dismiss Report",
+                                        icon: XCircle,
+                                        onClick: () => void handleDismiss(item),
+                                        variant: "danger" as const,
+                                        disabled: isMutating,
+                                      }]
+                                    : []),
+                            ]}
+                        />
+                    </div>
                 ),
             },
         ],
-        [isMutating, router, updateReportStatus]
+        [handleDismiss, handleOpenView, handleReview, handleTakeDownAndResolve, isMutating, router]
     );
 
     return (
@@ -225,6 +318,29 @@ export default function ReportsPage() {
                             void router.replace(nextUrl, { scroll: false });
                         },
                     }}
+                />
+
+                <ViewAdModal
+                    open={isViewOpen}
+                    ad={viewAd}
+                    loading={viewLoading}
+                    error={viewError}
+                    onClose={() => setIsViewOpen(false)}
+                    reportContext={
+                        viewItem
+                            ? {
+                                  reportId: viewItem.reportId,
+                                  reason: viewItem.reason,
+                                  reportCount: viewItem.reportCount,
+                                  reportedAt: viewItem.reportedAt,
+                                  isAutoHidden: viewItem.isAutoHidden,
+                                  status: viewItem.status,
+                                  onTakeDown: () => handleTakeDownAndResolve(viewItem),
+                                  onDismiss: () => handleDismiss(viewItem),
+                                  onReview: () => handleReview(viewItem),
+                              }
+                            : undefined
+                    }
                 />
             </div>
         </AdminPageShell>
