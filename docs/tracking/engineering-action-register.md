@@ -2397,3 +2397,56 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test` ──► PASS (72 test suites, 306 tests passed)
 - ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
 
+---
+
+### EA-052
+
+**Sprint**: Admin Moderation Queue & Data Governance  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Data Pipeline Integrity & Static Counts Remediation  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Admin Reports Queue Pipeline Record Preservation**:
+   - Fixed `getReportedAdsAggregation` in `core/src/domains/listings/application/ad/ad/AdDetailService.ts` by adding `{ path: '$adDetails', preserveNullAndEmptyArrays: true }` to the `$unwind` stage.
+   - Restored orphaned/historical reports whose parent listings were soft-deleted or removed from the `ads` collection so moderators can inspect, review, resolve, and dismiss them.
+   - Added fallback to `latestReport.adTitle` and expanded search filter `$or` to match against `reports.adTitle`.
+   - Updated `resolveReport` in `adminReportsController.ts` to support both `report.adId` and canonical `targetId`.
+2. **Phantom Predicates & Dead Code Elimination**:
+   - Removed non-existent `isDeleted: { $ne: true }` filter from `Report.countDocuments({ status: REPORT_STATUS.OPEN })` in `MongoAdminDashboardRepositoryAdapter.ts` (Report schema has no soft deletion).
+   - Removed dead method `getDashboardCardStats` and unused interfaces `DashboardCardStatsRaw` and `DashboardCardAdStatsFacet` from `AdminDashboardRepositoryPort`, `MongoAdminDashboardRepositoryAdapter`, and `AdminDashboardService`.
+3. **Dynamic Moderation Counts & Sidebar Synchronization**:
+   - Replaced hardcoded static zeros (`rejected: 0`, `expired: 0`) in `DashboardPage.tsx` with dynamic values fetched from SSOT `fetchAdminModerationSummary()`.
+   - Populated `services` moderation count in `fetchAdminSidebarCounts()` in `adminSidebar.ts`.
+4. **Comprehensive Test Coverage**:
+   - Created `AdDetailReportAggregation.spec.ts` asserting that orphaned reports are preserved and fall back to snapshot title.
+   - Updated `AdminDashboardService.spec.ts` to assert that `Report.countDocuments` queries strictly by `{ status: REPORT_STATUS.OPEN }` without phantom filters.
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/(system)/dashboard/page.tsx
+apps/admin/src/lib/api/adminSidebar.ts
+backend/api/src/controllers/admin/adminReportsController.ts
+core/src/adapters/outbound/database/admin/MongoAdminDashboardRepositoryAdapter.ts
+core/src/domains/admin/ports/AdminDashboardRepositoryPort.ts
+core/src/domains/listings/application/ad/ad/AdDetailService.ts
+core/src/services/AdminDashboardService.ts
+core/src/__tests__/services/AdDetailReportAggregation.spec.ts
+core/src/__tests__/services/AdminDashboardService.spec.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Fixed aggregation pipeline drop, removed phantom filters, synced dynamic moderation counts.
+- [x] **Automated Testing**: 100% test suites passed across core, backend-api, and apps-admin.
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+
+
