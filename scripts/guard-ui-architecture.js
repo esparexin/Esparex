@@ -32,9 +32,16 @@ const path = require("path");
 const args = process.argv.slice(2);
 const WARN_ONLY = args.includes("--warn-only");
 const SCOPE_ARG = args.find((a) => a.startsWith("--path="));
-const SCAN_ROOT = SCOPE_ARG
-  ? path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))
-  : path.resolve(__dirname, "..", "apps", "web", "src");
+// Scan roots cover all UI layers (web + admin + canonical primitives).
+// Per user governance decision, admin stays covered: the 4 raw admin modals
+// were portalized in Phase 5, so multi-scope is green and blocks regressions.
+const SCAN_ROOTS = SCOPE_ARG
+  ? [path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))]
+  : [
+      path.resolve(__dirname, "..", "apps", "web", "src"),
+      path.resolve(__dirname, "..", "apps", "admin", "src"),
+      path.resolve(__dirname, "..", "packages", "ui", "src"),
+    ];
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 const RULES = {
@@ -68,6 +75,26 @@ const RULES = {
     severity: "warning",
     description: "Native <button> element — consider <Button> from @esparex/ui",
   },
+  NATIVE_INPUT: {
+    id: "native-input",
+    severity: "warning",
+    description: "Native <input>/<select>/<textarea> — consume Input/Select/Textarea from @esparex/ui (SSOT)",
+  },
+  JS_VIEWPORT_BRANCH: {
+    id: "js-viewport-branch",
+    severity: "warning",
+    description: "JS viewport branching (useIsMobile/window.innerWidth) for layout — use single-instance CSS breakpoints",
+  },
+  RAW_LOCALE_FORMAT: {
+    id: "raw-locale-format",
+    severity: "error",
+    description: "Raw toLocaleDateString/toLocaleString — use formatAppDate/formatPrice (@esparex/shared) per §20.3",
+  },
+  RAW_FETCH_UI: {
+    id: "raw-fetch-ui",
+    severity: "warning",
+    description: "Raw fetch() in UI layer — consolidate through apiClient except documented SSR/S3 exceptions",
+  },
   INLINE_COLOR_STYLE: {
     id: "inline-color-style",
     severity: "warning",
@@ -83,9 +110,15 @@ const RULES = {
     severity: "warning",
     description: "Inline <svg> element — must use canonical icons exported from @esparex/ui",
   },
+  STICKY_Z_HOST: {
+    id: "sticky-z-host",
+    severity: "error",
+    description:
+      "Sticky strip with explicit zIndex — status stacking host is owned exclusively by StatusBannerHost.tsx",
+  },
 };
 
-const NATIVE_BUTTON_BASELINE = 138;
+const NATIVE_BUTTON_BASELINE = 257; // web + admin scope (was 138 web-only)
 const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
 const RAW_INLINE_SVG_BASELINE = 0;
 
@@ -168,8 +201,13 @@ function auditFile(filePath) {
   }
 
   // ── Rule: Parallel responsive DOM subtrees ─────────────────────────────────
-  const hasLgHidden = lines.some((l) => /className=["'][^"']*lg:hidden/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
-  const hasHiddenLg = lines.some((l) => /className=["'][^"']*hidden lg:(?:block|flex|grid)/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
+  const patternHit = (idx, re) => {
+    const line = lines[idx];
+    const prevLine = idx > 0 ? lines[idx - 1] : "";
+    return re.test(line) && !isIgnored(line, RULES.PARALLEL_RESPONSIVE.id, prevLine);
+  };
+  const hasLgHidden = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*lg:hidden/));
+  const hasHiddenLg = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*hidden lg:(?:block|flex|grid)/));
   if (hasLgHidden && hasHiddenLg) {
     violations.push({
       rule: RULES.PARALLEL_RESPONSIVE,
@@ -192,10 +230,11 @@ function auditFile(filePath) {
   });
 
   // ── Rule: Raw unportalled modal overlays ─────────────────────────────────
+  // Catches both role=dialog divs AND fixed inset-0 + bg-black overlays
+  // without a portal/dialog import (admin modals bypassed the old check).
   const hasPortalOrDialogImport =
-    /from\s+["']@esparex\/ui["']/.test(src) ||
-    /from\s+["']@radix-ui\/react-dialog["']/.test(src) ||
-    /createPortal/.test(src);
+    /DialogPortal|DialogContent|DialogOverlay|createPortal/.test(src) ||
+    /from\s+["']@radix-ui\/react-dialog["']/.test(src);
 
   if (!hasPortalOrDialogImport) {
     const RAW_MODAL_PATTERN = /<div[^>]*\brole=["'](?:dialog|alertdialog)["']/;
@@ -205,16 +244,70 @@ function auditFile(filePath) {
         report(RULES.RAW_MODAL_OVERLAY, i, l);
       }
     });
+    const hasFixedOverlay = lines.some((l) => /fixed\s+inset-0/.test(l) && !/lg:hidden/.test(l));
+    const hasDarkScrim = lines.some((l) => /bg-black\//.test(l));
+    if (hasFixedOverlay && hasDarkScrim) {
+      const idx = lines.findIndex((l) => /fixed\s+inset-0/.test(l) && !/lg:hidden/.test(l));
+      const prevLine = idx > 0 ? lines[idx - 1] : "";
+      if (!isIgnored(lines[idx], RULES.RAW_MODAL_OVERLAY.id, prevLine)) {
+        report(RULES.RAW_MODAL_OVERLAY, idx, lines[idx]);
+      }
+    }
   }
 
   // ── Warning: Native <button> elements ─────────────────────────────────────
+  // Canonical @esparex/ui primitives themselves are exempt (they ARE the SSOT).
+  const isCanonicalUiOwner = filePath.includes(`${path.sep}packages${path.sep}ui${path.sep}src`) || filePath.includes("packages/ui/src");
   const NATIVE_BUTTON_PATTERN = /^\s*<button\b(?!.*ui-guard-ignore)/;
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (NATIVE_BUTTON_PATTERN.test(l) && !isIgnored(l, RULES.NATIVE_BUTTON.id, prevLine)) {
       report(RULES.NATIVE_BUTTON, i, l);
     }
   });
+
+  // ── Warning: Native <input>/<select>/<textarea> (SSOT primitives) ─────────
+  const NATIVE_FIELD_PATTERN = /^\s*<(input|select|textarea)\b/;
+  lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (NATIVE_FIELD_PATTERN.test(l) && !isIgnored(l, RULES.NATIVE_INPUT.id, prevLine)) {
+      if (/type=["']hidden["']/.test(l)) return;
+      report(RULES.NATIVE_INPUT, i, l);
+    }
+  });
+
+  // ── Warning: JS viewport branching for layout ────────────────────────────
+  // A `responsive-exception:` comment on the same/previous line documents a
+  // permitted dynamic-behavior use (sheet routing, ad density, autofocus,
+  // canvas measurement) and suppresses this warning for that line.
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/responsive-exception:/.test(l) || /responsive-exception:/.test(prevLine)) return;
+    if ((/useIsMobile|useIsMobileDevice/.test(l) || /window\.innerWidth/.test(l)) && !isIgnored(l, RULES.JS_VIEWPORT_BRANCH.id, prevLine)) {
+      report(RULES.JS_VIEWPORT_BRANCH, i, l);
+    }
+  });
+
+  // ── Warning: Raw locale formatting (§20.3) ────────────────────────────────
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/\.toLocale(DateString|String)\(/.test(l) && !isIgnored(l, RULES.RAW_LOCALE_FORMAT.id, prevLine)) {
+      report(RULES.RAW_LOCALE_FORMAT, i, l);
+    }
+  });
+
+  // ── Warning: Raw fetch() in UI layer ─────────────────────────────────────
+  const isUiLayer = /apps\/(web|admin)\/src\/(components|context|hooks)/.test(filePath);
+  if (isUiLayer) {
+    lines.forEach((l, i) => {
+      const prevLine = i > 0 ? lines[i - 1] : "";
+      if (/(^|[^a-zA-Z])fetch\(/.test(l) && !/refetch\(/.test(l) && !isIgnored(l, RULES.RAW_FETCH_UI.id, prevLine)) {
+        report(RULES.RAW_FETCH_UI, i, l);
+      }
+    });
+  }
 
   // ── Warning: Inline style with color ─────────────────────────────────────
   const INLINE_COLOR_PATTERN = /style=\{[^}]*(?:color|background)[^}]*#[0-9a-fA-F]{3,6}/;
@@ -227,6 +320,7 @@ function auditFile(filePath) {
 
   // ── Warning: Direct lucide-react import ───────────────────────────────────
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (/from\s+["']lucide-react["']/.test(l) && !isIgnored(l, RULES.LUCIDE_DIRECT_IMPORT.id, prevLine)) {
       report(RULES.LUCIDE_DIRECT_IMPORT, i, l);
@@ -235,11 +329,29 @@ function auditFile(filePath) {
 
   // ── Warning: Inline <svg> element ─────────────────────────────────────────
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (/<svg[\s>]/.test(l) && !isIgnored(l, RULES.RAW_INLINE_SVG.id, prevLine)) {
       report(RULES.RAW_INLINE_SVG, i, l);
     }
   });
+
+  // ── Error: Sticky strip with explicit inline zIndex outside status host ───
+  // Single stacking-owner invariant: only StatusBannerHost.tsx may combine a
+  // `sticky top-0` strip with an explicit inline zIndex (Z_INDEX.statusBanner).
+  // This prevents the former dual-banner stacking (two sticky hosts at
+  // z 9999/10000 painting above dialog/sheet backdrops) from reappearing.
+  const isStatusBannerHost = relPath.replace(/\\/g, "/").endsWith("common/StatusBannerHost.tsx");
+  if (!isStatusBannerHost) {
+    const stickyIdx = lines.findIndex((l) => l.includes("sticky top-0"));
+    const hasInlineZIndex = lines.some((l) => /style=\{\{[^}]*zIndex/.test(l));
+    if (stickyIdx !== -1 && hasInlineZIndex) {
+      const prevLine = stickyIdx > 0 ? lines[stickyIdx - 1] : "";
+      if (!isIgnored(lines[stickyIdx], RULES.STICKY_Z_HOST.id, prevLine)) {
+        report(RULES.STICKY_Z_HOST, stickyIdx, lines[stickyIdx]);
+      }
+    }
+  }
 
   return violations;
 }
@@ -247,7 +359,7 @@ function auditFile(filePath) {
 // ─── Run ──────────────────────────────────────────────────────────────────────
 
 function run() {
-  const files = walk(SCAN_ROOT);
+  const files = SCAN_ROOTS.flatMap((root) => walk(root));
   const allViolations = [];
 
   for (const file of files) {
@@ -302,8 +414,11 @@ function run() {
   }
 
   // ── Print report ──────────────────────────────────────────────────────────
+  const scannedLabel = SCOPE_ARG
+    ? path.relative(process.cwd(), SCAN_ROOTS[0]) || "."
+    : SCAN_ROOTS.map((r) => path.relative(process.cwd(), r) || ".").join(", ");
   console.log(`\n🛡️  Esparex UI Architecture Guard`);
-  console.log(`   Scanned: ${files.length} TSX/JSX files in ${path.relative(process.cwd(), SCAN_ROOT) || "."}`);
+  console.log(`   Scanned: ${files.length} TSX/JSX files in ${scannedLabel}`);
   console.log(`   Errors:   ${errors.length}`);
   console.log(`   Warnings: ${warnings.length}\n`);
 

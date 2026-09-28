@@ -7,6 +7,7 @@ import { useSendMessage } from '../hooks/useSendMessage';
 import { useProfile } from '../../../user/presentation/hooks/useProfile';
 import { MobileChatMessageReceipt } from '../components/MobileChatMessageReceipt';
 import type { IMessageDTO } from '@esparex/contracts';
+import { formatAppTime } from '@esparex/shared';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 interface ChatThreadScreenProps {
@@ -67,7 +68,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
     ({ item }: { item: IMessageDTO }) => {
       const isMine = item.senderId === activeUserId;
       const formattedTime = item.createdAt
-        ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        ? formatAppTime(item.createdAt, { hour: '2-digit', minute: '2-digit' })
         : '';
 
       if (item.isSystemMessage) {

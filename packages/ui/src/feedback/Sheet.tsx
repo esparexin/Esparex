@@ -97,49 +97,19 @@ function SheetContent({
 }
 
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sheet-header"
-      className={cn("flex flex-col gap-1 px-4 py-3", className)}
-      {...props}
-    />
-  );
+  return <div data-slot="sheet-header" className={cn("flex flex-col gap-1 px-4 py-3", className)} {...props} />;
 }
 
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 px-4 py-3", className)}
-      {...props}
-    />
-  );
+  return <div data-slot="sheet-footer" className={cn("mt-auto flex flex-col gap-2 px-4 py-3", className)} {...props} />;
 }
 
-function SheetTitle({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Title>) {
-  return (
-    <SheetPrimitive.Title
-      data-slot="sheet-title"
-      className={cn(OVERLAY_STYLES.panelTitle, className)}
-      {...props}
-    />
-  );
+function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
+  return <SheetPrimitive.Title data-slot="sheet-title" className={cn(OVERLAY_STYLES.panelTitle, className)} {...props} />;
 }
 
-function SheetDescription({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Description>) {
-  return (
-    <SheetPrimitive.Description
-      data-slot="sheet-description"
-      className={cn(OVERLAY_STYLES.description, className)}
-      {...props}
-    />
-  );
+function SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
+  return <SheetPrimitive.Description data-slot="sheet-description" className={cn(OVERLAY_STYLES.description, className)} {...props} />;
 }
 
 export {

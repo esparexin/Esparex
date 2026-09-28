@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Eye, Edit2, Trash2, Layers } from "lucide-react";
+import { Plus, Eye, Edit2, Trash2, Layers } from "@esparex/ui";
 import type { AdCampaignItem, InContentPlacementId } from "@esparex/contracts";
 
 export const PLACEMENT_LABELS: Record<InContentPlacementId, string> = {

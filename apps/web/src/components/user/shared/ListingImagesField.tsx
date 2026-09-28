@@ -40,6 +40,7 @@ export function ListingImagesField({
 
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
+    // responsive-exception: device-capability branching for camera/gallery picker (dynamic behavior).
     const isMobileDevice = useIsMobileDevice();
 
     const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });

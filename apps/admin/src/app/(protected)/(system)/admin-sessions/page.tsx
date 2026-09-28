@@ -9,6 +9,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminSessions } from "@/hooks/useAdminSessions";
 import type { AdminSessionItem } from "@/types/adminSession";
+import { formatAppDateTime } from "@esparex/shared";
 
 export default function AdminSessionsPage() {
     const {
@@ -79,11 +80,11 @@ export default function AdminSessionsPage() {
         },
         {
             header: "Created",
-            cell: (session) => new Date(session.createdAt).toLocaleString(),
+            cell: (session) => formatAppDateTime(session.createdAt),
         },
         {
             header: "Expires",
-            cell: (session) => new Date(session.expiresAt).toLocaleString(),
+            cell: (session) => formatAppDateTime(session.expiresAt),
         },
         {
             header: "Actions",

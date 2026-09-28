@@ -112,8 +112,8 @@ export function BrowseResultsPanel<TItem>({
           <AdPlacementSlot placement="search_results_header" />
 
           {error ? (
-            <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
-              <p className="text-red-600 font-medium mb-3">{error}</p>
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+              <p className="text-destructive font-medium mb-3">{error}</p>
               <Button variant="outline" size="sm" onClick={onRetry} className="gap-2">
                 <RefreshCw className="h-4 w-4" />
                 Retry

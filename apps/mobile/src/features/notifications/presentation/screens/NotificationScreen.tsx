@@ -8,6 +8,7 @@ import { ROUTES } from '../../../../navigation/routes';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { AppNotification } from '../../domain/Notification';
+import { formatAppDateTime } from '@esparex/shared';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 export const NotificationScreen = () => {
@@ -53,7 +54,7 @@ export const NotificationScreen = () => {
   const renderNotificationItem = useCallback(
     ({ item }: { item: AppNotification }) => {
       const formattedDate = item.createdAt
-        ? new Date(item.createdAt).toLocaleDateString([], {
+        ? formatAppDateTime(item.createdAt, {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',

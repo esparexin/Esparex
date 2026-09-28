@@ -31,15 +31,18 @@ export function EmailTemplatePreviewModal({
     const [preview, setPreview] = useState<EmailTemplatePreviewDTO | null>(null);
     const [loading, setLoading] = useState(false);
     const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+    const [prevKey, setPrevKey] = useState<string | null>(null);
+
+    const currentKey = isOpen && template ? template.key : null;
+    if (currentKey !== prevKey) {
+        setPrevKey(currentKey);
+        setPreview(null);
+        setLoading(Boolean(currentKey));
+    }
 
     useEffect(() => {
-        if (!isOpen || !template) {
-            setPreview(null);
-            return;
-        }
-
+        if (!isOpen || !template) return;
         let isMounted = true;
-        setLoading(true);
 
         void onGetPreview(template.key).then((res) => {
             if (isMounted) {

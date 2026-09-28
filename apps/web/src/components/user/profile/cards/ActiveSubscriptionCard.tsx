@@ -2,6 +2,7 @@ import React from 'react';
 import type { SubscriptionSummaryDTO } from '@esparex/contracts';
 import { Crown, Calendar, Clock, CheckCircle2 } from "@esparex/ui";
 import { formatPlanName } from '@esparex/shared';
+import { formatStableDate } from '@/lib/formatters';
 
 interface ActiveSubscriptionCardProps {
   subscription: SubscriptionSummaryDTO | null;
@@ -27,8 +28,8 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   }
 
   const daysLeft = subscription.daysRemaining ?? (subscription.endDate ? Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - currentTime) / (1000 * 60 * 60 * 24))) : null);
-  const startDateFormatted = subscription.startDate ? new Date(subscription.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : null;
-  const endDateFormatted = subscription.endDate ? new Date(subscription.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+  const startDateFormatted = subscription.startDate ? formatStableDate(subscription.startDate) : null;
+  const endDateFormatted = subscription.endDate ? formatStableDate(subscription.endDate) : null;
 
   return (
     <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-xs relative overflow-hidden">
@@ -81,7 +82,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
             ) : (
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
-                <span>Free monthly quota resets: <strong className="text-foreground">{nextMonthlyResetDate ? new Date(nextMonthlyResetDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '1st of every month'}</strong></span>
+                <span>Free monthly quota resets: <strong className="text-foreground">{nextMonthlyResetDate ? formatStableDate(nextMonthlyResetDate) : '1st of every month'}</strong></span>
               </div>
             )}
           </div>

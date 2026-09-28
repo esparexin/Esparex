@@ -15,10 +15,10 @@ export function DataTableRow<T extends { id: string | number }>({ item, virtualR
             data-index={virtualRow.index}
             ref={measureElement}
             onClick={() => onRowClick?.(item)}
-            className={`group/row transition-all duration-150 ${onRowClick ? "cursor-pointer hover:bg-slate-50" : "hover:bg-slate-50/50"}`}
+            className={`group/row transition-all duration-150 ${onRowClick ? "cursor-pointer hover:bg-muted" : "hover:bg-muted/50"}`}
         >
             {visibleColumns.map((col, idx) => (
-                <td key={idx} className={`px-3.5 py-2 sm:px-4 sm:py-2.5 text-slate-700 font-normal text-xs sm:text-sm ${col.className || ""}`}>
+                <td key={idx} className={`px-3.5 py-2 sm:px-4 sm:py-2.5 text-foreground-secondary font-normal text-caption sm:text-body ${col.className || ""}`}>
                     {col.cell ? col.cell(item) : (col.accessorKey ? String(item[col.accessorKey as keyof T]) : null)}
                 </td>
             ))}

@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@esparex/ui";
 import type {
   AdCampaignItem,
   InContentPlacementId,
@@ -26,15 +32,14 @@ export function CampaignEditModal({
   onClose,
   saving,
 }: CampaignEditModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-      <div className="w-full max-w-xl bg-card rounded-3xl p-6 shadow-xl max-h-[90vh] overflow-y-auto flex flex-col gap-4">
+    <Dialog open={isOpen} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="w-full max-w-xl max-h-[90dvh] overflow-y-auto bg-card rounded-3xl p-6 shadow-xl flex flex-col gap-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
-          <h3 className="text-body font-bold text-foreground">
+          <DialogTitle className="text-body font-bold text-foreground">
             {campaign.id ? "Edit Campaign" : "New In-Content Campaign"}
-          </h3>
+          </DialogTitle>
+          <DialogDescription className="sr-only">Configure an in-content ad campaign placement and provider.</DialogDescription>
           <button
             type="button"
             onClick={onClose}
@@ -53,7 +58,7 @@ export function CampaignEditModal({
               value={campaign.name || ""}
               onChange={(e) => onChange({ ...campaign, name: e.target.value })}
               placeholder="e.g. Hyderabad Screen Repair Sponsor"
-              className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
+              className="w-full h-9 px-3 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
             />
           </div>
 
@@ -65,7 +70,7 @@ export function CampaignEditModal({
                 onChange={(e) =>
                   onChange({ ...campaign, placementId: e.target.value as InContentPlacementId })
                 }
-                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               >
                 {Object.entries(PLACEMENT_LABELS).map(([key, label]) => (
                   <option key={key} value={key}>
@@ -82,7 +87,7 @@ export function CampaignEditModal({
                 onChange={(e) =>
                   onChange({ ...campaign, providerType: e.target.value as AdProviderType })
                 }
-                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               >
                 <option value="google_adsense">Google AdSense</option>
                 <option value="custom_banner">Custom Sponsor Banner</option>
@@ -99,7 +104,7 @@ export function CampaignEditModal({
                 min="1"
                 value={campaign.priority || 1}
                 onChange={(e) => onChange({ ...campaign, priority: Number(e.target.value) })}
-                className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-3 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               />
             </div>
 
@@ -108,7 +113,7 @@ export function CampaignEditModal({
               <select
                 value={campaign.status}
                 onChange={(e) => onChange({ ...campaign, status: e.target.value as AdCampaignStatus })}
-                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               >
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
@@ -120,7 +125,7 @@ export function CampaignEditModal({
               <select
                 value={campaign.fallbackStrategy || "collapse"}
                 onChange={(e) => onChange({ ...campaign, fallbackStrategy: e.target.value as AdFallbackStrategy })}
-                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-2 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               >
                 <option value="collapse">Collapse Slot (Zero Whitespace)</option>
                 <option value="house_ad">Internal House Promo</option>
@@ -142,7 +147,7 @@ export function CampaignEditModal({
                   })
                 }
                 placeholder="Google AdSense slot ID"
-                className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
+                className="w-full h-9 px-3 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
               />
             </div>
           ) : (
@@ -159,7 +164,7 @@ export function CampaignEditModal({
                     })
                   }
                   placeholder="https://example.com/banner.png"
-                  className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
+                  className="w-full h-9 px-3 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
                 />
               </div>
               <div>
@@ -174,7 +179,7 @@ export function CampaignEditModal({
                     })
                   }
                   placeholder="https://advertiser.example.com"
-                  className="w-full h-9 px-3 rounded-xl border border-border bg-card text-caption text-foreground"
+                  className="w-full h-9 px-3 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground"
                 />
               </div>
             </div>
@@ -198,7 +203,7 @@ export function CampaignEditModal({
             {saving ? "Saving..." : "Save Campaign"}
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

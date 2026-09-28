@@ -98,7 +98,9 @@ const config = {
 				},
 				warning: {
 					DEFAULT: 'hsl(var(--warning))',
-					foreground: 'hsl(var(--warning-foreground))'
+					foreground: 'hsl(var(--warning-foreground))',
+					subtle: 'hsl(var(--warning-subtle))',
+					dark: 'hsl(var(--warning-dark))'
 				},
 				info: {
 					DEFAULT: 'hsl(var(--info))',

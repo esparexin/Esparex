@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useCallback, type CSSProperties, type RefObject } from "react";
 import { useIsMobile } from "@/hooks/useMobile";
 import LocationSelector from "@/components/location/LocationSelector";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, Z_INDEX } from "@esparex/ui";
@@ -8,26 +8,20 @@ import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 import { LocationResultsList } from "@/components/location/components/LocationResultsList";
 import { useLocationSearch } from "@/components/location/useLocationSearch";
 import { useLocationDispatch, useLocationData } from "@/context/LocationContext";
+import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
 import type { Location } from "@/lib/api/user/locations";
 
 interface LocationOverlayHostProps {
     isOpen: boolean;
     onClose: () => void;
+    /** Only used for desktop dropdown positioning */
     containerRef: RefObject<HTMLDivElement | null>;
     locationQuery?: string;
     onLocationQueryChange?: (val: string) => void;
 }
 
 /**
- * LocationOverlayHost
- * Single presentation owner for the Location Selector overlay.
- * Viewport Strategy:
- * - Mobile (isMobile = true): 100% untouched Radix Sheet bottom drawer portalled to document.body
- * - Desktop (isMobile = false): Streamlined dropdown anchored flush below location input trigger
- *
- * IMPORTANT: This component must be rendered OUTSIDE any CSS display:none container
- * so that Radix UI's DismissableLayer event system works correctly on mobile.
- * It is rendered at the <header> root level in Header.tsx.
+ * LocationOverlayHost: single overlay owner; mobile Sheet vs desktop dropdown share useLocationSearch + LocationResultsList parity.
  */
 export function LocationOverlayHost({
     isOpen,
@@ -36,10 +30,25 @@ export function LocationOverlayHost({
     locationQuery = "",
     onLocationQueryChange,
 }: LocationOverlayHostProps) {
+    // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     const isMobile = useIsMobile();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { setManualLocation } = useLocationDispatch();
     const { location } = useLocationData();
+    const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = useBottomSheetManager();
+
+    // Register the location sheet on mount
+    useEffect(() => {
+        registerSheet("location", { onClose: () => onClose() });
+        return () => unregisterSheet("location");
+    }, [registerSheet, unregisterSheet, onClose]);
+
+    // Synchronize BottomSheetManager when isOpen changes on mobile
+    useEffect(() => {
+        if (!isMobile) return;
+        if (isOpen) openSheet("location");
+        else if (activeSheetId === "location") closeSheet("location");
+    }, [isMobile, isOpen, activeSheetId, openSheet, closeSheet]);
 
     // Anchor position for the desktop dropdown — anchored flush 2px below input bounds with matched width.
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
@@ -56,32 +65,27 @@ export function LocationOverlayHost({
         }
     }, [isOpen, isMobile, containerRef]);
 
-    // Handle selection from desktop dropdown list
-    const handleDesktopSelect = useCallback((loc: Location) => {
+    // Handle selection from dropdown/sheet list
+    const handleSelect = useCallback((loc: Location) => {
         setManualLocation(
             loc.city || loc.name,
             loc.state,
             loc.name || loc.city,
             loc.locationId || loc.id,
             loc.coordinates,
-            {
-                country: loc.country,
-                level: loc.level,
-                persistProfile: false,
-                logSelectionAnalytics: true,
-                source: "manual",
-            }
+            { country: loc.country, level: loc.level, persistProfile: false, logSelectionAnalytics: true, source: "manual" }
         );
         if (onLocationQueryChange) onLocationQueryChange("");
+        if (isMobile) closeSheet("location");
         onClose();
-    }, [setManualLocation, onLocationQueryChange, onClose]);
+    }, [setManualLocation, onLocationQueryChange, isMobile, closeSheet, onClose]);
 
     // Desktop search hook instance
     const desktopSearchApi = useLocationSearch({
         isOpen: isOpen && !isMobile,
         isPanel: false,
         query: locationQuery,
-        onApplySelection: handleDesktopSelect,
+        onApplySelection: handleSelect,
         onClose,
     });
 
@@ -93,24 +97,26 @@ export function LocationOverlayHost({
 
     if (!isOpen) return null;
 
-    // Mobile View: Visual-viewport-aware bottom sheet drawer
+    const isMobileSheetActive = activeSheetId === "location";
+
+    // Mobile View: Visual-viewport-aware bottom sheet drawer (controlled by BottomSheetManager)
     if (isMobile) {
+        if (!isMobileSheetActive) return null;
         return (
-            <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Sheet open={true} onOpenChange={(open) => { if (!open) { closeSheet("location"); onClose(); } }}>
                 <SheetContent
                     side="bottom"
                     onOpenAutoFocus={(e) => {
                         e.preventDefault();
                         setTimeout(() => {
-                            const input = document.getElementById("location-selector-search-input") as HTMLInputElement | null;
-                            input?.focus({ preventScroll: true });
+                            (document.getElementById("location-selector-search-input") as HTMLInputElement | null)?.focus({ preventScroll: true });
                         }, 150);
                     }}
                     className="h-[min(480px,calc(var(--visual-viewport-height,100dvh)-1rem))] max-h-[var(--visual-viewport-height,100dvh)] overflow-hidden rounded-t-2xl border-t-0 p-0 shadow-2xl mx-auto max-w-sm w-full sm:h-[min(520px,calc(var(--visual-viewport-height,100dvh)-2rem))]"
                 >
                     <SheetTitle className="sr-only">Select Location</SheetTitle>
                     <SheetDescription className="sr-only">Choose your city</SheetDescription>
-                    <LocationSelector variant="panel" onClose={onClose} />
+                    <LocationSelector variant="panel" onClose={() => { closeSheet("location"); onClose(); }} />
                 </SheetContent>
             </Sheet>
         );
@@ -136,7 +142,7 @@ export function LocationOverlayHost({
                     selectedIndex={-1}
                     selectedCityName={location?.city || location?.name}
                     onRetry={desktopSearchApi.handleRetry}
-                    onSelect={handleDesktopSelect}
+                    onSelect={handleSelect}
                     getLocationPrimaryLabel={(loc) => loc.name || loc.city || loc.displayName || ""}
                     getLocationSecondaryLabel={(loc) => loc.state || ""}
                 />
