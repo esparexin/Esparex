@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
+import { formatStableDateTime } from '@/lib/formatters';
 
 const formatReason = (reason?: string): string => {
   if (!reason) return 'Plan Activity';
@@ -33,14 +34,7 @@ export const formatActivityName = (tx: CreditLedgerDTO): string => {
 };
 
 export const formatAppliedDateTime = (isoDate: string): string => {
-  const d = new Date(isoDate);
-  return d.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return formatStableDateTime(isoDate);
 };
 
 export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode => {

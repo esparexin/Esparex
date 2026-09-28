@@ -204,8 +204,8 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('10 Credits');
     expect(html).toContain('4 Active');
 
-    // Active Expiry Tag
-    expect(html).toContain('Expires Oct 15, 2026');
+    // Active Expiry Tag (SSOT en-IN day-first via formatStableDate)
+    expect(html).toContain('Expires 15 Oct 2026');
 
     // Header & Reset Note
     expect(html).toContain('Available Credits');

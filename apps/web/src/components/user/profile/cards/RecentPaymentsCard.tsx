@@ -3,6 +3,7 @@ import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
 import { Eye, Download, FileText, Button, Card } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
+import { formatStableDate } from '@/lib/formatters';
 
 interface RecentPaymentsCardProps {
   payments: PaymentSummaryDTO[];
@@ -24,12 +25,7 @@ const formatOrderDescription = (desc?: string): string => {
 const formatInvoiceDate = (dateStr?: string): string => {
   if (!dateStr) return '—';
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatStableDate(dateStr);
   } catch {
     return String(dateStr);
   }
