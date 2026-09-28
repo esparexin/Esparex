@@ -89,8 +89,8 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 {/* Profile Identity Card */}
                 <Card className="border border-border shadow-xs overflow-hidden rounded-2xl md:rounded-3xl bg-card">
                     {/* Soft Brand Header Canvas */}
-                    <div className="relative h-24 sm:h-32 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#16a34a_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <div className="relative h-24 sm:h-32 w-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 text-primary bg-[radial-gradient(currentColor_1px,transparent_1px)] [background-size:16px_16px]" />
                         <div className="absolute -top-10 -right-10 size-48 bg-primary/15 rounded-full blur-2xl pointer-events-none" />
                     </div>
 
