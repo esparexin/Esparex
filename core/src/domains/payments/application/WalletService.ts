@@ -3,7 +3,7 @@ import UserWallet from '../../../models/UserWallet';
 import Transaction, { type ITransaction } from '../../../models/Transaction';
 import Entitlement from '../../../models/Entitlement';
 import { getUserConnection } from '../../../config/db';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
 import { FEFOEntitlementConsumptionEngine } from '../../entitlements/application/FEFOEntitlementConsumptionEngine';
 

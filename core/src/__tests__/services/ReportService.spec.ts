@@ -59,7 +59,7 @@ import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,
     countActiveReports,
-} from "../../services/ReportService";
+} from "../../domains/analytics";
 const mockedMutateStatus = mutateStatus as jest.Mock;
 
 import mockReportRaw from "../../models/Report";

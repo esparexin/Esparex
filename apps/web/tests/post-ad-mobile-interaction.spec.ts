@@ -159,7 +159,7 @@ test.describe("Post Ad Responsive & Hit-Testing Interaction Matrix", () => {
       await continueBtn.click(); // Unforced click
 
       // Step 6: Confirm Step 2 opened
-      await expect(page.getByText(/Step 2 of 2: Listing Details/i)).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator('[data-testid="step-two-fields"]')).toBeVisible({ timeout: 15_000 });
       await page.screenshot({ path: testInfo.outputPath(`success-${vp.width}px.png`), fullPage: true });
     });
   }

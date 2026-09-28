@@ -17,7 +17,6 @@ import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
 import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
 import type { PostAdWizardProps } from "./types";
 
-const STEP_LABELS = ["Listing Information", "Listing Details"];
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
   const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
@@ -66,9 +65,6 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     );
   }
 
-  const stepLabel = STEP_LABELS[currentStep - 1] || "Listing Information";
-  const stepSubtitle = `STEP ${currentStep} OF 2: ${stepLabel.toUpperCase()}`;
-
   return (
     <PostAdShell>
       <a
@@ -79,7 +75,6 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
       </a>
       <ListingModalLayout 
         title={isEditMode ? "Edit Ad" : "Post Ad"} 
-        subtitle={isEditMode ? undefined : stepSubtitle}
         onClose={handleClose}
       >
         <ListingModalBody id="post-ad-content" data-post-ad-scroll className="space-y-4">

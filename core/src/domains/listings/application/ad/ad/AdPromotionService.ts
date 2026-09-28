@@ -1,5 +1,5 @@
 import type { ClientSession } from 'mongoose';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
 import { LISTING_TYPE } from '@esparex/contracts';

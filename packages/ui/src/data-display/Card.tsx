@@ -60,7 +60,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <h4
       data-slot="card-title"
-      className={cn("leading-snug font-semibold text-h4 text-foreground tracking-tight", className)}
+      className={cn("leading-snug font-semibold text-body-lg text-foreground tracking-tight", className)}
       {...props}
     />
   );

@@ -2,7 +2,7 @@ import type { ClientSession, Types } from 'mongoose';
 import Plan, { type IPlan } from '../../../models/Plan';
 import UserPlan from '../../../models/UserPlan';
 import { getUserConnection } from '../../../config/db';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import { findPlanByIdOrCode } from './planQueryHelpers';
 
 export const atomicDemoteAndPromoteDefault = async (

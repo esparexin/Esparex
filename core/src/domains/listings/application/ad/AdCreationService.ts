@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { sanitizePlainText } from '../../../../utils/stringUtils';
 import { getListingRepository } from '../../../../composition/listings';
 import SparePart from '../../../../models/SparePart';

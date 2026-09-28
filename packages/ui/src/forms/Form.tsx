@@ -101,7 +101,7 @@ const FieldLabel = React.forwardRef<
       ref={ref}
       htmlFor={formItemId}
       className={cn(
-        "text-sm font-semibold leading-none text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        "text-caption sm:text-small font-medium leading-none text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className
       )}
       {...props}

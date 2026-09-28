@@ -46,6 +46,7 @@ const normalizeReportItem = (raw: Record<string, unknown>): ReportQueueItem => (
 interface ReportFilters {
     status?: string;
     q?: string;
+    adStatus?: string;
     page: number;
     limit: number;
 }
@@ -72,6 +73,9 @@ export function useModerationReports() {
             });
             if (filters.status && filters.status !== "all") {
                 query.set("status", filters.status);
+            }
+            if (filters.adStatus && filters.adStatus !== "all") {
+                query.set("adStatus", filters.adStatus);
             }
             if (filters.q) {
                 query.set("q", filters.q);
@@ -119,6 +123,40 @@ export function useModerationReports() {
         }
     };
 
+    const resolveReportAction = async (
+        reportId: string,
+        action: "take_down" | "dismiss" | "warn_user",
+        note?: string
+    ) => {
+        setIsMutating(true);
+        try {
+            await adminFetch(ADMIN_ROUTES.REPORT_RESOLVE(reportId), {
+                method: "PATCH",
+                body: { action, note },
+            });
+            const nextStatus = action === "take_down" ? "resolved" : action === "dismiss" ? "dismissed" : "reviewed";
+            showAdminPopup({
+                type: "success",
+                title: "Report Action Applied",
+                message: action === "take_down" ? "Ad taken down and report resolved" : `Report marked ${nextStatus}`,
+            });
+            setItems((prev) =>
+                prev.map((item) =>
+                    item.reportId === reportId || item.id === reportId
+                        ? { ...item, status: nextStatus }
+                        : item
+                )
+            );
+            return { success: true };
+        } catch (mutationError) {
+            const msg = mutationError instanceof Error ? mutationError.message : `Failed to resolve report`;
+            showAdminPopup({ type: "error", title: "Error", message: msg });
+            return { success: false, error: msg };
+        } finally {
+            setIsMutating(false);
+        }
+    };
+
     return {
         items,
         loading,
@@ -126,6 +164,7 @@ export function useModerationReports() {
         error,
         pagination,
         fetchReports,
-        updateReportStatus
+        updateReportStatus,
+        resolveReportAction,
     };
 }

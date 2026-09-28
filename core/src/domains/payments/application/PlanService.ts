@@ -9,7 +9,7 @@ import {
     getMonthlyCycleStart,
     getAdPostingBalance as adSlotGetBalance
 } from '../../boosts/application/services/AdSlotService';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import { calculateUserPlan } from '../domain/policies/PlanEngine';
 export { calculateUserPlan };
 import logger from '../../../utils/logger';

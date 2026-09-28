@@ -6,15 +6,26 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@esparex/ui";
-import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "@esparex/ui";
+import { AlertCircle, Check, CheckCircle2, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, ShieldAlert, User, X } from "@esparex/ui";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
 import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
-import { LIFECYCLE_STATUS } from "@esparex/contracts";
+import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
 import { ListingTypeValue } from "@esparex/contracts";
 
+type ViewAdReportContext = {
+    reportId: string;
+    reason: string;
+    reportCount: number;
+    reportedAt?: string;
+    isAutoHidden?: boolean;
+    status: string;
+    onTakeDown?: () => Promise<void> | void;
+    onDismiss?: () => Promise<void> | void;
+    onReview?: () => Promise<void> | void;
+};
 
 type ViewAdModalProps = {
     open: boolean;
@@ -23,12 +34,13 @@ type ViewAdModalProps = {
     loading?: boolean;
     error?: string;
     onClose: () => void;
-    onApprove: (adId: string) => Promise<void> | void;
-    onReject: (adId: string) => void;
-    onDeactivate: (adId: string) => Promise<void> | void;
-    onActivate: (adId: string) => Promise<void> | void;
-    onBlockSeller: (sellerId: string) => Promise<void> | void;
+    onApprove?: (adId: string) => Promise<void> | void;
+    onReject?: (adId: string) => void;
+    onDeactivate?: (adId: string) => Promise<void> | void;
+    onActivate?: (adId: string) => Promise<void> | void;
+    onBlockSeller?: (sellerId: string) => Promise<void> | void;
     onExtend?: (adId: string) => Promise<void> | void;
+    reportContext?: ViewAdReportContext;
 };
 
 const IMAGE_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f1f5f9'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='%2394a3b8'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -46,6 +58,7 @@ export function ViewAdModal({
     onActivate,
     onBlockSeller,
     onExtend,
+    reportContext,
 }: ViewAdModalProps) {
     const locationDisplay = ad
         ? resolveLocationDisplay({
@@ -85,12 +98,39 @@ export function ViewAdModal({
                     {loading && !ad && (
                         <div className="flex flex-col items-center justify-center py-12 text-foreground-subtle">
                             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
-                            <p className="text-sm">Fetching listing details...</p>
+                            <p className="text-body">Fetching listing details...</p>
                         </div>
                     )}
-                    {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
+                    {error && <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-body text-red-600 mb-4">{error}</div>}
 
-                    {!loading && !error && ad && (
+                    {reportContext && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50/90 p-4 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+                            <div className="flex items-start gap-3">
+                                <div className="rounded-lg bg-amber-100 p-2 text-amber-700 shrink-0 mt-0.5">
+                                    <ShieldAlert size={20} />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="font-semibold text-amber-950 text-body">Report Abuse Signal</span>
+                                        <span className="rounded-full bg-amber-200/80 px-2 py-0.5 text-tiny font-bold uppercase tracking-wider text-amber-900">
+                                            {reportContext.status}
+                                        </span>
+                                        {reportContext.isAutoHidden && (
+                                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-tiny font-semibold text-red-700">
+                                                Auto-hidden
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-caption text-amber-900 mt-1">
+                                        Reason: <span className="font-semibold">{reportContext.reason}</span> • {reportContext.reportCount} report{reportContext.reportCount === 1 ? "" : "s"}
+                                        {reportContext.reportedAt ? ` • Reported ${new Date(reportContext.reportedAt).toLocaleString()}` : ""}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {!loading && ad && (
                         <div className="space-y-6">
                             <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
                                 <div className="space-y-3 xl:col-span-3">
@@ -253,61 +293,122 @@ export function ViewAdModal({
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
-                                {ad.status === LIFECYCLE_STATUS.PENDING && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={() => void onApprove(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
-                                        >
-                                            <Check size={15} /> Approve
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => onReject(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
-                                        >
-                                            <X size={15} /> Reject
-                                        </button>
-                                    </>
-                                )}
-                                {ad.status === LIFECYCLE_STATUS.LIVE && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={() => void onDeactivate(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-orange-600 px-4 text-sm font-semibold text-white hover:bg-orange-700 transition-colors"
-                                        >
-                                            <Pause size={15} /> Deactivate
-                                        </button>
-                                        {ad.sellerId && (
+                            {!reportContext && (
+                                <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+                                    {ad.status === LIFECYCLE_STATUS.PENDING && onApprove && onReject && (
+                                        <>
                                             <button
                                                 type="button"
-                                                onClick={() => void onBlockSeller(ad.sellerId!)}
-                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                                                onClick={() => void onApprove(ad.id)}
+                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-body font-semibold text-white hover:bg-emerald-700 transition-colors"
                                             >
-                                                Block Seller
+                                                <Check size={15} /> Approve
                                             </button>
-                                        )}
-                                    </>
-                                )}
-                                {ad.status === LIFECYCLE_STATUS.DEACTIVATED && (
+                                            <button
+                                                type="button"
+                                                onClick={() => onReject(ad.id)}
+                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-body font-semibold text-white hover:bg-red-700 transition-colors"
+                                            >
+                                                <X size={15} /> Reject
+                                            </button>
+                                        </>
+                                    )}
+                                    {ad.status === LIFECYCLE_STATUS.LIVE && (
+                                        <>
+                                            {onDeactivate && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void onDeactivate(ad.id)}
+                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-orange-600 px-4 text-body font-semibold text-white hover:bg-orange-700 transition-colors"
+                                                >
+                                                    <Pause size={15} /> Deactivate
+                                                </button>
+                                            )}
+                                            {ad.sellerId && onBlockSeller && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void onBlockSeller(ad.sellerId!)}
+                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 text-body font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                                                >
+                                                    Block Seller
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                    {ad.status === LIFECYCLE_STATUS.DEACTIVATED && onActivate && (
+                                        <button
+                                            type="button"
+                                            onClick={() => void onActivate(ad.id)}
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-body font-semibold text-white hover:bg-emerald-800 transition-colors"
+                                        >
+                                            <Play size={15} /> Activate
+                                        </button>
+                                    )}
+                                    {(ad.status === LIFECYCLE_STATUS.LIVE || ad.status === LIFECYCLE_STATUS.EXPIRED) && onExtend && (
+                                        <button
+                                            type="button"
+                                            onClick={() => void onExtend(ad.id)}
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 text-body font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                                        >
+                                            <RefreshCw size={15} /> {ad.status === LIFECYCLE_STATUS.EXPIRED ? "Restore & Extend" : "Extend Expiry"}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {!ad && !loading && reportContext && (
+                        <div className="py-8 text-center space-y-2">
+                            <p className="text-body font-medium text-foreground-secondary">
+                                Full listing details are unavailable (listing may have been removed or archived).
+                            </p>
+                            <p className="text-caption text-foreground-subtle">
+                                You can validate and resolve or dismiss the report using the actions below.
+                            </p>
+                        </div>
+                    )}
+
+                    {reportContext && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 mt-6">
+                            <div className="text-caption text-foreground-subtle max-w-sm">
+                                Validate reported listing: confirm violation to take down ad, or dismiss if listing complies with policy.
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                                {reportContext.onReview && reportContext.status !== REPORT_STATUS.REVIEWED && (
                                     <button
                                         type="button"
-                                        onClick={() => void onActivate(ad.id)}
-                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors"
+                                        onClick={() => void reportContext.onReview?.()}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 text-caption font-semibold text-amber-800 hover:bg-amber-100 transition-colors"
                                     >
-                                        <Play size={15} /> Activate
+                                        <AlertCircle size={14} /> Mark Under Review
                                     </button>
                                 )}
-                                {(ad.status === LIFECYCLE_STATUS.LIVE || ad.status === LIFECYCLE_STATUS.EXPIRED) && onExtend && (
+                                {reportContext.onDismiss && reportContext.status !== REPORT_STATUS.DISMISSED && (
                                     <button
                                         type="button"
-                                        onClick={() => void onExtend(ad.id)}
-                                        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 text-sm font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                                        onClick={() => void reportContext.onDismiss?.()}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border bg-white px-3.5 text-caption font-semibold text-foreground hover:bg-muted transition-colors"
                                     >
-                                        <RefreshCw size={15} /> {ad.status === LIFECYCLE_STATUS.EXPIRED ? "Restore & Extend" : "Extend Expiry"}
+                                        <CheckCircle2 size={14} /> Dismiss Report (Keep Live)
+                                    </button>
+                                )}
+                                {reportContext.onTakeDown && (
+                                    <button
+                                        type="button"
+                                        onClick={() => void reportContext.onTakeDown?.()}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-caption font-semibold text-white hover:bg-red-700 transition-colors shadow-xs"
+                                    >
+                                        <ShieldAlert size={14} /> Take Down Ad & Resolve Report
+                                    </button>
+                                )}
+                                {ad?.sellerId && onBlockSeller && (
+                                    <button
+                                        type="button"
+                                        onClick={() => void onBlockSeller(ad.sellerId!)}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 text-caption font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                                    >
+                                        Block Seller
                                     </button>
                                 )}
                             </div>

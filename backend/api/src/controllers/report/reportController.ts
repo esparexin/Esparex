@@ -13,7 +13,7 @@ import {
     createReport as createReportRecord,
     countActiveReports,
     autoHideAdIfOverThreshold,
-} from '@esparex/core/services/ReportService';
+} from '@esparex/core/domains/analytics';
 
 
 const normalizeReason = (reason: string) => reason.trim();

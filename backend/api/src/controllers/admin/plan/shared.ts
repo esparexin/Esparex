@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { PlanModel, UserPlanModel } from '@esparex/core/domains/payments/application/PlanService';
-import { AppError } from '@esparex/core/utils/AppError';
+import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
 
 export { PlanModel, UserPlanModel };
 

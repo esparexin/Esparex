@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getActiveBoostsForUser } from '@esparex/core/services/BoostService';
+import { getActiveBoostsForUser } from '@esparex/core/domains/boosts';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { sendErrorResponse } from "../../utils/errorResponse";

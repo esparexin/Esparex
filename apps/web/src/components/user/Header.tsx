@@ -113,7 +113,7 @@ export function Header({
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
         <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1 cursor-pointer">
-          <Image src="/icons/logo.png" alt="Esparex Logo" width={495} height={112} unoptimized className="h-[25px] w-auto" />
+          <Image src="/icons/logo.png" alt="Esparex" width={495} height={112} unoptimized className="h-[25px] w-auto" />
         </button>
 
         <div className="relative" ref={locationDropdownRef}>

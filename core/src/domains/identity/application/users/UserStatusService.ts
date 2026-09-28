@@ -12,7 +12,7 @@ import { USER_STATUS, UserStatusValue, BusinessErrorCode } from '@esparex/contra
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatuses } from '../../../../services/lifecycle/StatusMutationService';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../../../utils/adminLogger';
 
 export type { UserStatusValue as UserStatus };

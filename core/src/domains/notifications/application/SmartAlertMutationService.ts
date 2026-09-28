@@ -7,7 +7,7 @@ import UserWallet from '../../../models/UserWallet';
 import Entitlement from '../../../models/Entitlement';
 import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
 import { resolveMasterDataIds } from '../../../utils/masterDataResolver';
-import { AppError } from '../../../utils/AppError';
+import { AppError } from '../../../shared-kernel/errors/AppError';
 import { GOVERNANCE, MS_IN_DAY } from '../../../config/constants';
 import { sanitizeMongoObjectId } from '@esparex/shared';
 import {

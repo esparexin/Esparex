@@ -83,7 +83,7 @@ export function ListingImagesField({
     return (
         <Stack gap="sm">
             <div className="flex justify-between items-center mb-1.5">
-                <label className="text-body font-semibold text-foreground">
+                <label className="text-caption sm:text-small font-medium text-foreground-secondary">
                     Photos (up to 10)
                 </label>
                 <span className="text-tiny font-medium text-muted-foreground">

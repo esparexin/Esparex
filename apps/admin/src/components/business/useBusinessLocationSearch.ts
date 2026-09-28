@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { LIFECYCLE_STATUS } from "@esparex/contracts";
 import { AdminApiError } from "@/lib/api/adminClient";
-import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
+import { getLocationOptions } from "@/lib/api/locations";
 import type { Location } from "@/types/location";
 import {
   type BusinessModifyFormState,
@@ -36,7 +36,6 @@ export function useBusinessLocationSearch({
         })
       : ""
   );
-  const [detecting, setDetecting] = useState(false);
 
   useEffect(() => {
     if (form.pincode) return;
@@ -115,46 +114,6 @@ export function useBusinessLocationSearch({
     setLocationSearchError("");
   };
 
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    setDetecting(true);
-    setError("");
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          const coords = { type: "Point" as const, coordinates: [longitude, latitude] as [number, number] };
-          const match = await reverseGeocode(latitude, longitude);
-
-          setForm((f) => ({
-            ...f,
-            coordinates: coords,
-            city: match?.city || f.city,
-            state: match?.state || f.state,
-            pincode: match?.pincode || f.pincode,
-            locationId: match?.locationId || match?.id || f.locationId,
-          }));
-
-          if (match) setSelectedLocationLabel(formatLocationLabel(match));
-          setDetecting(false);
-        } catch {
-          setError("Failed to resolve address from your position.");
-          setDetecting(false);
-        }
-      },
-      (err) => {
-        setError(`Location access denied or failed: ${err.message}`);
-        setDetecting(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   return {
     locationQuery,
     setLocationQuery,
@@ -162,8 +121,6 @@ export function useBusinessLocationSearch({
     locationSearchLoading,
     locationSearchError,
     selectedLocationLabel,
-    detecting,
     handleCanonicalLocationSelect,
-    handleDetectLocation,
   };
 }

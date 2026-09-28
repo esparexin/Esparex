@@ -1,6 +1,11 @@
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import { emailService } from '../../domains/notifications/application/EmailService';
+import {
+    renderListingApprovedEmail,
+    renderListingRejectedEmail,
+    renderListingExpiredEmail,
+} from '../../domains/notifications/templates/EmailLayout';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
 import { getFrontendAppUrl } from '../../utils/appUrl';
@@ -50,15 +55,12 @@ export const registerSellerListingNotificationListener = () => {
             if (!info) return;
             const typeLabel = LISTING_TYPE_LABEL[info.listingType] || 'Listing';
             const subject = `Your ${typeLabel} is Live on Esparex!`;
-            const html = `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                    <h2 style="color: #16a34a;">Your listing is approved!</h2>
-                    <p>Hi <strong>${info.name}</strong>,</p>
-                    <p>Great news! Your ${typeLabel.toLowerCase()} <strong>${info.title}</strong> has been approved and is now live on Esparex.</p>
-                    <br/>
-                    <a href="${FRONTEND_URL}/account/profile" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">View My Listings</a>
-                </div>
-            `;
+            const html = renderListingApprovedEmail({
+                name: info.name,
+                title: info.title,
+                listingType: typeLabel,
+                viewUrl: `${FRONTEND_URL}/account/profile`,
+            });
             await emailService.sendEmail(info.email, subject, html);
             logger.info('[SellerNotification] Approval email sent', { listingId: payload.listingId, listingType: info.listingType });
         } catch (e) {
@@ -76,20 +78,13 @@ export const registerSellerListingNotificationListener = () => {
             if (!info) return;
             const typeLabel = LISTING_TYPE_LABEL[payload.listingType] || LISTING_TYPE_LABEL[info.listingType] || 'Listing';
             const subject = `Your ${typeLabel} Needs Attention — Esparex`;
-            const reasonNote = payload.rejectionReason
-                ? `<p><strong>Reason:</strong> ${payload.rejectionReason}</p>`
-                : '';
-            const html = `
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                    <h2 style="color: #dc2626;">Listing not approved</h2>
-                    <p>Hi <strong>${info.name}</strong>,</p>
-                    <p>Unfortunately, your ${typeLabel.toLowerCase()} <strong>${info.title}</strong> did not pass our review.</p>
-                    ${reasonNote}
-                    <p>Please review the feedback, make the necessary changes, and resubmit.</p>
-                    <br/>
-                    <a href="${FRONTEND_URL}/account/profile" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">View My Listings</a>
-                </div>
-            `;
+            const html = renderListingRejectedEmail({
+                name: info.name,
+                title: info.title,
+                listingType: typeLabel,
+                rejectionReason: payload.rejectionReason,
+                viewUrl: `${FRONTEND_URL}/account/profile`,
+            });
             await emailService.sendEmail(info.email, subject, html);
             logger.info('[SellerNotification] Rejection email sent', { listingId: payload.listingId });
         } catch (e) {
@@ -107,16 +102,12 @@ export const registerSellerListingNotificationListener = () => {
                 if (!info) continue;
                 const typeLabel = LISTING_TYPE_LABEL[info.listingType] || 'Listing';
                 const subject = `Your ${typeLabel} has Expired — Esparex`;
-                const html = `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 8px;">
-                        <h2 style="color: #d97706;">Listing expired</h2>
-                        <p>Hi <strong>${info.name}</strong>,</p>
-                        <p>Your ${typeLabel.toLowerCase()} <strong>${info.title}</strong> has expired and is no longer visible to buyers.</p>
-                        <p>Log in to renew it and keep your listing active.</p>
-                        <br/>
-                        <a href="${FRONTEND_URL}/account/profile" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Renew Listing</a>
-                    </div>
-                `;
+                const html = renderListingExpiredEmail({
+                    name: info.name,
+                    title: info.title,
+                    listingType: typeLabel,
+                    renewUrl: `${FRONTEND_URL}/account/profile`,
+                });
                 await emailService.sendEmail(info.email, subject, html);
             } catch (e) {
                 logger.error('[SellerNotification] Failed to send expiry email', { error: String(e), listingId });

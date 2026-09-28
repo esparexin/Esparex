@@ -6,8 +6,8 @@ import { Request, Response } from 'express';
 import type { CreditWalletSummaryPayload } from '@esparex/contracts';
 import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { CreditRulesEngine } from '@esparex/core/domains/credits/application/CreditRulesEngine';
-import { getAdPostingBalance } from '@esparex/core/domains/boosts/application/services/AdSlotService';
+import { CreditRulesEngine } from '@esparex/core/domains/credits';
+import { getAdPostingBalance } from '@esparex/core/domains/boosts';
 import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
 
 interface AuthenticatedUser {

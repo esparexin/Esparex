@@ -23,6 +23,7 @@ import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsControll
 import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
 import * as adminAiConfig from '../controllers/admin/adminAiConfigController';
 import * as adminMonetization from '../controllers/admin/adminMonetizationController';
+import * as adminEmailTemplates from '../controllers/admin/adminEmailTemplateController';
 
 const router = express.Router();
 
@@ -82,6 +83,7 @@ router.patch('/businesses/:id/reject', requirePermission('business:approve'), ad
 router.patch('/businesses/:id/renew', requirePermission('business:approve'), adminBusiness.renewBusinessAccount);
 router.patch('/businesses/:id/expire', requirePermission('business:approve'), adminBusiness.expireBusinessAccount);
 router.patch('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
+router.put('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
 
 router.delete('/businesses/:id', requirePermission('business:approve'), adminBusiness.deleteBusinessAccount);
 // Bulk Operations
@@ -133,6 +135,14 @@ router.post('/notifications/send', adminNotifications.sendNotification);
 router.get('/notifications/history', adminNotifications.getHistory);
 router.get('/notifications/recipients', adminNotifications.getRecipients);
 
+// Email Templates
+router.get('/notifications/email-templates', adminEmailTemplates.listEmailTemplates);
+router.get('/notifications/email-templates/:key', adminEmailTemplates.getEmailTemplate);
+router.post('/notifications/email-templates/:key/preview', adminEmailTemplates.getEmailTemplatePreview);
+router.patch('/notifications/email-templates/:key', requirePermission('system:config'), adminEmailTemplates.updateEmailTemplate);
+router.post('/notifications/email-templates/:key/reset', requirePermission('system:config'), adminEmailTemplates.resetEmailTemplate);
+router.post('/notifications/email-templates/:key/test', requirePermission('system:config'), adminEmailTemplates.sendTestEmailTemplate);
+
 router.post('/ai/generate', adminAi.generate);
 router.get('/system/ai-config', requirePermission('system:config'), adminAiConfig.getAiConfig);
 router.patch('/system/ai-config', requirePermission('system:config'), adminAiConfig.updateAiConfig);
@@ -168,6 +178,7 @@ router.get('/cache/health', adminSystem.getCacheHealth);
 
 router.get('/system/config', adminSystemConfig.getSystemConfig);
 router.patch('/system/config', requirePermission('system:config'), adminSystemConfig.updateSystemConfig);
+router.post('/system/config/test-email', requirePermission('system:config'), adminSystemConfig.sendTestEmail);
 
 router.get('/support/contact', adminSystem.getContactSubmissions);
 router.patch('/support/contact/:id/status', adminSystem.updateContactSubmissionStatus);

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { SavedAdRequest, getUserId } from './shared';
-import { saveAd as saveAdService, unsaveAd as unsaveAdService } from '@esparex/core/services/SavedAdService';
+import { saveAd as saveAdService, unsaveAd as unsaveAdService } from '@esparex/core/domains/listings/application';
 import { validateObjectIdOrThrow } from '@esparex/core/utils/idUtils';
 
 export const saveAd = async (req: Request, res: Response) => {

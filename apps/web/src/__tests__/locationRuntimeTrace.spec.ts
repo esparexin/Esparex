@@ -3,6 +3,7 @@ import { LocationFacade } from "@esparex/shared";
 import { formatLocation as formatLocationWeb } from "@/lib/location/locationService";
 import { normalizeToAppLocation } from "@/lib/location/locationService";
 import { createPoint, getLatitude, getLongitude } from "@esparex/shared";
+import logger from "@/lib/logger";
 
 describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
     it("1. Verifies LocationFacade SSOT identity and method availability", () => {
@@ -11,7 +12,7 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
         expect(typeof LocationFacade.validate).toBe("function");
         expect(typeof LocationFacade.resolveId).toBe("function");
 
-        console.log(`[EMPIRICAL LOCATION TRACE] LocationFacade methods verified: normalize, format, validate, resolveId.`);
+        logger.info(`[EMPIRICAL LOCATION TRACE] LocationFacade methods verified: normalize, format, validate, resolveId.`);
     });
 
     it("2. Formatter Precedence Divergence Test — Compares Shared Facade vs Web formatters", () => {
@@ -25,8 +26,8 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
         const sharedFormatted = LocationFacade.format(sampleRawLocation);
         const webFormatted = formatLocationWeb(sampleRawLocation);
 
-        console.log(`[EMPIRICAL FORMATTER TRACE] LocationFacade.format Output: "${sharedFormatted}"`);
-        console.log(`[EMPIRICAL FORMATTER TRACE] Web formatLocation Output: "${webFormatted}"`);
+        logger.info(`[EMPIRICAL FORMATTER TRACE] LocationFacade.format Output: "${sharedFormatted}"`);
+        logger.info(`[EMPIRICAL FORMATTER TRACE] Web formatLocation Output: "${webFormatted}"`);
 
         // Shared facade format prioritizes display ("Indiranagar, Bengaluru, Karnataka")
         expect(sharedFormatted).toBe("Indiranagar, Bengaluru, Karnataka");
@@ -46,7 +47,7 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
         const extractedLat = getLatitude(point);
         const extractedLng = getLongitude(point);
 
-        console.log(`[EMPIRICAL GEOJSON TRACE] Extracted Latitude: ${extractedLat}, Longitude: ${extractedLng}`);
+        logger.info(`[EMPIRICAL GEOJSON TRACE] Extracted Latitude: ${extractedLat}, Longitude: ${extractedLng}`);
 
         expect(extractedLat).toBe(12.9716);
         expect(extractedLng).toBe(77.5946);
@@ -63,7 +64,7 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
 
         const appLocation = normalizeToAppLocation(rawInput, "manual");
 
-        console.log(`[EMPIRICAL STORAGE TRACE] Normalized AppLocation DTO:`, JSON.stringify(appLocation));
+        logger.info(`[EMPIRICAL STORAGE TRACE] Normalized AppLocation DTO: ${JSON.stringify(appLocation)}`);
 
         expect(appLocation).not.toBeNull();
         expect(appLocation?.city).toBe("New Delhi");

@@ -1,3 +1,5 @@
+import type { EmailTemplateCustomization } from '@esparex/contracts';
+
 export type ModerationThresholds = {
   scamDetection: number;
   inappropriateContent: number;
@@ -141,7 +143,7 @@ export type SystemConfig = {
       businessSparePartLimit?: number;
     };
   };
-  emailTemplates?: unknown[];
+  emailTemplates?: EmailTemplateCustomization[];
   notificationTemplates?: unknown[];
 };
 
@@ -153,6 +155,6 @@ export type SystemConfigPatch = Partial<{
   integrations: NonNullable<SystemConfig["integrations"]>;
   location: NonNullable<SystemConfig["location"]>;
   listing: NonNullable<SystemConfig["listing"]>;
-  emailTemplates: unknown[];
+  emailTemplates: EmailTemplateCustomization[];
   notificationTemplates: unknown[];
 }>;
