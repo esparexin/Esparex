@@ -32,9 +32,17 @@ const path = require("path");
 const args = process.argv.slice(2);
 const WARN_ONLY = args.includes("--warn-only");
 const SCOPE_ARG = args.find((a) => a.startsWith("--path="));
-const SCAN_ROOT = SCOPE_ARG
-  ? path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))
-  : path.resolve(__dirname, "..", "apps", "web", "src");
+// Scan roots cover all UI layers (web + admin + canonical primitives).
+// Per user governance decision, admin stays covered: the 4 raw admin modals
+// were portalized in Phase 5, so multi-scope is green and blocks regressions.
+const SCAN_ROOTS = SCOPE_ARG
+  ? [path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))]
+  : [
+      path.resolve(__dirname, "..", "apps", "web", "src"),
+      path.resolve(__dirname, "..", "apps", "admin", "src"),
+      path.resolve(__dirname, "..", "packages", "ui", "src"),
+    ];
+const SCAN_ROOT = SCAN_ROOTS[0];
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 const RULES = {
@@ -105,7 +113,7 @@ const RULES = {
   },
 };
 
-const NATIVE_BUTTON_BASELINE = 138;
+const NATIVE_BUTTON_BASELINE = 257; // web + admin scope (was 138 web-only)
 const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
 const RAW_INLINE_SVG_BASELINE = 0;
 
@@ -188,8 +196,13 @@ function auditFile(filePath) {
   }
 
   // ── Rule: Parallel responsive DOM subtrees ─────────────────────────────────
-  const hasLgHidden = lines.some((l) => /className=["'][^"']*lg:hidden/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
-  const hasHiddenLg = lines.some((l) => /className=["'][^"']*hidden lg:(?:block|flex|grid)/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
+  const patternHit = (idx, re) => {
+    const line = lines[idx];
+    const prevLine = idx > 0 ? lines[idx - 1] : "";
+    return re.test(line) && !isIgnored(line, RULES.PARALLEL_RESPONSIVE.id, prevLine);
+  };
+  const hasLgHidden = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*lg:hidden/));
+  const hasHiddenLg = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*hidden lg:(?:block|flex|grid)/));
   if (hasLgHidden && hasHiddenLg) {
     violations.push({
       rule: RULES.PARALLEL_RESPONSIVE,
@@ -324,7 +337,7 @@ function auditFile(filePath) {
 // ─── Run ──────────────────────────────────────────────────────────────────────
 
 function run() {
-  const files = walk(SCAN_ROOT);
+  const files = SCAN_ROOTS.flatMap((root) => walk(root));
   const allViolations = [];
 
   for (const file of files) {
@@ -379,8 +392,11 @@ function run() {
   }
 
   // ── Print report ──────────────────────────────────────────────────────────
+  const scannedLabel = SCOPE_ARG
+    ? path.relative(process.cwd(), SCAN_ROOTS[0]) || "."
+    : SCAN_ROOTS.map((r) => path.relative(process.cwd(), r) || ".").join(", ");
   console.log(`\n🛡️  Esparex UI Architecture Guard`);
-  console.log(`   Scanned: ${files.length} TSX/JSX files in ${path.relative(process.cwd(), SCAN_ROOT) || "."}`);
+  console.log(`   Scanned: ${files.length} TSX/JSX files in ${scannedLabel}`);
   console.log(`   Errors:   ${errors.length}`);
   console.log(`   Warnings: ${warnings.length}\n`);
 

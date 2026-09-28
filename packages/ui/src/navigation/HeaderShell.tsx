@@ -61,6 +61,7 @@ export function HeaderShell({
       <div className={cn("hidden lg:flex items-center justify-between px-4 lg:px-8", isCompact ? "h-14" : "h-16")}>
         <div className="flex items-center gap-6">
           {logo && <div className="shrink-0">{logo}</div>}
+          {/* ui-guard-ignore: parallel-responsive-dom — nested inside the single desktop section above, not a parallel tree. */}
           {navigation?.primary && <div className="hidden lg:block ml-4">{renderDesktopNav(navigation.primary)}</div>}
         </div>
         {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
