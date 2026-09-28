@@ -1,9 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, Suspense } from "react";
+import React, { createContext, useContext, useCallback, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
 
 interface AuthModalContextType {
   isAuthModalOpen: boolean;
@@ -32,45 +33,58 @@ function AuthModalQueryWatcher({
 }
 
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+  const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = useBottomSheetManager();
+  const [callbackUrl, setCallbackUrl] = React.useState<string | null>(null);
+
+  // Register the auth sheet on mount
+  useEffect(() => {
+    registerSheet("auth", {
+      onClose: () => {
+        // Clean up URL when sheet closes via coordinator
+        if (typeof window !== "undefined" && window.location.search.includes("login=true")) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("login");
+          url.searchParams.delete("callbackUrl");
+          const cleanSearch = url.searchParams.toString();
+          const newUrl = `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`;
+          window.history.replaceState({}, "", newUrl);
+        }
+        setCallbackUrl(null);
+      },
+    });
+    return () => unregisterSheet("auth");
+  }, [registerSheet, unregisterSheet]);
 
   const handleLoginParam = useCallback((callbackUrlParam: string | null) => {
     setCallbackUrl(normalizeAuthCallbackUrl(callbackUrlParam));
-    setIsOpen(true);
-  }, []);
+    openSheet("auth");
+  }, [openSheet]);
 
   const showLogin = useCallback((url?: string) => {
     setCallbackUrl(url ? normalizeAuthCallbackUrl(url) : "/");
-    setIsOpen(true);
-  }, []);
+    openSheet("auth");
+  }, [openSheet]);
 
   const hideLogin = useCallback(() => {
-    setIsOpen(false);
-    if (typeof window !== "undefined" && window.location.search.includes("login=true")) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("login");
-      url.searchParams.delete("callbackUrl");
-      const cleanSearch = url.searchParams.toString();
-      const newUrl = `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`;
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, []);
+    closeSheet("auth");
+  }, [closeSheet]);
+
+  const isAuthModalOpen = activeSheetId === "auth";
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
         hideLogin();
       } else {
-        setIsOpen(true);
+        openSheet("auth");
       }
     },
-    [hideLogin]
+    [hideLogin, openSheet]
   );
 
   const value = useMemo(
-    () => ({ isAuthModalOpen: isOpen, showLogin, hideLogin }),
-    [isOpen, showLogin, hideLogin]
+    () => ({ isAuthModalOpen, showLogin, hideLogin }),
+    [isAuthModalOpen, showLogin, hideLogin]
   );
 
   return (
@@ -80,7 +94,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       </Suspense>
       {children}
       <AuthModal
-        open={isOpen}
+        open={isAuthModalOpen}
         onOpenChange={handleOpenChange}
         callbackUrl={callbackUrl}
       />

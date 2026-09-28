@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useCallback, type CSSProperties, type RefObject } from "react";
 import { useIsMobile } from "@/hooks/useMobile";
 import LocationSelector from "@/components/location/LocationSelector";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, Z_INDEX } from "@esparex/ui";
@@ -8,11 +8,11 @@ import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 import { LocationResultsList } from "@/components/location/components/LocationResultsList";
 import { useLocationSearch } from "@/components/location/useLocationSearch";
 import { useLocationDispatch, useLocationData } from "@/context/LocationContext";
+import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
 import type { Location } from "@/lib/api/user/locations";
 
 interface LocationOverlayHostProps {
-    isOpen: boolean;
-    onClose: () => void;
+    /** Only used for desktop dropdown positioning */
     containerRef: RefObject<HTMLDivElement | null>;
     locationQuery?: string;
     onLocationQueryChange?: (val: string) => void;
@@ -23,6 +23,7 @@ interface LocationOverlayHostProps {
  * Single presentation owner for the Location Selector overlay.
  * Viewport Strategy:
  * - Mobile (isMobile = true): 100% untouched Radix Sheet bottom drawer portalled to document.body
+ *   Controlled by BottomSheetManager for mutual exclusion with other bottom sheets.
  * - Desktop (isMobile = false): Streamlined dropdown anchored flush below location input trigger
  *
  * IMPORTANT: This component must be rendered OUTSIDE any CSS display:none container
@@ -30,8 +31,6 @@ interface LocationOverlayHostProps {
  * It is rendered at the <header> root level in Header.tsx.
  */
 export function LocationOverlayHost({
-    isOpen,
-    onClose,
     containerRef,
     locationQuery = "",
     onLocationQueryChange,
@@ -40,11 +39,25 @@ export function LocationOverlayHost({
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { setManualLocation } = useLocationDispatch();
     const { location } = useLocationData();
+    const { activeSheetId, registerSheet, unregisterSheet, closeSheet } = useBottomSheetManager();
+
+    // Register the location sheet on mount
+    useEffect(() => {
+        registerSheet("location", {
+            onClose: () => {
+                // Reset local desktop state if needed
+            },
+        });
+        return () => unregisterSheet("location");
+    }, [registerSheet, unregisterSheet]);
+
+    // Local state for desktop dropdown
+    const [desktopOpen, setDesktopOpen] = useState(false);
 
     // Anchor position for the desktop dropdown — anchored flush 2px below input bounds with matched width.
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
     useEffect(() => {
-        if (!isOpen || isMobile) return;
+        if (!desktopOpen || isMobile) return;
         const rect = containerRef.current?.getBoundingClientRect();
         if (rect) {
             setDropdownStyle({
@@ -54,7 +67,7 @@ export function LocationOverlayHost({
                 width: rect.width,
             });
         }
-    }, [isOpen, isMobile, containerRef]);
+    }, [desktopOpen, isMobile, containerRef]);
 
     // Handle selection from desktop dropdown list
     const handleDesktopSelect = useCallback((loc: Location) => {
@@ -73,30 +86,34 @@ export function LocationOverlayHost({
             }
         );
         if (onLocationQueryChange) onLocationQueryChange("");
-        onClose();
-    }, [setManualLocation, onLocationQueryChange, onClose]);
+        if (isMobile) {
+            closeSheet("location");
+        } else {
+            setDesktopOpen(false);
+        }
+    }, [setManualLocation, onLocationQueryChange, isMobile, closeSheet]);
 
     // Desktop search hook instance
     const desktopSearchApi = useLocationSearch({
-        isOpen: isOpen && !isMobile,
+        isOpen: desktopOpen && !isMobile,
         isPanel: false,
         query: locationQuery,
         onApplySelection: handleDesktopSelect,
-        onClose,
+        onClose: () => setDesktopOpen(false),
     });
 
     useDismissableLayer({
-        isOpen: isOpen && !isMobile,
+        isOpen: desktopOpen && !isMobile,
         containerRef: [containerRef, dropdownRef],
-        onDismiss: onClose,
+        onDismiss: () => setDesktopOpen(false),
     });
 
-    if (!isOpen) return null;
+    const isMobileSheetActive = activeSheetId === "location";
 
-    // Mobile View: Visual-viewport-aware bottom sheet drawer
-    if (isMobile) {
+    // Mobile View: Visual-viewport-aware bottom sheet drawer (controlled by BottomSheetManager)
+    if (isMobile && isMobileSheetActive) {
         return (
-            <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Sheet open={true} onOpenChange={(open) => !open && closeSheet("location")}>
                 <SheetContent
                     side="bottom"
                     onOpenAutoFocus={(e) => {
@@ -110,7 +127,7 @@ export function LocationOverlayHost({
                 >
                     <SheetTitle className="sr-only">Select Location</SheetTitle>
                     <SheetDescription className="sr-only">Choose your city</SheetDescription>
-                    <LocationSelector variant="panel" onClose={onClose} />
+                    <LocationSelector variant="panel" onClose={() => closeSheet("location")} />
                 </SheetContent>
             </Sheet>
         );
