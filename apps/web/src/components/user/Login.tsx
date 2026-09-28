@@ -36,7 +36,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
       )}
     >
       <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
-        <div data-keyboard-hide-on-mobile="true" className="mx-auto mb-2 w-fit">
+        <div className="mx-auto mb-2 w-fit">
           <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
             <Image
               src="/images/recycle-icon.png"
@@ -74,10 +74,7 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
             )}
           </CardTitle>
           {step === "enterMobile" && (
-            <p
-              data-keyboard-hide-on-mobile="true"
-              className="text-body text-muted-foreground font-normal leading-normal"
-            >
+            <p className="text-body text-muted-foreground font-normal leading-normal">
               Login to buy & sell mobile spares
             </p>
           )}
