@@ -23,4 +23,9 @@ export const updateEmailTemplateSchema = z.object({
 
 export const sendTestEmailTemplateSchema = z.object({
     recipientEmail: z.string().trim().email('Valid recipient email address is required'),
+    customization: z.object({
+        subject: z.string().trim().max(200).optional(),
+        customHeadline: z.string().trim().max(200).optional(),
+        customNote: z.string().trim().max(500).optional(),
+    }).optional(),
 }).strict();

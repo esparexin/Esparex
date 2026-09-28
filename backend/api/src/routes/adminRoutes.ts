@@ -23,6 +23,7 @@ import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsControll
 import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
 import * as adminAiConfig from '../controllers/admin/adminAiConfigController';
 import * as adminMonetization from '../controllers/admin/adminMonetizationController';
+import * as adminEmailTemplates from '../controllers/admin/adminEmailTemplateController';
 
 const router = express.Router();
 
@@ -133,6 +134,15 @@ router.get('/invoices/:id/print', adminInvoices.getPrintableInvoice);
 router.post('/notifications/send', adminNotifications.sendNotification);
 router.get('/notifications/history', adminNotifications.getHistory);
 router.get('/notifications/recipients', adminNotifications.getRecipients);
+
+// Email Templates
+router.get('/notifications/email-templates', adminEmailTemplates.listEmailTemplates);
+router.get('/notifications/email-templates/:key', adminEmailTemplates.getEmailTemplate);
+router.post('/notifications/email-templates/:key/preview', adminEmailTemplates.getEmailTemplatePreview);
+router.put('/notifications/email-templates/:key', requirePermission('system:config'), adminEmailTemplates.updateEmailTemplate);
+router.patch('/notifications/email-templates/:key', requirePermission('system:config'), adminEmailTemplates.updateEmailTemplate);
+router.post('/notifications/email-templates/:key/reset', requirePermission('system:config'), adminEmailTemplates.resetEmailTemplate);
+router.post('/notifications/email-templates/:key/test', requirePermission('system:config'), adminEmailTemplates.sendTestEmailTemplate);
 
 router.post('/ai/generate', adminAi.generate);
 router.get('/system/ai-config', requirePermission('system:config'), adminAiConfig.getAiConfig);
