@@ -1,5 +1,5 @@
 "use client";
-import { useLayoutEffect, useMemo, useReducer, useCallback } from "react";
+import { useMemo, useReducer, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { UserPage } from "@/lib/routeUtils";
 import type { User } from "@esparex/contracts";
@@ -67,10 +67,6 @@ export function ListingDetail({
   const router = useRouter();
   const { user: authUser, isAuthResolved } = useAuth();
   const user = authUser ?? userProp;
-
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const { data: ad, isLoading: queryLoading, error: queryError, refetch } = useListingDetailQuery(
     adId ? String(adId) : "",
@@ -211,7 +207,7 @@ export function ListingDetail({
                 </div>
 
                 {/* Right Column: Title, Price, Seller, Safety Tips, Actions (Sticky) */}
-                <div className="lg:col-span-5 xl:col-span-4 w-full lg:sticky lg:top-4 self-start">
+                <div className="lg:col-span-5 xl:col-span-4 w-full lg:sticky lg:top-20 self-start max-h-[calc(100vh-5.5rem)] overflow-y-auto scrollbar-hide">
                   <ListingDetailSidebar
                     ad={ad}
                     categoryLabel={categoryLabel}
