@@ -2759,13 +2759,20 @@ scripts/enforce-mobile-architecture-guard.js
 ```
 
 **Definition of Done Checklist**:
-- [ ] **RC-1**: `darkMode: 'media'` declared in mobile Tailwind config
-- [ ] **RC-2**: Zero `hsl(var(--...))` in mobile Tailwind config; `global.css` import removed
-- [ ] **RC-3**: Tab bar colors derive from `useColorScheme()` + `mobileSemanticColors`
-- [ ] **RC-4**: `foreground-subtle` and `foreground-secondary` resolve to concrete hex
-- [ ] **RC-5**: `AppText`, `AppInput`, `Screen` use semantic tokens
-- [ ] **Type Safety**: `npm run type-check` — 0 errors
-- [ ] **Tests**: `npm test -w @esparex/apps-mobile` — 0 failures
-- [ ] **Guards**: `npm run guard:mobile-architecture` — PASS with new rules
-- [ ] **No regressions**: Web/Admin/Backend unchanged
+- [x] **RC-1**: `darkMode: 'media'` declared in mobile Tailwind config
+- [x] **RC-2**: Zero `hsl(var(--...))` in mobile Tailwind config; `global.css` import removed
+- [x] **RC-3**: Tab bar colors derive from `useColorScheme()` + `mobileSemanticColors`
+- [x] **RC-4**: `foreground-subtle` and `foreground-secondary` resolve to concrete hex
+- [x] **RC-5**: `AppText`, `AppInput`, `Screen` use semantic tokens
+- [x] **Type Safety**: `npm run type-check` — 0 errors (9 workspaces)
+- [x] **Tests**: `npm test -w @esparex/apps-mobile` — 306/306 passed, 72 suites
+- [x] **Guards**: `npm run guard:mobile-architecture` — PASS (4 new EA-059 rules active)
+- [x] **No regressions**: Web/Admin/Backend unchanged; `npm run guard:design-token-adoption` PASS; `npm run guard:platform-governance` PASS
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/apps-mobile` ──► PASS (306 tests, 72 suites)
+- ✅ `npm run guard:mobile-architecture` ──► PASS (11 rules including 4 new EA-059 rules)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 violations, 7 files audited)
+- ✅ `npm run guard:platform-governance` ──► PASS
 ---
