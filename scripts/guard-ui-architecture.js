@@ -87,7 +87,7 @@ const RULES = {
   },
   RAW_LOCALE_FORMAT: {
     id: "raw-locale-format",
-    severity: "warning",
+    severity: "error",
     description: "Raw toLocaleDateString/toLocaleString — use formatAppDate/formatPrice (@esparex/shared) per §20.3",
   },
   RAW_FETCH_UI: {
