@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { colors } from '../src/colors';
 import { typography } from '../src/typography';
+import { durations } from '../src/durations';
 
 // Helper to convert hex to HSL (Tailwind format: "H S% L%")
 function hexToHsl(hex: string): string {
@@ -65,6 +66,13 @@ function generateCss() {
   css += `    /* Canonical Typography Weights (SSOT) */\n`;
   for (const [key, weight] of Object.entries(typography.fontWeights)) {
     css += `    --font-weight-${key}: ${weight};\n`;
+  }
+  css += `\n`;
+
+  // Durations
+  css += `    /* Durations (SSOT) */\n`;
+  for (const [key, value] of Object.entries(durations)) {
+    css += `    --duration-${key}: ${value};\n`;
   }
   css += `\n`;
 
