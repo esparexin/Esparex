@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
+import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 
 const formatReason = (reason?: string): string => {
   if (!reason) return 'Plan Activity';
@@ -125,16 +126,15 @@ export const matchesLedgerFilter = (
 
 /**
  * Canonical URL builder for listings linked from credit transactions.
- * Resolves to `/ads/${slug}-${id}` (canonical) or `/ads/${id}` to prevent 404 / malformed slug params.
+ * Delegates to buildPublicListingDetailRoute (SSOT) for slug/id joining;
+ * preserves the transaction-specific rules (null when unlinked, slug
+ * already ending in id resolves bare) that the generic builder lacks.
  */
 export const getListingDetailHref = (tx: { adSlug?: string; listingId?: string }): string | null => {
   const id = tx.listingId;
   const slug = tx.adSlug;
   if (!id && !slug) return null;
-  if (slug && id) {
-    if (slug.endsWith(id)) return `/ads/${slug}`;
-    return `/ads/${slug}-${id}`;
-  }
-  return `/ads/${slug || id}`;
+  if (slug && id && slug.endsWith(id)) return `/ads/${slug}`;
+  return buildPublicListingDetailRoute({ id: id ?? undefined, slug: slug ?? undefined });
 };
 
