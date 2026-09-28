@@ -23,6 +23,12 @@ export function useAdminEmailTemplates() {
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const reportLoadError = useCallback((err: unknown, silent: boolean) => {
+        const message = err instanceof Error ? err.message : "Failed to load email templates";
+        setError(message);
+        if (!silent) showAdminPopup({ type: "error", title: "Templates Error", message });
+    }, []);
+
     const loadTemplates = useCallback(async (isSilent = false) => {
         if (isSilent) setRefreshing(true);
         else setLoading(true);
@@ -32,29 +38,21 @@ export function useAdminEmailTemplates() {
             const data = await listEmailTemplates();
             setTemplates(data);
         } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to load email templates";
-            setError(message);
-            if (!isSilent) showAdminPopup({ type: "error", title: "Templates Error", message });
+            reportLoadError(err, isSilent);
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
-    }, []);
+    }, [reportLoadError]);
 
     useEffect(() => {
         let isMounted = true;
         void listEmailTemplates()
             .then((data) => { if (isMounted) setTemplates(data); })
-            .catch((err) => {
-                if (isMounted) {
-                    const message = err instanceof Error ? err.message : "Failed to load email templates";
-                    setError(message);
-                    showAdminPopup({ type: "error", title: "Templates Error", message });
-                }
-            })
+            .catch((err) => { if (isMounted) reportLoadError(err, false); })
             .finally(() => { if (isMounted) setLoading(false); });
         return () => { isMounted = false; };
-    }, []);
+    }, [reportLoadError]);
 
     const handleUpdateTemplate = useCallback(
         async (key: EmailTemplateKey, payload: UpdateEmailTemplatePayload): Promise<boolean> => {
