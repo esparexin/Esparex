@@ -125,4 +125,45 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
 
         expect(fileContent).toContain("keyboard: '300ms'");
     });
+
+    it("ensures SheetContent safely merges props.style with zIndex and supports hideClose", () => {
+        const sheetPath = path.join(packagesUiSrc, "feedback", "Sheet.tsx");
+        const fileContent = fs.readFileSync(sheetPath, "utf-8");
+
+        expect(fileContent).toContain("zIndex: Z_INDEX.sheetContent, ...style");
+        expect(fileContent).toContain("hideClose = false");
+        expect(fileContent).toContain("!hideClose &&");
+        expect(fileContent).not.toContain("!opacity-100");
+    });
+
+    it("ensures globals.css defines --duration-keyboard linking design tokens to CSS environment", () => {
+        const cssPath = path.join(webSrc, "styles", "globals.css");
+        const fileContent = fs.readFileSync(cssPath, "utf-8");
+
+        expect(fileContent).toContain("--duration-keyboard: 300ms");
+    });
+
+    it("ensures AuthModal passes hideClose and avoids asynchronous setTimeout focus hacks", () => {
+        const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
+        const fileContent = fs.readFileSync(authModalPath, "utf-8");
+
+        expect(fileContent).toContain("hideClose");
+        expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
+    });
+
+    it("ensures AuthModal renders top-left corner Back button symbol and LoginMobileStep uses full-width primary CTA", () => {
+        const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
+        const authContent = fs.readFileSync(authModalPath, "utf-8");
+
+        // Top-left corner Back button icon
+        expect(authContent).toContain("ArrowLeft");
+        expect(authContent).toContain("left-3.5 top-3.5 sm:top-4 sm:left-4");
+        expect(authContent).toContain('aria-label="Back"');
+
+        // Full-width WhatsApp button in LoginMobileStep
+        const stepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
+        const stepContent = fs.readFileSync(stepPath, "utf-8");
+        expect(stepContent).toContain("w-full");
+        expect(stepContent).not.toContain("variant=\"outline\"");
+    });
 });

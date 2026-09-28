@@ -2726,6 +2726,53 @@ docs/tracking/engineering-action-register.md
 
 ---
 
+### EA-059
+**Date**: 2026-09-28  
+**Description**: Remediate AuthModal & Sheet Responsive Architecture & Stacking Inversion (Root-Cause Fix)  
+**Root Cause**: Following PR #632 and migration to `Sheet side="bottom"`:
+1. `SheetPrimitive.Content` declared `style={{ zIndex: Z_INDEX.sheetContent }}` before `{...props}`, enabling callers' `props.style` to overwrite `zIndex` to `auto`. As a result, `SheetOverlay` (`z-index: 1050`) sat physically above modal content, causing mobile taps on input to register on the overlay and trigger outside-dismissal, while also darkening desktop visual presentation.
+2. `AuthModal` used asynchronous `setTimeout(..., 150)` in `onOpenAutoFocus`, which forfeits the trusted browser user gesture token on mobile WebKit/Blink and suppresses the virtual keyboard.
+3. `SheetContent` lacked `hideClose` support, causing duplicate close buttons to render simultaneously.
+4. `SheetContent` had `!opacity-100`, disabling smooth CSS fade transitions.
+5. Missing `--duration-keyboard` on `:root` caused instantaneous elevation shifts that displaced the drawer from under the user's finger.  
+**Action**:
+1. **Preserve Sheet Stacking SSOT**: In `packages/ui/src/feedback/Sheet.tsx`, safely merged `style={{ zIndex: Z_INDEX.sheetContent, ...style }}` so custom styles cannot overwrite primitive z-index. Added `hideClose?: boolean` prop and removed `!opacity-100`.
+2. **Synchronize Design Tokens**: In `apps/web/src/styles/globals.css`, declared `--duration-keyboard: 300ms;` on `:root` linking design tokens to CSS environment.
+3. **Synchronous Mobile Focus & Responsive Animation**: In `apps/web/src/components/auth/AuthModal.tsx`, passed `hideClose`, removed asynchronous `setTimeout` in `onOpenAutoFocus` (allowing natural synchronous user gesture focus), and added desktop zoom/fade transitions (`sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0 sm:duration-200`).
+4. **Input Focus Guard**: In `apps/web/src/hooks/useVisualViewport.ts`, guarded `window.scrollTo` against blurring active inputs during keyboard deployment frames.
+5. **Top-Left Corner Back Button Icon & Full-Width CTA**: In `AuthModal.tsx`, rendered accessible `<ArrowLeft>` icon button at `absolute left-3.5 top-3.5 sm:top-4 sm:left-4` symmetrically balancing the top-right `<SheetClose>` icon. Wired step-aware navigation so clicking Back on OTP returns to mobile input (`resetToMobileStep`) and on mobile entry dismisses cleanly. Removed inline bottom Back button in `LoginMobileStep.tsx` so the "WhatsApp OTP" button becomes a clean, full-width (`w-full`) primary CTA.
+6. **Automated Regression Suite**: Expanded `apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts` with assertions for `style` merging, `hideClose`, absence of `setTimeout` focus hacks, top-left back icon, and full-width CTA (17 tests green).
+
+**Files Modified**:
+```
+apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts
+apps/web/src/components/auth/AuthModal.tsx
+apps/web/src/components/auth/LoginFlow.tsx
+apps/web/src/components/user/Login.tsx
+apps/web/src/components/user/auth/LoginMobileStep.tsx
+apps/web/src/hooks/useVisualViewport.ts
+apps/web/src/styles/globals.css
+packages/ui/src/feedback/Sheet.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Permanent root-cause fix for mobile tap-dismissal, virtual keyboard opening, and desktop visual clarity.
+- [x] **Automated Testing**: 17/17 regression tests green; full web test suite (84 suites, 458 tests) green.
+- [x] **Type Safety & Build**: Monorepo type-check (0 errors across 9 workspaces) and production build pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Preserved single responsive instance across mobile and desktop without duplicate components.
+- [x] **Accessibility & Keyboard**: Synchronous user gesture focus, visible focus rings, escape dismissal, and tab navigation preserved.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-059.
+
+**Verification**:
+- ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (17/17 tests green)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (84/84 test suites green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
 ### EA-060
 **Date**: 2026-09-28  
 **Description**: Remediate Stale Frontend Lifecycle, SW Caching, and Tab Update Detection (PWA / Service Worker SSOT)  

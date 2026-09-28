@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
   SheetDescription,
   SheetClose,
+  X,
+  ArrowLeft,
 } from "@esparex/ui";
-import { X } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 
@@ -27,15 +28,31 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   const touchStartYRef = useRef<number | null>(null);
   const touchStartTimeRef = useRef<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const backActionRef = useRef<(() => void) | null>(null);
 
-  // Reset drag state when modal closes/opens
-  useEffect(() => {
-    if (!open) {
-      setDragOffsetY(0);
-      setIsDragging(false);
-      touchStartYRef.current = null;
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        setDragOffsetY(0);
+        setIsDragging(false);
+        touchStartYRef.current = null;
+      }
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange]
+  );
+
+  const handleBack = useCallback(() => {
+    if (backActionRef.current) {
+      backActionRef.current();
+    } else {
+      handleOpenChange(false);
     }
-  }, [open]);
+  }, [handleOpenChange]);
+
+  const registerBackAction = useCallback((action: (() => void) | null) => {
+    backActionRef.current = action;
+  }, []);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -65,27 +82,28 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
 
     if (dragOffsetY >= DRAG_CLOSE_THRESHOLD || (dragOffsetY > 25 && velocity > VELOCITY_THRESHOLD)) {
       // Drag threshold met — dismiss drawer
-      onOpenChange(false);
+      handleOpenChange(false);
     }
 
     // Snap back
     setIsDragging(false);
     setDragOffsetY(0);
     touchStartYRef.current = null;
-  }, [dragOffsetY, onOpenChange]);
+  }, [dragOffsetY, handleOpenChange]);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         ref={contentRef}
         side="bottom"
+        hideClose
         onOpenAutoFocus={(e) => {
-          // Prevent Radix default autofocus jump before slide-in animation settles
+          // Prevent scroll jump on initial modal presentation
           e.preventDefault();
-          setTimeout(() => {
+          if (typeof window !== "undefined" && window.innerWidth >= 640) {
             const input = document.querySelector<HTMLInputElement>('input[name="mobile"]');
             input?.focus({ preventScroll: true });
-          }, 150);
+          }
         }}
         /* design-token-ignore: dynamic drag gesture translation */
         style={{
@@ -93,7 +111,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           transition: isDragging ? "none" : undefined,
         }}
         className={cn(
-          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between"
+          "max-w-none sm:max-w-sm md:max-w-sm h-auto sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:inset-0 sm:m-auto p-4 pb-5 sm:p-6 overflow-y-auto overscroll-contain bg-card border-none sm:border sm:border-border/80 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col justify-between",
+          "sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0 sm:duration-200"
         )}
       >
         {/* Mobile Drawer Interactive Drag Handle Zone */}
@@ -107,7 +126,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           aria-label="Drag down to close drawer"
           onKeyDown={(e) => {
             if (e.key === "ArrowDown" || e.key === "Enter" || e.key === "Escape") {
-              onOpenChange(false);
+              handleOpenChange(false);
             }
           }}
         >
@@ -117,8 +136,20 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         {/* Accessible Title & Description for Screen Readers */}
         <SheetTitle className="sr-only">Authentication</SheetTitle>
         <SheetDescription className="sr-only">Sign in or create an account.</SheetDescription>
-        
-        {/* Close Button */}
+
+        {/* Back Button (Symbol / Icon Left Top Corner) */}
+        <button
+          type="button"
+          onClick={handleBack}
+          className={cn(
+            "absolute left-3.5 top-3.5 sm:top-4 sm:left-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
+          )}
+          aria-label="Back"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+
+        {/* Close Button (Symbol / Icon Right Top Corner) */}
         <SheetClose
           className={cn(
             "absolute right-3.5 top-3.5 sm:top-4 sm:right-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none"
@@ -129,7 +160,13 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         </SheetClose>
         
         <div className="flex-1 flex flex-col justify-between min-h-0">
-          <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} onBack={() => onOpenChange(false)} />
+          <LoginFlow
+            mode="modal"
+            callbackUrl={callbackUrl}
+            onClose={() => handleOpenChange(false)}
+            onBack={() => handleOpenChange(false)}
+            onRegisterBackAction={registerBackAction}
+          />
         </div>
       </SheetContent>
     </Sheet>

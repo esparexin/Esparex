@@ -1,7 +1,7 @@
 "use client";
 
 import type { UseFormReturn } from "react-hook-form";
-import { ArrowLeft, Loader2 } from "@esparex/ui";
+import { Loader2 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { formatSeconds } from "@/lib/otpHelpers";
 import {
@@ -21,7 +21,6 @@ interface LoginMobileStepProps {
   flow: ReturnType<typeof useOtpFlow>;
   isValidMobile: boolean;
   mobileValue: string;
-  onBack?: () => void;
 }
 
 export function WhatsAppIcon({ className = "w-4 h-4", ...props }: React.ComponentProps<"svg">) {
@@ -43,7 +42,6 @@ export function LoginMobileStep({
   flow,
   isValidMobile,
   mobileValue,
-  onBack,
 }: LoginMobileStepProps) {
   const {
     backendReady,
@@ -138,18 +136,7 @@ export function LoginMobileStep({
         )}
       </div>
 
-      <div className="flex items-center gap-3 pt-6 mt-auto">
-        {onBack && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            className="h-12 px-5 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 shadow-xs"
-          >
-            <ArrowLeft size={16} className="mr-1.5" />
-            Back
-          </Button>
-        )}
+      <div className="pt-6 mt-auto">
         <Button
           type="submit"
           disabled={
@@ -159,7 +146,7 @@ export function LoginMobileStep({
             Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
             !backendReady
           }
-          className="flex-1 h-12 rounded-xl font-semibold text-body bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 transition-all disabled:opacity-40 disabled:bg-emerald-600 disabled:text-white disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+          className="w-full h-12 rounded-xl font-semibold text-body bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-600/20 transition-all disabled:opacity-40 disabled:bg-emerald-600 disabled:text-white disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
         >
           {isSendingOTP ? (
             <Loader2 className="animate-spin" size={18} />

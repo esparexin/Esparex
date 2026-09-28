@@ -10,7 +10,7 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
 import { validateIndianMobile } from "@/lib/mobileUtils";
 
-import { Form } from "@esparex/ui";
+import { Form, ArrowLeft } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
 import { loginFormSchema, type LoginFormValues } from "@esparex/contracts";
@@ -21,9 +21,15 @@ interface LoginProps {
   onLoginSuccess: () => void;
   onBack?: () => void;
   mode?: "page" | "modal";
+  onRegisterBackAction?: (action: (() => void) | null) => void;
 }
 
-export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
+export function Login({
+  onLoginSuccess,
+  onBack,
+  mode = "modal",
+  onRegisterBackAction,
+}: LoginProps) {
   const flow = useOtpFlow(onLoginSuccess);
   const { step } = flow;
   const isModal = mode === "modal";
@@ -36,6 +42,16 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
       )}
     >
       <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
+        {!isModal && onBack && (
+          <button
+            type="button"
+            onClick={step !== "enterMobile" ? () => flow.resetToMobileStep() : onBack}
+            className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+        )}
         <div className="mx-auto mb-2 w-fit">
           <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
             <Image
@@ -81,7 +97,11 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
         </div>
       </CardHeader>
       <CardContent className="p-0 w-full flex-1 flex flex-col justify-between min-h-0">
-        <LoginForm flow={flow} onBack={onBack} />
+        <LoginForm
+          flow={flow}
+          onBack={onBack}
+          onRegisterBackAction={onRegisterBackAction}
+        />
       </CardContent>
     </Card>
   );
@@ -94,9 +114,14 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
 interface LoginFormProps {
   flow: ReturnType<typeof useOtpFlow>;
   onBack?: () => void;
+  onRegisterBackAction?: (action: (() => void) | null) => void;
 }
 
-export function LoginForm({ flow, onBack }: LoginFormProps) {
+export function LoginForm({
+  flow,
+  onBack,
+  onRegisterBackAction,
+}: LoginFormProps) {
   const {
     step,
     authError,
@@ -197,6 +222,18 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     void handleResendOtp(mobileValue);
   }, [form, handleResendOtp, mobileValue]);
 
+  useEffect(() => {
+    if (!onRegisterBackAction) return;
+    if (step !== "enterMobile") {
+      onRegisterBackAction(handleEditMobile);
+    } else {
+      onRegisterBackAction(onBack ?? null);
+    }
+    return () => {
+      onRegisterBackAction(null);
+    };
+  }, [step, onRegisterBackAction, handleEditMobile, onBack]);
+
   const isValidMobile = mobileValue.length === 10 && validateIndianMobile(mobileValue);
 
   // Sync internal UI errors with form errors
@@ -219,7 +256,6 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
             flow={flow}
             isValidMobile={isValidMobile}
             mobileValue={mobileValue}
-            onBack={onBack}
           />
         ) : (
           <LoginOtpStep

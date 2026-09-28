@@ -11,6 +11,7 @@ interface LoginFlowProps {
   mode?: "page" | "modal";
   onClose?: () => void;
   onBack?: () => void;
+  onRegisterBackAction?: (action: (() => void) | null) => void;
 }
 
 export function LoginFlow({
@@ -18,6 +19,7 @@ export function LoginFlow({
   mode = "modal",
   onClose,
   onBack,
+  onRegisterBackAction,
 }: LoginFlowProps) {
   const router = useRouter();
   const { status } = useAuth();
@@ -53,6 +55,7 @@ export function LoginFlow({
         mode={mode}
         onLoginSuccess={handleLoginSuccess}
         onBack={onBack ?? (mode === "page" ? () => void router.push("/") : undefined)}
+        onRegisterBackAction={onRegisterBackAction}
       />
 
       {showRedirectOverlay && (

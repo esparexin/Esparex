@@ -64,7 +64,12 @@ export function useVisualViewport(): VisualViewportState {
         root.setAttribute("data-keyboard-open", keyboardActive ? "true" : "false");
 
         // When the keyboard dismisses on iOS, reset any residual window scroll that WebKit created
-        if (!keyboardActive && window.scrollY !== 0) {
+        const isInputFocused =
+          typeof document !== "undefined" &&
+          document.activeElement &&
+          (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+
+        if (!keyboardActive && !isInputFocused && window.scrollY !== 0) {
           const hasOpenOverlay = document.querySelector(
             '[data-slot="dialog-content"], [data-slot="sheet-content"], [data-slot="sheet-overlay"], [data-state="open"][role="dialog"]'
           );
