@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { z } from 'zod';
 import { AIProvider } from '../AIProvider';
 import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult } from '../types';
+import { buildStructuredResult } from '../structuredJson';
 import { getAiConfig } from '../../../config/ai';
 import { withTimeout } from '../../../utils/resilience';
 
@@ -89,22 +90,7 @@ export class GeminiProvider implements AIProvider {
 
     async generateStructured<T>(prompt: string, schema: z.ZodSchema<T>, options?: GenerateTextOptions): Promise<StructuredAIResult<T>> {
         const res = await this.generateText(`${prompt}\n\nReturn strict JSON that matches the required schema.`, options);
-        try {
-            const start = res.text.indexOf('{');
-            const end = res.text.lastIndexOf('}');
-            const jsonText = start !== -1 && end !== -1 ? res.text.slice(start, end + 1) : res.text;
-            const parsedData = schema.parse(JSON.parse(jsonText));
-            return {
-                data: parsedData,
-                provider: 'gemini',
-                model: res.model,
-                usage: res.usage,
-                latency: res.latency,
-                cached: res.cached,
-            };
-        } catch {
-            throw new GeminiProviderError('Failed to parse structured output', 'Validation');
-        }
+        return buildStructuredResult(res, schema, () => new GeminiProviderError('Failed to parse structured output', 'Validation'));
     }
 
     async *streamText(prompt: string, options?: GenerateTextOptions): AsyncIterable<AIStreamChunk> {
