@@ -73,12 +73,13 @@ export const resolveReport = async (req: Request, res: Response) => {
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
         if (action === 'take_down') {
-            if (!report.adId) {
-                return sendAdminError(req, res, 'Cannot take down: report has no legacy adId', 400);
+            const targetAdId = report.adId || (report.targetType === 'ad' ? report.targetId : undefined);
+            if (!targetAdId) {
+                return sendAdminError(req, res, 'Cannot take down: report has no associated adId', 400);
             }
             await mutateStatus({
                 domain: 'ad',
-                entityId: report.adId.toString(),
+                entityId: targetAdId.toString(),
                 toStatus: AD_STATUS.REJECTED,
                 actor: { type: ACTOR_TYPE.ADMIN, id: req.user!._id.toString() },
                 reason: `Taken down via report: ${report.reason}. ${note || ''}`,
