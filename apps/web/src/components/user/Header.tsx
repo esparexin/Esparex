@@ -53,7 +53,7 @@ export function Header({
   const isMounted = useMounted();
   const { setIsOpen: setIsMobileDrawerOpen } = useMobileNavDrawer();
   const isMobile = useIsMobile();
-  const { openSheet, closeSheet } = isMounted ? useBottomSheetManager() : { openSheet: () => {}, closeSheet: () => {} };
+  const { openSheet, closeSheet } = useBottomSheetManager();
 
   const chromePolicy = getMobileChromePolicy(pathname);
   const browseParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);

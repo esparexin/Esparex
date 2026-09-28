@@ -9,7 +9,6 @@ import { LocationResultsList } from "@/components/location/components/LocationRe
 import { useLocationSearch } from "@/components/location/useLocationSearch";
 import { useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
-import { useMounted } from "@/hooks/useMounted";
 import type { Location } from "@/lib/api/user/locations";
 
 interface LocationOverlayHostProps {
@@ -36,17 +35,11 @@ export function LocationOverlayHost({
     locationQuery = "",
     onLocationQueryChange,
 }: LocationOverlayHostProps) {
-    const isMounted = useMounted();
     const isMobile = useIsMobile();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { setManualLocation } = useLocationDispatch();
     const { location } = useLocationData();
-    const { activeSheetId, registerSheet, unregisterSheet, closeSheet } = isMounted ? useBottomSheetManager() : {
-        activeSheetId: null,
-        registerSheet: () => {},
-        unregisterSheet: () => {},
-        closeSheet: () => {},
-    };
+    const { activeSheetId, registerSheet, unregisterSheet, closeSheet } = useBottomSheetManager();
 
     // Register the location sheet on mount
     useEffect(() => {
