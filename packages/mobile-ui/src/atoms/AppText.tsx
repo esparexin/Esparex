@@ -51,10 +51,11 @@ export const AppText: React.FC<AppTextProps> = ({
       case 'error': return 'text-destructive';
       case 'success': return 'text-success';
       case 'default':
-      // RC-5 FIX: Use semantic text-foreground instead of the primitive
-      // palette classes whose dark: variants were inert without darkMode (RC-1).
-      // text-foreground resolves to a concrete hex via the fixed NativeWind config.
-      default: return 'text-foreground';
+      default:
+        // RC-5 FIX: Use semantic text-foreground instead of the primitive
+        // palette classes whose dark: variants were inert without darkMode (RC-1).
+        // text-foreground resolves to a concrete hex via the fixed NativeWind config.
+        return 'text-foreground';
     }
   };
 
