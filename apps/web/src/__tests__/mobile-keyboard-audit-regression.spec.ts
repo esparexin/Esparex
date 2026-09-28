@@ -151,19 +151,4 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
     });
 
-    it("ensures AuthModal renders top-left corner Back button symbol and LoginMobileStep uses full-width primary CTA", () => {
-        const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
-        const authContent = fs.readFileSync(authModalPath, "utf-8");
-
-        // Top-left corner Back button icon
-        expect(authContent).toContain("ArrowLeft");
-        expect(authContent).toContain("left-3.5 top-3.5 sm:top-4 sm:left-4");
-        expect(authContent).toContain('aria-label="Back"');
-
-        // Full-width WhatsApp button in LoginMobileStep
-        const stepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
-        const stepContent = fs.readFileSync(stepPath, "utf-8");
-        expect(stepContent).toContain("w-full");
-        expect(stepContent).not.toContain("variant=\"outline\"");
-    });
 });

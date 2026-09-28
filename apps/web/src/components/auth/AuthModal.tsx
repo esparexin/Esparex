@@ -39,10 +39,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         side="bottom"
         hideClose
         onOpenAutoFocus={(e) => {
-          e.preventDefault();
-          // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
-          if (typeof window !== "undefined" && window.innerWidth >= 640) {
-            document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
+       
           }
         }}
         /* design-token-ignore: dynamic drag gesture translation */
