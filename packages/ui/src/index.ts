@@ -21,7 +21,6 @@ export * from "./atoms/Button";
 export * from "./atoms/Separator";
 export * from "./forms/Checkbox";
 export * from "./feedback/Dialog";
-export * from "./feedback/Drawer";
 export * from "./forms/FormError";
 export * from "./forms/Input";
 export * from "./forms/Label";

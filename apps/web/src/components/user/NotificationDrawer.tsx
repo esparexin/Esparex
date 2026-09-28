@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, CheckCheck, Drawer, Inbox, Trash2 } from "@esparex/ui";
+import { Button, CheckCheck, Sheet, SheetTrigger, SheetContent, SheetTitle, Inbox, Trash2 } from "@esparex/ui";
 import { type Notification } from "@/lib/api/user/notifications";
 import { NOTIFICATION_META } from "@/components/user/NotificationItemCard";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
@@ -60,13 +60,11 @@ export function NotificationDrawer({
   };
 
   return (
-    <Drawer
-      title="Notifications"
-      open={open}
-      onOpenChange={onOpenChange}
-      trigger={trigger}
-    >
-      <div className="space-y-3 pt-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetContent side="right" className="w-[min(400px,100vw)] max-h-[calc(100vh-2rem)]">
+        <SheetTitle className="sr-only">Notifications</SheetTitle>
+        <div className="space-y-3 pt-2">
         {/* Header Action Bar */}
         <div className="flex items-center justify-between border-b border-border pb-2">
           <span className="text-caption font-semibold text-muted-foreground">
@@ -186,6 +184,7 @@ export function NotificationDrawer({
           </div>
         )}
       </div>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 }

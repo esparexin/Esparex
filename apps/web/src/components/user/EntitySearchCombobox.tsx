@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { Input } from "@esparex/ui";
-import { Drawer } from "@esparex/ui";
+import { Sheet, SheetContent, SheetTitle } from "@esparex/ui";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
@@ -254,9 +254,14 @@ export function EntitySearchCombobox<T>({
             {/* Listbox overlay */}
             {isListOpen && (
                 isMobile ? (
-                    <Drawer title={title} open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
-                        <div className="flex flex-col max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))] px-2 pb-2">
-                            <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
+                    <Sheet open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
+                        <SheetContent
+                            side="bottom"
+                            className="max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))] px-2 pb-2"
+                        >
+                            <SheetTitle className="sr-only">{title}</SheetTitle>
+                            <div className="flex flex-col">
+                                <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle" />
                                     <Input
@@ -287,7 +292,8 @@ export function EntitySearchCombobox<T>({
                                 {renderOptionsList(true)}
                             </div>
                         </div>
-                    </Drawer>
+                        </SheetContent>
+                    </Sheet>
                 ) : (
                     desktopDropdownContent
                 )
