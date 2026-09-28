@@ -24,11 +24,8 @@ export function useAdminEmailTemplates() {
     const [error, setError] = useState<string | null>(null);
 
     const loadTemplates = useCallback(async (isSilent = false) => {
-        if (isSilent) {
-            setRefreshing(true);
-        } else {
-            setLoading(true);
-        }
+        if (isSilent) setRefreshing(true);
+        else setLoading(true);
         setError(null);
 
         try {
@@ -37,9 +34,7 @@ export function useAdminEmailTemplates() {
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to load email templates";
             setError(message);
-            if (!isSilent) {
-                showAdminPopup({ type: "error", title: "Templates Error", message });
-            }
+            if (!isSilent) showAdminPopup({ type: "error", title: "Templates Error", message });
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -47,8 +42,19 @@ export function useAdminEmailTemplates() {
     }, []);
 
     useEffect(() => {
-        void loadTemplates();
-    }, [loadTemplates]);
+        let isMounted = true;
+        void listEmailTemplates()
+            .then((data) => { if (isMounted) setTemplates(data); })
+            .catch((err) => {
+                if (isMounted) {
+                    const message = err instanceof Error ? err.message : "Failed to load email templates";
+                    setError(message);
+                    showAdminPopup({ type: "error", title: "Templates Error", message });
+                }
+            })
+            .finally(() => { if (isMounted) setLoading(false); });
+        return () => { isMounted = false; };
+    }, []);
 
     const handleUpdateTemplate = useCallback(
         async (key: EmailTemplateKey, payload: UpdateEmailTemplatePayload): Promise<boolean> => {
@@ -127,10 +133,7 @@ export function useAdminEmailTemplates() {
     );
 
     return {
-        templates,
-        loading,
-        refreshing,
-        error,
+        templates, loading, refreshing, error,
         loadTemplates,
         updateTemplate: handleUpdateTemplate,
         resetTemplate: handleResetTemplate,

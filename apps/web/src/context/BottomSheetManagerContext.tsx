@@ -81,10 +81,12 @@ export function BottomSheetManagerProvider({ children }: { children: React.React
   );
 }
 
+const DEFAULT_MANAGER: BottomSheetManagerContextType = {
+  activeSheetId: null,
+  registerSheet: () => {}, unregisterSheet: () => {},
+  openSheet: () => {}, closeSheet: () => {}, closeAll: () => {},
+};
+
 export function useBottomSheetManager() {
-  const context = useContext(BottomSheetManagerContext);
-  if (context === undefined) {
-    throw new Error("useBottomSheetManager must be used within a BottomSheetManagerProvider");
-  }
-  return context;
+  return useContext(BottomSheetManagerContext) ?? DEFAULT_MANAGER;
 }
