@@ -9,12 +9,14 @@ import {
 import {
     Button,
     Card,
+    Grid,
     Input,
-    Spinner,
-    Search,
-    RefreshCw,
     Mail,
+    RefreshCw,
+    Search,
     Sparkles,
+    Spinner,
+    Stack,
 } from "@esparex/ui";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
@@ -97,9 +99,9 @@ export default function EmailTemplatesPage() {
                 </Button>
             }
         >
-            <div className="space-y-5">
+            <Stack gap="md">
                 {/* Stats Summary Bar */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Grid cols={3} gap="sm">
                     <Card className="p-4 border border-border bg-card/60 flex items-center justify-between">
                         <div>
                             <p className="text-caption text-muted-foreground font-medium">Total Templates</p>
@@ -129,7 +131,7 @@ export default function EmailTemplatesPage() {
                             <Mail className="w-5 h-5" />
                         </div>
                     </Card>
-                </div>
+                </Grid>
 
                 {/* Filter and Search Controls */}
                 <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
@@ -192,7 +194,7 @@ export default function EmailTemplatesPage() {
                         onReset={(key) => void resetTemplate(key)}
                     />
                 )}
-            </div>
+            </Stack>
 
             {/* Preview Modal */}
             <EmailTemplatePreviewModal
