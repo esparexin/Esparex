@@ -39,7 +39,7 @@ export interface ListingActionHandlers {
   onRepostService?: (id: string) => void;
   onRepostSpare?: (id: string) => void;
   onBoost?: (listing: Listing) => void;
-  getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
+  getStatusBadge: (status: string) => React.ReactNode;
 }
 
 export function renderAdItem(

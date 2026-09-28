@@ -192,17 +192,6 @@ export function resolveDeviceCondition(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Date formatting helper for mobile cards (compact current year dates)       */
-/* -------------------------------------------------------------------------- */
-
-export function formatCompactCardDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Just now";
-  const currentYear = new Date().getFullYear().toString();
-  const yearRegex = new RegExp(`\\s*${currentYear}\\s*`, "g");
-  return dateStr.replace(yearRegex, "").trim() || dateStr;
-}
-
-/* -------------------------------------------------------------------------- */
 /* Badge design tokens                                                         */
 /* -------------------------------------------------------------------------- */
 
