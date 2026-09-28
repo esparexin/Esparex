@@ -42,7 +42,6 @@ const SCAN_ROOTS = SCOPE_ARG
       path.resolve(__dirname, "..", "apps", "admin", "src"),
       path.resolve(__dirname, "..", "packages", "ui", "src"),
     ];
-const SCAN_ROOT = SCAN_ROOTS[0];
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 const RULES = {
