@@ -16,7 +16,7 @@ export function isNativeShell(): boolean {
 
     // Native user-agent fallback
     if (typeof navigator !== "undefined" && navigator.userAgent) {
-        return /EsparexNativeApp|wv/i.test(navigator.userAgent);
+        return /EsparexNativeApp/i.test(navigator.userAgent);
     }
 
     return false;
