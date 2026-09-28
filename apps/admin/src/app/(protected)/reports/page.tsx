@@ -223,7 +223,7 @@ export default function ReportsPage() {
                     <div className="space-y-1">
                         <div className="text-body font-medium text-foreground-secondary">{item.reason}</div>
                         {item.isAutoHidden ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-tiny font-semibold text-amber-700">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-tiny font-semibold text-warning">
                                 <ShieldAlert size={10} /> Auto-hidden
                             </span>
                         ) : null}
@@ -370,7 +370,7 @@ export default function ReportsPage() {
                 />
 
                 {error ? (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-caption text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-caption text-destructive">
                         <AlertCircle size={16} />
                         <span>{error}</span>
                     </div>

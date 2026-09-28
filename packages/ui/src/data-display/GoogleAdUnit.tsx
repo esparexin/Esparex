@@ -50,14 +50,14 @@ export function GoogleAdUnit({
         role="region"
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs text-slate-500",
+          "flex items-center justify-center rounded-xl border border-dashed border-border bg-muted p-4 text-center text-caption text-muted-foreground",
           className
         )}
       >
         {fallbackContent || (
           <div>
-            <p className="font-bold text-slate-700">Promote Your Business on Esparex</p>
-            <p className="text-tiny text-slate-500 mt-0.5">Reach thousands of buyers & sellers daily</p>
+            <p className="font-bold text-foreground">Promote Your Business on Esparex</p>
+            <p className="text-tiny text-muted-foreground mt-0.5">Reach thousands of buyers & sellers daily</p>
           </div>
         )}
       </div>

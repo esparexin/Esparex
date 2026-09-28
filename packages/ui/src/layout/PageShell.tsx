@@ -36,12 +36,12 @@ export function PageShell({
             {(title || description) ? (
               <div className="flex-1">
                 {isNested ? (
-                  title ? <h2 className="text-xl font-bold tracking-tight text-slate-900">{title}</h2> : null
+                  title ? <h2 className="text-h3 font-bold tracking-tight text-foreground">{title}</h2> : null
                 ) : (
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+                  <h1 className="text-h2 font-bold tracking-tight text-foreground">{title}</h1>
                 )}
                 {!isCompact && description && (
-                  <div className={cn("mt-1 text-sm text-slate-500", isNested && "text-slate-400")}>
+                  <div className={cn("mt-1 text-body text-muted-foreground", isNested && "text-foreground-subtle")}>
                     {description}
                   </div>
                 )}

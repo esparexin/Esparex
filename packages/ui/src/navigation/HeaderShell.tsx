@@ -57,6 +57,7 @@ export function HeaderShell({
   return (
     <header className={cn("sticky top-0 z-30 shrink-0 border-b border-border bg-background/90 backdrop-blur w-full", className)}>
       {/* Desktop Layout */}
+      {/* ui-guard-ignore: parallel-responsive-dom — single header instance; sections toggle via CSS breakpoints, not duplicate trees. */}
       <div className={cn("hidden lg:flex items-center justify-between px-4 lg:px-8", isCompact ? "h-14" : "h-16")}>
         <div className="flex items-center gap-6">
           {logo && <div className="shrink-0">{logo}</div>}

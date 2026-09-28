@@ -36,11 +36,11 @@ export function WalletCreditCard({
       className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
         isSelected
           ? isSpotlight
-            ? "border-amber-400 bg-amber-50/70 ring-2 ring-amber-300/40 shadow-xs"
-            : "border-blue-400 bg-blue-50/70 ring-2 ring-blue-300/40 shadow-xs"
+            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-xs"
+            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-xs"
           : isSpotlight
-          ? "border-amber-200/80 bg-amber-50/30 hover:bg-amber-50/50"
-          : "border-blue-200/80 bg-blue-50/30 hover:bg-blue-50/50"
+          ? "border-warning/20 bg-warning/5 hover:bg-warning/10"
+          : "border-primary/20 bg-primary/5 hover:bg-primary/10"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -48,11 +48,11 @@ export function WalletCreditCard({
           className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
             isSelected
               ? isSpotlight
-                ? "bg-amber-500 text-white"
-                : "bg-blue-600 text-white"
+                ? "bg-warning text-warning-foreground"
+                : "bg-primary text-primary-foreground"
               : isSpotlight
-              ? "bg-amber-100 text-amber-700"
-              : "bg-blue-100 text-blue-700"
+              ? "bg-warning/10 text-warning"
+              : "bg-primary/10 text-primary"
           }`}
         >
           {isSpotlight ? (
@@ -69,8 +69,8 @@ export function WalletCreditCard({
             <span
               className={`text-tiny font-bold px-2 py-0.5 rounded-full border ${
                 isSpotlight
-                  ? "bg-amber-100/90 text-amber-900 border-amber-200"
-                  : "bg-blue-100/90 text-blue-900 border-blue-200"
+                  ? "bg-warning/10 text-warning border-warning/20"
+                  : "bg-primary/10 text-primary border-primary/20"
               }`}
             >
               {availableCredits} available in wallet
@@ -84,7 +84,7 @@ export function WalletCreditCard({
       <div className="text-right shrink-0 pl-3">
         <p
           className={`text-caption font-bold ${
-            isSpotlight ? "text-amber-600" : "text-blue-600"
+            isSpotlight ? "text-warning" : "text-primary"
           }`}
         >
           1 Credit
@@ -93,7 +93,7 @@ export function WalletCreditCard({
         {isSelected && (
           <CheckCircle2
             className={`h-4 w-4 ml-auto mt-0.5 ${
-              isSpotlight ? "text-amber-600" : "text-blue-600"
+              isSpotlight ? "text-warning" : "text-primary"
             }`}
           />
         )}
@@ -124,8 +124,8 @@ export function CatalogPlanCard({
       className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
         isSelected
           ? activeCategory === "SPOTLIGHT"
-            ? "border-amber-400 bg-amber-50/60 ring-2 ring-amber-300/40 shadow-xs"
-            : "border-blue-400 bg-blue-50/60 ring-2 ring-blue-300/40 shadow-xs"
+            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-xs"
+            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-xs"
           : "border-border bg-muted/50 hover:bg-muted"
       }`}
     >
@@ -134,8 +134,8 @@ export function CatalogPlanCard({
           className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
             isSelected
               ? activeCategory === "SPOTLIGHT"
-                ? "bg-amber-500 text-white"
-                : "bg-blue-600 text-white"
+                ? "bg-warning text-warning-foreground"
+                : "bg-primary text-primary-foreground"
               : "bg-muted text-foreground-secondary"
           }`}
         >
@@ -151,8 +151,8 @@ export function CatalogPlanCard({
             <Badge
               className={`text-tiny px-1.5 py-0 font-semibold border-0 ${
                 activeCategory === "SPOTLIGHT"
-                  ? "bg-amber-100 text-amber-800"
-                  : "bg-blue-100 text-blue-800"
+                  ? "bg-warning/10 text-warning"
+                  : "bg-primary/10 text-primary"
               }`}
             >
               {plan.displayBoost} Visibility
@@ -171,7 +171,7 @@ export function CatalogPlanCard({
         {isSelected && (
           <CheckCircle2
             className={`h-4 w-4 ml-auto mt-0.5 ${
-              activeCategory === "SPOTLIGHT" ? "text-amber-500" : "text-blue-500"
+              activeCategory === "SPOTLIGHT" ? "text-warning" : "text-primary"
             }`}
           />
         )}
@@ -262,7 +262,7 @@ export function PromotionValidityPreview({
         </div>
         <div className="flex items-center justify-between border-t border-border/40 pt-1.5">
           <span className="text-foreground-secondary">{promoName} expires:</span>
-          <span className={`font-bold ${isSpotlight ? "text-amber-600 dark:text-amber-400" : "text-link"}`}>
+          <span className={`font-bold ${isSpotlight ? "text-warning" : "text-link"}`}>
             {effectiveExpiresAt.toLocaleDateString(undefined, {
               month: "short",
               day: "numeric",
@@ -273,7 +273,7 @@ export function PromotionValidityPreview({
       </div>
 
       {adRemainingDays <= 1 && (
-        <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-tiny text-amber-700 dark:text-amber-400 flex items-start gap-2">
+        <div className="p-2.5 bg-warning/10 border border-warning/20 rounded-xl text-tiny text-warning flex items-start gap-2">
           <span className="shrink-0">⚠️</span>
           <span>
             This listing has only 1 day of validity remaining. {promoName} visibility will expire with the ad.

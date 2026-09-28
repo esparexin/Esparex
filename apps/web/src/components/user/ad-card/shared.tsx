@@ -334,7 +334,7 @@ export function getPlanBadge(
 
   return (
     <Badge
-      className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
+      className={cn("bg-warning text-warning-foreground font-bold shadow-sm border border-warning/30", merged)}
       aria-label="Spotlight listing"
     >
       <Zap className="h-2.5 w-2.5" aria-hidden="true" />
@@ -378,7 +378,7 @@ export function getAdOverlayBadge(
     return (
       <Badge
         className={cn(
-          "bg-amber-50 text-amber-700 border border-amber-200",
+          "bg-warning/10 text-warning border border-warning/20",
           merged
         )}
         aria-label="Listing reserved"
@@ -392,7 +392,7 @@ export function getAdOverlayBadge(
     return (
       <Badge
         className={cn(
-          "bg-blue-50 text-blue-700 border border-blue-200",
+          "bg-primary/10 text-primary border border-primary/20",
           merged
         )}
         aria-label="New listing"
@@ -438,20 +438,20 @@ export function getConditionBadge(
       className={cn(
         "inline-flex items-center gap-1 text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
-          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800"
-          : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800",
+          ? "bg-primary/10 text-primary border-primary/20"
+          : "bg-destructive/10 text-destructive border-destructive/20",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
       {isPowerOn ? (
         <>
-          <Zap className="size-3 text-emerald-600 fill-emerald-600 shrink-0" aria-hidden="true" />
+          <Zap className="size-3 text-primary fill-primary shrink-0" aria-hidden="true" />
           <span>ON</span>
         </>
       ) : (
         <>
-          <Power className="size-3 text-red-600 shrink-0" aria-hidden="true" />
+          <Power className="size-3 text-destructive shrink-0" aria-hidden="true" />
           <span>OFF</span>
         </>
       )}

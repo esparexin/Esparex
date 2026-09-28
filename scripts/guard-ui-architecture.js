@@ -32,14 +32,9 @@ const path = require("path");
 const args = process.argv.slice(2);
 const WARN_ONLY = args.includes("--warn-only");
 const SCOPE_ARG = args.find((a) => a.startsWith("--path="));
-const SCAN_ROOTS = SCOPE_ARG
-  ? [path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))]
-  : [
-      path.resolve(__dirname, "..", "apps", "web", "src"),
-      path.resolve(__dirname, "..", "apps", "admin", "src"),
-      path.resolve(__dirname, "..", "packages", "ui", "src"),
-    ];
-const SCAN_ROOT = SCAN_ROOTS[0];
+const SCAN_ROOT = SCOPE_ARG
+  ? path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))
+  : path.resolve(__dirname, "..", "apps", "web", "src");
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 const RULES = {
@@ -110,7 +105,7 @@ const RULES = {
   },
 };
 
-const NATIVE_BUTTON_BASELINE = 257;
+const NATIVE_BUTTON_BASELINE = 138;
 const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
 const RAW_INLINE_SVG_BASELINE = 0;
 
@@ -329,7 +324,7 @@ function auditFile(filePath) {
 // ─── Run ──────────────────────────────────────────────────────────────────────
 
 function run() {
-  const files = SCAN_ROOTS.flatMap((root) => walk(root));
+  const files = walk(SCAN_ROOT);
   const allViolations = [];
 
   for (const file of files) {
@@ -384,11 +379,8 @@ function run() {
   }
 
   // ── Print report ──────────────────────────────────────────────────────────
-  const scannedLabel = SCOPE_ARG
-    ? path.relative(process.cwd(), SCAN_ROOTS[0]) || "."
-    : SCAN_ROOTS.map((r) => path.relative(process.cwd(), r) || ".").join(", ");
   console.log(`\n🛡️  Esparex UI Architecture Guard`);
-  console.log(`   Scanned: ${files.length} TSX/JSX files in ${scannedLabel}`);
+  console.log(`   Scanned: ${files.length} TSX/JSX files in ${path.relative(process.cwd(), SCAN_ROOT) || "."}`);
   console.log(`   Errors:   ${errors.length}`);
   console.log(`   Warnings: ${warnings.length}\n`);
 

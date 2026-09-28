@@ -2,8 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Lock } from "lucide-react";
-import { Heading } from "@esparex/ui";
+import { Heading, Lock } from "@esparex/ui";
 
 interface AdminAuthCardProps {
   title: string;

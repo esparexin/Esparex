@@ -109,6 +109,7 @@ export {
   Link2,
   Linkedin,
   List,
+  ListChecks,
   Loader2,
   Lock,
   LogIn,
