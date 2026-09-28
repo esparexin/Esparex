@@ -9,11 +9,12 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { AdminActionMenu } from "@/components/layout/AdminActionMenu";
 import { ViewAdModal } from "@/components/moderation/ViewAdModal";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
-import type { ModerationItem } from "@/components/moderation/moderationTypes";
+import type { ModerationItem, ModerationStatus } from "@/components/moderation/moderationTypes";
+import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "@/components/moderation/moderationStatus";
 import { fetchAdminAdDetail } from "@/lib/api/moderation";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
-import { REPORT_STATUS } from "@esparex/contracts";
+import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
 
 const REPORT_STATUS_OPTIONS = [
     { value: "all", label: "All Reports" },
@@ -22,6 +23,15 @@ const REPORT_STATUS_OPTIONS = [
     { value: REPORT_STATUS.REVIEWED, label: "Reviewed" },
     { value: REPORT_STATUS.RESOLVED, label: "Resolved" },
     { value: REPORT_STATUS.DISMISSED, label: "Dismissed" },
+];
+
+const AD_STATUS_OPTIONS = [
+    { value: "all", label: "All Ad Statuses" },
+    { value: LIFECYCLE_STATUS.LIVE, label: "Live / Active" },
+    { value: LIFECYCLE_STATUS.EXPIRED, label: "Expired" },
+    { value: LIFECYCLE_STATUS.DEACTIVATED, label: "Deactivated" },
+    { value: LIFECYCLE_STATUS.REJECTED, label: "Rejected" },
+    { value: LIFECYCLE_STATUS.PENDING, label: "Pending Moderation" },
 ];
 
 export default function ReportsPage() {
@@ -48,12 +58,16 @@ export default function ReportsPage() {
     const [isViewOpen, setIsViewOpen] = useState(false);
 
     const requestedStatus = searchParams.get("status");
+    const requestedAdStatus = searchParams.get("adStatus");
     const requestedSearch = readStringParam(searchParams.get("q") ?? searchParams.get("search"));
     const requestedPage = readPositiveIntParam(searchParams.get("page"), 1);
 
     const status = REPORT_STATUS_OPTIONS.some((option) => option.value === requestedStatus)
         ? (requestedStatus as string)
         : "open";
+    const adStatus = AD_STATUS_OPTIONS.some((option) => option.value === requestedAdStatus)
+        ? (requestedAdStatus as string)
+        : "all";
     const page = requestedPage;
     const search = requestedSearch;
 
@@ -65,17 +79,19 @@ export default function ReportsPage() {
         const timer = setTimeout(() => {
             void fetchReports({
                 status,
+                adStatus: adStatus !== "all" ? adStatus : undefined,
                 q: search,
                 page,
                 limit: 20,
             });
         }, 300);
         return () => clearTimeout(timer);
-    }, [fetchReports, status, search, page]);
+    }, [fetchReports, status, adStatus, search, page]);
 
     useEffect(() => {
         const nextUrl = ADMIN_UI_ROUTES.reports({
             status: status !== "open" ? status : "open",
+            adStatus: adStatus !== "all" ? adStatus : undefined,
             q: search || undefined,
             page: page > 1 ? page : undefined,
         });
@@ -83,7 +99,7 @@ export default function ReportsPage() {
         if (nextUrl !== currentUrl) {
             void router.replace(nextUrl, { scroll: false });
         }
-    }, [page, pathname, router, search, searchParams, status]);
+    }, [adStatus, page, pathname, router, search, searchParams, status]);
 
     // Cleanup: search sync from input
     useEffect(() => {
@@ -91,12 +107,13 @@ export default function ReportsPage() {
             if (searchInput === (search || "")) return;
             const nextUrl = ADMIN_UI_ROUTES.reports({
                 status,
+                adStatus: adStatus !== "all" ? adStatus : undefined,
                 q: searchInput || undefined,
             });
             void router.replace(nextUrl, { scroll: false });
         }, 400);
         return () => clearTimeout(timer);
-    }, [searchInput, search, status, router]);
+    }, [searchInput, search, status, adStatus, router]);
 
     const handleOpenView = useCallback(async (item: ReportQueueItem) => {
         setViewItem(item);
@@ -176,10 +193,35 @@ export default function ReportsPage() {
                 ),
             },
             {
+                header: "Ad Status",
+                cell: (item) => {
+                    const rawStatus = item.ad?.status?.toLowerCase();
+                    const normalizedStatus: ModerationStatus =
+                        rawStatus === "active" || rawStatus === "approved" || rawStatus === "published"
+                            ? (LIFECYCLE_STATUS.LIVE as ModerationStatus)
+                            : (rawStatus as ModerationStatus);
+
+                    const badgeClass = normalizedStatus && MODERATION_STATUS_BADGES[normalizedStatus];
+                    const label =
+                        (normalizedStatus && MODERATION_STATUS_LABELS[normalizedStatus]) ||
+                        (item.ad?.status ? item.ad.status : "Archived");
+
+                    return (
+                        <span
+                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-tiny font-semibold uppercase tracking-wider ${
+                                badgeClass || "border-border bg-muted text-foreground-secondary"
+                            }`}
+                        >
+                            {label}
+                        </span>
+                    );
+                },
+            },
+            {
                 header: "Reason",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <div className="text-sm font-medium text-foreground-secondary">{item.reason}</div>
+                        <div className="text-body font-medium text-foreground-secondary">{item.reason}</div>
                         {item.isAutoHidden ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-tiny font-semibold text-amber-700">
                                 <ShieldAlert size={10} /> Auto-hidden
@@ -189,20 +231,20 @@ export default function ReportsPage() {
                 ),
             },
             {
-                header: "Status",
+                header: "Report Status",
                 cell: (item) => (
                     <div className="space-y-1">
                         <span className="inline-flex rounded-full bg-muted px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
                             {item.status}
                         </span>
-                        <div className="text-xs text-foreground-subtle">{item.reportCount} reports</div>
+                        <div className="text-caption text-foreground-subtle">{item.reportCount} reports</div>
                     </div>
                 ),
             },
             {
                 header: "Reported",
                 cell: (item) => (
-                    <div className="text-xs text-foreground-tertiary">
+                    <div className="text-caption text-foreground-tertiary">
                         {item.reportedAt ? new Date(item.reportedAt).toLocaleString() : "Unknown"}
                     </div>
                 ),
@@ -275,12 +317,12 @@ export default function ReportsPage() {
             <div className="space-y-6">
                 <AdminModuleTabs
                     tabs={[
-                        { label: "Open", href: ADMIN_UI_ROUTES.reports({ status: "open" }) },
-                        { label: "Pending", href: ADMIN_UI_ROUTES.reports({ status: "pending" }) },
-                        { label: "Reviewed", href: ADMIN_UI_ROUTES.reports({ status: "reviewed" }) },
-                        { label: "Resolved", href: ADMIN_UI_ROUTES.reports({ status: "resolved" }) },
-                        { label: "Dismissed", href: ADMIN_UI_ROUTES.reports({ status: "dismissed" }) },
-                        { label: "All", href: ADMIN_UI_ROUTES.reports({ status: "all" }) },
+                        { label: "Open", href: ADMIN_UI_ROUTES.reports({ status: "open", adStatus: adStatus !== "all" ? adStatus : undefined }) },
+                        { label: "Pending", href: ADMIN_UI_ROUTES.reports({ status: "pending", adStatus: adStatus !== "all" ? adStatus : undefined }) },
+                        { label: "Reviewed", href: ADMIN_UI_ROUTES.reports({ status: "reviewed", adStatus: adStatus !== "all" ? adStatus : undefined }) },
+                        { label: "Resolved", href: ADMIN_UI_ROUTES.reports({ status: "resolved", adStatus: adStatus !== "all" ? adStatus : undefined }) },
+                        { label: "Dismissed", href: ADMIN_UI_ROUTES.reports({ status: "dismissed", adStatus: adStatus !== "all" ? adStatus : undefined }) },
+                        { label: "All", href: ADMIN_UI_ROUTES.reports({ status: "all", adStatus: adStatus !== "all" ? adStatus : undefined }) },
                     ]}
                 />
 
@@ -290,14 +332,45 @@ export default function ReportsPage() {
                     searchPlaceholder="Search reports by listing title or report note..."
                     status={status}
                     onStatusChange={(val) => {
-                        const nextUrl = ADMIN_UI_ROUTES.reports({ status: val, q: searchInput || undefined });
+                        const nextUrl = ADMIN_UI_ROUTES.reports({
+                            status: val,
+                            adStatus: adStatus !== "all" ? adStatus : undefined,
+                            q: searchInput || undefined,
+                        });
                         void router.replace(nextUrl, { scroll: false });
                     }}
                     statusOptions={REPORT_STATUS_OPTIONS}
+                    extraFilters={
+                        <div className="flex items-center gap-1.5">
+                            <label htmlFor="ad-status-filter" className="text-caption font-medium text-foreground-subtle whitespace-nowrap">
+                                Ad Status:
+                            </label>
+                            <select
+                                id="ad-status-filter"
+                                value={adStatus}
+                                onChange={(e) => {
+                                    const nextUrl = ADMIN_UI_ROUTES.reports({
+                                        status,
+                                        adStatus: e.target.value !== "all" ? e.target.value : undefined,
+                                        q: searchInput || undefined,
+                                    });
+                                    void router.replace(nextUrl, { scroll: false });
+                                }}
+                                aria-label="Filter by ad status"
+                                className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            >
+                                {AD_STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    }
                 />
 
                 {error ? (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-caption text-red-600">
                         <AlertCircle size={16} />
                         <span>{error}</span>
                     </div>
@@ -314,7 +387,12 @@ export default function ReportsPage() {
                         totalItems: pagination.total,
                         pageSize: pagination.limit,
                         onPageChange: (newPage) => {
-                            const nextUrl = ADMIN_UI_ROUTES.reports({ status, q: search, page: newPage });
+                            const nextUrl = ADMIN_UI_ROUTES.reports({
+                                status,
+                                adStatus: adStatus !== "all" ? adStatus : undefined,
+                                q: search,
+                                page: newPage,
+                            });
                             void router.replace(nextUrl, { scroll: false });
                         },
                     }}

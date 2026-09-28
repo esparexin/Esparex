@@ -23,14 +23,15 @@ import { getReportedAdsAggregation } from '@esparex/core/domains/listings/applic
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {
-        const { status, reason, q } = req.query;
+        const { status, reason, q, adStatus } = req.query;
         const { page, limit, skip } = getPaginationParams(req);
 
         const reportedResult = await getReportedAdsAggregation(
             {
                 status: typeof status === 'string' ? status : undefined,
                 reason: typeof reason === 'string' ? reason : undefined,
-                search: typeof q === 'string' ? q : undefined
+                search: typeof q === 'string' ? q : undefined,
+                adStatus: typeof adStatus === 'string' ? adStatus : undefined
             },
             { skip, limit }
         );

@@ -46,6 +46,7 @@ const normalizeReportItem = (raw: Record<string, unknown>): ReportQueueItem => (
 interface ReportFilters {
     status?: string;
     q?: string;
+    adStatus?: string;
     page: number;
     limit: number;
 }
@@ -72,6 +73,9 @@ export function useModerationReports() {
             });
             if (filters.status && filters.status !== "all") {
                 query.set("status", filters.status);
+            }
+            if (filters.adStatus && filters.adStatus !== "all") {
+                query.set("adStatus", filters.adStatus);
             }
             if (filters.q) {
                 query.set("q", filters.q);

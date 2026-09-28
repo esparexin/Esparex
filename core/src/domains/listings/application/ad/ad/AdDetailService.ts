@@ -10,6 +10,7 @@ import { getListingRepository } from '../../../../../composition/listings';
 import { hydrateAdMetadata } from './AdAggregationService';
 import type { IAd } from '../../../../../models/Ad';
 import logger from '../../../../../utils/logger';
+import { getStatusMatchCriteria } from '../../../../../utils/statusQueryMapper';
 
 const extractRefId = (value: unknown): string | undefined => {
     if (typeof value === 'string' && value.trim().length > 0) {
@@ -215,8 +216,11 @@ export const getListingDetailById = async (adId: string) => {
 };
 
 
-export const getReportedAdsAggregation = async (filters: { status?: string, reason?: string, search?: string }, pagination: { skip: number, limit: number }) => {
-    const { status, reason, search } = filters;
+export const getReportedAdsAggregation = async (
+    filters: { status?: string; reason?: string; search?: string; adStatus?: string },
+    pagination: { skip: number; limit: number }
+) => {
+    const { status, reason, search, adStatus } = filters;
     const { skip, limit } = pagination;
 
     const matchQuery: Record<string, unknown> = {};
@@ -242,6 +246,11 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
             }
         },
         { $unwind: { path: '$adDetails', preserveNullAndEmptyArrays: true } },
+        ...(adStatus && adStatus !== 'all' ? [{
+            $match: {
+                'adDetails.status': getStatusMatchCriteria(adStatus)
+            }
+        }] : []),
         {
             $lookup: {
                 from: 'users',

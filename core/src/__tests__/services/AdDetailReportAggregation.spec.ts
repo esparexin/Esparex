@@ -65,4 +65,38 @@ describe('getReportedAdsAggregation', () => {
         expect(unwindAdStage).toBeDefined();
         expect(unwindAdStage?.$unwind).toEqual({ path: '$adDetails', preserveNullAndEmptyArrays: true });
     });
+
+    it('applies adStatus match stage when live filter is provided', async () => {
+        mockedAggregate
+            .mockResolvedValueOnce([])
+            .mockResolvedValueOnce([{ count: 0 }]);
+
+        await getReportedAdsAggregation({ status: 'open', adStatus: 'live' }, { skip: 0, limit: 10 });
+
+        const pipelineArg = mockedAggregate.mock.calls[0][0];
+        const matchStage = pipelineArg.find(
+            (stage): stage is PipelineStage.Match => '$match' in stage && 'adDetails.status' in (stage.$match as Record<string, unknown>)
+        );
+        expect(matchStage).toBeDefined();
+        expect(matchStage?.$match).toEqual({
+            'adDetails.status': { $in: ['live', 'approved', 'active', 'published'] },
+        });
+    });
+
+    it('applies adStatus match stage when expired filter is provided', async () => {
+        mockedAggregate
+            .mockResolvedValueOnce([])
+            .mockResolvedValueOnce([{ count: 0 }]);
+
+        await getReportedAdsAggregation({ status: 'open', adStatus: 'expired' }, { skip: 0, limit: 10 });
+
+        const pipelineArg = mockedAggregate.mock.calls[0][0];
+        const matchStage = pipelineArg.find(
+            (stage): stage is PipelineStage.Match => '$match' in stage && 'adDetails.status' in (stage.$match as Record<string, unknown>)
+        );
+        expect(matchStage).toBeDefined();
+        expect(matchStage?.$match).toEqual({
+            'adDetails.status': 'expired',
+        });
+    });
 });
