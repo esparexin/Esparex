@@ -86,7 +86,12 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 import { isDbReady } from '@esparex/core/config/db';
 import logger from '@esparex/core/utils/logger';
-import { getAllowedOriginList, normalizeOrigin } from '@esparex/core/utils/originConfig';
+import {
+    DEFAULT_STATIC_ALLOWED_ORIGINS,
+    getAllowedOriginList,
+    isAllowedOrigin,
+    normalizeOrigin,
+} from '@esparex/core/utils/originConfig';
 import { getHealthCheckData, healthCheckHandler } from './utils/health';
 
 /* -------------------------------------------------------------------------- */
@@ -118,30 +123,13 @@ const configuredOrigins = getAllowedOriginList({
 });
 
 const allowedOriginsList = [
-    'https://esparex.in',
-    'https://www.esparex.in',
-    'https://admin.esparex.in',
-    'https://api.esparex.in',
-    'https://esparex-userfrontend.vercel.app',
-    'https://esparex-admin-frontend.vercel.app',
+    ...DEFAULT_STATIC_ALLOWED_ORIGINS,
     ...configuredOrigins
 ].map(normalizeOrigin);
 
 const corsOptions: cors.CorsOptions = {
     origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-
-        // 🛡️ AUTOMATIC LOCAL DEV ALLOWANCE
-        if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
-            const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
-            if (isLocal) return callback(null, true);
-        }
-
-        const normalized = normalizeOrigin(origin);
-        if (
-            allowedOriginsList.includes(normalized) ||
-            /\.vercel\.app$/.test(normalized)
-        ) {
+        if (isAllowedOrigin(origin, allowedOriginsList, env.NODE_ENV)) {
             return callback(null, true);
         }
 

@@ -2654,3 +2654,39 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-web` ──► PASS (83 suites, 444 tests)
 - ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
 - ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-057
+**Date**: 2026-09-28  
+**Description**: Test Subdomains CORS and Redirect Whitelist Authorization (`admintest.esparex.in`, `test.esparex.in`)  
+**Root Cause**: Testing feature branches (e.g. `develop`) on staging/test subdomains (`admintest.esparex.in`, `test.esparex.in`) was blocked by backend CORS middleware and redirect URL validation, which only permitted apex and production subdomains (`esparex.in`, `admin.esparex.in`).  
+**Action**:
+1. **Core Origin SSOT Centralization**: Defined `DEFAULT_STATIC_ALLOWED_ORIGINS` and `isAllowedOrigin` helper in `@esparex/core/utils/originConfig.ts` to include `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in`, supporting both full protocol URLs and host-only headers.
+2. **Backend API CORS Integration**: Updated `backend/api/src/app.ts` to consume `DEFAULT_STATIC_ALLOWED_ORIGINS` and validate incoming request origins via `isAllowedOrigin`.
+3. **Redirect Domain Whitelist**: Added `admintest.esparex.in` and `test.esparex.in` to `DEFAULT_ALLOWED_DOMAINS` in `core/src/utils/redirectValidator.ts` so authentication and navigation redirects to staging subdomains are safely permitted.
+4. **Comprehensive Test Coverage**: Added test coverage in `backend/api/src/__tests__/utils/originConfig.spec.ts` (9 tests) and `core/src/__tests__/utils/redirectValidator.spec.ts` (5 tests) verifying production, preview, and test subdomain validation.
+
+**Files Modified**:
+```
+backend/api/src/__tests__/utils/originConfig.spec.ts
+backend/api/src/app.ts
+core/src/__tests__/utils/redirectValidator.spec.ts
+core/src/utils/originConfig.ts
+core/src/utils/redirectValidator.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Added `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in` to allowed origins and redirect domains.
+- [x] **Automated Testing**: Unit tests passed cleanly across core and backend workspaces (14 tests total).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 lint waivers.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-057.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- redirectValidator.spec.ts` ──► PASS (5/5 tests green)
+- ✅ `npm test -w @esparex/backend-api -- originConfig.spec.ts` ──► PASS (9/9 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
