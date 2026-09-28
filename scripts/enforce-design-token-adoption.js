@@ -43,6 +43,11 @@ const BANNED_PATTERNS = [
         remediation: 'Use SSOT tokens: text-tiny(11px), text-caption(12px), text-small(13px), text-body(14px), text-body-lg(16px), text-h4(18px)',
     },
     {
+        pattern: /\b(text|bg|border|ring|divide|from|via|to)-(blue|amber|emerald|red|green|yellow|orange|purple|pink|indigo|teal|cyan|lime|fuchsia|rose|sky|violet)-\d{2,3}\/?\d*?\b/,
+        name: 'Raw chromatic palette',
+        remediation: 'Use semantic tokens: bg-primary/text-primary/border-border/bg-card/text-foreground/bg-muted/text-destructive (AGENTS.md §21 Zero Raw Palette)',
+    },
+    {
         pattern: /\bstyle=\{\{/,
         name: 'Inline style block',
         remediation: 'Use Tailwind utility classes or design tokens. Exception: dynamic canvas/animation values — add design-token-ignore comment.',
