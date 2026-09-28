@@ -201,7 +201,8 @@ export function EntitySearchCombobox<T>({
                                 onClear?.();
                             }}
                             title="Remove selection"
-                            className="p-1 rounded-md text-foreground-secondary hover:text-destructive hover:bg-muted transition-colors"
+                            aria-label="Remove selection"
+                            className="min-h-8 min-w-8 p-1.5 rounded-md text-foreground-secondary hover:text-destructive hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -213,7 +214,8 @@ export function EntitySearchCombobox<T>({
                                 handleProposeCustom(search);
                             }}
                             title={`Add "${search.trim()}" as custom ${proposeType}`}
-                            className="p-1 rounded-md text-destructive hover:text-destructive hover:bg-destructive-subtle transition-colors"
+                            aria-label={`Add "${search.trim()}" as custom ${proposeType}`}
+                            className="min-h-8 min-w-8 p-1.5 rounded-md text-destructive hover:text-destructive hover:bg-destructive-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                         </button>
@@ -253,7 +255,8 @@ export function EntitySearchCombobox<T>({
                                              type="button"
                                              onClick={() => handleProposeCustom(search)}
                                              title={`Add "${search.trim()}" as custom ${proposeType}`}
-                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
+                                             aria-label={`Add "${search.trim()}" as custom ${proposeType}`}
+                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 min-h-8 min-w-8 p-1.5 rounded-md text-primary hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                         >
                                              <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                                         </button>
