@@ -153,8 +153,8 @@ export function NotificationBellDropdown({
                 onOpenChange={handleOpenChange}
                 notifications={notifications}
                 unreadCount={unreadCount}
-                onMarkRead={(id) => markReadMutation.mutateAsync(id).catch((err) => logger.warn("[notifications] mark-read failed:", err))}
-                onMarkAllRead={() => markAllReadMutation.mutateAsync().catch((err) => logger.warn("[notifications] mark-all-read failed:", err))}
+                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => undefined).catch((err) => { logger.warn("[notifications] mark-read failed:", err); })}
+                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => undefined).catch((err) => { logger.warn("[notifications] mark-all-read failed:", err); })}
                 onSelect={handleNotificationSelect}
                 trigger={
                     <Button

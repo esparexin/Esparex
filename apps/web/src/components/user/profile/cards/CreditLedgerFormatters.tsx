@@ -1,5 +1,7 @@
 import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
+import { formatStableDateTime } from '@/lib/formatters';
+import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 const formatReason = (reason?: string): string => {
   if (!reason) return 'Plan Activity';
   const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
