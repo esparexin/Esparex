@@ -27,7 +27,7 @@ export function PwaRegister() {
                     const cacheKeys = await caches.keys();
                     await Promise.all(
                         cacheKeys
-                            .filter((cacheKey) => cacheKey.startsWith("temporary-v"))
+                            .filter((cacheKey) => cacheKey.startsWith("temporary-"))
                             .map((cacheKey) => caches.delete(cacheKey))
                     );
                 }
@@ -38,24 +38,11 @@ export function PwaRegister() {
             return;
         }
 
-        let refreshing = false;
-        const handleControllerChange = () => {
-            if (refreshing) return;
-            refreshing = true;
             window.location.reload();
         };
 
         navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
 
-        navigator.serviceWorker.register("/sw.js").then((registration) => {
-            // Proactively check for service worker updates on page load
-            void registration.update();
-        }).catch(() => {
-            // Registration failures should not block app render.
-        });
-
-        return () => {
-            navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
         };
     }, []);
 

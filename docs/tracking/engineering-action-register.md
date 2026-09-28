@@ -2726,39 +2726,8 @@ docs/tracking/engineering-action-register.md
 
 ---
 
-### EA-059
-**Date**: 2026-09-28  
-**Description**: Android Service Worker Cache Invalidation & In-App WebView Identification Remediation  
-**Root Cause**: 
-1. `apps/web/next.config.mjs` lacked explicit `no-cache, no-store, must-revalidate` headers for `/sw.js` and `/manifest.json`. Live probe (`curl -ILs https://esparex.in/sw.js`) proved that Vercel Edge CDN was caching `/sw.js` with `x-vercel-cache: HIT` and `age: 20183` (5.6+ hours old). Android Chrome checking `/sw.js` received the stale cached copy and did not update the service worker or flush stale CacheStorage bundles.
-2. `apps/web/src/components/pwa/PwaRegister.tsx` registered `/sw.js` without calling `registration.update()` and lacked a `controllerchange` listener. Under the W3C Service Worker specification, when a new worker installs and activates, existing open tabs never auto-reload without a `controllerchange` listener, leaving Android users running stale in-memory JavaScript indefinitely.
-3. `apps/web/src/lib/runtime/nativeShell.ts` matched generic `/wv/i` in `navigator.userAgent`, misidentifying standard Android in-app browsers (WhatsApp, Gmail, Instagram, Facebook, LinkedIn) as the "Esparex Native App". This triggered spurious service-worker unregistration and cache deletion on in-app links.  
-**Action**:
-1. **Explicit No-Cache Delivery**: Added `/sw.js` and `/manifest.json` headers to `apps/web/next.config.mjs` with `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, and `Expires: 0` so CDNs and browsers always fetch the live service worker on deployment.
-2. **Proactive Updates & Single-Instance Controller Change**: In `apps/web/src/components/pwa/PwaRegister.tsx`, added proactive `registration.update()` on load and wired `navigator.serviceWorker.addEventListener('controllerchange', ...)` to reload the window once when an updated worker takes control.
-3. **Eliminate False-Positive Native Shell Detection**: In `apps/web/src/lib/runtime/nativeShell.ts`, removed `/wv/i` substring matching. Only true native bridges (`window.ReactNativeWebView`) and explicit `EsparexNativeApp` user-agent tokens are identified as the native shell.
-4. **Automated Unit & Header Governance Suite**: Added `apps/web/src/__tests__/sw-and-native-shell-governance.spec.ts` asserting strict user-agent isolation and `next.config.mjs` cache-control header presence (6/6 tests passing).
-
 **Files Modified**:
 ```
 apps/web/next.config.mjs
-apps/web/src/components/pwa/PwaRegister.tsx
-apps/web/src/lib/runtime/nativeShell.ts
-apps/web/src/__tests__/sw-and-native-shell-governance.spec.ts
-docs/tracking/engineering-action-register.md
+
 ```
-
-**Definition of Done Checklist**:
-- [x] **Feature Implementation**: Android service worker cache invalidation, edge CDN header delivery, and in-app browser identification verified.
-- [x] **Automated Testing**: 6/6 unit tests passed cleanly (`sw-and-native-shell-governance.spec.ts`). All 84 web test suites pass cleanly.
-- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build -w @esparex/apps-web`) pass cleanly with exit code `0`.
-- [x] **Zero Duplication**: Architecture compliance verified via `repo:gate` (19/19 gates pass, 100% Health Score).
-- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-059.
-
-**Verification**:
-- ✅ `npm test -w @esparex/apps-web -- sw-and-native-shell-governance.spec.ts` ──► PASS (6/6 tests green)
-- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
-- ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
-- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
-
-
