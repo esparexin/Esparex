@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
+import { useMounted } from "@/hooks/useMounted";
 
 interface AuthModalContextType {
   isAuthModalOpen: boolean;
@@ -33,7 +34,14 @@ function AuthModalQueryWatcher({
 }
 
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
-  const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = useBottomSheetManager();
+  const isMounted = useMounted();
+  const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = isMounted ? useBottomSheetManager() : {
+    activeSheetId: null,
+    registerSheet: () => {},
+    unregisterSheet: () => {},
+    openSheet: () => {},
+    closeSheet: () => {},
+  };
   const [callbackUrl, setCallbackUrl] = React.useState<string | null>(null);
 
   // Register the auth sheet on mount
