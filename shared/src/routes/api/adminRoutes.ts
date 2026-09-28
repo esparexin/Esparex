@@ -79,6 +79,7 @@ export const ADMIN_ROUTES = {
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
   REPORTS: "/reports",
   REPORT_STATUS: (id: string) => `/reports/${id}/status`,
+  REPORT_RESOLVE: (id: string) => `/reports/${id}/resolve`,
 
   // Catalog
   CATEGORIES: "/catalog/categories",

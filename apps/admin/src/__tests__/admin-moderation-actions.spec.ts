@@ -68,4 +68,26 @@ describe("Admin Moderation Actions & Batch Workflows SSOT", () => {
         selectedIds = toggleSelectAll(selectedIds, allItemIds);
         expect(selectedIds.size).toBe(0);
     });
+
+    it("should correctly map and normalize adStatus filter options for reports queue", () => {
+        const allowedAdStatuses = new Set([
+            "all",
+            "live",
+            "expired",
+            "deactivated",
+            "rejected",
+            "pending",
+        ]);
+
+        const normalizeAdStatus = (adStatus: string | null | undefined): string => {
+            if (!adStatus) return "all";
+            return allowedAdStatuses.has(adStatus) ? adStatus : "all";
+        };
+
+        expect(normalizeAdStatus("live")).toBe("live");
+        expect(normalizeAdStatus("expired")).toBe("expired");
+        expect(normalizeAdStatus("deactivated")).toBe("deactivated");
+        expect(normalizeAdStatus("invalid")).toBe("all");
+        expect(normalizeAdStatus(null)).toBe("all");
+    });
 });

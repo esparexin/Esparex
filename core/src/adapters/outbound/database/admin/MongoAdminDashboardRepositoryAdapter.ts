@@ -15,12 +15,10 @@ import {
     type AdminLocationSummary,
     type AdminLogSummary,
     type ContactSubmissionDocument,
-    type DashboardCardStatsRaw,
     type DashboardOverviewStatsRaw,
     type LocationAnalyticsParams,
     type LocationAnalyticsRawData,
     type UnifiedAdStatsFacet,
-    type DashboardCardAdStatsFacet,
     type RevenueTotalAggItem,
 } from '../../../../domains/admin';
 import type { Model } from 'mongoose';
@@ -75,31 +73,12 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
                 }
             ]),
             CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING, isDeleted: { $ne: true } }),
-            Report.countDocuments({ status: REPORT_STATUS.OPEN, isDeleted: { $ne: true } }),
+            Report.countDocuments({ status: REPORT_STATUS.OPEN }),
             Business.countDocuments({ status: BUSINESS_STATUS.PENDING, isDeleted: { $ne: true } }),
             RevenueAnalytics.aggregate<RevenueTotalAggItem>([{ $group: { _id: null, total: { $sum: '$totalRevenue' } } }]),
             this.getCatalogHealthMetrics()
         ]);
         return { totalUsers, unifiedStats: unifiedStats as [UnifiedAdStatsFacet], pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth };
-    }
-
-    public async getDashboardCardStats(publicAdFilter: Record<string, unknown>): Promise<DashboardCardStatsRaw> {
-        const [totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth] = await Promise.all([
-            User.countDocuments({ isDeleted: { $ne: true } }),
-            Ad.aggregate<DashboardCardAdStatsFacet>([
-                {
-                    $facet: {
-                        live: [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: 'count' }],
-                        pending: [{ $match: { listingType: LISTING_TYPE.AD, status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: 'count' }]
-                    }
-                }
-            ]),
-            Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] }, isDeleted: { $ne: true } }),
-            Business.countDocuments({ isDeleted: { $ne: true } }),
-            RevenueAnalytics.aggregate<RevenueTotalAggItem>([{ $group: { _id: null, total: { $sum: '$totalRevenue' } } }]),
-            this.getCatalogHealthMetrics()
-        ]);
-        return { totalUsers, adStats: adStats as [DashboardCardAdStatsFacet], totalReports, totalBusinesses, totalRevenueAgg, catalogHealth };
     }
 
     public async getRecentAdminLogs(limit: number): Promise<AdminLogSummary[]> {

@@ -10,6 +10,7 @@ import { getListingRepository } from '../../../../../composition/listings';
 import { hydrateAdMetadata } from './AdAggregationService';
 import type { IAd } from '../../../../../models/Ad';
 import logger from '../../../../../utils/logger';
+import { getStatusMatchCriteria } from '../../../../../utils/statusQueryMapper';
 
 const extractRefId = (value: unknown): string | undefined => {
     if (typeof value === 'string' && value.trim().length > 0) {
@@ -215,8 +216,11 @@ export const getListingDetailById = async (adId: string) => {
 };
 
 
-export const getReportedAdsAggregation = async (filters: { status?: string, reason?: string, search?: string }, pagination: { skip: number, limit: number }) => {
-    const { status, reason, search } = filters;
+export const getReportedAdsAggregation = async (
+    filters: { status?: string; reason?: string; search?: string; adStatus?: string },
+    pagination: { skip: number; limit: number }
+) => {
+    const { status, reason, search, adStatus } = filters;
     const { skip, limit } = pagination;
 
     const matchQuery: Record<string, unknown> = {};
@@ -241,7 +245,12 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
                 as: 'adDetails'
             }
         },
-        { $unwind: '$adDetails' },
+        { $unwind: { path: '$adDetails', preserveNullAndEmptyArrays: true } },
+        ...(adStatus && adStatus !== 'all' ? [{
+            $match: {
+                'adDetails.status': getStatusMatchCriteria(adStatus)
+            }
+        }] : []),
         {
             $lookup: {
                 from: 'users',
@@ -255,6 +264,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
             $match: {
                 $or: [
                     { 'adDetails.title': { $regex: String(search), $options: 'i' } },
+                    { 'reports.adTitle': { $regex: String(search), $options: 'i' } },
                     { 'reports.description': { $regex: String(search), $options: 'i' } }
                 ]
             }
@@ -275,6 +285,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
 
     interface ReportDoc {
         _id: unknown;
+        adTitle?: string;
         reason: string;
         status: string;
         createdAt: Date;
@@ -302,7 +313,7 @@ export const getReportedAdsAggregation = async (filters: { status?: string, reas
             reportId: String(latestReport._id),
             reason: latestReport.reason,
             status: latestReport.status,
-            ad: group.adDetails,
+            ad: group.adDetails || (latestReport.adTitle ? { title: latestReport.adTitle } : undefined),
             reportedAt: latestReport.createdAt,
             reporter: group.reports.map((r) => r.reportedBy),
             reportCount: group.reportCount,

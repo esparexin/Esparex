@@ -2397,3 +2397,153 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test` ──► PASS (72 test suites, 306 tests passed)
 - ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
 
+---
+
+### EA-052
+
+**Sprint**: Admin Moderation Queue & Data Governance  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Data Pipeline Integrity & Static Counts Remediation  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Admin Reports Queue Pipeline Record Preservation**:
+   - Fixed `getReportedAdsAggregation` in `core/src/domains/listings/application/ad/ad/AdDetailService.ts` by adding `{ path: '$adDetails', preserveNullAndEmptyArrays: true }` to the `$unwind` stage.
+   - Restored orphaned/historical reports whose parent listings were soft-deleted or removed from the `ads` collection so moderators can inspect, review, resolve, and dismiss them.
+   - Added fallback to `latestReport.adTitle` and expanded search filter `$or` to match against `reports.adTitle`.
+   - Updated `resolveReport` in `adminReportsController.ts` to support both `report.adId` and canonical `targetId`.
+2. **Phantom Predicates & Dead Code Elimination**:
+   - Removed non-existent `isDeleted: { $ne: true }` filter from `Report.countDocuments({ status: REPORT_STATUS.OPEN })` in `MongoAdminDashboardRepositoryAdapter.ts` (Report schema has no soft deletion).
+   - Removed dead method `getDashboardCardStats` and unused interfaces `DashboardCardStatsRaw` and `DashboardCardAdStatsFacet` from `AdminDashboardRepositoryPort`, `MongoAdminDashboardRepositoryAdapter`, and `AdminDashboardService`.
+3. **Dynamic Moderation Counts & Sidebar Synchronization**:
+   - Replaced hardcoded static zeros (`rejected: 0`, `expired: 0`) in `DashboardPage.tsx` with dynamic values fetched from SSOT `fetchAdminModerationSummary()`.
+   - Populated `services` moderation count in `fetchAdminSidebarCounts()` in `adminSidebar.ts`.
+4. **Comprehensive Test Coverage**:
+   - Created `AdDetailReportAggregation.spec.ts` asserting that orphaned reports are preserved and fall back to snapshot title.
+   - Updated `AdminDashboardService.spec.ts` to assert that `Report.countDocuments` queries strictly by `{ status: REPORT_STATUS.OPEN }` without phantom filters.
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/(system)/dashboard/page.tsx
+apps/admin/src/lib/api/adminSidebar.ts
+backend/api/src/controllers/admin/adminReportsController.ts
+core/src/adapters/outbound/database/admin/MongoAdminDashboardRepositoryAdapter.ts
+core/src/domains/admin/ports/AdminDashboardRepositoryPort.ts
+core/src/domains/listings/application/ad/ad/AdDetailService.ts
+core/src/services/AdminDashboardService.ts
+core/src/__tests__/services/AdDetailReportAggregation.spec.ts
+core/src/__tests__/services/AdminDashboardService.spec.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Fixed aggregation pipeline drop, removed phantom filters, synced dynamic moderation counts.
+- [x] **Automated Testing**: 100% test suites passed across core, backend-api, and apps-admin.
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+---
+
+### EA-053
+
+**Sprint**: Admin Moderation Queue & Reports Workflow  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Moderation UX & Reports Validation Architecture  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Action Menu Comprehensive Architectural Audit**:
+   - Audited the four action items (`Inspect`, `Review`, `Resolve`, `Dismiss`): defined **What**, **Why**, **How**, and **Where** each action operates within the moderation lifecycle.
+   - Identified and addressed critical UX flaws: `Inspect` previously navigated away from the reports queue (losing pagination and filters) instead of presenting the reported ad in-context; `Resolve` previously updated only the report status without providing a direct take-down flow for violating ads.
+2. **In-Context View & Validate Modal (`ViewAdModal` SSOT)**:
+   - Extended `@/components/moderation/ViewAdModal` to accept an optional `reportContext` with abuse signal details (reason, report count, status, auto-hidden indicator, reported timestamp) and direct validation actions.
+   - Reused existing single-instance modal rather than introducing duplicate component definitions.
+   - Provided fallback handling for orphaned/archived listings so moderators can inspect report snapshot details and resolve or dismiss the ticket even if the ad document was deleted.
+3. **Dedicated Row Action & Menu Enhancement**:
+   - Added a prominent, accessible `View` button (`Eye` icon) on every table row in `apps/admin/src/app/(protected)/reports/page.tsx`.
+   - Made the listing title clickable to trigger the same in-context view.
+   - Reorganized the action menu into `View & Validate`, `Inspect in Catalog` (external navigation fallback), `Mark Reviewed`, `Take Down & Resolve`, and `Dismiss Report`.
+4. **Backend Route & Mutation Integration**:
+   - Added canonical `ADMIN_ROUTES.REPORT_RESOLVE(id)` to `@esparex/shared`.
+   - Added `resolveReportAction` to `useModerationReports` to call `PATCH /api/v1/admin/reports/:id/resolve` with `{ action: 'take_down' | 'dismiss' | 'warn_user', note }` to atomically take down violating ads and resolve abuse tickets.
+   - Replaced raw string literals with canonical `REPORT_STATUS` enum values from `@esparex/contracts` and enforced typography design tokens (`text-body`, `text-caption`).
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/reports/page.tsx
+apps/admin/src/components/moderation/ViewAdModal.tsx
+apps/admin/src/hooks/useModerationReports.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Audited action menus, added in-context View & Validate modal, added View button, linked atomic take-down/resolve.
+- [x] **Automated Testing**: 100% test suites passed across apps-admin (14 test files, 103 tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+
+---
+
+### EA-054
+
+**Sprint**: Admin Moderation Queue & Reports Workflow  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Moderation Reporting & Ad Lifecycle Filtering  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **SSOT Status Filtering Integration**:
+   - Extended `getReportedAdsAggregation` in `core/src/domains/listings/application/ad/ad/AdDetailService.ts` to accept `adStatus?: string` filter.
+   - Connected canonical `getStatusMatchCriteria` (`core/src/utils/statusQueryMapper.ts`) to map requested statuses (`live`, `expired`, `deactivated`, `rejected`) into MongoDB query stages, transparently including legacy aliases (`live`, `active`, `approved`, `published`) without creating duplicate query logic or schema drift.
+2. **Controller & API Hook Wiring**:
+   - Updated `getReportedAds` in `backend/api/src/controllers/admin/adminReportsController.ts` to extract `adStatus` from `req.query` and pass to `getReportedAdsAggregation`.
+   - Updated `useModerationReports` in `apps/admin/src/hooks/useModerationReports.ts` to support `adStatus` in `ReportFilters` and query params.
+3. **Queue Table & Filter Toolbar UI**:
+   - Added a dedicated "Ad Status" column in `apps/admin/src/app/(protected)/reports/page.tsx` rendering canonical `MODERATION_STATUS_BADGES` and `MODERATION_STATUS_LABELS` from `@/components/moderation/moderationStatus` (reusing existing tokens and styles, zero duplicate badge components).
+   - Added Ad Status filter dropdown in `AdminFilterToolbar` via `extraFilters` slot, offering options for "All Ad Statuses", "Live / Active", "Expired", "Deactivated", "Rejected", and "Pending Moderation".
+   - Preserved `adStatus` selection across queue tab changes (`AdminModuleTabs`) and pagination updates.
+4. **Automated Unit Testing & Gate Verification**:
+   - Added unit test cases to `core/src/__tests__/services/AdDetailReportAggregation.spec.ts` asserting correct pipeline `$match` stages for `live` and `expired` filters.
+   - Added test case in `apps/admin/src/__tests__/admin-moderation-actions.spec.ts` validating adStatus normalization.
+
+**Files Modified**:
+```
+apps/admin/src/__tests__/admin-moderation-actions.spec.ts
+apps/admin/src/app/(protected)/reports/page.tsx
+apps/admin/src/hooks/useModerationReports.ts
+backend/api/src/controllers/admin/adminReportsController.ts
+core/src/__tests__/services/AdDetailReportAggregation.spec.ts
+core/src/domains/listings/application/ad/ad/AdDetailService.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Added Ad Status column and Live/Expired/Deactivated/Rejected filtering to Reports Queue.
+- [x] **Automated Testing**: 100% test suites passed across core (AdDetailReportAggregation spec) and apps-admin (14 test files, 104 tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: Reused canonical LIFECYCLE_STATUS from `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+- ✅ `npm test -w @esparex/apps-admin` ──► PASS (104/104 tests green)
+- ✅ `npm test -w @esparex/core -- AdDetailReportAggregation` ──► PASS (3/3 tests green)
+
+
+
