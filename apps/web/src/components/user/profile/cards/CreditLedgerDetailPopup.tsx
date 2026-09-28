@@ -14,10 +14,10 @@ import {
 import {
   formatActivityName,
   formatAppliedDateTime,
+  formatOptionalDateTime,
   renderTransactionStatus,
   getListingDetailHref,
 } from './CreditLedgerFormatters';
-import { formatStableDateTime } from '@/lib/formatters';
 import Link from 'next/link';
 
 interface CreditLedgerDetailPopupProps {
@@ -32,11 +32,6 @@ const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, ch
     <div className="text-caption text-foreground">{children}</div>
   </div>
 );
-
-const formatDate = (iso?: string | null): string => {
-  if (!iso) return '—';
-  return formatStableDateTime(iso);
-};
 
 export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = ({ tx, open, onClose }) => {
   const [now] = React.useState(() => Date.now());
@@ -102,7 +97,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
         <div className="px-5 py-3">
           {/* 1. When the listing was originally posted */}
           {listingPostedDate && (
-            <Row label="Listing posted">{formatDate(listingPostedDate)}</Row>
+            <Row label="Listing posted">{formatOptionalDateTime(listingPostedDate)}</Row>
           )}
 
           {/* 2. When the credit activity happened */}
@@ -123,7 +118,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {tx.spotlightExpiresAt && (
             <Row label="Boost expires">
               <span className={new Date(tx.spotlightExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
-                {formatDate(tx.spotlightExpiresAt)}
+                {formatOptionalDateTime(tx.spotlightExpiresAt)}
               </span>
             </Row>
           )}
@@ -132,7 +127,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {tx.adExpiresAt && (
             <Row label="Ad expires">
               <span className={new Date(tx.adExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
-                {formatDate(tx.adExpiresAt)}
+                {formatOptionalDateTime(tx.adExpiresAt)}
               </span>
             </Row>
           )}
