@@ -151,4 +151,16 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
     });
 
+    it("ensures LoginMobileStep defines enterKeyHint='send', type='tel', Enter key submit handling, and live digit count", () => {
+        const mobileStepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
+        const fileContent = fs.readFileSync(mobileStepPath, "utf-8");
+
+        expect(fileContent).toContain('type="tel"');
+        expect(fileContent).toContain('enterKeyHint="send"');
+        expect(fileContent).toContain('e.key === "Enter"');
+        expect(fileContent).toContain("requestSubmit()");
+        expect(fileContent).toContain("${mobileValue.length}/10");
+        expect(fileContent).toContain("✓ 10 digits");
+    });
+
 });

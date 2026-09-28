@@ -41,7 +41,7 @@ export function Login({
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative text-center p-0 mb-6 sm:mb-7 shrink-0">
+      <CardHeader className="relative text-center p-0 mb-4 sm:mb-7 shrink-0">
         {!isModal && onBack && (
           <button
             type="button"
@@ -53,7 +53,7 @@ export function Login({
           </button>
         )}
         <div className="mx-auto mb-2 w-fit">
-          <div className="flex items-center justify-center h-11 w-11 rounded-2xl bg-emerald-600 text-white shadow-sm shadow-emerald-600/15 p-2">
+          <div className="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/15 p-2">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
