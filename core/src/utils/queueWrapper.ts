@@ -1,7 +1,7 @@
 import { Queue, Job, type WorkerOptions, Worker, type Processor, type JobsOptions } from 'bullmq';
 import { TraceContext } from "@esparex/shared";
 import logger from './logger';
-import { AuditService } from '../services/AuditService';
+import { AuditService } from '../domains/analytics/application/services/AuditService';
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { clearReliabilityContext, setReliabilityContext } from './reliabilityContext';
 import { reliabilityAlertsTotal } from './metrics';

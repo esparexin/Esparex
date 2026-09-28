@@ -1,13 +1,13 @@
 import { LOCATION_STATUS } from '@esparex/contracts';
 import logger from '../../utils/logger';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { findLocationById } from '../location/LocationQueryService';
 import { getModerationQueuePaginated } from '../location/LocationQueryService';
 import { saveLocation } from '../location/LocationMutationService';
 import { dispatchTemplatedNotification } from '../../domains/notifications/application/NotificationService';
 import { resolveLocationSummary } from '../../utils/locationHierarchy';
 import { invalidateLocationStateCache } from './helpers';
-import type { AdminLogFn } from '../AdminListingsService';
+import type { AdminLogFn } from '../../utils/adminLogger';
 import type { AdminLocationPaginationQuery } from './types';
 import { parsePaginationParams } from './helpers';
 

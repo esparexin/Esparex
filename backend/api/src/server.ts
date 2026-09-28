@@ -11,7 +11,7 @@ import { Server } from 'http';
 import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { waitForRedisReady } from '@esparex/core/config/redis';
-import { assertDuplicateRolloutReadiness } from '@esparex/core/services/DuplicateRolloutGuard';
+import { assertDuplicateRolloutReadiness } from '@esparex/core/domains/fraud';
 import { startScheduler, stopScheduler } from '@esparex/core/services/SchedulerBoot';
 import Admin from '@esparex/core/models/Admin';
 import { USER_STATUS } from "@esparex/contracts";

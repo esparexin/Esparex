@@ -21,7 +21,8 @@ describe('EmailService', () => {
         jest.clearAllMocks();
         emailService = new EmailService();
         mockTransporter = {
-            sendMail: jest.fn().mockResolvedValue({ messageId: 'msg_123' })
+            sendMail: jest.fn().mockResolvedValue({ messageId: 'msg_123' }),
+            verify: jest.fn().mockResolvedValue(true),
         };
         mockedNodemailer.createTransport.mockReturnValue(mockTransporter);
     });
@@ -115,26 +116,73 @@ describe('EmailService', () => {
         expect(mockedNodemailer.createTransport).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle sendMail failures', async () => {
+    it('should return errorMessage when sendMail throws', async () => {
         mockedGetSystemConfigDoc.mockResolvedValue({
             notifications: {
                 email: { enabled: true, provider: 'smtp', host: 'h1', username: 'u1', password: 'p1' }
             }
         });
-        mockTransporter.sendMail.mockRejectedValue(new Error('SMTP_ERROR'));
+        mockTransporter.sendMail.mockRejectedValue(new Error('Auth failed'));
 
-        const result = await emailService.sendEmail('test@example.com', 'Subject', 'Body');
+        const result = await emailService.send({ to: 'test@example.com', subject: 'S', html: 'H' });
 
-        expect(result).toBe(false);
+        expect(result.success).toBe(false);
+        expect(result.skippedReason).toBe('SEND_ERROR');
+        expect(result.errorMessage).toContain('Auth failed');
     });
 
-    it('should generate Risk Alert template correctly', () => {
-        const stats = { score: 45, riskLevel: 'critical', findings: 12 };
-        const html = emailService.generateRiskAlertTemplate(stats);
+    describe('verify()', () => {
+        it('should return ok=true when SMTP connection succeeds', async () => {
+            mockedGetSystemConfigDoc.mockResolvedValue({
+                notifications: {
+                    email: { enabled: true, provider: 'smtp', host: 'smtp.test.com', username: 'u', password: 'p' }
+                }
+            });
+            mockTransporter.verify.mockResolvedValue(true);
 
-        expect(html).toContain('Code Health Risk Alert');
-        expect(html).toContain('CRITICAL');
-        expect(html).toContain('45/100');
-        expect(html).toContain('12');
+            const result = await emailService.verify();
+
+            expect(result.ok).toBe(true);
+            expect(result.error).toBeUndefined();
+        });
+
+        it('should return ok=false with error when SMTP verify throws', async () => {
+            mockedGetSystemConfigDoc.mockResolvedValue({
+                notifications: {
+                    email: { enabled: true, provider: 'smtp', host: 'smtp.test.com', username: 'u', password: 'p' }
+                }
+            });
+            mockTransporter.verify.mockRejectedValue(new Error('Invalid login'));
+
+            const result = await emailService.verify();
+
+            expect(result.ok).toBe(false);
+            expect(result.error).toContain('Invalid login');
+        });
+
+        it('should return ok=false when credentials are incomplete', async () => {
+            mockedGetSystemConfigDoc.mockResolvedValue({
+                notifications: {
+                    email: { enabled: true, provider: 'smtp', host: '', username: '', password: '' }
+                }
+            });
+
+            const result = await emailService.verify();
+
+            expect(result.ok).toBe(false);
+            expect(result.error).toContain('incomplete');
+        });
+
+        it('should return ok=false when email is disabled', async () => {
+            mockedGetSystemConfigDoc.mockResolvedValue({
+                notifications: { email: { enabled: false } }
+            });
+
+            const result = await emailService.verify();
+
+            expect(result.ok).toBe(false);
+            expect(result.error).toContain('disabled');
+        });
     });
 });
+

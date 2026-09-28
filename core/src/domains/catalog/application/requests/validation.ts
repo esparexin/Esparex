@@ -3,7 +3,7 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category from '../../../../models/Category';
 import Brand from '../../../../models/Brand';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { ACTIVE_CATEGORY_QUERY, normalizeCatalogCanonicalName } from '../services/CatalogValidationService';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import type { ICatalogRequest } from '../../../../models/CatalogRequest';

@@ -23,7 +23,7 @@ export { escapeRegExp, toTitleCase } from '../../../utils/stringUtils';
 export { formatLocationResponse } from '../../../lib/location/formatLocation';
 export { normalizeGeoPoint } from '@esparex/shared';
 export { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../../utils/redisCache';
-export { AppError } from '../../../utils/AppError';
+export { AppError } from '../../../shared-kernel/errors/AppError';
 export {
     buildLocationSummary,
     loadHierarchyMapForLocations,

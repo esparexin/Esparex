@@ -20,7 +20,7 @@ export { default as ServiceType } from '../../../../../../models/ServiceType';
 export { default as CatalogRequest } from '../../../../../../models/CatalogRequest';
 export { serializeDoc } from '../../../../../../utils/serialize';
 export { normalizeLocationResponse } from '../../../../../../services/location/LocationNormalizer';
-export { touchLocationSearchAnalytics } from '../../../../../../services/location/LocationAnalyticsService';
+export { touchLocationSearchAnalytics } from '../../../../../analytics/application/services/location/LocationAnalyticsService';
 export { buildGeoNearStage, normalizeGeoInput } from '../../../../../../utils/mongoGeoUtils';
 export { normalizeAdStatus } from '../../../../../../services/lifecycle/AdStatusService';
 export { buildAdFilterFromCriteria } from '../../../../../../utils/adFilterHelper';

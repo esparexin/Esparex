@@ -38,7 +38,7 @@ export function CatalogSlugPage({
             <p className="text-caption font-semibold uppercase tracking-widest text-primary">
               {entity === "brand" ? "Brand Landing" : "Model Landing"}
             </p>
-            <h1 className="text-h1 font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-h1 font-bold tracking-tight text-foreground sm:text-display">
               {config.heading(record.name)}
             </h1>
             <p className="text-body-lg leading-7 text-foreground-tertiary sm:text-h4">

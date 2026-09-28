@@ -15,4 +15,4 @@ export * from './application/EmailService';
 export * from './templates/EmailLayout';
 export * from './application/SmartAlertQueryService';
 export * from './application/SmartAlertMutationService';
-
+export * from './application/EmailTemplateCatalogService';

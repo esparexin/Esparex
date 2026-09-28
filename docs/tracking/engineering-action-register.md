@@ -2397,3 +2397,377 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test` ──► PASS (72 test suites, 306 tests passed)
 - ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
 
+---
+
+### EA-052
+
+**Sprint**: Admin Moderation Queue & Data Governance  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Data Pipeline Integrity & Static Counts Remediation  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Admin Reports Queue Pipeline Record Preservation**:
+   - Fixed `getReportedAdsAggregation` in `core/src/domains/listings/application/ad/ad/AdDetailService.ts` by adding `{ path: '$adDetails', preserveNullAndEmptyArrays: true }` to the `$unwind` stage.
+   - Restored orphaned/historical reports whose parent listings were soft-deleted or removed from the `ads` collection so moderators can inspect, review, resolve, and dismiss them.
+   - Added fallback to `latestReport.adTitle` and expanded search filter `$or` to match against `reports.adTitle`.
+   - Updated `resolveReport` in `adminReportsController.ts` to support both `report.adId` and canonical `targetId`.
+2. **Phantom Predicates & Dead Code Elimination**:
+   - Removed non-existent `isDeleted: { $ne: true }` filter from `Report.countDocuments({ status: REPORT_STATUS.OPEN })` in `MongoAdminDashboardRepositoryAdapter.ts` (Report schema has no soft deletion).
+   - Removed dead method `getDashboardCardStats` and unused interfaces `DashboardCardStatsRaw` and `DashboardCardAdStatsFacet` from `AdminDashboardRepositoryPort`, `MongoAdminDashboardRepositoryAdapter`, and `AdminDashboardService`.
+3. **Dynamic Moderation Counts & Sidebar Synchronization**:
+   - Replaced hardcoded static zeros (`rejected: 0`, `expired: 0`) in `DashboardPage.tsx` with dynamic values fetched from SSOT `fetchAdminModerationSummary()`.
+   - Populated `services` moderation count in `fetchAdminSidebarCounts()` in `adminSidebar.ts`.
+4. **Comprehensive Test Coverage**:
+   - Created `AdDetailReportAggregation.spec.ts` asserting that orphaned reports are preserved and fall back to snapshot title.
+   - Updated `AdminDashboardService.spec.ts` to assert that `Report.countDocuments` queries strictly by `{ status: REPORT_STATUS.OPEN }` without phantom filters.
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/(system)/dashboard/page.tsx
+apps/admin/src/lib/api/adminSidebar.ts
+backend/api/src/controllers/admin/adminReportsController.ts
+core/src/adapters/outbound/database/admin/MongoAdminDashboardRepositoryAdapter.ts
+core/src/domains/admin/ports/AdminDashboardRepositoryPort.ts
+core/src/domains/listings/application/ad/ad/AdDetailService.ts
+core/src/services/AdminDashboardService.ts
+core/src/__tests__/services/AdDetailReportAggregation.spec.ts
+core/src/__tests__/services/AdminDashboardService.spec.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Fixed aggregation pipeline drop, removed phantom filters, synced dynamic moderation counts.
+- [x] **Automated Testing**: 100% test suites passed across core, backend-api, and apps-admin.
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+---
+
+### EA-053
+
+**Sprint**: Admin Moderation Queue & Reports Workflow  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Moderation UX & Reports Validation Architecture  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Action Menu Comprehensive Architectural Audit**:
+   - Audited the four action items (`Inspect`, `Review`, `Resolve`, `Dismiss`): defined **What**, **Why**, **How**, and **Where** each action operates within the moderation lifecycle.
+   - Identified and addressed critical UX flaws: `Inspect` previously navigated away from the reports queue (losing pagination and filters) instead of presenting the reported ad in-context; `Resolve` previously updated only the report status without providing a direct take-down flow for violating ads.
+2. **In-Context View & Validate Modal (`ViewAdModal` SSOT)**:
+   - Extended `@/components/moderation/ViewAdModal` to accept an optional `reportContext` with abuse signal details (reason, report count, status, auto-hidden indicator, reported timestamp) and direct validation actions.
+   - Reused existing single-instance modal rather than introducing duplicate component definitions.
+   - Provided fallback handling for orphaned/archived listings so moderators can inspect report snapshot details and resolve or dismiss the ticket even if the ad document was deleted.
+3. **Dedicated Row Action & Menu Enhancement**:
+   - Added a prominent, accessible `View` button (`Eye` icon) on every table row in `apps/admin/src/app/(protected)/reports/page.tsx`.
+   - Made the listing title clickable to trigger the same in-context view.
+   - Reorganized the action menu into `View & Validate`, `Inspect in Catalog` (external navigation fallback), `Mark Reviewed`, `Take Down & Resolve`, and `Dismiss Report`.
+4. **Backend Route & Mutation Integration**:
+   - Added canonical `ADMIN_ROUTES.REPORT_RESOLVE(id)` to `@esparex/shared`.
+   - Added `resolveReportAction` to `useModerationReports` to call `PATCH /api/v1/admin/reports/:id/resolve` with `{ action: 'take_down' | 'dismiss' | 'warn_user', note }` to atomically take down violating ads and resolve abuse tickets.
+   - Replaced raw string literals with canonical `REPORT_STATUS` enum values from `@esparex/contracts` and enforced typography design tokens (`text-body`, `text-caption`).
+
+**Files Modified**:
+```
+apps/admin/src/app/(protected)/reports/page.tsx
+apps/admin/src/components/moderation/ViewAdModal.tsx
+apps/admin/src/hooks/useModerationReports.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Audited action menus, added in-context View & Validate modal, added View button, linked atomic take-down/resolve.
+- [x] **Automated Testing**: 100% test suites passed across apps-admin (14 test files, 103 tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: 0 breaking changes to contracts in `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+
+---
+
+### EA-054
+
+**Sprint**: Admin Moderation Queue & Reports Workflow  
+**PR**: PR on `fix/admin-report-queue-counts-remediation`  
+**Category**: Moderation Reporting & Ad Lifecycle Filtering  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **SSOT Status Filtering Integration**:
+   - Extended `getReportedAdsAggregation` in `core/src/domains/listings/application/ad/ad/AdDetailService.ts` to accept `adStatus?: string` filter.
+   - Connected canonical `getStatusMatchCriteria` (`core/src/utils/statusQueryMapper.ts`) to map requested statuses (`live`, `expired`, `deactivated`, `rejected`) into MongoDB query stages, transparently including legacy aliases (`live`, `active`, `approved`, `published`) without creating duplicate query logic or schema drift.
+2. **Controller & API Hook Wiring**:
+   - Updated `getReportedAds` in `backend/api/src/controllers/admin/adminReportsController.ts` to extract `adStatus` from `req.query` and pass to `getReportedAdsAggregation`.
+   - Updated `useModerationReports` in `apps/admin/src/hooks/useModerationReports.ts` to support `adStatus` in `ReportFilters` and query params.
+3. **Queue Table & Filter Toolbar UI**:
+   - Added a dedicated "Ad Status" column in `apps/admin/src/app/(protected)/reports/page.tsx` rendering canonical `MODERATION_STATUS_BADGES` and `MODERATION_STATUS_LABELS` from `@/components/moderation/moderationStatus` (reusing existing tokens and styles, zero duplicate badge components).
+   - Added Ad Status filter dropdown in `AdminFilterToolbar` via `extraFilters` slot, offering options for "All Ad Statuses", "Live / Active", "Expired", "Deactivated", "Rejected", and "Pending Moderation".
+   - Preserved `adStatus` selection across queue tab changes (`AdminModuleTabs`) and pagination updates.
+4. **Automated Unit Testing & Gate Verification**:
+   - Added unit test cases to `core/src/__tests__/services/AdDetailReportAggregation.spec.ts` asserting correct pipeline `$match` stages for `live` and `expired` filters.
+   - Added test case in `apps/admin/src/__tests__/admin-moderation-actions.spec.ts` validating adStatus normalization.
+
+**Files Modified**:
+```
+apps/admin/src/__tests__/admin-moderation-actions.spec.ts
+apps/admin/src/app/(protected)/reports/page.tsx
+apps/admin/src/hooks/useModerationReports.ts
+backend/api/src/controllers/admin/adminReportsController.ts
+core/src/__tests__/services/AdDetailReportAggregation.spec.ts
+core/src/domains/listings/application/ad/ad/AdDetailService.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Added Ad Status column and Live/Expired/Deactivated/Rejected filtering to Reports Queue.
+- [x] **Automated Testing**: 100% test suites passed across core (AdDetailReportAggregation spec) and apps-admin (14 test files, 104 tests).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added.
+- [x] **Contract Stability**: Reused canonical LIFECYCLE_STATUS from `@esparex/contracts`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%, 19/19 checks green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 10 packages/apps)
+- ✅ `npm run build` ──► PASS (All workspaces compiled and optimized)
+- ✅ `npm test -w @esparex/apps-admin` ──► PASS (104/104 tests green)
+- ✅ `npm test -w @esparex/core -- AdDetailReportAggregation` ──► PASS (3/3 tests green)
+
+---
+
+### EA-055
+
+**Sprint**: Admin Email Templates Customization & Dedicated Management Console  
+**PR**: PR on `feat/admin-email-customization`  
+**Category**: Notifications & System Configuration  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Audit & Root Cause Resolution**:
+   - Audited the entire repository for email template customization. Proved that email customization was never previously implemented in the Admin UI; all 14 transactional/system emails existed only as hardcoded TypeScript functions in `core/src/domains/notifications/templates/EmailLayout.ts`, and `SystemConfig.emailTemplates` was an untyped placeholder `unknown[]` without schemas, consumers, or UI.
+2. **Contracts & SSOT Schema Architecture**:
+   - Defined `EMAIL_TEMPLATE_KEY` (14 canonical templates) and `EMAIL_TEMPLATE_CATEGORY` enums in `@esparex/contracts`.
+   - Created `EmailTemplateDTO`, `EmailTemplateVariable`, `EmailTemplateCustomization`, `EmailTemplatePreviewDTO`, and Zod schemas (`emailTemplateCustomizationSchema`, `updateEmailTemplateSchema`, `sendTestEmailTemplateSchema`).
+   - Added canonical API route constants in `shared/src/routes/api/adminRoutes.ts` and UI route helper `emailTemplates` in `adminUiRoutes.ts`.
+3. **Core Domain Catalog Service & Customization Overlay**:
+   - Built `EmailTemplateCatalogService` and `emailTemplateRegistry` in `@esparex/core`, mapping all 14 canonical templates with metadata, variable dictionaries, sample test payloads, live HTML previews, and subject line interpolation (`{{variable}}`).
+   - Replaced untyped `unknown[]` with strongly typed `EmailTemplateCustomization[]` in `core/src/models/SystemConfig.ts` and `systemConfig.validator.ts`.
+4. **Backend API Endpoints**:
+   - Created `backend/api/src/controllers/admin/adminEmailTemplateController.ts` supporting `listEmailTemplates`, `getEmailTemplate`, `getEmailTemplatePreview`, `updateEmailTemplate`, `resetEmailTemplate`, and `sendTestEmailTemplate`.
+   - Protected mutations with `requirePermission('system:config')` and logged actions with `logAdminAction`.
+5. **Dedicated Admin Navigation & Management Page**:
+   - Registered dedicated "Email Templates" module in `apps/admin/src/components/layout/adminNavigation.ts` with `Mail` icon under Management section.
+   - Connected `notificationsTabs` (`Broadcasts`, `Smart Alerts`, `Email Templates`) for unified top-tab navigation.
+   - Created client API layer (`emailTemplates.ts`) and hook `useAdminEmailTemplates.ts`.
+   - Built responsive UI page (`/email-templates`) featuring category filters, search, table with customizer/status badges, live HTML preview modal with desktop/mobile viewport toggle, and customization modal with dynamic variable chips and live test dispatcher.
+   - Enforced Mobile Form Input Font-Size Governance Rule (`text-body-lg md:text-body`) to prevent iOS Safari auto-zoom.
+6. **Automated Testing & Parity Verification**:
+   - Added unit test suite `EmailTemplateCatalogService.spec.ts` (11 tests).
+   - Added API controller test suite `adminEmailTemplateController.spec.ts` (8 tests).
+   - Added UI integration test suite `admin-email-templates.spec.ts` (8 tests) and updated `admin-navigation-integrity.spec.ts` (6 tests).
+   - Added `EmailTemplateParity.spec.ts` (4 tests) enforcing 100% parity between `EmailLayout.ts` and `EmailTemplateCatalogService`.
+
+**Files Created / Modified**:
+```
+apps/admin/src/__tests__/admin-email-templates.spec.ts
+apps/admin/src/__tests__/admin-navigation-integrity.spec.ts
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateEditorModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplatePreviewModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateTable.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/page.tsx
+apps/admin/src/components/layout/adminModuleTabSets.ts
+apps/admin/src/components/layout/adminNavigation.ts
+apps/admin/src/hooks/useAdminEmailTemplates.ts
+apps/admin/src/lib/adminUiRoutes.ts
+apps/admin/src/lib/api/emailTemplates.ts
+apps/admin/src/types/systemConfig.ts
+backend/api/src/__tests__/controllers/adminEmailTemplateController.spec.ts
+backend/api/src/controllers/admin/adminEmailTemplateController.ts
+backend/api/src/routes/adminRoutes.ts
+core/src/domains/notifications/__tests__/EmailTemplateCatalogService.spec.ts
+core/src/domains/notifications/__tests__/EmailTemplateParity.spec.ts
+core/src/domains/notifications/application/EmailTemplateCatalogService.ts
+core/src/domains/notifications/application/emailTemplateRegistry.ts
+core/src/domains/notifications/index.ts
+core/src/models/SystemConfig.ts
+core/src/validators/systemConfig.validator.ts
+packages/contracts/src/v1/notifications/dto/emailTemplate.ts
+packages/contracts/src/v1/notifications/enums/emailTemplate.ts
+packages/contracts/src/v1/notifications/index.ts
+packages/contracts/src/v1/notifications/schema/emailTemplate.schema.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Dedicated Email Templates menu, page, live preview modal, customization editor, test email dispatcher, and reset workflows implemented.
+- [x] **Automated Testing**: 100% test suites passed (37 tests across core, api, and admin).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 double casts.
+- [x] **Contract Stability**: Contracts defined cleanly in `@esparex/contracts` without breaking changes.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- EmailTemplate` ──► PASS (15/15 tests green)
+- ✅ `npm test -w @esparex/backend-api -- adminEmailTemplateController` ──► PASS (8/8 tests green)
+- ✅ `npm test -w @esparex/apps-admin -- admin-email-templates admin-navigation-integrity` ──► PASS (14/14 tests green)
+- ✅ `node scripts/guard-type-cast-baseline.js` ──► PASS (0 double casts, 0 suppressions, 0 unsafe casts)
+- ✅ `node scripts/enforce-design-token-adoption.js` ──► PASS (0 raw palette/inline style violations)
+
+---
+
+### EA-056
+**Date**: 2026-09-28  
+**Description**: Web Proxy Canonical Host Redundancy Elimination & Subdomain Hazard Mitigation  
+**Root Cause**: `apps/web/src/proxy.ts` contained a redundant host-level canonicalization block that duplicated the router-level redirect in `apps/web/next.config.mjs` (and Vercel edge domain routing). It introduced an HTTP status code discrepancy (301 in proxy vs 308 in router/edge) and a broad subdomain pattern matching hazard (`cleanHost.endsWith(".esparex.in") && cleanHost !== "admin.esparex.in"`) that risked redirecting administrative subdomains such as `www.admin.esparex.in` to the public apex.  
+**Action**:
+1. **Redundant Host Check Removal**: Removed lines 26–35 in `apps/web/src/proxy.ts`, preserving Next.js Edge proxy execution exclusively for category alias normalization (`/category/[slug]`), admin IP protection, and route authentication guards.
+2. **SSOT Application Router Fallback**: Retained lines 251–262 in `apps/web/next.config.mjs` as the canonical HTTP 308 router-level fallback for non-Vercel/containerized environments.
+3. **Hygiene & Import Cleanup**: Eliminated unused `CANONICAL_ORIGIN` import from `@/lib/seo/canonicalHost` in `proxy.ts`.
+
+**Files Modified**:
+```
+apps/web/src/proxy.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Removed duplicate host redirect in proxy.ts while preserving next.config.mjs and Vercel edge routing.
+- [x] **Automated Testing**: Monorepo test suites passed cleanly (83 test files, 444 tests in apps/web).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (83 suites, 444 tests)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-057
+**Date**: 2026-09-28  
+**Description**: Test Subdomains CORS and Redirect Whitelist Authorization (`admintest.esparex.in`, `test.esparex.in`)  
+**Root Cause**: Testing feature branches (e.g. `develop`) on staging/test subdomains (`admintest.esparex.in`, `test.esparex.in`) was blocked by backend CORS middleware and redirect URL validation, which only permitted apex and production subdomains (`esparex.in`, `admin.esparex.in`).  
+**Action**:
+1. **Core Origin SSOT Centralization**: Defined `DEFAULT_STATIC_ALLOWED_ORIGINS` and `isAllowedOrigin` helper in `@esparex/core/utils/originConfig.ts` to include `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in`, supporting both full protocol URLs and host-only headers.
+2. **Backend API CORS Integration**: Updated `backend/api/src/app.ts` to consume `DEFAULT_STATIC_ALLOWED_ORIGINS` and validate incoming request origins via `isAllowedOrigin`.
+3. **Redirect Domain Whitelist**: Added `admintest.esparex.in` and `test.esparex.in` to `DEFAULT_ALLOWED_DOMAINS` in `core/src/utils/redirectValidator.ts` so authentication and navigation redirects to staging subdomains are safely permitted.
+4. **Comprehensive Test Coverage**: Added test coverage in `backend/api/src/__tests__/utils/originConfig.spec.ts` (9 tests) and `core/src/__tests__/utils/redirectValidator.spec.ts` (5 tests) verifying production, preview, and test subdomain validation.
+
+**Files Modified**:
+```
+backend/api/src/__tests__/utils/originConfig.spec.ts
+backend/api/src/app.ts
+core/src/__tests__/utils/redirectValidator.spec.ts
+core/src/utils/originConfig.ts
+core/src/utils/redirectValidator.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Added `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in` to allowed origins and redirect domains.
+- [x] **Automated Testing**: Unit tests passed cleanly across core and backend workspaces (14 tests total).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 lint waivers.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-057.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- redirectValidator.spec.ts` ──► PASS (5/5 tests green)
+- ✅ `npm test -w @esparex/backend-api -- originConfig.spec.ts` ──► PASS (9/9 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-058
+**Date**: 2026-09-28  
+**Description**: Center AuthModal on Desktop Viewports (Single Responsive Instance SSOT)  
+**Root Cause**: In `apps/web/src/components/auth/AuthModal.tsx`, the `SheetContent` primitive uses `side="bottom"`, which applies Tailwind utility `fixed inset-x-0 bottom-0`. On desktop viewports (`sm:` breakpoint), `sm:max-w-sm` constrained the container width to 384px, but without resetting `inset-0` or applying `m-auto`, the CSS anchored the 384px card to `left: 0; bottom: 0`, placing it in the bottom-left corner of desktop screens.  
+**Action**:
+1. **Single Responsive Instance Centering**: In `apps/web/src/components/auth/AuthModal.tsx`, added `sm:inset-0 sm:m-auto sm:h-fit sm:max-h-[calc(100dvh-3rem)]` to `SheetContent`. On desktop (`sm:`), the modal centers horizontally and vertically in the viewport with a fit height and proper margin, avoiding CSS transform collisions with touch-drag handlers.
+2. **Preserve Mobile Bottom Sheet UX**: On mobile viewports (`< sm`), `side="bottom"`, touch-to-dismiss drag gestures, and visual viewport keyboard avoidance (`translateY(-var(--keyboard-height))`) remain 100% intact.
+3. **Automated Regression Suite**: Updated `apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts` to assert `sm:inset-0` and `sm:m-auto` are maintained on `AuthModal` desktop styles.
+4. **Zero Duplication**: Preserved the single responsive component instance across mobile and desktop without introducing separate desktop dialog duplicates.
+
+**Files Modified**:
+```
+apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts
+apps/web/src/components/auth/AuthModal.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: AuthModal perfectly centered on desktop viewports while mobile bottom drawer functionality remains intact.
+- [x] **Automated Testing**: Unit and regression tests passed cleanly (`mobile-keyboard-audit-regression.spec.ts`, 13 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build -w @esparex/apps-web`) pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Single responsive component instance maintained according to architecture governance.
+- [x] **Accessibility & Keyboard**: Radix sheet focus trap, escape key dismissal, and tab navigation preserved.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-058.
+
+**Verification**:
+- ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (13/13 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+- ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
+
+---
+
+### EA-060
+**Date**: 2026-09-28  
+**Description**: Remediate Stale Frontend Lifecycle, SW Caching, and Tab Update Detection (PWA / Service Worker SSOT)  
+**Root Cause**:  
+1. `PwaRegister.tsx` registered `/sw.js` without `{ updateViaCache: 'none' }` and never invoked `registration.update()`, never listened for `visibilitychange`, and never listened for `controllerchange`. Consequently, mobile browser tabs (especially on Android Chromium/Brave) suspended in memory or restored from background never polled for updates or reloaded upon service worker activation.
+2. In `sw.js`, `CACHE_NAME` was hardcoded to `temporary-v4-static` and did not handle `SKIP_WAITING` messages, leaving legacy caches unpurged.
+3. In `next.config.mjs`, `/sw.js` had no explicit `no-cache, no-store, must-revalidate` caching headers, permitting intermediate CDN/edge caches to serve stale responses.
+4. Concurrently, forensic investigation proved the visual difference observed between Android and iOS was due to `ThemeProvider` applying `.dark` theme on Android (Brave Night Mode / OS dark mode) vs light theme on iOS Safari Private, and location defaulting to "All India" on Android due to Brave Shields blocking IP geolocation.
+
+**Action**:
+1. **Explicit Edge & HTTP Cache Disabling for `/sw.js`**: In `apps/web/next.config.mjs`, configured `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0` for `/sw.js` so CDN/browser caches never retain stale worker scripts.
+2. **PWA Registration & Lifecycle Hardening**: In `apps/web/src/components/pwa/PwaRegister.tsx`:
+   - Configured `{ updateViaCache: 'none' }` on registration.
+   - Added immediate `registration.update()` call on mount.
+   - Added `visibilitychange` listener to automatically check for updates whenever a mobile tab is foregrounded.
+   - Added `updatefound` / `statechange` and `registration.waiting` handler to immediately dispatch `SKIP_WAITING` message.
+   - Added `controllerchange` listener that triggers a single graceful reload (`window.location.reload()`) once a new worker claims control.
+   - Broadened cache cleanup pattern to purge all legacy `temporary-` caches.
+3. **SW Cache Version Bump & Skip Waiting**: In `apps/web/public/sw.js`:
+   - Bumped cache version to `temporary-v5-static` and `temporary-v5-dynamic`.
+   - Added `message` event handler for `SKIP_WAITING`.
+   - Preserved `activate` cache eviction logic to delete all previous versions (`v4`, `v3`, `v2`, `v1`).
+
+**Files Modified**:
+```
+apps/web/next.config.mjs
+apps/web/public/sw.js
+apps/web/src/components/pwa/PwaRegister.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: PWA service worker update detection, mobile background tab refresh, edge cache headers, and cache eviction fully implemented according to SSOT.
+- [x] **Automated Testing**: Monorepo test suites passed cleanly (Backend 77/77, Core 84/84, Web 84/84, Admin 15/15, Mobile 72/72 — 100% green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Preserved single responsive component instance and unified PWA registration.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-060.
+
+**Verification**:
+- ✅ `npm test` ──► PASS (100% green across all packages)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+- ✅ `npm run build` ──► PASS (Compiled and bundled with exit code 0)
+
+

@@ -15,10 +15,6 @@ export const getCatalogHealthMetrics = async () => {
     return adminDashboardRepository.getCatalogHealthMetrics();
 };
 
-export const getDashboardCardStats = async (publicAdFilter: Record<string, unknown>) => {
-    return adminDashboardRepository.getDashboardCardStats(publicAdFilter);
-};
-
 export const getRecentAdminLogs = async (limit: number) => {
     return adminDashboardRepository.getRecentAdminLogs(limit);
 };

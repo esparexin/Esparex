@@ -10,7 +10,7 @@ import {
     buildLogFn
 } from '../../utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from "@esparex/contracts";
-import * as adminUsersService from '@esparex/core/services/AdminUsersService';
+import * as adminUsersService from '@esparex/core/domains/identity';
 import { isValidObjectId } from '@esparex/core/utils/idUtils';
 
 // ---------------------------------------------------------

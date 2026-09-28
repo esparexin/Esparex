@@ -1,4 +1,4 @@
-import { warmHomeFeedCache } from '../services/FeedService';
+import { warmHomeFeedCache } from '../domains/discovery';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 import logger from '../utils/logger';
 

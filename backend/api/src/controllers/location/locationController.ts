@@ -20,7 +20,7 @@ import {
 import {
     touchLocationSearchAnalytics,
     logLocationEvent as logLocationAnalyticsEvent
-} from '@esparex/core/services/location/LocationAnalyticsService';
+} from '@esparex/core/domains/analytics';
 import {
     reverseGeocode as reverseGeocodeService
 } from '@esparex/core/services/location/ReverseGeocodeService';

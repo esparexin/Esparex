@@ -1,4 +1,5 @@
 import { Schema, Document, Model } from 'mongoose';
+import type { EmailTemplateCustomization } from '@esparex/contracts';
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
@@ -162,7 +163,7 @@ export interface ISystemConfig extends Document {
             businessSparePartLimit?: number;
         };
     };
-    emailTemplates?: unknown[];
+    emailTemplates?: EmailTemplateCustomization[];
     notificationTemplates?: unknown[];
     updatedBy?: string; // Admin ID
     updatedAt: Date;
@@ -265,7 +266,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             enabled: { type: Boolean, default: true },
             provider: { type: String, enum: ['smtp', 'sendgrid', 'aws-ses'], default: 'smtp' },
             senderName: { type: String, default: 'Esparex Team' },
-            senderEmail: { type: String, default: 'noreply@esparex.com' },
+            senderEmail: { type: String, default: 'noreply@esparex.in' },
             host: { type: String },
             port: { type: Number },
             username: { type: String },
@@ -368,7 +369,15 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             businessSparePartLimit: { type: Number, default: 100 },
         }
     },
-    emailTemplates: [{ type: Schema.Types.Mixed }],
+    emailTemplates: [{
+        _id: false,
+        key: { type: String, required: true },
+        subject: { type: String },
+        customHeadline: { type: String },
+        customNote: { type: String },
+        updatedAt: { type: String },
+        updatedBy: { type: String },
+    }],
     notificationTemplates: [{ type: Schema.Types.Mixed }],
     updatedBy: { type: String },
 }, {

@@ -4,7 +4,7 @@ import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getErrorMessage, toAlertContract } from './shared';
-import { getSmartAlertsForUser, getSmartAlertMatchesForUser, getSmartAlertQuotaForUser } from '@esparex/core/services/SmartAlertQueryService';
+import { getSmartAlertsForUser, getSmartAlertMatchesForUser, getSmartAlertQuotaForUser } from '@esparex/core/domains/notifications';
 
 export const getSmartAlerts = async (req: Request, res: Response) => {
     try {

@@ -160,7 +160,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                             Verified Safe Marketplace
                         </Badge>
                         <span className="text-tiny md:text-caption font-normal text-muted-foreground">
-                            © {currentYear} Esparex Platform. Built for the future of tech repair.
+                            © {currentYear} Esparex. Built for the future of tech repair.
                         </span>
                     </div>
                 </div>

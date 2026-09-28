@@ -8,7 +8,7 @@ import UserWallet from "../../../../models/UserWallet";
 import Entitlement from "../../../../models/Entitlement";
 import CreditTransaction from "../../../../models/CreditTransaction";
 import redisClient from "../../../../config/redis";
-import { AppError } from "../../../../utils/AppError";
+import { AppError } from "../../../../shared-kernel/errors/AppError";
 import { BusinessErrorCode } from "@esparex/contracts";
 
 import Plan from "../../../../models/Plan";

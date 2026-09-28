@@ -157,9 +157,11 @@ export function EntitySearchCombobox<T>({
                     onMouseDown={isMobileView ? undefined : (e) => e.preventDefault()}
                     onClick={() => handleItemSelect(item)}
                     className={cn(
-                        "w-full px-4 py-2.5 text-left text-body font-medium text-foreground-secondary transition-colors hover:bg-muted active:bg-muted cursor-pointer select-none",
-                        isMobileView ? "min-h-[44px] rounded-xl flex items-center" : "",
-                        isSelected && (isMobileView ? "bg-muted text-link-dark font-semibold" : "bg-muted text-link-dark font-bold")
+                        "w-full px-3 py-2 text-left text-body font-normal rounded-lg transition-colors cursor-pointer select-none",
+                        isMobileView ? "min-h-[44px] flex items-center rounded-xl" : "",
+                        isSelected
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "text-foreground hover:bg-muted hover:text-foreground"
                     )}
                 >
                     {renderItem ? renderItem(item, isSelected) : label}
@@ -172,7 +174,7 @@ export function EntitySearchCombobox<T>({
         <div
             id={listboxId}
             role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-[220px] bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 py-1.5 overscroll-contain touch-pan-y"
+            className="absolute top-full left-0 right-0 mt-1.5 max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 p-1.5 overscroll-contain touch-pan-y"
         >
             {renderOptionsList(false)}
         </div>
@@ -207,7 +209,7 @@ export function EntitySearchCombobox<T>({
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
                     className={cn(
-                        "pl-3 h-11 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer placeholder:text-caption sm:placeholder:text-body",
+                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
                         loading ? "pr-14" : "pr-9"
                     )}
                     role="combobox"
@@ -274,7 +276,7 @@ export function EntitySearchCombobox<T>({
                                              onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal sm:font-medium border-border rounded-xl shadow-2xs placeholder:text-caption sm:placeholder:text-body"
+                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-2xs placeholder:font-normal placeholder:text-foreground-subtle"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button

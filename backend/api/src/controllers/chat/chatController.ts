@@ -3,9 +3,18 @@ import { Types } from 'mongoose';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
-import { startConversation, listConversations, getConversationForUser, blockConversation, hideConversation, restoreConversation } from '@esparex/core/domains/communications/application/services/chat/ChatConversationService';
-import { getMessages, sendMessage, markRead } from '@esparex/core/domains/communications/application/services/chat/ChatMessageService';
-import { reportConversation } from '@esparex/core/domains/communications/application/services/chat/ChatReportService';
+import {
+  startConversation,
+  listConversations,
+  getConversationForUser,
+  blockConversation,
+  hideConversation,
+  restoreConversation,
+  getMessages,
+  sendMessage,
+  markRead,
+  reportConversation,
+} from '@esparex/core/domains/communications';
 import {
   startChatSchema,
   sendMessageSchema,

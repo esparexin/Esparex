@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -25,6 +25,8 @@ import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/useMobile";
+import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
 
 export interface HeaderProps {
   currentPage?: string;
@@ -50,6 +52,8 @@ export function Header({
   const searchParams = useSearchParams();
   const isMounted = useMounted();
   const { setIsOpen: setIsMobileDrawerOpen } = useMobileNavDrawer();
+  const isMobile = useIsMobile();
+  const { openSheet, closeSheet } = useBottomSheetManager();
 
   const chromePolicy = getMobileChromePolicy(pathname);
   const browseParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
@@ -105,6 +109,14 @@ export function Header({
     setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
+  const openMobileLocationSelector = useCallback(() => {
+    if (isMobile) {
+      openSheet("location");
+    } else {
+      setShowLocationSelector(true);
+    }
+  }, [isMobile, openSheet, setShowLocationSelector]);
+
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
@@ -113,13 +125,18 @@ export function Header({
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
         <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1 cursor-pointer">
-          <Image src="/icons/logo.png" alt="Esparex Logo" width={495} height={112} unoptimized className="h-[25px] w-auto" />
+          <Image src="/icons/logo.png" alt="Esparex" width={495} height={112} unoptimized className="h-[25px] w-auto" />
         </button>
 
         <div className="relative" ref={locationDropdownRef}>
           <HeaderLocation
             isOpen={showLocationSelector}
-            onOpenChange={(open) => { setShowLocationSelector(open); if (open) setShowSearchDropdown(false); }}
+            onOpenChange={(open) => { 
+              if (open) setShowSearchDropdown(false);
+              if (!isMobile) setShowLocationSelector(open);
+              else if (open) openSheet("location");
+              else closeSheet("location");
+            }}
             query={headerLocationQuery}
             onQueryChange={setHeaderLocationQuery}
           />
@@ -169,7 +186,7 @@ export function Header({
           resolvedHeaderLocation={resolvedHeaderLocation}
           showLocation={chromePolicy.showMobileLocation}
           onNavigateHome={() => navigateTo("home")}
-          onOpenLocationSelector={() => setShowLocationSelector(true)}
+          onOpenLocationSelector={openMobileLocationSelector}
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (
@@ -230,8 +247,6 @@ export function Header({
       </div>
 
       <LocationOverlayHost
-        isOpen={showLocationSelector}
-        onClose={() => { setShowLocationSelector(false); setHeaderLocationQuery(""); }}
         containerRef={locationDropdownRef}
         locationQuery={headerLocationQuery}
         onLocationQueryChange={setHeaderLocationQuery}

@@ -43,6 +43,8 @@ const STATUS_MAP: Record<string, ChipStyle> = {
     open:        { dot: "bg-amber-400",   text: "text-amber-700",   label: "Open" },
     resolved:    { dot: "bg-emerald-500", text: "text-emerald-700", label: "Resolved" },
     closed:      { dot: "bg-slate-400",   text: "text-slate-600",   label: "Closed" },
+    active:      { dot: "bg-emerald-500", text: "text-emerald-700", label: "Live" },
+    published:   { dot: "bg-emerald-500", text: "text-emerald-700", label: "Live" },
     new:         { dot: "bg-emerald-400", text: "text-emerald-700", label: "New" },
     refurbished: { dot: "bg-sky-400",     text: "text-sky-700",     label: "Refurbished" },
     used:        { dot: "bg-orange-400",  text: "text-orange-700",  label: "Used" },
@@ -69,13 +71,14 @@ interface StatusChipProps {
 }
 
 export function StatusChip({ status, label, className = "" }: StatusChipProps) {
-    const style = STATUS_MAP[status.toLowerCase()] ?? FALLBACK;
-    const displayLabel = label ?? (style.label || status.charAt(0).toUpperCase() + status.slice(1));
+    const normalizedStatus = (status ?? "").toLowerCase();
+    const style = STATUS_MAP[normalizedStatus] ?? FALLBACK;
+    const displayLabel = label ?? (style.label || (status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"));
 
     return (
         <div className={`inline-flex items-center gap-1.5 ${className}`}>
             <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${style.dot}`} aria-hidden="true" />
-            <span className={`text-xs font-medium ${style.text}`}>{displayLabel}</span>
+            <span className={`text-tiny font-medium ${style.text}`}>{displayLabel}</span>
         </div>
     );
 }

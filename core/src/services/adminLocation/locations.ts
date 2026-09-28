@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 import { escapeRegExp } from '../../utils/stringUtils';
 import { getCache, setCache } from '../../utils/redisCache';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { findLocationById, findLocationByIdLean, findActiveParentById, locationExists, findLocationParent, findDuplicateLocation, getDistinctStateLocations, getLocationsPaginated, countAdsForLocation, countUsersForLocation } from '../location/LocationQueryService';
 import { generateLocationId, createLocationRecord, saveLocation, softDeleteLocation } from '../location/LocationMutationService';
 import { normalizeCoordinates, normalizeLocationResponse } from '../location/LocationNormalizer';
 import { buildHierarchyPath, resolveParentLocation, resolveLocationScope, resolveLocationSummary, asString as resolveStringField } from '../../utils/locationHierarchy';
 import type { CanonicalLocationDoc } from '../../utils/locationHierarchy';
-import type { AdminLogFn } from '../AdminListingsService';
+import type { AdminLogFn } from '../../utils/adminLogger';
 import type { AdminLocationPaginationQuery, AdminCreateLocationBody, AdminUpdateLocationBody } from './types';
 import { safeSlugify, toScopeQuery, hydrateLocationResponses, invalidateLocationStateCache, parsePaginationParams, ADMIN_STATES_CACHE_KEY } from './helpers';
 

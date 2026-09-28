@@ -35,7 +35,7 @@ jest.mock('../../models/FraudScore', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import mongoose from 'mongoose';
-import { analyzeFraudRisk, FraudContext } from '../../services/FraudDetectionService';
+import { analyzeFraudRisk, FraudContext } from '../../domains/fraud';
 import User from '../../models/User';
 import FraudSignal from '../../models/FraudSignal';
 import FraudScore from '../../models/FraudScore';

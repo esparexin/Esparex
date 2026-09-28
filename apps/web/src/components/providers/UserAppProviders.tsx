@@ -10,6 +10,7 @@ import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { PostAdModalProvider } from "@/context/PostAdModalContext";
 import { SmartAlertModalProvider } from "@/context/SmartAlertModalContext";
+import { BottomSheetManagerProvider } from "@/context/BottomSheetManagerContext";
 
 export function UserAppProviders({
     children,
@@ -27,8 +28,10 @@ export function UserAppProviders({
                             <AuthModalProvider>
                                 <PostAdModalProvider>
                                     <SmartAlertModalProvider>
-                                        <PwaRegister />
-                                        {children}
+                                        <BottomSheetManagerProvider>
+                                            <PwaRegister />
+                                            {children}
+                                        </BottomSheetManagerProvider>
                                     </SmartAlertModalProvider>
                                 </PostAdModalProvider>
                             </AuthModalProvider>

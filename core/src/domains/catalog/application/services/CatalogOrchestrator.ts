@@ -7,7 +7,7 @@ export type BrandResult = Brand & Record<string, unknown>;
 
 import logger from '../../../../utils/logger';
 import { isDuplicateKeyError } from '../../../../utils/errorHelpers';
-import { AppError } from '../../../../utils/AppError';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { 
     CatalogUnitOfWorkPort,
     TransactionContext,

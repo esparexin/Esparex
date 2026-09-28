@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AppError } from '../../../../../utils/AppError';
+import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import { getListingRepository } from '../../../../../composition/listings';
 import User from '../../../../../models/User';
 import { LISTING_STATUS } from '@esparex/contracts';

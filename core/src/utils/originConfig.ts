@@ -157,3 +157,41 @@ export const getAllowedOriginList = (sourceEnv: RuntimeOriginEnv): string[] => {
         ? []
         : DEFAULT_LOCAL_ALLOWED_ORIGINS;
 };
+
+export const DEFAULT_STATIC_ALLOWED_ORIGINS = [
+    'https://esparex.in',
+    'https://www.esparex.in',
+    'https://admin.esparex.in',
+    'https://admintest.esparex.in',
+    'https://test.esparex.in',
+    'admintest.esparex.in',
+    'test.esparex.in',
+    'https://api.esparex.in',
+    'https://esparex-userfrontend.vercel.app',
+    'https://esparex-admin-frontend.vercel.app',
+];
+
+export const isAllowedOrigin = (
+    origin: string | undefined,
+    allowedOriginsList: string[] = DEFAULT_STATIC_ALLOWED_ORIGINS,
+    nodeEnv: string = 'production'
+): boolean => {
+    if (!origin) return true;
+
+    if (nodeEnv === 'development' || nodeEnv === 'test') {
+        const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
+        if (isLocal) return true;
+    }
+
+    const normalized = normalizeOrigin(origin);
+    const hostOnly = normalized.replace(/^https?:\/\//, '');
+    const normalizedAllowed = allowedOriginsList.map(normalizeOrigin);
+
+    return (
+        normalizedAllowed.includes(normalized) ||
+        normalizedAllowed.includes(`https://${normalized}`) ||
+        normalizedAllowed.includes(hostOnly) ||
+        normalizedAllowed.includes(`https://${hostOnly}`) ||
+        /\.vercel\.app$/.test(normalized)
+    );
+};
