@@ -90,7 +90,7 @@ export function LocationSelectorDropdown({
                     aria-haspopup="listbox"
                     aria-controls="location-results-listbox"
                     aria-autocomplete="list"
-                    aria-activedescendant={selectedIndex >= 0 ? `location-option-${selectedIndex}` : undefined}
+                    aria-activedescendant={selectedIndex >= 0 ? `${query ? "location" : "popular"}-option-${selectedIndex}` : undefined}
                     onChange={(e) => {
                         if (hasSelection) return;
                         setQuery(e.target.value);
