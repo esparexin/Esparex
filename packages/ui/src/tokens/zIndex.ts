@@ -66,8 +66,11 @@ export const Z_INDEX = {
   // ── Notifications & Alerts ──────────────────────────────────────────────
   toast: 400,                   // One-time notifications
   alert: 401,                   // Alert dialogs
-  connectivityBanner: 9999,     // Connectivity status
-  backendStatusBanner: 10000,   // Backend status
+  statusBanner: 999,            // Single status strip (StatusBannerHost). Shares the
+                                // header layer: banner renders after the header in DOM
+                                // order, so it stays visible over page chrome, while
+                                // every dialog/sheet system (>= dialogOverlay 1000)
+                                // always covers it. Never raise above 999.
   appErrorBanner: 12000,        // App-wide error banner
 
   // ── Popup System (popupBus / notify) ────────────────────────────────────

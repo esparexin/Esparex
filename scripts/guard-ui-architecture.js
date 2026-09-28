@@ -110,6 +110,12 @@ const RULES = {
     severity: "warning",
     description: "Inline <svg> element — must use canonical icons exported from @esparex/ui",
   },
+  STICKY_Z_HOST: {
+    id: "sticky-z-host",
+    severity: "error",
+    description:
+      "Sticky strip with explicit zIndex — status stacking host is owned exclusively by StatusBannerHost.tsx",
+  },
 };
 
 const NATIVE_BUTTON_BASELINE = 257; // web + admin scope (was 138 web-only)
@@ -329,6 +335,23 @@ function auditFile(filePath) {
       report(RULES.RAW_INLINE_SVG, i, l);
     }
   });
+
+  // ── Error: Sticky strip with explicit inline zIndex outside status host ───
+  // Single stacking-owner invariant: only StatusBannerHost.tsx may combine a
+  // `sticky top-0` strip with an explicit inline zIndex (Z_INDEX.statusBanner).
+  // This prevents the former dual-banner stacking (two sticky hosts at
+  // z 9999/10000 painting above dialog/sheet backdrops) from reappearing.
+  const isStatusBannerHost = relPath.replace(/\\/g, "/").endsWith("common/StatusBannerHost.tsx");
+  if (!isStatusBannerHost) {
+    const stickyIdx = lines.findIndex((l) => l.includes("sticky top-0"));
+    const hasInlineZIndex = lines.some((l) => /style=\{\{[^}]*zIndex/.test(l));
+    if (stickyIdx !== -1 && hasInlineZIndex) {
+      const prevLine = stickyIdx > 0 ? lines[stickyIdx - 1] : "";
+      if (!isIgnored(lines[stickyIdx], RULES.STICKY_Z_HOST.id, prevLine)) {
+        report(RULES.STICKY_Z_HOST, stickyIdx, lines[stickyIdx]);
+      }
+    }
+  }
 
   return violations;
 }
