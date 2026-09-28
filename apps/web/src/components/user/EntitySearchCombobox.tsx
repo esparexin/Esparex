@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@esparex/ui";
 import { Sheet, SheetContent, SheetTitle } from "@esparex/ui";
 import { useIsMobile } from "@/hooks/useMobile";
-import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useListKeyboardNavigation } from "@/hooks/useListKeyboardNavigation";
 
 export interface EntitySearchComboboxProps<T> {
     items: T[];
@@ -82,7 +82,7 @@ export function EntitySearchCombobox<T>({
     };
     const handleClose = () => { setIsEditing(false); setSearch(""); };
 
-    const { activeIndex, setActiveIndex, handleKeyDown } = useKeyboardNavigation({
+    const { activeIndex, setActiveIndex, handleKeyDown } = useListKeyboardNavigation({
         items: filteredItems,
         isOpen: isListOpen,
         onSelect: handleItemSelect,
