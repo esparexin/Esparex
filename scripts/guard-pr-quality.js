@@ -20,10 +20,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 const FILE_LIMITS = [
-  { type: 'Hook', max: 250, test: (f) => f.includes('/hooks/') || /^use[A-Z]/.test(path.basename(f)) },
-  { type: 'Service', max: 450, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
-  { type: 'Utility/Helper', max: 250, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
-  { type: 'Component', max: 400, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') }
+  { type: 'Component', max: 250, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') },
+  { type: 'Hook', max: 200, test: (f) => f.includes('/hooks/') || /^use[A-Z]/.test(path.basename(f)) },
+  { type: 'Service', max: 300, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
+  { type: 'Controller', max: 200, test: (f) => f.includes('Controller') && !f.includes('/screens/') && !f.includes('/components/') },
+  { type: 'Utility/Helper', max: 150, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
 ];
 
 const ts = require('typescript');
@@ -162,19 +163,23 @@ function getStagedFileLineCount(relFile) {
 
 function run() {
   const isStagedMode = process.argv.includes('--staged');
-  console.log(`🛡️  Running PR Quality & Code Discipline Guard [Mode: ${isStagedMode ? 'Pre-Commit (Staged Index)' : 'Branch / CI Evaluation'}]...`);
+  const isAbsoluteMode = process.argv.includes('--absolute');
+  console.log(`🛡️  Running PR Quality & Code Discipline Guard [Mode: ${isAbsoluteMode ? 'Absolute Repository Audit' : isStagedMode ? 'Pre-Commit (Staged Index)' : 'Branch / CI Evaluation'}]...`);
 
   let statusMap;
   let baseRefName = '';
-  let _getBaseLineCount;
+  let getBaseLineCount = () => 0;
+  let baseSha = '';
 
-  if (isStagedMode) {
+  if (isAbsoluteMode) {
+    baseRefName = 'absolute';
+  } else if (isStagedMode) {
     statusMap = getStagedFileStatus();
     baseRefName = 'HEAD';
-    _getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
+    getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
   } else {
     const baseRef = getBaseRef();
-    const baseSha = getMergeBase(baseRef);
+    baseSha = getMergeBase(baseRef);
 
     if (!baseSha) {
       console.log('⚠️  Skipping PR quality guard: git merge-base could not be resolved.');
@@ -183,11 +188,24 @@ function run() {
 
     baseRefName = baseRef;
     statusMap = getBranchFileStatus(baseSha);
-    const _getBaseLineCount = (relFile) => getGitFileLineCount(baseSha, relFile);
+    getBaseLineCount = (relFile) => getGitFileLineCount(baseSha, relFile);
   }
 
   let auditedCount = 0;
   let violations = [];
+  let absoluteWarnings = [];
+
+  if (isAbsoluteMode) {
+    const { execSync: _exec } = require('child_process');
+    try {
+      const out = _exec('git ls-files "*.ts" "*.tsx"', { cwd: ROOT, encoding: 'utf8' });
+      statusMap = new Map(out.split('\n').filter(Boolean).map((f) => [f, { status: 'M', oldPath: f }]));
+      getBaseLineCount = () => 0;
+    } catch {
+      console.log('⚠️  Absolute mode: could not list tracked files.');
+      return;
+    }
+  }
 
   for (const [relFile, entry] of statusMap.entries()) {
     const status = typeof entry === 'string' ? entry : entry.status;
@@ -224,15 +242,31 @@ function run() {
         });
       }
     } else if (status === 'M' || status === 'R') {
-      // MODIFIED FILE: Allows cohesive growth within healthy bounds (capped at 1.5x rule max)
-      const generousCap = Math.round(matchedRule.max * 1.5);
-      if (currentLines > generousCap) {
+      // MODIFIED FILE: baseline + 5 ratchet (AGENTS.md §7). Absolute cap still reported.
+      const baseLines = getBaseLineCount(relFile);
+      const ratchetLimit = baseLines > 0 ? baseLines + 5 : matchedRule.max;
+      if (baseLines > 0 && currentLines > ratchetLimit) {
         violations.push({
           file: relFile,
-          reason: `Modified ${matchedRule.type} exceeds upper boundary threshold (${currentLines} lines > cap ${generousCap}). Refactor into cohesive sub-modules.`
+          reason: `Modified ${matchedRule.type} grew beyond ratchet (+5): baseline ${baseLines} → ${currentLines} (limit ${ratchetLimit}, absolute max ${matchedRule.max}). Extract sub-modules before adding logic.`
+        });
+      }
+      if (currentLines > matchedRule.max) {
+        absoluteWarnings.push({
+          file: relFile,
+          reason: `${matchedRule.type} exceeds absolute max (${currentLines} > ${matchedRule.max}). Pre-existing debt: do not grow further; schedule responsibility-based split.`
         });
       }
     }
+  }
+
+  if (isAbsoluteMode && absoluteWarnings.length > 0) {
+    console.error(`❌ GOVERNANCE FAILURE (absolute): ${absoluteWarnings.length} file(s) exceed AGENTS.md §7 absolute limits:`);
+    for (const v of absoluteWarnings.slice(0, 50)) {
+      console.error(`   - ${v.file}: ${v.reason}`);
+    }
+    if (absoluteWarnings.length > 50) console.error(`   ... and ${absoluteWarnings.length - 50} more`);
+    process.exit(1);
   }
 
   if (violations.length > 0) {
@@ -244,8 +278,15 @@ function run() {
     process.exit(1);
   }
 
+  if (absoluteWarnings.length > 0 && !isAbsoluteMode) {
+    console.warn(`⚠️  Pre-existing absolute debt (non-blocking in branch mode, blocking with --absolute): ${absoluteWarnings.length} file(s). Run with --absolute for full list.`);
+    for (const v of absoluteWarnings.slice(0, 10)) {
+      console.warn(`   - ${v.file}: ${v.reason}`);
+    }
+  }
+
   if (auditedCount === 0) {
-    console.log(`ℹ️  PR Quality Guard: 0 matching TypeScript files to evaluate in ${isStagedMode ? 'staging index' : `diff vs ${baseRefName}`}. (Pass)`);
+    console.log(`ℹ️  PR Quality Guard: 0 matching TypeScript files to evaluate in ${isAbsoluteMode ? 'absolute repository scan' : isStagedMode ? 'staging index' : `diff vs ${baseRefName}`}. (Pass)`);
   } else {
     console.log(`✅ PR Quality Guard Passed: Audited ${auditedCount} file(s) — all satisfy file size limits and baseline ratchet rules.`);
   }
