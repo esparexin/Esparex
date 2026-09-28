@@ -7,6 +7,7 @@ import { Input } from "@esparex/ui";
 import { Sheet, SheetContent, SheetTitle } from "@esparex/ui";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useListKeyboardNavigation } from "@/hooks/useListKeyboardNavigation";
+import { EntitySearchOptionsList } from "./EntitySearchOptionsList";
 
 export interface EntitySearchComboboxProps<T> {
     items: T[];
@@ -128,56 +129,24 @@ export function EntitySearchCombobox<T>({
         return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
     }, [isListOpen, isMobile, listboxId]);
 
-    const renderOptionsList = (isMobileView: boolean) => {
-        if (loading) {
-            return (
-                <div className="p-4 text-center text-body text-foreground-subtle flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span>Loading...</span>
-                </div>
-            );
-        }
-        if (filteredItems.length === 0) {
-            return (
-                <div className="p-4 text-center text-body font-medium text-foreground-secondary">
-                    {emptyMessage}
-                </div>
-            );
-        }
-        return filteredItems.map((item, idx) => {
-            const label = getLabel(item);
-            const id = getId(item);
-            const isSelected = activeIndex === idx;
-            return (
-                <button
-                    key={id || label}
-                    id={`select-option-${sanitizedTitle}-${idx}`}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    onMouseDown={isMobileView ? undefined : (e) => e.preventDefault()}
-                    onClick={() => handleItemSelect(item)}
-                    className={cn(
-                        "w-full px-3 py-2 text-left text-body font-normal rounded-lg transition-colors cursor-pointer select-none",
-                        isMobileView ? "min-h-[44px] flex items-center rounded-xl" : "",
-                        isSelected
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                >
-                    {renderItem ? renderItem(item, isSelected) : label}
-                </button>
-            );
-        });
-    };
-
     const desktopDropdownContent = (
         <div
             id={listboxId}
             role="listbox"
             className="absolute top-full left-0 right-0 mt-1.5 max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 p-1.5 overscroll-contain touch-pan-y"
         >
-            {renderOptionsList(false)}
+            <EntitySearchOptionsList
+                items={filteredItems}
+                loading={loading}
+                activeIndex={activeIndex}
+                isMobileView={false}
+                emptyMessage={emptyMessage}
+                sanitizedTitle={sanitizedTitle}
+                getLabel={getLabel}
+                getId={getId}
+                renderItem={renderItem}
+                onSelect={handleItemSelect}
+            />
         </div>
     );
 
@@ -292,7 +261,18 @@ export function EntitySearchCombobox<T>({
                                 </div>
                             </div>
                             <div id={listboxId} role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                {renderOptionsList(true)}
+                                <EntitySearchOptionsList
+                                    items={filteredItems}
+                                    loading={loading}
+                                    activeIndex={activeIndex}
+                                    isMobileView
+                                    emptyMessage={emptyMessage}
+                                    sanitizedTitle={sanitizedTitle}
+                                    getLabel={getLabel}
+                                    getId={getId}
+                                    renderItem={renderItem}
+                                    onSelect={handleItemSelect}
+                                />
                             </div>
                         </div>
                         </SheetContent>
