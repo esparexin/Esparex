@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardScreen, Container, Stack, AppText, Spacer, AppIcon } from '@esparex/mobile-ui';
 import { mobileSemanticColors } from '@esparex/design-tokens';
@@ -24,10 +24,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   const navigation = useNavigation();
   const parentNav = navigation.getParent();
   const canDismiss = navigation.canGoBack() || Boolean(parentNav?.canGoBack());
-  // Phase 4 cleanup: replace manual isDark boolean branch with mobileSemanticColors
-  // palette lookup — consistent with the NativeWind theme system used everywhere else.
-  const colorScheme = useColorScheme() ?? 'light';
-  const palette = mobileSemanticColors[colorScheme];
+  // App is light-mode only — always use the light semantic palette.
+  const palette = mobileSemanticColors.light;
 
   const handleDismiss = () => {
     if (onDismiss) {

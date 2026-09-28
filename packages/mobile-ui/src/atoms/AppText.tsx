@@ -47,7 +47,7 @@ export const AppText: React.FC<AppTextProps> = ({
   const getColorStyles = () => {
     switch (color) {
       case 'muted': return 'text-muted-foreground';
-      case 'brand': return 'text-brand-600 dark:text-brand-400';
+      case 'brand': return 'text-brand-600';
       case 'error': return 'text-destructive';
       case 'success': return 'text-success';
       case 'default':

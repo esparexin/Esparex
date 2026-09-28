@@ -303,18 +303,21 @@ for (const filePath of allFiles) {
 //  RC-4: css-variables.css must not be imported in apps/mobile/global.css
 // ──────────────────────────────────────────────────────────────────────────────
 
-// EA-059 Rule A: Verify darkMode declaration exists in mobile tailwind config (RC-1)
+// EA-059 Rule A (updated): Prevent darkMode from being re-added to the mobile Tailwind config.
+// The app is intentionally light-mode only. Adding darkMode: 'media' would re-enable
+// dark: variant class generation and re-introduce the colour inconsistency risk.
 const mobileTailwindConfigPath = path.join(repoRoot, "apps", "mobile", "tailwind.config.js");
 if (fs.existsSync(mobileTailwindConfigPath)) {
   const tailwindConfigContent = fs.readFileSync(mobileTailwindConfigPath, "utf8");
-  if (!/darkMode\s*:/.test(tailwindConfigContent)) {
+  const nonCommentLines = tailwindConfigContent.split("\n").filter((l) => !l.trimStart().startsWith("//"));
+  if (/darkMode\s*:/.test(nonCommentLines.join("\n"))) {
     violations.push({
       file: "apps/mobile/tailwind.config.js",
       line: 1,
-      rule: "[EA-059/RC-1] apps/mobile/tailwind.config.js is missing the 'darkMode' declaration. " +
-            "NativeWind will not generate dark: variant classes without it. " +
-            "Add: darkMode: 'media'",
-      code: "Missing darkMode key in tailwind.config.js",
+      rule: "[EA-059/RC-1] darkMode key detected in apps/mobile/tailwind.config.js. " +
+            "The Esparex mobile app is light-mode only. Omit darkMode so NativeWind does " +
+            "not generate dark: variant classes that are not supported or needed.",
+      code: "darkMode key found — remove it to enforce light-mode only policy",
     });
   }
 }
