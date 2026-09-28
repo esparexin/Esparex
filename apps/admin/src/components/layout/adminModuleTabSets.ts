@@ -75,4 +75,5 @@ export const adLifecycleTabs: AdminTabItem[] = [
 export const notificationsTabs: AdminTabItem[] = [
     { label: "Broadcasts", href: "/notifications" },
     { label: "Smart Alerts", href: "/smart-alerts" },
+    { label: "Email Templates", href: "/email-templates" },
 ];

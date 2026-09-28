@@ -2545,5 +2545,87 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-admin` ──► PASS (104/104 tests green)
 - ✅ `npm test -w @esparex/core -- AdDetailReportAggregation` ──► PASS (3/3 tests green)
 
+---
+
+### EA-055
+
+**Sprint**: Admin Email Templates Customization & Dedicated Management Console  
+**PR**: PR on `feat/admin-email-customization`  
+**Category**: Notifications & System Configuration  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Audit & Root Cause Resolution**:
+   - Audited the entire repository for email template customization. Proved that email customization was never previously implemented in the Admin UI; all 14 transactional/system emails existed only as hardcoded TypeScript functions in `core/src/domains/notifications/templates/EmailLayout.ts`, and `SystemConfig.emailTemplates` was an untyped placeholder `unknown[]` without schemas, consumers, or UI.
+2. **Contracts & SSOT Schema Architecture**:
+   - Defined `EMAIL_TEMPLATE_KEY` (14 canonical templates) and `EMAIL_TEMPLATE_CATEGORY` enums in `@esparex/contracts`.
+   - Created `EmailTemplateDTO`, `EmailTemplateVariable`, `EmailTemplateCustomization`, `EmailTemplatePreviewDTO`, and Zod schemas (`emailTemplateCustomizationSchema`, `updateEmailTemplateSchema`, `sendTestEmailTemplateSchema`).
+   - Added canonical API route constants in `shared/src/routes/api/adminRoutes.ts` and UI route helper `emailTemplates` in `adminUiRoutes.ts`.
+3. **Core Domain Catalog Service & Customization Overlay**:
+   - Built `EmailTemplateCatalogService` and `emailTemplateRegistry` in `@esparex/core`, mapping all 14 canonical templates with metadata, variable dictionaries, sample test payloads, live HTML previews, and subject line interpolation (`{{variable}}`).
+   - Replaced untyped `unknown[]` with strongly typed `EmailTemplateCustomization[]` in `core/src/models/SystemConfig.ts` and `systemConfig.validator.ts`.
+4. **Backend API Endpoints**:
+   - Created `backend/api/src/controllers/admin/adminEmailTemplateController.ts` supporting `listEmailTemplates`, `getEmailTemplate`, `getEmailTemplatePreview`, `updateEmailTemplate`, `resetEmailTemplate`, and `sendTestEmailTemplate`.
+   - Protected mutations with `requirePermission('system:config')` and logged actions with `logAdminAction`.
+5. **Dedicated Admin Navigation & Management Page**:
+   - Registered dedicated "Email Templates" module in `apps/admin/src/components/layout/adminNavigation.ts` with `Mail` icon under Management section.
+   - Connected `notificationsTabs` (`Broadcasts`, `Smart Alerts`, `Email Templates`) for unified top-tab navigation.
+   - Created client API layer (`emailTemplates.ts`) and hook `useAdminEmailTemplates.ts`.
+   - Built responsive UI page (`/email-templates`) featuring category filters, search, table with customizer/status badges, live HTML preview modal with desktop/mobile viewport toggle, and customization modal with dynamic variable chips and live test dispatcher.
+   - Enforced Mobile Form Input Font-Size Governance Rule (`text-body-lg md:text-body`) to prevent iOS Safari auto-zoom.
+6. **Automated Testing & Parity Verification**:
+   - Added unit test suite `EmailTemplateCatalogService.spec.ts` (11 tests).
+   - Added API controller test suite `adminEmailTemplateController.spec.ts` (8 tests).
+   - Added UI integration test suite `admin-email-templates.spec.ts` (8 tests) and updated `admin-navigation-integrity.spec.ts` (6 tests).
+   - Added `EmailTemplateParity.spec.ts` (4 tests) enforcing 100% parity between `EmailLayout.ts` and `EmailTemplateCatalogService`.
+
+**Files Created / Modified**:
+```
+apps/admin/src/__tests__/admin-email-templates.spec.ts
+apps/admin/src/__tests__/admin-navigation-integrity.spec.ts
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateEditorModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplatePreviewModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateTable.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/page.tsx
+apps/admin/src/components/layout/adminModuleTabSets.ts
+apps/admin/src/components/layout/adminNavigation.ts
+apps/admin/src/hooks/useAdminEmailTemplates.ts
+apps/admin/src/lib/adminUiRoutes.ts
+apps/admin/src/lib/api/emailTemplates.ts
+apps/admin/src/types/systemConfig.ts
+backend/api/src/__tests__/controllers/adminEmailTemplateController.spec.ts
+backend/api/src/controllers/admin/adminEmailTemplateController.ts
+backend/api/src/routes/adminRoutes.ts
+core/src/domains/notifications/__tests__/EmailTemplateCatalogService.spec.ts
+core/src/domains/notifications/__tests__/EmailTemplateParity.spec.ts
+core/src/domains/notifications/application/EmailTemplateCatalogService.ts
+core/src/domains/notifications/application/emailTemplateRegistry.ts
+core/src/domains/notifications/index.ts
+core/src/models/SystemConfig.ts
+core/src/validators/systemConfig.validator.ts
+packages/contracts/src/v1/notifications/dto/emailTemplate.ts
+packages/contracts/src/v1/notifications/enums/emailTemplate.ts
+packages/contracts/src/v1/notifications/index.ts
+packages/contracts/src/v1/notifications/schema/emailTemplate.schema.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Dedicated Email Templates menu, page, live preview modal, customization editor, test email dispatcher, and reset workflows implemented.
+- [x] **Automated Testing**: 100% test suites passed (37 tests across core, api, and admin).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 double casts.
+- [x] **Contract Stability**: Contracts defined cleanly in `@esparex/contracts` without breaking changes.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- EmailTemplate` ──► PASS (15/15 tests green)
+- ✅ `npm test -w @esparex/backend-api -- adminEmailTemplateController` ──► PASS (8/8 tests green)
+- ✅ `npm test -w @esparex/apps-admin -- admin-email-templates admin-navigation-integrity` ──► PASS (14/14 tests green)
+- ✅ `node scripts/guard-type-cast-baseline.js` ──► PASS (0 double casts, 0 suppressions, 0 unsafe casts)
+- ✅ `node scripts/enforce-design-token-adoption.js` ──► PASS (0 raw palette/inline style violations)
+
+
 
 
