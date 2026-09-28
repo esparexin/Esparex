@@ -31,51 +31,12 @@ export class EmailTemplateCatalogService {
     }
 
     /**
-     * Lists all registered email templates with customizations merged from system config.
+     * Maps an immutable catalog definition and optional runtime customization to an EmailTemplateDTO.
      */
-    public getAllTemplates(customizations: EmailTemplateCustomization[] = []): EmailTemplateDTO[] {
-        const customMap = new Map<EmailTemplateKey, EmailTemplateCustomization>();
-        customizations.forEach((c) => {
-            if (c?.key) {
-                customMap.set(c.key, c);
-            }
-        });
-
-        return Object.values(TEMPLATE_DEFINITIONS).map((def) => {
-            const custom = customMap.get(def.key);
-            const isCustomized = Boolean(custom?.subject || custom?.customHeadline || custom?.customNote);
-            const activeSubject = custom?.subject?.trim() || def.defaultSubject;
-
-            return {
-                key: def.key,
-                name: def.name,
-                category: def.category,
-                description: def.description,
-                trigger: def.trigger,
-                defaultSubject: def.defaultSubject,
-                subject: activeSubject,
-                isCustomized,
-                customSubject: custom?.subject,
-                customHeadline: custom?.customHeadline,
-                customNote: custom?.customNote,
-                variables: def.variables,
-                updatedAt: custom?.updatedAt,
-                updatedBy: custom?.updatedBy,
-            };
-        });
-    }
-
-    /**
-     * Returns a single template DTO by key with customizations applied.
-     */
-    public getTemplateByKey(
-        key: EmailTemplateKey,
-        customizations: EmailTemplateCustomization[] = []
-    ): EmailTemplateDTO | undefined {
-        const def = TEMPLATE_DEFINITIONS[key];
-        if (!def) return undefined;
-
-        const custom = customizations.find((c) => c.key === key);
+    private mapToDTO(
+        def: TemplateDefinition,
+        custom?: EmailTemplateCustomization
+    ): EmailTemplateDTO {
         const isCustomized = Boolean(custom?.subject || custom?.customHeadline || custom?.customNote);
         const activeSubject = custom?.subject?.trim() || def.defaultSubject;
 
@@ -95,6 +56,36 @@ export class EmailTemplateCatalogService {
             updatedAt: custom?.updatedAt,
             updatedBy: custom?.updatedBy,
         };
+    }
+
+    /**
+     * Lists all registered email templates with customizations merged from system config.
+     */
+    public getAllTemplates(customizations: EmailTemplateCustomization[] = []): EmailTemplateDTO[] {
+        const customMap = new Map<EmailTemplateKey, EmailTemplateCustomization>();
+        customizations.forEach((c) => {
+            if (c?.key) {
+                customMap.set(c.key, c);
+            }
+        });
+
+        return Object.values(TEMPLATE_DEFINITIONS).map((def) =>
+            this.mapToDTO(def, customMap.get(def.key))
+        );
+    }
+
+    /**
+     * Returns a single template DTO by key with customizations applied.
+     */
+    public getTemplateByKey(
+        key: EmailTemplateKey,
+        customizations: EmailTemplateCustomization[] = []
+    ): EmailTemplateDTO | undefined {
+        const def = TEMPLATE_DEFINITIONS[key];
+        if (!def) return undefined;
+
+        const custom = customizations.find((c) => c.key === key);
+        return this.mapToDTO(def, custom);
     }
 
     /**
