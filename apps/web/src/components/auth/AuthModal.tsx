@@ -16,12 +16,14 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const backActionRef = useRef<(() => void) | null>(null);
 
+  const handleClose = useCallback(() => onOpenChange(false), [onOpenChange]);
+
+  const { dragOffsetY, isDragging, resetDrag, touchHandlers } = useDrawerDragGesture(handleClose);
+
   const handleOpenChange = useCallback((nextOpen: boolean) => {
     if (!nextOpen) resetDrag();
     onOpenChange(nextOpen);
-  }, [onOpenChange]);
-
-  const { dragOffsetY, isDragging, resetDrag, touchHandlers } = useDrawerDragGesture(() => handleOpenChange(false));
+  }, [onOpenChange, resetDrag]);
 
   const handleBack = useCallback(() => {
     if (backActionRef.current) backActionRef.current();
@@ -39,7 +41,10 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         side="bottom"
         hideClose
         onOpenAutoFocus={(e) => {
-       
+          e.preventDefault();
+          // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
+          if (typeof window !== "undefined" && window.innerWidth >= 640) {
+            document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
           }
         }}
         /* design-token-ignore: dynamic drag gesture translation */
