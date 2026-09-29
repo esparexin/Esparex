@@ -32,7 +32,6 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
       <SheetContent
         side="bottom"
         hideClose
-        overlayClassName="bg-card sm:bg-black/50"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).

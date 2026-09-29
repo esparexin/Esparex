@@ -55,18 +55,16 @@ function SheetContent({
   side = "right",
   onOpenAutoFocus,
   hideClose = false,
-  overlayClassName,
   style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   onOpenAutoFocus?: (e: React.FocusEvent<HTMLElement>) => void;
   hideClose?: boolean;
-  overlayClassName?: string;
 }) {
   return (
     <SheetPortal>
-      <SheetOverlay className={overlayClassName} />
+      <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         /* design-token-ignore: dynamic z-index layering */
