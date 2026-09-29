@@ -183,7 +183,7 @@
    ========================================= */
 html {
   font-size: var(--font-size); /* 16px — preserves rem scale for spacing/layout */
-  color-scheme: light dark;
+  color-scheme: only light;
 }
 
 html,

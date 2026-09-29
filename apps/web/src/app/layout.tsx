@@ -38,6 +38,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: '#ffffff',
+  colorScheme: 'only light',
   interactiveWidget: 'resizes-content',
 };
 
