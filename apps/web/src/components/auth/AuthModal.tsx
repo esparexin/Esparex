@@ -42,10 +42,15 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           }
         }}
         className={cn(
-          "inset-0 h-full w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col justify-between overflow-y-auto overscroll-contain",
+          // Mobile: top-0 left-0 right-0 preserves the Sheet primitive's keyboard-aware
+          // bottom-[var(--keyboard-height,0px)] so the sheet shrinks above the keyboard.
+          // h-[var(--visual-viewport-height,100svh)] pins height to the JS-updated visual
+          // viewport token, preventing the 100dvh fallback from sizing to the full
+          // 812px layout viewport on iOS 15 before the keyboard has resized the viewport.
+          "top-0 left-0 right-0 h-[var(--visual-viewport-height,100svh)] w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-          "sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80",
-          "sm:inset-0 sm:animate-none sm:transition-none sm:transform-none"
+          "sm:inset-0 sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80",
+          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-y-auto"
         )}
       >
         <SheetTitle className="sr-only">Authentication</SheetTitle>
@@ -70,7 +75,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           </SheetClose>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between min-h-0">
+        <div className="flex-1 flex flex-col overflow-y-auto overscroll-contain -mx-4 px-4 sm:-mx-6 sm:px-6">
           <LoginFlow
             mode="modal"
             callbackUrl={callbackUrl}
