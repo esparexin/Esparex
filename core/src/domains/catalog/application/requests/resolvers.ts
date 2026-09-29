@@ -74,11 +74,11 @@ export const resolveOrCreateBrand = async (request: ICatalogRequest, session: Cl
         findExisting: (canonicalName, session) => Brand.findOne({
             canonicalName, ...NON_DELETED_QUERY,
             approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-        }).session(session).lean(),
+        }).session(session),
         findExistingAfterError: (canonicalName, session) => Brand.findOne({
             canonicalName, ...NON_DELETED_QUERY,
             approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-        }).session(session).lean(),
+        }).session(session),
         createEntity: (data: BrandCreateInput, session: ClientSession) => Brand.create([data], { session }),
         buildCreateData: (req, canonicalName) => ({
             name: req.requestedName, displayName: req.requestedName, canonicalName,
@@ -98,11 +98,11 @@ export const resolveOrCreateModel = async (request: ICatalogRequest, session: Cl
         findExisting: (canonicalName, session) => CatalogModel.findOne({
             brandId: request.parentBrandId, canonicalName, ...NON_DELETED_QUERY,
             approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-        }).session(session).lean(),
+        }).session(session),
         findExistingAfterError: (canonicalName, session) => CatalogModel.findOne({
             brandId: request.parentBrandId, canonicalName, ...NON_DELETED_QUERY,
             approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-        }).session(session).lean(),
+        }).session(session),
         createEntity: (data: ModelCreateInput, session: ClientSession) => CatalogModel.create([data], { session }),
         buildCreateData: (req, canonicalName) => ({
             name: req.requestedName, displayName: req.requestedName, canonicalName,
