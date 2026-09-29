@@ -59,7 +59,7 @@ function run() {
 
     // 3. Audit 'as any' and 'as never' in production source code
     const sourceUnsafeRaw = execSync(
-      "git grep -n -E '\\bas any\\b|\\bas never\\b' -- 'apps/**/src/**' 'packages/**/src/**' 'core/src/**' 'backend/api/src/**' ':!**/__tests__/**' ':!**/*.spec.*' ':!**/*.test.*' || true",
+      "git grep -n -w -E 'as any|as never' -- 'apps/**/src/**' 'packages/**/src/**' 'core/src/**' 'backend/api/src/**' ':!**/__tests__/**' ':!**/*.spec.*' ':!**/*.test.*' || true",
       { cwd: ROOT, encoding: 'utf8' }
     );
     const sourceUnsafe = sourceUnsafeRaw.trim().split('\n').filter(Boolean).filter(line => {

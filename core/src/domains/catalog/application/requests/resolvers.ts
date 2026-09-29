@@ -6,12 +6,12 @@ import CatalogModel, { type IModel } from '../../../../models/Model';
 import type { ICatalogRequest } from '../../../../models/CatalogRequest';
 import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { buildCatalogSlug, resolveRequestCanonicalName, NON_DELETED_QUERY } from './validation';
-import { buildApprovalTrustMetadata, ensureEntityActiveAndTrusted } from './entity';
+import { buildApprovalTrustMetadata, ensureEntityActiveAndTrusted, type CatalogActivationEntity } from './entity';
 
-interface ResolveOrCreateOptions<TDoc> {
+interface ResolveOrCreateOptions<TDoc, TEntity extends CatalogActivationEntity & { _id: Types.ObjectId }> {
     entityType: 'brand' | 'model';
-    findExisting: (canonicalName: string, session: ClientSession) => Promise<{ _id: Types.ObjectId } | null>;
-    findExistingAfterError: (canonicalName: string, session: ClientSession) => Promise<{ _id: Types.ObjectId } | null>;
+    findExisting: (canonicalName: string, session: ClientSession) => Promise<TEntity | null>;
+    findExistingAfterError: (canonicalName: string, session: ClientSession) => Promise<TEntity | null>;
     createEntity: (data: TDoc, session: ClientSession) => Promise<{ _id: Types.ObjectId }[]>;
     buildCreateData: (request: ICatalogRequest, canonicalName: string) => TDoc;
 }
@@ -39,18 +39,18 @@ interface ModelCreateInput extends Partial<IModel> {
  * Generic resolve-or-create pattern for catalog entities (brand/model).
  * Handles: find existing -> create -> on duplicate key error find existing again.
  */
-const resolveOrCreateEntity = async <TDoc,>(
+const resolveOrCreateEntity = async <TDoc, TEntity extends CatalogActivationEntity & { _id: Types.ObjectId }>(
     request: ICatalogRequest,
     session: ClientSession,
-    options: ResolveOrCreateOptions<TDoc>
+    options: ResolveOrCreateOptions<TDoc, TEntity>
 ): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
     const requestCanonicalName = resolveRequestCanonicalName(request);
     
     // Try to find existing
     const existing = await options.findExisting(requestCanonicalName, session);
     if (existing) {
-        await ensureEntityActiveAndTrusted(existing as any, request, session, { createdCanonicalEntity: false });
-        return { entityId: existing._id as Types.ObjectId, createdCanonicalEntity: false };
+        await ensureEntityActiveAndTrusted(existing, request, session, { createdCanonicalEntity: false });
+        return { entityId: existing._id, createdCanonicalEntity: false };
     }
     
     // Try to create
@@ -63,13 +63,13 @@ const resolveOrCreateEntity = async <TDoc,>(
         if ((error as { code?: number }).code !== 11000) throw error;
         const existingAfterError = await options.findExistingAfterError(requestCanonicalName, session);
         if (!existingAfterError) throw error;
-        await ensureEntityActiveAndTrusted(existingAfterError as any, request, session, { createdCanonicalEntity: false });
-        return { entityId: existingAfterError._id as Types.ObjectId, createdCanonicalEntity: false };
+        await ensureEntityActiveAndTrusted(existingAfterError, request, session, { createdCanonicalEntity: false });
+        return { entityId: existingAfterError._id, createdCanonicalEntity: false };
     }
 };
 
 export const resolveOrCreateBrand = async (request: ICatalogRequest, session: ClientSession): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
-    return resolveOrCreateEntity<BrandCreateInput>(request, session, {
+    return resolveOrCreateEntity<BrandCreateInput, IBrand>(request, session, {
         entityType: 'brand',
         findExisting: (canonicalName, session) => Brand.findOne({
             canonicalName, ...NON_DELETED_QUERY,
@@ -93,7 +93,7 @@ export const resolveOrCreateBrand = async (request: ICatalogRequest, session: Cl
 export const resolveOrCreateModel = async (request: ICatalogRequest, session: ClientSession): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
     if (!request.parentBrandId) throw new AppError('Model requests require a parentBrandId.', 400, 'CATALOG_REQUEST_PARENT_BRAND_REQUIRED');
     
-    return resolveOrCreateEntity<ModelCreateInput>(request, session, {
+    return resolveOrCreateEntity<ModelCreateInput, IModel>(request, session, {
         entityType: 'model',
         findExisting: (canonicalName, session) => CatalogModel.findOne({
             brandId: request.parentBrandId, canonicalName, ...NON_DELETED_QUERY,
