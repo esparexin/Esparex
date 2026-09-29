@@ -54,7 +54,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
     switch (variant) {
       case 'outline':
       case 'ghost':
-        return 'text-brand-600';
+        return 'text-brand-700';
       case 'secondary':
         return 'text-foreground';
       case 'destructive':
@@ -85,7 +85,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'outline' || variant === 'ghost' ? base.brand[600] : base.white} />
+        <ActivityIndicator color={variant === 'outline' || variant === 'ghost' ? base.brand[700] : base.white} />
       ) : (
         <>
           {leftIcon && <View className="mr-2">{leftIcon}</View>}

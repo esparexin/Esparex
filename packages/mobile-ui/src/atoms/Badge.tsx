@@ -4,7 +4,7 @@ import { AppText } from './AppText';
 
 export interface BadgeProps extends ViewProps {
   label: string;
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'brand';
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'destructive' | 'brand';
   size?: 'sm' | 'md';
   className?: string;
 }
@@ -20,7 +20,8 @@ export const Badge: React.FC<BadgeProps> = ({
     switch (variant) {
       case 'success': return 'bg-success/10 border-success/20';
       case 'warning': return 'bg-warning/10 border-warning/20';
-      case 'error': return 'bg-error/10 border-error/20';
+      case 'destructive':
+      case 'error': return 'bg-destructive/10 border-destructive/20';
       case 'brand': return 'bg-brand-50 border-brand-200';
       case 'default':
       default: return 'bg-muted border-border';
@@ -31,7 +32,8 @@ export const Badge: React.FC<BadgeProps> = ({
     switch (variant) {
       case 'success': return 'text-success';
       case 'warning': return 'text-warning';
-      case 'error': return 'text-error';
+      case 'destructive':
+      case 'error': return 'text-destructive';
       case 'brand': return 'text-brand-700';
       case 'default':
       default: return 'text-foreground';
