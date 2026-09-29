@@ -68,10 +68,10 @@
   --sidebar-border: 217.2 32.6% 17.5%;
   --sidebar-ring: 217.2 91.2% 59.8%;
 
-  /* Extended foreground text tokens (dark mode) */
-  --foreground-secondary: 215 20.2% 75.1%;
-  --foreground-tertiary: 215 20.2% 65.1%;
-  --foreground-subtle: 215 20.2% 45.1%;
+  /* Extended foreground text tokens (enforced light-mode SSOT to prevent low-contrast text on white surfaces) */
+  --foreground-secondary: 215.3 25% 26.7%;
+  --foreground-tertiary: 215.4 16.3% 38%;
+  --foreground-subtle: 215.4 16.3% 38%;
 
   /* Link / interactive blue (slightly lighter in dark mode) */
   --link: 213.1 93.9% 67.8%;        /* blue-400 for better contrast on dark bg */
@@ -181,9 +181,12 @@
 /* =========================================
    HTML / BODY SAFETY + OPTIONAL IMPROVEMENTS
    ========================================= */
+:root,
 html {
   font-size: var(--font-size); /* 16px — preserves rem scale for spacing/layout */
-  color-scheme: light dark;
+  color-scheme: only light;
+  supported-color-schemes: light;
+  -webkit-text-size-adjust: 100%;
 }
 
 html,
@@ -193,13 +196,44 @@ body {
   position: relative;
 }
 
-/* Ensure form controls inherit typography */
+/* Ensure form controls inherit typography and maintain high-contrast light theme text on iOS WebKit/Safari in Dark Mode */
 button,
 input,
 textarea,
 select {
   font-family: inherit;
   font-size: inherit;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Enforce crisp placeholder contrast on iOS Safari (which defaults to 0.54 opacity) */
+input::placeholder,
+textarea::placeholder {
+  opacity: 1;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Enforce light-mode presentation on iOS Safari WebKit autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Prevent iOS Safari from auto-recoloring telephone / date numbers to dark-mode system link colors */
+a[href^="tel"] {
+  color: inherit;
+  text-decoration: inherit;
 }
 
 /* =========================================

@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -17,12 +17,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.esparex.mobile",
       "buildNumber": "1",
+      "userInterfaceStyle": "light",
       "splash": {
         "image": "./assets/splash-icon-ios.png",
         "resizeMode": "contain",
         "backgroundColor": "#0A0C0B"
       },
       "infoPlist": {
+        "UIUserInterfaceStyle": "Light",
         "NSUserNotificationsUsageDescription": "Receive alerts for new messages and listing activity.",
         "NSCameraUsageDescription": "Esparex requires camera access to capture listing photos.",
         "NSPhotoLibraryUsageDescription": "Esparex requires photo library access to upload listing images."

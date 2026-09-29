@@ -71,7 +71,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <Container className="flex-1 bg-background">
         {/* Back navigation header */}
         <View className="flex-row items-center px-4 pt-2 pb-1">
           <TouchableOpacity
@@ -82,7 +82,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
           >
             <AppIcon name="ArrowLeft" size={22} color={base.brand[500]} />
           </TouchableOpacity>
-          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+          <AppText variant="h2" className="font-bold text-foreground">
             Settings
           </AppText>
         </View>
@@ -94,34 +94,34 @@ export const SettingsScreen = ({ navigation }: Props) => {
           {/* Account Profile Card */}
           <Card className="p-4 mb-4">
             <View className="flex-row items-center justify-between mb-2">
-              <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
+              <AppText variant="h3" className="font-bold text-foreground">
                 Account Information
               </AppText>
               <TouchableOpacity
                 onPress={() => setIsEditModalOpen(true)}
-                className="flex-row items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full"
+                className="flex-row items-center bg-muted px-3 py-1.5 rounded-full"
               >
                 <AppIcon name="User" size={14} color={base.brand[500]} />
-                <AppText variant="caption" className="font-semibold text-brand-600 dark:text-brand-400 ml-1">
+                <AppText variant="caption" className="font-semibold text-brand-700 ml-1">
                   Edit
                 </AppText>
               </TouchableOpacity>
             </View>
 
-            <View className="py-2 border-b border-slate-100 dark:border-slate-800">
-              <AppText variant="caption" className="text-slate-400">
+            <View className="py-2 border-b border-border">
+              <AppText variant="caption" className="text-foreground-secondary">
                 Name
               </AppText>
-              <AppText variant="body" className="font-medium text-slate-800 dark:text-slate-200">
+              <AppText variant="body" className="font-medium text-foreground">
                 {profile?.name || 'Not provided'}
               </AppText>
             </View>
 
             <View className="py-2">
-              <AppText variant="caption" className="text-slate-400">
+              <AppText variant="caption" className="text-foreground-secondary">
                 Email
               </AppText>
-              <AppText variant="body" className="font-medium text-slate-800 dark:text-slate-200">
+              <AppText variant="body" className="font-medium text-foreground">
                 {profile?.email || 'Not provided'}
               </AppText>
             </View>
@@ -129,16 +129,16 @@ export const SettingsScreen = ({ navigation }: Props) => {
 
           {/* Preferences */}
           <Card className="p-4 mb-4">
-            <AppText variant="h3" className="font-bold text-slate-900 dark:text-white mb-3">
+            <AppText variant="h3" className="font-bold text-foreground mb-3">
               Notification Settings
             </AppText>
 
             <View className="flex-row items-center justify-between py-3">
               <View className="flex-1 mr-4">
-                <AppText variant="body" className="font-medium text-slate-800 dark:text-slate-200">
+                <AppText variant="body" className="font-medium text-foreground">
                   Notification Settings
                 </AppText>
-                <AppText variant="caption" className="text-slate-500">
+                <AppText variant="caption" className="text-foreground-secondary">
                   Receive instant chat, listing updates & account alerts
                 </AppText>
               </View>
@@ -152,7 +152,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
 
           {/* Danger Zone / Logout */}
           <Card className="p-4 mb-4">
-            <AppText variant="h3" className="font-bold text-red-500 mb-3">
+            <AppText variant="h3" className="font-bold text-destructive mb-3">
               Account Actions
             </AppText>
             <AppButton variant="destructive" label="Sign Out" onPress={handleLogoutPress} />

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, ScrollView, Alert, StyleSheet } from 'react-native';
 import { AppText, Center, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { MAX_AD_IMAGES } from '@esparex/contracts';
 import { usePostAdDraft } from '../../usePostAdDraft';
 import { ImageGrid, AddPhotoButton } from '../components/ImagePickerComponents';
@@ -84,10 +85,10 @@ export const StepImages = () => {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <AppText variant="h3" className="text-slate-900 dark:text-white font-bold mb-1">
+      <AppText variant="h3" className="text-foreground font-bold mb-1">
         Add Photos
       </AppText>
-      <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-5">
+      <AppText variant="caption" className="text-foreground-secondary mb-5">
         Listings with clear photos get up to 5x more responses. Add up to {MAX_AD_IMAGES} photos.
       </AppText>
 
@@ -99,12 +100,12 @@ export const StepImages = () => {
 
       {/* Guidance when no images added yet */}
       {images.length === 0 && (
-        <Center className="py-8 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 my-4">
-          <AppIcon name="ImagePlus" size={40} color="#64748b" />
-          <AppText variant="body" className="text-slate-600 dark:text-slate-300 font-semibold mt-3 text-center">
+        <Center className="py-8 bg-muted rounded-2xl border border-dashed border-border my-4">
+          <AppIcon name="ImagePlus" size={40} color={base.slate[500]} />
+          <AppText variant="body" className="text-foreground font-semibold mt-3 text-center">
             Upload at least 1 photo
           </AppText>
-          <AppText variant="caption" className="text-slate-400 text-center mt-1 px-6">
+          <AppText variant="caption" className="text-foreground-secondary text-center mt-1 px-6">
             The first photo will be shown as the primary cover photo for your ad.
           </AppText>
         </Center>
@@ -112,7 +113,7 @@ export const StepImages = () => {
 
       {/* Count indicator */}
       {images.length > 0 && (
-        <AppText variant="caption" className="text-slate-400 dark:text-slate-500 text-center font-medium mt-2">
+        <AppText variant="caption" className="text-foreground-secondary text-center font-medium mt-2">
           {images.length} of {MAX_AD_IMAGES} photos added (First image is Cover)
         </AppText>
       )}

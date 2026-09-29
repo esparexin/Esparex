@@ -18,7 +18,7 @@ export const ActionBar = ({ actions }: ActionBarProps) => {
   if (!actions || actions.length === 0) return null;
 
   return (
-    <View className="px-4 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex-row justify-between items-center w-full">
+    <View className="px-4 py-3 bg-card border-t border-border flex-row justify-between items-center w-full">
       {actions.map((action, index) => (
         <View key={`${action.label}-${index}`} className="flex-1 px-1">
           <AppButton

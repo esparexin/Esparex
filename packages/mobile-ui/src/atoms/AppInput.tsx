@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { TextInput, TextInputProps, View } from 'react-native';
+import { mobileSemanticColors } from '@esparex/design-tokens';
 import { AppText } from './AppText';
 
 export interface AppInputProps extends TextInputProps {
@@ -43,7 +44,8 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
         <TextInput
           ref={ref}
           className={`${baseInput} ${className}`}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={props.placeholderTextColor || mobileSemanticColors.light['muted-foreground']}
+          keyboardAppearance="light"
           accessibilityRole="text"
           accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
           accessibilityState={{

@@ -20,7 +20,7 @@ export function RootClientShell({
 
     return (
         <ErrorBoundary>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false} disableTransitionOnChange>
                 <PopupProvider>
                     <LocationProvider initialHasAuthCookie={initialHasAuthCookie}>
                         {children}

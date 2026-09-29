@@ -21,7 +21,7 @@ export const Screen: React.FC<ScreenProps> = ({
   ...props
 }) => {
   const statusBarStyle: StatusBarStyle =
-    barStyle === 'light-content' ? 'light' : barStyle === 'dark-content' ? 'dark' : barStyle === 'default' ? 'auto' : (barStyle as StatusBarStyle);
+    barStyle === 'light-content' ? 'light' : barStyle === 'dark-content' ? 'dark' : barStyle === 'default' ? 'dark' : (barStyle as StatusBarStyle);
 
   return (
     <SafeAreaView 

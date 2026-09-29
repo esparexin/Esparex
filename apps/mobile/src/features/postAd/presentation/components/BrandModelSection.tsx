@@ -56,16 +56,16 @@ export const BrandModelSection = ({
                   onPress={() => onSelectBrand({ brandId: b.id, brandName: b.name })}
                   className={`px-3 py-1.5 rounded-full mr-2 border ${
                     isSelected
-                      ? 'bg-brand-50 dark:bg-brand-950/60 border-brand-500'
-                      : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                      ? 'bg-brand-50 border-brand-500'
+                      : 'bg-muted border-border'
                   }`}
                 >
                   <AppText
                     variant="caption"
                     className={
                       isSelected
-                        ? 'text-brand-600 dark:text-brand-400 font-semibold'
-                        : 'text-slate-700 dark:text-slate-300'
+                        ? 'text-brand-700 font-semibold'
+                        : 'text-foreground-secondary'
                     }
                   >
                     {b.name}
@@ -77,15 +77,15 @@ export const BrandModelSection = ({
         </View>
       ) : (
         <View>
-          <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-1">
+          <AppText variant="caption" className="text-foreground-secondary mb-1">
             Brand Name (Optional)
           </AppText>
           <TextInput
             value={selectedBrandName || customBrandName || ''}
             onChangeText={(text) => onSelectBrand({ customBrandName: text, brandName: text })}
             placeholder="e.g. Apple, Dell, Samsung"
-            placeholderTextColor="#94a3b8"
-            className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm"
+            placeholderTextColor={base.slate[500]}
+            className="p-3 bg-muted border border-border rounded-xl text-foreground text-body-lg"
           />
         </View>
       )}
@@ -93,7 +93,7 @@ export const BrandModelSection = ({
       {/* Model Selector */}
       {selectedBrandId && (
         <View className="mt-3">
-          <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-2">
+          <AppText variant="caption" className="text-foreground-secondary mb-2">
             Select Model (Optional)
           </AppText>
           {isLoadingModels ? (
@@ -108,16 +108,16 @@ export const BrandModelSection = ({
                     onPress={() => onSelectModel({ modelId: m.id, modelName: m.name })}
                     className={`px-3 py-1.5 rounded-full mr-2 border ${
                       isSelected
-                        ? 'bg-brand-50 dark:bg-brand-950/60 border-brand-500'
-                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                        ? 'bg-brand-50 border-brand-500'
+                        : 'bg-muted border-border'
                     }`}
                   >
                     <AppText
                       variant="caption"
                       className={
                         isSelected
-                          ? 'text-brand-600 dark:text-brand-400 font-semibold'
-                          : 'text-slate-700 dark:text-slate-300'
+                          ? 'text-brand-700 font-semibold'
+                          : 'text-foreground-secondary'
                       }
                     >
                       {m.name}
@@ -131,8 +131,8 @@ export const BrandModelSection = ({
               value={selectedModelName || customModelName || ''}
               onChangeText={(text) => onSelectModel({ customModelName: text, modelName: text })}
               placeholder="e.g. Inspiron 15, MacBook Pro M2"
-              placeholderTextColor="#94a3b8"
-              className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm"
+              placeholderTextColor={base.slate[500]}
+              className="p-3 bg-muted border border-border rounded-xl text-foreground text-body-lg"
             />
           )}
         </View>

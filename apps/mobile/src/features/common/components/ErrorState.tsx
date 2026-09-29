@@ -1,5 +1,6 @@
 import React from 'react';
 import { Center, AppText, AppIcon, AppButton } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 
 interface ErrorStateProps {
   title?: string;
@@ -13,13 +14,13 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   onRetry
 }) => (
   <Center className="flex-1 p-6">
-    <Center className="w-16 h-16 rounded-full bg-red-500/10 mb-4">
-      <AppIcon name="AlertCircle" size={32} color="#ef4444" />
+    <Center className="w-16 h-16 rounded-full bg-destructive/10 mb-4">
+      <AppIcon name="AlertCircle" size={32} color={base.error} />
     </Center>
-    <AppText variant="h3" className="text-slate-900 dark:text-slate-100 text-center mb-2">
+    <AppText variant="h3" className="text-foreground text-center mb-2">
       {title}
     </AppText>
-    <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+    <AppText variant="body" className="text-foreground-secondary text-center mb-6">
       {message}
     </AppText>
     {onRetry && (

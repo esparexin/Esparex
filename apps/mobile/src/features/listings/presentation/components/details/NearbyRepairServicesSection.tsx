@@ -61,22 +61,22 @@ export const NearbyRepairServicesSection: React.FC<NearbyRepairServicesSectionPr
           return (
             <Card
               key={business.id}
-              className="mr-3 w-64 p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl"
+              className="mr-3 w-64 p-3 bg-muted border border-border rounded-xl"
             >
               <View className="flex-row items-start justify-between mb-1.5">
                 <View className="flex-1 mr-2">
                   <AppText
                     variant="body"
-                    className="font-bold text-slate-900 dark:text-white text-sm"
+                    className="font-bold text-foreground"
                     numberOfLines={1}
                   >
                     {businessName}
                   </AppText>
                   <View className="flex-row items-center mt-0.5">
-                    <AppIcon name="MapPin" size={11} color="#64748b" />
+                    <AppIcon name="MapPin" size={11} color={base.slate[500]} />
                     <AppText
                       variant="tiny"
-                      className="text-slate-500 dark:text-slate-400 ml-1 flex-1"
+                      className="text-foreground-secondary ml-1 flex-1"
                       numberOfLines={1}
                     >
                       {locationDisplay}

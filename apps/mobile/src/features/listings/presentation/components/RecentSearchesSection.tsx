@@ -30,7 +30,7 @@ export const RecentSearchesSection: React.FC<RecentSearchesSectionProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Clear all recent searches"
         >
-          <AppText variant="caption" className="text-brand-600 font-semibold">
+          <AppText variant="caption" className="text-brand-700 font-semibold">
             Clear All
           </AppText>
         </TouchableOpacity>
@@ -59,7 +59,7 @@ export const RecentSearchesSection: React.FC<RecentSearchesSectionProps> = ({
               accessibilityRole="button"
               accessibilityLabel={`Remove ${item} from recent searches`}
             >
-              <AppIcon name="X" size={12} color={base.slate[400]} />
+              <AppIcon name="X" size={12} color={base.slate[500]} />
             </TouchableOpacity>
           </View>
         ))}
