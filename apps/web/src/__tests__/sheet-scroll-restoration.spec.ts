@@ -35,7 +35,7 @@ describe("Sheet Scroll Restoration Regression Suite", () => {
         const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
         const fileContent = fs.readFileSync(authModalPath, "utf-8");
 
-        // Token-bound height keeps the primitive side=bottom bottom-[keyboard] alive.
+        // Token-bound height bounds the modal container to the visual viewport above keyboard.
         expect(fileContent).toContain("h-[var(--visual-viewport-height,100svh)]");
         // Fullscreen override killed the primitive keyboard contract — must not return.
         expect(fileContent).not.toContain("fixed inset-0");
@@ -43,5 +43,11 @@ describe("Sheet Scroll Restoration Regression Suite", () => {
         // Undocumented overlay masking + dead drag-era ref must stay removed.
         expect(fileContent).not.toContain("overlayClassName");
         expect(fileContent).not.toContain("contentRef");
+        // Over-constrained CSS resolved: bottom-auto overrides primitive bottom anchor on mobile
+        expect(fileContent).toContain("bottom-auto");
+        // Double-keyboard compensation squish bug eliminated (container handles height; no inner padding duplicate)
+        expect(fileContent).not.toContain("pb-[var(--keyboard-height");
+        // Flex item properly enabled to shrink below min-content for overflow-y-auto scrolling
+        expect(fileContent).toContain("min-h-0");
     });
 });
