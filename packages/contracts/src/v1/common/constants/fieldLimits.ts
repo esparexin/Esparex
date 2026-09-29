@@ -183,6 +183,53 @@ export const SERVICE_LIMITS = {
 } as const;
 
 // ============================================================================
+// PRICE LIMITS (listing / service / spare-part prices, INR)
+// ============================================================================
+
+export const PRICE_LIMITS = {
+    MIN: 0,
+    MAX: 10_000_000,
+    ERROR_MIN: 'Price must be at least 0',
+    ERROR_MAX: 'Price cannot exceed ₹1 crore',
+} as const;
+
+// ============================================================================
+// SPARE PART LIMITS
+// ============================================================================
+
+export const SPARE_PART_LIMITS = {
+    TITLE: {
+        MIN: 5,
+        MAX: 120,
+    },
+    IMAGES: {
+        MIN: 1,
+        MAX: 10,
+        ERROR_MIN: 'At least one image is required',
+        ERROR_MAX: 'Maximum 10 images allowed',
+    },
+} as const;
+
+// ============================================================================
+// EMAIL TEMPLATE LIMITS
+// ============================================================================
+
+export const EMAIL_TEMPLATE_LIMITS = {
+    SUBJECT: {
+        MAX: 200,
+        ERROR_MAX: 'Subject must be 200 characters or fewer',
+    },
+    HEADLINE: {
+        MAX: 200,
+        ERROR_MAX: 'Headline must be 200 characters or fewer',
+    },
+    NOTE: {
+        MAX: 500,
+        ERROR_MAX: 'Custom note must be 500 characters or fewer',
+    },
+} as const;
+
+// ============================================================================
 // PAGINATION LIMITS
 // ============================================================================
 

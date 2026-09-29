@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
+import { PRICE_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
 import { objectIdSchema } from '../../common/schema/common.schemas';
 import { LocationMetaSchema } from '../../common/schema/location.schema';
 import { validatedTextSchema } from '../../common/schema/text.schema';
@@ -25,8 +26,8 @@ export const BaseAdPayloadSchema = z.object({
     modelId: optionalObjectId, // Canonical
     pendingBrandRequestId: optionalObjectId,
     pendingModelRequestId: optionalObjectId,
-    customBrandName: z.string().trim().max(120).optional(),
-    customModelName: z.string().trim().max(120).optional(),
+    customBrandName: z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX).optional(),
+    customModelName: z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX).optional(),
 
     screenSize: z.string(),
     listingType: z.enum(LISTING_TYPE_VALUES).optional(),
@@ -57,7 +58,7 @@ export const BaseAdPayloadSchema = z.object({
         z.number({
             required_error: 'Price is required',
             invalid_type_error: 'Enter a valid price',
-        }).min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore')
+        }).min(PRICE_LIMITS.MIN, PRICE_LIMITS.ERROR_MIN).max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX)
     ),
     images: z
         .array(z.string(), {
