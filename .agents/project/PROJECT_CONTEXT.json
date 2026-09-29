@@ -1,5 +1,5 @@
 {
-  "version": "2026-05-23",
+  "version": "2026-09-29",
   "status": "active",
   "primary": {
     "executionWorkflow": ".agents/workflow/AI_WORKFLOW.md"
@@ -26,10 +26,10 @@
   ],
   "runtimeAi": {
     "provider": "OpenAI",
-    "route": "backend/src/routes/aiRoutes.ts",
-    "controller": "backend/src/controllers/ai/aiController.ts",
-    "validator": "backend/src/validators/ai.validator.ts",
-    "service": "backend/src/services/AiService.ts"
+    "route": "backend/api/src/routes/aiRoutes.ts",
+    "controller": "backend/api/src/controllers/ai/aiController.ts",
+    "validator": "core/src/validators/ai.validator.ts",
+    "service": "core/src/services/AiService.ts"
   },
   "conditional": []
 }

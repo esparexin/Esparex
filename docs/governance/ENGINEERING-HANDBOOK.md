@@ -11,7 +11,7 @@ Esparex is a multi-platform commerce marketplace monorepo:
 
 - **Web app** (`apps/web`, Next.js) · **Admin** (`apps/admin`) · **Mobile** (`apps/mobile`, Expo RN)
 - **Backend API** (`backend/api`, Express)
-- **Core domain engine** (`core/`, 6 DDD domains) · **Shared packages** (`contracts`, `ui`, `mobile-ui`, `shared`, `design-tokens`, `kernel`)
+- **Core domain engine** (`core/`, 6 DDD domains) · **Shared packages** (`contracts`, `design-tokens`, `mobile-ui`, `ui`) · **Shared library** (`shared/`)
 - **Payments:** Razorpay · **SMS:** MSG91 · **Media:** S3 · **AI:** Gemini/OpenAI (moderation, SEO, catalog)
 - Env: Render (API) + Vercel (web/admin) · Mongo Atlas · Redis (cache + BullMQ queues)
 
@@ -33,7 +33,8 @@ Depth: `docs/architecture/PLATFORM_ARCHITECTURE.md` (PADR), `ARCHITECTURE.md`.
 apps/          web · admin · mobile           # consumers
 backend/api/   # HTTP layer (routes/controllers)
 core/src/      # domains (business rules) + services/* (legacy — migrating)
-packages/      # contracts, ui, mobile-ui, shared, design-tokens, kernel
+packages/      # contracts, design-tokens, mobile-ui, ui
+shared/        # shared cross-boundary utilities & constants
 docs/          # architecture/, governance/, releases/, performance/
 audit-reports/ # audit evidence & certification records
 ```

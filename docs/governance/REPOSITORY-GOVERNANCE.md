@@ -10,7 +10,8 @@
 apps/            web · admin · mobile
 backend/api/     Express API (routes → controllers → core)
 core/            domains (DDD) · validators · services (legacy shim — Wave 2)
-packages/        contracts · ui · mobile-ui · shared · design-tokens · kernel
+packages/        contracts · design-tokens · mobile-ui · ui
+shared/          domain constants · geofencing · route paths
 docs/            architecture · governance · audits · releases · performance
 tooling/         architecture checks · guards
 .governance/     automated evidence & gate outputs (CI-generated)

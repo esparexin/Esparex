@@ -30,14 +30,14 @@
 
 ## 3. Dependency & package boundaries
 
-- Allowed: `web → shared → contracts`; `web → ui → tokens`; `core → shared → kernel`; `backend/api → core`, `backend/api → contracts`.
+- Allowed: `web → shared → contracts`; `web → ui → tokens`; `core → shared → contracts`; `backend/api → core`, `backend/api → contracts`.
 - Disallowed: `apps/* → core` (web verified 0 imports), `core → backend`, reverse edges, cycles.
 - Cross-domain edges inside core (catalog→reviews, listings→wallet etc.) are allowed **only** one-directional and listed (tracked in dependency-cruiser).
 - New cross-domain edge → ARB review (§14 manual).
 
 ## 4. Package creation policy
 
-New `packages/*` requires: ADR (§10 manual), ARB approval, consumers ≥ 2 surfaces, kernel dependency check, `guard:shared-ssot` not bypassed.
+New `packages/*` requires: ADR (§10 manual), ARB approval, consumers ≥ 2 surfaces, dependency check, `guard:shared-ssot` not bypassed.
 
 ## 5. Naming conventions
 
