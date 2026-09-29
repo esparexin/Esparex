@@ -261,7 +261,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         const pagination = normalizePagination(result, query);
 
-        return sendPaginatedResponse(req, res, result.data as Ad[], pagination, pagination);
+        return sendPaginatedResponse(req, res, result.data as Ad[], pagination);
     } catch (error: unknown) {
         next(error);
     }
