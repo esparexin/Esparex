@@ -119,7 +119,7 @@ export function LoginOtpStep({
                 <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
                   Your Full Name <span className="text-destructive">*</span>
                 </FieldLabel>
-                <FieldControl animateOnError>
+                <FieldControl>
                   <Input
                     placeholder="Enter your name"
                     className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-xs"
@@ -152,7 +152,6 @@ export function LoginOtpStep({
             disabled={otpInputDisabled}
             autoFocus={step === "enterOtp"}
             className="justify-center py-1 sm:py-2"
-            animateOnError
           />
           <p className="text-body text-muted-foreground font-normal">
             Enter the 6-digit code sent to your WhatsApp
