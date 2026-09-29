@@ -22,7 +22,7 @@ export const CategoryChips: React.FC<CategoryChipsProps> = React.memo(({
   const isAllSelected = !selectedCategoryId;
 
   return (
-    <View className="py-2 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+    <View className="py-2 bg-card border-b border-border">
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -35,8 +35,8 @@ export const CategoryChips: React.FC<CategoryChipsProps> = React.memo(({
           activeOpacity={0.7}
           className={`flex-row items-center px-3.5 py-1.5 rounded-full border ${
             isAllSelected
-              ? 'bg-brand-500 border-brand-600 dark:bg-brand-600 dark:border-brand-500'
-              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+              ? 'bg-brand-600 border-brand-700'
+              : 'bg-muted border-border'
           }`}
           accessibilityRole="button"
           accessibilityState={{ selected: isAllSelected }}
@@ -45,12 +45,12 @@ export const CategoryChips: React.FC<CategoryChipsProps> = React.memo(({
           <AppIcon
             name="LayoutGrid"
             size={14}
-            color={isAllSelected ? '#ffffff' : base.slate[600]}
+            color={isAllSelected ? base.white : base.slate[600]}
           />
           <AppText
             variant="caption"
             className={`font-semibold ml-1.5 ${
-              isAllSelected ? 'text-white' : 'text-slate-700 dark:text-slate-300'
+              isAllSelected ? 'text-white' : 'text-foreground-secondary'
             }`}
           >
             All
@@ -67,8 +67,8 @@ export const CategoryChips: React.FC<CategoryChipsProps> = React.memo(({
               activeOpacity={0.7}
               className={`flex-row items-center px-3.5 py-1.5 rounded-full border ${
                 isSelected
-                  ? 'bg-brand-500 border-brand-600 dark:bg-brand-600 dark:border-brand-500'
-                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                  ? 'bg-brand-600 border-brand-700'
+                  : 'bg-muted border-border'
               }`}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
@@ -77,7 +77,7 @@ export const CategoryChips: React.FC<CategoryChipsProps> = React.memo(({
               <AppText
                 variant="caption"
                 className={`font-semibold ${
-                  isSelected ? 'text-white' : 'text-slate-700 dark:text-slate-300'
+                  isSelected ? 'text-white' : 'text-foreground-secondary'
                 }`}
               >
                 {category.name}

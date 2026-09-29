@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { AppText, AppIcon, Badge } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { ListingPrice, ListingLocation } from '../../../domain/Listing';
 
 interface PriceSectionProps {
@@ -29,7 +30,7 @@ export const PriceSection = ({
       <AppText variant="h2" weight="bold" className="mb-1.5">
         {price.formatted}
       </AppText>
-      <AppText variant="body" color="muted" className="font-medium mb-3">
+      <AppText variant="body" color="default" className="font-medium mb-3">
         {title}
       </AppText>
 
@@ -38,9 +39,9 @@ export const PriceSection = ({
         {locationText ? (
           <View className="flex-row items-center mr-1">
             <View className="mr-1">
-              <AppIcon name="MapPin" size={13} color="#64748b" />
+              <AppIcon name="MapPin" size={13} color={base.slate[500]} />
             </View>
-            <AppText variant="caption" color="muted" className="font-medium">
+            <AppText variant="caption" color="secondary" className="font-medium">
               {locationText}
             </AppText>
           </View>

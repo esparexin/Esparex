@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { View, TextInput, TouchableOpacity } from 'react-native';
 import { AppInput, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 
 interface SearchBarProps {
   value: string;
@@ -25,7 +26,7 @@ export const SearchBar = React.memo<SearchBarProps>(({
   };
 
   return (
-    <View className="flex-row items-center px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+    <View className="flex-row items-center px-4 py-3 bg-card border-b border-border">
       <View className="flex-1">
         <AppInput
           ref={inputRef}
@@ -36,7 +37,7 @@ export const SearchBar = React.memo<SearchBarProps>(({
           placeholder={placeholder}
           autoCapitalize="none"
           autoCorrect={false}
-          leftIcon={<AppIcon name="Search" size={18} color="#64748b" />}
+          leftIcon={<AppIcon name="Search" size={18} color={base.slate[500]} />}
           rightIcon={
             value.length > 0 ? (
               <TouchableOpacity
@@ -46,7 +47,7 @@ export const SearchBar = React.memo<SearchBarProps>(({
                 accessibilityLabel="Clear search"
                 accessibilityRole="button"
               >
-                <AppIcon name="X" size={16} color="#64748b" />
+                <AppIcon name="X" size={16} color={base.slate[500]} />
               </TouchableOpacity>
             ) : undefined
           }

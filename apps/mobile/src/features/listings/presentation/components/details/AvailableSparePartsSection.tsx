@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { base, semantic } from '@esparex/design-tokens';
 import { ListingSparePart } from '../../../domain/Listing';
 
 interface AvailableSparePartsSectionProps {
@@ -14,12 +14,12 @@ export const AvailableSparePartsSection = ({ spareParts }: AvailableSparePartsSe
   }
 
   return (
-    <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+    <View className="px-4 py-4 bg-card border-b border-border">
       <View className="flex-row items-center mb-2.5">
         <View className="mr-1.5">
           <AppIcon name="Cpu" size={16} color={base.brand[600]} />
         </View>
-        <AppText variant="h4" className="text-slate-900 dark:text-white font-semibold">
+        <AppText variant="h4" className="text-foreground font-semibold">
           Available Spare Parts
         </AppText>
       </View>
@@ -28,12 +28,12 @@ export const AvailableSparePartsSection = ({ spareParts }: AvailableSparePartsSe
         {spareParts.map((part) => (
           <View
             key={part.id || part.name}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-row items-center"
+            className="px-3 py-1.5 rounded-xl bg-muted border border-border flex-row items-center"
           >
             <View className="mr-1.5">
-              <AppIcon name="CheckCircle2" size={12} color="#10b981" />
+              <AppIcon name="CheckCircle2" size={12} color={semantic.light.success} />
             </View>
-            <AppText variant="caption" className="text-slate-700 dark:text-slate-200 font-medium">
+            <AppText variant="caption" className="text-foreground-secondary font-medium">
               {part.name}
             </AppText>
           </View>

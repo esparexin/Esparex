@@ -76,7 +76,7 @@ export const ListingDetailsScreen = () => {
 
   if (isLoading) {
     return (
-      <Screen className="flex-1 bg-white dark:bg-slate-950">
+      <Screen className="flex-1 bg-background">
         <Center className="flex-1">
           <ActivityIndicator size="large" color={base.brand[500]} />
         </Center>
@@ -86,12 +86,12 @@ export const ListingDetailsScreen = () => {
 
   if (error || !listing) {
     return (
-      <Screen className="flex-1 bg-white dark:bg-slate-950">
+      <Screen className="flex-1 bg-background">
         <Center className="flex-1 px-4">
-          <AppText variant="h3" className="text-red-500 mb-2">
+          <AppText variant="h3" className="text-destructive mb-2">
             Error loading listing
           </AppText>
-          <AppText variant="body" className="text-slate-500 text-center">
+          <AppText variant="body" className="text-foreground-secondary text-center">
             {error ? error.message : 'Listing not found'}
           </AppText>
         </Center>
@@ -102,7 +102,7 @@ export const ListingDetailsScreen = () => {
   const imageUrls = listing.images ? listing.images.map((img) => img.url) : [];
 
   return (
-    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+    <Screen className="flex-1 bg-background">
       <ScrollView
         ref={scrollViewRef}
         className="flex-1"

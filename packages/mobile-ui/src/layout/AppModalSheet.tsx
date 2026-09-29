@@ -32,7 +32,7 @@ export const AppModalSheet: React.FC<AppModalSheetProps> = ({
       {...modalProps}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className={`bg-surface rounded-t-3xl p-6 ${maxHeightClass} border-t border-border`}>
+        <View className={`bg-card rounded-t-3xl p-6 ${maxHeightClass} border-t border-border`}>
           {/* Header */}
           <View className="flex-row items-center justify-between pb-4 border-b border-border">
             <AppText variant="h3" className="font-bold text-foreground">
@@ -46,7 +46,7 @@ export const AppModalSheet: React.FC<AppModalSheetProps> = ({
                 accessibilityRole="button"
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <AppIcon name="X" size={20} color={base.slate[400]} />
+                <AppIcon name="X" size={20} color={base.slate[500]} />
               </TouchableOpacity>
             </View>
           </View>

@@ -89,12 +89,12 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             className={`max-w-[78%] rounded-2xl px-4 py-2.5 ${
               isMine
                 ? 'bg-brand-600 rounded-tr-none text-white'
-                : 'bg-slate-200 dark:bg-slate-800 rounded-tl-none'
+                : 'bg-muted rounded-tl-none'
             }`}
           >
             <AppText
               variant="body"
-              className={isMine ? 'text-white font-medium' : 'text-slate-900 dark:text-slate-100 font-medium'}
+              className={isMine ? 'text-white font-medium' : 'text-foreground font-medium'}
             >
               {item.text}
             </AppText>
@@ -102,7 +102,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
               {formattedTime ? (
                 <AppText
                   variant="tiny"
-                  className={isMine ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400'}
+                  className={isMine ? 'text-white font-medium' : 'text-foreground-secondary font-medium'}
                 >
                   {formattedTime}
                 </AppText>
@@ -126,15 +126,15 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <Container className="flex-1 bg-background">
         {/* Header */}
-        <View className="flex-row items-center p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <View className="flex-row items-center p-4 border-b border-border bg-card">
           {onBack && (
             <TouchableOpacity onPress={onBack} className="mr-3" accessibilityLabel="Back to chat list">
               <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
             </TouchableOpacity>
           )}
-          <AppText variant="h3" className="font-bold text-slate-900 dark:text-white flex-1">
+          <AppText variant="h3" className="font-bold text-foreground flex-1">
             Chat Thread
           </AppText>
         </View>
@@ -171,11 +171,11 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
                 <TouchableOpacity
                   key={reply}
                   onPress={() => setInputText(reply)}
-                  className="bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
+                  className="bg-brand-50 px-3 py-1.5 rounded-full border border-brand-200"
                   accessibilityRole="button"
                   accessibilityLabel={`Quick reply: ${reply}`}
                 >
-                  <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium text-caption">
+                  <AppText variant="caption" className="text-brand-700 font-medium text-caption">
                     {reply}
                   </AppText>
                 </TouchableOpacity>
@@ -184,7 +184,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
           </View>
 
           {/* Input Composer */}
-          <View className="flex-row items-center p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <View className="flex-row items-center p-3 border-t border-border bg-card">
             <View className="flex-1 mr-2">
               <AppInput
                 placeholder="Type a message..."
@@ -197,11 +197,11 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
               onPress={handleSend}
               disabled={!inputText.trim() || sendMessageMutation.isPending}
               className={`w-11 h-11 rounded-full items-center justify-center ${
-                inputText.trim() ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-800'
+                inputText.trim() ? 'bg-brand-600' : 'bg-muted'
               }`}
               accessibilityLabel="Send message"
             >
-              <AppIcon name="Send" size={18} color={inputText.trim() ? base.white : base.slate[400]} />
+              <AppIcon name="Send" size={18} color={inputText.trim() ? base.white : base.slate[500]} />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

@@ -3,7 +3,7 @@ import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
 export interface AppTextProps extends RNTextProps {
   variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
-  color?: 'default' | 'muted' | 'brand' | 'error' | 'success';
+  color?: 'default' | 'secondary' | 'muted' | 'brand' | 'error' | 'success';
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   align?: 'left' | 'center' | 'right';
   className?: string;
@@ -46,6 +46,7 @@ export const AppText: React.FC<AppTextProps> = ({
 
   const getColorStyles = () => {
     switch (color) {
+      case 'secondary': return 'text-foreground-secondary';
       case 'muted': return 'text-muted-foreground';
       case 'brand': return 'text-brand-600';
       case 'error': return 'text-destructive';

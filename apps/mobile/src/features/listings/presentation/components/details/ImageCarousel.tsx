@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, FlatList, useWindowDimensions, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Image } from 'expo-image';
 import { Center, AppIcon, AppText } from '@esparex/mobile-ui';
+import { base, semantic } from '@esparex/design-tokens';
 
 interface ImageCarouselProps {
   images: string[];
@@ -74,7 +75,7 @@ export const ImageCarousel = ({
             accessibilityRole="button"
             accessibilityLabel="Share listing"
           >
-            <AppIcon name="Share2" size={18} color="#ffffff" />
+            <AppIcon name="Share2" size={18} color={base.white} />
           </TouchableOpacity>
         )}
         {onToggleSave && (
@@ -89,7 +90,7 @@ export const ImageCarousel = ({
             <AppIcon
               name="Heart"
               size={18}
-              color={isSaved ? '#ef4444' : '#ffffff'}
+              color={isSaved ? semantic.light.destructive : base.white}
             />
           </TouchableOpacity>
         )}

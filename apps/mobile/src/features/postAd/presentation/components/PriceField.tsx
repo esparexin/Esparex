@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, TextInput } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 
 interface PriceFieldProps {
   value: number | undefined;
@@ -27,8 +28,8 @@ export const PriceField = ({
 
   return (
     <View className="mb-4">
-      <AppText variant="caption" className="font-semibold text-slate-900 dark:text-slate-100 mb-1.5">
-        Price (₹) <AppText className="text-red-500">*</AppText>
+      <AppText variant="caption" className="font-semibold text-foreground mb-1.5">
+        Price (₹) <AppText className="text-destructive">*</AppText>
       </AppText>
 
       {/* Side-by-side Price Input and Mark as Free Toggle */}
@@ -37,23 +38,23 @@ export const PriceField = ({
         <View
           className={`flex-1 flex-row items-center px-3.5 py-3 rounded-xl border ${
             isFree
-              ? 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60'
-              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+              ? 'bg-muted border-border'
+              : 'bg-card border-border'
           }`}
         >
-          <AppText variant="body" className="font-bold text-slate-700 dark:text-slate-300 mr-2">
+          <AppText variant="body" className={`font-bold mr-2 ${isFree ? 'text-muted-foreground' : 'text-foreground-secondary'}`}>
             ₹
           </AppText>
           <TextInput
             value={isFree ? '0' : value !== undefined && value > 0 ? String(value) : ''}
             onChangeText={handleChange}
             placeholder="0.00"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={base.slate[500]}
             keyboardType="decimal-pad"
             returnKeyType="next"
             maxLength={10}
             editable={!isFree}
-            className="flex-1 text-slate-900 dark:text-white font-semibold text-base p-0"
+            className={`flex-1 font-semibold text-body-lg p-0 ${isFree ? 'text-muted-foreground' : 'text-foreground'}`}
             accessibilityLabel="Listing price"
           />
         </View>
@@ -65,8 +66,8 @@ export const PriceField = ({
             activeOpacity={0.7}
             className={`px-3.5 py-3 rounded-xl border flex-row items-center justify-center ${
               isFree
-                ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500'
-                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                ? 'bg-success/10 border-success'
+                : 'bg-card border-border'
             }`}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isFree }}
@@ -75,12 +76,12 @@ export const PriceField = ({
             <AppIcon
               name={isFree ? 'CheckSquare' : 'Square'}
               size={16}
-              color={isFree ? '#059669' : '#64748b'}
+              color={isFree ? base.success : base.slate[500]}
             />
             <AppText
               variant="caption"
               className={`ml-2 font-semibold text-xs ${
-                isFree ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-300'
+                isFree ? 'text-success' : 'text-foreground-secondary'
               }`}
             >
               Mark as Free
