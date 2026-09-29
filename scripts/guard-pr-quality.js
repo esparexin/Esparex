@@ -11,6 +11,10 @@
  * MODES:
  * - Pre-commit mode (`--staged`): Evaluates exactly what is in the Git staging index (`--cached`).
  * - Branch / CI mode (default): Evaluates all commits on the branch against integration base.
+ *
+ * BASELINE (both modes): the integration merge-base (`git merge-base HEAD origin/develop`).
+ * HEAD is never used as the ratchet baseline, so restorations that re-add lines dropped
+ * by a corrupted merge commit are not misread as new growth.
  */
 
 const { execSync } = require('child_process');
@@ -175,8 +179,22 @@ function run() {
     baseRefName = 'absolute';
   } else if (isStagedMode) {
     statusMap = getStagedFileStatus();
-    baseRefName = 'HEAD';
-    getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
+    // Baseline must be the integration merge-base (consistent with Branch/CI
+    // mode), NOT HEAD: on PR branches HEAD may itself contain merge-corruption
+    // or WIP that a legitimate restoration must not be ratcheted against
+    // (e.g. re-adding lines a bad merge dropped would read as +N growth vs a
+    // corrupted HEAD). Falls back to HEAD only when merge-base cannot be
+    // resolved, preserving previous behavior on trunk checkouts.
+    const baseRef = getBaseRef();
+    const mb = getMergeBase(baseRef);
+    if (mb) {
+      baseRefName = baseRef;
+      baseSha = mb;
+      getBaseLineCount = (relFile) => getGitFileLineCount(mb, relFile);
+    } else {
+      baseRefName = 'HEAD';
+      getBaseLineCount = (relFile) => getGitFileLineCount('HEAD', relFile);
+    }
   } else {
     const baseRef = getBaseRef();
     baseSha = getMergeBase(baseRef);
