@@ -29,8 +29,6 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
 
   const borderState = hasError
     ? 'border-destructive'
-    : 'border-input focus:border-primary';
-
   return (
     <View className={`w-full ${containerClassName}`}>
       {label && (

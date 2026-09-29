@@ -6,9 +6,6 @@
  * resolved at NativeWind build time. This config sources concrete values from
  * @esparex/design-tokens mobileSemanticColors (the canonical SSOT).
  *
- * Dark mode is intentionally not supported in this application.
- * The app always renders in light mode regardless of OS preference.
- * darkMode is omitted so NativeWind does not generate dark: variant output.
  */
 const { typography, base, mobileSemanticColors } = require("../../packages/design-tokens/dist/index.js");
 
@@ -21,8 +18,6 @@ module.exports = {
     "../../packages/mobile-ui/src/**/*.{js,jsx,ts,tsx}"
   ],
   presets: [require("nativewind/preset")],
-  // darkMode is intentionally omitted — the app is light-mode only.
-  // NativeWind will not generate dark: variant classes without this key.
   theme: {
     extend: {
       fontFamily: typography.mobileFonts,

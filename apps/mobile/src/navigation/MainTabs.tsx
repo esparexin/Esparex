@@ -1,5 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useColorScheme } from 'react-native';
 import { MainTabParamList, ROUTES } from './routes';
 import { AppIcon } from '@esparex/mobile-ui';
 import { MarketplaceScreen } from '../features/listings/presentation/screens/MarketplaceScreen';
@@ -37,9 +38,6 @@ const PostAdTab = () => (
 export const MainTabs = () => {
   // Drives the unread-count badge on the Chat tab from conversation threads.
   const unreadChatCount = useUnreadChatCount();
-  // App is light-mode only — always use the light semantic palette.
-  const palette = mobileSemanticColors.light;
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
