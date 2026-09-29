@@ -7,9 +7,8 @@
  * Field name SSOT: 'title' (not 'partName' — partPayload.schema.ts was legacy and is now deleted)
  */
 import { z } from 'zod';
+import { objectIdSchema } from '../../common/schema/common.schemas';
 import { validatedTextSchema } from '../../common/schema/text.schema';
-
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
 
 export const BaseSparePartPayloadSchema = z.object({
     categoryId: objectIdSchema,

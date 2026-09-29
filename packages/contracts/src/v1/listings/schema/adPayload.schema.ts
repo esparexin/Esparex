@@ -1,13 +1,15 @@
 import { z } from 'zod';
 import { MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
+import { objectIdSchema } from '../../common/schema/common.schemas';
 import { LocationMetaSchema } from '../../common/schema/location.schema';
 import { validatedTextSchema } from '../../common/schema/text.schema';
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
 
 
-const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId');
-const optionalObjectId = z.union([objectId, z.literal('')]).optional();
+// Single ObjectId owner: common.schemas objectIdSchema (audit E2).
+// optionalObjectId keeps the z.literal('') union per Form & Zod governance.
+const optionalObjectId = z.union([objectIdSchema, z.literal('')]).optional();
 
 
 
@@ -71,7 +73,7 @@ export const BaseAdPayloadSchema = z.object({
 
 
     spareParts: z
-        .array(objectId)
+        .array(objectIdSchema)
         .max(10, `Maximum ${MAX_AD_SPARE_PARTS} spare parts allowed`)
         .optional(),
     deviceCondition: z.enum(['power_on', 'power_off']).optional(),

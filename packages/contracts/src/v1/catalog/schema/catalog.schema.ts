@@ -1,9 +1,12 @@
 import { z } from "zod";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from "../../listings/enums/listingType";
 import { CATALOG_APPROVAL_STATUS } from "../enums/catalogApprovalStatus";
+import { objectIdSchema } from "../../common/schema/common.schemas";
 
 // Base Validations
-export const ObjectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, "Invalid ObjectId");
+// Single ObjectId owner: common.schemas objectIdSchema (audit E2).
+// Kept under the historic PascalCase name: identical accept-set and message.
+export const ObjectIdSchema = objectIdSchema;
 const SlugSchema = z.string().min(2).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format");
 
 export const CategoryFilterSchema = z.object({
