@@ -59,7 +59,7 @@ export function LoginOtpStep({
   const isOtpComplete = otpValue.length === 6;
 
   return (
-    <div className="flex-1 flex flex-col justify-between h-full">
+    <div className="flex flex-col gap-6">
       <div className="space-y-4">
         {/* Recipient Notice & Change */}
         <div className="flex flex-col items-center justify-center gap-0.5 text-center -mt-2 sm:-mt-3 pb-1">

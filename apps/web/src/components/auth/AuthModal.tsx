@@ -34,6 +34,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         ref={contentRef}
         side="bottom"
         hideClose
+        overlayClassName="bg-card sm:bg-black/50"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
@@ -42,10 +43,12 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           }
         }}
         className={cn(
-          "inset-0 h-full w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col justify-between overflow-y-auto overscroll-contain",
+          // Mobile: full-screen modal completely owns the viewport.
+          /* ui-guard-ignore: raw-modal-overlay [SheetContent renders via Radix SheetPortal in @esparex/ui] */
+          "fixed inset-0 top-0 bottom-0 left-0 right-0 h-full max-h-full w-full max-w-none border-none rounded-none bg-card shadow-none flex flex-col overflow-hidden transition-none",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-          "sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80",
-          "sm:inset-0 sm:animate-none sm:transition-none sm:transform-none"
+          "sm:inset-0 sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
+          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-y-auto"
         )}
       >
         <SheetTitle className="sr-only">Authentication</SheetTitle>
@@ -70,7 +73,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           </SheetClose>
         </div>
 
-        <div className="flex-1 flex flex-col justify-between min-h-0">
+        <div className="flex-1 flex flex-col overflow-y-auto overscroll-contain pb-[var(--keyboard-height,0px)] sm:pb-0 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <LoginFlow
             mode="modal"
             callbackUrl={callbackUrl}
