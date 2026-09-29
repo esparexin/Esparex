@@ -4,6 +4,10 @@ description: Execute the Clean Code Standard repository verification and hygiene
 ---
 # Code Clean Skill
 
+> Scope: repository verification, discovery, indexing, and hygiene audit.
+> Gate checklist owned by `.agents/verification/pre_implementation.md`; TS/modularity
+> standards owned by `code-quality/SKILL.md`. This file never restates those gates.
+
 ## Rule 0 — Repository Verification (Mandatory)
 
 Before performing any audit, analysis, recommendation, or implementation, verify that the audit is being executed against the **live local repository**.

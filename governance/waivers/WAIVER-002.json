@@ -1,11 +1,12 @@
 {
   "id": "WAIVER-002",
-  "status": "ACTIVE",
+  "status": "EXPIRED",
   "expires": "2026-08-15T00:00:00Z",
   "owner": "Mobile Arch",
   "reason": "Android CI runner requires external configuration",
   "affects": ["AND-001"],
   "approvedBy": "Auth-TBD",
   "reviewDate": "2026-08-01T13:25:00Z",
-  "severity": "LOW"
+  "severity": "LOW",
+  "resolution": "Expired 2026-08-15; closed during skills/SSOT consolidation. Re-open with new expiry and named owner if still needed."
 }

@@ -2814,3 +2814,28 @@ docs/tracking/engineering-action-register.md
 
 **Verification**:
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-066
+**Date**: 2026-09-29  
+**Description**: Skills/SSOT/Workflow Governance Consolidation (audit remediation, branch chore/issue-646-skills-ssot-workflow-consolidation)  
+**Root Cause**: Audit evidenced orchestration triplication (skill-orchestrator vs POLICY_ENGINE vs AI_WORKFLOW 2.5/8), UI/UX 4-way restatement (+ duplicate `esparex-ui-ux` skill identity), hygiene/audit/auth wording overlap, ~30 prose-only "mandatory" rules with no mechanical guard, expired ACTIVE waivers, stale DECISION_LOG (53 days), docs sprawl (65 vs 5 pillars), and heavy pre-push with no docs fast-path.  
+**Action**:
+1. Scoped skill-orchestrator (classifier) / POLICY_ENGINE (data) / AI_WORKFLOW (lifecycle) to single authorities.
+2. Stubbed DESIGN_SYSTEM_GOVERNANCE.md, ESPAREX_UI_UX_DESIGN_STANDARDS.md, PROJECT_SPECIFICATION.md to canonical pointers; deprecated esparex-ui-ux-complete-skill.md snapshot (unique skill identity).
+3. Scoped clean-code/code-quality to discovery + TS standards (gates: verification/pre_implementation.md); added audit + auth router banners.
+4. Extended enforce-ad-ssot-guard.js (mongoose binding, expiresAt clamp, buildPublicAdFilter, date-formatter ban) and guard-location-ssot.js (Nominatim User-Agent + Nominatim-first); wired Ad SSOT into GOV-GUARDS-001 (E-012).
+5. Added AGENTS.md Enforcement Tiers (Tier A blocking / Tier B manually audited); labeled PR template §§1/4.
+6. Closed WAIVER-001/002 (EXPIRED) + waiver-expiry gate check; restored DECISION_LOG; documented governance.yml weekly Issue policy.
+7. Added guard-doc-hygiene.js (docs ratchet 65 + audit-reports allowlist, E-013) wired into guard:hygiene + GOV-GUARDS-001.
+8. Added .husky/pre-push docs-only fast-path; published repo:gate timing budget (~19s, <60s) in AGENTS.md §22.
+
+**Verification**:
+- ✅ `node scripts/enforce-ad-ssot-guard.js` ──► PASS
+- ✅ `node scripts/guard-location-ssot.js` ──► PASS
+- ✅ `npm run guard:auth-ssot` ──► PASS (0 violations)
+- ✅ `npm run guard:ai-governance` ──► PASS
+- ✅ `npm run guard:hygiene` ──► PASS (incl. doc hygiene 65/65)
+- ✅ `npm run guard:duplicate-code` ──► PASS (within DUP-001 ratchet)
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%) after every commit (13 commits)

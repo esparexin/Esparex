@@ -46,11 +46,32 @@ const GUARDS = [
   { name: 'Repository Hygiene', cmd: 'node scripts/guard-repository-hygiene.js', baselineKey: 'repositoryHygieneViolations' },
   { name: 'No API String Literals', cmd: 'node scripts/enforce-no-api-string-literals.js', baselineKey: 'noApiStringLiteralsViolations' },
   { name: 'Process Concurrency & Resource Safety', cmd: 'node scripts/guard-process-concurrency.js', baselineKey: 'processConcurrencyViolations' },
+  { name: 'Ad SSOT & Listing Lifecycle', cmd: 'node scripts/enforce-ad-ssot-guard.js', baselineKey: 'adSsotViolations' },
+  { name: 'Doc Hygiene', cmd: 'node scripts/guard-doc-hygiene.js', baselineKey: 'docHygieneViolations' },
 ];
 
 function run(val) {
   let passedCount = 0;
   let newErrorsCount = 0;
+
+  // Waiver expiry: ACTIVE waivers past their expires timestamp fail the gate.
+  // Close (EXPIRED) or renew (new expires + named owner) instead of lingering ACTIVE.
+  const waiversDir = path.join(ROOT, 'governance', 'waivers');
+  if (fs.existsSync(waiversDir)) {
+    const now = Date.now();
+    for (const file of fs.readdirSync(waiversDir).filter((f) => f.endsWith('.json'))) {
+      try {
+        const waiver = JSON.parse(fs.readFileSync(path.join(waiversDir, file), 'utf8'));
+        if (waiver.status === 'ACTIVE' && waiver.expires && Date.parse(waiver.expires) < now) {
+          newErrorsCount++;
+          val.error(`NEW Governance Violation [Waiver Expiry]: ${waiver.id || file} is ACTIVE past expiry ${waiver.expires} — close or renew.`);
+        }
+      } catch {
+        newErrorsCount++;
+        val.error(`NEW Governance Violation [Waiver Expiry]: ${file} is unparseable — fix or remove.`);
+      }
+    }
+  }
 
   for (const g of GUARDS) {
     try {

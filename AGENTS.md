@@ -5,7 +5,31 @@
 > **AGENTS.md (Policy)** ──► **Mechanical Guards & Tooling** ──► **Composite `repo:gate`** ──► **CI Gate**.  
 > Parallel duplicate governance documents outside this hierarchy are deprecated.
 
+## Enforcement Tiers (Blocking vs Manually Audited)
+
+Not every rule below is mechanically enforceable. Tiers:
+
+- **Tier A — Blocking (mechanical):** enforced by `scripts/*` guards via
+  `GOV-GUARDS-001` / `repo:gate` / CI. Violations block merge. Includes: mapper
+  ownership, Zod empty-string union, mobile 16px zoom, single-instance
+  responsive, zero primitive obsession, contract-first SSOT, typography/brand
+  tokens, file-size ratchet, JSCPD ratchet, process concurrency, platform SDK
+  boundary, auth/role SSOT, popup SSOT, no-hard-delete, route shadowing/collision,
+  mongoose connection binding, listing expiry clamp, feed filter SSOT,
+  deterministic date formatters, Nominatim-first geocode.
+- **Tier B — Recommended (manually audited):** sound practice, but no mechanical
+  guard exists; audited via PR template checklist and reviewer judgment. Includes:
+  the 75% 5-dimension similarity matrix, multi-step `trigger([fields])`
+  isolation, hidden-field blocking, full keyboard/ARIA/focus-trap/screen-reader
+  audit depth, `DialogPortal`/`Z_INDEX` specifics, layout single-owner `pb-20`
+  compensation, state-matrix coverage depth, 100% hierarchy matrix, mock-payment
+  narrative, Repository Impact Statement / New-File Justification / ADR ceremony.
+  Treat Tier B as guidance, not merge-blocking mandates.
+
 ## Similarity Threshold Rule
+
+> **Tier B — Recommended.** No mechanical guard computes 5-dimension similarity;
+> JSCPD token ratchet (`DUP-001`) is the blocking duplicate control.
 
 Components, hooks, or services must not be merged solely because they appear similar. Before consolidation, document:
 
@@ -1166,6 +1190,12 @@ Developer workstations and CI environments have finite CPU core and memory resou
    - Individual workspace `type-check` scripts MUST run pure `tsc --noEmit` and are STRICTLY FORBIDDEN from invoking nested `npm run build` chains of upstream packages.
 4. **Automated Enforcement**:
    - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
+5. **Local Timing Budget (informative, measured 2026-09-29)**:
+   - `repo:gate` ≈ 19s wall on a warm workstation (GOV-GUARDS-001 now also runs
+     Ad SSOT, Doc Hygiene, and waiver-expiry checks). Budget: keep `repo:gate` < 60s; if it exceeds,
+     split the slowest validator out of the pre-push path before adding new checks.
+   - Docs/evidence-only pushes use the `.husky/pre-push` fast-path (`repo:gate`
+     only); code changes run `repo:gate && type-check && test`. CI always runs full.
 
 ---
 

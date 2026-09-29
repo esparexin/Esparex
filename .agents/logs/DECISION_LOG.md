@@ -269,3 +269,23 @@ Format per entry:
   - ESLint changed files: PASS (clean)
   - `npm run repo:gate`: PASS (Health Score 100%, zero orphans/duplicates/circular)
   - EA-034 appended to engineering-action-register; release-notes Engineering & Reliability note added.
+
+## [2026-09-29T12:00:00Z] EXECUTION-VERIFIED
+- Task: Skills/SSOT/workflow consolidation (branch chore/issue-646-skills-ssot-workflow-consolidation) — audit remediation Phases 1–4.
+- Evidence (Phase 0 baselines): docs/*.md count 65; DECISION_LOG 26 entries (last 2026-08-07); WAIVER-001/002 ACTIVE past 2026-08-15 expiry.
+- Action:
+  - skill-orchestrator/SKILL.md + policy_engine/POLICY_ENGINE.md — scoped to classifier/data; lifecycle owned by AI_WORKFLOW.md Phases 2.5/8.
+  - DESIGN_SYSTEM_GOVERNANCE.md + ESPAREX_UI_UX_DESIGN_STANDARDS.md — CONSOLIDATED stubs (canonical: AGENTS.md §§19/21 + esparex-ui-ux/SKILL.md + packages/ui/GOVERNANCE.md).
+  - esparex-ui-ux-complete-skill.md — deprecated snapshot pointer (skill identity now unique to SKILL.md).
+  - clean-code/code-quality skills — scoped to discovery+TS standards; gates owned by verification/pre_implementation.md.
+  - AUDIT_PROCESS.md + enterprise-audit-manual.md — router banners (form: AUDIT_TEMPLATE.md; lifecycle: AI_WORKFLOW Phases 2a–2f).
+  - authorization-governance-guide.md + authorization-ownership-model.md — normative pointer to .agents/rules/* + roleNormalization.ts.
+  - enforce-ad-ssot-guard.js — new checks: mongoose connection binding, expiresAt pre-save clamp, buildPublicAdFilter SSOT, toLocaleDateString ban; wired into GOV-GUARDS-001 as 'Ad SSOT & Listing Lifecycle'.
+  - guard-location-ssot.js — new checks: Nominatim User-Agent (Esparex/), resolveSettlementWithNominatim before $near fallback.
+  - AGENTS.md — Enforcement Tiers (Tier A blocking / Tier B manually audited); PR template §§1/4 labeled accordingly.
+- Verification Evidence:
+  - `node scripts/enforce-ad-ssot-guard.js`: PASS.
+  - `node scripts/guard-location-ssot.js`: PASS.
+  - `npm run guard:auth-ssot`: PASS (0 raw role string violations).
+  - `npm run guard:ai-governance`: PASS.
+  - `node scripts/git/repo-gate.js`: PASS (Health Score 100%) after every commit.

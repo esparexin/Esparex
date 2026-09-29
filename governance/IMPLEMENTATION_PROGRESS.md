@@ -72,5 +72,5 @@ Do not edit manually.
 
 | Waiver ID | Status | Expires | Owner | Reason | Affects | Approved By | Review Date | Severity |
 |---|:---:|---|---|---|---|---|---|:---:|
-| **WAIVER-001** | `ACTIVE` | 2026-08-15T00:00:00Z | Mobile Arch | Vendor Xcode CI runner maintenance window | IOS-001 | Auth-TBD | 2026-08-01T13:25:00Z | LOW |
-| **WAIVER-002** | `ACTIVE` | 2026-08-15T00:00:00Z | Mobile Arch | Android CI runner requires external configuration | AND-001 | Auth-TBD | 2026-08-01T13:25:00Z | LOW |
+| **WAIVER-001** | `EXPIRED` | 2026-08-15T00:00:00Z | Mobile Arch | Vendor Xcode CI runner maintenance window | IOS-001 | Auth-TBD | 2026-08-01T13:25:00Z | LOW |
+| **WAIVER-002** | `EXPIRED` | 2026-08-15T00:00:00Z | Mobile Arch | Android CI runner requires external configuration | AND-001 | Auth-TBD | 2026-08-01T13:25:00Z | LOW |

@@ -9,6 +9,10 @@ Your primary objective is NOT just to make the feature work.
 
 Your objective is to build production-grade, enterprise-quality, maintainable, scalable, and clean software.
 
+> Scope: strict TypeScript, performance, modularity, and review standards.
+> Pre-implementation gate checklist owned by `.agents/verification/pre_implementation.md`;
+> discovery/hygiene audit owned by `clean-code/SKILL.md`. This file never restates those gates.
+
 Every line of code must improve the repository—not increase technical debt.
 
 ═══════════════════════════════════════

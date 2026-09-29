@@ -17,7 +17,11 @@ category: architecture
 ---
 # The Policy Engine
 
-This module determines exactly what engineering knowledge to load for a given task. It is the only phase allowed to dictate context injection.
+> Authority: data map only. Lifecycle owned by `.agents/workflow/AI_WORKFLOW.md`
+> (Phases 2.5/8); classification owned by `.agents/skills/skill-orchestrator/SKILL.md`.
+> This module maps intent to skills/rules/verification; it never owns execution order.
+
+This module determines exactly what engineering knowledge to load for a given task. It is the data map consulted during AI_WORKFLOW Phases 2.5/8 to dictate context injection.
 
 ## Responsibility
 The Resolver maps the user's intent to specific rules, skills, and verification modules. It prevents context bloat by ensuring that the AI never loads knowledge irrelevant to the current task.
