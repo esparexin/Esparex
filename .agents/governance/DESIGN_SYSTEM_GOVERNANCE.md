@@ -8,7 +8,7 @@ status: active
 review_frequency: semi-annual
 ---
 
-# Design System Governance — Package Freeze
+# Design System Governance — Package Freeze (execution detail; canonical UI SSOT is `packages/ui/GOVERNANCE.md` + `AGENTS.md` §19/§21)
 
 **Version**: 1.0
 **Status**: Active
