@@ -1,5 +1,10 @@
 # Audit Process
 
+> Router: audit form → `.agents/templates/AUDIT_TEMPLATE.md`; gates →
+> `.agents/verification/*`; task lifecycle → `.agents/workflow/AI_WORKFLOW.md`
+> (Phases 2a–2f); methodology detail → `docs/governance/enterprise-audit-manual.md`
+> (subordinate to `AGENTS.md`). This file defines framework schedule only.
+
 **Module**: 4 of 6 — Architecture Governance Framework
 **Last Updated**: 2026-07-13
 **Change Cadence**: Low — the process itself is stable; only the schedule or exit criteria change

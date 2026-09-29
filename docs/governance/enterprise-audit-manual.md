@@ -5,6 +5,7 @@
 > Volumes 1–5 (`audit-reports/enterprise-*`) are evidence-based certification records produced *by applying* this manual.
 > Companion standing docs (do not duplicate here): `REPOSITORY-GOVERNANCE.md` (§3a enforcement tiers),
 > `AGENTS.md` DoD (single DoD SSOT; this manual §11 is informative only), `risk-register.md` (RISK-001), `DELETION_GATE.md`, `PROJECT_PRINCIPLES.md` (pointer), AGENTS.md.
+> Audit task lifecycle owned by `.agents/workflow/AI_WORKFLOW.md` (Phases 2a–2f); audit form owned by `.agents/templates/AUDIT_TEMPLATE.md`; gates owned by `.agents/verification/*`.
 > Threshold note: `jscpd` figures herein are historical; canonical is `DUP-001` ratchet (`0.08%` baseline + `0.01%`).
 
 ### Contents
