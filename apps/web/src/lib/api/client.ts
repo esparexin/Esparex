@@ -69,6 +69,30 @@ export function shouldSuppressPopupForApiError(
     return status === 404 && isListingDetailRequest(requestConfig?.url?.toString(), requestConfig?.method);
 }
 
+export function isSendOtpRequest(url?: string): boolean {
+    if (!url) return false;
+    const normalized = normalizeRequestPath(url);
+    return (
+        normalized === 'auth/send-otp' ||
+        normalized.endsWith('/auth/send-otp') ||
+        url.replace(/^\//, '').includes('auth/send-otp')
+    );
+}
+
+export function isAuthMutationRequest(url?: string): boolean {
+    if (!url) return false;
+    if (isSendOtpRequest(url)) return true;
+    const normalized = normalizeRequestPath(url);
+    return (
+        normalized === 'auth/verify-otp' ||
+        normalized.endsWith('/auth/verify-otp') ||
+        normalized === 'auth/cancel-otp' ||
+        normalized.endsWith('/auth/cancel-otp') ||
+        url.replace(/^\//, '').includes('auth/verify-otp') ||
+        url.replace(/^\//, '').includes('auth/cancel-otp')
+    );
+}
+
 /* ======================================================
    API CLIENT
 ====================================================== */
@@ -394,14 +418,16 @@ export class APIClient {
                 const maxRetries = requestConfig?.maxRetries ?? 1;
                 const currentRetryCount = requestConfig?._retryCount ?? 0;
 
-                const isSendOtp = (requestUrl || '').includes('/auth/send-otp');
+                const isSendOtp = isSendOtpRequest(requestUrl);
+                const isAuthMutation = isAuthMutationRequest(requestUrl);
 
                 const isTransientError =
                     (latestStatus === 0 || // Network error
                     latestStatus === 408 || // Timeout
                     latestStatus >= 500) && // Server error
                     latestStatus !== 429 && // Exclude 429 from auto-retries
-                    !isSendOtp; // Exclude /auth/send-otp under any circumstance
+                    !isSendOtp &&
+                    !isAuthMutation; // Exclude /auth/send-otp and auth mutations under any circumstance
 
 
                 

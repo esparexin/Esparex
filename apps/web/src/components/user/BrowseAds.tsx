@@ -14,7 +14,7 @@ import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import type { Category } from "@/lib/api/user/categories";
 import {
   getAdsPage,
-  type Listing,
+  type UserListing,
   type ListingFilters,
   type ListingPageResult,
 } from "@/lib/api/user/listings";
@@ -147,7 +147,7 @@ export function BrowseAds({
   );
 
   const handleRenderCard = useCallback(
-    (listing: Listing, view: "grid" | "list", index: number) => {
+    (listing: UserListing, view: "grid" | "list", index: number) => {
       const href = buildPublicListingDetailRoute({
         id: listing.id,
         listingType: listing.listingType,
@@ -163,10 +163,10 @@ export function BrowseAds({
     []
   );
 
-  const handleGetItemKey = useCallback((listing: Listing) => listing.id, []);
+  const handleGetItemKey = useCallback((listing: UserListing) => listing.id, []);
 
   return (
-    <BrowseListingsView<Listing, ListingFilters>
+    <BrowseListingsView<UserListing, ListingFilters>
       browseType={browseType}
       initialCategory={initialCategory}
       initialSearchQuery={initialSearchQuery}

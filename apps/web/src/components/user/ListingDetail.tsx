@@ -14,7 +14,7 @@ const ListingDetailDialogs = dynamic(
   () => import("./listing-detail/ListingDetailDialogs").then((mod) => mod.ListingDetailDialogs),
   { ssr: false }
 );
-import type { Listing as Ad } from "@/lib/api/user/listings";
+import type { UserListing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";

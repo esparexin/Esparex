@@ -66,7 +66,7 @@ function PostAdPageBackdrop() {
                                 <div className="space-y-1.5">
                                     <div className="w-3/4 h-4 rounded bg-muted-foreground/20" />
                                     <div className="w-1/2 h-3 rounded bg-muted" />
-                                    <div className="w-1/3 h-5 rounded bg-blue-100 mt-2" />
+                                    <div className="w-1/3 h-5 rounded bg-muted mt-2" />
                                 </div>
                             </div>
                         ))}

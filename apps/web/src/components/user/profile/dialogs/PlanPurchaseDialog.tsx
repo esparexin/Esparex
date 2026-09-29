@@ -188,14 +188,14 @@ export function PlanPurchaseDialog({
 
                                 <div className="flex items-center justify-between pt-2 border-t border-border">
                                     <span className="font-bold text-body text-foreground">Total Payable:</span>
-                                    <span className="text-h3 font-bold text-emerald-600">
+                                    <span className="text-h3 font-bold text-primary">
                                         {formatCurrency(taxResult.totalAmount)}
                                     </span>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2.5">
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-start gap-2.5">
                         <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         <div className="space-y-1">
                             <p className="text-caption font-medium text-link-dark leading-relaxed">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getListingAnalytics, type Listing as Ad, type ListingAnalytics } from '@/lib/api/user/listings';
+import { getListingAnalytics, type UserListing as Ad, type ListingAnalytics } from '@/lib/api/user/listings';
 import { notify } from "@/lib/feedback";
 
 export function useAnalyticsDialog(ad: Ad | undefined | null, viewCount: number) {

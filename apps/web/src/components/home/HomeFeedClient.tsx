@@ -3,7 +3,7 @@
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Loader2, PackageOpen } from "@esparex/ui";
-import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
+import { type UserListing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";

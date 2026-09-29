@@ -26,6 +26,31 @@ const dedupeObjectIds = (ids: Array<string | mongoose.Types.ObjectId | undefined
     return Array.from(deduped.values());
 };
 
+type CategoryMap = Map<string, mongoose.Types.ObjectId>;
+type BrandRecord = { _id: mongoose.Types.ObjectId; name: string; categoryIds?: mongoose.Types.ObjectId[]; isDeleted?: boolean };
+type BrandMap = Map<string, BrandRecord>;
+
+/**
+ * Fetches and builds category and brand lookup maps for import operations.
+ * Shared by importBrands and importModels to avoid duplicate DB fetch logic.
+ */
+const buildImportLookupMaps = async (): Promise<{ categoryMap: CategoryMap; brandMap: BrandMap }> => {
+    const allCategories = await Category.find({}, { _id: 1, name: 1 }).lean<{ _id: mongoose.Types.ObjectId; name: string }[]>();
+    const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
+
+    const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1, isDeleted: 1 }).lean<BrandRecord[]>();
+    const brandMap: BrandMap = new Map();
+    for (const b of allBrands) {
+        const key = b.name.toLowerCase();
+        const existing = brandMap.get(key);
+        if (!existing || (existing.isDeleted && !b.isDeleted)) {
+            brandMap.set(key, b);
+        }
+    }
+
+    return { categoryMap, brandMap };
+};
+
 export class CatalogImportService {
     static async importCategories(data: Partial<ICategory>[]): Promise<ImportResult> {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
@@ -61,19 +86,7 @@ export class CatalogImportService {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
         
         try {
-            const allCategories = await Category.find({}, { _id: 1, name: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
-            const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
-
-            const allBrands = await Brand.find({}).setOptions({ withDeleted: true }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[], isDeleted?: boolean }[]>();
-            const brandMap = new Map<string, typeof allBrands[0]>();
-            for (const b of allBrands) {
-                const key = b.name.toLowerCase();
-                const existing = brandMap.get(key);
-                if (!existing || (existing.isDeleted && !b.isDeleted)) {
-                    brandMap.set(key, b);
-                }
-            }
-
+            const { categoryMap, brandMap } = await buildImportLookupMaps();
              
             const ops: unknown[] = [];
 
@@ -137,19 +150,7 @@ export class CatalogImportService {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
 
         try {
-            const allCategories = await Category.find({}, { _id: 1, name: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
-            const categoryMap = new Map(allCategories.map(c => [c.name.toLowerCase(), c._id]));
-
-            const allBrands = await Brand.find({}, { _id: 1, name: 1, categoryIds: 1, isDeleted: 1 }).lean<{ _id: mongoose.Types.ObjectId, name: string, categoryIds?: mongoose.Types.ObjectId[], isDeleted?: boolean }[]>();
-            const brandMap = new Map<string, typeof allBrands[0]>();
-            for (const b of allBrands) {
-                const key = b.name.toLowerCase();
-                const existing = brandMap.get(key);
-                if (!existing || (existing.isDeleted && !b.isDeleted)) {
-                    brandMap.set(key, b);
-                }
-            }
-
+            const { categoryMap, brandMap } = await buildImportLookupMaps();
              
             const ops: unknown[] = [];
 

@@ -37,6 +37,9 @@ export const formatAppliedDateTime = (isoDate: string): string => {
   return formatStableDateTime(isoDate);
 };
 
+export const formatOptionalDateTime = (iso?: string | null): string =>
+  !iso ? '—' : formatStableDateTime(iso);
+
 export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode => {
   const reasonLower = (tx.reason || '').toLowerCase();
   const isBoost =

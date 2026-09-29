@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { APIClient, apiClient } from "@/lib/api/client";
+import { APIClient, apiClient, isSendOtpRequest, isAuthMutationRequest } from "@/lib/api/client";
 
 describe("APIClient Health Gate Resilience", () => {
     it("exports APIClient class and singleton apiClient proxy", () => {
@@ -18,5 +18,26 @@ describe("APIClient Health Gate Resilience", () => {
         expect(typeof client.patch).toBe("function");
         expect(typeof client.delete).toBe("function");
         expect(typeof client.getCsrfToken).toBe("function");
+    });
+
+    it("identifies send-otp endpoints across all URL formats to prevent transient auto-retries", () => {
+        expect(isSendOtpRequest("auth/send-otp")).toBe(true);
+        expect(isSendOtpRequest("/auth/send-otp")).toBe(true);
+        expect(isSendOtpRequest("/api/v1/auth/send-otp")).toBe(true);
+        expect(isSendOtpRequest("https://api.esparex.in/api/v1/auth/send-otp")).toBe(true);
+        expect(isSendOtpRequest("https://api.esparex.in/auth/send-otp")).toBe(true);
+        expect(isSendOtpRequest("/api/v1/listings")).toBe(false);
+        expect(isSendOtpRequest(undefined)).toBe(false);
+    });
+
+    it("identifies all auth mutation endpoints to prevent transient auto-retries", () => {
+        expect(isAuthMutationRequest("auth/send-otp")).toBe(true);
+        expect(isAuthMutationRequest("auth/verify-otp")).toBe(true);
+        expect(isAuthMutationRequest("/api/v1/auth/verify-otp")).toBe(true);
+        expect(isAuthMutationRequest("https://api.esparex.in/api/v1/auth/verify-otp")).toBe(true);
+        expect(isAuthMutationRequest("auth/cancel-otp")).toBe(true);
+        expect(isAuthMutationRequest("/api/v1/auth/cancel-otp")).toBe(true);
+        expect(isAuthMutationRequest("catalog/categories")).toBe(false);
+        expect(isAuthMutationRequest(undefined)).toBe(false);
     });
 });

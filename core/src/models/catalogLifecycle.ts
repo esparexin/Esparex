@@ -55,8 +55,13 @@ export interface IMarketplaceTrust extends IMarketplaceTrustBase {
 /**
  * Derives and applies the catalog approval status to a document before validation.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose pre-validate doc boundary; index signature not available
-export const applyCatalogLifecycleFields = (mutableDoc: any, fallback = CATALOG_APPROVAL_STATUS.APPROVED) => {
+interface MutableCatalogDoc {
+    approvalStatus?: unknown;
+    isActive?: boolean | null;
+    [key: string]: unknown;
+}
+
+export const applyCatalogLifecycleFields = (mutableDoc: MutableCatalogDoc, fallback = CATALOG_APPROVAL_STATUS.APPROVED) => {
     const approvalStatus = deriveApprovalStatus({
         approvalStatus: mutableDoc.approvalStatus,
         isActive: mutableDoc.isActive,
@@ -68,8 +73,7 @@ export const applyCatalogLifecycleFields = (mutableDoc: any, fallback = CATALOG_
 /**
  * Standard JSON transform for catalog entities (id mapping, cleanup).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose toJSON transform; _doc and ret types are not indexable
-export const catalogEntityToJsonTransform = (_doc: any, ret: any) => {
+export const catalogEntityToJsonTransform = (_doc: unknown, ret: Record<string, unknown>) => {
     const json = ret;
     json.id = String(json._id);
     delete json._id;

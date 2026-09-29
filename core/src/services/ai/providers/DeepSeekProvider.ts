@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AIProvider } from '../AIProvider';
-import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult } from '../types';
+import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult, buildStructuredResult, buildOpenAICompatibleResult } from '../types';
 import { getAiConfig } from '../../../config/ai';
 import { withTimeout } from '../../../utils/resilience';
 
@@ -70,21 +70,9 @@ export class DeepSeekProvider implements AIProvider {
                 throw new DeepSeekProviderError(`DeepSeek returned HTTP ${status}`, 'ServiceUnavailable', status);
             }
 
-            const data = await response.json();
-            const text = data?.choices?.[0]?.message?.content || '';
+            const data: unknown = await response.json();
 
-            return {
-                provider: 'deepseek',
-                model,
-                text,
-                usage: data.usage ? {
-                    promptTokens: data.usage.prompt_tokens ?? 0,
-                    completionTokens: data.usage.completion_tokens ?? 0,
-                    totalTokens: data.usage.total_tokens ?? 0,
-                } : undefined,
-                latency: Date.now() - startTime,
-                cached: false,
-            };
+            return buildOpenAICompatibleResult({ data, provider: 'deepseek', model, startTime });
         } catch (error) {
             throw this.mapError(error);
         }
@@ -92,22 +80,7 @@ export class DeepSeekProvider implements AIProvider {
 
     async generateStructured<T>(prompt: string, schema: z.ZodSchema<T>, options?: GenerateTextOptions): Promise<StructuredAIResult<T>> {
         const res = await this.generateText(`${prompt}\n\nRespond strictly in valid JSON format.`, options);
-        try {
-            const start = res.text.indexOf('{');
-            const end = res.text.lastIndexOf('}');
-            const jsonText = start !== -1 && end !== -1 ? res.text.slice(start, end + 1) : res.text;
-            const parsedData = schema.parse(JSON.parse(jsonText));
-            return {
-                data: parsedData,
-                provider: 'deepseek',
-                model: res.model,
-                usage: res.usage,
-                latency: res.latency,
-                cached: res.cached,
-            };
-        } catch {
-            throw new DeepSeekProviderError('Failed to parse DeepSeek JSON output', 'Validation');
-        }
+        return buildStructuredResult(res, schema, () => new DeepSeekProviderError('Failed to parse DeepSeek JSON output', 'Validation'));
     }
 
     async *streamText(prompt: string, options?: GenerateTextOptions): AsyncIterable<AIStreamChunk> {

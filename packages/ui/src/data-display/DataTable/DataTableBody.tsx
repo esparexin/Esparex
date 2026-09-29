@@ -50,10 +50,10 @@ export function DataTableBody<T extends { id: string | number }>({
                 </>
             ) : (
                 <tr>
-                    <td colSpan={visibleColumns.length} className="px-6 py-12 text-center text-slate-400 font-medium bg-slate-50/10">
+                    <td colSpan={visibleColumns.length} className="px-6 py-12 text-center text-muted-foreground font-medium bg-muted/10">
                         {emptyState || (
                             <div className="flex flex-col items-center gap-2">
-                                <MoreHorizontal size={32} className="text-slate-200" />
+                                <MoreHorizontal size={32} className="text-muted-foreground/40" />
                                 {emptyMessage}
                             </div>
                         )}
