@@ -4,12 +4,12 @@ import { toApiResult, toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/r
 import logger from "@/lib/logger";
 import { fetchUserApiJson, type ServerFetchOptions } from '../server';
 import { createEmptyPageResult } from '../listingsShared';
-import { normalizeListing, type ListingFilters, type ListingPageResult, type Listing } from './normalizer';
+import { normalizeListing, type ListingFilters, type ListingPageResult, type UserListing } from './normalizer';
 import type { LocationLevel } from '@/types/location';
 
 export const getNearbyAdsPage = async (filters: Pick<ListingFilters, "lat" | "lng" | "radiusKm" | "categoryId" | "page" | "limit">): Promise<ListingPageResult> => {
     if (typeof filters.lat !== "number" || typeof filters.lng !== "number") {
-        return createEmptyPageResult<Listing>(filters);
+        return createEmptyPageResult<UserListing>(filters);
     }
 
     const params = new URLSearchParams();
@@ -20,13 +20,13 @@ export const getNearbyAdsPage = async (filters: Pick<ListingFilters, "lat" | "ln
     if (filters.page) params.append("page", String(filters.page));
     if (filters.limit) params.append("limit", String(filters.limit));
 
-    const { data: result } = await toPaginatedApiResult<Listing>(
+    const { data: result } = await toPaginatedApiResult<UserListing>(
         apiClient.get(`${API_ROUTES.USER.LISTINGS_NEARBY}?${params.toString()}`, {
             silent: true,
         })
     );
 
-    if (!result) return createEmptyPageResult<Listing>(filters);
+    if (!result) return createEmptyPageResult<UserListing>(filters);
 
     return {
         data: result.data.map(normalizeListing),
@@ -47,7 +47,7 @@ export const getSearchSuggestions = async (query: string): Promise<string[]> => 
 // --- Feed & Search Payload Types ---
 
 export interface HomeAdsPayload {
-    ads: Listing[];
+    ads: UserListing[];
     nextCursor: {
         createdAt: string;
         id: string;
@@ -68,7 +68,7 @@ export interface HomeAdsRequestParams {
 }
 
 export interface TrendingAdsPayload {
-    ads: Listing[];
+    ads: UserListing[];
 }
 
 export interface TrendingAdsRequestParams {
@@ -140,14 +140,14 @@ export const getAdsPage = async (
         const endpoint = `${baseEndpoint}?${params.toString()}`;
         const { data: result } =
             typeof window === 'undefined'
-                ? await toPaginatedApiResult<Listing>(
+                ? await toPaginatedApiResult<UserListing>(
                     Promise.resolve(fetchUserApiJson(endpoint, options?.fetchOptions))
                 )
-                : await toPaginatedApiResult<Listing>(
+                : await toPaginatedApiResult<UserListing>(
                     apiClient.get(endpoint, { silent: true })
                 );
 
-        if (!result) return createEmptyPageResult<Listing>(filters ?? {});
+        if (!result) return createEmptyPageResult<UserListing>(filters ?? {});
 
         const fallbackPage = Number(filters?.page || 1);
         const fallbackLimit = Number(filters?.limit || 20);
@@ -177,7 +177,7 @@ export const getAdsPage = async (
             },
         };
     } catch {
-        return createEmptyPageResult<Listing>(filters ?? {});
+        return createEmptyPageResult<UserListing>(filters ?? {});
     }
 };
 
@@ -274,7 +274,7 @@ export const getTrendingAds = async (
     }
 };
 
-export const getAds = async (filters?: ListingFilters, options?: { endpoint?: string }): Promise<Listing[]> => {
+export const getAds = async (filters?: ListingFilters, options?: { endpoint?: string }): Promise<UserListing[]> => {
     const result = await getAdsPage(filters, options);
     return result.data;
 };

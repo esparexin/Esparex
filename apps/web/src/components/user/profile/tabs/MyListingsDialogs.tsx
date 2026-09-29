@@ -8,25 +8,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@esparex/ui";
-import type { Listing } from "@/lib/api/user/listings";
+import type { UserListing } from "@/lib/api/user/listings";
 import { MarkAsSoldDialog, type SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import { BoostPlanDialog } from "@/components/user/BoostPlanDialog";
 
 export interface MyListingsDialogsProps {
   // Delete
-  adToDelete: Listing | null;
+  adToDelete: UserListing | null;
   isDeleteAdOpen: boolean;
   setIsDeleteAdOpen: (open: boolean) => void;
   confirmDeleteAd: () => Promise<void>;
 
   // Deactivate
-  adToDeactivate: Listing | null;
+  adToDeactivate: UserListing | null;
   isDeactivateOpen: boolean;
   setIsDeactivateOpen: (open: boolean) => void;
   confirmDeactivate: () => Promise<void>;
 
   // Activate
-  adToActivate: Listing | null;
+  adToActivate: UserListing | null;
   isActivateOpen: boolean;
   setIsActivateOpen: (open: boolean) => void;
   confirmActivate: () => Promise<void>;
@@ -48,7 +48,7 @@ export interface MyListingsDialogsProps {
   confirmSoldSpare: () => Promise<void>;
 
   // Boost
-  boostAd: Listing | null;
+  boostAd: UserListing | null;
   isBoostOpen: boolean;
   setIsBoostOpen: (open: boolean) => void;
   onBoostPlanPurchased: () => void;

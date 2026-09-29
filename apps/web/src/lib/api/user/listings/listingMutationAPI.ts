@@ -3,7 +3,7 @@ import { API_ROUTES } from '../../routes';
 import { toApiResult } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
-import { normalizeListing, stripEmptyObjectIdFields, type Listing } from './normalizer';
+import { normalizeListing, stripEmptyObjectIdFields, type UserListing } from './normalizer';
 
 function getDeleteListingEndpoint(id: string | number): string {
     return API_ROUTES.USER.LISTING_DETAIL(id);
@@ -18,9 +18,9 @@ function getRepostListingEndpoint(id: string | number): string {
 const executeListingMutationRequest = async (
     requestPromise: Promise<unknown>,
     errorMessage: string
-): Promise<Listing | null> => {
+): Promise<UserListing | null> => {
     try {
-        const { data, error } = await toApiResult<Listing>(requestPromise);
+        const { data, error } = await toApiResult<UserListing>(requestPromise);
         if (error) throw error;
         if (!data) throw new Error(errorMessage);
         return data ? normalizeListing(data) : null;
@@ -34,9 +34,9 @@ const executeListingMutationRequest = async (
  * Creates a new listing (Ad, Service, or Spare Part).
  */
 export const createListing = async (
-    listingData: Partial<Listing>,
+    listingData: Partial<UserListing>,
     options?: { endpoint?: string; idempotencyKey?: string; errorMessage?: string }
-): Promise<Listing | null> => {
+): Promise<UserListing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
     const endpoint = options?.endpoint || API_ROUTES.USER.LISTINGS;
     const headers = options?.idempotencyKey && options.idempotencyKey.trim().length > 0
@@ -57,9 +57,9 @@ export const createListing = async (
  */
 export const updateListing = async (
     id: string | number,
-    listingData: Partial<Listing>,
+    listingData: Partial<UserListing>,
     options?: { endpoint?: string }
-): Promise<Listing | null> => {
+): Promise<UserListing | null> => {
     const sanitizedPayload = stripEmptyObjectIdFields(listingData as Record<string, unknown>);
     const endpoint = options?.endpoint || API_ROUTES.USER.LISTING_EDIT(id);
 
@@ -97,10 +97,10 @@ export const markListingAsSold = async (
     id: string | number,
     soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available',
     isExpired?: boolean
-): Promise<Listing | null> => {
+): Promise<UserListing | null> => {
     try {
         const endpoint = isExpired ? `listings/${id}/mark-sold` : API_ROUTES.USER.LISTING_SOLD(id);
-        const { data: result, error } = await toApiResult<Listing>(
+        const { data: result, error } = await toApiResult<UserListing>(
             apiClient.patch(endpoint, soldReason ? { soldReason } : {}, { silent: true })
         );
         if (error) throw error;

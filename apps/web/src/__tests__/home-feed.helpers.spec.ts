@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { appendUniqueFeedPage, replaceFeedPage } from "../components/home/homeFeed.helpers";
-import type { Listing as Ad } from "@/lib/api/user/listings";
+import type { UserListing as Ad } from "@/lib/api/user/listings";
 
 const makeAd = (id: string, title = `Ad ${id}`): Ad => ({
     id,

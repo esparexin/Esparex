@@ -20,7 +20,7 @@ import {
     X,
 } from "@esparex/ui";
 import { AdCardGrid } from "@/components/user/ad-card";
-import { type Listing as Ad } from "@/lib/api/user/listings";
+import { type UserListing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
 import { LocationFacade } from "@esparex/shared";

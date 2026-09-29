@@ -1,6 +1,6 @@
 import React from "react";
 import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "@esparex/ui";
-import type { Listing } from "@/lib/api/user/listings";
+import type { UserListing } from "@/lib/api/user/listings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { ListingItem } from "@/components/user/shared/ListingItem";
 import {
@@ -30,20 +30,20 @@ const buildTag = (label: string | null, className?: string) => (
 );
 
 export interface ListingActionHandlers {
-  onDelete: (listing: Listing) => void;
-  onDeactivate: (listing: Listing) => void;
-  onActivate: (listing: Listing) => void;
-  onMarkSoldAd?: (listing: Listing) => void;
-  onMarkSoldSpare?: (listing: Listing) => void;
+  onDelete: (listing: UserListing) => void;
+  onDeactivate: (listing: UserListing) => void;
+  onActivate: (listing: UserListing) => void;
+  onMarkSoldAd?: (listing: UserListing) => void;
+  onMarkSoldSpare?: (listing: UserListing) => void;
   onRepostAd?: (id: string) => void;
   onRepostService?: (id: string) => void;
   onRepostSpare?: (id: string) => void;
-  onBoost?: (listing: Listing) => void;
+  onBoost?: (listing: UserListing) => void;
   getStatusBadge: (status: string) => React.ReactNode;
 }
 
 export function renderAdItem(
-  listing: Listing,
+  listing: UserListing,
   adsStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {
@@ -81,7 +81,7 @@ export function renderAdItem(
 }
 
 export function renderServiceItem(
-  service: Listing,
+  service: UserListing,
   servicesStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {
@@ -128,7 +128,7 @@ export function renderServiceItem(
 }
 
 export function renderSpareItem(
-  listing: Listing,
+  listing: UserListing,
   spareStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {

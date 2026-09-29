@@ -1,7 +1,7 @@
 import { apiClient, EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '@esparex/shared';
-import { type Listing as Ad, normalizeListing as normalizeAd } from './listings';
+import { type UserListing as Ad, normalizeListing as normalizeAd } from './listings';
 import { User } from "@esparex/contracts";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';
 import { fetchUserApiJson, type ServerFetchOptions } from './server';

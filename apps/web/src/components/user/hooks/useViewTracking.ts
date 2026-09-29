@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
-import { incrementListingView, type Listing as Ad } from '@/lib/api/user/listings';
+import { incrementListingView, type UserListing as Ad } from '@/lib/api/user/listings';
 import { queryKeys } from '@/hooks/queries/queryKeys';
 
 export function useViewTracking(

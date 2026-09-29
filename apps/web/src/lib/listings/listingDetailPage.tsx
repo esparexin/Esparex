@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { ListingPageClient } from "@/app/(public)/ads/[slug]/ListingPageClient";
-import { getListingById, type Listing } from "@/lib/api/user/listings";
+import { getListingById, type UserListing } from "@/lib/api/user/listings";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { generateAdSlug, parseListingSlugParam } from "@/lib/slug";
@@ -122,7 +122,7 @@ export async function renderListingDetailPage({
     const { id, slug: incomingSlug } = parseListingSlugParam(rawParam);
     if (!id) notFound();
 
-    let listing: Listing | null = null;
+    let listing: UserListing | null = null;
     try {
         const cookieHeader = (await cookies()).toString();
         listing = await getListingById(

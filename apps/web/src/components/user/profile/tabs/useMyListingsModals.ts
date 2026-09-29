@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Listing } from "@/lib/api/user/listings";
+import type { UserListing } from "@/lib/api/user/listings";
 import type { SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import type { ListingSubTab, ListingActionHandlers } from "./MyListingsConfig";
 import type { MyListingsDialogsProps } from "./MyListingsDialogs";
@@ -45,24 +45,24 @@ export function useMyListingsModals({
   getStatusBadge,
   fetchMyAds,
 }: UseMyListingsModalsParams) {
-  const [adToDelete, setAdToDelete] = useState<Listing | null>(null);
+  const [adToDelete, setAdToDelete] = useState<UserListing | null>(null);
   const [isDeleteAdOpen, setIsDeleteAdOpen] = useState(false);
-  const [adToDeactivate, setAdToDeactivate] = useState<Listing | null>(null);
+  const [adToDeactivate, setAdToDeactivate] = useState<UserListing | null>(null);
   const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
-  const [adToActivate, setAdToActivate] = useState<Listing | null>(null);
+  const [adToActivate, setAdToActivate] = useState<UserListing | null>(null);
   const [isActivateOpen, setIsActivateOpen] = useState(false);
 
-  const [adToSell, setAdToSell] = useState<Listing | null>(null);
+  const [adToSell, setAdToSell] = useState<UserListing | null>(null);
   const [isSoldOpen, setIsSoldOpen] = useState(false);
   const [soldReason, setSoldReason] = useState<SoldReason | null>(null);
   const [isSelling, setIsSelling] = useState(false);
 
-  const [spareToSell, setSpareToSell] = useState<Listing | null>(null);
+  const [spareToSell, setSpareToSell] = useState<UserListing | null>(null);
   const [isSparesSoldOpen, setIsSparesSoldOpen] = useState(false);
   const [sparesSoldReason, setSparesSoldReason] = useState<SoldReason | null>(null);
   const [isSpareSelling, setIsSpareSelling] = useState(false);
 
-  const [boostAd, setBoostAd] = useState<Listing | null>(null);
+  const [boostAd, setBoostAd] = useState<UserListing | null>(null);
   const [isBoostOpen, setIsBoostOpen] = useState(false);
 
   const confirmDeleteAd = async () => {
@@ -120,15 +120,15 @@ export function useMyListingsModals({
   };
 
   const actionHandlers: ListingActionHandlers = {
-    onDelete: (listing: Listing) => { setAdToDelete(listing); setIsDeleteAdOpen(true); },
-    onDeactivate: (listing: Listing) => { setAdToDeactivate(listing); setIsDeactivateOpen(true); },
-    onActivate: (listing: Listing) => { setAdToActivate(listing); setIsActivateOpen(true); },
-    onMarkSoldAd: (listing: Listing) => { setAdToSell(listing); setSoldReason(null); setIsSoldOpen(true); },
-    onMarkSoldSpare: (listing: Listing) => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); },
+    onDelete: (listing: UserListing) => { setAdToDelete(listing); setIsDeleteAdOpen(true); },
+    onDeactivate: (listing: UserListing) => { setAdToDeactivate(listing); setIsDeactivateOpen(true); },
+    onActivate: (listing: UserListing) => { setAdToActivate(listing); setIsActivateOpen(true); },
+    onMarkSoldAd: (listing: UserListing) => { setAdToSell(listing); setSoldReason(null); setIsSoldOpen(true); },
+    onMarkSoldSpare: (listing: UserListing) => { setSpareToSell(listing); setSparesSoldReason(null); setIsSparesSoldOpen(true); },
     onRepostAd: (id: string) => handleRepostAd(id),
     onRepostService: (id: string) => handleRepostService(id),
     onRepostSpare: (id: string) => handleRepostSpare(id),
-    onBoost: (listing: Listing) => { setBoostAd(listing); setIsBoostOpen(true); },
+    onBoost: (listing: UserListing) => { setBoostAd(listing); setIsBoostOpen(true); },
     getStatusBadge,
   };
 

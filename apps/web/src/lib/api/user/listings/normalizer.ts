@@ -15,7 +15,7 @@ export const RESERVED_LISTING_IDENTIFIERS = new Set([
     '', 'undefined', 'null', 'nan', 'true', 'false', 'favicon.ico',
 ]);
 
-export interface Listing extends Ad {
+export interface UserListing extends Ad {
     priceMin?: number | null;
     priceMax?: number | null;
     isChatLocked?: boolean;
@@ -55,7 +55,7 @@ export interface ListingFilters {
 }
 
 export interface ListingPageResult {
-    data: Listing[];
+    data: UserListing[];
     pagination: PaginationEnvelope;
 }
 
@@ -297,7 +297,7 @@ function toListingSchemaCompatible(data: unknown): unknown {
     return record;
 }
 
-function coerceListingFallback(data: unknown): Listing {
+function coerceListingFallback(data: unknown): UserListing {
     const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
     const id = extractId(record.id) ?? extractId(record._id) ?? '';
     const title = typeof record.title === 'string' ? record.title : '';
@@ -355,7 +355,7 @@ function coerceListingFallback(data: unknown): Listing {
         deviceCondition: (record.deviceCondition === 'power_on' || record.deviceCondition === 'power_off') ? record.deviceCondition : undefined,
         warranty: typeof record.warranty === 'string' ? record.warranty : undefined,
         sparePartId: extractId(record.sparePartId),
-    } as Listing;
+    } as UserListing;
 }
 
 export function unwrapListingPayload(data: unknown, depth = 0): unknown {
@@ -367,7 +367,7 @@ export function unwrapListingPayload(data: unknown, depth = 0): unknown {
     return data;
 }
 
-export function normalizeListing(data: unknown): Listing {
+export function normalizeListing(data: unknown): UserListing {
     const compatible = toListingSchemaCompatible(unwrapListingPayload(data));
     const parsed = AdSchema.safeParse(compatible);
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
@@ -446,12 +446,12 @@ export function normalizeListing(data: unknown): Listing {
         sellerName: decodedSellerName,
         sellerId: extractId(validated.sellerId) || '',
         views,
-        location: (location || { city: "" }) as Listing['location'],
+        location: (location || { city: "" }) as UserListing['location'],
         isSpotlight,
         spotlightExpiresAt,
         isBoosted,
         boostExpiresAt,
-    } as Listing;
+    } as UserListing;
 }
 
 export function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T): T {

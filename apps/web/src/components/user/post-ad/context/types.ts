@@ -4,7 +4,7 @@ import type { SparePart, DeviceModel, Brand } from "@/lib/api/user/masterData";
 import type { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { CategoryFilter } from "@esparex/contracts";
-import type { Listing } from "@/lib/api/user/listings/normalizer";
+import type { UserListing } from "@/lib/api/user/listings/normalizer";
 import type { GeoJSONPoint } from "@/types/location";
 import type { ListingImage, ListingCategory, ListingLocation } from "@/types/listing";
 
@@ -75,11 +75,11 @@ export interface PostAdContextType {
     setFormError: (message: string | null) => void;
     imageUploadError: string | null;
     setImageUploadError: (message: string | null) => void;
-    submittedAd: Listing | null;
-    setSubmittedAd: (ad: Listing | null) => void;
+    submittedAd: UserListing | null;
+    setSubmittedAd: (ad: UserListing | null) => void;
     mode: 'create' | 'edit';
     listingId?: string;
-    initializeFromListing: (data: Listing) => void;
+    initializeFromListing: (data: UserListing) => void;
     resetToCreateMode: () => void;
 }
 
@@ -127,7 +127,7 @@ export type PostAdFlowState = {
     userHasInteracted: boolean;
     loadError: string | null;
     formError: string | null;
-    submittedAd: Listing | null;
+    submittedAd: UserListing | null;
     form: UseFormReturn<PostAdFormData>;
     control: Control<PostAdFormData>;
     errors: FieldErrors<PostAdFormData>;

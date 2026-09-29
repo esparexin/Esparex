@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, ReactNode } from "react";
-import type { Listing } from "@/lib/api/user/listings/normalizer";
+import type { UserListing } from "@/lib/api/user/listings/normalizer";
 import type { ListingImage, ListingLocation } from "@/types/listing";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
@@ -66,7 +66,7 @@ export function PostAdProvider({
     const isLocationLocked = isEditMode && (originalAdStatus === 'live' || originalAdStatus === 'pending');
     const [isLoading, setIsLoading] = useState(isEditMode);
     const [brandIsPending, setBrandIsPending] = useState(false);
-    const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
+    const [submittedAd, setSubmittedAd] = useState<UserListing | null>(null);
     const { listingImages, setListingImages } = imagesHook;
     const { listingLocation, setLocation, coordinates, locationDisplay } = locationHook;
     const { requiresScreenSize, handleCategoryChange, handleBrandChange, handleModelChange, clearCategoryDependents } = useCategoryDependents(
@@ -131,7 +131,7 @@ export function PostAdProvider({
         loadCategorySchema,
     ]);
 
-    const initializeFromListing = useCallback(async (data: Listing) => {
+    const initializeFromListing = useCallback(async (data: UserListing) => {
         setMode('edit'); setListingId(String(data.id || (data as { _id?: string })._id || "")); setCurrentStep(2);
         if (setOriginalAdStatus && data.status) setOriginalAdStatus(data.status);
         clearCategoryDependents();

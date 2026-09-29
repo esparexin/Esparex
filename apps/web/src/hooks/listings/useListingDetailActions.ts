@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import type { Listing as Ad } from "@/lib/api/user/listings";
+import type { UserListing as Ad } from "@/lib/api/user/listings";
 import type { User } from "@esparex/contracts";
 import { deleteListing, markListingAsSold } from "@/lib/api/user/listings";
 import { saveAd, unsaveAd } from "@/lib/api/user/users";

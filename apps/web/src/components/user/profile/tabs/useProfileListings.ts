@@ -11,7 +11,7 @@ import {
     deactivateListing,
     activateListing,
     repostListing,
-    type Listing,
+    type UserListing,
 } from "@/lib/api/user/listings";
 import { LISTING_TYPE } from "@esparex/contracts";
 import { queryKeys } from "@/hooks/queries/queryKeys";
@@ -28,7 +28,7 @@ export interface UseProfileListingsOptions {
     limit?: number;
 }
 
-type ListingManagerConfig = ListingActionApis<Listing>;
+type ListingManagerConfig = ListingActionApis<UserListing>;
 
 export function useProfileListings({
     type,
@@ -82,7 +82,7 @@ export function useProfileListings({
         handleDeactivate,
         handleActivate,
         handleRepost,
-    } = useUserListingManagement<Listing>({
+    } = useUserListingManagement<UserListing>({
         type,
         activeTab: isActive ? type : "",
         user,
