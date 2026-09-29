@@ -21,12 +21,15 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
   ...props
 }, ref) => {
   const hasError = !!error;
-  const baseInput = 'flex-1 h-12 text-base text-slate-900 dark:text-slate-100';
-  const containerBase = 'flex-row items-center border rounded-lg bg-white dark:bg-slate-900 px-3';
-  
-  const borderState = hasError 
-    ? 'border-error' 
-    : 'border-slate-300 dark:border-slate-700 focus:border-brand-500 dark:focus:border-brand-400';
+  // RC-5 FIX: Replaced primitive palette classes (whose dark: variants were inert
+  // when darkMode was absent from the NativeWind config) with semantic tokens that
+  // now resolve to concrete hex values via the fixed tailwind.config.js.
+  const baseInput = 'flex-1 h-12 text-body-lg text-foreground';
+  const containerBase = 'flex-row items-center border rounded-lg bg-background px-3';
+
+  const borderState = hasError
+    ? 'border-destructive'
+    : 'border-input focus:border-primary dark:focus:border-primary';
 
   return (
     <View className={`w-full ${containerClassName}`}>
