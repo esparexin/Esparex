@@ -7,7 +7,6 @@ import { XIcon } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
-import { lockSheetScroll } from "./sheetScrollLock";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -65,8 +64,6 @@ function SheetContent({
   hideClose?: boolean;
   overlayClassName?: string;
 }) {
-  React.useEffect(() => lockSheetScroll(), []);
-
   return (
     <SheetPortal>
       <SheetOverlay className={overlayClassName} />
