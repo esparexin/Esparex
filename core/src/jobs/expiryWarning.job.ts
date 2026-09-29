@@ -7,6 +7,7 @@ import Business from '../models/Business';
 import Ad from '../models/Ad';
 import SmartAlert from '../models/SmartAlert';
 import { BUSINESS_STATUS, LISTING_STATUS, ACTOR_TYPE } from '@esparex/contracts';
+import { formatAppDate } from '@esparex/shared';
 import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
 import { renderBusinessExpiryAlertEmail } from '../domains/notifications/templates/EmailLayout';
 import { getFrontendAppUrl } from '../utils/appUrl';
@@ -44,7 +45,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
 
         for (const biz of expiringBusinesses) {
             try {
-                const expiryDateStr = biz.expiresAt?.toLocaleDateString() || 'N/A';
+                const expiryDateStr = biz.expiresAt ? formatAppDate(biz.expiresAt) : 'N/A';
                 const daysLeft = biz.expiresAt
                     ? Math.max(1, Math.ceil((biz.expiresAt.getTime() - Date.now()) / 86_400_000))
                     : 3;
@@ -106,7 +107,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     'LISTING_EXPIRY_WARNING_3D',
                     {
                         title: ad.title,
-                        date: ad.expiresAt?.toLocaleDateString() || 'N/A'
+                        date: ad.expiresAt ? formatAppDate(ad.expiresAt) : 'N/A'
                     },
                     {
                         adId: ad._id.toString(),
@@ -152,7 +153,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     'SPOTLIGHT_EXPIRY_WARNING_3D',
                     {
                         title: ad.title,
-                        date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A'
+                        date: ad.spotlightExpiresAt ? formatAppDate(ad.spotlightExpiresAt) : 'N/A'
                     },
                     {
                         adId: ad._id.toString(),
@@ -197,7 +198,7 @@ export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void
                     'SMART_ALERT_EXPIRY_WARNING_3D',
                     {
                         name: alert.name || 'Saved Search',
-                        date: alert.expiresAt?.toLocaleDateString() || 'N/A'
+                        date: alert.expiresAt ? formatAppDate(alert.expiresAt) : 'N/A'
                     },
                     {
                         alertId: alert._id.toString(),
