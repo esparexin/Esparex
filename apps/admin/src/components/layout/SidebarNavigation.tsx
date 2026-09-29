@@ -4,8 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdminModuleItem } from "./adminNavigation";
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
+import { cn } from "@esparex/ui";
 
 type SidebarNavigationProps = {
     items: AdminModuleItem[];
