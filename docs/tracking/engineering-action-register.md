@@ -2723,3 +2723,54 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
 - ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
+
+### EA-059
+**Date**: 2026-09-29  
+**Description**: Codebase Quality Remediation — SSOT Formatter Dereplication, Design-Token Migration, Clone Extraction, Listing Naming Boundary (Branch `refactor/code-quality-remediation-phased`)  
+**Root Cause**: Full-repo audit found (a) a local `formatDate` shadow in `CreditLedgerDetailPopup.tsx` duplicating the `@/lib/formatters` SSOT, (b) 10+ raw Tailwind palette hits (`bg-blue-600`, `text-slate-*`, raw `#16a34a` hex) bypassing semantic tokens, (c) 9 jscpd clones (AI provider JSON/result mapping, getListings filter blocks, PromotionService date math, CatalogImportService lookups, catalog resolvers, SmartAlert slot fetch), (d) web adapter `interface Listing extends Ad` shadowing mobile/core `Listing` names, (e) `shared/src/utils/textValidator.ts` at 309 lines (Utility limit 150).  
+**Action**:
+1. **SSOT Formatter**: Moved null-safe date formatting into `CreditLedgerFormatters.formatOptionalDateTime`; deleted the local shadow.
+2. **Design Tokens (3 commits)**: Migrated chat/listing CTAs, profile/post-ad/seller/error surfaces, and DataTable/Switch/Dialog slate literals to `bg-primary` / `text-primary` / `border-border` / `bg-muted` / `text-destructive` tokens. Category multi-hue visuals and dark Sidebar slate intentionally deferred (need categorical-color ADR + dark-theme visual QA).
+3. **Clone Extraction (9 → 2 clones, 117 → 16 dup lines)**: `buildStructuredResult` + OpenAI-compatible result builder consolidated into `core/src/services/ai/types.ts` (kept in-module per DDD services file-count ratchet — two standalone helper files were consolidated after `repo:gate` flagged 72 > 70); `getListings` filter/pagination helpers; `computeBoostWindow` in `domains/payments/utils/promotionDateUtils.ts`; `buildImportLookupMaps`; generic `resolveOrCreateEntity`; `fetchSmartAlertSlotState`. Remaining 2 clones are declarative Mongoose field boilerplate (Model≈ServiceType, Brand≈Variant) — accepted debt, high refactor risk for zero logic gain.
+4. **Listing Boundary (PDR-003 / D-010)**: Recorded decision retaining mobile `Listing` as platform domain model behind `ListingMapper`; renamed web adapter to `UserListing` (29 files, type-only, 115+/115−).
+5. **Exemplar Split**: `textValidator.ts` 309 → 150/145/32 lines (`textValidatorTypes` / `textValidatorChecks` / orchestrator) with barrel re-exports; runtime smoke-tested. Remaining oversized files stay on extract-on-touch per ratchet.
+6. **Gate Discipline**: Removed an unused speculative schema-builder file that broke `tsc`; cleared a stale generated `audit-reports/repository-audit.json` that pinned a false AUDIT-001 FAIL.
+
+**Files Modified** (representative; full list in branch commits `a13441b1c`…`34c742b7d`):
+```
+apps/web/src/components/user/profile/cards/CreditLedgerDetailPopup.tsx
+apps/web/src/components/user/profile/cards/CreditLedgerFormatters.tsx
+apps/web/src/components/{mobile/MobileBottomNav,chat/AccountMessagesWorkspace,...} (token migration, 8 files)
+apps/web/src/components/user/listing-detail/ListingBottomActions.tsx
+apps/web/src/errors/ErrorFallback.tsx
+packages/ui/src/{data-display/DataTable/*,forms/Switch.tsx,feedback/Dialog.tsx}
+core/src/services/ai/{types.ts,providers/*Provider.ts}
+core/src/domains/{payments/utils/promotionDateUtils.ts,notifications/application/smartAlertSlotState.ts,...}
+backend/api/src/controllers/listing/getListings.controller.ts
+apps/web/src/lib/api/user/listings/* (UserListing rename, 29 files)
+shared/src/utils/textValidator{,Types,Checks}.ts
+docs/architecture/adr/PDR-003-mobile-listing-domain-model.md
+docs/architecture/decision-register.md (D-010)
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Audit remediation implemented per plan; no behavior changes (type-only rename, pure code motion, token-equivalent styling).
+- [x] **Automated Testing**: SmartAlert suites 9/9 green; web `home-feed.helpers` + `listing-normalization` 13/13 green.
+- [x] **Type Safety & Build**: `npm run type-check` PASS (0 errors across 9 workspaces).
+- [x] **Multi-Platform Verification**: Web tokens use single-instance responsive classes; mobile untouched except docs.
+- [x] **Accessibility Audit**: No interactive semantics changed; focus/ARIA paths intact.
+- [x] **Zero Suppression Policy**: 0 new suppressions; 2 pre-existing justified `any` removals in `catalogLifecycle.ts`.
+- [x] **Contract Stability**: No `@esparex/contracts` changes.
+- [x] **Release Gate 16**: N/A (no runtime behavior change).
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-059.
+
+**Verification**:
+- ✅ `npm run guard:duplicate-code` ──► PASS (2 clones, 16 lines 0.02% ≤ 0.08% baseline)
+- ✅ `npm run guard:design-token-adoption` ──► PASS (0 new violations)
+- ✅ `npm run guard:pr-quality` ──► PASS (ratchet clean; absolute over-limit files pre-existing, non-blocking)
+- ✅ `npm run guard:dead-code` ──► PASS (unusedFiles=0)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/core -- SmartAlert*` ──► PASS (9/9)
+- ✅ `npm test -w @esparex/apps-web -- home-feed.helpers + listing-normalization` ──► PASS (13/13)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
