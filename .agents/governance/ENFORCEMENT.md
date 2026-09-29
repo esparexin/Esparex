@@ -30,6 +30,7 @@ This is the authoritative catalog of automated controls that run in our CI/CD pi
 | E-009 | Repository hygiene — code duplication > 10 lines | `jscpd` | `npm run guard:duplicate-code` | Blocks merge |
 | E-010 | Repository discipline — forbidden keywords (`legacy`, etc.) | Custom script | `npm run guard:platform-governance` | Blocks merge |
 | E-011 | Repository hygiene — unused exports and dead code | `knip` | `npm run guard:knip` | Blocks merge |
+| E-012 | Listing lifecycle — mongoose connection binding, expiresAt clamp, buildPublicAdFilter SSOT, deterministic date formatters | Custom script (GOV-GUARDS-001) | `npm run guard:ad-ssot` | Blocks merge |
 
 > Note: §2 command names below (`guard:public-api`, `guard:manifests`, `guard:isolation`, `guard:building-blocks`, `guard:architecture`) are historical roadmap labels; canonical executable commands are root `package.json` scripts + `npm run repo:gate`.
 

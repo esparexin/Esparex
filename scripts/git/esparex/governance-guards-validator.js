@@ -46,6 +46,7 @@ const GUARDS = [
   { name: 'Repository Hygiene', cmd: 'node scripts/guard-repository-hygiene.js', baselineKey: 'repositoryHygieneViolations' },
   { name: 'No API String Literals', cmd: 'node scripts/enforce-no-api-string-literals.js', baselineKey: 'noApiStringLiteralsViolations' },
   { name: 'Process Concurrency & Resource Safety', cmd: 'node scripts/guard-process-concurrency.js', baselineKey: 'processConcurrencyViolations' },
+  { name: 'Ad SSOT & Listing Lifecycle', cmd: 'node scripts/enforce-ad-ssot-guard.js', baselineKey: 'adSsotViolations' },
 ];
 
 function run(val) {

@@ -21,6 +21,15 @@ const moderationNormalizerFile = path.join(
   "normalizeModerationAd.ts"
 );
 const adModelFile = path.join(repoRoot, "core", "src", "models", "Ad.ts");
+const modelsDir = path.join(repoRoot, "core", "src", "models");
+const feedVisibilityGuardFile = path.join(
+  repoRoot,
+  "core",
+  "src",
+  "utils",
+  "FeedVisibilityGuard.ts"
+);
+const uiSrcRoots = ["apps/web/src", "apps/admin/src", "apps/mobile/src", "packages/ui/src", "packages/mobile-ui/src"];
 
 const failures = [];
 
@@ -104,10 +113,80 @@ function checkAdSchemaGuard() {
   }
 }
 
+function checkMongooseConnectionBinding() {
+  // AGENTS.md: models in core/src/models/ must bind via getUserConnection() /
+  // getAdminConnection(). Direct mongoose.model() bypasses the tenant pool.
+  if (!fs.existsSync(modelsDir)) {
+    failures.push("Missing required directory: core/src/models");
+    return;
+  }
+  const files = fs.readdirSync(modelsDir).filter((f) => f.endsWith(".ts"));
+  for (const file of files) {
+    const source = fs.readFileSync(path.join(modelsDir, file), "utf8");
+    const stripped = source
+      .split("\n")
+      .filter((line) => !line.trim().startsWith("//") && !line.trim().startsWith("*"))
+      .join("\n");
+    if (/mongoose\s*\.\s*model\s*\(/.test(stripped) || /mongoose\s*\.\s*models\b/.test(stripped)) {
+      failures.push(
+        `Model core/src/models/${file} must bind via getUserConnection()/getAdminConnection() (bare mongoose.model() forbidden).`
+      );
+    }
+  }
+}
+
+function checkAdExpiryClamp() {
+  // AGENTS.md 30-day hard expiry ceiling: live listings must always carry a
+  // future expiresAt assigned/clamped in the model pre-save hook.
+  const source = readFile(adModelFile);
+  if (!source) return;
+  if (!/\.pre\s*\(\s*['"]save['"]/.test(source) || !/this\.expiresAt\s*=/.test(source)) {
+    failures.push("Ad model must assign/clamp expiresAt in a pre('save') hook (30-day expiry ceiling).");
+  }
+}
+
+function checkFeedFilterSsot() {
+  // AGENTS.md zero-unbounded-feed-queries: public feed queries must go through
+  // buildPublicAdFilter() from @esparex/core FeedVisibilityGuard.
+  const source = readFile(feedVisibilityGuardFile);
+  if (!source) return;
+  if (!/export\s+(const|function)\s+buildPublicAdFilter/.test(source)) {
+    failures.push("FeedVisibilityGuard must export buildPublicAdFilter (public feed filter SSOT).");
+  }
+}
+
+function checkDateFormatterSsot() {
+  // AGENTS.md deterministic date formatter SSOT: UI must not use raw
+  // toLocaleDateString(); use formatAppDate/formatStableDate/formatDate.
+  const hits = [];
+  const walk = (dir) => {
+    const abs = path.join(repoRoot, dir);
+    if (!fs.existsSync(abs)) return;
+    for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name.startsWith(".")) continue;
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(rel);
+      } else if (/\.(ts|tsx)$/.test(entry.name) && !/(__tests__|\.spec\.|\.test\.)/.test(rel)) {
+        const content = fs.readFileSync(path.join(repoRoot, rel), "utf8");
+        if (/\.toLocaleDateString\s*\(/.test(content)) hits.push(rel);
+      }
+    }
+  };
+  for (const root of uiSrcRoots) walk(root);
+  for (const hit of hits) {
+    failures.push(`${hit} must not use raw toLocaleDateString() (use formatAppDate/formatStableDate/formatDate).`);
+  }
+}
+
 function main() {
   checkModerationApiSsot();
   checkModerationNormalizer();
   checkAdSchemaGuard(); // includes 2dsphere index verification
+  checkMongooseConnectionBinding(); // AGENTS.md Mongoose dual-connection rule
+  checkAdExpiryClamp(); // AGENTS.md 30-day expiry ceiling
+  checkFeedFilterSsot(); // AGENTS.md zero-unbounded-feed-query rule
+  checkDateFormatterSsot(); // AGENTS.md deterministic date formatter SSOT
 
   if (failures.length === 0) {
     console.log("✅ Ad SSOT guard passed.");
