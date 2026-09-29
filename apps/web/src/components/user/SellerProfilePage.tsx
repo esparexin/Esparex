@@ -16,6 +16,8 @@ import {
     Share2,
     ShieldCheck,
 } from "@esparex/ui";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
+import { type UserListing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
 import { LocationFacade } from "@esparex/shared";
@@ -90,6 +92,8 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                     </div>
 
                     {/* Soft Brand Header Canvas */}
+                    <div className="relative h-20 sm:h-28 w-full bg-gradient-to-r from-primary/15 via-primary/10 to-primary/15 dark:from-primary/20 dark:to-muted border-b border-primary/10 overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 text-primary bg-[radial-gradient(currentColor_1px,transparent_1px)] [background-size:16px_16px]" />
                         <div className="absolute -top-10 -right-10 size-48 bg-primary/15 rounded-full blur-2xl pointer-events-none" />
                     </div>
 
