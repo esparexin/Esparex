@@ -6,7 +6,7 @@ import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import type { CatalogRequestItem } from "@/lib/api/catalogRequests";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { CatalogSelectFilter, CatalogSearchInput } from "@/components/catalog/primitives";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useCatalogRequestsBulkActions } from "./useCatalogRequestsBulkActions";
 import { generateCatalogRequestsColumns } from "./CatalogRequestsColumns";
@@ -47,7 +47,7 @@ export default function CatalogRequestsTab() {
     },
   });
 
-  const { replaceQueryState } = useCatalogQueryStateSync({
+  const { replaceQueryState } = useAdminQuerySync({
     searchInput,
     initialSearch,
     loading,
