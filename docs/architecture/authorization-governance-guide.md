@@ -1,5 +1,9 @@
 # ESPAREX AUTHORIZATION ARCHITECTURE GOVERNANCE & MIGRATION GUIDE
 
+> Normative: `.agents/rules/authentication.md` + `.agents/rules/authorization.md`;
+> role SSOT `roleNormalization.ts` (enforced by `npm run guard:auth-ssot`).
+> This guide is implementation detail — do not restate role lists here.
+
 **Scope:** Authorization Infrastructure, Middleware Boundaries, CI Guardrails  
 **Governance Standard:** Single Source of Truth (SSOT), Permission-First Architecture, Automated CI Guardrails
 
