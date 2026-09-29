@@ -214,9 +214,8 @@ export function LoginForm({
   return (
     <Form {...form}>
       <form
-        key={`step-${step}`}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 flex-1 flex flex-col justify-between h-full"
+        className="flex-1 flex flex-col justify-between h-full"
       >
         {step === "enterMobile" ? (
           <LoginMobileStep
