@@ -363,7 +363,7 @@ For detailed domain-specific architectural standards, consult the modular guides
 | Domain | Guide Link | Focus Areas |
 |---|---|---|
 | **Design Principles** | [`design-principles.md`](./design-principles.md) | Visual hierarchy, clarity, content-first layout |
-| **Color System** | [`color-system.md`](./color-system.md) | 3-layer tokens (Sky Brand, Slate Neutrals, Indigo Action) |
+| **Color System** | [`color-system.md`](./color-system.md) | 3-layer tokens (Green brand, Warm Neutral surfaces per §21) |
 | **Typography** | [`typography.md`](./typography.md) | Geist font SSOT, discrete scale, line-height tokens |
 | **Spacing & Layout** | [`spacing-layout.md`](./spacing-layout.md) | 4px baseline grid, container boundaries, surface stacking |
 | **Components** | [`components.md`](./components.md) | `@esparex/ui` & `@esparex/mobile-ui` primitive contracts |

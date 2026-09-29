@@ -17,7 +17,7 @@ Companion to the [Engineering Action Register](../tracking/engineering-action-re
 | D-001 | `packages/design-tokens` is the platform SSOT | Sprint 2 | ADR-001 (inline) | ✅ Approved |
 | D-002 | Two-layer token architecture: `base.*` → `semantic.*` | Sprint 2 | ADR-001 (inline) | ✅ Approved |
 | D-003 | Token API frozen after Sprint 2; extensions require ADR | Sprint 2 | — | ✅ Approved |
-| D-004 | `semantic.light.action` = `#2563eb` promoted for interactive controls | Sprint 3 | ADR-004 | ✅ Approved |
+| D-004 | `semantic.light.action` blue (`#2563eb`) promoted for interactive controls (blue era) | Sprint 3 | ADR-004 | ⚠️ Superseded by `AGENTS.md` §21 Green (`#16A34A`); historical only |
 | D-005 | StyleSheet preferred for static layout; className for NativeWind dynamic styling | Sprint 2 | — | ✅ Approved |
 | D-006 | Document every exception before suppressing; no silent eslint-disable | Sprint 2 | — | ✅ Approved |
 | D-007 | Inline styles: static values migrate to StyleSheet; dynamic/runtime values are permanent exceptions | Sprint 2 | — | ✅ Approved |

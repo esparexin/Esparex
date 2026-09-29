@@ -87,8 +87,8 @@ Every screen must strictly separate content into 5 hierarchical tiers:
 5. **Related Tier (Cross-Discovery):** Nearby repair services, similar spare parts, seller's other items.
 
 ### Measurable Cognitive Load Limits
-- **Maximum 3 Primary CTAs per Screen:** Only 1 high-emphasis primary button (e.g., solid blue); secondary actions must use `outline` or `ghost` variants.
-- **Maximum 2 Competing Accent Colors:** Reserve brand blue (`#2563eb`) for interactive actions and emerald green (`#16a34a`) for success/verification.
+- **Maximum 3 Primary CTAs per Screen:** Only 1 high-emphasis primary button (solid primary green per `AGENTS.md` §21); secondary actions must use `outline` or `ghost` variants.
+- **Maximum 2 Competing Accent Colors:** Reserve primary green (`#16a34a`) for interactive actions and emerald soft (`#dcfce7`) for selected/verification surfaces.
 - **Maximum 1 Dominant Surface:** Do not stack bordered cards upon bordered sections upon colored backgrounds.
 - **Maximum 2 Nested Navigation Levels:** Breadcrumbs must not exceed 4 segments (`Home > Category > Subcategory > Listing`).
 - **5-Second Comprehension Rule:** A first-time user must understand the item, price, and primary action within 5 seconds of landing.

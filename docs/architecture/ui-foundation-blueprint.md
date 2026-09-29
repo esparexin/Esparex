@@ -36,13 +36,14 @@ Every sprint must adhere to the following principles:
 
 ## Design System Hierarchy
 
-When conflicts arise, the order of authority is as follows:
-1. **UI Foundation Blueprint (SSOT)**
+When conflicts arise, the order of authority is as follows (Blueprint is subordinate to Tier-1 governance):
+1. **`AGENTS.md` (supreme) + `docs/architecture/PLATFORM_ARCHITECTURE.md` + `docs/governance/REPOSITORY-GOVERNANCE.md` + `packages/ui/GOVERNANCE.md`**
 2. **Architecture Decision Records (ADR)**
 3. **`packages/design-tokens`**
 4. **`packages/ui` / `packages/mobile-ui`**
-5. **Feature Components**
-6. **Pages**
+5. **This Blueprint (program constitution, historical after modernization)**
+6. **Feature Components**
+7. **Pages**
 
 ## Repository Structure
 
