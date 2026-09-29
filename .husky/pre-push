@@ -1,1 +1,9 @@
-npm run repo:gate && npm run type-check && npm test
+# Fast-Path: docs/evidence-only pushes run repo:gate; code changes run the full gate.
+# Mirrors AI_WORKFLOW Fast-Path (single-file/config/copy low-risk). CI always runs full suite.
+CHANGED=$(git diff --name-only origin/develop...HEAD 2>/dev/null || git diff --name-only HEAD)
+if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qvE '(\.md$|^audit-reports/|^governance/(evidence|waivers)/|^\.agents/logs/)'; then
+  echo "[pre-push:fast] docs/evidence-only change — running repo:gate (CI runs full suite)"
+  npm run repo:gate
+else
+  npm run repo:gate && npm run type-check && npm test
+fi

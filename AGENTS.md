@@ -1190,6 +1190,12 @@ Developer workstations and CI environments have finite CPU core and memory resou
    - Individual workspace `type-check` scripts MUST run pure `tsc --noEmit` and are STRICTLY FORBIDDEN from invoking nested `npm run build` chains of upstream packages.
 4. **Automated Enforcement**:
    - Concurrency limits are mechanically validated by `scripts/guard-process-concurrency.js` as part of `repo:gate` and CI. Any violation blocks commits and pull requests.
+5. **Local Timing Budget (informative, measured 2026-09-29)**:
+   - `repo:gate` ≈ 19s wall on a warm workstation (GOV-GUARDS-001 now also runs
+     Ad SSOT, Doc Hygiene, and waiver-expiry checks). Budget: keep `repo:gate` < 60s; if it exceeds,
+     split the slowest validator out of the pre-push path before adding new checks.
+   - Docs/evidence-only pushes use the `.husky/pre-push` fast-path (`repo:gate`
+     only); code changes run `repo:gate && type-check && test`. CI always runs full.
 
 ---
 
