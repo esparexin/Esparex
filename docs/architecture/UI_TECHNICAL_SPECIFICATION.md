@@ -13,7 +13,7 @@ Packages:        @esparex/design-tokens, @esparex/ui, @esparex/mobile-ui
 
 This technical specification is the single reference document for developers implementing UI across Esparex. Every page, form, layout, button, modal, and control must adhere strictly to these technical standards.
 
-* **"What was done in Sprint 1?"** ➔ See [`docs/audits/UI_FOUNDATION_AUDIT.md`](../audits/UI_FOUNDATION_AUDIT.md)
+* **"Foundation & Blueprint"** ➔ See [ui-foundation-blueprint](./ui-foundation-blueprint.md)
 * **"How should UI be implemented from now on?"** ➔ Follow this document.
 
 ---
@@ -25,11 +25,12 @@ Every UI component in the monorepo has an assigned owner package:
 | Component Primitive | Owner Package | Source Path | Allowed Usage |
 |---|---|---|---|
 | **Design Tokens** | `@esparex/design-tokens` | `packages/design-tokens` | Primary source for all design values |
-| **Web Primitives** (`Button`, `Input`, `Select`, `Dialog`, `Container`, `Popup`) | `@esparex/ui` | `packages/ui` | Shared Web / Admin components |
+| **Web Primitives** (`Button`, `Input`, `Select`, `Dialog`, `Container`, `Card`, `Badge`, `EmptyState`) | `@esparex/ui` | `packages/ui` | Shared Web / Admin components |
 | **Mobile Primitives** (`AppButton`, `AppInput`, `Screen`, `Container`) | `@esparex/mobile-ui` | `packages/mobile-ui` | Shared React Native components |
-| **Icons Registry** | `@esparex/ui` & `lucide-react-native` | `packages/ui/atoms/icons.ts` | Shared icon components |
-| **Web App Primitives** (`Card`, `Badge`, `Accordion`, `DropdownMenu`, `Skeleton`) | Web App Shell | `apps/web/src/components/ui` | Web application layout & display |
-| **Web App Guards** (`EmptyStateShell`, `PageStateGuard`, `SafeImage`) | Web Application | `apps/web/src/components/ui` | Web application routing & state |
+| **Icons Registry** | `@esparex/ui` & `lucide-react-native` | `packages/ui` | Shared icon components |
+| **Web Feature Components** (`SafeImage`, feature helpers) | Web Application | `apps/web/src/components/common` | Web application display helpers |
+
+> **Prohibition Rule**: Creating a local `components/ui` directory in `apps/web` or `apps/admin` is strictly prohibited. All reusable primitives must reside in `@esparex/ui` or `@esparex/mobile-ui`.
 
 ---
 
@@ -76,15 +77,15 @@ Experimental  ──►  Internal  ──►  Public  ──►  Stable  ──�
 
 All visual styling must consume tokens from `@esparex/design-tokens`:
 
-### Palette Reference
-* **Action Primary**: `semantic.light.action` (`#2563eb` / `--color-action`) — Primary buttons, active links, focus indicators.
-* **Brand Primary**: `base.brand[600]` (`#0284c7`) / `base.brand[500]` (`#0ea5e9`).
-* **Slate Grayscale**: `base.slate[50]` to `base.slate[950]`.
-* **Feedback Colors**:
-  - `success`: `#10b981` (Subtle: `#dcfce7`, Dark: `#16a34a`)
-  - `error`: `#ef4444` (Subtle: `#fee2e2`, Dark: `#dc2626`)
-  - `warning`: `#f59e0b` (Subtle: `#fef3c7`, Dark: `#d97706`)
-  - `info`: `#3b82f6` (Subtle: `#eff6ff`, Dark: `#1d4ed8`)
+### Palette Reference (canonical: `AGENTS.md` §21 Green + Warm Neutral + `packages/design-tokens/src/colors.ts`)
+* **Action / Primary**: `base.action` (`#16a34a` Primary Green) — Primary buttons, active links, focus indicators. `semantic.light.action` blue (`#2563eb`) below is legacy; do not use for new work.
+* **Brand Deep / Soft**: `#087a3e` (hover/focus) / `#dcfce7` (selected chips, success pills).
+* **Surfaces**: App `#fafaf8`, Card `#ffffff`, Border `#e7e5e4`, Text `#171717`, Secondary `#57534e`.
+* **Feedback Colors** (canonical values in `colors.ts` `base.*`):
+  - `success`: `#16a34a` (Subtle: `#dcfce7`, Dark: `#087a3e`)
+  - `error`: `#dc2626`
+  - `warning`: `#d97706`
+  - `info`: `#2563eb` (Subtle: `#eff6ff`, Dark: `#1d4ed8`)
 
 ---
 
@@ -102,17 +103,18 @@ All visual styling must consume tokens from `@esparex/design-tokens`:
 
 ## 🔤 6. Typography Scale Specifications
 
-* **Font Family**: Google Fonts `Inter` / `Outfit` (`var(--font-primary)`, `sans-serif`).
-* **Scale Breakdown**:
-  - `display`: `36px` (`2.25rem`), line height `1.2`, weight `700` (`bold`).
-  - `h1`: `30px` (`1.875rem`), line height `1.25`, weight `700` (`bold`).
-  - `h2`: `24px` (`1.5rem`), line height `1.3`, weight `600` (`semibold`).
-  - `h3`: `20px` (`1.25rem`), line height `1.35`, weight `600` (`semibold`).
-  - `h4`: `18px` (`1.125rem`), line height `1.4`, weight `600` (`semibold`).
-  - `body`: `14px` (`0.875rem`), line height `1.55`, weight `400` (`normal`).
-  - `small`: `13px` (`0.8125rem`), line height `1.5`, weight `400` (`normal`).
-  - `caption`: `12px` (`0.75rem`), line height `1.4`, weight `500` (`medium`).
-  - `tiny`: `11px` (`0.6875rem`), line height `1.4`, weight `500` (`medium`).
+* **Font Family**: **Geist** (`var(--font-primary)`) — single font SSOT per `AGENTS.md` §19.2. Competing fonts (`Inter`, `Outfit`, Roboto, Poppins) are forbidden.
+* **Scale Breakdown (canonical 10-level: `AGENTS.md` §19.2)**:
+  - `display`: `36px` (`2.25rem`), line height `1.2`, tracking `-0.02em`.
+  - `h1`: `30px` (`1.875rem`), line height `1.25`, tracking `-0.02em`.
+  - `h2`: `24px` (`1.5rem`), line height `1.3`, tracking `-0.01em`.
+  - `h3`: `20px` (`1.25rem`), line height `1.35`, tracking `-0.01em`.
+  - `h4`: `18px` (`1.125rem`), line height `1.4`.
+  - `body-lg`: `16px` (`1.0rem`), line height `1.5` — lead text, desktop card prices; minimum for mobile inputs (anti-zoom).
+  - `body`: `14px` (`0.875rem`), line height `1.55`.
+  - `small`: `13px` (`0.8125rem`), line height `1.5`.
+  - `caption`: `12px` (`0.75rem`), line height `1.4`.
+  - `tiny`: `11px` (`0.6875rem`), line height `1.4`.
 
 ---
 
@@ -165,7 +167,7 @@ All visual styling must consume tokens from `@esparex/design-tokens`:
 * **DO** ensure all form controls have associated accessible labels.
 
 ### ❌ DON'T
-* **DON'T** hardcode hex colors (`#2563eb`, `bg-blue-600`) or magic spacing values (`padding: 13px`).
+* **DON'T** hardcode hex colors (`#2563eb`, `#16a34a`, `bg-blue-600`) or magic spacing values (`padding: 13px`).
 * **DON'T** duplicate shared primitives (`Button`, `Input`, `Dialog`, `Container`) in feature subfolders.
 * **DON'T** use JavaScript window checks (`useIsMobile()`) for static layout DOM branching.
 * **DON'T** use inline `style={{ ... }}` to override design token values.

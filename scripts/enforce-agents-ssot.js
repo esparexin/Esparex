@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 const trackedFiles = execSync("git ls-files", {
   cwd: process.cwd(),
@@ -9,6 +11,47 @@ const trackedFiles = execSync("git ls-files", {
   .split(/\r?\n/)
   .map((line) => line.trim())
   .filter(Boolean);
+
+const trackedSet = new Set(trackedFiles);
+
+// PR #645: required canonical governance docs must not silently disappear.
+const REQUIRED_GOVERNANCE_DOCS = [
+  "AGENTS.md",
+  "ARCHITECTURE.md",
+  "docs/architecture/PLATFORM_ARCHITECTURE.md",
+  "docs/governance/REPOSITORY-GOVERNANCE.md",
+  "docs/tracking/engineering-action-register.md",
+  "packages/ui/GOVERNANCE.md",
+  "docs/README.md",
+  ".github/PULL_REQUEST_TEMPLATE.md",
+];
+
+// PR #645: stale competing-authority claims remediated in docs; fail if reintroduced
+// in active governance (frozen evidence in archive/audits/releases/tracking/logs/decisions excluded).
+const BANNED_SUPREME_CLAIMS = [
+  /single authoritative engineering governance document/i,
+  /^1\.\s+\*\*UI Foundation Blueprint \(SSOT\)\*\*/m,
+  /serves as the Single Source of Truth \(SSOT\) for UI tokens/i,
+];
+
+const CLAIM_SCAN_ROOTS = [
+  "docs/governance/",
+  "docs/architecture/",
+  "packages/ui/",
+  "packages/design-tokens/",
+  ".agents/governance/",
+  ".agents/skills/",
+];
+
+const CLAIM_SCAN_EXCLUDE = [
+  "archive/",
+  "audit-reports/",
+  "docs/releases/",
+  "docs/audits/",
+  "docs/tracking/",
+  ".agents/logs/",
+  ".agents/decisions/",
+];
 
 const AI_GOVERNANCE_ROOT = ".agents/";
 
@@ -74,6 +117,46 @@ for (const filePath of trackedFiles) {
       file: filePath,
       reason: "AI governance or tool-specific instruction file must live under .agents/",
     });
+  }
+}
+
+for (const required of REQUIRED_GOVERNANCE_DOCS) {
+  if (!trackedSet.has(required)) {
+    violations.push({
+      file: required,
+      reason: "Required canonical governance document is missing (PR #645 hierarchy)",
+    });
+  }
+}
+
+for (const filePath of trackedFiles) {
+  if (!filePath.endsWith(".md")) {
+    continue;
+  }
+  if (!CLAIM_SCAN_ROOTS.some((root) => filePath.startsWith(root))) {
+    continue;
+  }
+  if (CLAIM_SCAN_EXCLUDE.some((prefix) => filePath.startsWith(prefix))) {
+    continue;
+  }
+  // Consolidated pointer stubs and historical audit snapshots are not active rule claims.
+  if (/(^|\/)(catalog-architecture-ssot-audit|security-inventory-audit|listing-forms-compatibility-audit)\.md$/i.test(filePath)) {
+    continue;
+  }
+  let content = "";
+  try {
+    content = fs.readFileSync(path.join(process.cwd(), filePath), "utf8");
+  } catch {
+    continue;
+  }
+  for (const pattern of BANNED_SUPREME_CLAIMS) {
+    if (pattern.test(content)) {
+      violations.push({
+        file: filePath,
+        reason: `Reintroduces remediated competing-authority claim (${pattern}) — update the canonical owner instead (PR #645)`,
+      });
+      break;
+    }
   }
 }
 

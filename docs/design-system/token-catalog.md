@@ -1,5 +1,7 @@
 # Esparex Design Token Catalog
 
+> STALE — REGENERATE FROM `packages/design-tokens` + `generate-css.ts`. Sprint-2 sky-blue/slate values predate `AGENTS.md` §21 Green + 10-level type scale (EA-039/040). Do not use values below for new work until refreshed.
+
 **Version**: Sprint 2 — Final  
 **Package**: `@esparex/design-tokens`  
 **Import**: `import { semantic, base, spacing, typography, radius, shadows, motion } from '@esparex/design-tokens'`  

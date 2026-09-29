@@ -41,6 +41,11 @@ const targets = {
     'apps/mobile/.expo',
     'apps/mobile/dist',
     'apps/mobile/tsconfig.tsbuildinfo'
+  ],
+  '--logs': [
+    'logs',
+    'backend/api/logs',
+    'core/logs'
   ]
 };
 
@@ -81,6 +86,9 @@ if (arg) {
     '.kombai',
     'graphify-out',
     '.venv',
-    'esparex-debug.apk'
+    'esparex-debug.apk',
+    'logs',
+    'backend/api/logs',
+    'core/logs'
   ]);
 }

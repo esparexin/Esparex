@@ -25,11 +25,17 @@
 # Design tokens — changes propagate to all platforms
 /packages/design-tokens/ @esparex/architects
 
+# Mobile UI package
+/packages/mobile-ui/ @esparex/architects
+
 # Web app components — highest SSOT violation risk area per RCA audit
 /apps/web/src/components/ @esparex/architects
 
 # Admin app components
 /apps/admin/src/components/ @esparex/architects
+
+# Mobile app screens and components
+/apps/mobile/ @esparex/architects
 
 # Governance configuration files — require architect review to prevent enforcement bypass
 /knip.json @esparex/architects

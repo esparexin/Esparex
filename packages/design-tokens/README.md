@@ -57,6 +57,4 @@ See [`docs/design-system/token-catalog.md`](../../docs/design-system/token-catal
 
 The public API (`semantic.light.*`, `semantic.dark.*`) is frozen at Sprint 2.
 Any additions or changes require an Architecture Decision Record (ADR).
-
-Open ADR: `base.action` (`#2563eb`) — pending semantic promotion decision.
-See [`docs/tracking/token-exceptions.md`](../../docs/tracking/token-exceptions.md).
+See [`docs/design-system/token-catalog.md`](../../docs/design-system/token-catalog.md).

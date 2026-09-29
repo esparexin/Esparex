@@ -2722,3 +2722,95 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (13/13 tests green)
 - ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-060
+**Date**: 2026-09-29  
+**Description**: Remediate Broken Internal Links and Phantom Documentation References Across Monorepo  
+**Root Cause**: Documentation drift caused 34 broken internal links across 9 files pointing to non-existent historical directories (`docs/reports/`), uncommitted matrices (`sprint-4-verification-matrix.md`, `visual-qa-report.md`), deleted sprint audits (`UI_FOUNDATION_AUDIT.md`), and malformed `file://./` URLs in AI skills.  
+**Action**:
+1. Corrected 19 malformed `file://./` relative URIs in `.agents/skills/esparex-ui-ux/SKILL.md` to standard relative links (`./*.md`).
+2. Replaced dead links in `README.md` and `docs/architecture/UI_TECHNICAL_SPECIFICATION.md` with active SSOT `docs/architecture/ui-foundation-blueprint.md`.
+3. Updated `docs/README.md` to eliminate phantom links to non-existent `docs/reports/` and deleted sprint audits, pointing instead to active living audits and playbooks.
+4. Corrected token exceptions link in `packages/design-tokens/README.md` to `docs/design-system/token-catalog.md`.
+5. Updated `docs/local-ios-development.md` and `docs/releases/v1.0.0/verification.md` to reference active tracking and audit files.
+6. Removed non-existent capability test suite reference from `docs/architecture/PLATFORM_CAPABILITY_CATALOG.md`.
+7. Formatted atomic ReDoS regex in `docs/security/security-audit-remediation-report.md` to prevent markdown link parser misinterpretation.
+8. Verified repository-wide: 166 markdown files scanned with 0 broken links remaining.
+
+**Verification**:
+- ✅ Link Audit Scanner ──► PASS (166 markdown files, 0 broken links)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build` ──► PASS (Exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-061
+**Date**: 2026-09-29  
+**Description**: Monorepo Canonical Ownership Registry & Project Context Synchronization  
+**Root Cause**: `.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json` retained references to retired `packages/kernel` (relocated to `core/src/shared-kernel/` per ADR-010) while omitting active workspaces `packages/design-tokens`, `packages/mobile-ui`, and `apps/mobile`. In addition, `.agents/project/PROJECT_CONTEXT.json` referenced pre-DDD file paths without `api/` prefix.  
+**Action**:
+1. Updated `CANONICAL_OWNERSHIP_REGISTRY.json` to register `packages/design-tokens`, `packages/mobile-ui`, and `apps/mobile` with clear ownership and import boundaries.
+2. Removed retired `@esparex/kernel` from allowed imports across all packages and bounded contexts.
+3. Updated `PROJECT_CONTEXT.json` runtime AI paths to active locations in `backend/api/` and `core/`.
+4. Aligned `docs/governance/ENGINEERING-HANDBOOK.md`, `REPOSITORY-GOVERNANCE.md`, and `ARCHITECTURE-GOVERNANCE.md` with active workspace structure.
+
+**Verification**:
+- ✅ `node scripts/git/esparex/architecture-validator.js` ──► PASS
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-062
+**Date**: 2026-09-29  
+**Description**: Resolve UI Component Ownership & Admin Framework Contradictions in Core Docs  
+**Root Cause**: `docs/architecture/UI_TECHNICAL_SPECIFICATION.md` allowed `apps/web/src/components/ui/`, directly contradicting `AGENTS.md` and triggering repository hygiene guards. `.agents/governance/AUDIT_STATUS.md` misclassified `apps/admin` as a Vite application when it is Next.js 15 App Router.  
+**Action**:
+1. Updated `UI_TECHNICAL_SPECIFICATION.md` component table to eliminate `apps/web/src/components/ui/`, affirming that all primitives reside in `@esparex/ui` and `@esparex/mobile-ui`. Added explicit Prohibition Rule banner.
+2. Corrected `apps/admin` technology classification in `AUDIT_STATUS.md` to `Browser / Next.js`.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-063
+**Date**: 2026-09-29  
+**Description**: Historical Audit Status Standardization & Retention Governance  
+**Root Cause**: Completed historical audits lacked status headers distinguishing completed engineering evidence from active tasks.  
+**Action**:
+1. Standardized status metadata across completed audit reports including `docs/audits/HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md`.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-064
+**Date**: 2026-09-29  
+**Description**: Purge Alien Presentation Debris & Add Log Cleaning to Clean Script  
+**Root Cause**: Obsolete presentation data directories (`.agents/skills/design/data`, `.agents/skills/design-system/data`) lacked `SKILL.md` files and represented alien presentation debris. Furthermore, rotated logs accumulated over 41MB in `backend/api/logs` and `logs` without cleanup coverage in `scripts/clean.js`.  
+**Action**:
+1. Removed invalid skill directories `.agents/skills/design` and `.agents/skills/design-system`.
+2. Enhanced `scripts/clean.js` with `--logs` flag and included `logs`, `backend/api/logs`, and `core/logs` in full repository cleanup.
+3. Purged 41MB of stale rotated log files locally.
+
+**Verification**:
+- ✅ `node scripts/clean.js --logs` ──► PASS
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-065
+**Date**: 2026-09-29  
+**Description**: CODEOWNERS Monorepo Coverage Expansion & Documentation Audit Consolidation  
+**Root Cause**: `.github/CODEOWNERS` omitted entries for `packages/mobile-ui` and `apps/mobile`.  
+**Action**:
+1. Added ownership review rules for `/packages/mobile-ui/` and `/apps/mobile/` to `.github/CODEOWNERS`.
+2. Updated `TODO.md` to reflect completed reference and supporting files audit.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)

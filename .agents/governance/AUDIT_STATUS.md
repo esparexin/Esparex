@@ -18,7 +18,7 @@ Evaluates whether each package strictly obeys **Single Responsibility** and **Pl
 | **`@esparex/core`** | ✅ `PASS` | N/A (Backend-only) | **100% Domain logic & infrastructure configuration.**<br>Contains 466 files across 60+ models and 80+ services. Zero Express controllers, HTTP routes, or delivery handling (`ADR-005`). Evaluated at the package boundary, it maintains single responsibility (`Domain Layer`). Internally, it functions as a multi-domain monolith (`catalog`, `wallet`, `ads`, `location`, `auth`) subject to Phase 6 fitness monitoring (`S5`). |
 | **`@esparex/backend-api`** | ✅ `PASS` | N/A (Backend-only) | **100% Delivery & transport concerns.**<br>Express routes, controllers, request validation, authentication middleware, and server bootstrapping. Controllers strictly delegate domain logic to `@esparex/core` services without direct Mongoose model instantiation. |
 | **`apps/web`** | ✅ `PASS` | N/A (Browser / Next.js) | **100% End-user web presentation.**<br>Zero imports from `@esparex/core` or `@esparex/backend-api`. Only imports `@esparex/shared` for schemas, API types, and validation contracts. |
-| **`apps/admin`** | ✅ `PASS` | N/A (Browser / Vite) | **100% Internal admin & moderation presentation.**<br>Zero imports from `@esparex/core` or `@esparex/backend-api`. Clean presentation boundary. |
+| **`apps/admin`** | ✅ `PASS` | N/A (Browser / Next.js) | **100% Internal admin & moderation presentation.**<br>Zero imports from `@esparex/core` or `@esparex/backend-api`. Clean presentation boundary. |
 
 ---
 

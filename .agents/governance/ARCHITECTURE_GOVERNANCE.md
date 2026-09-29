@@ -8,7 +8,7 @@ status: active
 review_frequency: semi-annual
 ---
 
-# Architecture Governance Framework (Master Index)
+# Architecture Governance Framework (Execution Index — subordinate to `AGENTS.md` supreme)
 
 **Version**: 2.1 (Modular Architecture & Canonical Ownership Registry)
 **Last Updated**: 2026-07-23

@@ -27,9 +27,11 @@ This is the authoritative catalog of automated controls that run in our CI/CD pi
 | E-006 | S2/S3 — No circular dependencies | `madge` | `npm run guard:circular` | Blocks merge |
 | E-007 | S3 Package Content — type safety across all | `tsc --noEmit` | `npm run type-check` | Blocks merge |
 | E-008 | Repository hygiene — unused imports | `eslint-plugin-unused-imports` | `npm run lint` | Warning (upgrade to error planned) |
-| E-009 | Repository hygiene — code duplication > 10 lines | `jscpd` | `npm run guard:duplicates` | Blocks merge |
-| E-010 | Repository discipline — forbidden keywords (`legacy`, etc.) | Custom script | `npm run guard:platform` | Blocks merge |
+| E-009 | Repository hygiene — code duplication > 10 lines | `jscpd` | `npm run guard:duplicate-code` | Blocks merge |
+| E-010 | Repository discipline — forbidden keywords (`legacy`, etc.) | Custom script | `npm run guard:platform-governance` | Blocks merge |
 | E-011 | Repository hygiene — unused exports and dead code | `knip` | `npm run guard:knip` | Blocks merge |
+
+> Note: §2 command names below (`guard:public-api`, `guard:manifests`, `guard:isolation`, `guard:building-blocks`, `guard:architecture`) are historical roadmap labels; canonical executable commands are root `package.json` scripts + `npm run repo:gate`.
 
 ---
 

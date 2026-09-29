@@ -1,5 +1,7 @@
 # ESLint Legacy Baseline Audit & Ratchet Ledger (SSOT Reference Point)
 
+> DO NOT EDIT — HISTORICAL / FROZEN. Completed ledger (134→0); preserved as evidence.
+
 ## 1. Audit Overview
 - **Starting Baseline:** 134 Allowed Legacy Violations
 - **Final Baseline:** 0 Allowed Legacy Violations (`[]`)

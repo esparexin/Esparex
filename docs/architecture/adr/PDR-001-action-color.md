@@ -1,8 +1,10 @@
 # PDR-001: Action Color Semantic Promotion (formerly ADR-004)
 
+> **Status:** Superseded by `AGENTS.md` §21 (Green `#16A34A` + Warm Neutral). Historical blue-era record only — do not use for new work.
+
 **Date**: 2026-08-07  
-**Status**: Approved  
-**Decision Reference**: D-004  
+**Status (original)**: Approved (blue era)  
+**Decision Reference**: D-004 (superseded)  
 **Author**: Platform Architecture Team  
 
 ---

@@ -10,7 +10,8 @@
 apps/            web · admin · mobile
 backend/api/     Express API (routes → controllers → core)
 core/            domains (DDD) · validators · services (legacy shim — Wave 2)
-packages/        contracts · ui · mobile-ui · shared · design-tokens · kernel
+packages/        contracts · design-tokens · mobile-ui · ui
+shared/          domain constants · geofencing · route paths
 docs/            architecture · governance · audits · releases · performance
 tooling/         architecture checks · guards
 .governance/     automated evidence & gate outputs (CI-generated)
@@ -29,7 +30,11 @@ Rules: no app-local `types/` or `schemas/` (goes to contracts); no per-app UI pr
 | `archive/*` | dead experiment barn | read-only |
 | release tags | `vMAJOR.MINOR.PATCH` (+`-rc.N`) | — |
 
-Gate: `repo:branch-protection` (BRANCH-001 must pass — currently failing, cleanup tracked Vol-3 §39).
+Gate: `repo:branch-protection` (BRANCH-001 must pass; `repo:gate` currently PASS 100%).
+
+## 3a. Enforcement tiers (canonical — supersedes `ENFORCEMENT_HIERARCHY.md`)
+
+Single quality contract: one repo → `npm run repo:gate` → one result. Tiers: local execution → pre-commit (lint-staged) → pre-push (`repo:gate` + type-check + tests) → GitHub Actions `ci.yml` (independent `npm ci` + `repo:gate`) → branch protection (required check). Local `--no-verify` never bypasses CI; CI is final authority.
 
 ## 3. Git practices
 

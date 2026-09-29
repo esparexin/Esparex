@@ -26,7 +26,7 @@ category: architecture
 
 ## 1. Core Policies
 
-Every developer AI agent executing in this workspace must load and obey these canonical governance policies as the single source of truth. These are non-negotiable architectural boundaries.
+Every developer AI agent executing in this workspace must load and obey these canonical governance policies as the single source of truth. These are non-negotiable architectural boundaries. Supreme authority remains `AGENTS.md` (+ Tier-0: `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `packages/ui/GOVERNANCE.md`); this file is execution discipline only.
 
 1. **Live Repository First**:
    - Never rely on documentation, Markdown files, comments, or prior analysis as evidence of current repository state.

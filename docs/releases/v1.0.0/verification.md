@@ -10,13 +10,13 @@
 
 | Gate | Target Command | Exit Code | Verified Status | Evidence Reference |
 |---|---|:---:|:---:|---|
-| **Buildgraph Integrity** | `npm run guard:buildgraph` | `0` | ✅ PASS | `docs/tracking/sprint-4-verification-matrix.md` |
-| **TypeScript Monorepo** | `npm run type-check` | `0` | ✅ PASS | `docs/tracking/sprint-4-verification-matrix.md` |
-| **Mobile App TypeScript** | `npx tsc --noEmit --project apps/mobile/tsconfig.json` | `0` | ✅ PASS | `docs/tracking/sprint-4-verification-matrix.md` |
+| **Buildgraph Integrity** | `npm run guard:buildgraph` | `0` | ✅ PASS | [`docs/tracking/engineering-action-register.md`](../../tracking/engineering-action-register.md) |
+| **TypeScript Monorepo** | `npm run type-check` | `0` | ✅ PASS | [`docs/tracking/engineering-action-register.md`](../../tracking/engineering-action-register.md) |
+| **Mobile App TypeScript** | `npx tsc --noEmit --project apps/mobile/tsconfig.json` | `0` | ✅ PASS | [`docs/tracking/engineering-action-register.md`](../../tracking/engineering-action-register.md) |
 | **Production Build** | `npm run build` | `0` | ✅ PASS | Next.js Web & Admin compiled successfully |
 | **Monorepo Unit Tests** | `npm test` | `0` | ✅ PASS | 173 Test Suites, 848 Tests Pass (100% Green) |
 | **Expo Export (iOS)** | `cd apps/mobile && npx expo export --platform ios` | `0` | ✅ PASS | Bundled 3,199 modules |
 | **Expo Export (Android)** | `cd apps/mobile && npx expo export --platform android` | `0` | ✅ PASS | Bundled 3,200 modules |
-| **Visual QA Matrix** | 23 Viewport & Theme Matrices | `N/A` | ✅ PASS | `docs/audits/visual-qa-report.md` |
+| **Visual QA Matrix** | 23 Viewport & Theme Matrices | `N/A` | ✅ PASS | [`docs/audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md`](../../audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md) |
 | **Android 15 Compatibility** | `zipalign -v -c -P 16 4 app-release.apk` | `0` | ✅ PASS | Verified 16 KB page alignment for production APK |
-| **Accessibility Audit** | Structural UI audit (focusable/labels) | `N/A` | ✅ PASS | Complies with `AGENTS.md` & `MOBILE_INTEGRATION_ACCESSIBILITY_REPORT.md` |
+| **Accessibility Audit** | Structural UI audit (focusable/labels) | `N/A` | ✅ PASS | Complies with [`AGENTS.md`](../../../AGENTS.md) & [`docs/audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md`](../../audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md) |

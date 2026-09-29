@@ -1,5 +1,7 @@
 # ESPAREX ENTERPRISE CATALOG ARCHITECTURE & SSOT AUDIT
 
+> DO NOT EDIT — HISTORICAL / FROZEN. Point-in-time audit; durable rules live in `catalog-cache-and-idempotency-governance.md` + decision register.
+
 **Scope:** Device Catalog + Admin Dashboard + User Frontend + APIs + Database + RBAC  
 **Audit Standard:** Single Source of Truth (SSOT), Evidence-Gated Code Cleanup, Root Cause Fix Only
 
