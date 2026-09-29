@@ -10,7 +10,6 @@ import type {
     TextValidationResult,
 } from './textValidatorTypes';
 import { checkBannedWords, checkGibberish, checkQuality } from './textValidatorChecks';
-
 const DEFAULT_OPTIONS: TextValidationOptions = {
     allowEmpty: false,
     minLength: 1,
