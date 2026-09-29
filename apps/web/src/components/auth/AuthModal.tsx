@@ -47,8 +47,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           /* ui-guard-ignore: raw-modal-overlay [SheetContent renders via Radix SheetPortal in @esparex/ui] */
           "fixed inset-0 top-0 bottom-0 left-0 right-0 h-full max-h-full w-full max-w-none border-none rounded-none bg-card shadow-none flex flex-col overflow-hidden transition-none",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-          "sm:inset-0 sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
-          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-y-auto"
+          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
+          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-hidden"
         )}
       >
         <SheetTitle className="sr-only">Authentication</SheetTitle>
