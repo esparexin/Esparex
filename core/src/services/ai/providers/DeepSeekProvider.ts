@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import { AIProvider } from '../AIProvider';
-import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult } from '../types';
-import { buildStructuredResult } from '../structuredJson';
-import { buildOpenAICompatibleResult } from '../chatCompletionResult';
+import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult, buildStructuredResult, buildOpenAICompatibleResult } from '../types';
 import { getAiConfig } from '../../../config/ai';
 import { withTimeout } from '../../../utils/resilience';
 
