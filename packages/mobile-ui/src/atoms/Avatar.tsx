@@ -39,7 +39,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       break;
   }
 
-  const baseContainer = `rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 items-center justify-center ${sizeStyles} ${className}`;
+  const baseContainer = `rounded-full overflow-hidden bg-muted items-center justify-center ${sizeStyles} ${className}`;
 
   if (src) {
     return (
@@ -51,7 +51,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   return (
     <View className={baseContainer} {...props}>
-      <AppText className={`${textStyles} font-semibold text-slate-600 dark:text-slate-300 uppercase`}>
+      <AppText className={`${textStyles} font-semibold text-muted-foreground uppercase`}>
         {fallback ? fallback.substring(0, 2) : '?'}
       </AppText>
     </View>
