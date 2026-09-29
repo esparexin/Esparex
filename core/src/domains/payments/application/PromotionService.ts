@@ -4,6 +4,7 @@ import UserWallet from '../../../models/UserWallet';
 import CreditTransaction from '../../../models/CreditTransaction';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 import logger from '../../../utils/logger';
+import { computeBoostWindow } from '../utils/promotionDateUtils';
 
 export interface ApplyBoostParams {
     userId: string;
@@ -77,12 +78,7 @@ export class PromotionService {
                 throw new AppError('Cannot apply Boost promotion to an expired listing. Please renew the ad first.', 400, 'AD_EXPIRED');
             }
 
-            const startsAt = now;
-            const requestedMs = startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000;
-            const adExpiresMs = adDoc.expiresAt ? new Date(adDoc.expiresAt).getTime() : requestedMs;
-            const effectiveMs = Math.min(requestedMs, adExpiresMs);
-            const endsAt = new Date(effectiveMs);
-            const effectiveDays = Math.max(1, Math.round((effectiveMs - startsAt.getTime()) / (24 * 60 * 60 * 1000)));
+            const { startsAt, endsAt, effectiveDays } = computeBoostWindow(adDoc, durationDays);
 
             const [boost] = await Boost.create([{
                 entityId: new mongoose.Types.ObjectId(listingId),
@@ -192,12 +188,7 @@ export class PromotionService {
             throw new AppError('Insufficient spotlight credits', 400, 'INSUFFICIENT_SPOTLIGHT_CREDITS');
         }
 
-        const startsAt = now;
-        const requestedMs = startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000;
-        const adExpiresMs = adDoc.expiresAt ? new Date(adDoc.expiresAt).getTime() : requestedMs;
-        const effectiveMs = Math.min(requestedMs, adExpiresMs);
-        const endsAt = new Date(effectiveMs);
-        const effectiveDays = Math.max(1, Math.round((effectiveMs - startsAt.getTime()) / (24 * 60 * 60 * 1000)));
+        const { startsAt, endsAt, effectiveDays } = computeBoostWindow(adDoc, durationDays);
 
         const boost = await Boost.create({
             entityId: new mongoose.Types.ObjectId(listingId),

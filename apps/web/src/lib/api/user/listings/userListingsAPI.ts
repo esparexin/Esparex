@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { toPaginatedApiResult, toApiResult } from '@/lib/api/result';
 import logger from "@/lib/logger";
-import { normalizeListing, type ListingPageResult, type Listing } from './normalizer';
+import { normalizeListing, type ListingPageResult, type UserListing } from './normalizer';
 
 /**
  * Fetch the current user's listings across all types.
@@ -17,7 +17,7 @@ export const getMyListings = async (type?: string, status?: string, page = 1, li
     params.append('limit', String(limit));
 
     const endpoint = `listings/my?${params.toString()}`;
-    const { data: result, error } = await toPaginatedApiResult<Listing>(
+    const { data: result, error } = await toPaginatedApiResult<UserListing>(
         apiClient.get(endpoint)
     );
 

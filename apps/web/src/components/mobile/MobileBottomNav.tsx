@@ -112,7 +112,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                         className={cn(
                             "flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-transform",
                             isBackendUp
-                                ? "bg-blue-600 text-white shadow-blue-200"
+                                ? "bg-primary text-primary-foreground shadow-primary/20"
                                 : "bg-muted text-muted-foreground"
                         )}
                     >

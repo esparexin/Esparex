@@ -3,8 +3,7 @@ import { NOTIFICATION_TYPE, PLAN_STATUS, PLATFORM_QUOTAS, type SmartAlertMatches
 import SmartAlert from '../../../models/SmartAlert';
 import Notification from '../../../models/Notification';
 import Ad from '../../../models/Ad';
-import UserWallet from '../../../models/UserWallet';
-import Entitlement from '../../../models/Entitlement';
+import { fetchSmartAlertSlotState } from './smartAlertSlotState';
 import { calculateUserPlan, UserPlanModel, PlanModel } from '../../payments';
 import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
 
@@ -175,20 +174,7 @@ export const getSmartAlertQuotaForUser = async (userId: string): Promise<SmartAl
         basePlanLimit = userRights.smartAlerts || FREE_ALERT_BASE;
     }
 
-    const [wallet, rawEntitlements] = await Promise.all([
-        UserWallet.findOne({ userId }).lean(),
-        Entitlement.find({
-            userId,
-            type: 'SMART_ALERT_SLOT',
-            status: 'ACTIVE',
-            remaining: { $gt: 0 },
-            $or: [{ expiresAt: { $gte: new Date() } }, { expiresAt: null }],
-        }).lean(),
-    ]);
-
-    const activePaidSlots = rawEntitlements.length > 0
-        ? rawEntitlements.reduce((acc, e) => acc + (typeof e.remaining === 'number' ? e.remaining : 0), 0)
-        : Math.max(0, ((wallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE);
+    const { wallet, activePaidSlots } = await fetchSmartAlertSlotState(userId);
 
     const freeAlertsUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
     const freeRemaining = Math.max(0, basePlanLimit - freeAlertsUsed);

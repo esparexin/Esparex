@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { ListingDetail } from '@/components/user/ListingDetail';
-import type { Listing as Ad } from '@/lib/api/user/listings';
+import type { UserListing as Ad } from '@/lib/api/user/listings';
 import { useLoginCallback } from '@/hooks/useLoginCallback';
 
 import { getPageRoute, type SellerType, type UserPage } from '@/lib/routeUtils';

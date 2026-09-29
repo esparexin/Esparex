@@ -151,6 +151,18 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         expect(fileContent).not.toMatch(/onOpenAutoFocus=.*setTimeout/s);
     });
 
+    it("ensures UserAppProviders nests BottomSheetManagerProvider as ancestor of AuthModalProvider", () => {
+        const providersPath = path.join(webSrc, "components", "providers", "UserAppProviders.tsx");
+        const fileContent = fs.readFileSync(providersPath, "utf-8");
+
+        const bottomSheetIndex = fileContent.indexOf("<BottomSheetManagerProvider>");
+        const authModalIndex = fileContent.indexOf("<AuthModalProvider>");
+
+        expect(bottomSheetIndex).toBeGreaterThan(-1);
+        expect(authModalIndex).toBeGreaterThan(-1);
+        expect(bottomSheetIndex).toBeLessThan(authModalIndex);
+    });
+
     it("ensures LoginMobileStep defines enterKeyHint='send', type='tel', Enter key submit handling, and live digit count", () => {
         const mobileStepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
         const fileContent = fs.readFileSync(mobileStepPath, "utf-8");
@@ -162,5 +174,4 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         expect(fileContent).toContain("${mobileValue.length}/10");
         expect(fileContent).toContain("✓ 10 digits");
     });
-
 });

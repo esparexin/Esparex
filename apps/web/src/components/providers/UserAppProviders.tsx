@@ -25,16 +25,16 @@ export function UserAppProviders({
                 <AppBootstrapProvider initialHasAuthCookie={initialHasAuthCookie}>
                     <BackendStatusProvider>
                         <NavigationProvider>
-                            <AuthModalProvider>
-                                <PostAdModalProvider>
-                                    <SmartAlertModalProvider>
-                                        <BottomSheetManagerProvider>
+                            <BottomSheetManagerProvider>
+                                <AuthModalProvider>
+                                    <PostAdModalProvider>
+                                        <SmartAlertModalProvider>
                                             <PwaRegister />
                                             {children}
-                                        </BottomSheetManagerProvider>
-                                    </SmartAlertModalProvider>
-                                </PostAdModalProvider>
-                            </AuthModalProvider>
+                                        </SmartAlertModalProvider>
+                                    </PostAdModalProvider>
+                                </AuthModalProvider>
+                            </BottomSheetManagerProvider>
                         </NavigationProvider>
                     </BackendStatusProvider>
                 </AppBootstrapProvider>

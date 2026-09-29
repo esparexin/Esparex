@@ -80,7 +80,7 @@ export function DataTableToolbar<T>({
                     <button
                         type="button"
                         onClick={exportCsv}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-caption font-semibold text-foreground-secondary hover:bg-muted"
                         aria-label="Export table as CSV"
                     >
                         <Download size={14} /> Export CSV
