@@ -41,7 +41,7 @@ export function LoginMobileStep({
   } = flow;
 
   return (
-    <div className="flex-1 flex flex-col justify-between h-full">
+    <div className="flex flex-col gap-6">
       <div className="space-y-4">
         <FieldRoot<LoginFormValues, "mobile">
           name="mobile"

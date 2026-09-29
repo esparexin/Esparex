@@ -37,7 +37,7 @@ export function Login({
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex-1 flex flex-col justify-between h-full",
+        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex flex-col",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
@@ -96,7 +96,7 @@ export function Login({
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 w-full flex-1 flex flex-col justify-between min-h-0">
+      <CardContent className="p-0 w-full flex flex-col">
         <LoginForm
           flow={flow}
           onBack={onBack}
@@ -215,7 +215,7 @@ export function LoginForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex-1 flex flex-col justify-between h-full"
+        className="flex flex-col gap-5"
       >
         {step === "enterMobile" ? (
           <LoginMobileStep
