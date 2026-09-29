@@ -32,6 +32,8 @@ export {
     normalizeLocationNameForSearch,
     buildLocationSlug
 } from './utils/locationPrimitives';
+export * from './utils/textValidatorTypes';
+export * from './utils/textValidatorChecks';
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
 // listingUtils functions
