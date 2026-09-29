@@ -122,6 +122,17 @@ export const CONTACT_LIMITS = {
         ERROR_FORMAT: 'Please enter a valid URL starting with http:// or https://',
         ERROR_MAX: 'URL must be 2048 characters or fewer',
     },
+
+    // Contact form subject
+    SUBJECT: {
+        MAX: 200,
+    },
+
+    // Contact form message
+    MESSAGE: {
+        MIN: 20,
+        MAX: 1000,
+    },
 } as const;
 
 // ============================================================================
