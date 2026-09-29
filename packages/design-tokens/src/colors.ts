@@ -158,3 +158,24 @@ export const colors = {
   base,
   semantic
 };
+
+/**
+ * Mobile-compatible semantic color palette for NativeWind / React Native.
+ *
+ * React Native's StyleSheet does NOT support CSS custom properties (var(--...)).
+ * NativeWind resolves Tailwind utilities to StyleSheet.create() at build time,
+ * so all color values MUST be concrete strings (hex, rgb) — not CSS vars.
+ *
+ * Use this export to populate apps/mobile/tailwind.config.js colors block
+ * and for runtime color selection via useColorScheme() in navigation/providers.
+ *
+ * Both `light` and `dark` maps reference the same concrete hex values already
+ * defined in `semantic` above — no duplication, single SSOT.
+ */
+export const mobileSemanticColors: {
+  light: typeof semantic.light;
+  dark: typeof semantic.dark;
+} = {
+  light: semantic.light,
+  dark: semantic.dark,
+};

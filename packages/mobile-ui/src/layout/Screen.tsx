@@ -12,7 +12,9 @@ export interface ScreenProps extends ViewProps {
 
 export const Screen: React.FC<ScreenProps> = ({
   edges = ['top', 'bottom', 'left', 'right'],
-  backgroundColor = 'bg-white dark:bg-slate-900',
+  // RC-5 FIX: Use semantic token bg-background (concrete hex via fixed NativeWind config)
+  // instead of primitive palette classes whose dark: variant was inert without darkMode (RC-1).
+  backgroundColor = 'bg-background',
   barStyle = 'default',
   className = '',
   children,

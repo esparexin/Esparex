@@ -289,6 +289,92 @@ for (const filePath of allFiles) {
   }
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// EA-059: NativeWind Color Pipeline Rules (RC-1, RC-2, RC-3, RC-4)
+//
+// These 4 rules prevent re-introduction of the mobile color pipeline failures
+// that caused white-text-on-white-background and theme inconsistency:
+//
+//  RC-1: darkMode must be declared in apps/mobile/tailwind.config.js
+//  RC-2: hsl(var(--...)) CSS custom properties must not be used as NativeWind
+//        color values (they are browser-only; unresolvable by StyleSheet.create())
+//  RC-3: semantic.dark.* / semantic.light.* must not be hardcoded in navigation
+//        tab bar config — use mobileSemanticColors[useColorScheme()] instead
+//  RC-4: css-variables.css must not be imported in apps/mobile/global.css
+// ──────────────────────────────────────────────────────────────────────────────
+
+// EA-059 Rule A: Verify darkMode declaration exists in mobile tailwind config (RC-1)
+const mobileTailwindConfigPath = path.join(repoRoot, "apps", "mobile", "tailwind.config.js");
+if (fs.existsSync(mobileTailwindConfigPath)) {
+  const tailwindConfigContent = fs.readFileSync(mobileTailwindConfigPath, "utf8");
+  if (!/darkMode\s*:/.test(tailwindConfigContent)) {
+    violations.push({
+      file: "apps/mobile/tailwind.config.js",
+      line: 1,
+      rule: "[EA-059/RC-1] apps/mobile/tailwind.config.js is missing the 'darkMode' declaration. " +
+            "NativeWind will not generate dark: variant classes without it. " +
+            "Add: darkMode: 'media'",
+      code: "Missing darkMode key in tailwind.config.js",
+    });
+  }
+}
+
+// EA-059 Rule B: Detect hsl(var(--...)) CSS custom properties in mobile Tailwind config (RC-2)
+if (fs.existsSync(mobileTailwindConfigPath)) {
+  const tailwindConfigContent = fs.readFileSync(mobileTailwindConfigPath, "utf8");
+  const hslVarMatches = tailwindConfigContent.match(/hsl\(var\(--[\w-]+\)\)/g);
+  if (hslVarMatches && hslVarMatches.length > 0) {
+    violations.push({
+      file: "apps/mobile/tailwind.config.js",
+      line: 1,
+      rule: "[EA-059/RC-2] CSS custom properties (hsl(var(--...))) detected in mobile Tailwind config. " +
+            "React Native cannot resolve CSS variables at StyleSheet.create() build time. " +
+            "Use concrete hex values from @esparex/design-tokens mobileSemanticColors instead.",
+      code: `Found: ${hslVarMatches.slice(0, 3).join(", ")}${hslVarMatches.length > 3 ? " ..." : ""}`,
+    });
+  }
+}
+
+// EA-059 Rule C: Detect hardcoded semantic.dark.* or semantic.light.* in navigation files (RC-3)
+const navigationDir = path.join(mobileSrcDir, "navigation");
+const navigationSourceFiles = walk(navigationDir).filter((f) => /\.(ts|tsx)$/.test(f));
+for (const navFile of navigationSourceFiles) {
+  if (navFile.includes(".spec.") || navFile.includes(".test.")) continue;
+  const navContent = fs.readFileSync(navFile, "utf8");
+  const navLines = navContent.split("\n");
+  navLines.forEach((line, idx) => {
+    if (/semantic\.(dark|light)\./.test(line) && !line.trimStart().startsWith("//")) {
+      violations.push({
+        file: toUnixPath(path.relative(mobileSrcDir, navFile)),
+        line: idx + 1,
+        rule: "[EA-059/RC-3] Hardcoded semantic.dark.* / semantic.light.* detected in navigation. " +
+              "These values are static and do not respond to the OS color scheme. " +
+              "Use mobileSemanticColors[useColorScheme() ?? 'light'] from @esparex/design-tokens.",
+        code: line.trim(),
+      });
+    }
+  });
+}
+
+// EA-059 Rule D: Detect @import of css-variables.css in apps/mobile/global.css (RC-4)
+const mobileGlobalCssPath = path.join(repoRoot, "apps", "mobile", "global.css");
+if (fs.existsSync(mobileGlobalCssPath)) {
+  const globalCssLines = fs.readFileSync(mobileGlobalCssPath, "utf8").split("\n");
+  const badImportLine = globalCssLines.find(
+    (l) => l.trimStart().startsWith("@import") && l.includes("css-variables.css")
+  );
+  if (badImportLine) {
+    violations.push({
+      file: "apps/mobile/global.css",
+      line: globalCssLines.indexOf(badImportLine) + 1,
+      rule: "[EA-059/RC-4] @import of css-variables.css detected in apps/mobile/global.css. " +
+            "This file uses :root / .dark CSS selectors which have no effect in React Native. " +
+            "Colors must be defined as concrete hex values in tailwind.config.js via mobileSemanticColors.",
+      code: badImportLine.trim(),
+    });
+  }
+}
+
 if (violations.length > 0) {
   console.error("❌ Mobile Architecture Guard Violations Found:\n");
   for (const v of violations) {

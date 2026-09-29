@@ -2722,4 +2722,3 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (13/13 tests green)
 - ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
 - ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
-- ✅ `npm run build -w @esparex/apps-web` ──► PASS (Compiled and bundled with exit code 0)
