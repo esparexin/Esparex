@@ -1,5 +1,7 @@
 # Design System Compliance Report (DS-001)
 
+> DO NOT EDIT — HISTORICAL / FROZEN. Blue-era baseline; superseded by `AGENTS.md` §21 Green + EA-040. Do not use for new work.
+
 **Audit Target**: All components across `@esparex/design-tokens`, `@esparex/ui`, `@esparex/mobile-ui`, `apps/web`, `apps/admin`, and `apps/mobile`.
 
 **Baseline**: Sprint 3 completion (0 `no-color-literals` and 0 `no-inline-styles` violations).

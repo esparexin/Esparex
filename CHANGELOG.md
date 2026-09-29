@@ -1,5 +1,7 @@
 # Changelog
 
+> FROZEN 2.x LINE. Historical DDD migration history (`2.5.0–2.10.0`, Jul 2026). Canonical going forward: `docs/releases/v1.0.0/`.
+
 All notable changes to the Esparex Platform will be documented in this file.
 
 ---

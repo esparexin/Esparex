@@ -1,5 +1,7 @@
 # Requirements Traceability Matrix (RTM-001)
 
+> DO NOT EDIT — HISTORICAL / FROZEN. v1.0.0 snapshot; superseded by `docs/tracking/engineering-action-register.md`.
+
 **Purpose**: High-level architectural audit ledger connecting **Requirement → Decision → Engineering Action → PR → Verification → Release Target**.
 
 **Scope**: All platform capabilities across Web (`apps/web`), Admin (`apps/admin`), Mobile (`apps/mobile`), Core (`core`), Contracts (`packages/contracts`), and Infrastructure.

@@ -1,5 +1,7 @@
 # Security Inventory & Architecture Audit
 
+> DO NOT EDIT — HISTORICAL / FROZEN. Phase-1 branch snapshot (`feat/security-enterprise-hardening`); preserved as evidence.
+
 ## Overview
 This document provides a single, comprehensive security inventory generated during Phase 1 of the Enterprise Security Hardening program on branch `feat/security-enterprise-hardening`.
 

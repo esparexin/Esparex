@@ -1,5 +1,7 @@
 # Type Safety Escape Hatch Inventory & Remediation Report
 
+> DO NOT EDIT — HISTORICAL / FROZEN. Completed remediation record; preserved as evidence.
+
 Automated repository inventory and remediation conducted as part of the Monorepo Permanent Type Safety Remediation Initiative.
 
 ## Final Remediation Summary
