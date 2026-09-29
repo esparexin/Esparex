@@ -29,12 +29,12 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
 
   const borderState = hasError
     ? 'border-destructive'
-    : 'border-input focus:border-primary dark:focus:border-primary';
+    : 'border-input focus:border-primary';
 
   return (
     <View className={`w-full ${containerClassName}`}>
       {label && (
-        <AppText variant="label" className="mb-2 text-slate-700 dark:text-slate-300">
+        <AppText variant="label" className="mb-2 text-foreground-secondary">
           {label}
         </AppText>
       )}

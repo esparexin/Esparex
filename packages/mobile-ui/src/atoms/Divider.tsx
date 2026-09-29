@@ -11,7 +11,7 @@ export const Divider: React.FC<DividerProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyle = 'bg-slate-200 dark:bg-slate-800';
+  const baseStyle = 'bg-border';
   const orientationStyle = orientation === 'horizontal' ? 'w-full h-[1px]' : 'h-full w-[1px]';
 
   return (

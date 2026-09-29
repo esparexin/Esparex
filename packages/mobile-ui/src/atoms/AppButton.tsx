@@ -39,12 +39,12 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
     let variantStyles = '';
     switch (variant) {
-      case 'secondary': variantStyles = 'bg-slate-100 dark:bg-slate-800'; break;
-      case 'outline': variantStyles = 'border border-slate-300 dark:border-slate-700 bg-transparent'; break;
+      case 'secondary': variantStyles = 'bg-muted'; break;
+      case 'outline': variantStyles = 'border border-border bg-transparent'; break;
       case 'ghost': variantStyles = 'bg-transparent'; break;
-      case 'destructive': variantStyles = 'bg-error'; break;
+      case 'destructive': variantStyles = 'bg-destructive'; break;
       case 'primary':
-      default: variantStyles = 'bg-brand-600 dark:bg-brand-500'; break;
+      default: variantStyles = 'bg-brand-600'; break;
     }
 
     return [baseStyle, sizeStyles, variantStyles, state, className].filter(Boolean).join(' ');
@@ -54,18 +54,18 @@ export const AppButton: React.FC<AppButtonProps> = ({
     switch (variant) {
       case 'outline':
       case 'ghost':
-        return 'text-brand-600 dark:text-brand-400';
+        return 'text-brand-600';
       case 'secondary':
-        return 'text-slate-900 dark:text-slate-100';
+        return 'text-foreground';
       case 'destructive':
         return 'text-white';
       case 'primary':
       default:
-        return 'text-white dark:text-slate-950';
+        return 'text-white';
     }
   };
 
-  const textStyle = `${getTextColor()} font-semibold ${size === 'lg' ? 'text-lg' : size === 'sm' ? 'text-sm' : 'text-base'}`;
+  const textStyle = `${getTextColor()} font-semibold ${size === 'lg' ? 'text-h4' : size === 'sm' ? 'text-caption' : 'text-body-lg'}`;
 
   const computedHitSlop = props.hitSlop || (size === 'sm' ? { top: 8, bottom: 8, left: 8, right: 8 } : undefined);
 
