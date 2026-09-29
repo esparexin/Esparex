@@ -32,6 +32,10 @@ Rules: no app-local `types/` or `schemas/` (goes to contracts); no per-app UI pr
 
 Gate: `repo:branch-protection` (BRANCH-001 must pass; `repo:gate` currently PASS 100%).
 
+## 3a. Enforcement tiers (canonical — supersedes `ENFORCEMENT_HIERARCHY.md`)
+
+Single quality contract: one repo → `npm run repo:gate` → one result. Tiers: local execution → pre-commit (lint-staged) → pre-push (`repo:gate` + type-check + tests) → GitHub Actions `ci.yml` (independent `npm ci` + `repo:gate`) → branch protection (required check). Local `--no-verify` never bypasses CI; CI is final authority.
+
 ## 3. Git practices
 
 - **Commits:** Conventional Commits `type(scope): subject` (`feat`, `fix`, `chore`, `refactor`, `security`, `docs`, `test`); one logical change per commit; issue ref if tracked.
