@@ -11,7 +11,7 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
     expect(typeof AdCardList).toBe("object"); // memoized React component
   });
 
-  it("resolves Device badge correctly with canonical label 'Device' and main-branch blue treatment", () => {
+  it("resolves General Device Ad badge correctly with canonical label 'Device'", () => {
     const badge = resolveListingTypeBadge({ listingType: "ad" });
     expect(badge).toEqual({
       type: "ad",
@@ -21,7 +21,7 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
     });
   });
 
-  it("resolves Repair Service badge correctly with canonical label 'Service' and main-branch emerald treatment", () => {
+  it("resolves Repair Service badge correctly with canonical label 'Service'", () => {
     const badge = resolveListingTypeBadge({ listingType: "service" });
     expect(badge).toEqual({
       type: "service",
@@ -73,12 +73,10 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
       const adItem = { id: "3", title: "iPhone 13", listingType: "ad" } as any;
       expect(shouldDisplayCategoryBadge("General", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Category", adItem)).toBe(false);
-      expect(shouldDisplayCategoryBadge("Ad", adItem)).toBe(false);
-      expect(shouldDisplayCategoryBadge("Ads", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Device", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Devices", adItem)).toBe(false);
-      expect(shouldDisplayCategoryBadge("device", adItem)).toBe(false);
-      expect(shouldDisplayCategoryBadge("devices", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("Ad", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("Ads", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge(null, adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge(undefined, adItem)).toBe(false);

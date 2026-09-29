@@ -293,13 +293,10 @@ export function shouldDisplayCategoryBadge(
     return false;
   }
 
-  // Handle device and ad variations (e.g. "device", "devices", "ad", "ads")
+  // Handle device / ad variations (e.g. "device", "devices", "ad", "ads")
   if (
-    (typeLabel === "device" || rawType === "ad") &&
-    (normalized === "device" ||
-      normalized === "devices" ||
-      normalized === "ad" ||
-      normalized === "ads")
+    (typeLabel === "device" || typeLabel === "ad" || rawType === "ad" || rawType === "device") &&
+    (normalized === "device" || normalized === "devices" || normalized === "ad" || normalized === "ads")
   ) {
     return false;
   }
