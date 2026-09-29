@@ -87,7 +87,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
         <View className="p-2.5">
           {/* Price & Condition Row */}
           <View className="flex-row items-center justify-between">
-            <AppText variant="body" className="text-emerald-600 dark:text-emerald-400 font-bold text-base">
+            <AppText variant="body" className="text-success font-bold text-body-lg">
               {listing.price.formatted}
             </AppText>
 
@@ -95,8 +95,8 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               <View
                 className={`flex-row items-center px-1.5 py-0.5 rounded border ${
                   listing.condition === 'power_on'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
-                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800'
+                    ? 'bg-success/10 border-success/30'
+                    : 'bg-destructive/10 border-destructive/30'
                 }`}
                 accessibilityLabel={`Device condition: ${listing.condition === 'power_on' ? 'Power On' : 'Power Off'}`}
               >
@@ -109,8 +109,8 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                   variant="caption"
                   className={`ml-1 text-tiny font-bold uppercase tracking-wider ${
                     listing.condition === 'power_on'
-                      ? 'text-emerald-700 dark:text-emerald-400'
-                      : 'text-rose-700 dark:text-rose-400'
+                      ? 'text-success'
+                      : 'text-destructive'
                   }`}
                 >
                   {listing.condition === 'power_on' ? 'ON' : 'OFF'}
@@ -122,7 +122,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
           {/* Title (2 lines) */}
           <AppText
             variant="caption"
-            className="text-slate-800 dark:text-slate-100 font-medium mt-1 leading-snug"
+            className="text-foreground font-medium mt-1 leading-snug"
             numberOfLines={2}
           >
             {listing.title}
@@ -130,11 +130,11 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
           {/* Location */}
           {listing.location?.display && (
-            <View className="flex-row items-center mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
-              <AppIcon name="MapPin" size={11} color={base.slate[400]} />
+            <View className="flex-row items-center mt-1.5 pt-1.5 border-t border-border">
+              <AppIcon name="MapPin" size={11} color={base.slate[500]} />
               <AppText
                 variant="caption"
-                className="text-slate-400 dark:text-slate-500 ml-1 text-xs flex-1"
+                className="text-foreground-secondary ml-1 flex-1"
                 numberOfLines={1}
               >
                 {listing.location.display}

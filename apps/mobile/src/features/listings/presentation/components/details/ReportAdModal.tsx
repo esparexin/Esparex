@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { AppText, AppButton, AppModalSheet } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { REPORT_REASON, ReportReasonValue } from '@esparex/contracts';
 import { services } from '../../../../../bootstrap';
 
@@ -108,7 +109,7 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
               value={description}
               onChangeText={setDescription}
               placeholder="Provide details to help us investigate..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={base.slate[500]}
               multiline
               numberOfLines={3}
               className="p-3 bg-muted border border-border rounded-xl text-foreground text-body-lg min-h-[72px] text-top mb-5"

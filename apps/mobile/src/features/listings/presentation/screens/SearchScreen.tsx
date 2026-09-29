@@ -181,7 +181,7 @@ export const SearchScreen = () => {
     <Screen edges={['top', 'left', 'right']}>
       <Container padded={false} className="flex-1">
         {/* Search Bar Input */}
-        <View className="px-4 pt-2 pb-1 bg-white dark:bg-slate-900">
+        <View className="px-4 pt-2 pb-1 bg-card">
           <SearchBar
             value={query}
             onChangeText={handleQueryChange}

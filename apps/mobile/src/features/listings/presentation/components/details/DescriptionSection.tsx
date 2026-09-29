@@ -10,11 +10,11 @@ export const DescriptionSection = ({ description }: DescriptionSectionProps) => 
   if (!description) return null;
 
   return (
-    <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-      <AppText variant="h3" className="text-slate-900 dark:text-white font-semibold mb-3">
+    <View className="px-4 py-4 bg-card border-b border-border">
+      <AppText variant="h3" className="text-foreground font-semibold mb-3">
         Description
       </AppText>
-      <AppText variant="body" className="text-slate-700 dark:text-slate-300 leading-relaxed">
+      <AppText variant="body" className="text-foreground-secondary leading-relaxed">
         {description}
       </AppText>
     </View>

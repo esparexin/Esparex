@@ -83,7 +83,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
         <Container className="flex-1 bg-muted p-4">
           <Card className="p-6 items-center mt-4">
             <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
-              <AppIcon name="Package" size={28} color={base.slate[400]} />
+              <AppIcon name="Package" size={28} color={base.slate[500]} />
             </View>
             <AppText variant="h3" className="font-bold text-foreground text-center mb-1">
               Sign in to view your listings
@@ -116,7 +116,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
   return (
     <Screen edges={['top', 'left', 'right']}>
       {/* Top Header */}
-      <View className="flex-row items-center px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <View className="flex-row items-center px-4 py-3 bg-card border-b border-border">
         {onBack && (
           <TouchableOpacity
             onPress={onBack}
@@ -127,14 +127,14 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
             <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
           </TouchableOpacity>
         )}
-        <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
+        <AppText variant="h3" className="font-bold text-foreground">
           My Ads & Listings
         </AppText>
       </View>
 
       <Container padded={false} className="flex-1">
         {/* Status Filter Tabs */}
-        <View className="py-2 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <View className="py-2 px-4 bg-card border-b border-border">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContent}>
             {STATUS_TABS.map((tab) => (
               <TouchableOpacity
@@ -143,7 +143,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
                 className={`px-4 py-2 rounded-full border ${
                   selectedStatus === tab.value
                     ? 'bg-brand-600 border-brand-600'
-                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                    : 'bg-muted border-border'
                 }`}
               >
                 <AppText
@@ -151,7 +151,7 @@ export const MyListingsScreen = ({ onBack }: MyListingsScreenProps = {}) => {
                   className={`font-semibold ${
                     selectedStatus === tab.value
                       ? 'text-white'
-                      : 'text-slate-700 dark:text-slate-300'
+                      : 'text-foreground-secondary'
                   }`}
                 >
                   {tab.label}

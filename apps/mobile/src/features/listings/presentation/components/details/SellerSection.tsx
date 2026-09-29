@@ -9,7 +9,7 @@ interface SellerSectionProps {
 
 export const SellerSection = ({ seller }: SellerSectionProps) => {
   return (
-    <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex-row items-center justify-between">
+    <View className="px-4 py-4 bg-card border-b border-border flex-row items-center justify-between">
       <View className="flex-row items-center flex-1 mr-2">
         <Avatar
           src={seller.avatarUrl}
@@ -17,7 +17,7 @@ export const SellerSection = ({ seller }: SellerSectionProps) => {
           size="md"
           className="mr-3"
         />
-        <AppText variant="h4" className="text-slate-900 dark:text-white font-semibold flex-1">
+        <AppText variant="h4" className="text-foreground font-semibold flex-1">
           {seller.name}
         </AppText>
       </View>
