@@ -31,7 +31,7 @@ const loginRedirectUrl = buildLoginUrl("/post-ad");
 
 async function fetchPostingBalance(cookieHeader: string): Promise<{ balance: PostingBalancePayload | null; status: number }> {
     try {
-        // SSR exception documented in docs/api-ssr-fetch-exceptions.md
+        // SSR fetch may throw on network failure; treat as unavailable (503) and render fallback.
         const response = await fetch(`${API_BASE}/${API_ROUTES.USER.USERS_POSTING_BALANCE}`, {
             method: "GET",
             headers: {

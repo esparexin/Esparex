@@ -14,8 +14,8 @@
 | **Build Gate** | Clean compilation of Next.js Web, Admin, and package libraries | ✅ | — | `npm run build` | ✅ Mandatory |
 | **Architecture Guard Gate** | Zero circular dependencies or broken project references | ✅ | — | `npm run guard:buildgraph` | ✅ Mandatory |
 | **Production Bundle Gate** | `npx expo export` passes cleanly for iOS (3,199 modules) & Android (3,200 modules) | ✅ | — | Expo CLI Export | ✅ Mandatory |
-| **Visual QA Gate** | 23 Viewport & Theme Matrices verified with commit SHA & artifact links | — | ✅ | `docs/audits/visual-qa-report.md` | ✅ Mandatory |
-| **Accessibility Gate** | WCAG 2.2 AA compliance verified with `accessibilityRole` & focus ring checks | Partial | ✅ | `docs/audits/accessibility-audit.md` | ✅ Mandatory |
+| **Visual QA Gate** | 23 Viewport & Theme Matrices verified with commit SHA & artifact links | — | ✅ | PR evidence (screenshots, CI artifacts) | ✅ Mandatory |
+| **Accessibility Gate** | WCAG 2.2 AA compliance verified with `accessibilityRole` & focus ring checks | Partial | ✅ | PR evidence (axe scan, keyboard smoke) | ✅ Mandatory |
 | **Performance Budget Gate** | LCP < 2.5s, CLS < 0.1, INP < 200ms, first-load JS < 128 kB | Partial | ✅ | `docs/performance/baseline-report.md` | ✅ Mandatory |
 | **Release Evidence Gate** | Complete evidence bundle assembled under `docs/releases/release-v1.x.x/` | — | ✅ | Release Policy (`REV-001`) | ✅ Mandatory |
 

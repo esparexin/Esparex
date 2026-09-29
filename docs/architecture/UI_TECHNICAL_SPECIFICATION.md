@@ -13,7 +13,7 @@ Packages:        @esparex/design-tokens, @esparex/ui, @esparex/mobile-ui
 
 This technical specification is the single reference document for developers implementing UI across Esparex. Every page, form, layout, button, modal, and control must adhere strictly to these technical standards.
 
-* **"Foundation & Blueprint"** ➔ See [`docs/architecture/ui-foundation-blueprint.md`](./ui-foundation-blueprint.md)
+* **"Foundation & Blueprint"** ➔ See [ui-foundation-blueprint](./ui-foundation-blueprint.md)
 * **"How should UI be implemented from now on?"** ➔ Follow this document.
 
 ---
