@@ -47,21 +47,10 @@ export function LoginMobileStep({
           name="mobile"
           render={({ field }) => (
             <div className="space-y-2 text-left">
-              <FieldLabel className="text-body font-medium text-foreground flex items-center justify-between">
-                <span>Mobile Number</span>
-                {mobileValue.length > 0 && (
-                  <span
-                    className={cn(
-                      "text-tiny font-medium transition-colors",
-                      isValidMobile ? "text-primary font-semibold" : "text-muted-foreground"
-                    )}
-                    aria-live="polite"
-                  >
-                    {isValidMobile ? "✓ 10 digits" : `${mobileValue.length}/10`}
-                  </span>
-                )}
+              <FieldLabel className="text-body font-medium text-foreground">
+                Mobile Number
               </FieldLabel>
-              <FieldControl animateOnError>
+              <FieldControl>
                 <div
                   className={cn(
                     "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-all shadow-xs overflow-hidden",
