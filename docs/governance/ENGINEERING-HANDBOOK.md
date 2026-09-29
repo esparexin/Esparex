@@ -1,7 +1,7 @@
 # Esparex Engineering Handbook — The Entry Point
 
 > **Status:** Living · **Owner:** Engineering Governance · For every engineer, first day and every day.
-> Start here → follow links. Rules hierarchy: AGENTS.md > ENTERPRISE-AUDIT-MANUAL.md > discipline manuals.
+> Start here → follow links. Rules hierarchy: AGENTS.md (supreme) > PLATFORM_ARCHITECTURE.md / REPOSITORY-GOVERNANCE.md > discipline manuals. `.agents/` is execution layer only.
 
 ---
 
@@ -62,7 +62,7 @@ Full standard: `REPOSITORY-GOVERNANCE.md`.
 - **Never** implement Button/Input/Dialog/Table locally (AGENTS Do-Not-Duplicate list).
 - Dark mode via tokens; responsive = CSS breakpoints.
 - a11y audit = 10-part mandatory checklist (AGENTS) before any UI PR.
-- Manual: `UI-UX-GOVERNANCE.md`.
+- Manual: `packages/ui/GOVERNANCE.md` (Tier-0 UI SSOT) + `docs/architecture/UI_TECHNICAL_SPECIFICATION.md`.
 
 ## 7. APIs
 
@@ -98,17 +98,15 @@ Change touched architecture/schema/API break/auth/payments/infra/new package? �
 ## 13. Risk & Debts
 
 - Risks: `docs/governance/risk-register.md` (RISK-001).
-- Findings: `audit-reports/*` F-register; debt in Vol-4 §49; remediation waves in `ENTERPRISE-REMEDIATION-PROGRAM.md`.
+- Findings: `audit-reports/*` F-register; remediation waves in `docs/governance/enterprise-remediation-program.md`.
 
 ## 14. Governance Map
 
-```
-AGENTS.md ─► ENTERPRISE-AUDIT-MANUAL.md ─► discipline manuals (12)
-    │              │                            │
-    ├─ Vol 1–5 evidence record                ├─ REPOSITORY / API / DB /
-    ├─ certification ladder                   ├─ UI-UX / SECURITY / DEVOPS /
-    ├─ cadence + exceptions                   ├─ TESTING / DOCUMENTATION /
-    └─ continuous pipeline gate               └─ RELEASE / METRICS
+```text
+Tier 0 Canonical: AGENTS.md ─► PLATFORM_ARCHITECTURE.md / REPOSITORY-GOVERNANCE.md / packages/ui/GOVERNANCE.md
+Tier 1 Entry:     ENGINEERING-HANDBOOK.md (this file, router only — no new rules)
+Tier 2 Reference: discipline manuals (API / DB / SECURITY / DEVOPS / TESTING / RELEASE)
+.agents/:         execution layer (skills, workflows, verification — no duplicate governance)
 ```
 
 ## 15. Troubleshooting / Snaps (wip: extended in wave)

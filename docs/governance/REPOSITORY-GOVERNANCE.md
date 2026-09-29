@@ -30,7 +30,7 @@ Rules: no app-local `types/` or `schemas/` (goes to contracts); no per-app UI pr
 | `archive/*` | dead experiment barn | read-only |
 | release tags | `vMAJOR.MINOR.PATCH` (+`-rc.N`) | — |
 
-Gate: `repo:branch-protection` (BRANCH-001 must pass — currently failing, cleanup tracked Vol-3 §39).
+Gate: `repo:branch-protection` (BRANCH-001 must pass; `repo:gate` currently PASS 100%).
 
 ## 3. Git practices
 
