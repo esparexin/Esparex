@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { AIProvider } from '../AIProvider';
 import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, AIProviderError, StructuredAIResult } from '../types';
 import { buildStructuredResult } from '../structuredJson';
+import { buildOpenAICompatibleResult } from '../chatCompletionResult';
 import { getAiConfig } from '../../../config/ai';
 import { withTimeout } from '../../../utils/resilience';
 
@@ -77,21 +78,9 @@ export class OpenAIProvider implements AIProvider {
                 throw new OpenAIProviderError(`OpenAI returned HTTP ${status}`, 'ServiceUnavailable', status);
             }
 
-            const data = await response.json();
-            const text = data?.choices?.[0]?.message?.content || '';
+            const data: unknown = await response.json();
 
-            return {
-                provider: 'openai',
-                model,
-                text,
-                usage: data.usage ? {
-                    promptTokens: data.usage.prompt_tokens ?? 0,
-                    completionTokens: data.usage.completion_tokens ?? 0,
-                    totalTokens: data.usage.total_tokens ?? 0,
-                } : undefined,
-                latency: Date.now() - startTime,
-                cached: false,
-            };
+            return buildOpenAICompatibleResult({ data, provider: 'openai', model, startTime });
         } catch (error) {
             throw this.mapError(error);
         }
