@@ -293,15 +293,32 @@ for (const filePath of allFiles) {
 // EA-059: NativeWind Color Pipeline Rules (RC-1, RC-2, RC-3, RC-4)
 //
 // These 4 rules prevent re-introduction of the mobile color pipeline failures
-// that caused white-text-on-white-background and theme inconsistency:
+// that caused white-text-on-white-background and theme inconsistency.
+// The mobile app is light-mode only:
 //
-//  RC-1: darkMode must be declared in apps/mobile/tailwind.config.js
+//  RC-1: darkMode must NOT be present in apps/mobile/tailwind.config.js
 //  RC-2: hsl(var(--...)) CSS custom properties must not be used as NativeWind
 //        color values (they are browser-only; unresolvable by StyleSheet.create())
 //  RC-3: semantic.dark.* / semantic.light.* must not be hardcoded in navigation
-//        tab bar config — use mobileSemanticColors[useColorScheme()] instead
+//        tab bar config — always use mobileSemanticColors.light instead
 //  RC-4: css-variables.css must not be imported in apps/mobile/global.css
 // ──────────────────────────────────────────────────────────────────────────────
+
+// EA-059 Rule A (updated): Prevent darkMode from being re-added to the mobile Tailwind config.
+// The app is intentionally light-mode only. Adding darkMode: 'media' would re-enable
+// dark: variant class generation and re-introduce the colour inconsistency risk.
+const mobileTailwindConfigPath = path.join(repoRoot, "apps", "mobile", "tailwind.config.js");
+if (fs.existsSync(mobileTailwindConfigPath)) {
+  const tailwindConfigContent = fs.readFileSync(mobileTailwindConfigPath, "utf8");
+  const nonCommentLines = tailwindConfigContent.split("\n").filter((l) => !l.trimStart().startsWith("//"));
+  if (/darkMode\s*:/.test(nonCommentLines.join("\n"))) {
+    violations.push({
+      file: "apps/mobile/tailwind.config.js",
+      line: 1,
+      rule: "[EA-059/RC-1] darkMode key detected in apps/mobile/tailwind.config.js. " +
+            "The Esparex mobile app is light-mode only. Omit darkMode so NativeWind does " +
+            "not generate dark: variant classes that are not supported or needed.",
+      code: "darkMode key found — remove it to enforce light-mode only policy",
     });
   }
 }
@@ -335,8 +352,8 @@ for (const navFile of navigationSourceFiles) {
         file: toUnixPath(path.relative(mobileSrcDir, navFile)),
         line: idx + 1,
         rule: "[EA-059/RC-3] Hardcoded semantic.dark.* / semantic.light.* detected in navigation. " +
-              "These values are static and do not respond to the OS color scheme. " +
-              "Use mobileSemanticColors[useColorScheme() ?? 'light'] from @esparex/design-tokens.",
+              "These values are static and do not follow the light-mode only policy. " +
+              "Use mobileSemanticColors.light from @esparex/design-tokens.",
         code: line.trim(),
       });
     }

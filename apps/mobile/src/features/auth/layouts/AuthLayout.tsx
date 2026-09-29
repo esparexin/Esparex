@@ -24,6 +24,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   const navigation = useNavigation();
   const parentNav = navigation.getParent();
   const canDismiss = navigation.canGoBack() || Boolean(parentNav?.canGoBack());
+  // App is light-mode only — always use the light semantic palette.
+  const palette = mobileSemanticColors.light;
   const handleDismiss = () => {
     if (onDismiss) {
       onDismiss();
