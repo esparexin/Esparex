@@ -53,7 +53,7 @@ This report documents the permanent remediation of all vulnerabilities and stati
 
 ### CODE-04: ReDoS Backtracking Elimination in Local OCR Classifier
 - **Vulnerability**: Unanchored character classes in `LocalOcrProvider.ts` could experience catastrophic backtracking on adversarial input strings.
-- **Remediation**: Replaced unanchored URL regex with bounded atomic regex (`/\b(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.(?:com|in|org|net|co|io|store|shop|app|biz)\b/gi`). Added ReDoS immunity tests in `LocalOcrProvider.spec.ts`.
+- **Remediation**: Replaced unanchored URL regex with bounded atomic regex: `/\b(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.(?:com|in|org|net|co|io|store|shop|app|biz)\b/gi`. Added ReDoS immunity tests in `LocalOcrProvider.spec.ts`.
 
 ### CODE-05: Static Code Analyzer Triage & Suppressions
 - **CSRF Defense**: Verified Double-Submit Cookie pattern (`verifyCsrfToken` checking `x-csrf-token` header vs `esparex_csrf` cookie) across all state-changing HTTP methods.

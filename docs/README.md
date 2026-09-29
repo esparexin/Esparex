@@ -42,20 +42,16 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 ### 🔍 [Audits](audits/)
 - **Owner**: QA & Governance Team
 - **Key Specifications**:
-  - [UI_FOUNDATION_AUDIT.md](audits/UI_FOUNDATION_AUDIT.md) — Sprint 1 UI Foundation Audit.
-  - [MOBILE_UX_ROOT_CAUSE_AUDIT.md — §9 Integration & Accessibility](audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md#9-integration--accessibility-post-fix-report) — Mobile Integration & Accessibility Audit (August 2026).
-  - [accessibility-audit.md](audits/accessibility-audit.md) — WCAG 2.2 AA accessibility audit register.
-  - [component-consolidation-audit.md](audits/component-consolidation-audit.md) — Primitive component consolidation audit.
-  - [visual-qa-report.md](audits/visual-qa-report.md) — 23 Viewport & theme visual QA matrix report.
-  - [dual-instance-audit-2026-07-21.md](audits/dual-instance-audit-2026-07-21.md) — Single-instance responsive architecture audit.
+  - [HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md](audits/HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md) — Home Feed Listing Type & Location Architecture Audit.
+  - [MOBILE_UX_ROOT_CAUSE_AUDIT.md](audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md) — Mobile UI/UX Root Cause Audit & Verification Report (August 2026).
+  - [TECHNICAL_DEBT_REMEDIATION_BASELINE.md](audits/TECHNICAL_DEBT_REMEDIATION_BASELINE.md) — Technical Debt Remediation Baseline & Safety Classification.
 
-### 📈 [Performance](performance/) & [Reports](reports/)
-- **Owner**: Engineering Performance Team
+### 📈 [Performance](performance/) & 🛡️ [Security](security/)
+- **Owner**: Engineering Performance & Security Teams
 - **Key Specifications**:
   - [baseline-report.md](performance/baseline-report.md) — Performance baseline metrics.
-  - [full-stack-performance-audit-report.md](reports/full-stack-performance-audit-report.md) — Master full-stack performance audit.
-  - [performance-evidence-index.md](reports/performance-evidence-index.md) — Empirical performance evidence index.
-  - [documentation_mapping_matrix.md](reports/documentation_mapping_matrix.md) — Authoritative record of documentation consolidation.
+  - [security-audit-remediation-report.md](security/security-audit-remediation-report.md) — Security audit remediation report.
+  - [google-brand-entity-remediation.md](seo/google-brand-entity-remediation.md) — Brand entity & search remediation playbook.
 
 ### 🚀 [Releases](releases/) & [Tracking](tracking/)
 - **Owner**: Release Engineering Team

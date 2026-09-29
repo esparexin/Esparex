@@ -24,12 +24,12 @@ This skill is powered by a 6-part integrated documentation and execution system 
 
 | Document | Purpose | When to Use |
 |---|---|---|
-| [START-HERE.md](file://./START-HERE.md) | Entry point & daily developer workflow | First-time orientation, 10-minute quick start, routine daily structure |
-| [QUICK-REFERENCE-CARD.md](file://./QUICK-REFERENCE-CARD.md) | 1-page printable desk cheat sheet | Fast token lookup, copy-paste snippets, 5-minute A11y checklist |
-| [IDE-AI-PROMPTS.md](file://./IDE-AI-PROMPTS.md) | 16 production-ready IDE AI prompts | Generating components, a11y fixes, reviews, token conversion in chat |
-| [HOW-TO-USE-THIS-SKILL.md](file://./HOW-TO-USE-THIS-SKILL.md) | Step-by-step scenario walkthroughs | Common developer scenarios, PR reviews, 40-minute onboarding |
-| [IDE-SETUP-GUIDE.md](file://./IDE-SETUP-GUIDE.md) | IDE setup for Claude / Copilot / Cursor | Connecting design system files to your IDE AI assistant |
-| [esparex-ui-ux-complete-skill.md](file://./esparex-ui-ux-complete-skill.md) | Full v2.0 core specification | Complete offline standalone reference |
+| [START-HERE.md](./START-HERE.md) | Entry point & daily developer workflow | First-time orientation, 10-minute quick start, routine daily structure |
+| [QUICK-REFERENCE-CARD.md](./QUICK-REFERENCE-CARD.md) | 1-page printable desk cheat sheet | Fast token lookup, copy-paste snippets, 5-minute A11y checklist |
+| [IDE-AI-PROMPTS.md](./IDE-AI-PROMPTS.md) | 16 production-ready IDE AI prompts | Generating components, a11y fixes, reviews, token conversion in chat |
+| [HOW-TO-USE-THIS-SKILL.md](./HOW-TO-USE-THIS-SKILL.md) | Step-by-step scenario walkthroughs | Common developer scenarios, PR reviews, 40-minute onboarding |
+| [IDE-SETUP-GUIDE.md](./IDE-SETUP-GUIDE.md) | IDE setup for Claude / Copilot / Cursor | Connecting design system files to your IDE AI assistant |
+| [esparex-ui-ux-complete-skill.md](./esparex-ui-ux-complete-skill.md) | Full v2.0 core specification | Complete offline standalone reference |
 
 ---
 
@@ -362,25 +362,25 @@ For detailed domain-specific architectural standards, consult the modular guides
 
 | Domain | Guide Link | Focus Areas |
 |---|---|---|
-| **Design Principles** | [`design-principles.md`](file://./design-principles.md) | Visual hierarchy, clarity, content-first layout |
-| **Color System** | [`color-system.md`](file://./color-system.md) | 3-layer tokens (Sky Brand, Slate Neutrals, Indigo Action) |
-| **Typography** | [`typography.md`](file://./typography.md) | Geist font SSOT, discrete scale, line-height tokens |
-| **Spacing & Layout** | [`spacing-layout.md`](file://./spacing-layout.md) | 4px baseline grid, container boundaries, surface stacking |
-| **Components** | [`components.md`](file://./components.md) | `@esparex/ui` & `@esparex/mobile-ui` primitive contracts |
-| **Interaction States** | [`interaction-states.md`](file://./interaction-states.md) | Default, hover, focus-visible, active, disabled, loading, error |
-| **Responsive Architecture** | [`responsive.md`](file://./responsive.md) | Breakpoints, grid strategies, container queries |
-| **Accessibility** | [`accessibility.md`](file://./accessibility.md) | Screen reader matrices, focus restoration, ARIA patterns |
-| **Admin UX** | [`admin-ux.md`](file://./admin-ux.md) | High-density tables, filter toolbars, KPI overview cards |
-| **Marketplace Web UX** | [`marketplace-ux.md`](file://./marketplace-ux.md) | Ad listings, pricing cards, verification badges, trust signals |
-| **Mobile App UX** | [`mobile-ux.md`](file://./mobile-ux.md) | React Native / Expo, safe area insets, bottom sheets |
-| **Visual QA** | [`visual-qa.md`](file://./visual-qa.md) | Chrome DevTools audits, axe DevTools scanning, visual regression |
-| **Anti-Patterns** | [`anti-patterns.md`](file://./anti-patterns.md) | Registry of forbidden patterns with explicit fixes |
+| **Design Principles** | [`design-principles.md`](./design-principles.md) | Visual hierarchy, clarity, content-first layout |
+| **Color System** | [`color-system.md`](./color-system.md) | 3-layer tokens (Sky Brand, Slate Neutrals, Indigo Action) |
+| **Typography** | [`typography.md`](./typography.md) | Geist font SSOT, discrete scale, line-height tokens |
+| **Spacing & Layout** | [`spacing-layout.md`](./spacing-layout.md) | 4px baseline grid, container boundaries, surface stacking |
+| **Components** | [`components.md`](./components.md) | `@esparex/ui` & `@esparex/mobile-ui` primitive contracts |
+| **Interaction States** | [`interaction-states.md`](./interaction-states.md) | Default, hover, focus-visible, active, disabled, loading, error |
+| **Responsive Architecture** | [`responsive.md`](./responsive.md) | Breakpoints, grid strategies, container queries |
+| **Accessibility** | [`accessibility.md`](./accessibility.md) | Screen reader matrices, focus restoration, ARIA patterns |
+| **Admin UX** | [`admin-ux.md`](./admin-ux.md) | High-density tables, filter toolbars, KPI overview cards |
+| **Marketplace Web UX** | [`marketplace-ux.md`](./marketplace-ux.md) | Ad listings, pricing cards, verification badges, trust signals |
+| **Mobile App UX** | [`mobile-ux.md`](./mobile-ux.md) | React Native / Expo, safe area insets, bottom sheets |
+| **Visual QA** | [`visual-qa.md`](./visual-qa.md) | Chrome DevTools audits, axe DevTools scanning, visual regression |
+| **Anti-Patterns** | [`anti-patterns.md`](./anti-patterns.md) | Registry of forbidden patterns with explicit fixes |
 
 ---
 
 ## 🤖 AI IDE Prompts Integration
 
-When implementing or reviewing UI code, utilize the 16 structured prompts in [IDE-AI-PROMPTS.md](file://./IDE-AI-PROMPTS.md):
+When implementing or reviewing UI code, utilize the 16 structured prompts in [IDE-AI-PROMPTS.md](./IDE-AI-PROMPTS.md):
 
 - **Prompt #1**: Build a Component (Design system & A11y compliant)
 - **Prompt #2**: Audit Component Against Design System

@@ -16,7 +16,6 @@ Every platform capability MUST have exactly **one shared contract interface** in
 - **Android Adapter:** `AndroidMediaPickerAdapter` (`apps/mobile`) ──► Native Android Media Store & Camera
 - **Consumers:** Listing Creation Wizard, Chat Attachment, User Avatar Upload, Business KYC Verification
 - **Status:** STABLE (v1.0)
-- **Test Suite:** `@esparex/core/__tests__/capabilities/PlatformMediaCapability.spec.ts`
 
 ### 1.2 Camera Capture (`IPlatformCameraCapability`)
 - **Owner:** `PlatformCameraCapabilityService`
