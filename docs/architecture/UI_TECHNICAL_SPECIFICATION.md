@@ -25,11 +25,12 @@ Every UI component in the monorepo has an assigned owner package:
 | Component Primitive | Owner Package | Source Path | Allowed Usage |
 |---|---|---|---|
 | **Design Tokens** | `@esparex/design-tokens` | `packages/design-tokens` | Primary source for all design values |
-| **Web Primitives** (`Button`, `Input`, `Select`, `Dialog`, `Container`, `Popup`) | `@esparex/ui` | `packages/ui` | Shared Web / Admin components |
+| **Web Primitives** (`Button`, `Input`, `Select`, `Dialog`, `Container`, `Card`, `Badge`, `EmptyState`) | `@esparex/ui` | `packages/ui` | Shared Web / Admin components |
 | **Mobile Primitives** (`AppButton`, `AppInput`, `Screen`, `Container`) | `@esparex/mobile-ui` | `packages/mobile-ui` | Shared React Native components |
-| **Icons Registry** | `@esparex/ui` & `lucide-react-native` | `packages/ui/atoms/icons.ts` | Shared icon components |
-| **Web App Primitives** (`Card`, `Badge`, `Accordion`, `DropdownMenu`, `Skeleton`) | Web App Shell | `apps/web/src/components/ui` | Web application layout & display |
-| **Web App Guards** (`EmptyStateShell`, `PageStateGuard`, `SafeImage`) | Web Application | `apps/web/src/components/ui` | Web application routing & state |
+| **Icons Registry** | `@esparex/ui` & `lucide-react-native` | `packages/ui` | Shared icon components |
+| **Web Feature Components** (`SafeImage`, feature helpers) | Web Application | `apps/web/src/components/common` | Web application display helpers |
+
+> **Prohibition Rule**: Creating a local `components/ui` directory in `apps/web` or `apps/admin` is strictly prohibited. All reusable primitives must reside in `@esparex/ui` or `@esparex/mobile-ui`.
 
 ---
 
