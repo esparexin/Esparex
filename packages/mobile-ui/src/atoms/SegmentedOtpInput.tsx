@@ -86,9 +86,9 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
 
               let borderClass = 'border-border bg-card';
               if (hasError) {
-                borderClass = 'border-error dark:border-error bg-red-50/20 dark:bg-red-950/20';
+                borderClass = 'border-destructive bg-destructive/5';
               } else if (isCurrent) {
-                borderClass = 'border-brand-600 dark:border-brand-400 bg-brand-50/20 dark:bg-brand-950/20';
+                borderClass = 'border-brand-600 bg-brand-50/20';
               } else if (isFilled) {
                 borderClass = 'border-foreground-secondary bg-card';
               }
