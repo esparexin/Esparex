@@ -45,6 +45,7 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
           ref={ref}
           className={`${baseInput} ${className}`}
           placeholderTextColor={props.placeholderTextColor || mobileSemanticColors.light['muted-foreground']}
+          keyboardAppearance="light"
           accessibilityRole="text"
           accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
           accessibilityState={{
