@@ -44,8 +44,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           // bottom-[var(--keyboard-height,0px)]; height is bound to the visual-viewport token.
           "top-0 left-0 right-0 h-[var(--visual-viewport-height,100svh)] w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-          "sm:inset-0 sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:m-auto sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
-          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-y-auto"
+          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
+          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-hidden"
         )}
       >
         <SheetTitle className="sr-only">Authentication</SheetTitle>
