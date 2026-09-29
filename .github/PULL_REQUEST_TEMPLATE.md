@@ -21,7 +21,7 @@
 
 
 ## 1. Repository Discovery & SSOT Audit (Clean Code Skill)
-<!-- Required per clean-code skill. Must prove search before implementation. -->
+<!-- Required per clean-code skill. Must prove search before implementation. Tier B (manually audited): reviewer verifies; not merge-blocking automation. -->
 
 - [ ] **Phase 0 Search Executed**: Searched existing repository before creating code.
   - *Search Command / Query Used*: `git grep ...` or `grep -rn ...`
@@ -63,7 +63,7 @@
 
 
 ## 4. Accessibility & Mobile Compliance (UI Changes)
-<!-- Skip with: N/A — no UI changes -->
+<!-- Skip with: N/A — no UI changes. Tier B (manually audited) except 16px zoom + typography/token guards, which are Tier A blocking. -->
 - [ ] Keyboard navigation verified (Tab, Enter, Escape, Arrow keys)
 - [ ] Focus rings visible & focus restoration preserved
 - [ ] Hidden overlays/drawers use `inert` to prevent keyboard traps

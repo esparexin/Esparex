@@ -5,7 +5,31 @@
 > **AGENTS.md (Policy)** ──► **Mechanical Guards & Tooling** ──► **Composite `repo:gate`** ──► **CI Gate**.  
 > Parallel duplicate governance documents outside this hierarchy are deprecated.
 
+## Enforcement Tiers (Blocking vs Manually Audited)
+
+Not every rule below is mechanically enforceable. Tiers:
+
+- **Tier A — Blocking (mechanical):** enforced by `scripts/*` guards via
+  `GOV-GUARDS-001` / `repo:gate` / CI. Violations block merge. Includes: mapper
+  ownership, Zod empty-string union, mobile 16px zoom, single-instance
+  responsive, zero primitive obsession, contract-first SSOT, typography/brand
+  tokens, file-size ratchet, JSCPD ratchet, process concurrency, platform SDK
+  boundary, auth/role SSOT, popup SSOT, no-hard-delete, route shadowing/collision,
+  mongoose connection binding, listing expiry clamp, feed filter SSOT,
+  deterministic date formatters, Nominatim-first geocode.
+- **Tier B — Recommended (manually audited):** sound practice, but no mechanical
+  guard exists; audited via PR template checklist and reviewer judgment. Includes:
+  the 75% 5-dimension similarity matrix, multi-step `trigger([fields])`
+  isolation, hidden-field blocking, full keyboard/ARIA/focus-trap/screen-reader
+  audit depth, `DialogPortal`/`Z_INDEX` specifics, layout single-owner `pb-20`
+  compensation, state-matrix coverage depth, 100% hierarchy matrix, mock-payment
+  narrative, Repository Impact Statement / New-File Justification / ADR ceremony.
+  Treat Tier B as guidance, not merge-blocking mandates.
+
 ## Similarity Threshold Rule
+
+> **Tier B — Recommended.** No mechanical guard computes 5-dimension similarity;
+> JSCPD token ratchet (`DUP-001`) is the blocking duplicate control.
 
 Components, hooks, or services must not be merged solely because they appear similar. Before consolidation, document:
 
