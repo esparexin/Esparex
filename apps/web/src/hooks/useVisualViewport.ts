@@ -62,21 +62,6 @@ export function useVisualViewport(): VisualViewportState {
         root.style.setProperty("--visual-viewport-height", `${Math.round(currentHeight)}px`);
         root.style.setProperty("--keyboard-height", `${computedKeyboardHeight}px`);
         root.setAttribute("data-keyboard-open", keyboardActive ? "true" : "false");
-
-        // When the keyboard dismisses on iOS, reset any residual window scroll that WebKit created
-        const isInputFocused =
-          typeof document !== "undefined" &&
-          document.activeElement &&
-          (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
-
-        if (!keyboardActive && !isInputFocused && window.scrollY !== 0) {
-          const hasOpenOverlay = document.querySelector(
-            '[data-slot="dialog-content"], [data-slot="sheet-content"], [data-slot="sheet-overlay"], [data-state="open"][role="dialog"]'
-          );
-          if (hasOpenOverlay) {
-            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-          }
-        }
       });
     };
 
