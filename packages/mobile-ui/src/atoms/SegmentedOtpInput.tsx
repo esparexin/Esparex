@@ -118,6 +118,7 @@ export const SegmentedOtpInput = forwardRef<SegmentedOtpInputRef, SegmentedOtpIn
             keyboardType="number-pad"
             textContentType="oneTimeCode"
             autoComplete="sms-otp"
+            keyboardAppearance="light"
             editable={editable}
             autoFocus={autoFocus}
             onFocus={() => setIsFocused(true)}

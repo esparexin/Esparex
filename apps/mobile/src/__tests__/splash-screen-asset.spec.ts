@@ -16,7 +16,7 @@ describe("Mobile Splash Screen Asset & Platform Parity Guard", () => {
     expect(appConfig.splash.backgroundColor.toUpperCase()).toBe(expectedBg);
     expect(appConfig.ios.splash.backgroundColor.toUpperCase()).toBe(expectedBg);
     expect(appConfig.android.splash.backgroundColor.toUpperCase()).toBe(expectedBg);
-    expect(appConfig.userInterfaceStyle).toBe("dark");
+    expect(appConfig.userInterfaceStyle).toBe("light");
 
     // Asset reference validity
     expect(appConfig.splash.image).toBe("./assets/splash-icon.png");

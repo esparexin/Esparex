@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base, semantic } from '@esparex/design-tokens';
 
 interface SafetyTipsSectionProps {
   adId: string;
@@ -12,19 +13,19 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
     adId && adId.length === 24 ? adId.slice(-8).toUpperCase() : String(adId || '');
 
   return (
-    <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-      <View className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 p-4 gap-3">
+    <View className="px-4 py-4 bg-card border-b border-border">
+      <View className="rounded-2xl border border-warning/30 bg-warning/10 p-4 gap-3">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center">
             <View className="mr-1.5">
-              <AppIcon name="ShieldAlert" size={16} color="#d97706" />
+              <AppIcon name="ShieldAlert" size={16} color={base.warning} />
             </View>
-            <AppText variant="h4" className="text-amber-950 dark:text-amber-200 font-bold text-body">
+            <AppText variant="h4" className="text-foreground font-bold text-body">
               Safety First
             </AppText>
           </View>
           {formattedId ? (
-            <AppText variant="caption" className="font-mono text-amber-700 dark:text-amber-400 font-semibold">
+            <AppText variant="caption" className="font-mono text-warning font-semibold">
               {`#${formattedId}`}
             </AppText>
           ) : null}
@@ -33,13 +34,13 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
         <View className="gap-2">
           <View className="flex-row items-start mb-2">
             <View className="mr-2 mt-0.5">
-              <AppIcon name="CheckCircle2" size={14} color="#059669" />
+              <AppIcon name="CheckCircle2" size={14} color={semantic.light.success} />
             </View>
             <View className="flex-1">
-              <AppText variant="caption" className="text-amber-900 dark:text-amber-100 font-bold">
+              <AppText variant="caption" className="text-foreground font-bold">
                 Inspect in person
               </AppText>
-              <AppText variant="caption" className="text-amber-900/80 dark:text-amber-200/80 font-normal mt-0.5">
+              <AppText variant="caption" className="text-foreground-secondary font-normal mt-0.5">
                 Meet in a public place to check the item status.
               </AppText>
             </View>
@@ -47,13 +48,13 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
 
           <View className="flex-row items-start mb-2">
             <View className="mr-2 mt-0.5">
-              <AppIcon name="AlertCircle" size={14} color="#d97706" />
+              <AppIcon name="AlertCircle" size={14} color={base.warning} />
             </View>
             <View className="flex-1">
-              <AppText variant="caption" className="text-amber-900 dark:text-amber-100 font-bold">
+              <AppText variant="caption" className="text-foreground font-bold">
                 No advance payments
               </AppText>
-              <AppText variant="caption" className="text-amber-900/80 dark:text-amber-200/80 font-normal mt-0.5">
+              <AppText variant="caption" className="text-foreground-secondary font-normal mt-0.5">
                 Never pay before receiving and verifying the item.
               </AppText>
             </View>
@@ -61,13 +62,13 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
 
           <View className="flex-row items-start">
             <View className="mr-2 mt-0.5">
-              <AppIcon name="Info" size={14} color="#2563eb" />
+              <AppIcon name="Info" size={14} color={semantic.light.primary} />
             </View>
             <View className="flex-1">
-              <AppText variant="caption" className="text-amber-900 dark:text-amber-100 font-bold">
+              <AppText variant="caption" className="text-foreground font-bold">
                 Report fraud
               </AppText>
-              <AppText variant="caption" className="text-amber-900/80 dark:text-amber-200/80 font-normal mt-0.5">
+              <AppText variant="caption" className="text-foreground-secondary font-normal mt-0.5">
                 Report suspicious activity to our support team.
               </AppText>
             </View>
@@ -85,9 +86,9 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
           accessibilityLabel="Report this listing"
         >
           <View className="mr-1.5">
-            <AppIcon name="AlertTriangle" size={14} color="#94a3b8" />
+            <AppIcon name="AlertTriangle" size={14} color={base.slate[500]} />
           </View>
-          <AppText variant="caption" color="muted" className="font-semibold">
+          <AppText variant="caption" color="secondary" className="font-semibold">
             Report this listing
           </AppText>
         </TouchableOpacity>
