@@ -75,6 +75,9 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
       expect(shouldDisplayCategoryBadge("Ad", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Ads", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Device", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("Devices", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("device", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("devices", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge(null, adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge(undefined, adItem)).toBe(false);
