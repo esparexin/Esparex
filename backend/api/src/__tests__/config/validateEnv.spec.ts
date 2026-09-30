@@ -9,6 +9,7 @@ jest.mock('@esparex/core/utils/bootstrapLogger', () => ({
     warn: jest.fn(),
     info: jest.fn(),
     error: jest.fn(),
+    debug: jest.fn(),
 }));
 
 const VALID_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPLE';
