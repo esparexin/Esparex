@@ -52,7 +52,7 @@ export const AdCardGrid = memo(function AdCardGrid({
   className,
   responsiveCompactList = false,
 }: AdCardGridProps) {
-  const { adRecord, href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { adRecord, href: resolvedHref, imageUrl, adId, handleCardClick, handleKeyDown } =
     useAdCardBase({ ad, href, onClick });
 
   const isBusiness = Boolean(adRecord.isBusiness);
@@ -60,9 +60,8 @@ export const AdCardGrid = memo(function AdCardGrid({
   return (
     <AdCardShell
       ad={ad}
-      resolvedHref={resolvedHref}
-      useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
+      handleKeyDown={handleKeyDown}
       className={cn(
         "duration-200 border border-border bg-card text-card-foreground shadow-2xs transition-all hover:shadow-xs hover:border-border-hover",
         responsiveCompactList
@@ -114,7 +113,7 @@ export const AdCardGrid = memo(function AdCardGrid({
             : "p-3 pt-2 sm:p-3.5 sm:pt-2.5"
         )}
       >
-        <AdCardMeta ad={ad} variant="default" />
+        <AdCardMeta ad={ad} href={resolvedHref} variant="default" />
       </CardContent>
     </AdCardShell>
   );

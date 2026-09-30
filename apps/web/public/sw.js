@@ -23,7 +23,8 @@ const BLACKLIST = [
     '/chat',
     '/payments',
     '/post-ad',
-    '/sw.js'
+    '/sw.js',
+    '_rsc'
 ];
 
 // Helper to check if URL is blacklisted

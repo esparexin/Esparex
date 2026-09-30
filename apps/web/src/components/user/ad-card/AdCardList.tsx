@@ -58,7 +58,7 @@ export const AdCardList = memo(function AdCardList({
   priority = false,
   className,
 }: AdCardListProps) {
-  const { href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { href: resolvedHref, imageUrl, adId, handleCardClick, handleKeyDown } =
     useAdCardBase({
       ad,
       href,
@@ -73,9 +73,8 @@ export const AdCardList = memo(function AdCardList({
   return (
     <AdCardShell
       ad={ad}
-      resolvedHref={resolvedHref}
-      useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
+      handleKeyDown={handleKeyDown}
       className={cn(
         "hover:shadow-md hover:-translate-y-0.5 border border-border rounded-xl bg-card text-card-foreground",
         isSpotlightAd(ad) ? "ring-2 ring-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.2)]" : "",
@@ -117,14 +116,16 @@ export const AdCardList = memo(function AdCardList({
           <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[5.5rem] sm:min-h-[6.5rem]">
             <div className="flex min-w-0 items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <AdCardMeta ad={ad} variant="list" />
+                <AdCardMeta ad={ad} href={resolvedHref} variant="list" />
               </div>
-              <AdCardActions
-                adId={adId}
-                isSaved={isSaved}
-                onToggleSave={onToggleSave}
-                className="relative static shrink-0 -mt-0.5 -mr-0.5 shadow-none bg-transparent hover:bg-muted/40"
-              />
+              <div className="relative z-20 shrink-0">
+                <AdCardActions
+                  adId={adId}
+                  isSaved={isSaved}
+                  onToggleSave={onToggleSave}
+                  className="static -mt-0.5 -mr-0.5 shadow-none bg-transparent hover:bg-muted/40"
+                />
+              </div>
             </div>
 
             {(showCategoryBadge || conditionBadge) && (
