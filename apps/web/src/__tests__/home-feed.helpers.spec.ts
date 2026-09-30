@@ -67,6 +67,18 @@ describe("homeFeed helpers", () => {
         expect(appendUniqueFeedPage(current, duplicatePage)).toBe(current);
     });
 
+    it("replaces the first page when listingType or condition is corrected", () => {
+        const { listingType: _omitted, ...untypedRest } = makeAd("1");
+        void _omitted;
+        const current = [{ ...untypedRest }];
+        const corrected = [{ ...makeAd("1"), listingType: "service" as const }];
+        expect(replaceFeedPage(current, corrected)).toEqual(corrected);
+
+        const noCondition = [{ ...makeAd("2") }];
+        const withCondition = [{ ...makeAd("2"), deviceCondition: "power_on" as const }];
+        expect(replaceFeedPage(noCondition, withCondition)).toEqual(withCondition);
+    });
+
     it("verifies requestParams resolves listingType correctly across all tabs", () => {
         const resolveListingTypeParam = (selectedType: string) =>
             selectedType !== "all" ? selectedType : undefined;

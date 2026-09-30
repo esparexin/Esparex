@@ -44,22 +44,29 @@ export function resolveReadableListingReferenceLabel(value: unknown): string | n
     return toReadableLabel(value);
 }
 
-export type ResolvedListingType = ListingTypeValue;
+export type ResolvedListingType = ListingTypeValue | undefined;
 
 export function resolveListingTypeValue(
     listing: { listingType?: unknown } | null | undefined
 ): ResolvedListingType {
-    if (listing?.listingType === LISTING_TYPE.SERVICE || listing?.listingType === LISTING_TYPE.SPARE_PART) {
+    if (
+        listing?.listingType === LISTING_TYPE.AD ||
+        listing?.listingType === LISTING_TYPE.SERVICE ||
+        listing?.listingType === LISTING_TYPE.SPARE_PART
+    ) {
         return listing.listingType;
     }
 
-    return LISTING_TYPE.AD;
+    return undefined;
 }
 
 export function resolveListingTypeBadge(
     listing: { listingType?: unknown } | null | undefined
 ) {
     const listingType = resolveListingTypeValue(listing);
+    if (!listingType) {
+        return null;
+    }
 
     if (listingType === LISTING_TYPE.SERVICE) {
         return {

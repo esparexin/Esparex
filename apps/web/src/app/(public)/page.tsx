@@ -1,8 +1,15 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 import logger from "@/lib/logger";
 import type { Category } from "@esparex/contracts";
 
 import { getHomeAds } from "@/lib/api/user/listings";
+import {
+    buildFeedLocationIdentity,
+    FEED_LOCATION_COOKIE_NAME,
+    parseFeedLocationCookie,
+} from "@/lib/location/feedIdentity";
+import { isRegionLocationLevel } from "@/lib/location/queryMode";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
@@ -14,18 +21,22 @@ import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
 /**
- * Wraps a fetch promise with an AbortController timeout.
+ * Races a fetch promise against a timeout.
  * Prevents slow APIs from stalling SSR / Googlebot crawls indefinitely.
  */
 async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-        return await promise;
+        return await Promise.race([
+            promise,
+            new Promise<T>((resolve) => {
+                timer = setTimeout(() => resolve(fallback), ms);
+            }),
+        ]);
     } catch {
         return fallback;
     } finally {
-        clearTimeout(timer);
+        if (timer !== undefined) clearTimeout(timer);
     }
 }
 
@@ -73,10 +84,50 @@ export const metadata: Metadata = {
 import { HomeLocationAutoPrompt } from "@/components/home/HomeLocationAutoPrompt";
 
 export default async function Home() {
+    // Align the SSR feed with the client's persisted location (if any) so the
+    // first paint already shows the localized result set instead of the
+    // national default that would be swapped out after hydration.
+    const ssrFeedLocation = parseFeedLocationCookie(
+        (await cookies()).get(FEED_LOCATION_COOKIE_NAME)?.value
+    );
+    const ssrUseGeoSearch = Boolean(
+        ssrFeedLocation &&
+            typeof ssrFeedLocation.lat === "number" &&
+            typeof ssrFeedLocation.lng === "number" &&
+            !isRegionLocationLevel(ssrFeedLocation.level)
+    );
+    const ssrLocationIdentity = buildFeedLocationIdentity(
+        {
+            locationId: ssrFeedLocation?.locationId,
+            city: ssrFeedLocation?.city,
+            level: ssrFeedLocation?.level,
+            latitude: ssrFeedLocation?.lat,
+            longitude: ssrFeedLocation?.lng,
+        },
+        ssrFeedLocation !== null
+    );
+
     const [categories, initialHomeAds] = await Promise.all([
         withTimeout(getHomeCategories(), 5000, []),
         withTimeout(
-            getHomeAds({ limit: 12 }, { fetchOptions: { next: { revalidate: 60, tags: ['home-ads'] } } }),
+            getHomeAds(
+                {
+                    limit: 12,
+                    ...(ssrFeedLocation?.locationId
+                        ? { locationId: ssrFeedLocation.locationId }
+                        : {}),
+                    ...(ssrFeedLocation?.level ? { level: ssrFeedLocation.level } : {}),
+                    // Mirrors HomeFeedClient geo radius so SSR and client query the same result set.
+                    ...(ssrUseGeoSearch && ssrFeedLocation?.lat !== undefined
+                        ? { lat: ssrFeedLocation.lat }
+                        : {}),
+                    ...(ssrUseGeoSearch && ssrFeedLocation?.lng !== undefined
+                        ? { lng: ssrFeedLocation.lng }
+                        : {}),
+                    ...(ssrUseGeoSearch ? { radiusKm: 50 } : {}),
+                },
+                { fetchOptions: { next: { revalidate: 60, tags: ['home-ads'] } } }
+            ),
             5000,
             undefined
         ),
@@ -110,7 +161,7 @@ export default async function Home() {
                     <AdPlacementSlot placement="homepage_hero_top" />
                 </Container>
 
-                <HomeFeed initialData={initialHomeAds} />
+                <HomeFeed initialData={initialHomeAds} initialLocationIdentity={ssrLocationIdentity} />
 
                 {/* ui-guard-ignore: nested-container Sibling container wrappers for separate ad placement slots */}
                 <Container variant="lg">

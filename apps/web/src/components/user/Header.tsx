@@ -94,6 +94,10 @@ export function Header({
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
   const openMobileLocationSelector = useCallback(() => setShowLocationSelector(true), [setShowLocationSelector]);
+  const handleCloseLocationOverlay = useCallback(() => {
+    setShowLocationSelector(false);
+    setHeaderLocationQuery("");
+  }, [setShowLocationSelector]);
 
   return (
     <header
@@ -224,7 +228,7 @@ export function Header({
 
       <LocationOverlayHost
         isOpen={showLocationSelector}
-        onClose={() => { setShowLocationSelector(false); setHeaderLocationQuery(""); }}
+        onClose={handleCloseLocationOverlay}
         containerRef={locationDropdownRef}
         locationQuery={headerLocationQuery}
         onLocationQueryChange={setHeaderLocationQuery}

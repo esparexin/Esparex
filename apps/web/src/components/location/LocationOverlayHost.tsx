@@ -36,19 +36,21 @@ export function LocationOverlayHost({
     const { setManualLocation } = useLocationDispatch();
     const { location } = useLocationData();
     const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = useBottomSheetManager();
+    const onCloseRef = useRef(onClose);
+    useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
     // Register the location sheet on mount
     useEffect(() => {
-        registerSheet("location", { onClose: () => onClose() });
+        registerSheet("location", { onClose: () => onCloseRef.current() });
         return () => unregisterSheet("location");
-    }, [registerSheet, unregisterSheet, onClose]);
+    }, [registerSheet, unregisterSheet]);
 
     // Synchronize BottomSheetManager when isOpen changes on mobile
     useEffect(() => {
         if (!isMobile) return;
         if (isOpen) openSheet("location");
-        else if (activeSheetId === "location") closeSheet("location");
-    }, [isMobile, isOpen, activeSheetId, openSheet, closeSheet]);
+        else closeSheet("location");
+    }, [isMobile, isOpen, openSheet, closeSheet]);
 
     // Anchor position for the desktop dropdown — anchored flush 2px below input bounds with matched width.
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});

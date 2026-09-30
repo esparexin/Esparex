@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
 import { useAuthStatus } from '@/context/AuthContext';
 import { 
@@ -82,10 +82,11 @@ export const useHomeAdsQuery = (
     const effectiveParams = params ?? {};
     return useQuery({
         queryKey: queryKeys.ads.home(effectiveParams),
-        queryFn: () => getHomeAds(effectiveParams),
+        queryFn: ({ signal }) => getHomeAds(effectiveParams, { signal }),
         staleTime: 1 * 60 * 1000, 
         enabled: options?.enabled ?? true,
         initialData: options?.initialData,
+        placeholderData: keepPreviousData,
     });
 };
 

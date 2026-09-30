@@ -43,7 +43,6 @@ export type LocationStatusContextType = {
     status: LocationStatus;
     detectError: string | null;
     loading: boolean;
-    locationExpired: boolean;
     detectFeedback: string | null;
     promptDismissed: boolean;
 };
@@ -97,7 +96,6 @@ export function LocationProvider({
     const [status, setStatus] = useState<LocationStatus>("unknown");
     const [detectError, setDetectError] = useState<string | null>(null);
     const [_promptDismissed, setPromptDismissed] = useState(false);
-    const [locationExpired, setLocationExpired] = useState(false);
 
     const genericLocationRefreshKeyRef = useRef<string | null>(null);
     const autoDetectedRef = useRef(false);
@@ -257,7 +255,6 @@ export function LocationProvider({
         setStatus,
         setLocation,
         setPromptDismissed,
-        setLocationExpired,
         logAnalytics,
         detectLocation,
     });
@@ -286,11 +283,10 @@ export function LocationProvider({
             status,
             detectError,
             loading: isDetecting,
-            locationExpired,
             detectFeedback,
             promptDismissed: _promptDismissed,
         }),
-        [status, detectError, isDetecting, locationExpired, detectFeedback, _promptDismissed]
+        [status, detectError, isDetecting, detectFeedback, _promptDismissed]
     );
 
     const actionsValue = useMemo(
@@ -319,12 +315,6 @@ export function LocationProvider({
 export function useLocationDispatch(): LocationDispatchContextType {
     const ctx = useContext(LocationActionsContext);
     if (!ctx) throw new Error("useLocationDispatch must be used within LocationProvider");
-    return ctx;
-}
-
-export function useLocationActions(): LocationActionsContextType {
-    const ctx = useContext(LocationActionsContext);
-    if (!ctx) throw new Error("useLocationActions must be used within LocationProvider");
     return ctx;
 }
 

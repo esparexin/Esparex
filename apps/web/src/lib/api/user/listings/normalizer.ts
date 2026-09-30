@@ -319,6 +319,11 @@ function coerceListingFallback(data: unknown): UserListing {
         ? record.sparePartIds.map(extractId).filter((pId): pId is string => typeof pId === 'string' && pId.length > 0)
         : undefined;
 
+    const fallbackListingType =
+        record.listingType === 'ad' || record.listingType === 'service' || record.listingType === 'spare_part'
+            ? record.listingType
+            : undefined;
+
     const sparePartsSnapshot = Array.isArray(record.sparePartsSnapshot)
         ? record.sparePartsSnapshot
             .map((item) => {
@@ -341,6 +346,7 @@ function coerceListingFallback(data: unknown): UserListing {
         status: normalizeAdStatus(typeof record.status === 'string' ? record.status : 'pending'),
         sellerId: extractId(record.sellerId) ?? '',
         createdAt,
+        ...(fallbackListingType ? { listingType: fallbackListingType } : {}),
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
         spareParts: Array.isArray(record.spareParts) ? (record.spareParts as (string | Record<string, unknown>)[]) : undefined,

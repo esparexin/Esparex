@@ -18,7 +18,6 @@ export function useLocationInit({
     setStatus,
     setLocation,
     setPromptDismissed,
-    setLocationExpired,
     logAnalytics,
     detectLocation,
 }: {
@@ -30,7 +29,6 @@ export function useLocationInit({
     setStatus: React.Dispatch<React.SetStateAction<LocationStatus>>;
     setLocation: (loc: LocationData) => void;
     setPromptDismissed: (dismissed: boolean) => void;
-    setLocationExpired: (expired: boolean) => void;
     logAnalytics?: ReturnType<typeof useLocationStorage>["logAnalytics"];
     detectLocation: (persist?: boolean, force?: boolean, isAutoPrompt?: boolean) => Promise<LocationData | null>;
 }) {
@@ -96,14 +94,10 @@ export function useLocationInit({
                 setStatus("denied");
             }
 
-            const hadStoredRaw = typeof window !== "undefined" && Boolean(localStorage.getItem("esparex_location"));
             const storedLocation = readStoredLocation();
             if (storedLocation) {
                 applyResolvedLocation(storedLocation, true);
                 return;
-            }
-            if (hadStoredRaw) {
-                setLocationExpired(true);
             }
 
             const profileLocation = await hydrateProfileLocation();
@@ -140,23 +134,18 @@ export function useLocationInit({
                 setPermissionBlockedFlag(true);
             } else if (!isDismissed) {
                 promptDelayTimeoutRef.current = setTimeout(() => {
-                    if (!cancelled) {
-                        setStatus((prev) => {
-                            if (prev === "checking" || prev === "unknown") {
-                                setTimeout(() => {
-                                    logAnalytics?.({
-                                        source: "default",
-                                        city: "Unknown",
-                                        state: "Unknown",
-                                        reason: "initial_prompt_shown",
-                                        eventType: "location_prompt_shown",
-                                    });
-                                }, 0);
-                                return "prompt";
-                            }
-                            return prev;
-                        });
-                    }
+                    if (cancelled) return;
+                    setStatus((prev) => {
+                        if (prev === "checking" || prev === "unknown") return "prompt";
+                        return prev;
+                    });
+                    logAnalytics?.({
+                        source: "default",
+                        city: "Unknown",
+                        state: "Unknown",
+                        reason: "initial_prompt_shown",
+                        eventType: "location_prompt_shown",
+                    });
                 }, LOCATION_PROMPT_DELAY_MS);
             } else {
                 setStatus("prompt");
@@ -178,7 +167,6 @@ export function useLocationInit({
         readPromptDismissedFromStorage,
         readStoredLocation,
         setLocation,
-        setLocationExpired,
         setPermissionBlockedFlag,
         setPromptDismissed,
         setStatus,

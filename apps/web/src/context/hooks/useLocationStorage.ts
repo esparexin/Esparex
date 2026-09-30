@@ -5,6 +5,7 @@ import { sanitizeMongoObjectId } from "@esparex/shared";
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
 import { type AppLocation } from "@/types/location";
+import { clearFeedLocationCookie, writeFeedLocationCookie } from "@/lib/location/feedIdentity";
 import { parseStoredAppLocation } from "./locationStorage.helpers";
 
 export const SEARCH_LOCATION_STORAGE_KEY = "esparex_location";
@@ -20,11 +21,13 @@ export function useLocationStorage() {
             detectedAt: Date.now()
         });
         localStorage.setItem(SEARCH_LOCATION_STORAGE_KEY, serialized);
+        writeFeedLocationCookie(nextLocation);
     }, []);
 
     const clearStoredLocation = useCallback(() => {
         if (typeof window === "undefined") return;
         localStorage.removeItem(SEARCH_LOCATION_STORAGE_KEY);
+        clearFeedLocationCookie();
     }, []);
 
     const readStoredLocation = useCallback((): AppLocation | null => {
