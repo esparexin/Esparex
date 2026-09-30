@@ -325,7 +325,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {business.status === BUSINESS_STATUS.SUSPENDED && onActivate && (
                             <button
                                 onClick={() => onActivate(business.id)}
-                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200 hover:bg-emerald-100 transition-colors text-sm"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-success/10 text-success font-semibold border border-success/20 hover:bg-success/20 transition-colors text-body"
                             >
                                 <RotateCcw size={15} /> Reactivate
                             </button>
@@ -334,7 +334,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <>
                                 <button
                                     onClick={() => onReject(business.id)}
-                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-red-50 text-red-600 font-semibold border border-red-100 hover:bg-red-100 transition-colors text-sm"
+                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-destructive/10 text-destructive font-semibold border border-destructive/20 hover:bg-destructive/20 transition-colors text-body"
                                 >
                                     <XCircle size={16} /> Reject
                                 </button>

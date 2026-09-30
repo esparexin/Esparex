@@ -139,7 +139,7 @@ export default function PlansPage() {
             header: "Type & Audience",
             cell: (plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
+                    <span className="text-caption font-semibold text-foreground-secondary flex items-center gap-1">
                         <Activity size={12} className="text-foreground-subtle" /> {plan.type.replace("_", " ")}
                     </span>
                     <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
@@ -151,21 +151,21 @@ export default function PlansPage() {
         {
             header: "Key Limits",
             cell: (plan) => (
-                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     {plan.type === "FREE_DEFAULT" && (
                         <div>Free Slots: <strong className="font-semibold text-emerald-700">{plan.limits?.maxAds ?? 2}/month</strong></div>
                     )}
                     {plan.type === "AD_PACK" && (
-                        <div>Ad Slots: <strong className="font-semibold text-amber-700">{plan.limits?.maxAds ?? 1} Slots</strong></div>
+                        <div>Ad Slots: <strong className="font-semibold text-warning">{plan.limits?.maxAds ?? 1} Slots</strong></div>
                     )}
                     {plan.type === "BOOST_AD" && (
-                        <div>Boost Priority: <strong className="font-semibold text-amber-600">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
+                        <div>Boost Priority: <strong className="font-semibold text-warning">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
                     )}
                     {plan.type === "SPOTLIGHT" && (
-                        <div>Spotlight: <strong className="font-semibold text-purple-600">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
+                        <div>Spotlight: <strong className="font-semibold text-info">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
                     )}
                     {plan.type === "SMART_ALERT" && (
-                        <div>Alert Slots: <strong className="font-semibold text-sky-600">{plan.limits?.smartAlerts ?? 1} Slots</strong></div>
+                        <div>Alert Slots: <strong className="font-semibold text-info">{plan.limits?.smartAlerts ?? 1} Slots</strong></div>
                     )}
                 </div>
             )
@@ -177,20 +177,20 @@ export default function PlansPage() {
                 type CfgEntry = { dot: string; label: string; text: string };
                 const fallback: CfgEntry = { dot: "bg-foreground-tertiary", label: "Inactive", text: "text-foreground-secondary" };
                 const statusConfig: Partial<Record<string, CfgEntry>> = {
-                    ACTIVE: { dot: "bg-emerald-500", label: "Active", text: "text-emerald-700" },
+                    ACTIVE: { dot: "bg-success", label: "Active", text: "text-success" },
                     INACTIVE: fallback,
-                    DRAFT: { dot: "bg-sky-400", label: "Draft", text: "text-sky-700" },
-                    ARCHIVED: { dot: "bg-amber-500", label: "Archived", text: "text-amber-700" },
+                    DRAFT: { dot: "bg-info", label: "Draft", text: "text-info" },
+                    ARCHIVED: { dot: "bg-warning", label: "Archived", text: "text-warning" },
                 };
                 const cfg: CfgEntry = statusConfig[status] ?? fallback;
                 return (
                     <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                        <span className={`capitalize text-xs font-medium ${cfg.text}`}>
+                        <span className={`capitalize text-caption font-medium ${cfg.text}`}>
                             {cfg.label}
                         </span>
                         {plan.isSystemPlan && (
-                            <ShieldCheck size={12} className="text-sky-500" aria-label="System protected plan" />
+                            <ShieldCheck size={12} className="text-info" aria-label="System protected plan" />
                         )}
                     </div>
                 );
@@ -221,10 +221,10 @@ export default function PlansPage() {
                                 onClick={() => void onToggleClick(plan)}
                                 disabled={isMutating}
                                 aria-label={isActive ? `Disable plan ${plan.name}` : `Enable plan ${plan.name}`}
-                                className={`p-1.5 rounded transition-colors flex items-center gap-1 text-xs font-medium ${
+                                className={`p-1.5 rounded transition-colors flex items-center gap-1 text-caption font-medium ${
                                     isActive
-                                        ? "text-red-600 hover:bg-red-50"
-                                        : "text-emerald-600 hover:bg-emerald-50"
+                                        ? "text-destructive hover:bg-destructive/10"
+                                        : "text-success hover:bg-success/10"
                                 }`}
                             >
                                 {isActive ? <><XCircle size={14} aria-hidden="true" /> Disable</> : <><CheckCircle2 size={14} aria-hidden="true" /> Enable</>}
