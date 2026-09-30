@@ -122,7 +122,7 @@ describe("listingPresentation", () => {
             type: "service",
             label: "Service",
             icon: "wrench",
-            className: "bg-primary/10 text-primary border-primary/20",
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
         });
 
         expect(
@@ -143,9 +143,9 @@ describe("listingPresentation", () => {
             } as Parameters<typeof resolveListingTypeBadge>[0])
         ).toEqual({
             type: "ad",
-            label: "Ad",
+            label: "Device",
             icon: "device",
-            className: "bg-primary/10 text-primary border-primary/20",
+            className: "bg-blue-50 text-blue-700 border-blue-200",
         });
     });
 

@@ -5,6 +5,7 @@ import type { UserListing } from "@/lib/api/user/listings";
 import type { SoldReason } from "@/components/user/shared/MarkAsSoldDialog";
 import type { ListingSubTab, ListingActionHandlers } from "./MyListingsConfig";
 import type { MyListingsDialogsProps } from "./MyListingsDialogs";
+import { resolveListingTypeFromTab } from "@/lib/listings/listingPresentation";
 
 interface UseMyListingsModalsParams {
   subTab: ListingSubTab;
@@ -67,7 +68,7 @@ export function useMyListingsModals({
 
   const confirmDeleteAd = async () => {
     if (!adToDelete) return;
-    const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+    const type = resolveListingTypeFromTab(subTab);
     if (type === "ad") await handleDeleteAd(adToDelete.id);
     else if (type === "service") await handleDeleteService(adToDelete.id);
     else await handleDeleteSpare(adToDelete.id);
@@ -77,7 +78,7 @@ export function useMyListingsModals({
 
   const confirmDeactivate = async () => {
     if (!adToDeactivate) return;
-    const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+    const type = resolveListingTypeFromTab(subTab);
     if (type === "ad") await handleDeactivateAd(adToDeactivate.id);
     else if (type === "service") await handleDeactivateService(adToDeactivate.id);
     else await handleDeactivateSpare(adToDeactivate.id);
@@ -87,7 +88,7 @@ export function useMyListingsModals({
 
   const confirmActivate = async () => {
     if (!adToActivate) return;
-    const type = subTab === "ads" ? "ad" : subTab === "services" ? "service" : "spare_part";
+    const type = resolveListingTypeFromTab(subTab);
     if (type === "ad") await handleActivateAd(adToActivate.id);
     else if (type === "service") await handleActivateService(adToActivate.id);
     else await handleActivateSpare(adToActivate.id);

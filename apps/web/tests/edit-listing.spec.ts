@@ -404,7 +404,7 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await saveBtn.click();
 
         await expect(
-            page.locator("text=Ad Updated").or(page.locator("text=Ad Submitted"))
+            page.locator("text=Device Updated").or(page.locator("text=Device Submitted"))
         ).toBeVisible({ timeout: 10_000 });
 
         const doneBtn = page.locator('button:has-text("Done")');

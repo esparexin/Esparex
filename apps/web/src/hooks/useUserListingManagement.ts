@@ -61,7 +61,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
     const queryClient = useQueryClient();
     const isEnabled = activeTab === type && !!user;
     const entityLabel = {
-        "ads": "Ad",
+        "ads": "Device",
         "spare-parts": "Spare part listing",
         "services": "Service"
     }[type];
