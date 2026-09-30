@@ -1,4 +1,5 @@
 import { sanitizeLocationLabel, LocationFacade } from "@esparex/shared";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -43,16 +44,16 @@ export function resolveReadableListingReferenceLabel(value: unknown): string | n
     return toReadableLabel(value);
 }
 
-export type ResolvedListingType = "ad" | "service" | "spare_part";
+export type ResolvedListingType = ListingTypeValue;
 
 export function resolveListingTypeValue(
     listing: { listingType?: unknown } | null | undefined
 ): ResolvedListingType {
-    if (listing?.listingType === "service" || listing?.listingType === "spare_part") {
+    if (listing?.listingType === LISTING_TYPE.SERVICE || listing?.listingType === LISTING_TYPE.SPARE_PART) {
         return listing.listingType;
     }
 
-    return "ad";
+    return LISTING_TYPE.AD;
 }
 
 export function resolveListingTypeBadge(
@@ -60,16 +61,17 @@ export function resolveListingTypeBadge(
 ) {
     const listingType = resolveListingTypeValue(listing);
 
-    if (listingType === "service") {
+    if (listingType === LISTING_TYPE.SERVICE) {
         return {
             type: listingType,
             label: "Service",
             icon: "wrench" as const,
-            className: "bg-primary/10 text-primary border-primary/20",
+            // design-token-ignore: main-branch badge parity — Service keeps main emerald treatment (Phase A visual-consistency rule)
+            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
         };
     }
 
-    if (listingType === "spare_part") {
+    if (listingType === LISTING_TYPE.SPARE_PART) {
         return {
             type: listingType,
             label: "Parts",
@@ -80,14 +82,42 @@ export function resolveListingTypeBadge(
 
     return {
         type: listingType,
-        label: "Ad",
+        label: "Device",
         icon: "device" as const,
-        className: "bg-primary/10 text-primary border-primary/20",
+        // design-token-ignore: main-branch badge parity — Device keeps main Ad blue treatment (Phase A visual-consistency rule)
+        className: "bg-blue-50 text-blue-700 border-blue-200",
     };
 }
 
-export function resolveListingCategoryLabel(
-    listing: ListingCategoryLike | null | undefined,
+/**
+ * Account/profile tab vocabulary ("ads" | "services" | "spare-parts").
+ * Route vocabulary lives in publicListingRoutes/publicBrowseRoutes and is
+ * intentionally separate. Use these translators instead of inline ternaries
+ * so the canonical enum stays the single source of truth.
+ */
+export type AccountListingTab = "ads" | "services" | "spare-parts";
+
+export function resolveListingTypeFromTab(tab: unknown): ResolvedListingType {
+    if (tab === "services") {
+        return LISTING_TYPE.SERVICE;
+    }
+    if (tab === "spare-parts") {
+        return LISTING_TYPE.SPARE_PART;
+    }
+    return LISTING_TYPE.AD;
+}
+
+export function resolveTabForListingType(listingType: unknown): AccountListingTab {
+    if (listingType === LISTING_TYPE.SERVICE) {
+        return "services";
+    }
+    if (listingType === LISTING_TYPE.SPARE_PART) {
+        return "spare-parts";
+    }
+    return "ads";
+}
+
+export function resolveListingCategoryLabel(    listing: ListingCategoryLike | null | undefined,
     fallback = "Category"
 ): string {
     const explicitLabel =
@@ -98,11 +128,11 @@ export function resolveListingCategoryLabel(
         return explicitLabel;
     }
 
-    if (listing?.listingType === "service") {
+    if (listing?.listingType === LISTING_TYPE.SERVICE) {
         return "Service";
     }
 
-    if (listing?.listingType === "spare_part") {
+    if (listing?.listingType === LISTING_TYPE.SPARE_PART) {
         return "Spare Part";
     }
 

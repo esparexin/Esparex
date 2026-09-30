@@ -1,7 +1,8 @@
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 import { sanitizeLocationLabel } from "@esparex/shared";
 import { parseBrowseTokenList, serializeBrowseTokenList } from "@/lib/browse/browseFilterNormalization";
 
-export type PublicBrowseType = "all" | "ad" | "service" | "spare_part";
+export type PublicBrowseType = "all" | ListingTypeValue;
 
 export interface PublicBrowseRouteParams {
     type?: unknown;
@@ -44,7 +45,7 @@ type BrowseCategoryRecord = {
 type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
 const PUBLIC_BROWSE_PATH = "/search";
-const PUBLIC_BROWSE_TYPES = new Set<PublicBrowseType>(["all", "ad", "service", "spare_part"]);
+const PUBLIC_BROWSE_TYPES = new Set<PublicBrowseType>(["all", LISTING_TYPE.AD, LISTING_TYPE.SERVICE, LISTING_TYPE.SPARE_PART]);
 const PUBLIC_SORTS = new Set(["relevance", "newest", "price_low_high", "price_high_low"]);
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
@@ -119,12 +120,12 @@ export const normalizePublicBrowseType = (value: unknown): PublicBrowseType => {
 export const inferPublicBrowseTypeFromPathname = (pathname?: string | null): PublicBrowseType => {
     const normalizedPathname = pathname?.toLowerCase() || "";
     if (normalizedPathname.includes("spare-part")) {
-        return "spare_part";
+        return LISTING_TYPE.SPARE_PART;
     }
     if (normalizedPathname.includes("service")) {
-        return "service";
+        return LISTING_TYPE.SERVICE;
     }
-    return "ad";
+    return LISTING_TYPE.AD;
 };
 
 export const parsePublicBrowseParams = (
@@ -226,7 +227,7 @@ export const buildCategoryBrowseRoute = (
         return `/category/${canonical}`;
     }
     return buildPublicBrowseRoute({
-        type: "ad",
+        type: LISTING_TYPE.AD,
         ...input,
         category: resolveBrowseCategoryParam(category),
     });
@@ -243,7 +244,7 @@ export const buildCatalogLinkedBrowseRoute = (
     const resolvedId = readString(id);
 
     return buildPublicBrowseRoute({
-        type: "ad",
+        type: LISTING_TYPE.AD,
         ...rest,
         ...(entity === "brand"
             ? { brands: resolvedId }

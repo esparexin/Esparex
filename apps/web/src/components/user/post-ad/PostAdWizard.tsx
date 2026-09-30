@@ -55,7 +55,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     return (
       <PostAdShell>
         <ListingSubmissionSuccessModal
-          entityLabel="Ad"
+          entityLabel="Device"
           isEditMode={isEditMode}
           pendingActionLabel="View Pending Ads"
           onPrimaryAction={handleGoHome}
