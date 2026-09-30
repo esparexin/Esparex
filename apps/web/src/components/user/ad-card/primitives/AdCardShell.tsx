@@ -3,12 +3,12 @@
 import { memo } from "react";
 import { Card } from "@esparex/ui";
 import { cn } from "@/lib/utils";
-import { type AdCardData } from "../shared";
+import { type AdCardData, type AdCardClickEvent, type AdCardKeyboardEvent } from "../shared";
 
 export interface AdCardShellProps {
   ad: AdCardData;
-  handleCardClick: (e?: React.MouseEvent) => void;
-  handleKeyDown?: (e: React.KeyboardEvent) => void;
+  handleCardClick: (e?: AdCardClickEvent) => void;
+  handleKeyDown?: (e: AdCardKeyboardEvent) => void;
   className?: string;
   children: React.ReactNode;
 }

@@ -1,9 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AdCardGrid } from "@/components/user/ad-card/AdCardGrid";
 import { AdCardList } from "@/components/user/ad-card/AdCardList";
-import { useAdCardNavigation } from "@/components/user/ad-card/shared";
+import {
+  useAdCardNavigation,
+  type AdCardClickEvent,
+  type AdCardKeyboardEvent,
+} from "@/components/user/ad-card/shared";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { parseListingSlugParam, parseSlugIdParam } from "@/lib/slug";
 import { ListingItem } from "@/components/user/shared/ListingItem";
@@ -101,18 +104,49 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
   });
 
   describe("3. useAdCardNavigation Event Propagation & Target Guarding", () => {
+    class MockElement extends EventTarget {
+      tagName: string;
+      parent: MockElement | null;
+
+      constructor(tagName = "DIV", parent: MockElement | null = null) {
+        super();
+        this.tagName = tagName;
+        this.parent = parent;
+      }
+
+      closest(selector: string): MockElement | null {
+        if (selector.toLowerCase().split(",").map((s) => s.trim()).includes(this.tagName.toLowerCase())) {
+          return this;
+        }
+        return this.parent ? this.parent.closest(selector) : null;
+      }
+    }
+
+    const createMouseEvent = (target: MockElement, currentTarget: MockElement = target): AdCardClickEvent => {
+      return {
+        target,
+        currentTarget,
+      };
+    };
+
+    const createKeyboardEvent = (key: string, target: MockElement, preventDefault = vi.fn()): AdCardKeyboardEvent => {
+      return {
+        key,
+        target,
+        currentTarget: target,
+        preventDefault,
+      };
+    };
+
     it("triggers router.push when card body surface is clicked", () => {
       const { handleCardClick } = useAdCardNavigation({
         href: "/ads/iphone-13-507f1f77bcf86cd799439011",
       });
 
-      const cardSurfaceElement = {
-        closest: (_selector: string) => null,
-      } as unknown as HTMLElement;
+      const cardContainer = new MockElement("ARTICLE");
+      const cardSurfaceElement = new MockElement("DIV", cardContainer);
 
-      const mockEvent = {
-        target: cardSurfaceElement,
-      } as unknown as React.MouseEvent;
+      const mockEvent = createMouseEvent(cardSurfaceElement, cardContainer);
 
       handleCardClick(mockEvent);
       expect(pushMock).toHaveBeenCalledWith("/ads/iphone-13-507f1f77bcf86cd799439011");
@@ -123,13 +157,10 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
         href: "/ads/iphone-13-507f1f77bcf86cd799439011",
       });
 
-      const buttonElement = {
-        closest: (selector: string) => (selector.includes("button") ? {} : null),
-      } as unknown as HTMLElement;
+      const cardContainer = new MockElement("ARTICLE");
+      const buttonElement = new MockElement("BUTTON", cardContainer);
 
-      const mockEvent = {
-        target: buttonElement,
-      } as unknown as React.MouseEvent;
+      const mockEvent = createMouseEvent(buttonElement, cardContainer);
 
       handleCardClick(mockEvent);
       expect(pushMock).not.toHaveBeenCalled();
@@ -140,13 +171,10 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
         href: "/ads/iphone-13-507f1f77bcf86cd799439011",
       });
 
-      const anchorElement = {
-        closest: (selector: string) => (selector.includes("a") ? {} : null),
-      } as unknown as HTMLElement;
+      const cardContainer = new MockElement("ARTICLE");
+      const anchorElement = new MockElement("A", cardContainer);
 
-      const mockEvent = {
-        target: anchorElement,
-      } as unknown as React.MouseEvent;
+      const mockEvent = createMouseEvent(anchorElement, cardContainer);
 
       handleCardClick(mockEvent);
       expect(pushMock).not.toHaveBeenCalled();
@@ -159,11 +187,10 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
         onClick: customOnClick,
       });
 
-      const cardSurfaceElement = {
-        closest: () => null,
-      } as unknown as HTMLElement;
+      const cardContainer = new MockElement("ARTICLE");
+      const cardSurfaceElement = new MockElement("DIV", cardContainer);
 
-      handleCardClick({ target: cardSurfaceElement } as unknown as React.MouseEvent);
+      handleCardClick(createMouseEvent(cardSurfaceElement, cardContainer));
       expect(customOnClick).toHaveBeenCalledTimes(1);
       expect(pushMock).not.toHaveBeenCalled();
     });
@@ -174,13 +201,9 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
       });
 
       const preventDefault = vi.fn();
-      const cardSurfaceElement = { closest: () => null } as unknown as HTMLElement;
+      const cardContainer = new MockElement("ARTICLE");
 
-      handleKeyDown({
-        key: "Enter",
-        target: cardSurfaceElement,
-        preventDefault,
-      } as unknown as React.KeyboardEvent);
+      handleKeyDown(createKeyboardEvent("Enter", cardContainer, preventDefault));
 
       expect(preventDefault).toHaveBeenCalled();
       expect(pushMock).toHaveBeenCalledWith("/ads/iphone-13-507f1f77bcf86cd799439011");
