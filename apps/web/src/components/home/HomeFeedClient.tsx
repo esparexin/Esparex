@@ -65,8 +65,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
 
 /**
  * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
- * This component is keyed by location in the parent (HomeFeed), so it automatically 
- * resets when the location changes.
+ * Preserves the current grid across location updates; new results replace it only when ready.
  */
 export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
@@ -91,25 +90,23 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         return [validLocationId, location.city || "", location.level || "", latStr, lngStr].join(":");
     }, [hasUserLocation, latitude, location.city, location.id, location.level, location.locationId, longitude]);
 
-    // Soft-reset pagination cursor when location changes without unmounting tree
+    // Reset pagination cursor when location changes; preserve displayed ads until new page arrives
     const prevLocationIdentityRef = useRef(locationIdentity);
     useEffect(() => {
         if (prevLocationIdentityRef.current !== locationIdentity) {
             prevLocationIdentityRef.current = locationIdentity;
             setCursor(undefined);
             setNextCursor(null);
-            setFeedAds([]);
         }
     }, [locationIdentity]);
 
-    // Soft-reset pagination cursor and feed state when active listing tab changes
+    // Reset pagination cursor when active listing tab changes; preserve ads until new page arrives
     const prevSelectedTypeRef = useRef(selectedType);
     useEffect(() => {
         if (prevSelectedTypeRef.current !== selectedType) {
             prevSelectedTypeRef.current = selectedType;
             setCursor(undefined);
             setNextCursor(null);
-            setFeedAds([]);
         }
     }, [selectedType]);
     
@@ -188,6 +185,9 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         activeType={selectedType}
                         onTypeChange={setSelectedType}
                     />
+                    {isFetching && displayedAds.length > 0 && (
+                        <p role="status" className="text-tiny text-foreground-secondary">Updating listings…</p>
+                    )}
                 </div>
 
                 {(isLoading || isFetching) && displayedAds.length === 0 && <FeedSkeletonGrid />}
@@ -202,7 +202,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {displayedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
+                        <div aria-busy={isFetching} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
                             {displayedAds.map((ad, index) => (
                                 <Fragment key={ad.id}>
                                     <AdCardGrid
