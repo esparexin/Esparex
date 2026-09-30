@@ -11,7 +11,7 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
 import { validateIndianMobile } from "@/lib/mobileUtils";
 
-import { Form, ArrowLeft, Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
+import { Form, Card, CardContent, CardHeader, CardTitle } from "@esparex/ui";
 
 import { loginFormSchema, type LoginFormValues } from "@esparex/contracts";
 import { LoginMobileStep } from "./auth/LoginMobileStep";
@@ -20,38 +20,22 @@ import { LoginOtpStep } from "./auth/LoginOtpStep";
 interface LoginProps {
   onLoginSuccess: () => void;
   onBack?: () => void;
-  mode?: "page" | "modal";
   onRegisterBackAction?: (action: (() => void) | null) => void;
 }
 
 export function Login({
   onLoginSuccess,
   onBack,
-  mode = "modal",
   onRegisterBackAction,
 }: LoginProps) {
   const flow = useOtpFlow(onLoginSuccess);
   const { step } = flow;
-  const isModal = mode === "modal";
 
   return (
     <Card
-      className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex flex-col",
-        isModal && "sm:border-0 sm:shadow-none"
-      )}
+      className="w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex flex-col"
     >
       <CardHeader className="relative text-center p-0 mb-4 sm:mb-7 shrink-0">
-        {!isModal && onBack && (
-          <button
-            type="button"
-            onClick={step !== "enterMobile" ? () => flow.resetToMobileStep() : onBack}
-            className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-muted/80 hover:bg-muted text-foreground-secondary hover:text-foreground transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
-            aria-label="Back"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-        )}
         <div className="mx-auto mb-2 w-fit">
           <div className="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/15 p-2">
             <Image

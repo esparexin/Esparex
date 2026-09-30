@@ -72,7 +72,6 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
 
         <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain -mx-4 px-4 sm:-mx-6 sm:px-6">
           <LoginFlow
-            mode="modal"
             callbackUrl={callbackUrl}
             onClose={() => handleOpenChange(false)}
             onBack={() => handleOpenChange(false)}
