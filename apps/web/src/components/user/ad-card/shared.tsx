@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Zap, Badge, Power } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -46,7 +45,12 @@ export function useAdCardNavigation({
   const router = useRouter();
   const useDeclarativeLink = Boolean(href && !onClick && !disableDeclarativeLink);
 
-  const handleCardClick = () => {
+  const handleCardClick = (e?: React.MouseEvent) => {
+    // If the click originated from an interactive element (button, link, input), let it handle its own event
+    const target = e?.target as HTMLElement | undefined;
+    if (target?.closest("button, [role='button'], a, input, select, textarea")) {
+      return;
+    }
     if (onClick) {
       onClick();
       return;
@@ -56,22 +60,28 @@ export function useAdCardNavigation({
     }
   };
 
-  return { useDeclarativeLink, handleCardClick };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      const target = e.target as HTMLElement | undefined;
+      if (target?.closest("button, [role='button'], a, input, select, textarea")) {
+        return;
+      }
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
+  return { useDeclarativeLink, handleCardClick, handleKeyDown };
 }
 
 export function AdCardLinkWrapper({
-  href,
-  enabled,
+  href: _href,
+  enabled: _enabled,
   children,
 }: AdCardLinkWrapperProps) {
-  if (!enabled || !href) {
-    return <>{children}</>;
-  }
-  return (
-    <Link href={href} className="block w-full">
-      {children}
-    </Link>
-  );
+  // Stretched link pattern delegates navigation to the internal title Link,
+  // preventing invalid HTML5 <button> inside <a> nesting while maintaining 100% surface clickability.
+  return <>{children}</>;
 }
 
 export function toAdRecord(ad: AdCardData): Record<string, unknown> {
@@ -113,7 +123,7 @@ export function useAdCardBase({
         })
       : undefined);
 
-  const { useDeclarativeLink, handleCardClick } = useAdCardNavigation({
+  const { useDeclarativeLink, handleCardClick, handleKeyDown } = useAdCardNavigation({
     href: resolvedHref,
     onClick,
     disableDeclarativeLink,
@@ -126,6 +136,7 @@ export function useAdCardBase({
     adId,
     useDeclarativeLink,
     handleCardClick,
+    handleKeyDown,
   };
 }
 

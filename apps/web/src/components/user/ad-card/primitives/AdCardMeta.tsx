@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import Link from "next/link";
 import { MapPin, Clock } from "@esparex/ui";
 import { formatPrice, formatStableDate, formatShortRelativeTime } from "@/lib/formatters";
 import { resolveListingLocationLabel, sanitizeListingTitle } from "@/lib/listings/listingPresentation";
@@ -16,12 +17,14 @@ import {
 
 interface AdCardMetaProps {
   ad: AdCardData;
+  href?: string;
   className?: string;
   variant?: "default" | "dashboard" | "list";
 }
 
 export const AdCardMeta = memo(function AdCardMeta({
   ad,
+  href,
   className,
   variant = "default",
 }: AdCardMetaProps) {
@@ -84,13 +87,27 @@ export const AdCardMeta = memo(function AdCardMeta({
         )}
       </div>
 
-      {/* Title — Snug line-height and discrete Geist font size */}
+      {/* Title — Stretched link covers full card surface when href provided */}
       <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
           "font-normal line-clamp-2 leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors",
           isList ? "text-small" : "text-body"
         )}>
-          {sanitizeListingTitle(ad.title, ad)}
+          {href ? (
+            <Link
+              href={href}
+              className={cn(
+                "after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none",
+                "hover:no-underline"
+              )}
+              tabIndex={-1}
+              aria-hidden="true"
+            >
+              {sanitizeListingTitle(ad.title, ad)}
+            </Link>
+          ) : (
+            sanitizeListingTitle(ad.title, ad)
+          )}
         </h3>
       </div>
 
