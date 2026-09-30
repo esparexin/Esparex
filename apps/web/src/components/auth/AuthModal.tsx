@@ -40,11 +40,10 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           }
         }}
         className={cn(
-          // Mobile: top-0/left-0/right-0 height bound to visual-viewport token.
-          // Overrides bottom to bottom-auto to eliminate conflicting over-constrained CSS.
-          "top-0 left-0 right-0 bottom-auto h-[var(--visual-viewport-height,100svh)] w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
-          "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
-          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:p-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
+          // Mobile: full-viewport opaque modal surface eliminating background bleed.
+          "top-0 bottom-0 left-0 right-0 h-full max-h-none w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
+          "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-0",
+          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
           "sm:animate-none sm:transition-none sm:transform-none sm:overflow-hidden"
         )}
       >
