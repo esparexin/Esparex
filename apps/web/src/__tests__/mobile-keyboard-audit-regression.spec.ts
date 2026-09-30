@@ -53,6 +53,7 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         // AuthModal must center on desktop viewports without corner docking
         expect(authModalContent).toContain("sm:inset-0");
         expect(authModalContent).toContain("sm:m-auto");
+        expect(authModalContent).toContain("sm:max-w-sm");
     });
 
     it("ensures globals.css hides mobile navigation when keyboard is open (decorative workaround removed)", () => {

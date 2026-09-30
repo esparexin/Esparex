@@ -7,7 +7,6 @@ import { XIcon } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
-import { lockSheetScroll } from "./sheetScrollLock";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -56,20 +55,16 @@ function SheetContent({
   side = "right",
   onOpenAutoFocus,
   hideClose = false,
-  overlayClassName,
   style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   onOpenAutoFocus?: (e: React.FocusEvent<HTMLElement>) => void;
   hideClose?: boolean;
-  overlayClassName?: string;
 }) {
-  React.useEffect(() => lockSheetScroll(), []);
-
   return (
     <SheetPortal>
-      <SheetOverlay className={overlayClassName} />
+      <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         /* design-token-ignore: dynamic z-index layering */
