@@ -141,6 +141,17 @@ module.exports = {
       }
     },
     {
+      name: 'no-deep-imports-into-packages',
+      severity: 'error',
+      comment: 'External consumers must use package root barrels (resolving to packages/<pkg>/src/index.ts), never deeper src/ subpaths (audit C1). Intra-package barrel chains are exempt.',
+      from: {
+        pathNot: '^packages/(mobile-ui|ui|contracts|shared)/'
+      },
+      to: {
+        path: '^packages/(mobile-ui|ui|contracts|shared)/src/(?!index\\.tsx?$).+'
+      }
+    },
+    {
       name: 'platform-sdk-in-infrastructure-only',
       severity: 'error',
       comment: 'Native device SDKs (expo-image-picker, expo-camera, expo-notifications, expo-location) must be encapsulated in infrastructure adapters and never imported directly in presentation, application, or domain layers.',
