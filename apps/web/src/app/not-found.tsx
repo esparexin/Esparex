@@ -29,14 +29,10 @@ export default function NotFound() {
                         <div className="relative">
                             <div className="absolute inset-0 bg-primary/10 rounded-full scale-110 blur-md opacity-60" />
                             <div className="h-14 w-14 sm:h-16 sm:w-16 bg-card rounded-xl sm:rounded-2xl shadow-xs flex items-center justify-center text-primary rotate-3 relative z-10 border border-border">
-                                <MapPinOff size={28} strokeWidth={1.5} className="sm:hidden" />
-                                <MapPinOff size={32} strokeWidth={1.5} className="hidden sm:block" />
+                                <MapPinOff strokeWidth={1.5} className="h-7 w-7 sm:h-8 sm:w-8" />
                             </div>
                             <div className="absolute -bottom-1 -right-1 h-7 w-7 sm:h-8 sm:w-8 bg-primary rounded-lg shadow-xs flex items-center justify-center text-primary-foreground -rotate-6 z-20">
-                                {/* design-token-ignore: custom spin duration for decorative icon */}
-                                <Compass size={14} className="animate-spin sm:hidden" style={{ animationDuration: '8s' }} />
-                                {/* design-token-ignore: custom spin duration for decorative icon */}
-                                <Compass size={16} className="animate-spin hidden sm:block" style={{ animationDuration: '8s' }} />
+                                <Compass className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ animationDuration: '8s' }} /* design-token-ignore: custom spin duration for decorative icon */ />
                             </div>
                         </div>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-tiny font-bold uppercase tracking-wider mt-1">

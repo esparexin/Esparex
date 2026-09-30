@@ -60,6 +60,11 @@ const RULES = {
     severity: "error",
     description: "Viewport-split component file naming (e.g. *DesktopTable.tsx, *MobileCard.tsx) is prohibited",
   },
+  WAIVER_SYNTAX: {
+    id: "waiver-syntax",
+    severity: "error",
+    description: "ui-guard-ignore waiver missing mandatory justification (must include [Reason] or — Reason)",
+  },
   MULTIPLE_H1: {
     id: "multiple-h1",
     severity: "error",
@@ -213,9 +218,10 @@ function auditFile(filePath) {
   };
   const isFileLevelParallelIgnored = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.PARALLEL_RESPONSIVE.id}`));
   if (!isFileLevelParallelIgnored) {
-    for (const bp of ["md", "lg"]) {
-      const hasBpHidden = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b${bp}:hidden`)));
-      const hasHiddenBp = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\bhidden\\s+${bp}:(?:block|flex|grid)`)));
+    const CANONICAL_BREAKPOINTS = ["sm", "md", "lg", "xl", "2xl"];
+    for (const bp of CANONICAL_BREAKPOINTS) {
+      const hasBpHidden = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b${bp}:hidden(?![-\\w])`)));
+      const hasHiddenBp = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b(?:hidden\\s+${bp}:(?:block|flex|grid|table)|${bp}:(?:block|flex|grid|table)\\s+hidden)(?![-\\w])`)));
       if (hasBpHidden && hasHiddenBp) {
         violations.push({
           rule: RULES.PARALLEL_RESPONSIVE,
@@ -227,6 +233,23 @@ function auditFile(filePath) {
       }
     }
   }
+
+  // ── Rule: Waiver Syntax Validation ─────────────────────────────────────────
+  lines.forEach((l, i) => {
+    if (l.includes("ui-guard-ignore:")) {
+      const match = l.match(/ui-guard-ignore:\s*([a-z0-9-]+)(?:\s+(.+?))?(?:\s*\*\/|\s*-->|\s*$)/i);
+      let justification = (match && match[2]) ? match[2].trim() : "";
+      justification = justification.replace(/[\]\}]+$/, "").replace(/^[\[\{]+/, "").trim();
+      if (!justification || justification.length < 8) {
+        violations.push({
+          rule: RULES.WAIVER_SYNTAX,
+          file: relPath,
+          line: i + 1,
+          content: `ui-guard-ignore waiver missing mandatory justification (min 8 chars): /* ui-guard-ignore: <rule-id> [<Justification>] */`,
+        });
+      }
+    }
+  });
 
   // ── Rule: Viewport-split component file naming ────────────────────────────
   const baseName = path.basename(filePath);

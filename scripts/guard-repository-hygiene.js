@@ -110,7 +110,53 @@ try {
     // Git check fallback
 }
 
-// 4. Report results
+// 4. Scan for unreferenced (orphaned) React components in apps/web/src/components
+try {
+    function walkDir(dir) {
+        let files = [];
+        if (!fs.existsSync(dir)) return files;
+        for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, f.name);
+            if (f.isDirectory()) {
+                if (["node_modules", ".next", "__tests__"].includes(f.name)) continue;
+                files = files.concat(walkDir(full));
+            } else if (f.name.endsWith(".tsx") || f.name.endsWith(".ts")) {
+                files.push(full);
+            }
+        }
+        return files;
+    }
+
+    const webComponentsDir = path.join(ROOT, "apps", "web", "src", "components");
+    if (fs.existsSync(webComponentsDir)) {
+        const componentFiles = walkDir(webComponentsDir).filter(
+            (f) => !f.includes("types") && !f.endsWith(".d.ts")
+        );
+        const allWebSrcFiles = walkDir(path.join(ROOT, "apps", "web", "src"));
+        const allSrcContents = allWebSrcFiles.map((f) => ({
+            path: f,
+            content: fs.readFileSync(f, "utf8"),
+        }));
+
+        for (const comp of componentFiles) {
+            const base = path.basename(comp, path.extname(comp));
+            const isImported = allSrcContents.some((src) => {
+                if (src.path === comp) return false;
+                return src.content.includes(base);
+            });
+            if (!isImported) {
+                const relPath = path.relative(ROOT, comp);
+                violations.push(
+                    `Orphaned component detected: '${relPath}'. It has 0 import references in apps/web/src.`
+                );
+            }
+        }
+    }
+} catch (err) {
+    violations.push(`Failed to complete component orphan scan: ${err.message}`);
+}
+
+// 5. Report results
 if (violations.length > 0) {
     console.error("❌ Repository Hygiene Guard Violations Found:\n");
     for (const v of violations) {

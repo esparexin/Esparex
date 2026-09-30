@@ -81,7 +81,62 @@ export function ParallelIgnored() {
 }`
     );
     const v4 = auditFile(f4);
-    assert(v4.length === 0, 'Passes clean single-instance responsive component');
+    // 5. MUST FAIL: Multi-breakpoint detection (sm:hidden and hidden sm:block)
+    const f5 = path.join(tmpDir, 'SmParallelBad.tsx');
+    fs.writeFileSync(
+      f5,
+      `export function SmParallelBad() {
+  return (
+    <div>
+      <div className="hidden sm:block">Tablet View</div>
+      <div className="sm:hidden">Phone View</div>
+    </div>
+  );
+}`
+    );
+    const v5 = auditFile(f5);
+    const smParallelViolation = v5.find((v) => v.rule.id === RULES.PARALLEL_RESPONSIVE.id);
+    assert(Boolean(smParallelViolation), 'Fails on parallel DOM subtrees using sm:hidden and hidden sm:block');
+
+    // 6. MUST PASS: Responsive table column hiding (hidden sm:table-cell is not a parallel container)
+    const f6 = path.join(tmpDir, 'ResponsiveTable.tsx');
+    fs.writeFileSync(
+      f6,
+      `export function ResponsiveTable() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th className="hidden sm:table-cell">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Item 1 <span className="sm:hidden">(inline info)</span></td>
+          <td className="hidden sm:table-cell">Full info</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}`
+    );
+    const v6 = auditFile(f6);
+    const tableViolation = v6.find((v) => v.rule.id === RULES.PARALLEL_RESPONSIVE.id);
+    assert(!tableViolation, 'Passes responsive table column progressive disclosure (hidden sm:table-cell)');
+
+    // 7. MUST FAIL: ui-guard-ignore waiver missing justification
+    const f7 = path.join(tmpDir, 'BadWaiver.tsx');
+    fs.writeFileSync(
+      f7,
+      `/* ui-guard-ignore: parallel-responsive-dom */
+export function BadWaiver() {
+  return <div>Test</div>;
+}`
+    );
+    const v7 = auditFile(f7);
+    const waiverViolation = v7.find((v) => v.rule.id === RULES.WAIVER_SYNTAX.id);
+    assert(Boolean(waiverViolation), 'Fails when ui-guard-ignore waiver is missing mandatory justification');
 
     console.log(`\nTests completed: ${passed} passed, ${failed} failed.`);
     if (failed > 0) {
