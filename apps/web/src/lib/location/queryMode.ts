@@ -10,13 +10,6 @@ export function hasCanonicalLocationId(location: QueryLocation): boolean {
     return Boolean(sanitizeMongoObjectId(location?.locationId));
 }
 
-/**
- * Suppression helper. Canonical location coordinates are now enriched server-side.
- */
-export function shouldUseExactLocationHierarchy(_location: QueryLocation): boolean {
-    return false;
-}
-
 export function shouldUseGeoRadiusLocation(location: QueryLocation): boolean {
     if (!location || isRegionLocationLevel(location.level)) return false;
 

@@ -139,8 +139,9 @@ export const AdCardMeta = memo(function AdCardMeta({
               )}
             </div>
 
-            {/* Posted / Active Date */}
-            <span className="shrink-0 text-tiny sm:text-caption text-foreground-tertiary font-normal whitespace-nowrap">
+            {/* Posted / Active Date — relative time differs across the SSR/hydration
+                boundary by design; suppress the hydration warning instead of re-rendering. */}
+            <span suppressHydrationWarning className="shrink-0 text-tiny sm:text-caption text-foreground-tertiary font-normal whitespace-nowrap">
               {postedDate}
             </span>
           </>
