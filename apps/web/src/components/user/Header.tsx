@@ -102,7 +102,7 @@ export function Header({
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
-      className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border/80 shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
+      className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
@@ -170,7 +170,7 @@ export function Header({
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (
-          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5 border-b border-border/40">
+          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5">
             {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
               <button
                 type="button"
