@@ -134,7 +134,7 @@ export default async function Home() {
     ]);
 
     return (
-        <div className="bg-white text-foreground">
+        <div className="bg-background text-foreground">
             <HomeLocationAutoPrompt />
             <script
                 type="application/ld+json"
