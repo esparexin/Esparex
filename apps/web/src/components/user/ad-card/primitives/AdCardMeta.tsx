@@ -43,7 +43,8 @@ export const AdCardMeta = memo(function AdCardMeta({
   const locationLabel = resolveListingLocationLabel(ad.location, "brief");
 
   /* ── Price display & Type guards ───────────────────────────────── */
-  
+  const isService = typeof adRecord.listingType === "string" && adRecord.listingType === "service";
+  const isDevice = adRecord.listingType === "ad";
   const conditionBadge = isDevice ? getConditionBadge(ad) : null;
 
   const priceDisplay = (() => {
