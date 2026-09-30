@@ -9,6 +9,7 @@ import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
+import { buildFeedLocationIdentity } from "@/lib/location/feedIdentity";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 import { HomePromoAdCard } from "./HomePromoAdCard";
@@ -19,6 +20,7 @@ const HOME_FEED_PAGE_SIZE = 12;
 
 interface HomeFeedProps {
     initialData?: HomeAdsPayload;
+    initialLocationIdentity?: string;
 }
 
 function FeedSkeletonGrid() {
@@ -67,7 +69,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
  * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
  * Preserves the current grid across location updates; new results replace it only when ready.
  */
-export function HomeFeedClient({ initialData }: HomeFeedProps) {
+export function HomeFeedClient({ initialData, initialLocationIdentity = "default" }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
@@ -83,11 +85,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
     const locationIdentity = useMemo(() => {
         if (!hasUserLocation) return "default";
-        const rawLocationId = location.locationId || location.id || "";
-        const validLocationId = sanitizeMongoObjectId(rawLocationId) || "";
-        const latStr = typeof latitude === "number" ? latitude.toFixed(3) : "";
-        const lngStr = typeof longitude === "number" ? longitude.toFixed(3) : "";
-        return [validLocationId, location.city || "", location.level || "", latStr, lngStr].join(":");
+        return buildFeedLocationIdentity({ locationId: location.locationId, id: location.id, city: location.city, level: location.level, latitude, longitude }, true);
     }, [hasUserLocation, latitude, location.city, location.id, location.level, location.locationId, longitude]);
 
     // Reset pagination cursor when location changes; preserve displayed ads until new page arrives
@@ -126,7 +124,8 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         };
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    const shouldUseInitialData = !cursor && !hasUserLocation && selectedType === "all";
+    // Reuse the SSR payload only when the client identity matches what the server rendered.
+    const shouldUseInitialData = !cursor && selectedType === "all" && locationIdentity === initialLocationIdentity;
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
