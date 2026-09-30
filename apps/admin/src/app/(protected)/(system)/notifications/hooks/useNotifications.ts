@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
@@ -49,8 +49,6 @@ const normalizeRecipient = (raw: Record<string, unknown>): NotificationRecipient
 };
 
 export function useNotifications() {
-    const pathname = usePathname();
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     // History & Global State

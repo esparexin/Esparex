@@ -38,7 +38,11 @@ function loadRegistry() {
 }
 
 function globToRegExp(glob) {
-  const escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*\*/g, '\u0000').replace(/\*/g, '[^/]*').replace(/\u0000/g, '.*');
+  const escaped = glob
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*\*/g, '___GLOB_STAR_STAR___')
+    .replace(/\*/g, '[^/]*')
+    .replace(/___GLOB_STAR_STAR___/g, '.*');
   return new RegExp(`^${escaped}$`);
 }
 
@@ -173,7 +177,7 @@ function hasScopeOverride(evidenceText) {
 /**
  * Evaluate declared-vs-actual scope. Pure function — covered by scripts/__tests__.
  */
-function evaluateScope({ changedFiles, newFiles, highRiskTouched, evidenceText }) {
+function evaluateScope({ newFiles, highRiskTouched, evidenceText }) {
   const errors = [];
   const warnings = [];
   if (hasScopeOverride(evidenceText)) {
