@@ -52,6 +52,62 @@ const NOMINATIM_TIMEOUT_MS = 4000;
 const SETTLEMENT_SELECT_FIELDS =
     'name country level coordinates isPopular isActive verificationStatus parentId path pincode';
 
+/**
+ * Canonical Nominatim User-Agent per OSM usage policy (audit E19).
+ * All Nominatim API requests MUST use this — anonymous/generic agents
+ * are prohibited (AGENTS.md §24.8).
+ */
+export const NOMINATIM_USER_AGENT = 'Esparex/1.0';
+
+/* -------------------------------------------------------------------------- */
+/* NOMINATIM HTTP SSOT                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Single Nominatim HTTP mechanic (audit E19): GET + JSON parse with the
+ * canonical User-Agent and the 4s timeout ceiling. Resolves null
+ * (never throws) on network errors, timeouts, or unparseable responses
+ * so callers degrade gracefully. Endpoint-specific response parsing
+ * stays with each caller (reverse vs pincode search differ).
+ */
+export const fetchNominatimJson = <T>(url: string, label: string): Promise<T | null> => {
+    return new Promise((resolve) => {
+        const req = https.get(
+            url,
+            {
+                headers: { 'User-Agent': NOMINATIM_USER_AGENT },
+                timeout: NOMINATIM_TIMEOUT_MS,
+            },
+            (res) => {
+                let data = '';
+                res.on('data', (chunk: Buffer) => { data += chunk.toString(); });
+                res.on('end', () => {
+                    try {
+                        resolve(JSON.parse(data) as T);
+                    } catch (parseError) {
+                        logger.error(`Nominatim: Failed to parse ${label} response`, {
+                            error: parseError instanceof Error ? parseError.message : String(parseError),
+                        });
+                        resolve(null);
+                    }
+                });
+            },
+        );
+
+        req.on('error', (err) => {
+            logger.warn(`Nominatim: ${label} request failed`, {
+                error: err instanceof Error ? err.message : String(err),
+            });
+            resolve(null);
+        });
+        req.on('timeout', () => {
+            logger.warn(`Nominatim: ${label} request timed out`, {});
+            req.destroy();
+            resolve(null);
+        });
+    });
+};
+
 /* -------------------------------------------------------------------------- */
 /* NOMINATIM HTTP CALL                                                        */
 /* -------------------------------------------------------------------------- */
@@ -64,53 +120,31 @@ export const reverseGeocodeViaNominatim = (
     lat: number,
     lng: number,
 ): Promise<NominatimResult | null> => {
-    return new Promise((resolve) => {
-        const url =
-            `https://nominatim.openstreetmap.org/reverse?format=json` +
-            `&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
+    const url =
+        `https://nominatim.openstreetmap.org/reverse?format=json` +
+        `&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
 
-        const req = https.get(
-            url,
-            {
-                headers: { 'User-Agent': 'Esparex/1.0 (reverse-geocode)' },
-                timeout: NOMINATIM_TIMEOUT_MS,
-            },
-            (res) => {
-                let data = '';
-                res.on('data', (chunk: Buffer) => { data += chunk.toString(); });
-                res.on('end', () => {
-                    try {
-                        const result = JSON.parse(data) as {
-                            name?: string;
-                            address?: NominatimAddress;
-                            display_name?: string;
-                        };
+    return fetchNominatimJson<{
+        name?: string;
+        address?: NominatimAddress;
+        display_name?: string;
+    }>(url, 'reverse-geocode').then((result) => {
+        if (!result?.address) return null;
 
-                        if (!result?.address) return resolve(null);
+        const addr = result.address;
+        const cityName =
+            addr.city || addr.town || addr.county || addr.village || result.name || '';
+        const countyName = addr.county || null;
+        const state = addr.state || '';
 
-                        const addr = result.address;
-                        const cityName =
-                            addr.city || addr.town || addr.county || addr.village || result.name || '';
-                        const countyName = addr.county || null;
-                        const state = addr.state || '';
+        if (!cityName || !state) return null;
 
-                        if (!cityName || !state) return resolve(null);
+        logger.info('Nominatim reverse geocode result.', {
+            lat, lng, cityName, countyName, state,
+            displayName: result.display_name,
+        });
 
-                        logger.info('Nominatim reverse geocode result.', {
-                            lat, lng, cityName, countyName, state,
-                            displayName: result.display_name,
-                        });
-
-                        resolve({ cityName, countyName, state, country: addr.country || 'India' });
-                    } catch {
-                        resolve(null);
-                    }
-                });
-            },
-        );
-
-        req.on('error', () => resolve(null));
-        req.on('timeout', () => { req.destroy(); resolve(null); });
+        return { cityName, countyName, state, country: addr.country || 'India' };
     });
 };
 

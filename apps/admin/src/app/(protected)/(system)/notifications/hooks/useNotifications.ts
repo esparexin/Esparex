@@ -7,11 +7,10 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import {
-    buildUrlWithSearchParams,
     normalizeSearchParamValue,
     parsePositiveIntParam,
-    updateSearchParams,
 } from "@/lib/urlSearchParams";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import type { NotificationLog } from "@/types/notification";
 
@@ -93,13 +92,7 @@ export function useNotifications() {
         ? (searchParams.get("targetType") as "all" | "topic" | "users")
         : "any";
 
-    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [pathname, router, searchParams]);
+    const { replaceQueryState } = useAdminQuerySync();
 
     const historyRoute = useMemo(() => {
         const params = new URLSearchParams();

@@ -1,8 +1,7 @@
 import logger from '@esparex/core/utils/logger';
-import { z } from 'zod';
 import { Request, Response } from 'express';
 import { createContactSubmission } from '@esparex/core/domains/communications';
-import { emailSchema } from '@esparex/contracts';
+import { contactSubmissionRequestSchema } from '@esparex/contracts';
 import { emailService, renderContactInquiryEmail } from '@esparex/core/domains/notifications';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
@@ -14,15 +13,9 @@ import { respond } from "../../utils/respond";
  * Rate-limited to prevent spam (configured in routes).
  * validateContactSubmission middleware runs upstream and normalises req.body.
  * This schema provides a second-layer typed extraction — never trust raw casts.
+ * Request DTO owned by @esparex/contracts (audit E17).
  */
-const contactBodySchema = z.object({
-    name:     z.string().min(2).max(100),
-    email:    emailSchema,
-    mobile:   z.string().optional(),
-    subject:  z.string().max(200).optional(),
-    category: z.string().optional(),
-    message:  z.string().min(20).max(1000),
-});
+const contactBodySchema = contactSubmissionRequestSchema;
 
 export const submitContactForm = async (req: Request, res: Response) => {
     try {

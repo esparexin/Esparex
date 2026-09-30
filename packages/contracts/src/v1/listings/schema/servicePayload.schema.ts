@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { PRICE_LIMITS, SERVICE_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
 import { validatedTextSchema } from '../../common/schema/text.schema';
 import { objectIdSchema as ObjectIdSchema } from '../../common/schema/common.schemas';
 
 const serviceTypeField = {
     serviceTypeIds: z.array(ObjectIdSchema)
-        .min(1, 'At least one service type is required')
-        .max(20, 'Maximum 20 service types allowed')
+        .min(SERVICE_LIMITS.SERVICE_TYPES.MIN, SERVICE_LIMITS.SERVICE_TYPES.ERROR_MIN)
+        .max(SERVICE_LIMITS.SERVICE_TYPES.MAX, SERVICE_LIMITS.SERVICE_TYPES.ERROR_MAX)
         .optional()
 } as const;
 
@@ -20,10 +21,11 @@ const serviceTypeField = {
  */
 const servicePayloadShape = {
     // Uses centralized text validation (bans profanity, gibberish, etc.)
+    // Length bounds owned by TEXT_LIMITS (audit E2).
     title: validatedTextSchema({
         fieldName: 'Title',
-        minLength: 10,
-        maxLength: 100,
+        minLength: TEXT_LIMITS.TITLE_EXTENDED.MIN,
+        maxLength: TEXT_LIMITS.TITLE_EXTENDED.MAX,
         }),
 
     deviceType: z.string()
@@ -36,19 +38,20 @@ const servicePayloadShape = {
 
     priceMin: z.number()
         .min(0, 'Minimum price must be at least 0')
-        .max(10_000_000, 'Price cannot exceed ₹1 crore')
+        .max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX)
         .optional(),
 
     // Uses centralized text validation (bans profanity, gibberish, etc.)
+    // Length bounds owned by TEXT_LIMITS (audit E2).
     description: validatedTextSchema({
         fieldName: 'Description',
-        minLength: 20,
-        maxLength: 2000,
+        minLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MIN,
+        maxLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MAX,
         }),
 
     images: z.array(z.string())
         .min(1, 'At least one image is required')
-        .max(10, 'Maximum 10 images allowed'),
+        .max(SERVICE_LIMITS.IMAGES.MAX, SERVICE_LIMITS.IMAGES.ERROR_MAX),
 
     ...serviceTypeField
 };
@@ -127,8 +130,8 @@ export const ServiceListingPayloadSchema = BaseServicePayloadSchema
         modelId: z.union([ObjectIdSchema, z.literal('')]).optional(),
         serviceTypeIds: z.array(z.string()).min(1, 'Select at least one service type'),
         price: z.number({ message: 'Enter a valid price' })
-            .min(0, 'Price must be at least 0')
-            .max(10_000_000, 'Price cannot exceed ₹1 crore'),
+            .min(PRICE_LIMITS.MIN, PRICE_LIMITS.ERROR_MIN)
+            .max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX),
     }));
 
 export type ServiceListingFormData = z.infer<typeof ServiceListingPayloadSchema>;

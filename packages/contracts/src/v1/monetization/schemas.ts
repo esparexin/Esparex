@@ -1,31 +1,12 @@
 import { z } from 'zod';
 import { optionalTrimmedStringSchema } from '../common/schema/common.schemas';
+import { CANONICAL_PLACEMENTS, LEGACY_PLACEMENT_ALIASES } from './types';
 
+// Single-sourced from ./types (audit E1): canonical + legacy placement IDs.
+// Runtime values and inferred type are identical to the previous literal list.
 export const inContentPlacementIdSchema = z.enum([
-  'homepage_hero_top',
-  'homepage_feed_inline',
-  'search_results_header',
-  'search_results_inline',
-  'category_page_header',
-  'category_page_inline',
-  'listing_details_sidebar',
-  'listing_details_incontent',
-  'services_page_header',
-  'spare_parts_header',
-  'business_profile_sidebar',
-  'user_dashboard_top',
-  'user_my_listings_inline',
-  'business_dashboard_top',
-  'static_pages_footer',
-  'footer_leaderboard',
-  'mobile_sticky_bottom',
-  // Legacy aliases
-  'listing_detail_sidebar_bottom',
-  'listing_detail_below_description',
-  'home_below_hero',
-  'home_between_sections',
-  'browse_in_feed',
-  'global_footer',
+  ...CANONICAL_PLACEMENTS,
+  ...LEGACY_PLACEMENT_ALIASES,
 ]);
 
 export const adProviderTypeSchema = z.enum([

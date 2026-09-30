@@ -36,7 +36,7 @@ export const ImageGrid = ({ images, onRemove }: ImageGridProps) => {
             accessibilityRole="button"
             accessibilityLabel={`Remove photo ${index + 1}`}
           >
-            <AppIcon name="X" size={12} color="#ffffff" />
+            <AppIcon name="X" size={12} color={base.white} />
           </TouchableOpacity>
         </View>
       ))}

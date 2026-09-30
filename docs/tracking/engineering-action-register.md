@@ -2839,3 +2839,27 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm run guard:hygiene` ──► PASS (incl. doc hygiene 65/65)
 - ✅ `npm run guard:duplicate-code` ──► PASS (within DUP-001 ratchet)
 - ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%) after every commit (13 commits)
+
+---
+
+### EA-067
+**Date**: 2026-09-30
+**Description**: Code-quality/duplication remediation — full audit-to-closure execution (branch chore/code-quality-remediation-phased, naming waiver, no issue created)
+**Root Cause**: Audit evidenced SSOT bypasses across contracts/shared/backend/core/admin/web/mobile/tokens: literal triplication (placements, ObjectId, limits), use-case formatter variants, controller date rendering, dual Nominatim transports, in-service mapping, hook/wrapper clones, missing admin theme mappings, surface token bypasses, deep package imports, body-lg type drift.
+**Action** (22 logical commits, 92 files, +706/−563, one branch, tree clean):
+1. Contracts: placement enum single-sourced (b27928af2); ObjectId single owner (69ee7fa35); limits routed through limit SSOT (4ec50292e); dashboard barrels + 2 justified barrel files (0cc9a209f); contact DTO owned by contracts (e5dba0705); DeviceModel alias removal REVERTED — broke web masterData re-export chain, restored with consumer comment (7286e8526).
+2. Shared: getLocationLabel(surface) + aliases (738e88f8d); formatCatalogDisplayName + 6 aliases (29c4934a4).
+3. Backend: contact DTO adoption; deterministic dates in 3 controllers (c9ccccf2c); mid-file imports hoisted; generic-CRUD relocation + E29 doc.save() preserved with evidence (strict aiSectionSchema rejects payload; 40 call sites) (9b2dbb251).
+4. Core: Nominatim HTTP SSOT + compliant UA + 4s ceiling (ebcb97cc0); EmailTemplateMapper extracted (5a77b2892); 9 dates + logging via SSOT (6507c49db).
+5. Admin: cn ×5 → @esparex/ui (9b4c02a92); query-sync wrapper deleted + useNotifications consolidated (94f71b1f9); theme mappings added (d9f475c0a, probe-verified); palette/dates/location-owner sweep (e90c4877f, a59c5ff72).
+6. Web: surface tokens + DAY_IN_MS consts (281a14d6c); composition clusters/wrappers/SSR-fetch/backdrops/categorical colors preserved with import evidence.
+7. Mobile/tokens: thumbnail single owner, root import, token sweep (e39b26e1f); body-lg gap closed, ad enums from contracts (da3310421).
+8. Governance: no-deep-imports-into-packages depcruise rule + spec fix, negative-control proven (7db06fe03).
+**Intentionally preserved (evidence, do not re-flag)**: web composition clusters; DTO-vs-payload pairs; googleAds enums; platform ui/mobile-ui adapter divergence; oversize files (ratchet-guarded, unsplit); list-hook/mutation families; repo toDomain (mapper guard permits); savedSearch trim-variant; TrendsChart/categoryVisuals categorical colors; photo scrims; Razorpay theme hex; crash fallback; E29; query validators; .DS_Store/.env (untracked+ignored).
+**Accepted pre-existing duplication (reviewed, out of scope, not introduced here)**: 2 JSCPD clones — core Model/ServiceType + Brand/Variant Mongoose schema field blocks (9 lines each, 0.02% total vs 0.08%+0.01% ratchet).
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19, 100%)
+- ✅ root `npm run type-check` ──► clean (all workspaces)
+- ✅ tests: backend 409 · core 509 · web 467 · admin 111 · mobile 306 — green
+- ✅ `guard:duplicate-code` ──► 0.02% · `guard:knip` ──► PASS · `guard:dependencies` ──► 0 errors (baseline-identical) · `guard:design-token-adoption` ──► 0 violations
+- ✅ Finding-by-finding re-grep: cn 0 · wrapper gone · deep imports 0 · ObjectId locals 0 · placement literals single-sourced · prod console 0 · raw controller/core dates 0

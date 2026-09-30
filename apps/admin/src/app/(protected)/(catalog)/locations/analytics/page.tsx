@@ -178,13 +178,13 @@ function LocationAnalyticsPageContent({
                 </div>
 
                 {(initialCity || initialDistrict || initialState || initialCountry) && (
-                    <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                    <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-body text-primary">
                         Analytics cards and charts are scoped to the selected hierarchy filters.
                     </div>
                 )}
 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-body font-medium">
                         {error}
                     </div>
                 )}
@@ -314,9 +314,9 @@ function StatCard({ icon, label, value, color }: {
     color: "blue" | "emerald" | "violet";
 }) {
     const colorMap = {
-        blue: "bg-blue-50 text-blue-600",
-        emerald: "bg-emerald-50 text-emerald-600",
-        violet: "bg-violet-50 text-violet-600",
+        blue: "bg-primary/10 text-primary",
+        emerald: "bg-success/10 text-success",
+        violet: "bg-muted text-foreground-secondary",
     };
     return (
         <div className="bg-card rounded-xl border border-border shadow-xs p-3.5 flex items-center gap-3">

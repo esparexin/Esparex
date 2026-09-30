@@ -29,6 +29,8 @@ interface BoostPlanDialogProps {
   onListingUnavailable?: () => void;
 }
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 export function BoostPlanDialog({
   open,
   onOpenChange,
@@ -52,14 +54,14 @@ export function BoostPlanDialog({
   const [now] = useState(() => Date.now());
   const adExpMs = adExpiresAt ? new Date(adExpiresAt).getTime() : 0;
   const isAdExpired = adExpMs > 0 && adExpMs <= now;
-  const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24))) : 30;
+  const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / DAY_IN_MS)) : 30;
 
   const baseDuration = isWalletCreditSelected
     ? 1
     : (selectedPlan?.durationDays || boostPlans[0]?.durationDays || 1);
 
   const effectiveDurationDays = Math.max(1, Math.min(baseDuration, adRemainingDays));
-  const effectiveExpiresAt = new Date(now + effectiveDurationDays * 24 * 60 * 60 * 1000);
+  const effectiveExpiresAt = new Date(now + effectiveDurationDays * DAY_IN_MS);
 
   const isPromotionBlocked =
     isSpotlight || (isBoosted && activeCategory === "BOOST_AD");

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Edit, MapPin, Trash2 } from "@esparex/ui";
 import { useAdminLocations } from "@/hooks/useAdminLocations";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { getLocationOptions } from "@/lib/api/locations";
 import { type Location } from "@/types/location";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
@@ -98,7 +98,7 @@ function LocationsPageContent({
     };
 
 
-    const { replaceQueryState } = useCatalogQueryStateSync({
+    const { replaceQueryState } = useAdminQuerySync({
         searchInput,
         initialSearch,
         loading,

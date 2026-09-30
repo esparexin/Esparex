@@ -7,9 +7,9 @@
  * Field name SSOT: 'title' (not 'partName' — partPayload.schema.ts was legacy and is now deleted)
  */
 import { z } from 'zod';
+import { PRICE_LIMITS, SPARE_PART_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
+import { objectIdSchema } from '../../common/schema/common.schemas';
 import { validatedTextSchema } from '../../common/schema/text.schema';
-
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
 
 export const BaseSparePartPayloadSchema = z.object({
     categoryId: objectIdSchema,
@@ -18,18 +18,18 @@ export const BaseSparePartPayloadSchema = z.object({
 
     title: validatedTextSchema({
         fieldName: 'Title',
-        minLength: 5,
-        maxLength: 120,
+        minLength: SPARE_PART_LIMITS.TITLE.MIN,
+        maxLength: SPARE_PART_LIMITS.TITLE.MAX,
         }),
 
     description: validatedTextSchema({
         fieldName: 'Description',
-        minLength: 20,
-        maxLength: 2000,
+        minLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MIN,
+        maxLength: TEXT_LIMITS.DESCRIPTION_EXTENDED.MAX,
         }),
 
-    price: z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
-    images: z.array(z.string()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
+    price: z.number().min(PRICE_LIMITS.MIN, PRICE_LIMITS.ERROR_MIN).max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX),
+    images: z.array(z.string()).min(SPARE_PART_LIMITS.IMAGES.MIN, SPARE_PART_LIMITS.IMAGES.ERROR_MIN).max(SPARE_PART_LIMITS.IMAGES.MAX, SPARE_PART_LIMITS.IMAGES.ERROR_MAX),
 });
 
 /** Full create schema — used by backend POST handler */
@@ -59,7 +59,7 @@ export const EditPostSparePartFormSchema = PartialSparePartPayloadSchema.pick({
     description: true,
     price: true,
 }).extend({
-    images: z.array(z.string()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
+    images: z.array(z.string()).min(SPARE_PART_LIMITS.IMAGES.MIN, SPARE_PART_LIMITS.IMAGES.ERROR_MIN).max(SPARE_PART_LIMITS.IMAGES.MAX, SPARE_PART_LIMITS.IMAGES.ERROR_MAX),
 });
 
 export type SparePartPayload = z.infer<typeof SparePartPayloadSchema>;

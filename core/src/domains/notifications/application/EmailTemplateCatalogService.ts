@@ -9,6 +9,7 @@ import {
     TEMPLATE_DEFINITIONS,
     type TemplateDefinition,
 } from './emailTemplateRegistry';
+import { mapTemplateDefinitionToDTO } from '../mappers/EmailTemplateMapper';
 
 export { TEMPLATE_DEFINITIONS, type TemplateDefinition };
 
@@ -31,35 +32,8 @@ export class EmailTemplateCatalogService {
     }
 
     /**
-     * Maps an immutable catalog definition and optional runtime customization to an EmailTemplateDTO.
-     */
-    private mapToDTO(
-        def: TemplateDefinition,
-        custom?: EmailTemplateCustomization
-    ): EmailTemplateDTO {
-        const isCustomized = Boolean(custom?.subject || custom?.customHeadline || custom?.customNote);
-        const activeSubject = custom?.subject?.trim() || def.defaultSubject;
-
-        return {
-            key: def.key,
-            name: def.name,
-            category: def.category,
-            description: def.description,
-            trigger: def.trigger,
-            defaultSubject: def.defaultSubject,
-            subject: activeSubject,
-            isCustomized,
-            customSubject: custom?.subject,
-            customHeadline: custom?.customHeadline,
-            customNote: custom?.customNote,
-            variables: def.variables,
-            updatedAt: custom?.updatedAt,
-            updatedBy: custom?.updatedBy,
-        };
-    }
-
-    /**
      * Lists all registered email templates with customizations merged from system config.
+     * DTO assembly owned by EmailTemplateMapper (audit E14).
      */
     public getAllTemplates(customizations: EmailTemplateCustomization[] = []): EmailTemplateDTO[] {
         const customMap = new Map<EmailTemplateKey, EmailTemplateCustomization>();
@@ -70,7 +44,7 @@ export class EmailTemplateCatalogService {
         });
 
         return Object.values(TEMPLATE_DEFINITIONS).map((def) =>
-            this.mapToDTO(def, customMap.get(def.key))
+            mapTemplateDefinitionToDTO(def, customMap.get(def.key))
         );
     }
 
@@ -85,7 +59,7 @@ export class EmailTemplateCatalogService {
         if (!def) return undefined;
 
         const custom = customizations.find((c) => c.key === key);
-        return this.mapToDTO(def, custom);
+        return mapTemplateDefinitionToDTO(def, custom);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 
 interface UseCatalogTabStateOptions {
     defaultLimit?: number;
@@ -31,7 +31,7 @@ export function useCatalogTabState<T extends { id: string }>({
     const [rejectionReason, setRejectionReason] = useState("");
     const [isRejecting, setIsRejecting] = useState(false);
 
-    const { replaceQueryState } = useCatalogQueryStateSync({
+    const { replaceQueryState } = useAdminQuerySync({
         searchInput,
         initialSearch,
         loading,

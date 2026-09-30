@@ -3,9 +3,7 @@
 import type { ReactNode } from "react";
 
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { DataTable, type ColumnDef } from "@esparex/ui";
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
+import { DataTable, cn, type ColumnDef } from "@esparex/ui";
 
 interface CatalogPaginationProps {
     currentPage: number;

@@ -30,7 +30,7 @@ function PostAdPageBackdrop() {
             {/* Page Body Shell */}
             <main className="max-w-6xl mx-auto px-4 py-6 sm:px-6 space-y-6">
                 {/* Hero / Banner Preview */}
-                <div className="w-full rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-600 to-slate-900 p-6 sm:p-8 text-white shadow-md">
+                <div className="w-full rounded-2xl bg-gradient-to-r from-primary via-primary/80 to-foreground p-6 sm:p-8 text-primary-foreground shadow-md">
                     <div className="w-48 h-4 rounded bg-white/20 mb-3" />
                     <div className="w-80 max-w-full h-7 rounded bg-white/30 mb-4" />
                     <div className="flex gap-2">

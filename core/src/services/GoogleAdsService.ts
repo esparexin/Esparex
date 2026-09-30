@@ -7,6 +7,7 @@ import {
     type GoogleAdStatusValue,
 } from "@esparex/contracts";
 import { AppError } from "../shared-kernel/errors/AppError";
+import logger from "../utils/logger";
 import { getCache, setCache, delCache } from "../utils/redisCache";
 
 const PUBLIC_ADS_CACHE_KEY = "sys:google_ads:active_placements";
@@ -70,7 +71,7 @@ const syncToAdvertisementCampaign = async (
             { upsert: true, new: true }
         );
     } catch (err) {
-        console.warn("[GoogleAdsService] Campaign sync warning:", err);
+        logger.warn("[GoogleAdsService] Campaign sync warning:", err);
     }
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Building2, MapPin, Ban, RotateCcw, Checkbox, type ColumnDef } from "@esparex/ui";
-import { format } from "date-fns";
+import { formatAppDate } from "@esparex/shared";
 import { Business } from "@esparex/contracts";
 import { BusinessTypesCell, BusinessActionButton, createBusinessStatusColumn, createBusinessActionsColumn } from "@/components/business/BusinessListPrimitives";
 
@@ -67,7 +67,7 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
         },
         { header: "Category", cell: (biz) => <BusinessTypesCell businessTypes={biz.businessTypes} /> },
         { header: "Location", cell: (biz) => <div className="flex items-center gap-1.5 text-xs text-foreground-secondary"><MapPin size={12} className="text-foreground-subtle shrink-0" /><span className="truncate max-w-[110px]">{biz.location?.city || "—"}</span></div> },
-        { header: "Active Since", cell: (biz) => <div className="space-y-0.5"><div className="text-xs text-foreground-secondary font-medium">{biz.approvedAt ? format(new Date(biz.approvedAt), "MMM d, yyyy") : "N/A"}</div>{biz.expiresAt && <div className="text-tiny text-foreground-subtle italic">Exp {format(new Date(biz.expiresAt), "MMM d, yyyy")}</div>}</div> },
+        { header: "Active Since", cell: (biz) => <div className="space-y-0.5"><div className="text-caption text-foreground-secondary font-medium">{biz.approvedAt ? formatAppDate(new Date(biz.approvedAt)) : "N/A"}</div>{biz.expiresAt && <div className="text-tiny text-foreground-subtle italic">Exp {formatAppDate(new Date(biz.expiresAt))}</div>}</div> },
         createBusinessStatusColumn(true),
         createBusinessActionsColumn({
             onView, onEdit, onDelete, editTitle: "Edit Business", deleteTitle: "Delete Business",

@@ -8,8 +8,7 @@ import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
 import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "@esparex/ui";
-import { formatAppDate, formatAppTime, formatPrice } from "@esparex/shared";
-import { format } from "date-fns";
+import { formatAppDate, formatAppDateTime, formatAppTime, formatPrice } from "@esparex/shared";
 
 type AlertLog = {
     _id: string;
@@ -278,17 +277,17 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className={`text-tiny font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                                    <span className={`text-tiny font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-success/10 text-success border border-success/20' : 'bg-destructive/10 text-destructive border border-destructive/20'}`}>
                                                         {alert.isActive ? 'Active' : 'Inactive'}
                                                     </span>
-                                                    <span className="text-xs text-foreground-tertiary mt-1">Exp: {alert.expiresAt ? format(new Date(alert.expiresAt), "MMM d, yyyy") : 'Never'}</span>
+                                                    <span className="text-caption text-foreground-tertiary mt-1">Exp: {alert.expiresAt ? formatAppDate(new Date(alert.expiresAt)) : 'Never'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-medium text-foreground-secondary">Count: {alert.expiryWarningCount || 0}</span>
                                                     {alert.expiryWarningSentAt && (
-                                                        <span className="text-tiny text-foreground-subtle italic">{format(new Date(alert.expiryWarningSentAt), "MMM d HH:mm")}</span>
+                                                        <span className="text-tiny text-foreground-subtle italic">{formatAppDateTime(new Date(alert.expiryWarningSentAt))}</span>
                                                     )}
                                                 </div>
                                             </td>

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { NOTIFICATION_TYPE } from "@esparex/contracts";
+import { formatAppDateTime } from "@esparex/shared";
 import {
     NotificationIntent,
     NotificationDispatcher,
@@ -142,7 +143,7 @@ export async function sendNotification(req: Request, res: Response) {
                 sendAt: scheduledAt.toISOString(),
             });
 
-            return sendSuccessResponse(res, scheduled, `Notification scheduled for ${scheduledAt.toLocaleString()}`);
+            return sendSuccessResponse(res, scheduled, `Notification scheduled for ${formatAppDateTime(scheduledAt)}`);
         }
 
         const audienceId = new mongoose.Types.ObjectId().toString();

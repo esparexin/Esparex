@@ -1,8 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
+import { cn } from "@esparex/ui";
 
 export interface CategoryAssignmentOption {
     id: string;

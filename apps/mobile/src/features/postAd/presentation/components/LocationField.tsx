@@ -27,8 +27,8 @@ export const LocationField = ({
 
   return (
     <View className="mb-4">
-      <AppText variant="caption" className="font-semibold text-slate-900 dark:text-slate-100 mb-1.5">
-        Location <AppText className="text-red-500">*</AppText>
+      <AppText variant="caption" className="font-semibold text-foreground mb-1.5">
+        Location <AppText className="text-destructive">*</AppText>
       </AppText>
 
       <View className="flex-row items-center gap-2">
@@ -36,7 +36,7 @@ export const LocationField = ({
         <TouchableOpacity
           onPress={onPressSelect}
           activeOpacity={0.7}
-          className="flex-1 flex-row items-center px-3.5 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+          className="flex-1 flex-row items-center px-3.5 py-3 rounded-xl bg-card border border-border"
           accessibilityRole="button"
           accessibilityLabel={`Location: ${displayLabel}`}
         >
@@ -45,8 +45,8 @@ export const LocationField = ({
             variant="body"
             className={`flex-1 ml-2 text-sm ${
               displayLabel === 'Select Location'
-                ? 'text-slate-400'
-                : 'text-slate-900 dark:text-slate-100 font-medium'
+                ? 'text-muted-foreground'
+                : 'text-foreground font-medium'
             }`}
             numberOfLines={1}
           >
@@ -61,7 +61,7 @@ export const LocationField = ({
             onPress={onAutoDetect}
             disabled={isDetecting}
             activeOpacity={0.7}
-            className="px-3.5 py-3 rounded-xl bg-sky-50 dark:bg-sky-950/60 border border-sky-300 dark:border-sky-800 flex-row items-center justify-center"
+            className="px-3.5 py-3 rounded-xl bg-primary/10 border border-primary/20 flex-row items-center justify-center"
             accessibilityRole="button"
             accessibilityLabel="Auto-detect location"
           >
@@ -70,7 +70,7 @@ export const LocationField = ({
             ) : (
               <>
                 <AppIcon name="Compass" size={16} color={base.brand[500]} />
-                <AppText variant="caption" className="ml-1.5 text-sky-700 dark:text-sky-300 font-semibold text-xs">
+                <AppText variant="caption" className="ml-1.5 text-primary font-semibold">
                   Auto-Detect
                 </AppText>
               </>
