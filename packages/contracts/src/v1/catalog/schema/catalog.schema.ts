@@ -200,6 +200,8 @@ export type Brand = z.infer<typeof BrandSchema>;
 export type CreateModelDTO = z.infer<typeof CreateModelSchema>;
 export type UpdateModelDTO = z.infer<typeof UpdateModelSchema>;
 export type Model = z.infer<typeof ModelSchema>;
+// Alias consumed by apps/web lib/api/user/masterData (ContractDeviceModel).
+export type DeviceModel = Model;
 
 export type CreateSparePartDTO = z.infer<typeof CreateSparePartSchema>;
 export type UpdateSparePartDTO = z.infer<typeof UpdateSparePartSchema>;
