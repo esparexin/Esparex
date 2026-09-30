@@ -131,7 +131,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
         {
-            enabled: isLoaded,
+            enabled: shouldUseInitialData ? true : isLoaded,
             initialData: shouldUseInitialData ? initialData : undefined,
         }
     );

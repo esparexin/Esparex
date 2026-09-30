@@ -225,6 +225,9 @@ export const getHomeAds = async (
         if (effectiveParams.listingType && effectiveParams.listingType !== 'all') {
             params.append('listingType', effectiveParams.listingType);
         }
+        if (typeof effectiveParams.limit === 'number' && Number.isFinite(effectiveParams.limit)) {
+            params.append('limit', String(Math.min(48, Math.max(1, Math.floor(effectiveParams.limit)))));
+        }
         const url = withQueryParams(API_ROUTES.USER.HOME_FEED, params);
         const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
 
