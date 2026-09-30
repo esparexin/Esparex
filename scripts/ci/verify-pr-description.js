@@ -35,10 +35,11 @@ if (!prBody.includes('SSOT & Canonical Ownership Verified') || !prBody.includes(
 
 // 3. Check SCOPE-001 evidence when high-risk shared owners are declared touched.
 // Non-high-risk PRs (no scope markers, §6 answered N/A/None) pass as before.
-const declaresHighRisk =
-  /high-risk touched\s*:\s*(?!none|n\/a\b)/i.test(prBody) ||
-  /scope-contract/i.test(prBody) ||
-  /declared files\s*:/i.test(prBody);
+const declaresHighRisk = (() => {
+  const m = prBody.match(/high-risk touched\s*:\s*([^\n]+)/i);
+  if (m && !/^(none|n\/a|-)\s*$/i.test(m[1].trim())) return true;
+  return /scope-contract/i.test(prBody) || /declared files\s*:/i.test(prBody);
+})();
 if (declaresHighRisk) {
   for (const [label, pattern] of [
     ['High-Risk Touched', /high-risk touched\s*:/i],
