@@ -126,13 +126,11 @@ export const requireVerifiedBusiness = async (
 };
 
 /**
- * Conditional variant: enforces the business-verified check for 'service'.
- * 'spare_part' intentionally passes through: the single authoritative Parts
- * eligibility rule is the threshold-5 policy in
- * core/src/domains/listings/application/ad/ad/AdPolicyService.ts
- * (validateSellerTypeThreshold, enforced at creation in AdOrchestrator).
- * Zero-tolerance middleware here would make that threshold unreachable, so
- * spare parts must not be gated twice. Normal ad posting is unaffected.
+ * Conditional variant: enforces the business-verified check when the
+ * listingType in the request body (creation) or req.listing (edit) is
+ * 'service' or 'spare_part'. Locked rule: only business-approved users
+ * may use spare parts and services — there is no individual allowance.
+ * Normal ad posting is unaffected.
  */
 export const requireVerifiedBusinessForServiceParts = async (
     req: Request,
@@ -141,7 +139,7 @@ export const requireVerifiedBusinessForServiceParts = async (
 ): Promise<void> => {
     const listingType = (req.body as { listingType?: string })?.listingType || req.listing?.listingType;
 
-    if (listingType === LISTING_TYPE.SERVICE) {
+    if (listingType === LISTING_TYPE.SERVICE || listingType === LISTING_TYPE.SPARE_PART) {
         return requireVerifiedBusiness(req, res, next);
     }
 

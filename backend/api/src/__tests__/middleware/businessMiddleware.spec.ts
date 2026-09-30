@@ -134,14 +134,20 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
             expect(mockNext).not.toHaveBeenCalled();
         });
 
-        it('passes spare_part listings through to the threshold-5 policy (no zero-tolerance gate)', async () => {
+        it('enforces verification for spare_part listings (business-only, no individual allowance)', async () => {
             mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
             mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
 
+            mockBusinessFindOne.mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                    lean: jest.fn().mockResolvedValue({ status: 'pending' }),
+                }),
+            });
+
             await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockNext).toHaveBeenCalled();
-            expect(mockBusinessFindOne).not.toHaveBeenCalled();
+            expect(mockRes.status).toHaveBeenCalledWith(403);
+            expect(mockNext).not.toHaveBeenCalled();
         });
 
         it('bypasses business verification for platform admin roles (frontend parity)', async () => {
@@ -155,6 +161,16 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
                 expect(mockNext).toHaveBeenCalled();
                 expect(mockBusinessFindOne).not.toHaveBeenCalled();
             }
+        });
+
+        it('bypasses business verification for admins posting spare parts', async () => {
+            mockReq.user = { _id: 'user_123', id: 'user_123', role: 'admin' } as any;
+            mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
+
+            await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
+
+            expect(mockNext).toHaveBeenCalled();
+            expect(mockBusinessFindOne).not.toHaveBeenCalled();
         });
     });
 });
