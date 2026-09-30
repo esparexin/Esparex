@@ -39,8 +39,8 @@ export const CategoryCard = ({
           selected
             ? 'bg-brand-50 dark:bg-brand-950/60 border-brand-500 shadow-sm shadow-brand-500/20'
             : disabled
-            ? 'bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 opacity-50'
-            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800',
+            ? 'bg-muted border-border opacity-50'
+            : 'bg-card border-border',
         ].join(' ')}
       >
         <AppIcon
@@ -53,7 +53,7 @@ export const CategoryCard = ({
         variant="caption"
         className={[
           'text-center text-tiny leading-tight font-medium px-0.5',
-          selected ? 'text-brand-600 dark:text-brand-400 font-semibold' : 'text-slate-700 dark:text-slate-300',
+          selected ? 'text-brand-600 dark:text-brand-400 font-semibold' : 'text-foreground-secondary',
         ].join(' ')}
         numberOfLines={2}
       >

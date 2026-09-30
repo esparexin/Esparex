@@ -97,12 +97,12 @@ export const NearbyRepairServicesSection: React.FC<NearbyRepairServicesSectionPr
               {phone ? (
                 <TouchableOpacity
                   onPress={() => handleCall(phone)}
-                  className="mt-2 py-1.5 px-3 bg-sky-600 rounded-lg flex-row items-center justify-center self-start"
+                  className="mt-2 py-1.5 px-3 bg-primary rounded-lg flex-row items-center justify-center self-start"
                   accessibilityRole="button"
                   accessibilityLabel={`Call ${businessName}`}
                 >
                   <View className="mr-1">
-                    <AppIcon name="Phone" size={12} color="#ffffff" />
+                    <AppIcon name="Phone" size={12} color={base.white} />
                   </View>
                   <AppText variant="tiny" className="text-white font-bold">
                     Call Center

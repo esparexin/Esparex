@@ -29,8 +29,8 @@ export const ImageCarousel = ({
 
   if (!images || images.length === 0) {
     return (
-      <Center className="w-full h-72 bg-slate-100 dark:bg-slate-800">
-        <AppIcon name="Image" size={48} color="#94a3b8" />
+      <Center className="w-full h-72 bg-muted">
+        <AppIcon name="Image" size={48} color={base.slate[500]} />
       </Center>
     );
   }

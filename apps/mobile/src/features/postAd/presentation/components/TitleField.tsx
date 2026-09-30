@@ -63,8 +63,8 @@ export const TitleField = ({
       <View className="flex-row justify-end mt-1">
         <AppText
           variant="caption"
-          className={`text-xs ${
-            currentLength > MAX_AD_TITLE_CHARS ? 'text-red-500 font-bold' : 'text-slate-400'
+          className={`text-caption ${
+            currentLength > MAX_AD_TITLE_CHARS ? 'text-destructive font-bold' : 'text-muted-foreground'
           }`}
         >
           {currentLength} / {MAX_AD_TITLE_CHARS} characters

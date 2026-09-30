@@ -64,8 +64,8 @@ export const NotificationScreen = () => {
 
       return (
         <Card
-          className={`mb-3 p-4 border-slate-200 dark:border-slate-800 ${
-            item.isRead ? 'bg-white dark:bg-slate-900' : 'bg-sky-50/50 dark:bg-sky-950/20'
+          className={`mb-3 p-4 ${
+            item.isRead ? '' : 'bg-primary/10'
           }`}
         >
           <TouchableOpacity
@@ -75,8 +75,8 @@ export const NotificationScreen = () => {
             {/* Icon */}
             <View
               className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-                item.isRead ? 'bg-slate-100 dark:bg-slate-800' : 'bg-sky-100 dark:bg-sky-900/50'
-              }`}
+              item.isRead ? 'bg-muted' : 'bg-primary/10'
+            }`}
             >
               <AppIcon name={getNotificationIcon(item.type)} size={18} color={base.brand[500]} />
             </View>

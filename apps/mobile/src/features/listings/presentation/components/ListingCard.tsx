@@ -23,9 +23,9 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
       accessibilityRole="button"
       accessibilityLabel={`${listing.title}, ${listing.price.formatted}${listing.location?.display ? `, ${listing.location.display}` : ''}`}
     >
-      <Card padded={false} className="overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+      <Card padded={false} className="overflow-hidden rounded-2xl">
         {/* Media Thumbnail */}
-        <View style={styles.thumbnailContainer} className="w-full bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
+        <View style={styles.thumbnailContainer} className="w-full bg-muted relative overflow-hidden">
           {primaryImage ? (
             <Image
               source={{ uri: primaryImage }}
@@ -36,13 +36,13 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               accessibilityLabel={`Photo of ${listing.title}`}
             />
           ) : (
-            <View style={StyleSheet.absoluteFillObject} className="items-center justify-center bg-slate-100 dark:bg-slate-800">
+            <View style={StyleSheet.absoluteFillObject} className="items-center justify-center bg-muted">
               <AppIcon name="Image" size={28} color={base.slate[400]} />
             </View>
           )}
 
           {listing.isSpotlight ? (
-            <View className="absolute top-2 left-2 flex-row items-center bg-amber-500 px-2 py-0.5 rounded-full shadow-sm z-10">
+            <View className="absolute top-2 left-2 flex-row items-center bg-warning px-2 py-0.5 rounded-full shadow-sm z-10">
               <AppIcon name="Sparkles" size={10} color={base.white} />
               <AppText variant="caption" className="text-white text-tiny font-bold ml-1 uppercase tracking-wider">
                 Spotlight
@@ -56,7 +56,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
           {listing.seller.isVerified && (
             <View
-              className={`absolute top-2 ${onToggleSave ? 'right-9' : 'right-2'} bg-white/90 dark:bg-slate-900/90 rounded-full p-0.5 shadow-sm z-10`}
+              className={`absolute top-2 ${onToggleSave ? 'right-9' : 'right-2'} bg-card/90 rounded-full p-0.5 shadow-sm z-10`}
             >
               <AppIcon name="CheckCircle2" size={14} color={base.success[500]} />
             </View>
@@ -70,7 +70,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               }}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              className="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full p-1.5 shadow-sm items-center justify-center z-10"
+              className="absolute top-2 right-2 bg-card/90 rounded-full p-1.5 shadow-sm items-center justify-center z-10"
               accessibilityRole="button"
               accessibilityLabel={isSaved ? `Remove ${listing.title} from saved` : `Save ${listing.title}`}
             >
@@ -149,9 +149,9 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
 ListingCard.displayName = 'ListingCard';
 
+/** Shared thumbnail dimensions (audit C2): single owner, also used by ListingSkeleton. */
+export const listingThumbnailStyle = { width: '100%', height: 130 } as const;
+
 const styles = StyleSheet.create({
-  thumbnailContainer: {
-    width: '100%',
-    height: 130,
-  },
+  thumbnailContainer: listingThumbnailStyle,
 });
