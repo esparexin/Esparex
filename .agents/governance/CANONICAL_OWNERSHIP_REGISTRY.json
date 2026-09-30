@@ -139,6 +139,14 @@
     "packages/ui/src/tokens/**",
     "apps/web/src/app/**/layout.tsx",
     "apps/web/src/app/globals.css",
-    "apps/web/src/components/layout/**"
+    "apps/web/src/components/layout/**",
+    "backend/api/src/middleware/**",
+    "backend/api/src/controllers/user/**",
+    "backend/api/src/controllers/listing/**",
+    "backend/api/src/controllers/entitlements/**",
+    "core/src/domains/entitlements/**",
+    "core/src/domains/payments/**",
+    "core/src/domains/listings/**",
+    "core/src/services/lifecycle/**"
   ]
 }
