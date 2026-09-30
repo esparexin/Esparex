@@ -82,6 +82,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
           {savedAds.map((ad) => {
             const detailHref = buildPublicListingDetailRoute({
               id: ad.id,
+              listingType: (ad as Record<string, unknown>).listingType,
               slug: typeof ad.slug === "string" ? ad.slug : undefined,
               title: typeof ad.title === "string" ? ad.title : undefined,
             });
@@ -93,10 +94,9 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
             const isRemoving = removingId === String(ad.id);
 
             return (
-              <Link
+              <div
                 key={ad.id}
-                href={detailHref}
-                className="group flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-muted/50 transition-colors"
+                className="group relative flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-muted/50 transition-colors"
               >
                 {/* Left Thumbnail */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
@@ -120,7 +120,12 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     {formatPrice(ad.price)}
                   </p>
                   <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
-                    {ad.title}
+                    <Link
+                      href={detailHref}
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xs after:absolute after:inset-0 after:content-[''] after:z-10"
+                    >
+                      {ad.title}
+                    </Link>
                   </h4>
                   <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-tiny text-foreground-subtle mt-1">
                     {location && (
@@ -139,7 +144,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                 </div>
 
                 {/* Right Action: Unsave Button */}
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
+                <div className="relative z-20 flex items-center gap-1.5 shrink-0 ml-1">
                   <button
                     type="button"
                     onClick={(e) => void handleUnsave(ad.id, e)}
@@ -150,11 +155,11 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                   >
                     <Heart className="h-4 w-4 fill-pink-600 dark:fill-pink-400" />
                   </button>
-                  <div className="hidden sm:flex h-8 w-8 items-center justify-center text-muted-foreground/50 group-hover:text-primary transition-colors">
+                  <div className="hidden sm:flex h-8 w-8 items-center justify-center text-muted-foreground/50 group-hover:text-primary transition-colors pointer-events-none">
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

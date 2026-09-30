@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Zap, Badge, Power } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -38,6 +37,14 @@ interface AdCardLinkWrapperProps {
 /* Navigation helpers                                                          */
 /* -------------------------------------------------------------------------- */
 
+export type AdCardClickEvent =
+  | React.MouseEvent
+  | { target?: EventTarget | null; currentTarget?: EventTarget | null };
+
+export type AdCardKeyboardEvent =
+  | React.KeyboardEvent
+  | { key: string; target?: EventTarget | null; currentTarget?: EventTarget | null; preventDefault?: () => void };
+
 export function useAdCardNavigation({
   href,
   onClick,
@@ -46,7 +53,14 @@ export function useAdCardNavigation({
   const router = useRouter();
   const useDeclarativeLink = Boolean(href && !onClick && !disableDeclarativeLink);
 
-  const handleCardClick = () => {
+  const handleCardClick = (e?: AdCardClickEvent) => {
+    // If the click originated from a descendant interactive element (button, link, input), let it handle its own event
+    const target = e?.target as HTMLElement | undefined;
+    const currentTarget = e?.currentTarget as HTMLElement | undefined;
+    const interactive = target?.closest?.("button, [role='button'], a, input, select, textarea");
+    if (interactive && interactive !== currentTarget) {
+      return;
+    }
     if (onClick) {
       onClick();
       return;
@@ -56,22 +70,30 @@ export function useAdCardNavigation({
     }
   };
 
-  return { useDeclarativeLink, handleCardClick };
+  const handleKeyDown = (e: AdCardKeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      const target = e.target as HTMLElement | undefined;
+      const currentTarget = e.currentTarget as HTMLElement | undefined;
+      const interactive = target?.closest?.("button, [role='button'], a, input, select, textarea");
+      if (interactive && interactive !== currentTarget) {
+        return;
+      }
+      e.preventDefault?.();
+      handleCardClick();
+    }
+  };
+
+  return { useDeclarativeLink, handleCardClick, handleKeyDown };
 }
 
 export function AdCardLinkWrapper({
-  href,
-  enabled,
+  href: _href,
+  enabled: _enabled,
   children,
 }: AdCardLinkWrapperProps) {
-  if (!enabled || !href) {
-    return <>{children}</>;
-  }
-  return (
-    <Link href={href} className="block w-full">
-      {children}
-    </Link>
-  );
+  // Stretched link pattern delegates navigation to the internal title Link,
+  // preventing invalid HTML5 <button> inside <a> nesting while maintaining 100% surface clickability.
+  return <>{children}</>;
 }
 
 export function toAdRecord(ad: AdCardData): Record<string, unknown> {
@@ -113,7 +135,7 @@ export function useAdCardBase({
         })
       : undefined);
 
-  const { useDeclarativeLink, handleCardClick } = useAdCardNavigation({
+  const { useDeclarativeLink, handleCardClick, handleKeyDown } = useAdCardNavigation({
     href: resolvedHref,
     onClick,
     disableDeclarativeLink,
@@ -126,6 +148,7 @@ export function useAdCardBase({
     adId,
     useDeclarativeLink,
     handleCardClick,
+    handleKeyDown,
   };
 }
 
@@ -140,12 +163,8 @@ export function resolveDeviceCondition(
 
   // 1. Direct fields check
   const raw =
-    (typeof adRecord.deviceCondition === "string"
-      ? adRecord.deviceCondition
-      : undefined) ||
-    (typeof adRecord.condition === "string"
-      ? adRecord.condition
-      : undefined) ||
+    (typeof adRecord.deviceCondition === "string" ? adRecord.deviceCondition : undefined) ||
+    (typeof adRecord.condition === "string" ? adRecord.condition : undefined) ||
     (adRecord.specs && typeof adRecord.specs === "object"
       ? (adRecord.specs as Record<string, unknown>).deviceCondition ||
         (adRecord.specs as Record<string, unknown>).condition
@@ -153,40 +172,14 @@ export function resolveDeviceCondition(
 
   if (typeof raw === "string" && raw.trim()) {
     const norm = raw.toLowerCase().trim().replace(/[\s_-]+/g, "_");
-    if (
-      norm.includes("power_on") ||
-      norm.includes("powers_on") ||
-      norm === "working"
-    ) {
-      return "power_on";
-    }
-    if (
-      norm.includes("power_off") ||
-      norm.includes("powers_off") ||
-      norm === "dead"
-    ) {
-      return "power_off";
-    }
+    if (norm.includes("power_on") || norm.includes("powers_on") || norm === "working") return "power_on";
+    if (norm.includes("power_off") || norm.includes("powers_off") || norm === "dead") return "power_off";
   }
 
   // 2. Fallback title parsing for explicit condition indicators
   const title = typeof ad.title === "string" ? ad.title.toLowerCase() : "";
-  if (
-    title.includes("powers on") ||
-    title.includes("power on") ||
-    title.includes("(power on)") ||
-    title.includes("- power on")
-  ) {
-    return "power_on";
-  }
-  if (
-    title.includes("powers off") ||
-    title.includes("power off") ||
-    title.includes("(power off)") ||
-    title.includes("- power off")
-  ) {
-    return "power_off";
-  }
+  if (/powers?\s+on|\(power\s+on\)|-\s*power\s+on/.test(title)) return "power_on";
+  if (/powers?\s+off|\(power\s+off\)|-\s*power\s+off/.test(title)) return "power_off";
 
   return undefined;
 }

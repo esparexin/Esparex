@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import Link from "next/link";
 import { MapPin, Clock } from "@esparex/ui";
 import { formatPrice, formatStableDate, formatShortRelativeTime } from "@/lib/formatters";
 import { resolveListingLocationLabel, sanitizeListingTitle } from "@/lib/listings/listingPresentation";
@@ -16,12 +17,14 @@ import {
 
 interface AdCardMetaProps {
   ad: AdCardData;
+  href?: string;
   className?: string;
   variant?: "default" | "dashboard" | "list";
 }
 
 export const AdCardMeta = memo(function AdCardMeta({
   ad,
+  href,
   className,
   variant = "default",
 }: AdCardMetaProps) {
@@ -31,38 +34,34 @@ export const AdCardMeta = memo(function AdCardMeta({
   const dashboardViews =
     typeof rawViews === "number"
       ? rawViews
-      : rawViews &&
-          typeof rawViews === "object" &&
-          "total" in rawViews &&
-          typeof (rawViews as { total?: unknown }).total === "number"
+      : rawViews && typeof rawViews === "object" && "total" in rawViews && typeof (rawViews as { total?: unknown }).total === "number"
         ? (rawViews as { total: number }).total
         : 0;
 
   const isDashboard = variant === "dashboard";
   const isList = variant === "list";
-
   const locationLabel = resolveListingLocationLabel(ad.location, "brief");
 
   /* ── Price display & Type guards ───────────────────────────────── */
-  const isService =
-    typeof adRecord.listingType === "string" &&
-    adRecord.listingType === "service";
-
-  const isDevice = adRecord.listingType === "ad";
+  
   const conditionBadge = isDevice ? getConditionBadge(ad) : null;
 
   const priceDisplay = (() => {
     if (isService && (adRecord.priceMin || adRecord.priceMax)) {
       if (adRecord.priceMin && adRecord.priceMax)
         return `${formatPrice(adRecord.priceMin as number)} – ${formatPrice(adRecord.priceMax as number)}`;
-      if (adRecord.priceMin)
-        return `From ${formatPrice(adRecord.priceMin as number)}`;
+      if (adRecord.priceMin) return `From ${formatPrice(adRecord.priceMin as number)}`;
       return formatPrice(adRecord.priceMax as number);
     }
-    return ad.price === 0 || ad.price === undefined
-      ? "Free"
-      : formatPrice(ad.price);
+    return ad.price === 0 || ad.price === undefined ? "Free" : formatPrice(ad.price);
   })();
+
+  const postedDate =
+    "publishedAt" in ad && typeof ad.publishedAt === "string" && ad.publishedAt
+      ? formatShortRelativeTime(ad.publishedAt)
+      : "createdAt" in ad && ad.createdAt
+        ? formatShortRelativeTime(ad.createdAt as string)
+        : "Just now";
 
   return (
     <div className={cn("flex flex-col justify-between gap-1.5", className)}>
@@ -78,19 +77,30 @@ export const AdCardMeta = memo(function AdCardMeta({
           {priceDisplay}
         </span>
         {!isDashboard && !isList && conditionBadge && (
-          <div className="shrink-0 flex items-center">
-            {conditionBadge}
-          </div>
+          <div className="shrink-0 flex items-center">{conditionBadge}</div>
         )}
       </div>
 
-      {/* Title — Snug line-height and discrete Geist font size */}
+      {/* Title — Stretched link covers full card surface when href provided */}
       <div className="min-h-[2rem] sm:min-h-[2.25rem] flex items-start">
-        <h3 className={cn(
-          "font-normal line-clamp-2 leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors",
-          isList ? "text-small" : "text-body"
-        )}>
-          {sanitizeListingTitle(ad.title, ad)}
+        <h3
+          className={cn(
+            "font-normal line-clamp-2 leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors",
+            isList ? "text-small" : "text-body"
+          )}
+        >
+          {href ? (
+            <Link
+              href={href}
+              className="after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none hover:no-underline"
+              tabIndex={-1}
+              aria-hidden="true"
+            >
+              {sanitizeListingTitle(ad.title, ad)}
+            </Link>
+          ) : (
+            sanitizeListingTitle(ad.title, ad)
+          )}
         </h3>
       </div>
 
@@ -107,15 +117,11 @@ export const AdCardMeta = memo(function AdCardMeta({
             <div className="flex items-center gap-1 shrink-0">
               <Clock className="h-3 w-3 text-foreground-subtle shrink-0" aria-hidden="true" />
               <span className="truncate text-tiny">
-                {"createdAt" in ad
-                  ? formatStableDate(ad.createdAt as string)
-                  : "Just now"}
+                {"createdAt" in ad ? formatStableDate(ad.createdAt as string) : "Just now"}
               </span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-foreground-tertiary text-tiny">
-                {dashboardViews} views
-              </span>
+              <span className="text-foreground-tertiary text-tiny">{dashboardViews} views</span>
             </div>
           </>
         ) : (
@@ -124,10 +130,7 @@ export const AdCardMeta = memo(function AdCardMeta({
             <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
               {locationLabel && (
                 <>
-                  <MapPin
-                    className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-foreground-subtle"
-                    aria-hidden="true"
-                  />
+                  <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 text-foreground-subtle" aria-hidden="true" />
                   <span className="truncate font-medium text-tiny sm:text-caption block shrink min-w-0 text-foreground-tertiary">
                     {locationLabel}
                   </span>
@@ -137,11 +140,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
             {/* Posted / Active Date */}
             <span className="shrink-0 text-tiny sm:text-caption text-foreground-tertiary font-normal whitespace-nowrap">
-              {("publishedAt" in ad && typeof ad.publishedAt === "string" && ad.publishedAt)
-                ? formatShortRelativeTime(ad.publishedAt)
-                : ("createdAt" in ad && ad.createdAt)
-                  ? formatShortRelativeTime(ad.createdAt as string)
-                  : "Just now"}
+              {postedDate}
             </span>
           </>
         )}
