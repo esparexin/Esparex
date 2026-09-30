@@ -9,7 +9,6 @@ import { BusinessPostFAB } from '@/components/layout/BusinessPostFAB';
 import { UserAppProviders } from '@/components/providers/UserAppProviders';
 import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
-import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 
 import { PageLayout } from '@esparex/ui';
 import { isWizardPathname } from '@/lib/routeUtils';
@@ -59,7 +58,6 @@ export function CommonLayout({
                     header={!hideHeader ? header : undefined}
                     hasCompactHeader={!chromePolicy.showMobileSearch}
                 >
-                    <ScrollSentinel />
                     <ClientChromeLoader apiUnavailable={false} />
                     <Suspense fallback={null}>
                         <RouteScrollReset />

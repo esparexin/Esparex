@@ -170,7 +170,7 @@ export function Header({
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (
-          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5 border-b border-border/40">
+          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5">
             {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
               <button
                 type="button"
