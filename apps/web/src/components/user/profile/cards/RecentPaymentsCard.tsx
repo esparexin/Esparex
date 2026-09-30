@@ -55,10 +55,10 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
       <span
         className={`inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold ${
           isPaid
-            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+            ? 'bg-success/10 text-success'
             : isFailed
             ? 'bg-destructive/10 text-destructive'
-            : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+            : 'bg-warning/10 text-warning'
         }`}
       >
         {isPaid ? 'PAID' : status}
@@ -103,55 +103,68 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           </span>
         </div>
 
-        {/* Desktop View: Clean Table (hidden on mobile) */}
-        <div className="hidden md:block max-h-[360px] overflow-y-auto relative rounded-lg border border-border/40">
+        {/* Single-Instance Responsive Table */}
+        <div className="overflow-x-auto relative rounded-xl border border-border/40 bg-card shadow-2xs">
           <table className="w-full text-left text-caption">
             <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
-              <tr className="border-b border-border/40 text-muted-foreground font-semibold">
-                <th className="py-2.5 px-3">Date</th>
-                <th className="py-2.5 px-3">Order Description</th>
-                <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3 text-right">Invoice Actions</th>
+              <tr className="border-b border-border/40 text-muted-foreground font-semibold text-tiny">
+                <th scope="col" className="py-2.5 px-3">Date</th>
+                <th scope="col" className="py-2.5 px-3">Order Description</th>
+                <th scope="col" className="py-2.5 px-3">Amount</th>
+                <th scope="col" className="py-2.5 px-3 hidden sm:table-cell">Status</th>
+                <th scope="col" className="py-2.5 px-3 text-right">Invoice Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
               {validPayments.map((pay) => (
                 <tr key={pay.orderId} className="hover:bg-muted/30 transition-colors">
-                  <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground">
-                    {formatInvoiceDate(pay.createdAt)}
+                  {/* Date & Mobile Status */}
+                  <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground align-middle">
+                    <div>{formatInvoiceDate(pay.createdAt)}</div>
+                    <div className="sm:hidden mt-0.5">{renderStatusBadge(pay.status)}</div>
                   </td>
-                  <td className="py-2.5 px-3 font-medium text-foreground max-w-xs truncate">
-                    {formatOrderDescription(pay.description)}
+
+                  {/* Description & Order ID */}
+                  <td className="py-2.5 px-3 font-medium text-foreground max-w-xs align-middle">
+                    <div className="truncate">{formatOrderDescription(pay.description)}</div>
+                    <div className="text-tiny text-muted-foreground font-mono mt-0.5">
+                      #{pay.orderId.slice(-8).toUpperCase()}
+                    </div>
                   </td>
-                  <td className="py-2.5 px-3 font-bold text-foreground tabular-nums">
+
+                  {/* Amount */}
+                  <td className="py-2.5 px-3 font-bold text-foreground tabular-nums whitespace-nowrap align-middle">
                     ₹{formatStableNumber(pay.amount)}
                   </td>
-                  <td className="py-2.5 px-3">
+
+                  {/* Status (sm+) */}
+                  <td className="py-2.5 px-3 hidden sm:table-cell align-middle">
                     {renderStatusBadge(pay.status)}
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+
+                  {/* Actions */}
+                  <td className="py-2.5 px-3 text-right align-middle">
                     {pay.status === 'SUCCESS' ? (
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           type="button"
                           onClick={() => handleOpenPreview(pay)}
-                          className="p-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1"
+                          className="p-1.5 sm:px-2 sm:py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny font-semibold"
                           aria-label={`Preview invoice for order ${pay.orderId}`}
                           title="Preview Invoice"
                         >
-                          <Eye className="w-4 h-4 shrink-0" />
-                          <span className="text-tiny font-semibold hidden sm:inline">Preview</span>
+                          <Eye className="w-3.5 h-3.5 shrink-0" />
+                          <span className="hidden sm:inline">Preview</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => void downloadInvoiceFile(pay.orderId)}
-                          className="p-1.5 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 px-2 py-1"
+                          className="p-1.5 sm:px-2 sm:py-1 rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-tiny font-semibold"
                           aria-label={`Download invoice file for order ${pay.orderId}`}
                           title="Download Invoice PDF"
                         >
                           <Download className="w-3.5 h-3.5 shrink-0" />
-                          <span className="text-tiny font-semibold">PDF</span>
+                          <span>PDF</span>
                         </button>
                       </div>
                     ) : (
@@ -164,66 +177,6 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Mobile View: Unified List with subtle dividers (hidden on desktop) */}
-        <div className="md:hidden divide-y divide-border/40 rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
-          {validPayments.map((pay) => (
-            <div
-              key={pay.orderId}
-              className="p-3 sm:p-3.5 space-y-2 hover:bg-muted/10 transition-colors"
-            >
-              {/* Top Row: Date, Status Badge, and Amount */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-caption text-muted-foreground font-medium whitespace-nowrap">
-                    {formatInvoiceDate(pay.createdAt)}
-                  </span>
-                  {renderStatusBadge(pay.status)}
-                </div>
-                <span className="text-body sm:text-body-lg font-bold text-foreground tabular-nums shrink-0">
-                  ₹{formatStableNumber(pay.amount)}
-                </span>
-              </div>
-
-              {/* Bottom Row: Description, Order ID, and Action Buttons */}
-              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-border/30">
-                <div className="min-w-0 flex items-center gap-1.5 truncate">
-                  <span className="text-small font-semibold text-foreground truncate">
-                    {formatOrderDescription(pay.description)}
-                  </span>
-                  <span className="text-tiny text-muted-foreground font-mono shrink-0">
-                    #{pay.orderId.slice(-8).toUpperCase()}
-                  </span>
-                </div>
-
-                {pay.status === 'SUCCESS' ? (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenPreview(pay)}
-                      className="h-7 px-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-caption font-semibold"
-                      aria-label={`Preview invoice for order ${pay.orderId}`}
-                    >
-                      <Eye className="w-3.5 h-3.5 shrink-0" />
-                      <span>Preview</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void downloadInvoiceFile(pay.orderId)}
-                      className="h-7 px-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center gap-1 text-caption font-semibold"
-                      aria-label={`Download invoice file for order ${pay.orderId}`}
-                    >
-                      <Download className="w-3.5 h-3.5 shrink-0" />
-                      <span>PDF</span>
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-tiny text-muted-foreground/60 font-medium">No Invoice</span>
-                )}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 

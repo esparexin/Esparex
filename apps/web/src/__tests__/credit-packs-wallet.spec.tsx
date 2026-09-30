@@ -274,7 +274,7 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(quotaHtml).toContain('Browse Plans');
   });
 
-  it('renders single-instance responsive layout with desktop table and mobile cards for real invoices', () => {
+  it('renders single-instance responsive layout with unified table for real invoices', () => {
     const mockInvoices = [
       {
         orderId: 'ord_9001abc',
@@ -294,12 +294,9 @@ describe('Wallet & Credits UI/UX Architecture', () => {
     expect(html).toContain('Invoices &amp; Receipts');
     expect(html).toContain('Showing last 1 order');
 
-    // Desktop table container must be hidden on mobile
-    expect(html).toContain('hidden md:block');
+    // Single responsive table
     expect(html).toContain('<table');
-
-    // Mobile cards container must be hidden on desktop
-    expect(html).toContain('md:hidden');
+    expect(html).toContain('Order Description');
 
     // Clean human-friendly plan description
     expect(html).toContain('Smart Alert 5-Pack');
