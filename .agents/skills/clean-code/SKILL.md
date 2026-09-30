@@ -104,6 +104,8 @@ Index:
 
 Every later finding must reference this index.
 
+Consumer and blast-radius evidence for high-risk shared files uses the compact `scope_contract` shape owned by `.agents/policy_engine/POLICY_ENGINE.json` (no separate reporting format).
+
 ---
 
 ## Search Strategy

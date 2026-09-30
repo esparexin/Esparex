@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import { useColorScheme as useNativeColorScheme } from 'react-native';
 
 type ColorScheme = 'light' | 'dark' | 'system';
 

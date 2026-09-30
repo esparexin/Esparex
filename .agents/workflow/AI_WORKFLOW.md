@@ -34,9 +34,9 @@ UI-modified = No, or a trivial style-only change with no new states/behavior
 
 If all criteria are met, the AI may skip Phases 4, 8, 8.5, 9, 10, 11, 11.5, and 14, going Phase 3 → 5 → 6 → 7 → 12 → 13 → 15 → 16 → 17 → 18. Every skipped phase must still be logged as SKIPPED (Fast-Path) in the Phase 18 report — never silently omitted. If, once in Phase 7 or 12, the change turns out to touch more than the single file/area anticipated, the AI must stop, exit Fast-Path, and re-run the full lifecycle from Phase 4 forward (see Scope Ceiling below).
 Scope Ceiling
-If actual scope during Phase 7 (Discovery) or Phase 12 (Implementation) exceeds the Phase 1/2 estimate — e.g. more than roughly 3x the files, packages, or layers originally scoped — the AI must stop, report the discrepancy, and get the user to confirm or re-scope before continuing. Silent scope expansion is a blocking error.
+If actual scope during Phase 7 (Discovery) or Phase 12 (Implementation) exceeds the Phase 1/2 estimate — e.g. more than roughly 3x the files, packages, or layers originally scoped — the AI must stop, report the discrepancy, and get the user to confirm or re-scope before continuing. Silent scope expansion is a blocking error. A narrow fix must remain narrow: fix ≠ redesign, fix ≠ feature, fix ≠ unrelated cleanup. Touching a high-risk owner (CANONICAL_OWNERSHIP_REGISTRY.json `highRiskPaths`) outside the declared scope is a Scope Ceiling breach even when the file count is small.
 Iteration Limit
-Any gate that loops on FAIL ("fix and re-check") may attempt this at most 3 times for the same root cause. On the 3rd consecutive FAIL at the same gate for the same underlying issue, the AI must stop and escalate to the user with the failure history rather than continuing to retry.
+Any gate that loops on FAIL ("fix and re-check") may attempt this at most 3 times for the same root cause. On the 3rd consecutive FAIL at the same gate for the same underlying issue, the AI must stop and escalate to the user with the failure history rather than continuing to retry. Repeat-touch without new root-cause evidence — modifying the same high-risk owner again for symptom-level reasons — requires returning to Phase 7 / Phase 2b ownership and root-cause analysis before any further edit.
 
 Naming Policy (single source of truth)
 Every artifact name created by this workflow follows one of these patterns. No phase may invent its own naming rule.
@@ -166,6 +166,7 @@ Extract implicit requirements.
 List assumptions (anything not directly verifiable from the request text). Every assumption is verified against live source in Phase 7.
 Identify dependencies.
 Define acceptance criteria.
+Record REQUEST, IN SCOPE, OUT OF SCOPE alongside the acceptance criteria; a narrow fix declares what must be preserved, not only what must change.
 Identify risks and constraints.
 
 
@@ -301,6 +302,7 @@ Tier 1 — Always Required (every task):
 4. Duplicate Logic Check
 5. Impact Analysis
 6. Verification Plan
+Before modifying a high-risk shared file (CANONICAL_OWNERSHIP_REGISTRY.json `highRiskPaths` / `behaviorOwnership`), Tier 1 additionally records SSOT owner, consumers, imports, call sites, and shared/global side effects.
 
 Tier 2 — Required for Code Changes (added to Tier 1):
 7. API Mapping
@@ -376,6 +378,7 @@ Database impact — migrations/index changes?
 Frontend impact — breaks existing UI state?
 Admin impact — does admin need awareness?
 Testing impact — which suites break?
+Blast-radius dimensions relevant to the task — desktop, mobile, keyboard, focus, scroll, authentication, API/retry, navigation, tokens, unrelated consumers, second-owner risk (POLICY_ENGINE.json `scope_contract.blast_radius_dimensions`; only dimensions relevant to the actual task).
 
 Outputs
 Persisted Impact Surface Map, same Evidence Standard as every other phase — available to the user on request, not discarded.
@@ -390,7 +393,7 @@ This is the single duplicate-detection gate in this workflow. All other phases (
 Process
 Before creating any new artifact, search existing locations:
 ArtifactSearch LocationHookapps/*/src/hooks/Componentapps/*/src/components/Service methodcore/src/services/API endpointbackend/api/src/routes/Utility functioncore/src/utils/, shared/src/Validator / schemacore/src/validators/Type / interfaceshared/src/types/Constant / enumshared/src/constants/Middlewarebackend/api/src/middleware/Business logiccore/src/services/
-For every match or near-match, record it using the Evidence Standard (file:line, Type: Duplicate, Action: Reuse/Extend/Remove). Extend existing files instead of creating new ones whenever practical.
+For every match or near-match, record it using the Evidence Standard (file:line, Type: Duplicate, Action: Reuse/Extend/Remove). Extend existing files instead of creating new ones whenever practical. Before creating a new utility, hook, manager, provider, abstraction, or ownership mechanism, prove the existing SSOT cannot satisfy the requirement; a second owner for an already-owned behavior is prohibited.
 Exit Criteria
 | PASS | Every required artifact resolved to Reuse/Extend, or new creation is justified with evidence that no existing artifact fits |
 | FAIL | A duplicate would be created without evidence-backed justification |
@@ -398,7 +401,7 @@ Exit Criteria
 Phase 10 — Architecture Validation
 Classification: Execution Gate
 Process
-Validate against invariants: dependency direction (Apps → API → Core → Shared, no upstream imports), no circular dependencies, Core is framework-independent (no Express/HTTP in core/src/), controllers stay thin (no DB queries/business logic), no direct model access from apps/*, transactions live only in core/src/services/, UI components are presentational (no direct fetch calls), correct layer ownership, backward compatibility (breaking changes need an ADR), new packages need an ADR.
+Validate against invariants: dependency direction (Apps → API → Core → Shared, no upstream imports), no circular dependencies, Core is framework-independent (no Express/HTTP in core/src/), controllers stay thin (no DB queries/business logic), no direct model access from apps/*, transactions live only in core/src/services/, UI components are presentational (no direct fetch calls), correct layer ownership, backward compatibility (breaking changes need an ADR), new packages need an ADR. Preserve existing provider hierarchy and behavior ownership (scroll, keyboard, viewport, retry, badge/status domains, navigation); do not introduce a competing owner.
 Exit Criteria
 | PASS | All invariants confirmed unviolated |
 | FAIL | Any invariant violated — list each, do not implement until corrected |
@@ -502,6 +505,7 @@ CheckStandardCore Web VitalsLCP < 2.5s, CLS < 0.1, INP < 200ms on a throttled mo
 Accessibility: full keyboard navigation, semantic HTML, correct ARIA, focus trapping/restoration, WCAG AA contrast.
 UI States: loading, empty, error (actionable), success, inline validation — all implemented per interactive element.
 Functional completeness: every button has a real action (onClick={() => {}} banned), every link resolves, every form submits to a real endpoint, modals open/submit/close correctly, no orphan UI.
+Functional fixes must not change unrelated spacing, padding, height, font, color, animation, copy, layout, or visual hierarchy unless the requested defect specifically requires that exact change.
 Exit Criteria
 | PASS | All checks pass, including mobile-first/responsive and performance budgets |
 | FAIL | Any check fails — fix, re-validate |
@@ -525,7 +529,7 @@ Exit Criteria
 Phase 16 — Change-Aware Verification Pipeline
 Classification: Execution Gate
 Process
-Inspect the modified files and execute the matching workspace-aware and change-aware verification steps mapped in `.agents/policy_engine/POLICY_ENGINE.json` under `verification_matrix` (subject to the global Iteration Limit and the Flaky Test Policy below).
+Inspect the modified files and execute the matching workspace-aware and change-aware verification steps mapped in `.agents/policy_engine/POLICY_ENGINE.json` under `verification_matrix` (subject to the global Iteration Limit and the Flaky Test Policy below). Affected `verification_matrix` rows must resolve to PASS or SKIP(reason); a correct-looking screenshot alone is never sufficient.
 
 Coverage threshold: new or changed code introduced by this task must meet the repository's configured minimum coverage threshold (branch + line). A passing test:unit run with coverage below threshold is a FAIL, not a PASS.
 Secret & Dependency Scan (step 9): no leaked credentials, API keys, or tokens in the diff; no newly introduced dependency with a known critical/high vulnerability. Any hit is a FAIL — remove the secret/rotate it, or address the vulnerable dependency per the Dependency Policy.

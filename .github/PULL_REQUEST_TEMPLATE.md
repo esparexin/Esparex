@@ -74,3 +74,14 @@
 ## 5. Post-Implementation Cleanup Ledger
 - [ ] Dead/orphan code removed: (list deleted files/exports if any)
 - [ ] Documentation / OpenAPI specs updated if contract modified
+
+
+## 6. Scope / Ownership / Blast-Radius Evidence (SCOPE-001)
+<!-- Required when the diff touches high-risk shared owners (registry `highRiskPaths`) or adds a new abstraction/owner. Otherwise mark N/A. SCOPE-001 fails without this evidence. -->
+
+- **High-Risk Touched:** _None_ or _list files_
+- **Ownership Evidence:** _SSOT owner + consumers checked per file_
+- **Blast Radius:** _relevant dimensions from `scope_contract.blast_radius_dimensions`_
+- **Declared Files:** _list, or N/A when no high-risk files touched_
+- **Regression Rows:** _affected `verification_matrix` rows PASS / SKIP(reason)_
+- **Override (only for legitimate shared-owner changes):** _why_this_owner / why_existing_insufficient / consumers_checked / regression_coverage_
