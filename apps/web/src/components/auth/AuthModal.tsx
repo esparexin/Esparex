@@ -69,7 +69,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           </SheetClose>
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain -mx-4 px-4 sm:-mx-6 sm:px-6">
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain pb-[calc(var(--keyboard-height,0px)+max(1.5rem,env(safe-area-inset-bottom)))] sm:pb-0 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <LoginFlow
             callbackUrl={callbackUrl}
             onClose={() => handleOpenChange(false)}
