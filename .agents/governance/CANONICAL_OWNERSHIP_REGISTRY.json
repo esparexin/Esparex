@@ -96,5 +96,49 @@
     "shared/src/contracts": "Prohibited. DTO contracts belong in @esparex/contracts; route path constants belong in shared/src/routes/.",
     "core/src/services/notification": "Prohibited. Notification services belong in core/src/domains/notifications/.",
     ".agents/workflows": "Prohibited. Canonical AI workflows belong in .agents/workflow/."
-  }
+  },
+  "behaviorOwnership": {
+    "scrollLock": {
+      "owner": "packages/ui/src/feedback/Sheet.tsx (Radix RemoveScroll)",
+      "evidence": "scripts/git/esparex/scope-ownership-validator.js; apps/web/src/__tests__/sheet-scroll-restoration.spec.ts",
+      "prohibited": ["custom body{position:fixed} scroll locks", "sheetScrollLock duplicates", "overlayClassName masking"]
+    },
+    "viewportVariables": {
+      "owner": "apps/web/src/hooks/useVisualViewport.ts (--visual-viewport-height, --keyboard-height on <html>)",
+      "evidence": "apps/web/src/__tests__/visual-viewport-ssot.spec.tsx",
+      "prohibited": ["second --keyboard-height compensator", "window.scrollTo viewport locks outside the owner"]
+    },
+    "authSheet": {
+      "owner": "apps/web/src/context/AuthModalContext.tsx + apps/web/src/components/auth/AuthModal.tsx",
+      "evidence": "apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts",
+      "prohibited": ["second auth-sheet manager", "provider reorder without ancestor evidence"]
+    },
+    "apiRetry": {
+      "owner": "apps/web/src/lib/api/client.ts (canonical retry matcher)",
+      "evidence": "apps/web/src/__tests__/api-client-health-gate.spec.ts",
+      "prohibited": ["parallel isSendOtp/isAuthMutation matchers duplicating normalizeRequestPath"]
+    },
+    "listingPresentation": {
+      "owner": "apps/web/src/lib/listings/listingPresentation.ts + apps/web/src/components/user/ad-card/shared.tsx (overlay badges) distinct from profile/StatusBadge.tsx lifecycle status and CreditPackFormatters credit-pack status",
+      "evidence": "apps/web/src/__tests__/listing-presentation.spec.ts; apps/web/src/__tests__/AdCardBadge.spec.tsx",
+      "prohibited": ["global StatusChip merge across badge domains"]
+    }
+  },
+  "highRiskPaths": [
+    "packages/ui/**",
+    "apps/web/src/components/auth/**",
+    "apps/web/src/components/user/auth/**",
+    "apps/web/src/components/providers/**",
+    "apps/web/src/context/**",
+    "apps/web/src/hooks/useVisualViewport.ts",
+    "apps/web/src/lib/api/client.ts",
+    "apps/web/src/lib/listings/**",
+    "apps/web/src/components/user/ad-card/**",
+    "packages/design-tokens/**",
+    "packages/ui/src/styles/**",
+    "packages/ui/src/tokens/**",
+    "apps/web/src/app/**/layout.tsx",
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/layout/**"
+  ]
 }

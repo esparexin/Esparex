@@ -1254,4 +1254,10 @@ The canonical reverse geocode pipeline uses **OpenStreetMap Nominatim** (`Nomina
 8. **User-Agent Compliance**:
    - All Nominatim API requests MUST include a descriptive `User-Agent` header (`Esparex/1.0`) per OSM usage policy. Anonymous or generic user agents are prohibited.
 
+---
+
+## 25. NARROW-SCOPE OWNERSHIP & BLAST-RADIUS CONTROL (MANDATORY POINTER)
+
+Narrow requests MUST NOT expand into shared-owner changes without evidence. Execution lifecycle: `.agents/workflow/AI_WORKFLOW.md` (Scope Ceiling, Iteration Limit, Phases 1/7/8.5/9/10/14/16). Behavior owners + high-risk paths: `.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json` (`behaviorOwnership`, `highRiskPaths`). Compact contract + regression rows: `.agents/policy_engine/POLICY_ENGINE.json` (`scope_contract`, `verification_matrix`). Mechanical enforcement: `SCOPE-001` via `repo:gate`. No parallel governance, skill, workflow, or reporting framework is authorized for this control.
+
 

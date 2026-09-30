@@ -13,6 +13,7 @@ const checks = [
   require('./esparex/ssot-validator'),
   require('./esparex/architecture-validator'),
   require('./esparex/governance-guards-validator'),
+  require('./esparex/scope-ownership-validator'),
   require('./esparex/architecture-platform-validator'),
   require('./esparex/duplicate-validator'),
   require('./esparex/knip-validator'),

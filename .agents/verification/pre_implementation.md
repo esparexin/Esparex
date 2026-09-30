@@ -29,3 +29,4 @@ Before writing any code, confirm all of the following:
 - [ ] I am not introducing duplicate logic or parallel systems.
 - [ ] I am not creating unnecessary files, folders, or documentation.
 - [ ] The implementation follows the existing architecture and project standards.
+- [ ] **Scope contract recorded** (POLICY_ENGINE.json `scope_contract` fields): request, declared files, high-risk touched, ownership evidence, blast radius, new owners, affected `verification_matrix` rows. High-risk shared files without ownership/blast-radius evidence are a blocking error.

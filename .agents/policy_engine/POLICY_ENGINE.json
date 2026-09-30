@@ -203,5 +203,28 @@
       "checks",
       "status"
     ]
+  },
+  "verification_matrix": {
+    "description": "Change-aware regression rows resolved by touched surface. Referenced by AI_WORKFLOW Phase 16. Rows are required as PASS or SKIP(reason); screenshot-only is never sufficient.",
+    "surfaces": {
+      "overlay_auth": {
+        "when": "touches AuthModal, AuthModalContext, BottomSheetManager, Sheet/Dialog, useVisualViewport, login/OTP steps, or lib/api/client auth paths",
+        "rows": ["open", "close", "desktop_width", "mobile_width", "keyboard_open", "keyboard_close", "focus", "escape_back", "home_scrolling", "listing_card_click", "auth_state", "otp_send", "otp_verify", "otp_resend_cooldown", "badges", "header", "navigation", "provider_ordering"]
+      },
+      "listing_card": {
+        "when": "touches ad-card/**, listingPresentation, StatusChip/Badge tokens",
+        "rows": ["card_click_navigation", "badge_domains", "overlay_badges", "condition_badges", "home_scrolling"]
+      },
+      "api_retry": {
+        "when": "touches lib/api/client or auth send/verify/cancel paths",
+        "rows": ["otp_send", "otp_verify", "resend_cooldown", "transient_retry_semantics"]
+      }
+    }
+  },
+  "scope_contract": {
+    "description": "Compact machine-checkable scope/ownership record. Recorded in the Decision Log and PR body using existing evidence fields. No new reporting framework.",
+    "required_fields": ["request", "declaredFiles", "highRiskTouched", "ownershipEvidence", "blastRadius", "actualDiff", "newOwners", "scopeExceeded", "regressions", "tests", "typecheck", "gates"],
+    "blast_radius_dimensions": ["desktop", "mobile", "keyboard", "focus", "scroll", "authentication", "api_retry", "navigation", "tokens", "unrelated_consumers", "second_owner_risk"],
+    "override_fields": ["why_this_owner", "why_existing_insufficient", "consumers_checked", "blast_radius", "regression_coverage"]
   }
 }
