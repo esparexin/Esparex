@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { coordinatesSchema } from './coordinates.schema';
 export { coordinatesSchema } from './coordinates.schema';
 
-import { CONTACT_LIMITS } from '../constants/fieldLimits';
+import { CONTACT_LIMITS, PRICE_LIMITS } from '../constants/fieldLimits';
 export {
     CONTACT_LIMITS,
 } from '../constants/fieldLimits';
@@ -86,10 +86,10 @@ export const imageArraySchema = (min: number = 1, max: number = 10) =>
         .min(min, `At least ${min} image(s) required`)
         .max(max, `Maximum ${max} images allowed`);
 
-// Price validation
+// Price validation (limits owned by PRICE_LIMITS in fieldLimits.ts)
 export const priceSchema = z.number()
-    .min(0, 'Price must be at least 0')
-    .max(10000000, 'Price cannot exceed ₹1 crore');
+    .min(PRICE_LIMITS.MIN, PRICE_LIMITS.ERROR_MIN)
+    .max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX);
 
 // Price range validation (with refinement)
 export const priceRangeSchema = z.object({

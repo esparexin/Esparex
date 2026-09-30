@@ -96,7 +96,7 @@ export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onCl
                             <AlertDialogTitle className="text-h2 font-bold tracking-tight text-foreground">Application Submitted!</AlertDialogTitle>
                             <AlertDialogDescription className="text-body leading-relaxed text-muted-foreground">Your business verification request has been received. Our team will review your documents and verify your account within 24-48 hours.</AlertDialogDescription>
                         </div>
-                        <div className="h-1 w-full overflow-hidden rounded-full bg-slate-50"><div className="h-full w-1/3 animate-[progress_2s_ease-in-out_infinite] bg-emerald-500" /></div>
+                        <div className="h-1 w-full overflow-hidden rounded-full bg-muted"><div className="h-full w-1/3 animate-[progress_2s_ease-in-out_infinite] bg-primary" /></div>
                         <AlertDialogFooter className="w-full gap-3 sm:flex-col">
                             <AlertDialogAction onClick={() => void handleSuccessAcknowledge()} className="h-12 w-full rounded-xl bg-primary font-bold text-primary-foreground shadow-lg transition-all hover:bg-primary/90">Got it, thanks!</AlertDialogAction>
                         </AlertDialogFooter>

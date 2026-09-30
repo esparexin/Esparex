@@ -1,6 +1,7 @@
 import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../utils/pLimit';
 import Business from '../../models/Business';
 import { ACTOR_TYPE } from '@esparex/contracts';
+import { formatAppDate } from '@esparex/shared';
 import { AppError } from '../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../utils/adminLogger';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
@@ -48,7 +49,7 @@ export const renewAdminBusiness = async (id: string, actorId: string, logFn: Adm
     const business = await businessLifecycleService.renewBusiness(id, { type: ACTOR_TYPE.ADMIN, id: actorId });
     if (!business) throw new AppError('Business not found', 404);
     const userIdStr = String(business.userId ?? '');
-    const expiresAtStr = business.expiresAt ? new Date(business.expiresAt as string | number | Date).toLocaleDateString() : 'N/A';
+    const expiresAtStr = business.expiresAt ? formatAppDate(new Date(business.expiresAt as string | number | Date)) : 'N/A';
     await logFn('RENEW_BUSINESS', 'Business', id, { actorId });
     const { renderBusinessRenewedEmail } = await import('../../domains/notifications/templates/EmailLayout');
     const { getFrontendAppUrl } = await import('../../utils/appUrl');
@@ -123,7 +124,7 @@ export const adminBulkResendBusinessWarnings = async (ids: string[], actorId: st
         const biz = bizById.get(id);
         if (!biz) { results.push({ id, success: false, message: 'Business not found' }); continue; }
         try {
-            await dispatchTemplatedNotification(biz.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRY_WARNING_3D', { name: biz.name, date: biz.expiresAt?.toLocaleDateString() || 'N/A' }, { businessId: biz._id.toString() });
+            await dispatchTemplatedNotification(biz.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRY_WARNING_3D', { name: biz.name, date: biz.expiresAt ? formatAppDate(biz.expiresAt) : 'N/A' }, { businessId: biz._id.toString() });
             bulkOps.push({ updateOne: { filter: { _id: biz._id }, update: { $set: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' }, $inc: { expiryWarningCount: 1 } } } });
             await logFn('expiry_warning_resent', 'ExpiryWarning', id, { entityType: 'Business', adminId: actorId });
             results.push({ id, success: true });

@@ -21,7 +21,7 @@ import {
 } from "@/components/catalog/primitives";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { adminCategorySchema } from "@/schemas/admin.schemas";
 import { Category } from "@esparex/contracts";
@@ -83,7 +83,7 @@ export default function CategoriesTab() {
         },
     });
 
-    const { replaceQueryState } = useCatalogQueryStateSync({
+    const { replaceQueryState } = useAdminQuerySync({
         searchInput,
         initialSearch,
         loading,

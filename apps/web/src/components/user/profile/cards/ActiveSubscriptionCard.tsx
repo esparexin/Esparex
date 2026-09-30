@@ -10,6 +10,8 @@ interface ActiveSubscriptionCardProps {
   onBrowsePlans?: () => void;
 }
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   subscription,
   nextMonthlyResetDate,
@@ -27,7 +29,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
     return null;
   }
 
-  const daysLeft = subscription.daysRemaining ?? (subscription.endDate ? Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - currentTime) / (1000 * 60 * 60 * 24))) : null);
+  const daysLeft = subscription.daysRemaining ?? (subscription.endDate ? Math.max(0, Math.ceil((new Date(subscription.endDate).getTime() - currentTime) / DAY_IN_MS)) : null);
   const startDateFormatted = subscription.startDate ? formatStableDate(subscription.startDate) : null;
   const endDateFormatted = subscription.endDate ? formatStableDate(subscription.endDate) : null;
 

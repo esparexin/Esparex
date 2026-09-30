@@ -5,6 +5,7 @@ import { Types } from 'mongoose';
 import { respond } from "../../utils/respond";
 import { ApiResponse, Role } from "@esparex/contracts";
 import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { formatAppDate } from '@esparex/shared';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domains/payments/application/TransactionService';
@@ -112,7 +113,7 @@ export const getInvoice = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 403, 'Unauthorized');
         }
 
-        const date = new Date(transaction.createdAt).toLocaleDateString('en-IN', {
+        const date = formatAppDate(transaction.createdAt, {
             year: 'numeric', month: 'long', day: 'numeric'
         });
 

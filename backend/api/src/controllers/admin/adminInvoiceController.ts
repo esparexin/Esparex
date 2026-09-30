@@ -4,7 +4,7 @@ import logger from '@esparex/core/utils/logger';
 import { logAdminAction } from '../../utils/adminLogger';
 import { PAYMENT_STATUS } from "@esparex/contracts";
 import { generateInvoiceNumber } from '@esparex/core/utils/invoiceNumber';
-import { getPrimaryPlanCreditCount } from "@esparex/shared";
+import { getPrimaryPlanCreditCount, formatAppDate } from "@esparex/shared";
 import * as invoiceService from '@esparex/core/domains/payments/application/InvoiceService';
 import { renderInvoiceHtml } from '@esparex/core/domains/payments/application/InvoicePdfService';
 import {
@@ -323,7 +323,7 @@ export const getPrintableInvoice = async (req: Request, res: Response) => {
         const planType = inv.planSnapshot?.type || 'Service';
         const taxGst = inv.tax?.gst || 0;
         const subtotal = inv.amount - taxGst;
-        const date = new Date(inv.issuedAt).toLocaleDateString('en-IN', {
+        const date = formatAppDate(inv.issuedAt, {
             year: 'numeric', month: 'long', day: 'numeric'
         });
 

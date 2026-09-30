@@ -3,6 +3,7 @@ import { getListingRepository } from '../../../composition/listings';
 import AlertDeliveryLog from '../../../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
 import logger from '../../../utils/logger';
+import { formatAppDate } from '@esparex/shared';
 import { buildGeoNearStage } from '../../../utils/mongoGeoUtils';
 import { dispatchTemplatedNotification } from './NotificationService';
 import type { AdminLogFn } from '../../../utils/adminLogger';
@@ -436,7 +437,7 @@ export const adminBulkResendAlertWarnings = async (
                 'SMART_ALERT_EXPIRY_WARNING_3D',
                 { 
                     name: (alert.name as string) || 'Saved Search', 
-                    date: (alert.expiresAt as Date | undefined)?.toLocaleDateString() || 'N/A' 
+                    date: alert.expiresAt ? formatAppDate(alert.expiresAt as Date) : 'N/A' 
                 },
                 { alertId: String(alert._id) }
             );

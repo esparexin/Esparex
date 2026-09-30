@@ -9,15 +9,15 @@ import { ListingTypeValue } from "@esparex/contracts";
 import { formatAppDate } from "@esparex/shared";
 // ── Risk badge helpers ────────────────────────────────────────────────────────
 const riskColor = (score: number) => {
-    if (score >= 70) return "bg-red-100 text-red-700";
-    if (score >= 40) return "bg-amber-100 text-amber-700";
-    return "bg-emerald-100 text-emerald-700";
+    if (score >= 70) return "bg-destructive/10 text-destructive";
+    if (score >= 40) return "bg-warning/10 text-warning";
+    return "bg-success/10 text-success";
 };
 
 // ── Geo-precision level ───────────────────────────────────────────────────────
 const geoLevel = (item: ModerationItem): { label: string; color: string } => {
-    if (item.locationCoordinates) return { label: "GPS", color: "text-emerald-600" };
-    if (item.locationLabel)       return { label: "Text", color: "text-amber-500" };
+    if (item.locationCoordinates) return { label: "GPS", color: "text-success" };
+    if (item.locationLabel)       return { label: "Text", color: "text-warning" };
     return                               { label: "None", color: "text-foreground-subtle" };
 };
 
@@ -161,8 +161,8 @@ export function AdsTable({
                         {item.listingType && item.listingType !== "ad" && (
                             <span className={`text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
                                 item.listingType === "service"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "bg-violet-100 text-violet-700"
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-muted text-foreground-secondary"
                             }`}>
                                 {item.listingType === "service" ? "SVC" : "PART"}
                             </span>

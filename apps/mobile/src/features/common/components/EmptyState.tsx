@@ -1,7 +1,6 @@
 import React from 'react';
-import { Center, AppText, AppIcon } from '@esparex/mobile-ui';
+import { Center, AppText, AppIcon, type IconName } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
-import type { IconName } from '@esparex/mobile-ui/src/atoms/AppIcon';
 
 interface EmptyStateProps {
   title: string;

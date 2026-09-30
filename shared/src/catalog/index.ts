@@ -56,3 +56,4 @@ export const CatalogFacade = {
 };
 
 export { validateCatalogName, hasCatalogPollution } from './common/validation';
+export { formatCatalogDisplayName } from './format';

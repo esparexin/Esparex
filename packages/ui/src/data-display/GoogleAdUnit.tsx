@@ -1,14 +1,19 @@
 import * as React from "react";
 import { cn } from "../utils";
+import type { AdProviderConfig } from "@esparex/contracts";
+import { AD_FALLBACK_STRATEGY } from "@esparex/contracts";
+
+export type GoogleAdFormat = NonNullable<AdProviderConfig["googleFormat"]>;
+export type GoogleAdFallbackStrategy = (typeof AD_FALLBACK_STRATEGY)[keyof typeof AD_FALLBACK_STRATEGY];
 
 export interface GoogleAdUnitProps {
   slot: string;
   client?: string;
-  format?: "auto" | "fluid" | "rectangle" | "vertical" | "horizontal";
+  format?: GoogleAdFormat;
   responsive?: boolean;
   className?: string;
   ariaLabel?: string;
-  fallbackStrategy?: "collapse" | "internal_promo";
+  fallbackStrategy?: GoogleAdFallbackStrategy;
   fallbackContent?: React.ReactNode;
 }
 

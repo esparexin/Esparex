@@ -149,7 +149,7 @@ export function BusinessPostFAB() {
                 className={cn(
                     "w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 active:scale-95",
                     isOpen
-                        ? "bg-slate-700 hover:bg-slate-600"
+                        ? "bg-foreground hover:bg-foreground/80"
                         : "bg-primary hover:scale-105"
                 )}
             >

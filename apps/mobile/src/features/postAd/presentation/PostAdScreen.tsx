@@ -111,15 +111,15 @@ export const PostAdScreen = () => {
 
   if (authStatus === 'anonymous') {
     return (
-      <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
+      <Screen edges={['top', 'left', 'right']}>
         <Container className="flex-1 justify-center items-center px-6">
-          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
+          <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
             <AppIcon name="PlusCircle" size={32} color={base.brand[500]} />
           </View>
-          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
+          <AppText variant="h2" className="font-bold text-foreground text-center mb-2">
             Post an Ad on Esparex
           </AppText>
-          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+          <AppText variant="body" className="text-foreground-secondary text-center mb-6">
             Sign in to create your listing, upload photos, and connect with verified buyers across India.
           </AppText>
           <AppButton
@@ -134,7 +134,7 @@ export const PostAdScreen = () => {
   }
 
   return (
-    <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
+    <Screen edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

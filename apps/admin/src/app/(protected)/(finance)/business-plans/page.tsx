@@ -87,14 +87,14 @@ export default function BusinessPlansPage() {
             header: "Plan Name & Code",
             cell: (plan: Plan) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 text-primary border border-primary/20">
                         <Award size={20} />
                     </div>
                     <div>
                         <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-tiny bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                <span className="text-tiny bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
                                     Default Business Plan
                                 </span>
                             )}
@@ -123,11 +123,11 @@ export default function BusinessPlansPage() {
             header: "Trust & Priority",
             cell: (plan: Plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
-                        <Activity size={12} className="text-sky-500" /> Priority: {plan.features?.priorityWeight ?? 1}/10
+                    <span className="text-caption font-semibold text-foreground-secondary flex items-center gap-1">
+                        <Activity size={12} className="text-info" /> Priority: {plan.features?.priorityWeight ?? 1}/10
                     </span>
                     <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
-                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-emerald-500" : "text-foreground-subtle"} />
+                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-success" : "text-foreground-subtle"} />
                         Badge: {plan.features?.businessBadge ? "Enabled" : "Disabled"}
                     </span>
                 </div>
@@ -152,7 +152,7 @@ export default function BusinessPlansPage() {
                     disabled={isMutating}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-medium transition-colors cursor-pointer ${
                         plan.active
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                            ? "bg-success/10 text-success border border-success/20 hover:bg-success/20"
                             : "bg-muted text-foreground-secondary border border-border hover:bg-muted/80"
                     }`}
                 >
@@ -171,7 +171,7 @@ export default function BusinessPlansPage() {
                             setEditPlan(plan);
                             setShowModal(true);
                         }}
-                        className="p-1.5 text-foreground-subtle hover:text-sky-600 rounded-lg hover:bg-sky-50 transition-colors"
+                        className="p-1.5 text-foreground-subtle hover:text-primary rounded-lg hover:bg-primary/10 transition-colors"
                         title="Edit Plan"
                         aria-label={`Edit ${plan.name}`}
                     >

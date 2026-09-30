@@ -6,6 +6,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
     MoreVertical,
+    cn,
     type LucideIcon,
 } from "@esparex/ui";
 
@@ -23,8 +24,6 @@ export type AdminActionMenuProps = {
     ariaLabel?: string;
     className?: string;
 };
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
 
 export function AdminActionMenu({
     items,

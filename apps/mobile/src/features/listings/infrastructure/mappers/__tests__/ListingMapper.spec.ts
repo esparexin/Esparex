@@ -1,5 +1,5 @@
 import { ListingMapper } from '../ListingMapper';
-import type { Ad } from '@esparex/contracts/src/v1/listings/schema/ad.schema';
+import type { Ad } from '@esparex/contracts';
 
 describe('ListingMapper', () => {
   const createMockAd = (overrides: Partial<Ad> = {}): Ad => ({

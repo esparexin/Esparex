@@ -28,6 +28,9 @@ import {
 
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/content-handler";
+import { isAdminRole } from '@esparex/core/utils/roleNormalization';
+import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import { clearCategoryCanonicalCache } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 
 export {
     sendCatalogError,
@@ -103,8 +106,6 @@ export const applyCatalogStatusFilter = (
         if (targetQuery.approvalStatus === undefined) targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.REJECTED;
     }
 };
-
-import { isAdminRole } from '@esparex/core/utils/roleNormalization';
 
 /**
  * Check if request has admin access
@@ -440,9 +441,6 @@ export async function handleCatalogReview<T extends Document>(
         return sendCatalogError(req, res, error);
     }
 }
-
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
 
 export interface CatalogCacheInvalidationItem {
     categoryIds?: Array<string | Types.ObjectId>;
