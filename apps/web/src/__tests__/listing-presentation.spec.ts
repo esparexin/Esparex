@@ -141,12 +141,7 @@ describe("listingPresentation", () => {
                 listingType: undefined,
                 category: "spares",
             } as Parameters<typeof resolveListingTypeBadge>[0])
-        ).toEqual({
-            type: "ad",
-            label: "Device",
-            icon: "device",
-            className: "bg-blue-50 text-blue-700 border-blue-200",
-        });
+        ).toBeNull();
     });
 
     it("prefers explicit business location over listing location fallbacks", () => {

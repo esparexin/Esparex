@@ -41,14 +41,15 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
     });
   });
 
-  it("defaults missing or undefined listingType to 'ad' (Device)", () => {
-    expect(resolveListingTypeValue(undefined)).toBe("ad");
-    expect(resolveListingTypeValue(null)).toBe("ad");
-    expect(resolveListingTypeValue({ listingType: undefined })).toBe("ad");
+  it("returns no badge for missing or undefined listingType (never defaults to Device)", () => {
+    expect(resolveListingTypeValue(undefined)).toBeUndefined();
+    expect(resolveListingTypeValue(null)).toBeUndefined();
+    expect(resolveListingTypeValue({ listingType: undefined })).toBeUndefined();
+    expect(resolveListingTypeValue({ listingType: "unknown_type" })).toBeUndefined();
 
-    const badge = resolveListingTypeBadge({});
-    expect(badge?.type).toBe("ad");
-    expect(badge?.label).toBe("Device");
+    expect(resolveListingTypeBadge({})).toBeNull();
+    expect(resolveListingTypeBadge(undefined)).toBeNull();
+    expect(resolveListingTypeBadge({ listingType: "unknown_type" })).toBeNull();
   });
 
   describe("shouldDisplayCategoryBadge (Duplicate Badge Prevention)", () => {

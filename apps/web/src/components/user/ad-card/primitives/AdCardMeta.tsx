@@ -48,7 +48,7 @@ export const AdCardMeta = memo(function AdCardMeta({
     typeof adRecord.listingType === "string" &&
     adRecord.listingType === "service";
 
-  const isDevice = !adRecord.listingType || adRecord.listingType === "ad";
+  const isDevice = adRecord.listingType === "ad";
   const conditionBadge = isDevice ? getConditionBadge(ad) : null;
 
   const priceDisplay = (() => {
