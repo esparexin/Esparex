@@ -18,6 +18,29 @@ const getLocationSignature = (ad: Ad): string => {
     return [loc.city, loc.state, loc.country].filter(Boolean).join("-").toLowerCase();
 };
 
+const getListingTypeSignature = (ad: Ad): string => {
+    const record = ad as Record<string, unknown>;
+    return typeof record.listingType === "string" ? record.listingType.toLowerCase() : "";
+};
+
+const getConditionSignature = (ad: Ad): string => {
+    const record = ad as Record<string, unknown>;
+    const specs = record.specs as Record<string, unknown> | undefined;
+    const specsCondition =
+        specs && typeof specs.deviceCondition === "string"
+            ? specs.deviceCondition
+            : specs && typeof specs.condition === "string"
+              ? specs.condition
+              : "";
+    const direct =
+        typeof record.deviceCondition === "string"
+            ? record.deviceCondition
+            : typeof record.condition === "string"
+              ? record.condition
+              : "";
+    return `${direct}|${specsCondition}`.toLowerCase();
+};
+
 const isSameAdSnapshot = (left: Ad, right: Ad): boolean => {
     if (!left || !right) return false;
     
@@ -26,6 +49,8 @@ const isSameAdSnapshot = (left: Ad, right: Ad): boolean => {
     if (left.title !== right.title) return false;
     if (left.price !== right.price) return false;
     if (left.status !== right.status) return false;
+    if (getListingTypeSignature(left) !== getListingTypeSignature(right)) return false;
+    if (getConditionSignature(left) !== getConditionSignature(right)) return false;
     
     // Visuals & Location
     if (toPrimaryImage(left) !== toPrimaryImage(right)) return false;

@@ -37,7 +37,9 @@ function areAdCardGridPropsEqual(
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.image === nextProps.ad.image &&
     prevProps.responsiveCompactList === nextProps.responsiveCompactList &&
-    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType
+    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType &&
+    (prevProps.ad as Record<string, unknown>).deviceCondition === (nextProps.ad as Record<string, unknown>).deviceCondition &&
+    (prevProps.ad as Record<string, unknown>).condition === (nextProps.ad as Record<string, unknown>).condition
   );
 }
 
