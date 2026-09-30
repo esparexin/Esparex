@@ -70,13 +70,11 @@ describe('Wallet & Credits UI/UX Architecture', () => {
   it('renders single-instance responsive credit history with ad traceability and independent statuses', () => {
     const html = renderToStaticMarkup(<CreditLedgerHistoryCard />);
 
-    // Desktop table container must be hidden on mobile
-    expect(html).toContain('hidden md:block');
+    // Single-instance responsive table container with responsive column utilities
     expect(html).toContain('<table');
     expect(html).toContain('>Plan<');
     expect(html).not.toContain('>Credit Activity<');
-
-    // Mobile card container must be hidden on desktop
+    expect(html).toContain('hidden md:table-cell');
     expect(html).toContain('md:hidden');
 
     // Human-readable formatted activity
