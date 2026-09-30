@@ -20,6 +20,7 @@ import { getListingRepository } from '../../../composition/listings';
 import UserPlan from '../../../models/UserPlan';
 import Entitlement from '../../../models/Entitlement';
 import { calculateUserPlan } from '../../payments';
+import { getSystemConfigForRead } from '../../../services/SystemConfigService';
 import logger from '../../../utils/logger';
 
 export class EntitlementOrchestrator {
@@ -74,9 +75,28 @@ export class EntitlementOrchestrator {
     return calculateUserPlan(plans);
   }
 
+  /**
+   * Fallback inventory limit shared with the write path
+   * (PlanService.checkPostLimit): operator-configured SystemConfig threshold,
+   * defaulting to 100. Keeps the read-path posting matrix consistent with
+   * enforcement instead of hardcoding a divergent default.
+   */
+  private static async resolveInventoryFallback(
+    key: 'businessServiceLimit' | 'businessSparePartLimit'
+  ): Promise<number> {
+    try {
+      const config = await getSystemConfigForRead();
+      const value = config?.listing?.thresholds?.[key];
+      if (typeof value === 'number') return value;
+    } catch (err) {
+      logger.warn('EntitlementOrchestrator: failed to fetch inventory fallback config', { err, key });
+    }
+    return 100;
+  }
+
   private static async getServiceEntitlement(userId: string): Promise<SingleEntitlementState> {
     const permissions = await EntitlementOrchestrator.getUserActivePlanPermissions(userId);
-    const limit = permissions.maxServices || 100;
+    const limit = permissions.maxServices || (await EntitlementOrchestrator.resolveInventoryFallback('businessServiceLimit'));
 
     const used = await getListingRepository().countActiveBySeller({
       sellerId: userId,
@@ -98,7 +118,7 @@ export class EntitlementOrchestrator {
 
   private static async getSparePartsEntitlement(userId: string): Promise<SingleEntitlementState> {
     const permissions = await EntitlementOrchestrator.getUserActivePlanPermissions(userId);
-    const limit = permissions.maxParts || 100;
+    const limit = permissions.maxParts || (await EntitlementOrchestrator.resolveInventoryFallback('businessSparePartLimit'));
 
     const used = await getListingRepository().countActiveBySeller({
       sellerId: userId,
