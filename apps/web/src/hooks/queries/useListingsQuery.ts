@@ -82,7 +82,7 @@ export const useHomeAdsQuery = (
     const effectiveParams = params ?? {};
     return useQuery({
         queryKey: queryKeys.ads.home(effectiveParams),
-        queryFn: () => getHomeAds(effectiveParams),
+        queryFn: ({ signal }) => getHomeAds(effectiveParams, { signal }),
         staleTime: 1 * 60 * 1000, 
         enabled: options?.enabled ?? true,
         initialData: options?.initialData,

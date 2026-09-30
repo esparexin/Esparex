@@ -21,18 +21,22 @@ import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
 /**
- * Wraps a fetch promise with an AbortController timeout.
+ * Races a fetch promise against a timeout.
  * Prevents slow APIs from stalling SSR / Googlebot crawls indefinitely.
  */
 async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-        return await promise;
+        return await Promise.race([
+            promise,
+            new Promise<T>((resolve) => {
+                timer = setTimeout(() => resolve(fallback), ms);
+            }),
+        ]);
     } catch {
         return fallback;
     } finally {
-        clearTimeout(timer);
+        if (timer !== undefined) clearTimeout(timer);
     }
 }
 

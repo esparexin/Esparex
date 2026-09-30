@@ -54,6 +54,8 @@ export interface HomeAdsPayload {
     } | null;
     hasMore: boolean;
     isFallback?: boolean;
+    /** Set when the request was superseded (aborted) — consumers must skip it without clearing state. */
+    aborted?: boolean;
 }
 
 export interface HomeAdsRequestParams {
@@ -93,12 +95,13 @@ interface RawListingPayload {
 
 const fetchListingPayload = async <TPayload = unknown>(
     url: string,
-    fetchOptions?: ServerFetchOptions
+    fetchOptions?: ServerFetchOptions,
+    signal?: AbortSignal | null
 ): Promise<TPayload | null> => {
     const payload =
         typeof window === 'undefined'
             ? await fetchUserApiJson(url, fetchOptions).then(unwrapApiPayload)
-            : await apiClient.get(url).then((res: unknown) => unwrapApiPayload((res as { data: { data: unknown } }).data));
+            : await apiClient.get(url, signal ? { signal } : undefined).then((res: unknown) => unwrapApiPayload((res as { data: { data: unknown } }).data));
     return (payload ?? null) as TPayload | null;
 };
 
@@ -112,7 +115,7 @@ export const getAdsPage = async (
 
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
-                if (value !== undefined && value !== undefined) {
+                if (value !== undefined) {
                     if (key === 'search') {
                         params.append('q', String(value));
                     } else if (key === 'location') {
@@ -183,7 +186,7 @@ export const getAdsPage = async (
 
 export const getHomeAds = async (
     paramsInput?: HomeAdsRequestParams,
-    options?: { fetchOptions?: ServerFetchOptions }
+    options?: { fetchOptions?: ServerFetchOptions; signal?: AbortSignal }
 ): Promise<HomeAdsPayload> => {
     const shouldLogHomeFeedFallback =
         typeof window !== 'undefined' || process.env.NODE_ENV === 'development';
@@ -197,6 +200,7 @@ export const getHomeAds = async (
                 }
                 : null)
     );
+    const signal = options?.signal ?? options?.fetchOptions?.signal;
     try {
         const effectiveParams = paramsInput ?? {};
         const params = new URLSearchParams();
@@ -229,7 +233,11 @@ export const getHomeAds = async (
             params.append('limit', String(Math.min(48, Math.max(1, Math.floor(effectiveParams.limit)))));
         }
         const url = withQueryParams(API_ROUTES.USER.HOME_FEED, params);
-        const result = await fetchListingPayload<RawListingPayload>(url, options?.fetchOptions);
+        const fetchOptions =
+            signal && !options?.fetchOptions?.signal
+                ? { ...options?.fetchOptions, signal }
+                : options?.fetchOptions;
+        const result = await fetchListingPayload<RawListingPayload>(url, fetchOptions, signal);
 
         if (!result) return { ads: [], nextCursor: fallbackCursor, hasMore: false };
 
@@ -244,6 +252,13 @@ export const getHomeAds = async (
             hasMore: result.hasMore === true
         };
     } catch (e) {
+        if (
+            signal?.aborted ||
+            (e as { code?: string })?.code === 'ERR_CANCELED' ||
+            (e as { name?: string })?.name === 'AbortError'
+        ) {
+            return { ads: [], nextCursor: fallbackCursor, hasMore: false, aborted: true };
+        }
         if (shouldLogHomeFeedFallback) {
             logger.warn('Failed to fetch home ads', e);
         }

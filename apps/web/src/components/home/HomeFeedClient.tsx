@@ -135,32 +135,23 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
         }
     );
 
-    // Sync feed ads accumulation
+    // Sync feed accumulation and pagination metadata in a single pass.
+    // Aborted (superseded) pages resolve to an `aborted` sentinel and are skipped.
     useEffect(() => {
-        if (!data) return;
+        if (!data || data.aborted) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
-        
-        void (async () => {
-            if (!cursor) {
-                setFeedAds((previous) => (
-                    pageAds.length > 0 || (data as { isFallback?: boolean }).isFallback || previous.length === 0
-                        ? replaceFeedPage(previous, pageAds)
-                        : previous
-                ));
-            } else if (pageAds.length > 0) {
-                setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
-            }
-        })();
+        if (!cursor) {
+            setFeedAds((previous) =>
+                pageAds.length > 0 || data.isFallback || previous.length === 0
+                    ? replaceFeedPage(previous, pageAds)
+                    : previous
+            );
+        } else if (pageAds.length > 0) {
+            setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
+        }
+        setNextCursor(data.nextCursor ?? null);
+        setHasMore(data.hasMore === true);
     }, [cursor, data]);
-
-    // Sync pagination metadata
-    useEffect(() => {
-        if (!data) return;
-        void (async () => {
-            setNextCursor(data.nextCursor ?? null);
-            setHasMore(data.hasMore === true);
-        })();
-    }, [data]);
 
     const displayedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
