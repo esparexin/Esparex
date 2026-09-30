@@ -19,18 +19,38 @@ export function generateAdSlug(title: string) {
  */
 export function parseSlugIdParam(param: string): { id: string; slug: string; identifier: string } {
     const trimmed = (param || "").trim();
-    const match = trimmed.match(/^(.*)-([0-9a-fA-F]{24})$/);
-    if (match && match[2]) {
+    if (!trimmed) {
+        return { id: "", slug: "", identifier: "" };
+    }
+    // Match 24-character hexadecimal ObjectId at end of slug: ...-([0-9a-fA-F]{24})
+    const hexMatch = trimmed.match(/^(.*)-([0-9a-fA-F]{24})$/);
+    if (hexMatch && hexMatch[2]) {
         return {
-            id: match[2],
-            slug: match[1] || "",
-            identifier: match[2],
+            id: hexMatch[2],
+            slug: hexMatch[1] || "",
+            identifier: hexMatch[2],
         };
     }
     const isRawObjectId = /^[0-9a-fA-F]{24}$/.test(trimmed);
+    if (isRawObjectId) {
+        return {
+            id: trimmed,
+            slug: "",
+            identifier: trimmed,
+        };
+    }
+    // Match numeric ID suffix formatted as slug-id (e.g. "iphone-13-12345")
+    const numericMatch = trimmed.match(/^(.*)-(\d{4,})$/);
+    if (numericMatch && numericMatch[2]) {
+        return {
+            id: numericMatch[2],
+            slug: numericMatch[1] || "",
+            identifier: numericMatch[2],
+        };
+    }
     return {
-        id: isRawObjectId ? trimmed : "",
-        slug: isRawObjectId ? "" : trimmed,
+        id: "",
+        slug: trimmed,
         identifier: trimmed,
     };
 }

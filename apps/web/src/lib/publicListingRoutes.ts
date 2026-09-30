@@ -18,11 +18,26 @@ const LISTING_BASE_PATH: Record<PublicListingType, string> = {
 };
 
 const normalizePublicListingType = (value: unknown): PublicListingType => {
+    if (!value) return LISTING_TYPE.AD;
     if (value === LISTING_TYPE.SERVICE) {
         return LISTING_TYPE.SERVICE;
     }
     if (value === LISTING_TYPE.SPARE_PART) {
         return LISTING_TYPE.SPARE_PART;
+    }
+    if (typeof value === "string") {
+        const normalized = value.toLowerCase().trim().replace(/-/g, "_");
+        if (normalized === LISTING_TYPE.SERVICE || normalized === "services") {
+            return LISTING_TYPE.SERVICE;
+        }
+        if (
+            normalized === LISTING_TYPE.SPARE_PART ||
+            normalized === "spare_parts" ||
+            normalized === "spareparts" ||
+            normalized === "sparepart"
+        ) {
+            return LISTING_TYPE.SPARE_PART;
+        }
     }
     return LISTING_TYPE.AD;
 };
