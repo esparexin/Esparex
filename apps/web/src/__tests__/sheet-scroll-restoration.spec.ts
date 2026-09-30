@@ -39,8 +39,10 @@ describe("Sheet Scroll Restoration Regression Suite", () => {
         expect(fileContent).toContain("top-0 bottom-0 left-0 right-0 h-full max-h-none");
         // Desktop retains centered max-w-sm card contract.
         expect(fileContent).toContain("sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm");
-        // Inner container dynamically compensates for keyboard height and safe-area.
-        expect(fileContent).toContain("pb-[calc(var(--keyboard-height,0px)+max(1.5rem,env(safe-area-inset-bottom)))]");
+        // Inner container compensates for mobile safe-area without duplicate keyboard compensators.
+        expect(fileContent).toContain("pb-[max(1.5rem,env(safe-area-inset-bottom))]");
+        // Canonical owner Sheet.tsx manages --keyboard-height; AuthModal avoids duplicate compensators.
+        expect(fileContent).not.toContain("--keyboard-height");
         // Inner scroll container properly enabled to shrink below min-content with overscroll containment.
         expect(fileContent).toContain("flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain");
         // Uses dedicated useNeutralizeWindowScroll hook to neutralize iOS WebKit window scroll drift.
