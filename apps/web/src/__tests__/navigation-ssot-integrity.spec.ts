@@ -31,7 +31,7 @@ describe("Navigation SSOT Integrity & Responsive Parity", () => {
   });
 
   it("maps secondary tabs to 'more' in resolveBottomNavActiveTab", () => {
-    const secondaryTabs: ProfileTabValue[] = ["purchases", "plans", "wallet", "settings", "business", "services", "spare-parts"];
+    const secondaryTabs: ProfileTabValue[] = ["purchases", "plans", "buyplans", "saved", "settings", "business"];
     secondaryTabs.forEach((tab) => {
       expect(resolveBottomNavActiveTab(tab)).toBe("more");
     });
