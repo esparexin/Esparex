@@ -3,7 +3,6 @@ import { Types } from 'mongoose';
 import { sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { resolveBalances } from '@esparex/core/domains/entitlements/application/EntitlementBalanceService';
-import { getMonthlyFreeAdSlotLimit } from '@esparex/core/domains/boosts/application/services/AdSlotService';
 import { getStorageSafeId } from './shared';
 import type { AuthUser } from '../../types/auth.types';
 import type { UserBenefitsResponseDTO } from '@esparex/contracts';
@@ -36,9 +35,7 @@ export const resolveUserBenefits = async (
         const balances = await resolveBalances(userId);
 
         const freeSlotsUsed = balances.monthlyFreeAdsUsed || 0;
-        // Dynamic SSOT limit (AdSlotService.getMonthlyFreeAdSlotLimit, fallback 5),
-        // not a hardcoded constant, so plan changes propagate to this surface.
-        const freeSlotsTotal = await getMonthlyFreeAdSlotLimit();
+        const freeSlotsTotal = 5;
         const freeSlotsRemaining = Math.max(0, freeSlotsTotal - freeSlotsUsed);
 
         const responsePayload: UserBenefitsResponseDTO = {

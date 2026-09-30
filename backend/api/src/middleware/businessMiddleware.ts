@@ -4,24 +4,7 @@ import Business from '@esparex/core/models/Business';
 import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
 import { sendErrorResponse } from "../utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
-import { LISTING_TYPE, Role } from "@esparex/contracts";
-
-/**
- * Platform system roles bypass business restrictions, mirroring the frontend
- * permission model (apps/web/src/permissions/can.ts). Locked Phase B decision:
- * backend honors admin roles instead of 403ing admins without a business.
- */
-const PLATFORM_BYPASS_ROLES: Set<string> = new Set([
-    Role.ADMIN,
-    Role.SUPER_ADMIN,
-    'superadmin',
-    Role.MODERATOR,
-]);
-
-function hasPlatformBypassRole(req: Request): boolean {
-    const role = String((req.user as IAuthUser & { role?: unknown })?.role || '').toLowerCase();
-    return PLATFORM_BYPASS_ROLES.has(role);
-}
+import { LISTING_TYPE } from "@esparex/contracts";
 
 /**
  * Resolve businessStatus for the current request user.
@@ -99,11 +82,6 @@ export const requireVerifiedBusiness = async (
             return;
         }
 
-        if (hasPlatformBypassRole(req)) {
-            next();
-            return;
-        }
-
         const businessStatus = await resolveBusinessStatus(req);
 
         if (!businessStatus || !isBusinessPublishedStatus(businessStatus)) {
@@ -126,11 +104,9 @@ export const requireVerifiedBusiness = async (
 };
 
 /**
- * Conditional variant: enforces the business-verified check when the
- * listingType in the request body (creation) or req.listing (edit) is
- * 'service' or 'spare_part'. Locked rule: only business-approved users
- * may use spare parts and services — there is no individual allowance.
- * Normal ad posting is unaffected.
+ * Conditional variant: only enforces the business-verified check when the
+ * listingType in the request body (creation) or req.listing (edit) is 'service' or 'spare_part'.
+ * Apply this on the unified POST /listings and PUT /listings/:id/edit routes to preserve normal ad posting for all users.
  */
 export const requireVerifiedBusinessForServiceParts = async (
     req: Request,

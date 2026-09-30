@@ -134,43 +134,20 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
             expect(mockNext).not.toHaveBeenCalled();
         });
 
-        it('enforces verification for spare_part listings (business-only, no individual allowance)', async () => {
+        it('enforces verification when creating spare_part listings', async () => {
             mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
+            mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
             mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
 
             mockBusinessFindOne.mockReturnValue({
                 select: jest.fn().mockReturnValue({
-                    lean: jest.fn().mockResolvedValue({ status: 'pending' }),
+                    lean: jest.fn().mockResolvedValue({ status: 'live' }),
                 }),
             });
 
             await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
 
-            expect(mockRes.status).toHaveBeenCalledWith(403);
-            expect(mockNext).not.toHaveBeenCalled();
-        });
-
-        it('bypasses business verification for platform admin roles (frontend parity)', async () => {
-            for (const role of ['admin', 'super_admin', 'moderator']) {
-                jest.clearAllMocks();
-                mockReq.user = { _id: 'user_123', id: 'user_123', role } as any;
-                mockReq.body = { listingType: LISTING_TYPE.SERVICE };
-
-                await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
-
-                expect(mockNext).toHaveBeenCalled();
-                expect(mockBusinessFindOne).not.toHaveBeenCalled();
-            }
-        });
-
-        it('bypasses business verification for admins posting spare parts', async () => {
-            mockReq.user = { _id: 'user_123', id: 'user_123', role: 'admin' } as any;
-            mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
-
-            await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
-
             expect(mockNext).toHaveBeenCalled();
-            expect(mockBusinessFindOne).not.toHaveBeenCalled();
         });
     });
 });

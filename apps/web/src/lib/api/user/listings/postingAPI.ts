@@ -25,7 +25,7 @@ export const updateServiceListing = (
     id: string,
     payload: Record<string, unknown>
 ) => updateListing(id, payload as Partial<UserListing>, {
-    endpoint: API_ROUTES.USER.LISTING_EDIT(id),
+    endpoint: API_ROUTES.USER.LISTING_DETAIL(id),
 });
 
 export const createSparePartListing = (
@@ -41,5 +41,5 @@ export const updateSparePartListing = (
     id: string,
     payload: Record<string, unknown>
 ) => updateListing(id, payload as Partial<UserListing>, {
-    endpoint: API_ROUTES.USER.LISTING_EDIT(id),
+    endpoint: API_ROUTES.USER.LISTING_DETAIL(id),
 });
