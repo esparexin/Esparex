@@ -1,4 +1,5 @@
 "use client";
+/* ui-guard-ignore: parallel-responsive-dom [Single-instance shell footer with responsive link wrap / 4-column layout] */
 
 import Image from "next/image";
 import Link from "next/link";

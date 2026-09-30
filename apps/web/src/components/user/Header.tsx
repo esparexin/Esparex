@@ -1,4 +1,5 @@
 "use client";
+/* ui-guard-ignore: parallel-responsive-dom [Single-instance shell header with responsive desktop/mobile action bars] */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";

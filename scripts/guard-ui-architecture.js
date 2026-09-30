@@ -53,7 +53,12 @@ const RULES = {
   PARALLEL_RESPONSIVE: {
     id: "parallel-responsive-dom",
     severity: "error",
-    description: "Parallel responsive DOM subtrees (lg:hidden + hidden lg:)",
+    description: "Parallel responsive DOM subtrees (*:hidden + hidden *:*)",
+  },
+  VIEWPORT_COMPONENT_FORBIDDEN: {
+    id: "viewport-component-forbidden",
+    severity: "error",
+    description: "Viewport-split component file naming (e.g. *DesktopTable.tsx, *MobileCard.tsx) is prohibited",
   },
   MULTIPLE_H1: {
     id: "multiple-h1",
@@ -206,15 +211,36 @@ function auditFile(filePath) {
     const prevLine = idx > 0 ? lines[idx - 1] : "";
     return re.test(line) && !isIgnored(line, RULES.PARALLEL_RESPONSIVE.id, prevLine);
   };
-  const hasLgHidden = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*lg:hidden/));
-  const hasHiddenLg = lines.some((_, idx) => patternHit(idx, /className=["'][^"']*hidden lg:(?:block|flex|grid)/));
-  if (hasLgHidden && hasHiddenLg) {
-    violations.push({
-      rule: RULES.PARALLEL_RESPONSIVE,
-      file: relPath,
-      line: 0,
-      content: "Both 'lg:hidden' and 'hidden lg:*' classes present — likely parallel DOM duplication",
-    });
+  const isFileLevelParallelIgnored = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.PARALLEL_RESPONSIVE.id}`));
+  if (!isFileLevelParallelIgnored) {
+    for (const bp of ["md", "lg"]) {
+      const hasBpHidden = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b${bp}:hidden`)));
+      const hasHiddenBp = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\bhidden\\s+${bp}:(?:block|flex|grid)`)));
+      if (hasBpHidden && hasHiddenBp) {
+        violations.push({
+          rule: RULES.PARALLEL_RESPONSIVE,
+          file: relPath,
+          line: 0,
+          content: `Both '${bp}:hidden' and 'hidden ${bp}:*' classes present — likely parallel DOM duplication`,
+        });
+        break;
+      }
+    }
+  }
+
+  // ── Rule: Viewport-split component file naming ────────────────────────────
+  const baseName = path.basename(filePath);
+  const VIEWPORT_SPLIT_PATTERN = /(?:Desktop|Mobile)(?:Table|Card|List|Panel|Grid|Item|Container)\.(?:tsx|jsx)$/;
+  if (VIEWPORT_SPLIT_PATTERN.test(baseName) && !filePath.includes("apps/mobile")) {
+    const isIgnoredFile = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.VIEWPORT_COMPONENT_FORBIDDEN.id}`));
+    if (!isIgnoredFile) {
+      violations.push({
+        rule: RULES.VIEWPORT_COMPONENT_FORBIDDEN,
+        file: relPath,
+        line: 1,
+        content: `File name '${baseName}' indicates a viewport-split component. AGENTS.md mandates a single responsive component instance.`,
+      });
+    }
   }
 
   // ── Rule: Hardcoded hex colors in TSX ─────────────────────────────────────
@@ -455,4 +481,8 @@ function run() {
   }
 }
 
-run();
+if (require.main === module) {
+  run();
+}
+
+module.exports = { auditFile, RULES };

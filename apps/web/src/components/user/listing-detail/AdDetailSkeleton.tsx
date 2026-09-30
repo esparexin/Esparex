@@ -1,3 +1,4 @@
+/* ui-guard-ignore: parallel-responsive-dom [Single-instance skeleton layout matching detail page column structure] */
 import { Skeleton } from "@esparex/ui";
 import { Card, CardContent } from "@esparex/ui";
 
