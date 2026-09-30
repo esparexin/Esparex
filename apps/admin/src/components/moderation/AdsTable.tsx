@@ -161,8 +161,8 @@ export function AdsTable({
                         {item.listingType && item.listingType !== "ad" && (
                             <span className={`text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
                                 item.listingType === "service"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "bg-violet-100 text-violet-700"
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-muted text-foreground-secondary"
                             }`}>
                                 {item.listingType === "service" ? "SVC" : "PART"}
                             </span>

@@ -87,14 +87,14 @@ export default function BusinessPlansPage() {
             header: "Plan Name & Code",
             cell: (plan: Plan) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 text-primary border border-primary/20">
                         <Award size={20} />
                     </div>
                     <div>
                         <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-tiny bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                <span className="text-tiny bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
                                     Default Business Plan
                                 </span>
                             )}

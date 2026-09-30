@@ -25,8 +25,8 @@ import {
     RotateCcw,
     Pencil
 } from "@esparex/ui";
-import { format } from "date-fns";
-import { buildBusinessFallbackLocationDisplay, resolveLocationDisplay } from "@/lib/location/display";
+import { formatAppDate } from "@esparex/shared";
+import { resolveBusinessLocationDisplay } from "@/lib/location/display";
 
 
 interface BusinessDetailsModalProps {
@@ -93,22 +93,9 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
     };
 
     const trustScore = business.trustScore ?? 0;
-    const scoreColor = trustScore > 70 ? 'text-emerald-600' : trustScore > 40 ? 'text-amber-600' : 'text-red-600';
-    const scoreBg = trustScore > 70 ? 'bg-emerald-100' : trustScore > 40 ? 'bg-amber-100' : 'bg-red-100';
-    const businessLocationLabel = (business as Business & { locationLabel?: string }).locationLabel;
-
-    const locationDisplay = resolveLocationDisplay({
-        locationLabel: businessLocationLabel,
-        coordinates: business.location?.coordinates,
-        fallbackDisplay: buildBusinessFallbackLocationDisplay(business.location),
-        emptyText: "Location not available",
-    });
-    const preferredLocationDisplay =
-        businessLocationLabel ||
-        business.location?.display ||
-        buildBusinessFallbackLocationDisplay(business.location) ||
-        [business.location?.city, business.location?.state].filter(Boolean).join(", ") ||
-        locationDisplay;
+    const scoreColor = trustScore > 70 ? 'text-primary' : trustScore > 40 ? 'text-warning' : 'text-destructive';
+    const scoreBg = trustScore > 70 ? 'bg-primary/10' : trustScore > 40 ? 'bg-warning/10' : 'bg-destructive/10';
+    const preferredLocationDisplay = resolveBusinessLocationDisplay(business);
 
     return (
         <Dialog open={Boolean(business)} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
@@ -123,7 +110,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <div className="flex items-center gap-2 flex-wrap">
                                 <DialogTitle className="text-xl font-bold text-foreground leading-tight">{business.name}</DialogTitle>
                                 {trustScore < 30 && (
-                                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-tiny font-bold uppercase border border-red-200 shrink-0">Low Trust</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-tiny font-bold uppercase border border-destructive/20 shrink-0">Low Trust</span>
                                 )}
                                 {/* Trust Score inline on mobile */}
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg} ${scoreColor} shrink-0`}>
@@ -133,7 +120,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <DialogDescription className="sr-only">Review business profile and verification documents</DialogDescription>
                             <p className="text-foreground-tertiary text-xs mt-0.5">
                                 <span className="capitalize font-medium">{business.status === 'live' ? 'Approved' : business.status}</span>
-                                {' • '}Submitted {format(new Date(business.createdAt), "PP")}
+                                {' • '}Submitted {formatAppDate(new Date(business.createdAt))}
                                 {business.isDeleted && (
                                     <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100 text-tiny">
                                         <XCircle size={9} /> DELETED

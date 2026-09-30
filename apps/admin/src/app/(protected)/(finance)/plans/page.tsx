@@ -102,9 +102,9 @@ export default function PlansPage() {
             header: "Plan Name & Code",
             cell: (plan) => (
                 <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === "AD_PACK" ? "bg-blue-50 text-blue-600" :
-                        plan.type === "SPOTLIGHT" ? "bg-amber-50 text-amber-600" :
-                            "bg-purple-50 text-purple-600"
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === "AD_PACK" ? "bg-primary/10 text-primary" :
+                        plan.type === "SPOTLIGHT" ? "bg-warning/10 text-warning" :
+                            "bg-muted text-foreground-secondary"
                         }`}>
                         <Package size={20} />
                     </div>

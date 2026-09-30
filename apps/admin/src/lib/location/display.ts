@@ -49,3 +49,39 @@ export const resolveLocationDisplay = (params: {
 
     return params.emptyText || "Location not available";
 };
+
+/**
+ * Preferred business location label (audit F35/B3).
+ *
+ * Single owner for the priority chain previously inline in
+ * BusinessDetailsModal: explicit label → display → business fallback
+ * (shop/street/landmark/pincode) → city,state → resolved display.
+ * Order and fallbacks are identical to the inline version.
+ */
+export const resolveBusinessLocationDisplay = (business: {
+    locationLabel?: string;
+    location?: {
+        display?: string;
+        city?: string;
+        state?: string;
+        coordinates?: unknown;
+    } | null;
+}): string => {
+    const location = business?.location ?? undefined;
+    const fallbackDisplay = buildBusinessFallbackLocationDisplay(location);
+    const cityState = [location?.city, location?.state].filter(Boolean).join(", ");
+    const resolved = resolveLocationDisplay({
+        locationLabel: business?.locationLabel,
+        coordinates: location?.coordinates,
+        fallbackDisplay,
+        emptyText: "Location not available",
+    });
+
+    return (
+        business?.locationLabel ||
+        location?.display ||
+        fallbackDisplay ||
+        cityState ||
+        resolved
+    );
+};
