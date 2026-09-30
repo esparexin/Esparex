@@ -9,7 +9,7 @@ function PostSparePartPage() {
     return (
         <BusinessListingGatePage
             listingTypeLabel="spare parts"
-            contentContainerClassName="min-h-screen bg-slate-50"
+            contentContainerClassName="min-h-screen bg-muted"
         >
             <PostSparePartForm />
         </BusinessListingGatePage>

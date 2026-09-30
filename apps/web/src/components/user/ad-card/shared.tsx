@@ -355,7 +355,7 @@ export function getAdOverlayBadge(
   if (status === "sold") {
     return (
       <Badge
-        className={cn("bg-slate-700/90 text-white border-0", merged)}
+        className={cn("bg-foreground/90 text-background border-0", merged)}
         aria-label="Listing sold"
       >
         Sold
