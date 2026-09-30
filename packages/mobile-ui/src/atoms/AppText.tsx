@@ -2,7 +2,7 @@ import React from 'react';
 import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
 export interface AppTextProps extends RNTextProps {
-  variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
+  variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body-lg' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
   color?: 'default' | 'secondary' | 'muted' | 'brand' | 'error' | 'success';
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   align?: 'left' | 'center' | 'right';
@@ -35,6 +35,7 @@ export const AppText: React.FC<AppTextProps> = ({
       case 'h2': return 'text-2xl leading-snug font-bold tracking-tight'; // 24px
       case 'h3': return 'text-xl leading-normal font-semibold tracking-tight'; // 20px
       case 'h4': return 'text-lg leading-normal font-semibold'; // 18px
+      case 'body-lg': return 'text-body-lg leading-normal'; // 16px
       case 'body': return 'text-sm leading-normal'; // 14px
       case 'small': return 'text-small leading-normal'; // 13px
       case 'label': return 'text-sm font-medium leading-none'; // 14px
