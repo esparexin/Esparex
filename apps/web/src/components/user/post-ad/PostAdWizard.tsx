@@ -1,3 +1,6 @@
+// Boundary (Phase 7): ad posting keeps its 2-step wizard (context/steps/quota)
+// while service/spare-part use ListingForm configs. Shared SSOT consumed here:
+// ListingModalLayout, ListingSubmissionSuccessModal, EntitlementExhaustedShell.
 import { useCallback } from "react";
 import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./context";
 import { StepOne } from "./steps/listing-information";
