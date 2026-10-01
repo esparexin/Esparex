@@ -157,7 +157,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "my-business": "/account/business",
     "business-register": "/account/business/apply",
     purchases: "/account/purchases",
-    // Legacy alias: no physical /notifications route exists (see sitemap FORBIDDEN
+    // Historic alias key: no physical /notifications route exists (see sitemap FORBIDDEN
     // + robots Disallow). Canonical notifications surface is /account/alerts.
     notifications: "/account/alerts",
     "post-spare-part-listing": "/post-spare-part-listing",
