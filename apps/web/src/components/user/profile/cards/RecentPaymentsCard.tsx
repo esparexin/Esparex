@@ -111,17 +111,16 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                 <th scope="col" className="py-2.5 px-3">Date</th>
                 <th scope="col" className="py-2.5 px-3">Order Description</th>
                 <th scope="col" className="py-2.5 px-3">Amount</th>
-                <th scope="col" className="py-2.5 px-3 hidden sm:table-cell">Status</th>
+                <th scope="col" className="py-2.5 px-3">Status</th>
                 <th scope="col" className="py-2.5 px-3 text-right">Invoice Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
               {validPayments.map((pay) => (
                 <tr key={pay.orderId} className="hover:bg-muted/30 transition-colors">
-                  {/* Date & Mobile Status */}
+                  {/* Date */}
                   <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground align-middle">
                     <div>{formatInvoiceDate(pay.createdAt)}</div>
-                    <div className="sm:hidden mt-0.5">{renderStatusBadge(pay.status)}</div>
                   </td>
 
                   {/* Description & Order ID */}
@@ -137,8 +136,8 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                     ₹{formatStableNumber(pay.amount)}
                   </td>
 
-                  {/* Status (sm+) */}
-                  <td className="py-2.5 px-3 hidden sm:table-cell align-middle">
+                  {/* Status */}
+                  <td className="py-2.5 px-3 align-middle">
                     {renderStatusBadge(pay.status)}
                   </td>
 
