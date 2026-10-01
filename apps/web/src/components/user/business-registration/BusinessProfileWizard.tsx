@@ -16,7 +16,7 @@ import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
 import { FileUploadCard } from "./FileUploadCard";
 import { ShopPhotosField } from "./ShopPhotosField";
-import { BUSINESS_DOCUMENT_ACCEPT } from "@/schemas/business.schema.shared";
+import { BUSINESS_DOCUMENT_ACCEPT } from "@/schemas/businessUpload.validators";
 import type { StepData } from "./types";
 
 interface BusinessProfileWizardProps {

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FileText, Upload, X } from "@esparex/ui";
 import { Button } from "@esparex/ui";
 import { cn } from "@/lib/utils";
-import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
+import { validateBusinessDocumentSelection } from "@/schemas/businessUpload.validators";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
 import {
     getBusinessFileMeta,
