@@ -6,6 +6,8 @@ import { Login } from "@/components/user/Login";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
+// Boundary (Phase 8): modal orchestration (callback/redirect) around user/Login
+// (form/OTP). Layered composition, not duplication — keep both. Entry: AuthModal.
 interface LoginFlowProps {
   callbackUrl?: string | null;
   mode?: "modal";
