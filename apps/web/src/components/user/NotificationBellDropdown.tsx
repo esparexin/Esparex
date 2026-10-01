@@ -9,6 +9,7 @@ import { notificationApi, type Notification, type NotificationResponse } from "@
 import logger from "@/lib/logger";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 import { NotificationDropdownBody } from "./NotificationDropdownBody";
+import { getPageRoute } from "@/lib/routeUtils";
 
 type NotificationBellDropdownProps = {
     notificationsData?: NotificationResponse;
@@ -214,7 +215,7 @@ export function NotificationBellDropdown({
                     isMarkingRead={markReadMutation.isPending}
                     onViewAll={() => {
                         setOpen(false);
-                        void router.push("/notifications");
+                        void router.push(getPageRoute("smart-alerts"));
                     }}
                 />
             </DropdownMenuContent>

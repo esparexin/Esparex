@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
     BUSINESS_IMAGE_ACCEPT,
     validateBusinessImageSelection,
-} from "@/schemas/business.schema.shared";
+} from "@/schemas/businessUpload.validators";
 import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
 import { useImageDropzone } from "@/components/user/shared/useImageDropzone";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";

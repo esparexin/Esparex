@@ -1,5 +1,7 @@
 import { ListingTypeValue } from "@esparex/contracts";
 
+// SSOT card-view interface consumed by ad-card/shared.tsx (AdCardData union).
+// Audit Phase 3 confirmed live inbound — do not delete as dead code.
 export interface UiAd {
     id: string;
     title: string;

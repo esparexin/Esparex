@@ -39,6 +39,9 @@ export async function generateMetadata({
     alternates: {
       canonical: toCanonicalUrl(`/seller/${sellerSlug}-${profile.user.id}`),
     },
+    // Intentional exclusion: seller profiles stay crawlable for users but out
+    // of sitemap.xml (see FORBIDDEN handling + seo-sitemap.spec).
+    robots: { index: false, follow: true },
   };
 }
 

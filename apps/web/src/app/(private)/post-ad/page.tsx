@@ -6,9 +6,8 @@ import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
 
 import {
     API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
 } from "@/lib/api/routes";
+import { buildUserApiUrl } from "@/lib/api/user/server";
 import { buildLoginUrl } from "@/lib/authHelpers";
 
 type PostingBalancePayload = {
@@ -23,16 +22,13 @@ type PostingBalanceResponse = {
     error?: string;
 };
 
-const API_BASE = (
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
-).replace(/\/$/, "");
-
 const loginRedirectUrl = buildLoginUrl("/post-ad");
 
 async function fetchPostingBalance(cookieHeader: string): Promise<{ balance: PostingBalancePayload | null; status: number }> {
     try {
-        // SSR fetch may throw on network failure; treat as unavailable (503) and render fallback.
-        const response = await fetch(`${API_BASE}/${API_ROUTES.USER.USERS_POSTING_BALANCE}`, {
+        // Server-context SSR fetch with explicit Cookie forwarding — uses the
+        // canonical server URL builder (not a local base-URL duplicate).
+        const response = await fetch(buildUserApiUrl(API_ROUTES.USER.USERS_POSTING_BALANCE), {
             method: "GET",
             headers: {
                 Cookie: cookieHeader,

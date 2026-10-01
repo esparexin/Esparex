@@ -9,7 +9,6 @@ import {
   Package,
   Search,
   Settings,
-  Sparkles,
   CreditCard,
   ShoppingBag,
 } from "@esparex/ui";
@@ -80,6 +79,10 @@ export const PROFILE_TAB_ITEMS: ProfileTabItem[] = [
     { value: "settings", label: "Settings", icon: Settings },
   ];
 
+// SSOT: /account/wallet, /account/plans, /account/purchases all render the
+// same PlansTab (OVERVIEW / BUY_PLANS / INVOICES). Tab values "plans" and
+// "buyplans" are historic names — do not rename without migrating
+// ProfileTabContentRouter, AccountPageShell, and MobileAccountBottomNav.
 export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>> =
   Object.freeze({
     personal: "profile",
@@ -128,7 +131,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "profile",
-    label: "Edit Profile",
+    label: "Account",
     slug: "profile",
     icon: UserIcon,
     roles: ["user", "business"],
@@ -158,7 +161,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "favorites",
-    label: "Favorites",
+    label: "Saved Ads",
     slug: "saved-ads",
     icon: Heart,
     roles: ["user", "business"],
@@ -170,7 +173,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
     id: "smart-alerts",
     label: "Smart Alerts",
     slug: "smart-alerts",
-    icon: Sparkles,
+    icon: Bell,
     roles: ["user", "business"],
     showIn: ["profile-dropdown", "mobile-drawer"],
     section: "account",
@@ -218,7 +221,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "bottom-nav-profile",
-    label: "Profile",
+    label: "Account",
     slug: "account-profile",
     icon: Settings,
     roles: ["guest", "user", "business"],

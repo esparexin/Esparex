@@ -59,5 +59,8 @@ export function buildCatalogSlugMetadata(
     alternates: {
       canonical: toCanonicalUrl(`/${basePath}/${canonicalParam}`),
     },
+    // Intentional thin-content exclusion: brand/model pages stay crawlable for
+    // users but out of sitemap.xml (see FORBIDDEN_SITEMAP_PATTERNS + seo-sitemap.spec).
+    robots: { index: false, follow: true },
   };
 }
