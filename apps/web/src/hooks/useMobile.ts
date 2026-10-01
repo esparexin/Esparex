@@ -1,6 +1,10 @@
 "use client";
 import * as React from "react";
 
+// Governance: JS viewport detection is permitted ONLY for dynamic behavior
+// (sheet-vs-dropdown, camera/gallery capability) — never static layout (use CSS).
+// Consumers must carry a responsive-exception comment (Phase 6 verified: 4 call sites).
+
 const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
