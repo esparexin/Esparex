@@ -1,5 +1,8 @@
 "use client";
 
+// SSOT backdrop for the business listing gate — rendered by BusinessListingGatePage
+// behind entitlement dialogs (verified live usage + dropdown-navigation-flows.spec).
+// Do not delete as dead code; audit Phase 3 confirmed active.
 interface BusinessListingPageBackdropProps {
     listingType?: string;
 }
