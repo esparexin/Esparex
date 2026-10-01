@@ -16,7 +16,7 @@ import {
     Share2,
     ShieldCheck,
 } from "@esparex/ui";
-import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
+import { AdCardGrid } from "@/components/user/ad-card";
 import { type UserListing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
@@ -163,31 +163,17 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             </div>
                         </div>
                     ) : (
-                        <>
-                            {/* Mobile View: Strictly existing List view format (SSOT AdCardList) */}
-                            <div className="flex flex-col gap-2.5 sm:hidden">
-                                {ads.map((ad, index) => (
-                                    <AdCardList
-                                        key={`list-${String(ad.id)}`}
-                                        ad={ad}
-                                        href={buildAdHref(ad)}
-                                        priority={index < 4}
-                                    />
-                                ))}
-                            </div>
-
-                            {/* Tablet & Desktop View: Existing Grid view format (SSOT AdCardGrid) */}
-                            <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-                                {ads.map((ad, index) => (
-                                    <AdCardGrid
-                                        key={`grid-${String(ad.id)}`}
-                                        ad={ad}
-                                        href={buildAdHref(ad)}
-                                        priority={index < 4}
-                                    />
-                                ))}
-                            </div>
-                        </>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
+                            {ads.map((ad, index) => (
+                                <AdCardGrid
+                                    key={String(ad.id)}
+                                    ad={ad}
+                                    href={buildAdHref(ad)}
+                                    priority={index < 4}
+                                    responsiveCompactList
+                                />
+                            ))}
+                        </div>
                     )}
                 </section>
             </Container>

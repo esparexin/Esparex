@@ -28,7 +28,7 @@ describe('DashboardFacade', () => {
           remaining: 8,
           sourceType: 'PURCHASED_PACK',
           startsAt: new Date('2026-07-01'),
-          expiresAt: new Date('2026-10-01'),
+          expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
           status: 'ACTIVE',
         },
       ],

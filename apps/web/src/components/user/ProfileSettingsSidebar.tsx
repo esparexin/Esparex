@@ -10,7 +10,7 @@ import type { IConversationDTO } from "@esparex/contracts";
 
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
 import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
-import { AccountDesktopSidebar } from "./profile/AccountDesktopSidebar";
+import { AccountSidebar } from "./profile/AccountSidebar";
 import { ProfileTabContentRouter } from "./profile/ProfileTabContentRouter";
 import { AccountHeader } from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
@@ -112,7 +112,7 @@ export function ProfileSettingsSidebar({
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6 flex-1 min-h-0">
           {/* LEFT SIDEBAR (Desktop Only) */}
-          <AccountDesktopSidebar
+          <AccountSidebar
             items={visibleProfileTabItems}
             activeTab={activeTab}
             onTabChange={handleTabChange}
