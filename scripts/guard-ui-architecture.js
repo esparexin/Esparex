@@ -239,7 +239,7 @@ function auditFile(filePath) {
     if (l.includes("ui-guard-ignore:")) {
       const match = l.match(/ui-guard-ignore:\s*([a-z0-9-]+)(?:\s+(.+?))?(?:\s*\*\/|\s*-->|\s*$)/i);
       let justification = (match && match[2]) ? match[2].trim() : "";
-      justification = justification.replace(/[\]\}]+$/, "").replace(/^[\[\{]+/, "").trim();
+      justification = justification.replace(/[\]}]+$/, "").replace(/^[[{]+/, "").trim();
       if (!justification || justification.length < 8) {
         violations.push({
           rule: RULES.WAIVER_SYNTAX,

@@ -137,6 +137,7 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
 
     // Sync feed accumulation and pagination metadata in a single pass.
     // Aborted (superseded) pages resolve to an `aborted` sentinel and are skipped.
+    /* eslint-disable react-hooks/set-state-in-effect -- sync query data with accumulated feed state */
     useEffect(() => {
         if (!data || data.aborted) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
@@ -152,6 +153,7 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
         setNextCursor(data.nextCursor ?? null);
         setHasMore(data.hasMore === true);
     }, [cursor, data]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const displayedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
