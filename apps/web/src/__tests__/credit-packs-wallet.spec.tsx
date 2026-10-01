@@ -116,10 +116,10 @@ describe('Wallet & Credits UI/UX Architecture', () => {
           category: 'PRO',
           status: 'ACTIVE',
           startDate: '2026-09-01T00:00:00.000Z',
-          endDate: '2026-10-01T00:00:00.000Z',
+          endDate: '2028-10-01T00:00:00.000Z',
           daysRemaining: 11,
         }}
-        nextMonthlyResetDate="2026-10-01T00:00:00.000Z"
+        nextMonthlyResetDate="2028-10-01T00:00:00.000Z"
       />
     );
 
