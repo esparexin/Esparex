@@ -44,7 +44,6 @@ export default function SiteMapPage() {
                             <li><Link href="/search" className="text-foreground-secondary hover:text-primary transition-colors block">Browse All Ads</Link></li>
                             <li><Link href="/search?type=spare_part" className="text-foreground-secondary hover:text-primary transition-colors block">Spare Parts Catalog</Link></li>
                             <li><Link href="/search?type=service" className="text-foreground-secondary hover:text-primary transition-colors block">Repair Services</Link></li>
-                            <li><Link href="/search?type=business" className="text-foreground-secondary hover:text-primary transition-colors block">Verified Businesses</Link></li>
                         </ul>
                     </div>
 
