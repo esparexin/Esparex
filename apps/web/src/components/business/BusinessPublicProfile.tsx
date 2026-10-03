@@ -89,7 +89,7 @@ export function BusinessPublicProfile({
   }, [business]);
 
   return (
-    <Container variant="lg" className="flex flex-col gap-4 py-4 sm:py-6 pb-8">
+    <Container variant="lg" className="flex flex-col gap-3 sm:gap-4 py-3 sm:py-6 pb-12 sm:pb-8 px-3 sm:px-6 md:px-8">
       {/* 1. Hero Header Card */}
       <BusinessHeaderCard
         business={business}
@@ -98,7 +98,7 @@ export function BusinessPublicProfile({
       />
 
       {/* 2. Main Content Grid (Catalog + Sidebar) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Left Column: Store Catalog Tabs */}
         <div className="lg:col-span-2 min-w-0">
           <BusinessCatalogTabs
@@ -111,7 +111,7 @@ export function BusinessPublicProfile({
         </div>
 
         {/* Right Column: About, Credentials & Map */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 min-w-0">
           <BusinessSidebarCard
             business={business}
             addressQuery={mapData.addressQuery}
