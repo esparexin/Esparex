@@ -95,7 +95,8 @@ export const dispatchOtpWhatsApp = async (mobile: string): Promise<ProviderDispa
         };
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        logger.error('WhatsApp OTP dispatch failed', { phone: mobile.slice(-4), error: message });
+        const providerStatus = axios.isAxiosError(err) ? err.response?.status : undefined;
+        logger.error('WhatsApp OTP dispatch failed', { phone: mobile.slice(-4), error: message, providerStatus });
         return {
             success: false,
             error: 'Failed to deliver OTP via WhatsApp. Please try again.'
@@ -167,7 +168,8 @@ export const retryOtpWhatsApp = async (mobile: string, reqId?: string): Promise<
         };
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        logger.error('WhatsApp OTP retry failed', { phone: mobile.slice(-4), error: message });
+        const providerStatus = axios.isAxiosError(err) ? err.response?.status : undefined;
+        logger.error('WhatsApp OTP retry failed', { phone: mobile.slice(-4), error: message, providerStatus });
         return {
             success: false,
             error: 'Failed to resend WhatsApp OTP. Please try again.'

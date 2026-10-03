@@ -92,6 +92,15 @@ services:
         sync: false
       - key: MSG91_SENDER_ID
         sync: false
+      # MSG91_WIDGET_ID / MSG91_TOKEN_AUTH: required by the MSG91 OTP Widget
+      # (WhatsApp) dispatch path in core/src/domains/identity/.../authSmsDispatcher.ts.
+      # Previously undeclared here, so a production deploy could boot with
+      # OTP_PROVIDER=msg91 while the widget credentials were never injected,
+      # failing every POST /api/v1/auth/send-otp with 502 OTP_DELIVERY_FAILED.
+      - key: MSG91_WIDGET_ID
+        sync: false
+      - key: MSG91_TOKEN_AUTH
+        sync: false
 
       # ── AI ─────────────────────────────────────────────────────────────────
       - key: GEMINI_API_KEY
