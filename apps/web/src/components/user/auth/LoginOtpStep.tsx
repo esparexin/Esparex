@@ -176,7 +176,7 @@ export function LoginOtpStep({
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
+          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
         >
           {isSendingOTP ? (
             <>

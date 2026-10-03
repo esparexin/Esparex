@@ -53,7 +53,7 @@ export function LoginMobileStep({
               <FieldControl>
                 <div
                   className={cn(
-                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-all shadow-xs overflow-hidden",
+                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-colors shadow-xs overflow-hidden",
                     "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
                     isValidMobile && "border-primary/80 ring-2 ring-primary/10"
                   )}
@@ -135,7 +135,7 @@ export function LoginMobileStep({
         <Button
           type="submit"
           disabled={isSendingOTP || !isValidMobile || isSendRateLimited || Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) || !backendReady}
-          className="w-full h-12 rounded-xl font-semibold text-body bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm shadow-primary/20 transition-all disabled:opacity-40 disabled:bg-primary disabled:text-primary-foreground disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+          className="w-full h-12 rounded-xl font-semibold text-body bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm shadow-primary/20 transition-colors disabled:opacity-40 disabled:bg-primary disabled:text-primary-foreground disabled:shadow-none disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
         >
           {isSendingOTP ? (
             <Loader2 className="animate-spin" size={18} />
