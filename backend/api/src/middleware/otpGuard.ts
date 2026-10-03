@@ -83,19 +83,14 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         }
 
         if (missingKeys.length > 0) {
-            const errorMsg = `🚨 CRITICAL: OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive WhatsApp OTP.`;
-            bootstrapLogger.error(errorMsg);
-
-            if (authBypassOtpLock === 'true') {
-                bootstrapLogger.error('🚨 SECURITY ERROR: AUTH_BYPASS_OTP_LOCK=true is set in production. This bypass is forbidden.');
-                otpGuardState.isSafeToProceed = false;
-                otpGuardState.isConfigured = false;
-                return;
-            }
-
-            otpGuardState.isSafeToProceed = false;
-            otpGuardState.isConfigured = false;
-            return;
+            // Fail fast: booting with OTP_PROVIDER=msg91 but without widget
+            // credentials guarantees 502 OTP_DELIVERY_FAILED on every
+            // POST /api/v1/auth/send-otp. A crashed deploy is reported by the
+            // platform immediately; a green deploy with dead login stayed
+            // undetected for ~150h (Oct 2026 send-otp incident).
+            throw new Error(
+                `OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive WhatsApp OTP.`
+            );
         }
 
         if (authBypassOtpLock === 'true') {
