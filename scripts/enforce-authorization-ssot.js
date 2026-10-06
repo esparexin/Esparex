@@ -1,11 +1,15 @@
 /**
  * CI Guardrail Script: Enforce Authorization SSOT & Ban Raw Role Strings
+ * Scans backend/api/src + apps/web/src + apps/admin/src (F-15.3: Tier A claim
+ * requires repo-wide enforcement, not a backend-only scan root).
  * Excludes: roleNormalization.ts, test files (*.spec.ts, *.test.ts, __mocks__), and explicit compatibility layer.
  */
 const fs = require('fs');
 const path = require('path');
 
 const BACKEND_API_DIR = path.join(__dirname, '../backend/api/src');
+const WEB_SRC_DIR = path.join(__dirname, '../apps/web/src');
+const ADMIN_SRC_DIR = path.join(__dirname, '../apps/admin/src');
 
 const EXCLUDED_FILES = [
   'roleNormalization.ts',
@@ -61,7 +65,9 @@ function scanDirectory(dir, issues = []) {
   return issues;
 }
 
-const issues = scanDirectory(BACKEND_API_DIR);
+const issues = [BACKEND_API_DIR, WEB_SRC_DIR, ADMIN_SRC_DIR]
+  .filter((dir) => fs.existsSync(dir))
+  .flatMap((dir) => scanDirectory(dir));
 
 if (issues.length > 0) {
   console.error('❌ Authorization SSOT Violation(s) Found:\n');

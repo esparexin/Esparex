@@ -6,11 +6,11 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 
 ## Documentation Directory Index
 
-### ⚖️ [Governance](governance/) — Tier 0/1 canonical + discipline manuals (pointers stubs omitted from active guidance)
+### ⚖️ [Governance](governance/) — Tier A/B canonical + discipline manuals (pointers stubs omitted from active guidance)
 - **Owner**: Platform Governance Team
 - **Key Specifications**:
-  - [REPOSITORY-GOVERNANCE.md](governance/REPOSITORY-GOVERNANCE.md) — Tier-0 repo SSOT (structure, branches, enforcement tiers §3a).
-  - [ENGINEERING-HANDBOOK.md](governance/ENGINEERING-HANDBOOK.md) — Tier-1 entry router (no new rules).
+  - [REPOSITORY-GOVERNANCE.md](governance/REPOSITORY-GOVERNANCE.md) — Tier A repo SSOT (structure, branches, enforcement tiers §3a).
+  - [ENGINEERING-HANDBOOK.md](governance/ENGINEERING-HANDBOOK.md) — Tier B entry router (no new rules).
   - [DELETION_GATE.md](governance/DELETION_GATE.md) — 10 mandatory criteria for file deletions.
   - Discipline manuals: `API-GOVERNANCE.md`, `DATABASE-GOVERNANCE.md`, `SECURITY-GOVERNANCE.md`, `DEVOPS-GOVERNANCE.md`, `TESTING-GOVERNANCE.md`, `RELEASE-GOVERNANCE.md`.
   - Superseded pointers (not active guidance): `DOCUMENTATION-GOVERNANCE.md`, `ENFORCEMENT_HIERARCHY.md`, `ARCHITECTURE-GOVERNANCE.md`, `PROJECT_PRINCIPLES.md`, `quality-gates.md`, `sprint-execution-prompt.md` → see canonical owners in each file.
