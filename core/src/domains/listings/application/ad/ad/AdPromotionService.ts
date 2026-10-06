@@ -7,6 +7,8 @@ import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { consumeCredit } from '../../../../payments/application/WalletService';
 import { isValidObjectId } from '../../../../../utils/idUtils';
+// Canonical boost-window math (boosts/shared) — the inline setDate math lost P0-1.
+import { computeBoostWindow } from '../../../../boosts/shared/computeBoostWindow';
 
 export interface PromoteAdParams {
     id: string;
@@ -16,6 +18,11 @@ export interface PromoteAdParams {
     isAdmin?: boolean;
 }
 
+/**
+ * @deprecated P0-1 (DECISION-GATE §1/§3): RETIRED flow, superseded by boosts-domain
+ * `applyPromotion`. Kept only as the flag-OFF legacy branch for `ad-mutation`.
+ * Do not call from new code. Deletion in Phase 4.
+ */
 export const promoteAdLogic = async (params: PromoteAdParams) => {
     const {
         id,
@@ -62,17 +69,12 @@ export const promoteAdLogic = async (params: PromoteAdParams) => {
         }
     }
 
-    const startsAt = new Date();
-    let endsAt = new Date();
-
-    if (ad.isSpotlight && ad.spotlightExpiresAt && ad.spotlightExpiresAt > new Date()) {
-        endsAt = new Date(ad.spotlightExpiresAt.getTime());
-    }
-    endsAt.setDate(endsAt.getDate() + days);
-
-    if (ad.expiresAt && ad.expiresAt < endsAt) {
-        throw new AppError('Ad expires before boost duration. Extend ad expiry first.', 400);
-    }
+    // Canonical boost-window math (boosts/shared): CLAMPED to ad expiry.
+    // The retired inline setDate math (reject-instead-of-clamp) lost P0-1.
+    const windowBase = (ad.isSpotlight && ad.spotlightExpiresAt && ad.spotlightExpiresAt > new Date())
+        ? new Date(ad.spotlightExpiresAt.getTime())
+        : new Date();
+    const { startsAt, endsAt } = computeBoostWindow(ad, days, windowBase);
 
     await getListingUnitOfWork().executeTransaction(async (session) => {
         const clientSession = session as ClientSession;

@@ -31,19 +31,13 @@ jest.mock('@esparex/core/domains/listings/application/mutations/AdMutationServic
     repostAd: jest.fn(),
 }));
 
-jest.mock('@esparex/core/domains/boosts/application/services/PromotionPolicyService', () => ({
+// P0-1: the controller now routes through the single boosts-domain applyPromotion.
+const mockApplyPromotion = jest.fn();
+jest.mock('@esparex/core/domains/boosts', () => ({
     PromotionPolicyService: {
         validatePromotionEligibility: (...args: unknown[]) => mockCanPromote(...args),
     },
-}));
-
-const mockApplyBoost = jest.fn();
-const mockApplySpotlight = jest.fn();
-jest.mock('@esparex/core/domains/payments/application/PromotionService', () => ({
-    PromotionService: {
-        applyBoost: (...args: unknown[]) => mockApplyBoost(...args),
-        applySpotlight: (...args: unknown[]) => mockApplySpotlight(...args),
-    },
+    applyPromotion: (...args: unknown[]) => mockApplyPromotion(...args),
 }));
 
 jest.mock('../../utils/respond', () => ({
@@ -251,8 +245,10 @@ describe('lifecycle.controller — promoteListing', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockCanPromote.mockReturnValue({ allowed: true });
-        mockApplySpotlight.mockResolvedValue({ _id: 'promo-1', boostType: 'spotlight_hp', endsAt: new Date() });
-        mockApplyBoost.mockResolvedValue({ _id: 'promo-2', boostType: 'push_to_top', endsAt: new Date() });
+        mockApplyPromotion.mockResolvedValue({
+            boost: { _id: 'promo-1', boostType: 'spotlight_hp', endsAt: new Date() },
+            effectiveDays: 30,
+        });
     });
 
     it('returns early when listing not found or not owned', async () => {
@@ -294,9 +290,10 @@ describe('lifecycle.controller — promoteListing', () => {
 
         await promoteListing(req, res, next);
 
-        // promoteListing currently proceeds to PromotionService when policy allows (status check is post-policy)
-        // and correctly forwards to applySpotlight or returns error
-        expect(mockApplySpotlight).toHaveBeenCalled();
+        // promoteListing proceeds to the unified applyPromotion when policy allows
+        expect(mockApplyPromotion).toHaveBeenCalledWith(
+            expect.objectContaining({ listingId: LISTING_ID, promotionType: 'spotlight_hp' })
+        );
     });
 
     it('returns promotion applied response when policy allows and listing is LIVE', async () => {

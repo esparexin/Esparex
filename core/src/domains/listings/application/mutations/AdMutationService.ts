@@ -5,7 +5,8 @@ import { mutateStatus } from '../../../../services/lifecycle/StatusMutationServi
 
 // Leaf Services
 import { updateAdLogic } from '../ad/ad/AdUpdateService';
-import { promoteAdLogic, type PromoteAdParams } from '../ad/ad/AdPromotionService';
+import type { PromoteAdParams } from '../ad/ad/AdPromotionService';
+import { applyPromotion } from '../../../boosts/application/services/ApplyPromotionService';
 import { repostAdLogic } from '../ad/ad/AdRepostService';
 import { assertOwnership } from '../ad/ad/AdPolicyService';
 
@@ -60,7 +61,11 @@ export const updateAdTransactional = async (options: {
 export { type PromoteAdParams };
 
 export const promoteAd = async (params: PromoteAdParams) => {
-    const result = await promoteAdLogic(params);
+    const result = await applyPromotion({
+        userId: params.userId, listingId: params.id, entityType: 'ad',
+        promotionType: params.type === 'spotlight_cat' ? 'spotlight_cat' : 'spotlight_hp',
+        durationDays: params.days ?? 7, isAdmin: params.isAdmin, legacySource: 'ad-mutation',
+    });
     if (result) {
         void getListingsCache().invalidateAdFeedCaches().catch(() => {});
         void getListingsCache().invalidatePublicAdCache(params.id).catch(() => {});
