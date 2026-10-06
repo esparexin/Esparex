@@ -2,10 +2,16 @@ import { ClientSession, Types } from 'mongoose';
 import UserWallet from '../../../models/UserWallet';
 import Transaction, { type ITransaction } from '../../../models/Transaction';
 import Entitlement from '../../../models/Entitlement';
-import { getUserConnection } from '../../../config/db';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
 import { FEFOEntitlementConsumptionEngine } from '../../entitlements/application/FEFOEntitlementConsumptionEngine';
+// P0-6: all UserWallet writes funnel through the entitlements-owned write API.
+import {
+    withWalletTransaction,
+    adjustWalletCredits,
+    bootstrapWallet,
+    type WalletCreditField,
+} from '../../entitlements/application/EntitlementWalletWriter';
 
 
 export interface WalletAmount {
@@ -63,57 +69,18 @@ interface RecordTransactionParams {
 
 /**
  * Ensures wallet mutation runs inside a secure transaction.
+ *
+ * P0-6: canonical owner is entitlements (`EntitlementWalletWriter.withWalletTransaction`).
+ * Re-exported here so existing importers keep working.
  */
-async function withTransaction<T>(
-    existingSession: ClientSession | undefined,
-    operation: (session: ClientSession | undefined) => Promise<T>
-): Promise<T> {
-    if (existingSession) {
-        return operation(existingSession);
-    }
-
-    let session: ClientSession | undefined;
-    try {
-        const s = await getUserConnection().startSession();
-        s.startTransaction();
-        session = s;
-    } catch {
-        session = undefined;
-    }
-
-    if (!session) {
-        throw new AppError('Failed to initialize database transaction session for wallet operation', 500, 'TRANSACTION_INIT_FAILED');
-    }
-
-    try {
-        const result = await operation(session);
-        await session.commitTransaction();
-        return result;
-    } catch (error) {
-        try {
-            await session.abortTransaction();
-        } catch {
-            // ignore abort failure
-        }
-        throw error;
-    } finally {
-        try {
-            void session.endSession();
-        } catch {
-            // ignore endSession failure
-        }
-    }
-}
+export { withWalletTransaction };
 
 /**
  * 1. Fetch wallet by userId
  */
 export const getWallet = async (userId: string) => {
-    let wallet = await UserWallet.findOne({ userId });
-    if (!wallet) {
-        wallet = await UserWallet.create({ userId });
-    }
-    return wallet;
+    // P0-6: wallet bootstrap via the entitlements-owned write API.
+    return bootstrapWallet({ userId });
 };
 
 /**
@@ -167,7 +134,7 @@ export const credit = async ({
     metadata,
     session
 }: WalletOperationParams) => {
-    return withTransaction(session, async (activeSession) => {
+    return withWalletTransaction(session, async (activeSession) => {
         const incrementPayload: Record<string, number> = {};
         const userObjId = new Types.ObjectId(userId);
         const sourceId = metadata?.transactionId ? new Types.ObjectId(String(metadata.transactionId)) : new Types.ObjectId();
@@ -200,12 +167,13 @@ export const credit = async ({
             throw new AppError('No valid credit amounts provided.', 400, 'INVALID_WALLET_OPERATION');
         }
 
-        // Update UserWallet derived read snapshot
-        const updatedWallet = await UserWallet.findOneAndUpdate(
-            { userId },
-            { $inc: incrementPayload },
-            { upsert: true, new: true, ...(activeSession ? { session: activeSession } : {}) }
-        );
+        // Update UserWallet derived read snapshot via the entitlements-owned API (P0-6).
+        const updatedWallet = await adjustWalletCredits({
+            userId,
+            delta: incrementPayload as Partial<Record<WalletCreditField, number>>,
+            session: activeSession,
+            upsert: true,
+        });
 
         await recordTransaction({
             userId,
@@ -230,7 +198,7 @@ export const debit = async ({
     metadata,
     session
 }: WalletOperationParams) => {
-    return withTransaction(session, async (activeSession) => {
+    return withWalletTransaction(session, async (activeSession) => {
         const query = UserWallet.findOne({ userId });
         if (activeSession) query.session(activeSession);
         const wallet = await query;
@@ -262,11 +230,12 @@ export const debit = async ({
             throw new AppError('No valid debit amounts provided.', 400, 'INVALID_WALLET_OPERATION');
         }
 
-        const updatedWallet = await UserWallet.findOneAndUpdate(
-            { userId },
-            { $inc: decrementPayload },
-            { new: true, ...(activeSession ? { session: activeSession } : {}) }
-        );
+        // P0-6: wallet write via the entitlements-owned API.
+        const updatedWallet = await adjustWalletCredits({
+            userId,
+            delta: decrementPayload as Partial<Record<WalletCreditField, number>>,
+            session: activeSession,
+        });
 
         // Synchronize Entitlement documents via FEFO (earliest expiring pack consumed first)
         if (amount.adCredits && amount.adCredits > 0) {

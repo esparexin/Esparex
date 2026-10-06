@@ -14,6 +14,8 @@ layer: domain
 depends_on:
   - shared
   - contracts
+  - boosts
+  - entitlements
 public_api:
   facades:
     - PaymentProcessingService

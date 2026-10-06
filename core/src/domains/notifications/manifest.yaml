@@ -17,6 +17,7 @@ depends_on:
   - identity
   - payments
   - catalog
+  - entitlements
 public_api:
   facades:
     - NotificationService

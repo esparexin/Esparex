@@ -5,7 +5,8 @@ import Notification from '../../../models/Notification';
 import Ad from '../../../models/Ad';
 import { fetchSmartAlertSlotState } from './smartAlertSlotState';
 import { calculateUserPlan, UserPlanModel, PlanModel } from '../../payments';
-import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
+// P0-6: monthly cycle reset is owned by entitlements (DECISION-GATE §1/§3).
+import { resetMonthlyCycleForUser } from '../../entitlements/application/EntitlementWalletWriter';
 
 /**
  * Smart Alert Query Service
@@ -156,7 +157,7 @@ export const getSmartAlertMatchesForUser = async (
  * Returns monthly usage, limits, and remaining creation capacity.
  */
 export const getSmartAlertQuotaForUser = async (userId: string): Promise<SmartAlertQuotaDTO> => {
-    await syncWalletCycle(userId);
+    await resetMonthlyCycleForUser({ userId });
 
     const activeUserPlans = await UserPlanModel.find({
         userId,

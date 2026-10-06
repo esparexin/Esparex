@@ -68,7 +68,7 @@
   "core/src/config/sentry.ts": 2,
   "core/src/config/socket.ts": 1,
   "core/src/db/indexGovernance.ts": 1,
-  "core/src/domains/boosts/application/services/AdSlotService.ts": 1,
+  "core/src/domains/boosts/application/services/AdSlotService.ts": 3,
   "core/src/domains/catalog/application/search/scoring.ts": 3,
   "core/src/domains/catalog/application/search/types.ts": 1,
   "core/src/domains/catalog/application/services/CatalogValidationService.ts": 3,
@@ -120,5 +120,13 @@
   "packages/ui/src/forms/Field.tsx": 1,
   "shared/src/location/location.normalize.ts": 1,
   "shared/src/utils/roleNormalization.ts": 3,
-  "shared/src/utils/statusNormalization.ts": 1
+  "shared/src/utils/statusNormalization.ts": 1,
+  "backend/api/src/controllers/listing/lifecycle.controller.ts": 1,
+  "core/src/config/featureFlags.ts": 1,
+  "core/src/domains/boosts/application/services/ApplyPromotionService.ts": 2,
+  "core/src/domains/boosts/application/services/applyPromotionLegacy.ts": 3,
+  "core/src/domains/listings/application/ad/ad/AdPromotionService.ts": 2,
+  "core/src/domains/payments/application/PromotionService.ts": 2,
+  "core/src/domains/payments/application/PlanService.ts": 1,
+  "core/src/domains/payments/utils/promotionDateUtils.ts": 1
 }

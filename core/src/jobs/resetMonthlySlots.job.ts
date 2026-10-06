@@ -1,7 +1,8 @@
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
-import { resetWalletsForNewCycle } from '../domains/payments/application/PlanService';
+// P0-6: bulk monthly reset is owned by entitlements (DECISION-GATE §1/§3).
+import { resetMonthlyCycleBulk } from '../domains/entitlements/application/EntitlementWalletWriter';
 
 export const runMonthlySlotResetJob = async () => {
     await runWithDistributedJobLock(
@@ -12,7 +13,7 @@ export const runMonthlySlotResetJob = async () => {
                 logger.info('Running Monthly Slot Reset Job');
 
                 const now = new Date();
-                const result = await resetWalletsForNewCycle(now);
+                const result = await resetMonthlyCycleBulk({ now });
 
                 logger.info('Monthly Slot Reset completed', {
                     walletsUpdated: result.modifiedCount,
