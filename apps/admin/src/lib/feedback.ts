@@ -1,64 +1,20 @@
-import { showAdminPopup } from "./popup/popupEvents";
-import { mapErrorToMessage } from "./mapErrorToMessage";
-
 /**
- * 📢 Unified Admin Feedback Helper
- * Adheres strictly to the single-instance popupBus SSOT.
+ * @deprecated Canonical notification module is `createNotify` in `@esparex/shared`
+ * (P1-2 — single shared `notify` per DECISION-GATE §3).
+ *
+ * This module is a compatibility shim that wires the shared implementation to
+ * the admin popup bus. It will be deleted in Phase 4. New code should
+ * `import { createNotify } from "@esparex/shared"` and wire its own bus.
  */
-export const notify = {
-  success(message: string, options?: { title?: string }) {
-    if (typeof window !== "undefined") {
-      showAdminPopup({
-        type: "success",
-        title: options?.title || "Success",
-        message,
-      });
-    }
-  },
+import { createNotify } from "@esparex/shared";
+import { showAdminPopup } from "./popup/popupEvents";
+import { mapErrorToMessage as mapAdminErrorToMessage } from "./mapErrorToMessage";
 
-  error(
-    error: unknown,
-    fallbackOrOptions?: string | { title?: string; onRetry?: () => void },
-    options?: { title?: string; onRetry?: () => void }
-  ) {
-    const fallback =
-      typeof fallbackOrOptions === "string"
-        ? fallbackOrOptions
-        : "An unexpected error occurred.";
-    const message =
-      typeof error === "string" ? error : mapErrorToMessage(error, fallback);
-
-    const title =
-      (typeof fallbackOrOptions === "object" && fallbackOrOptions?.title) ||
-      options?.title ||
-      "Error";
-
-    if (typeof window !== "undefined") {
-      showAdminPopup({
-        type: "error",
-        title,
-        message: message || fallback,
-      });
-    }
-  },
-
-  info(message: string, options?: { title?: string }) {
-    if (typeof window !== "undefined") {
-      showAdminPopup({
-        type: "info",
-        title: options?.title || "Info",
-        message,
-      });
-    }
-  },
-
-  warning(message: string, options?: { title?: string }) {
-    if (typeof window !== "undefined") {
-      showAdminPopup({
-        type: "warning",
-        title: options?.title || "Warning",
-        message,
-      });
-    }
-  },
-};
+export const notify = createNotify({
+  show: showAdminPopup,
+  // The admin mapper requires a fallback; the shared facade may call it
+  // without one (object-options branch). Preserve the legacy behavior exactly:
+  // the admin fork always forwarded "An unexpected error occurred." here.
+  mapErrorToMessage: (error: unknown, fallback?: string) =>
+    mapAdminErrorToMessage(error, fallback ?? "An unexpected error occurred."),
+});

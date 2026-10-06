@@ -2,9 +2,9 @@
 /* ui-guard-ignore: parallel-responsive-dom [Single-instance shell header with responsive desktop/mobile action bars] */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Search, LogIn, Button, Input, Z_INDEX } from "@esparex/ui";
+import { Search, LogIn, Button, Input, Z_INDEX, TrendingUp, MapPin, ChevronDown, Menu } from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
@@ -16,9 +16,20 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
-import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
+import { HeaderAccountMenu } from "./header/HeaderAccountMenu";
+import { HeaderBusinessButton } from "./header/HeaderBusinessButton";
+import {
+  getNavigationItems,
+  getNavigationSections,
+  type ResolvedNavigationItem,
+} from "@/config/navigation";
+import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
+import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
+import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import type { NotificationResponse } from "@/lib/api/user/notifications";
+import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { cn } from "@/lib/utils";
 
 export interface HeaderProps {
@@ -235,5 +246,193 @@ export function Header({
         onLocationQueryChange={setHeaderLocationQuery}
       />
     </header>
+  );
+}
+
+// ----------------------------------------------------------------------
+// Responsive header sub-sections (P1-1 — single-instance responsive header)
+// ----------------------------------------------------------------------
+// `HeaderDesktopActions` (desktop actions bar) and `MobileHeaderTopBar`
+// (mobile top bar) were separate viewport-split files, both mounted and
+// switched by CSS breakpoints. They are merged into this single responsive
+// `Header.tsx`: one file, one implementation, CSS-breakpoint switching
+// (`hidden md:flex` / `flex md:hidden`) — no JS viewport branching for layout.
+// The legacy files remain as deprecated re-export shims (deleted in Phase 4).
+
+export interface HeaderDesktopActionsProps {
+  isMounted: boolean;
+  isAuthLoading: boolean;
+  isLoggedIn: boolean;
+  user?: User | null;
+  onLogout?: () => void;
+  onShowLogin?: () => void;
+  navigateTo: (page: UserPage) => void;
+  notificationsData?: NotificationResponse;
+  unreadCount: number;
+  onRefreshNotifications: () => Promise<unknown>;
+}
+
+export function HeaderDesktopActions({
+  isMounted,
+  isAuthLoading,
+  isLoggedIn,
+  user = null,
+  onLogout = () => {},
+  onShowLogin,
+  navigateTo,
+  notificationsData,
+  unreadCount,
+  onRefreshNotifications,
+}: HeaderDesktopActionsProps) {
+  const router = useRouter();
+
+  const businessStatus = normalizeBusinessStatus(user?.businessStatus, "none");
+  const isBusinessLive = Boolean(user && isApprovedBusiness(user));
+  const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
+  const canRegister = Boolean(user && canRegisterBusiness(user));
+  const safeProfilePhoto = useMemo(
+    () => toSafeImageSrc(user?.profilePhoto, ""),
+    [user?.profilePhoto]
+  );
+
+  const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
+    isLoggedIn,
+    onShowLogin,
+    navigateTo: (path) => {
+      navigateTo(path as UserPage);
+    },
+  });
+
+  const { account: profileMenuItems } = getNavigationSections(
+    getNavigationItems("profile-dropdown", { isLoggedIn, user: user ?? null })
+  );
+
+  const handleMenuItemClick = (item: ResolvedNavigationItem) => {
+    if (item.href) {
+      void router.push(item.href);
+      return;
+    }
+    if (item.page) {
+      navigateTo(item.page);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3 ml-auto">
+      {!isMounted || isAuthLoading ? (
+        <>
+          <div className="hidden lg:flex h-9 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
+          <div className="h-9 w-9 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
+        </>
+      ) : isLoggedIn ? (
+        <>
+          <HeaderBusinessButton
+            isBusinessLive={isBusinessLive}
+            shouldShowPendingReview={shouldShowPendingReview}
+            canRegister={canRegister}
+            businessStatus={businessStatus}
+            onNavigate={navigateTo}
+          />
+          <NotificationBellDropdown
+            notificationsData={notificationsData}
+            unreadCount={unreadCount}
+            onRefresh={onRefreshNotifications}
+            variant="desktop"
+          />
+          <HeaderAccountMenu
+            user={user}
+            safeProfilePhoto={safeProfilePhoto}
+            profileMenuItems={profileMenuItems}
+            onMenuItemClick={handleMenuItemClick}
+            onLogout={onLogout}
+          />
+        </>
+      ) : (
+        <Button variant="ghost" size="sm" onClick={onShowLogin} className="cursor-pointer">
+          Login
+        </Button>
+      )}
+
+      <Button
+        size="sm"
+        onClick={handlePostAdClick}
+        disabled={!isBackendUp}
+        className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
+      >
+        <TrendingUp className="h-4 w-4" /> Post Ad
+      </Button>
+    </div>
+  );
+}
+
+export interface MobileHeaderTopBarProps {
+  isMounted: boolean;
+  resolvedHeaderLocation: string;
+  showLocation?: boolean;
+  onNavigateHome: () => void;
+  onOpenLocationSelector: () => void;
+  onOpenMobileDrawer: () => void;
+}
+
+export function MobileHeaderTopBar({
+  isMounted,
+  resolvedHeaderLocation,
+  showLocation = true,
+  onNavigateHome,
+  onOpenLocationSelector,
+  onOpenMobileDrawer,
+}: MobileHeaderTopBarProps) {
+  const displayLocation = isMounted
+    ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display
+    : DEFAULT_APP_LOCATION.display;
+
+  return (
+    <div className="flex items-center px-3.5 h-12 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary gap-2">
+      {/* Left Navigation Group: Hamburger Menu + Full Esparex Logo */}
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={onOpenMobileDrawer}
+          className="h-9 w-9 rounded-xl hover:bg-muted active:bg-muted/80 text-foreground-secondary flex items-center justify-center cursor-pointer transition-colors"
+          aria-label="Open navigation drawer"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          onClick={onNavigateHome}
+          className="flex items-center shrink-0 hover:opacity-80 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md py-0.5"
+          aria-label="Go to Esparex Home"
+        >
+          <Image
+            src="/icons/logo.png"
+            alt="Esparex"
+            width={495}
+            height={112}
+            unoptimized
+            className="h-[24px] w-auto object-contain"
+          />
+        </button>
+      </div>
+
+      {/* Right Location Group: Location Selector (Right-Aligned) */}
+      {showLocation && (
+        <button
+          type="button"
+          onClick={onOpenLocationSelector}
+          className="ml-auto flex items-center justify-end gap-1.5 flex-1 min-w-0 max-w-[180px] xs:max-w-[220px] sm:max-w-[260px] h-full text-right hover:text-primary transition-colors cursor-pointer group"
+          aria-label={`Current location: ${displayLocation}. Tap to change location.`}
+        >
+          <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />
+          <span className="truncate block min-w-0 text-caption font-medium text-foreground">
+            <span className={`transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
+              {displayLocation}
+            </span>
+          </span>
+          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-0.5" />
+        </button>
+      )}
+    </div>
   );
 }

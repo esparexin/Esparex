@@ -1,20 +1,25 @@
 "use client";
 
+import { useMemo } from "react";
 import type { User } from "@esparex/contracts";
 import type { ProfileUser } from "@/components/user/profile/types";
-import { Button, UnsavedChangesDialog } from "@esparex/ui";
+import { Button, UnsavedChangesDialog, BottomNavigation, MoreHorizontal } from "@esparex/ui";
 import type { UserPage } from "@/lib/routeUtils";
 import type { ListingStatsResponse } from "@/lib/api/user/listings";
 import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@esparex/contracts";
 
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
-import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
 import { AccountSidebar } from "./profile/AccountSidebar";
 import { ProfileTabContentRouter } from "./profile/ProfileTabContentRouter";
 import { AccountHeader } from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ProfileTabValue } from "@/config/navigation";
+import {
+  PROFILE_TAB_ITEMS,
+  PRIMARY_PROFILE_TABS,
+  resolveBottomNavActiveTab,
+} from "@/config/navigation";
 import { useProfileSidebarState } from "./profile/useProfileSidebarState";
 
 interface ProfileSettingsProps {
@@ -27,6 +32,62 @@ interface ProfileSettingsProps {
   initialMessagesView?: ConversationListView;
   initialConversationId?: string;
   initialConversation?: IConversationDTO | null;
+}
+
+/**
+ * Mobile account tab bar, composed on the canonical `BottomNavigation` from
+ * `@esparex/ui` (P1-1). The deprecated app-local `MobileAccountBottomNav`
+ * implementation is retired; its behavior is preserved here:
+ * - primary tabs from the navigation SSOT, secondary tabs collapse to "more"
+ * - unread badge on the messages tab (pre-formatted, capped at 99+)
+ */
+function MobileAccountBottomNav({
+  activeTab,
+  onTabChange,
+  unreadCount = 0,
+}: {
+  activeTab: ProfileTabValue;
+  onTabChange: (tab: ProfileTabValue) => void;
+  unreadCount?: number;
+}) {
+  const navigation = useMemo(
+    () => ({
+      primary: [
+        ...PRIMARY_PROFILE_TABS.map((val) => {
+          const found = PROFILE_TAB_ITEMS.find((item) => item.value === val);
+          return {
+            id: val,
+            label:
+              val === "mylistings"
+                ? "Listings"
+                : val === "smartalerts"
+                  ? "Alerts"
+                  : (found?.label ?? val),
+            href: `#${val}`,
+            icon: found?.icon ?? MoreHorizontal,
+            badge:
+              val === "messages" && unreadCount > 0
+                ? unreadCount > 99
+                  ? "99+"
+                  : unreadCount
+                : undefined,
+          };
+        }),
+        { id: "more", label: "More", href: "#more", icon: MoreHorizontal },
+      ],
+    }),
+    [unreadCount]
+  );
+
+  return (
+    <BottomNavigation
+      navigation={navigation}
+      ariaLabel="Mobile account navigation"
+      className="fixed inset-x-0 bottom-0 z-40 bg-background/95 backdrop-blur-md md:hidden"
+      onSelectItem={(item) => onTabChange(item.id as ProfileTabValue)}
+      isItemActive={(item) => resolveBottomNavActiveTab(activeTab) === item.id}
+    />
+  );
 }
 
 export function ProfileSettingsSidebar({
@@ -149,7 +210,11 @@ export function ProfileSettingsSidebar({
       </div>
 
       {!isViewingActiveChat && (
-        <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
+        <MobileAccountBottomNav
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          unreadCount={chatUnreadCount}
+        />
       )}
 
       {/* Extracted Dialogs */}

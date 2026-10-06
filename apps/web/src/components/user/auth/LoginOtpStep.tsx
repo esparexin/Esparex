@@ -3,7 +3,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Loader2, Pencil } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
-import { WhatsAppIcon } from "./LoginMobileStep";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 import {
   Button,
   FieldRoot,

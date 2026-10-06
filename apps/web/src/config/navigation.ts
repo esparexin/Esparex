@@ -308,3 +308,18 @@ export function getNavigationSections(items: ResolvedNavigationItem[]) {
     account: items.filter((item) => item.section === "account"),
   };
 }
+
+/**
+ * Primary tabs shown in the mobile account bottom navigation (P1-1).
+ * Moved here from the deprecated `MobileAccountBottomNav` so the tab set is
+ * part of the navigation SSOT.
+ */
+export const PRIMARY_PROFILE_TABS: ProfileTabValue[] = ["personal", "mylistings", "messages", "smartalerts"];
+
+/**
+ * Resolves any profile tab to the tab highlighted in the mobile account
+ * bottom navigation (secondary tabs collapse to "more").
+ */
+export function resolveBottomNavActiveTab(activeTab: ProfileTabValue): ProfileTabValue {
+  return PRIMARY_PROFILE_TABS.includes(activeTab) ? activeTab : "more";
+}

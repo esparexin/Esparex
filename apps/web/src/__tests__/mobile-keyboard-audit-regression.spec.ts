@@ -165,7 +165,10 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
     });
 
     it("ensures LoginMobileStep defines enterKeyHint='send', type='tel', and Enter key submit handling", () => {
-        const mobileStepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
+        // P1-1: LoginMobileStep was folded into the single responsive Login.tsx
+        // (components/user/auth/LoginMobileStep.tsx is now a @deprecated re-export
+        // shim). The keyboard behavior lives in Login.tsx — assert there.
+        const mobileStepPath = path.join(webSrc, "components", "user", "Login.tsx");
         const fileContent = fs.readFileSync(mobileStepPath, "utf-8");
 
         expect(fileContent).toContain('type="tel"');
