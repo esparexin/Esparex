@@ -4,7 +4,7 @@ import {
     requireVerifiedBusiness,
     requireVerifiedBusinessForServiceParts,
 } from '../../middleware/businessMiddleware';
-import Business from '@esparex/core/models/Business';
+import { Business } from '@esparex/core';
 import { LISTING_TYPE } from '@esparex/contracts';
 
 jest.mock('@esparex/core/models/Business', () => ({

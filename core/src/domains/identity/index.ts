@@ -4,3 +4,6 @@ export * from './application/users/UserService';
 export * from './application/users/UserProfileService';
 export * from './application/users/AdminUsersService';
 export * from './application/sessions/AdminSessionService';
+
+// ─── P1-10: consolidated re-exports (2026-10-07) ───
+export * from './application/users/UserStatusService';

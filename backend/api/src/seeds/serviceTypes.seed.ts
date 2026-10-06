@@ -5,7 +5,7 @@
  * Write logic lives in the catalog domain (`CatalogSeedService.seedServiceTypes`);
  * this module keeps the seed data and delegates. No direct model imports.
  */
-import { CatalogSeedService } from "@esparex/core/domains/catalog/application/services/CatalogSeedService";
+import { CatalogSeedService } from "@esparex/core";
 
 interface ServiceTypeEntry {
     name: string;

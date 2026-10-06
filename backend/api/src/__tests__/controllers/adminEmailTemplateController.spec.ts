@@ -21,8 +21,8 @@ jest.mock('../../utils/adminLogger', () => ({
 }));
 
 import * as controller from '../../controllers/admin/adminEmailTemplateController';
-import * as systemConfigService from '@esparex/core/services/SystemConfigService';
-import { emailService } from '@esparex/core/domains/notifications/application/EmailService';
+import * as systemConfigService from '@esparex/core';
+import { emailService } from '@esparex/core/domains/notifications';
 
 interface MockResponse {
     status: jest.Mock;

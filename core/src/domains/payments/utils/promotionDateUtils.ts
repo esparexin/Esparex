@@ -4,4 +4,4 @@
  * payments `PromotionService` flow keeps compiling. Do not import from here in new
  * code. Scheduled for deletion in Phase 4 (see DECISION-GATE §4).
  */
-export { computeBoostWindow, type BoostWindow } from '../../boosts/shared/computeBoostWindow';
+export { computeBoostWindow } from '../../boosts/shared/computeBoostWindow';

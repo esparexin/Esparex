@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/content-handler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
 import { invalidateItemCatalogCache } from './shared';
 import { brandRepository } from './catalogPortRepositories';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { getCache } from '@esparex/core/utils/redisCache';
+import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
+import { getCache } from '@esparex/core';
 import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { AppError } from '@esparex/core';
 
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');

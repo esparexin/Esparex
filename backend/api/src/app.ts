@@ -9,16 +9,16 @@
  *
  * Any architectural changes must pass SSOT audit.
  */
-import '@esparex/core/config/loadEnv'; // MUST BE FIRST
-import { initSentry } from '@esparex/core/config/sentry'; // Initialize Sentry early
+import '@esparex/core'; // MUST BE FIRST
+import { initSentry } from '@esparex/core'; // Initialize Sentry early
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from './middleware/cookieParser';
-import '@esparex/core/models/registry';
-import { env } from '@esparex/core/config/env';
+import '@esparex/core';
+import { env } from '@esparex/core';
 import { validateOtpConfiguration } from './middleware/otpGuard';
 import { registerDeprecationRoutes } from './middleware/deprecations';
 
@@ -84,14 +84,14 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 /* -------------------------------------------------------------------------- */
 /* DB / HEALTH                                                                 */
 /* -------------------------------------------------------------------------- */
-import { isDbReady } from '@esparex/core/config/db';
-import logger from '@esparex/core/utils/logger';
+import { isDbReady } from '@esparex/core';
+import { logger } from '@esparex/core';
 import {
     DEFAULT_STATIC_ALLOWED_ORIGINS,
     getAllowedOriginList,
     isAllowedOrigin,
     normalizeOrigin,
-} from '@esparex/core/utils/originConfig';
+} from '@esparex/core';
 import { getHealthCheckData, healthCheckHandler } from './utils/health';
 
 /* -------------------------------------------------------------------------- */
@@ -225,7 +225,7 @@ app.use(verifyCsrfToken);
 import requestIdMiddleware from './middleware/requestId';
 import { sentryRequestHandler, sentryTracingHandler } from './middleware/sentryErrorHandler';
 import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
-import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummary';
+import { getSystemMetricsSummary } from '@esparex/core';
 import { requireMetricsAuth } from './middleware/metricsAuth';
 
 app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
@@ -373,7 +373,7 @@ app.get('/', (_req, res) => {
  * Exposes internal metrics for Prometheus scraping.
  * Protected by basic auth or internal network restricted in production.
  */
-import { register } from '@esparex/core/utils/metrics';
+import { register } from '@esparex/core';
 app.get('/metrics', requireMetricsAuth, async (_req, res) => {
     try {
         res.set('Content-Type', register.contentType);

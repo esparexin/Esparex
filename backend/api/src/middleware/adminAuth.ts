@@ -9,16 +9,17 @@
  * Both workspace files now re-export from here.
  */
 import { Request, Response, NextFunction } from 'express';
-import Admin, { type IAdmin } from '@esparex/core/models/Admin';
-import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
-import { verifyAdminToken } from '@esparex/core/utils/auth';
-import type { IAuthUser } from '@esparex/core/types/auth';
+import { Admin, type IAdmin } from '@esparex/core';
+export { type IAdmin } from '@esparex/core';
+import { getAdminCookieOptions } from '@esparex/core';
+import { verifyAdminToken } from '@esparex/core';
+import type { IAuthUser } from '@esparex/core';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { Role } from "@esparex/contracts";
 import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/domains/identity';
 import { USER_STATUS } from "@esparex/contracts";
-import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core/constants/adminPermissions';
-import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
+import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core';
+import { setReliabilityContext } from '@esparex/core';
 
 const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;
@@ -124,7 +125,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-import { isSuperAdminRole } from '@esparex/core/utils/roleNormalization';
+import { isSuperAdminRole } from '@esparex/core';
 import { adminMutationLimiter } from './rateLimiter';
 
 export const requirePermission = (permission: string) => {

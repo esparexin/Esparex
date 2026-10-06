@@ -128,7 +128,6 @@ export const withPublicCanonicalLocationFilter = <T extends Record<string, unkno
     ...query,
 });
 
-
 /**
  * Maps a NormalizedLocation (internal) to a NormalizedLocationResponse (API).
  * Ensures flat latitude/longitude are strictly derived from coordinates.

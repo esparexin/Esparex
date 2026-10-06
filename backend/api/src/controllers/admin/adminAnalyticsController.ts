@@ -1,4 +1,4 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '../../utils/adminBaseController';
 import * as analyticsService from '@esparex/core/domains/analytics';

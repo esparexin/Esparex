@@ -9,7 +9,7 @@ jest.mock("../../utils/respond", () => ({
 
 import type { Request, Response } from "express";
 import { getListings } from "../../controllers/listing/getListings.controller";
-import * as AdAggregationService from "@esparex/core/domains/listings/application/ad/ad/AdAggregationService";
+import * as AdAggregationService from '@esparex/core';
 
 describe("getListings.controller spare-part discovery", () => {
     beforeEach(() => {

@@ -1,5 +1,5 @@
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
+import { logger } from '@esparex/core';
+import { env } from '@esparex/core';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import {
@@ -7,15 +7,15 @@ import {
     findPendingTransaction,
     createPaymentTransaction,
     getUserForPayment,
-} from '@esparex/core/domains/payments/application/TransactionService';
-import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
-import { processSuccessfulPayment } from '@esparex/core/domains/payments/application/PaymentProcessingService';
+} from '@esparex/core/domains/payments';
+import { getPlanById } from '@esparex/core/domains/payments';
+import { processSuccessfulPayment } from '@esparex/core/domains/payments';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
 import { sendErrorResponse } from "../../utils/errorResponse";
-import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
-import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core';
+import { logBusiness, logSecurity } from '@esparex/core';
 
 const formatErrorDetails = (err: unknown): string => {
     if (err instanceof Error) return err.message;

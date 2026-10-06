@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import mongoose from 'mongoose';
 import {
     adminListConversations,

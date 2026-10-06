@@ -2,8 +2,8 @@ import {
     validateProductionEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
-} from '@esparex/core/config/validateEnv';
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
+} from '@esparex/core';
+import { bootstrapLogger } from '@esparex/core';
 
 jest.mock('@esparex/core/utils/bootstrapLogger', () => ({
     warn: jest.fn(),

@@ -6,15 +6,15 @@
 
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '../../../utils/adminBaseController';
-import { connectDB, getUserConnection, getAdminConnection } from '@esparex/core/config/db';
+import { connectDB, getUserConnection, getAdminConnection } from '@esparex/core';
 import { version as appVersion } from '../../../../package.json';
 import {
     clearCachePattern,
     getCacheStats,
     getRedisHealthProbe,
     scanKeysByPattern
-} from '@esparex/core/utils/redisCache';
-import { getSystemConfigDoc, ensureSystemConfig } from '@esparex/core/utils/systemConfigHelper';
+} from '@esparex/core';
+import { getSystemConfigDoc, ensureSystemConfig } from '@esparex/core';
 
 const sendHealthError = (req: Request, res: Response, error: unknown) => {
     sendAdminError(req, res, error);

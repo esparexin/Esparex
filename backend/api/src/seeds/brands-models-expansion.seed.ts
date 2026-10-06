@@ -22,9 +22,9 @@
  *   - All inserts run with upsert via CatalogImportService (idempotent, no duplicates).
  */
 
-import { CatalogImportService } from '@esparex/core/domains/catalog/application/services/CatalogImportService';
-import { CatalogSeedService } from '@esparex/core/domains/catalog/application/services/CatalogSeedService';
-import logger from '@esparex/core/utils/logger';
+import { CatalogImportService } from '@esparex/core';
+import { CatalogSeedService } from '@esparex/core';
+import { logger } from '@esparex/core';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Multi-Category Brands to Link

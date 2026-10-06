@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { respond } from "../../../utils/respond";
 import { sendErrorResponse } from "../../../utils/errorResponse";
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import { AppError } from '@esparex/core';
+import { escapeRegExp } from '@esparex/core';
 import { buildPlanPayload, getErrorMessage, getRequiredPlanId } from './shared';
 import {
     adminCreatePlan,
@@ -12,7 +12,7 @@ import {
     adminGetPlanById,
     adminArchivePlan,
     adminRestorePlan,
-} from '@esparex/core/domains/payments/application/PlanService';
+} from '@esparex/core/domains/payments';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {

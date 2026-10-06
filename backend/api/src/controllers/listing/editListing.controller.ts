@@ -3,8 +3,8 @@ import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
 import { LISTING_STATUS } from "@esparex/contracts";
-import * as AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
-import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
+import { AdMutationService } from '@esparex/core';
+import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core';
 import type { AuthUser } from '../../types/auth.types';
 
 const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {

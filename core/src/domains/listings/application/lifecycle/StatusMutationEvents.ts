@@ -29,7 +29,7 @@ export async function dispatchStatusMutationEvents({
         return;
     }
 
-    import('@esparex/core/composition/listings')
+    import('../../../../composition/listings')
         .then(({ getListingsCache }) => {
             const listingsCache = getListingsCache();
             return Promise.all([

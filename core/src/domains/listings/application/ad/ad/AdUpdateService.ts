@@ -42,7 +42,7 @@ export const updateAdLogic = async (
                 throw new AppError('Pending listings are view-only and cannot be edited', 400);
 
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
-                const User = (await import('@esparex/core/models/User')).default;
+                const User = (await import('../../../../../models/User')).default;
                 const user = await User.findById(context.authUserId).select('isSuspended').lean();
                 if ((user as { isSuspended?: boolean } | null)?.isSuspended)
                     throw Object.assign(new Error('Account suspended'), { statusCode: 403, code: 'ACCOUNT_SUSPENDED' });
@@ -163,7 +163,7 @@ export const updateAdLogic = async (
         if (oldPriceValue && updatedAdTyped.price < oldPriceValue) {
             void (async () => {
                 try {
-                    const SavedAd = (await import('@esparex/core/models/SavedAd')).default;
+                    const SavedAd = (await import('../../../../../models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId }).select('userId').lean();
                     if (keepers.length > 0) {
                         const { dispatchTemplatedNotification } = await import('../../../../notifications/application/NotificationService');

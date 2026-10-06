@@ -1,6 +1,6 @@
 import { getSpareParts } from "../../controllers/admin/catalog/catalogSparePartController";
-import { SparePartModel } from "@esparex/core/domains/catalog/application/services/CatalogSparePartService";
-import { getCache, setCache } from "@esparex/core/utils/redisCache";
+import { SparePartModel } from "@esparex/core";
+import { getCache, setCache } from "@esparex/core";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 

@@ -8,9 +8,9 @@
  */
 
 import mongoose from "mongoose";
-import { connectDB } from "@esparex/core/config/db";
-import Notification from "@esparex/core/models/Notification";
-import Business from "@esparex/core/models/Business";
+import { connectDB } from "@esparex/core";
+import { Notification } from "@esparex/core";
+import { Business } from "@esparex/core";
 
 async function run(): Promise<void> {
     console.info("[notif-verify] Connecting to MongoDB...");

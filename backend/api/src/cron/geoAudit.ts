@@ -1,6 +1,6 @@
-import User from '@esparex/core/models/User';
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { User } from '@esparex/core';
+import { logger } from '@esparex/core';
+import { runWithDistributedJobLock } from '@esparex/core';
 
 const GEO_AUDIT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24h
 const GEO_AUDIT_STARTUP_DELAY_MS = 15_000;

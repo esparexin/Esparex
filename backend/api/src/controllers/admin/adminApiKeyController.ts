@@ -7,7 +7,7 @@ import {
     getApiKeys as getApiKeysService,
     createApiKey as createApiKeyService,
     revokeApiKey as revokeApiKeyService,
-} from '@esparex/core/services/ApiKeyService';
+} from '@esparex/core';
 
 
 export const getApiKeys = async (req: Request, res: Response) => {

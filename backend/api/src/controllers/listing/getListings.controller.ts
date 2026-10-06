@@ -3,21 +3,21 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import * as AdAggregationService from '@esparex/core/domains/listings/application/ad/ad/AdAggregationService';
-import * as AdDetailService from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
+import { AdAggregationService } from '@esparex/core';
+import { AdDetailService } from '@esparex/core';
 import * as feedService from '@esparex/core/domains/discovery';
 import * as trendingService from '@esparex/core/domains/discovery';
 
 import { z } from 'zod';
-import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
+import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core';
 import { LISTING_STATUS } from "@esparex/contracts";
 import { respond } from "../../utils/respond";
 import { PaginatedResponse, HomeFeedResponse, ApiResponse, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { normalizeRole } from '@esparex/core';
 import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
-import type { AdFilters, PaginationOptions, AdsListResult } from '@esparex/core/domains/listings/application/ad/ad/_shared/adFilterHelpers';
+import type { AdFilters, PaginationOptions, AdsListResult } from '@esparex/core';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -216,11 +216,9 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             Number.isFinite(requestedPage) &&
             requestedPage <= 5;
 
-        const {
-            getCache,
+        const { getCache,
             setCache,
-            buildDeterministicSearchCacheKey
-        } = await import('@esparex/core/utils/redisCache');
+            buildDeterministicSearchCacheKey } = await import('@esparex/core');
         let cacheKey: string | null = null;
         let cachedResult: CachedSearchResult | null = null;
 
@@ -255,7 +253,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         );
 
         if (cacheKey && shouldUseSearchCache) {
-            const { CACHE_TTLS } = await import('@esparex/core/utils/redisCache');
+            const { CACHE_TTLS } = await import('@esparex/core');
             await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 

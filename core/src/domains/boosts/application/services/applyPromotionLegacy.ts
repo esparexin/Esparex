@@ -43,7 +43,7 @@ export async function applyPromotionLegacy(params: {
         }
     }
 
-    const BoostModel = (await import('@esparex/core/models/Boost')).default;
+    const BoostModel = (await import('../../../../models/Boost')).default;
     const boost = await BoostModel.findOne({
         entityId: new Types.ObjectId(listingId),
         isActive: true,

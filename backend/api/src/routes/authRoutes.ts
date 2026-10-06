@@ -9,10 +9,10 @@ import { protect } from '../middleware/authMiddleware';
 import { otpIpLimiter, otpSendLimiter, otpVerifyLimiter, mutationLimiter } from '../middleware/rateLimiter';
 import { otpConfigurationCheck } from '../middleware/otpGuard';
 import { fraudMiddleware } from '../middleware/fraudMiddleware';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 
 import { validateRequest } from '../middleware/validateRequest';
-import { loginSchema, verifyOtpSchema } from '@esparex/core/validators/auth.validator';
+import { loginSchema, verifyOtpSchema } from '@esparex/core';
 
 const router = express.Router();
 

@@ -8,7 +8,7 @@ import { respond } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { CreditRulesEngine } from '@esparex/core/domains/credits';
 import { getAdPostingBalance } from '@esparex/core/domains/boosts';
-import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
+import { DashboardFacade } from '@esparex/core/domains/payments';
 
 interface AuthenticatedUser {
   _id?: { toString(): string };
@@ -90,7 +90,7 @@ export const renewBusinessPlanController = async (req: Request, res: Response) =
     const { planId, durationDays = 365 } = req.body || {};
     if (!planId) return sendErrorResponse(req, res, 400, 'planId is required');
 
-    const { renewBusinessPlan } = await import('@esparex/core/domains/payments/application/PlanService');
+    const { renewBusinessPlan } = await import('@esparex/core/domains/payments');
     const updatedPlan = await renewBusinessPlan(userId, planId, Number(durationDays));
 
     res.json(respond({ success: true, data: updatedPlan }));
@@ -114,9 +114,7 @@ export const getCreditLedgerHistory = async (req: Request, res: Response) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
     const skip = (page - 1) * limit;
 
-    const { getCreditLedgerHistoryByUserId } = await import(
-      '@esparex/core/domains/payments/application/WalletQueryService'
-    );
+    const { getCreditLedgerHistoryByUserId } = await import('@esparex/core/domains/payments');
 
     const { items, total } = await getCreditLedgerHistoryByUserId(userId, { limit, skip });
 

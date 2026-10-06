@@ -13,7 +13,7 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
-import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
+import { isDuplicateKeyError } from '@esparex/core';
 import type { CatalogAdminEntity, CatalogAdminRepository } from './catalogPortRepositories';
 
 // Re-export SSOT validation helpers so controllers import from one place.
@@ -25,13 +25,13 @@ import {
     getActiveCategoryIds,
     validateActiveCategories,
     deriveApprovalStatus,
-} from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
+} from '@esparex/core';
 
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/content-handler";
-import { isAdminRole } from '@esparex/core/utils/roleNormalization';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
+import { isAdminRole } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
+import { clearCategoryCanonicalCache } from '@esparex/core';
 
 export {
     sendCatalogError,

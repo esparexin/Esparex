@@ -8,23 +8,27 @@ jest.mock("@esparex/core/models/ScheduledNotification", () => ({
     default: { create: jest.fn() },
 }));
 
-jest.mock("@esparex/core/domains/notifications", () => ({
-    createAdminNotificationTargetCursor: jest.fn(),
-    NotificationDispatcher: {
-        bulkDispatch: jest.fn().mockResolvedValue({ successCount: 0, skippedCount: 0, failureCount: 0 }),
-    },
-    NotificationIntent: {
-        fromAdminBroadcast: jest.fn((params) => ({
-            ...params,
-        })),
-    },
-}));
+jest.mock("@esparex/core/domains/notifications", () => {
+    const actual = jest.requireActual("@esparex/core/domains/notifications");
+    return {
+        ...actual,
+        createAdminNotificationTargetCursor: jest.fn(),
+        NotificationDispatcher: {
+            bulkDispatch: jest.fn().mockResolvedValue({ successCount: 0, skippedCount: 0, failureCount: 0 }),
+        },
+        NotificationIntent: {
+            fromAdminBroadcast: jest.fn((params) => ({
+                ...params,
+            })),
+        },
+    };
+});
 
 jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-import NotificationLog from "@esparex/core/models/NotificationLog";
+import { NotificationLog } from "@esparex/core";
 import {
     NotificationDispatcher,
     NotificationIntent,

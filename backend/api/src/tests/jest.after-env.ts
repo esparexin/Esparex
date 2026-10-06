@@ -17,9 +17,9 @@ afterAll(async () => {
     );
 
     try {
-        const redisModule = await import('@esparex/core/config/redis');
-        if (redisModule && redisModule.default && redisModule.default.quit) {
-            await redisModule.default.quit();
+        const { redis: redisModule } = await import('@esparex/core');
+        if (redisModule && redisModule.quit) {
+            await redisModule.quit();
         }
     } catch {
         // Safe fail

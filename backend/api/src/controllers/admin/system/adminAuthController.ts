@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import type { IAdmin } from '@esparex/core/models/Admin';
+import type { IAdmin } from '@esparex/core';
 import {
     findAdminByEmailForAuth,
     findAdminByResetToken,
@@ -15,12 +15,12 @@ import {
     getAdminProfileById,
     saveAdmin,
     seedAdmin,
-} from '@esparex/core/services/AdminService';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
-import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
-import logger from '@esparex/core/utils/logger';
-import { getAdminAppUrl } from '@esparex/core/utils/appUrl';
+} from '@esparex/core';
+import { getSystemConfigDoc } from '@esparex/core';
+import { normalizeRole } from '@esparex/core';
+import { getAdminCookieOptions } from '@esparex/core';
+import { logger } from '@esparex/core';
+import { getAdminAppUrl } from '@esparex/core';
 import {
     sendSuccessResponse,
     sendAdminError
@@ -30,7 +30,7 @@ import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 import { emailService, renderPasswordResetEmail } from '@esparex/core/domains/notifications';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core/utils/auth';
+import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core';
 import { USER_STATUS } from "@esparex/contracts";
 import { getSingleParam } from '../../../utils/requestParams';
 import {

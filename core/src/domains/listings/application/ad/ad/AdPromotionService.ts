@@ -31,8 +31,8 @@ export const promoteAdLogic = async (params: PromoteAdParams) => {
         userId,
         isAdmin = false
     } = params;
-    const Boost = (await import('@esparex/core/models/Boost')).default;
-    const User = (await import('@esparex/core/models/User')).default;
+    const Boost = (await import('../../../../../models/Boost')).default;
+    const User = (await import('../../../../../models/User')).default;
 
     if (!isValidObjectId(id)) throw new AppError('Invalid Ad ID', 400);
 

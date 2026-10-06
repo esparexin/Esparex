@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { sendSuccessResponse } from "../../utils/respond";
-import * as AdOrchestrator from '@esparex/core/domains/listings/application/ad/AdOrchestrator';
+import { AdOrchestrator } from '@esparex/core';
 
 import { LocationFacade } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';
@@ -35,7 +35,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
             });
         }
 
-        const { deriveLocationMetadata } = await import('@esparex/core/services/location/LocationHierarchyService');
+        const { deriveLocationMetadata } = await import('@esparex/core');
         const meta = await deriveLocationMetadata(normalizedLocation.locationId, normalizedLocation.coordinates);
         if (meta.city && !normalizedLocation.city) normalizedLocation.city = meta.city;
         if (meta.state && !normalizedLocation.state) normalizedLocation.state = meta.state;
@@ -44,7 +44,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // Controller Orchestration: Resolve custom brand/model proposal requests prior to Ad creation
         if (body.customBrandName || body.customModelName) {
-            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/domains/catalog/application/services/CatalogRequestService');
+            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core');
             const resolved = await resolveCatalogRequestsForSubmission({
                 categoryId: String(body.categoryId || ''),
                 brandId: body.brandId ? String(body.brandId) : undefined,
@@ -76,7 +76,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         if (ad && pendingRequestIds.length > 0) {
             try {
-                const { linkListingToCatalogRequests } = await import('@esparex/core/domains/catalog/application/services/CatalogRequestService');
+                const { linkListingToCatalogRequests } = await import('@esparex/core');
                 const createdAdId = (ad as { id?: string; _id?: string }).id ?? (ad as { _id?: string })._id;
                 if (createdAdId) {
                     await linkListingToCatalogRequests(pendingRequestIds, createdAdId);
@@ -104,7 +104,7 @@ export const getPresignedUploadUrl = async (req: Request, res: Response, next: N
             return sendErrorResponse(req, res, 400, 'contentType (or fileType) is required for upload presign.');
         }
 
-        const { generatePresignedUploadUrl } = await import('@esparex/core/utils/s3');
+        const { generatePresignedUploadUrl } = await import('@esparex/core');
         const user = req.user as AuthUser;
         const uploadFolder = body.folder || 'listings';
         const fileExtension = requestedType.split('/')[1] || 'jpg';

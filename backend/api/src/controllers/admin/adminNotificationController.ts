@@ -12,18 +12,18 @@ import {
     createScheduledNotification,
     getNotificationHistory,
     searchNotificationRecipients,
-} from "@esparex/core/domains/notifications/application/AdminNotificationService";
+} from "@esparex/core/domains/notifications";
 import {
     getPaginationParams,
     sendAdminError,
     sendSuccessResponse,
 } from '../../utils/adminBaseController';
 import { logAdminAction } from "../../utils/adminLogger";
-import { type IUser } from "@esparex/core/models/User";
-import { type INotificationLog } from "@esparex/core/models/NotificationLog";
-import { type IScheduledNotification } from "@esparex/core/models/ScheduledNotification";
+import { type IUser } from "@esparex/core";
+import { type INotificationLog } from "@esparex/core";
+import { type IScheduledNotification } from "@esparex/core";
 import { respond } from "../../utils/respond";
-import { escapeRegExp } from "@esparex/core/utils/stringUtils";
+import { escapeRegExp } from "@esparex/core";
 
 const BATCH_SIZE = 500;
 

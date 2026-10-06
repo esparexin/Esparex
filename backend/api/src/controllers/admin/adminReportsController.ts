@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { logAdminAction } from '../../utils/adminLogger';
-import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
+import { mutateStatus } from '@esparex/core';
 import { ACTOR_TYPE } from "@esparex/contracts";
 import { AD_STATUS } from "@esparex/contracts";
 import { REPORT_STATUS, REPORT_STATUS_VALUES, type ReportStatusValue } from "@esparex/contracts";
@@ -19,7 +19,7 @@ import {
     saveReport,
     updateReportById,
 } from '@esparex/core/domains/analytics';
-import { getReportedAdsAggregation } from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
+import { getReportedAdsAggregation } from '@esparex/core';
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {

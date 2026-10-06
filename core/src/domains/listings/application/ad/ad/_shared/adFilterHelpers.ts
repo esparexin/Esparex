@@ -10,7 +10,6 @@ import BlockedUser from '../../../../../../models/BlockedUser';
 import { type ListingTypeValue } from '@esparex/contracts';
 import logger from '../../../../../../utils/logger';
 
-
 import AdminMetrics from '../../../../../../models/AdminMetrics';
 
 // ─────────────────────────────────────────────────
@@ -214,7 +213,6 @@ export const getBlockedSellerIds = async (viewerId?: string): Promise<mongoose.T
 
     return blockedIds;
 };
-
 
 /**
  * @architecture-note Two-Stage Filter Pipeline

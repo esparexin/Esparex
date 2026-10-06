@@ -16,8 +16,8 @@ jest.mock('@esparex/core/utils/logger', () => ({
 }));
 
 import { registerToken } from '../../controllers/notification/notificationMutationController';
-import { removeUserFcmToken } from '@esparex/core/domains/identity/application/users/UserService';
-import * as notificationService from '@esparex/core/domains/notifications/application/NotificationService';
+import { removeUserFcmToken } from '@esparex/core/domains/identity';
+import * as notificationService from '@esparex/core/domains/notifications';
 import type { Request, Response } from 'express';
 
 const mockedRegisterTokenService = notificationService.registerToken as jest.Mock;

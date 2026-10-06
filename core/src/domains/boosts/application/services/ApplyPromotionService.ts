@@ -101,9 +101,9 @@ export async function applyPromotion(params: ApplyPromotionParams): Promise<Appl
         return applyPromotionLegacy({ userId, listingId, entityType, promotionType, durationDays, isAdmin, legacySource });
     }
 
-    const AdModel = (await import('@esparex/core/models/Ad')).default;
-    const BoostModel = (await import('@esparex/core/models/Boost')).default;
-    const UserModel = (await import('@esparex/core/models/User')).default;
+    const AdModel = (await import('../../../../models/Ad')).default;
+    const BoostModel = (await import('../../../../models/Boost')).default;
+    const UserModel = (await import('../../../../models/User')).default;
 
     const adDoc = (await AdModel.findById(listingId).lean()) as PromotionAdDoc | null;
     if (!adDoc || adDoc.isDeleted) {
@@ -238,7 +238,7 @@ export async function applyPromotion(params: ApplyPromotionParams): Promise<Appl
         }
 
         // Immutable audit log (retired payments flow).
-        const CreditTransactionModel = (await import('@esparex/core/models/CreditTransaction')).default;
+        const CreditTransactionModel = (await import('../../../../models/CreditTransaction')).default;
         await CreditTransactionModel.create([{
             userId: new Types.ObjectId(userId),
             listingId: new Types.ObjectId(listingId),

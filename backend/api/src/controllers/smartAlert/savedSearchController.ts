@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { ApiResponse } from "@esparex/contracts";
@@ -7,7 +7,7 @@ import {
     createSavedSearch,
     deleteSavedSearch,
     getSavedSearches
-} from '@esparex/core/domains/discovery/application/services/SavedSearchService';
+} from '@esparex/core/domains/discovery';
 import { SavedSearchCreatePayload } from "@esparex/contracts";
 const getUserId = (req: Request): string | null => {
     const user = req.user;

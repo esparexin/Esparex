@@ -76,7 +76,6 @@ export class CategoryQueryBuilder {
         return { [fieldName]: value };
     }
 
-
     /** 
      * Get the query operand ($in or literal ID).
      * Useful for constructing composite queries with other operators.

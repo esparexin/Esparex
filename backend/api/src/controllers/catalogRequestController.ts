@@ -1,17 +1,17 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
-import * as CatalogRequestService from '@esparex/core/domains/catalog/application/services/CatalogRequestService';
+import { escapeRegExp } from '@esparex/core';
+import { type ICatalogRequest } from '@esparex/core';
+import { CatalogRequestService } from '@esparex/core';
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { logAdminAction } from '../utils/adminLogger';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { AppError } from '@esparex/core';
 import {
     approveCatalogRequest,
     markCatalogRequestDuplicate,
     rejectCatalogRequest,
-} from '@esparex/core/domains/catalog/application/requests/catalogRequestApprovalService';
+} from '@esparex/core';
 
 const getAdminActorId = (req: Request): string => {
     const actorId = req.admin?._id ?? req.user?._id ?? req.user?.id;

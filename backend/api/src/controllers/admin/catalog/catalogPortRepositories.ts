@@ -15,7 +15,7 @@ import {
     getScreenSizeRepository,
     getServiceTypeRepository,
     getSparePartRepository,
-} from '@esparex/core/composition/catalog';
+} from '@esparex/core';
 import type { Types } from 'mongoose';
 
 /** Lean catalog entity as returned by the repository ports. */

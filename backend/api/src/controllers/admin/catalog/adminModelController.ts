@@ -1,21 +1,21 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/content-handler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
-import { validateBrandIsActive } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core';
+import { validateBrandIsActive } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
 import { invalidateItemCatalogCache } from './shared';
 import { modelRepository } from './catalogPortRepositories';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, getActiveCategoryIds, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogDelete, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
-import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { MAX_MODEL_TREE_DEPTH } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
-import { updateModelHierarchyTransactionally } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
-import { getCache } from '@esparex/core/utils/redisCache';
+import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
+import { MAX_MODEL_TREE_DEPTH } from '@esparex/core';
+import { updateModelHierarchyTransactionally } from '@esparex/core';
+import { getCache } from '@esparex/core';
 import { catalogCacheKey, applyCacheWriteThrough, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogShared';
 
 export const getModels = async (req: Request, res: Response) => {

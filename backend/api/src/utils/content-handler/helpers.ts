@@ -1,8 +1,8 @@
 import type { Document, Model } from 'mongoose';
 import { Request } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { getAdminConnection, getUserConnection } from '@esparex/core/config/db';
-import { castCatalogQueryIds, summarizeCatalogReadDiff, recordCatalogReadDiff } from '@esparex/core/utils/catalogShadowRead';
+import { logger } from '@esparex/core';
+import { getAdminConnection, getUserConnection } from '@esparex/core';
+import { castCatalogQueryIds, summarizeCatalogReadDiff, recordCatalogReadDiff } from '@esparex/core';
 
 export const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
 

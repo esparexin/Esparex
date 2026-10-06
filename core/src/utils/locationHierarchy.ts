@@ -192,8 +192,6 @@ const equalsIgnoreCase = (left: string | undefined, right: string | undefined) =
     return left.trim().toLowerCase() === right.trim().toLowerCase();
 };
 
-
-
 export const resolveParentLocation = async (params: {
     level?: unknown;
     country?: unknown;

@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { extractDeviceFingerprint } from '../utils/deviceFingerprint';
 import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel, detectSpam } from '@esparex/core/domains/fraud';
-import { detectAiSpam } from '@esparex/core/utils/aiSpamDetector';
-import logger from '@esparex/core/utils/logger';
-import { getUserConnection } from '@esparex/core/config/db';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { env } from '@esparex/core/config/env';
+import { detectAiSpam } from '@esparex/core';
+import { logger } from '@esparex/core';
+import { getUserConnection } from '@esparex/core';
+import { FeatureFlag, isEnabled } from '@esparex/core';
+import { env } from '@esparex/core';
 
 
 export interface FraudRequest extends Request {

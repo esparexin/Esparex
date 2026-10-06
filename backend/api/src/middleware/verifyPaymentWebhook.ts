@@ -1,9 +1,9 @@
 // backend/src/middleware/verifyPaymentWebhook.ts
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
-import { env } from '@esparex/core/config/env';
+import { env } from '@esparex/core';
 
 /**
  * 🛡️ Fast-Reject In-Memory Replay Cache (Secondary Protection)

@@ -1,4 +1,4 @@
-import { getUsersQuerySchema, updateUserProfileSchema, registerFcmTokenSchema } from "@esparex/core/validators/user.validator";
+import { getUsersQuerySchema, updateUserProfileSchema, registerFcmTokenSchema } from "@esparex/core";
 
 describe("getUsersQuerySchema", () => {
     it("accepts canonical admin user filters", () => {

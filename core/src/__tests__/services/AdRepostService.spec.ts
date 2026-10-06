@@ -79,7 +79,7 @@ import { ListingSubmissionPolicy } from '../../domains/listings/application/poli
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
 import { LISTING_STATUS } from '@esparex/contracts';
 
-import { getListingRepository } from '@esparex/core/composition/listings';
+import { getListingRepository } from '../../composition/listings';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 

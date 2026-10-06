@@ -23,8 +23,8 @@ jest.mock("@esparex/core/utils/cookieHelper", () => ({
 }));
 
 import { Request, Response } from "express";
-import Admin from "@esparex/core/models/Admin";
-import { verifyAdminToken } from "@esparex/core/utils/auth";
+import { Admin } from "@esparex/core";
+import { verifyAdminToken } from "@esparex/core";
 import { validateAdminSession } from "@esparex/core/domains/identity";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 

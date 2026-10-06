@@ -18,7 +18,7 @@ jest.mock('../../utils/respond', () => ({
 
 import type { Request, Response } from 'express';
 import { getPublicSellers } from '../../controllers/user/userQueryController';
-import { getPublicSellers as getPublicSellersSvc } from '@esparex/core/domains/identity/application/users/UserProfileService';
+import { getPublicSellers as getPublicSellersSvc } from '@esparex/core/domains/identity';
 
 // ─── Typed mock ──────────────────────────────────────────────────────────────
 

@@ -7,12 +7,12 @@ export { respond } from "./respond";
  * Ensures the admin user has the required scope for the action.
  * Supports wildcard (*) for full access.
  */
-import type { IAuthUser as AuthUser } from '@esparex/core/types/auth';
+import type { IAuthUser as AuthUser } from '@esparex/core';
 import { ApiResponse } from "./apiResponse";
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { logAdminActionDirect } from "./adminLogger";
-import type { AdminLogFn } from '@esparex/core/utils/adminLogger';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import type { AdminLogFn } from '@esparex/core';
+import { AppError } from '@esparex/core';
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER
@@ -45,7 +45,7 @@ export const buildLogFn = (req: AdminRequest): AdminLogFn =>
             getUserAgent(req)
         );
 import { Role } from '@esparex/contracts';
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { normalizeRole } from '@esparex/core';
 
 export const checkPermission = (user: AuthUser | undefined, module: string, action: string): boolean => {
     if (!user) return false;

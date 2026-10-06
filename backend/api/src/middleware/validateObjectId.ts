@@ -1,4 +1,4 @@
-import { isValidObjectId } from '@esparex/core/utils/idUtils';
+import { isValidObjectId } from '@esparex/core';
 import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "../utils/errorResponse";
 

@@ -24,7 +24,6 @@ export type SchedulerJobName =
 
 type SchedulerProcessor = (job: Job<TraceableJobData>) => Promise<unknown>;
 
-
 const shouldDisableSchedulerQueue =
     env.NODE_ENV === 'test' && !env.ALLOW_SCHEDULER_QUEUE;
 
@@ -95,7 +94,6 @@ export const registerSchedulerJobProcessors = async (
         schedulerQueueEvents?.waitUntilReady()
     ].filter(Boolean));
 };
-
 
 export const registerSchedulerRepeatableJobs = async () => {
     if (shouldDisableSchedulerQueue || !schedulerQueue) return;

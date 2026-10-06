@@ -9,13 +9,11 @@ import {
     normalizeCatalogCanonicalName as normalizeCatalogCanonicalNameGoverned,
 } from '../../../../utils/catalogGovernance';
 
-import {
-    CategoryRepositoryPort,
-    BrandRepositoryPort,
-    ModelRepositoryPort,
-    SparePartRepositoryPort,
-    ListingTypeValue
-} from '../..';
+import { CategoryRepositoryPort } from '../../ports/CategoryRepositoryPort';
+import { BrandRepositoryPort } from '../../ports/BrandRepositoryPort';
+import { ModelRepositoryPort } from '../../ports/ModelRepositoryPort';
+import { SparePartRepositoryPort } from '../../ports/SparePartRepositoryPort';
+import { ListingTypeValue } from '@esparex/contracts';
 
 // ─── Shared Mongo query fragments (Retained for backwards compatibility if needed elsewhere) ─
 

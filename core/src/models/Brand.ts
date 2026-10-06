@@ -34,7 +34,6 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   updatedAt: Date;
 }
 
-
 const BrandSchema = new Schema<IBrand>({
   name: { type: String, required: true, trim: true },
   displayName: { type: String, required: true, trim: true },

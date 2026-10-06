@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
-import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
-import logger from '@esparex/core/utils/logger';
+import { IdempotencyRequest } from '@esparex/core';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
 
 const MAX_KEY_LENGTH = 128;
@@ -238,7 +238,7 @@ export default enforceCreateAdIdempotency;
  * The client must present an `x-request-id` UUID header.
  * Stores UUID in Redis for 60 seconds. Returns 409 if duplicate.
  */
-import redisClient from '@esparex/core/config/redis';
+import { redis as redisClient } from '@esparex/core';
 
 export const idempotencyMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {

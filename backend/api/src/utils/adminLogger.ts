@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { logAdminActionDirect, AdminLogTargetType } from '@esparex/core/utils/adminLogger';
+import { logAdminActionDirect, AdminLogTargetType } from '@esparex/core';
 
 /**
  * Asynchronously logs an admin action.
@@ -40,4 +40,4 @@ export const logAdminAction = async (
     );
 };
 
-export { logAdminActionDirect, AdminLogTargetType, AdminLogFn } from '@esparex/core/utils/adminLogger';
+export { logAdminActionDirect, AdminLogTargetType, AdminLogFn } from '@esparex/core';

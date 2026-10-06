@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getPublicActiveGoogleAdPlacements } from "@esparex/core/services/GoogleAdsService";
+import { getPublicActiveGoogleAdPlacements } from "@esparex/core";
 
 export const getPublicGoogleAdPlacements = async (req: Request, res: Response) => {
     try {

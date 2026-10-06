@@ -6,12 +6,12 @@ import {
     type EmailTemplateCustomization,
     type EmailTemplateKey,
 } from '@esparex/contracts';
-import { emailTemplateCatalogService } from '@esparex/core/domains/notifications/application/EmailTemplateCatalogService';
-import { emailService } from '@esparex/core/domains/notifications/application/EmailService';
+import { emailTemplateCatalogService } from '@esparex/core/domains/notifications';
+import { emailService } from '@esparex/core/domains/notifications';
 import {
     getSystemConfigForRead,
     updateSystemConfigSections,
-} from '@esparex/core/services/SystemConfigService';
+} from '@esparex/core';
 
 import { sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
 import { logAdminAction } from '../../utils/adminLogger';

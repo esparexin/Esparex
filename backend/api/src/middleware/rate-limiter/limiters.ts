@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
-import { env } from '@esparex/core/config/env';
+import { env } from '@esparex/core';
 import { createLimiter, resolveRequestIp, buildHybridRateLimitKey, createRedisStore, resolveRetryAfterSeconds, respondRateLimited } from './factory';
 
 export const globalLimiter = rateLimit({

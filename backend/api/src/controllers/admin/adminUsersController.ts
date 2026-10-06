@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as userStatusService from '@esparex/core/domains/identity/application/users/UserStatusService';
+import * as userStatusService from '@esparex/core/domains/identity';
 import {
     sendSuccessResponse,
     getPaginationParams,
@@ -11,7 +11,7 @@ import {
 } from '../../utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from "@esparex/contracts";
 import * as adminUsersService from '@esparex/core/domains/identity';
-import { isValidObjectId } from '@esparex/core/utils/idUtils';
+import { isValidObjectId } from '@esparex/core';
 
 // ---------------------------------------------------------
 // Controllers

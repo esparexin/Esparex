@@ -26,10 +26,10 @@ import mongoose from "mongoose";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { LISTING_STATUS, LISTING_TYPE, ListingTypeValue, USER_STATUS, MOBILE_VISIBILITY } from "@esparex/contracts";
-import { connectDB } from "@esparex/core/config/db";
-import Ad from "@esparex/core/models/Ad";
-import User from "@esparex/core/models/User";
-import Category from "@esparex/core/models/Category";
+import { connectDB } from "@esparex/core";
+import { Ad } from "@esparex/core";
+import { User } from "@esparex/core";
+import { Category } from "@esparex/core";
 import { CATALOG_STATUS } from "@esparex/contracts";
 import { MODERATION_STATUS } from "@esparex/contracts";
 /* -------------------------------------------------------------------------- */

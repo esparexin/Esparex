@@ -47,8 +47,6 @@ export class ListingSubmissionPolicy {
             return { source: result.source };
         }
 
-
-
         // For Services and Spare Parts, enforce active inventory limits
         // defined in the user's plan. Delegates to PlanService which executes
         // active inventory checks via ListingRepositoryPort.countActiveBySeller().

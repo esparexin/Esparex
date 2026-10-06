@@ -5,9 +5,9 @@ import {
     findPendingTransaction,
     createPaymentTransaction,
     getUserForPayment,
-} from '@esparex/core/domains/payments/application/TransactionService';
-import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
-import { getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
+} from '@esparex/core/domains/payments';
+import { getPlanById } from '@esparex/core/domains/payments';
+import { getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core';
 
 jest.mock('@esparex/core/domains/payments/application/TransactionService');
 jest.mock('@esparex/core/domains/payments/application/PlanService');

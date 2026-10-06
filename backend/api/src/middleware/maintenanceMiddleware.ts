@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
-import logger from '@esparex/core/utils/logger';
+import { getSystemConfigDoc } from '@esparex/core';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
 
 /**

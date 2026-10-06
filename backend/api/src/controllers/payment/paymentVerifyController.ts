@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
-import { getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
-import { enqueuePaymentProcessing } from '@esparex/core/queues/paymentQueue';
-import { processSuccessfulPayment } from '@esparex/core/domains/payments/application/PaymentProcessingService';
-import logger, { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+import { getRazorpayRuntimeConfig } from '@esparex/core';
+import { enqueuePaymentProcessing } from '@esparex/core';
+import { processSuccessfulPayment } from '@esparex/core/domains/payments';
+import { logger, logBusiness, logSecurity } from '@esparex/core';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
-import { env } from '@esparex/core/config/env';
+import { env } from '@esparex/core';
 
 /**
  * 🔐 VERIFY PAYMENT CONTROLLER

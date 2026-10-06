@@ -25,7 +25,7 @@ jest.mock("@esparex/core/models/Ad", () => ({
 
 import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
-import User from "@esparex/core/models/User";
+import { User } from "@esparex/core";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

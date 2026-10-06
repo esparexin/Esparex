@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import Admin from '@esparex/core/models/Admin';
-import { env } from '@esparex/core/config/env';
-import AdminLog from '@esparex/core/models/AdminLog';
-import FraudScore from '@esparex/core/models/FraudScore';
-import User from '@esparex/core/models/User';
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { Admin } from '@esparex/core';
+import { env } from '@esparex/core';
+import { AdminLog } from '@esparex/core';
+import { FraudScore } from '@esparex/core';
+import { User } from '@esparex/core';
+import { logger } from '@esparex/core';
+import { runWithDistributedJobLock } from '@esparex/core';
 import { USER_STATUS } from "@esparex/contracts";
 const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;

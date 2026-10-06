@@ -24,7 +24,7 @@ jest.mock('../../utils/errorResponse', () => ({
 
 // Use dynamic require to ensure mocks are in place before controller imports its dependencies
 const statsController = require('../../controllers/listing/stats.controller');
-const AdMetricsService = require('@esparex/core/domains/listings/application/ad/ad/AdMetricsService');
+const { AdMetricsService } = require('@esparex/core/domains/listings');
 const controllerUtils = require('../../utils/controllerUtils');
 
 const mockGetSellerListingStats = AdMetricsService.getSellerListingStats;

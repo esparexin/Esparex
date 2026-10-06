@@ -24,14 +24,14 @@ import {
     deriveApprovalStatus,
     applyCatalogStatusFilter
 } from './shared';
-import { validateScreenSizeRelations } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
+import { validateScreenSizeRelations } from '@esparex/core';
 import {
     screenSizeCreateSchema,
     screenSizeUpdateSchema,
     serviceTypeCreateSchema,
     serviceTypeUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+} from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
 import {
     ServiceTypeModel,
     ScreenSizeModel,
@@ -41,7 +41,7 @@ import {
     checkServiceTypeDependencies,
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
-} from '@esparex/core/domains/catalog/application/services/CatalogReferenceService';
+} from '@esparex/core';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString } from './inputCoercion';
 

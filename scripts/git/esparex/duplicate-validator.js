@@ -94,6 +94,13 @@ function run(val) {
     'adminModeration.validator',
     'loadEnv',
     'mongoosePlugins',
+    // P1-10: model registry is imported for side effects via `import './models/registry'`
+    // in core/src/index.ts (mongoose model registration); the guard's import regex
+    // does not detect bare side-effect imports in barrel context.
+    'registry',
+    // P1-10: listings application barrel is referenced by tests via jest.mock
+    // (moduleNameMapper); prod code uses the root barrel instead.
+    'application',
     // Phase 2a (P1-1) @deprecated re-export shims — intentionally unreferenced;
     // deleted in Phase 4 (DECISION-GATE §4). Remove from allowlist on deletion.
     'MobileBottomNav',

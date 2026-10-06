@@ -22,8 +22,6 @@ export interface DeadLetterQueueJobData {
     };
 }
 
-
-
 export const deadLetterQueue = shouldDisableQueueConnection
     ? createNoopQueue<DeadLetterQueueJobData>()
     : new Queue<DeadLetterQueueJobData>('dead-letter-events', {

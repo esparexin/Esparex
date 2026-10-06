@@ -13,7 +13,7 @@ import {
     updateGoogleAdPlacement,
     mutateGoogleAdPlacementStatus,
     deleteGoogleAdPlacement,
-} from "@esparex/core/services/GoogleAdsService";
+} from "@esparex/core";
 import {
     createGoogleAdPlacementSchema,
     updateGoogleAdPlacementSchema,

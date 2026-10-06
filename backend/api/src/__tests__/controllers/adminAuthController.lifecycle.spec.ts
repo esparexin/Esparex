@@ -72,7 +72,7 @@ jest.mock("../../utils/adminLogger", () => ({
 
 
 
-import Admin from "@esparex/core/models/Admin";
+import { Admin } from "@esparex/core";
 import { USER_STATUS } from "@esparex/contracts";
 import {
     revokeAdminSessionsForAdmin,
@@ -300,7 +300,7 @@ describe(
                 select: jest.fn().mockResolvedValue({ failedLoginAttempts: 2 }),
             });
 
-            const { comparePassword } = require("@esparex/core/utils/auth");
+            const { comparePassword } = require("@esparex/core");
             comparePassword.mockResolvedValueOnce(false);
 
             const req = {

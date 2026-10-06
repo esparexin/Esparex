@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
-import { emitReliabilityAlert } from '@esparex/core/utils/reliabilityAlerts';
-import { recordApiRequestSample } from '@esparex/core/utils/sloMonitor';
+import { logger } from '@esparex/core';
+import { env } from '@esparex/core';
+import { emitReliabilityAlert } from '@esparex/core';
+import { recordApiRequestSample } from '@esparex/core';
 import {
     recordApiUsageSignal,
     recordRepeatedFailureSignal
-} from '@esparex/core/utils/securityMonitoring';
+} from '@esparex/core';
 
 import {
     dbQueryDuration,
@@ -15,7 +15,7 @@ import {
     httpErrorsTotal,
     httpRequestDuration,
     reliabilityAlertsTotal
-} from '@esparex/core/utils/metrics';
+} from '@esparex/core';
 
 const ERROR_RATE_WINDOW_MS = 60_000;
 const ERROR_RATE_THRESHOLD = env.RELIABILITY_HIGH_ERROR_RATE_THRESHOLD ?? 0.15;

@@ -14,18 +14,18 @@ import {
     validateCategoryParentHierarchy,
     updateCategorySchemaById,
     clearCategoryCanonicalCache,
-} from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
+} from '@esparex/core';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { AppError } from '@esparex/core';
 import { sendSuccessResponse } from "../../../utils/respond";
-import type { ICategory } from '@esparex/core/models/Category';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import type { ICategory } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {
     categoryCreateSchema,
     categoryUpdateSchema,
     categorySchemaUpdateBodySchema
-} from '@esparex/core/validators/catalog.validator';
+} from '@esparex/core';
 import {
     sendCatalogError,
     QueryRecord,
@@ -37,7 +37,7 @@ import {
 } from './shared';
 import { categoryRepository } from './catalogPortRepositories';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import { getCache, setCache, CACHE_TTLS } from '@esparex/core';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.

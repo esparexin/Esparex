@@ -3,7 +3,7 @@
  * Seed write logic lives in the catalog domain (`CatalogSeedService.seedSpareParts`);
  * this module keeps the seed data and delegates. No direct model imports.
  */
-import { CatalogSeedService } from "@esparex/core/domains/catalog/application/services/CatalogSeedService";
+import { CatalogSeedService } from "@esparex/core";
 
 type SparePartSeed = {
     name: string;

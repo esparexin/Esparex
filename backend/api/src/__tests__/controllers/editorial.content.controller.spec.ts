@@ -10,7 +10,7 @@ import {
   findContentBySlug,
   upsertContentBySlug,
   getAllContent as fetchAllContent,
-} from '@esparex/core/services/PageContentService';
+} from '@esparex/core';
 import * as editorialController from '../../controllers/content/editorial.content.controller';
 
 const mockFindContentBySlug = findContentBySlug as jest.Mock;

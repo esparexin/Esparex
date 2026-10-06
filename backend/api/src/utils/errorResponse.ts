@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
-import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core/utils/errorHelpers';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core';
+import { AppError } from '@esparex/core';
 
 type ErrorResponseOptions = {
     code?: string;

@@ -13,7 +13,7 @@ import {
     bulkRejectCatalogRequestSchema,
     bulkMarkCatalogRequestDuplicateSchema,
     bulkDeleteCatalogRequestSchema,
-} from '@esparex/core/validators/catalogRequest.validator';
+} from '@esparex/core';
 import {
     getAdminCatalogRequests,
     getAdminCatalogRequestById,

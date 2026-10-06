@@ -6,8 +6,8 @@ jest.mock("@esparex/core/models/Business", () => ({
     },
 }));
 
-import Business from "@esparex/core/models/Business";
-import { getBusinessOverview } from "@esparex/core/services/adminBusiness/business";
+import { Business } from "@esparex/core";
+import { getBusinessOverview } from "@esparex/core";
 
 const mockBusiness = Business as any;
 

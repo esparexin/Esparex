@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { isDbReady } from "@esparex/core/config/db";
-import logger from "@esparex/core/utils/logger";
+import { isDbReady } from "@esparex/core";
+import { logger } from "@esparex/core";
 import { sendErrorResponse } from "../utils/errorResponse";
 
 /**

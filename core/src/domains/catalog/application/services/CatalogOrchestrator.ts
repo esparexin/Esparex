@@ -1,4 +1,5 @@
-import { Category, Brand } from '../..';
+import type { Category } from '../../ports/CategoryRepositoryPort';
+import type { Brand } from '../../ports/BrandRepositoryPort';
 
 // @todo ARCH-118: Transitional types until all consumers are migrated to strict domain models.
 export type CategoryResult = Category & Record<string, unknown>;
@@ -8,16 +9,15 @@ export type BrandResult = Brand & Record<string, unknown>;
 import logger from '../../../../utils/logger';
 import { isDuplicateKeyError } from '../../../../utils/errorHelpers';
 import { AppError } from '../../../../shared-kernel/errors/AppError';
-import { 
+import {
     CatalogUnitOfWorkPort,
-    TransactionContext,
-    CatalogCachePort,
-    CategoryRepositoryPort, 
-    BrandRepositoryPort, 
-    ModelRepositoryPort, 
-    SparePartRepositoryPort,
-    ScreenSizeRepositoryPort
-} from '../..';
+    TransactionContext } from '../../ports/CatalogUnitOfWorkPort';
+import { CatalogCachePort } from '../../ports/CatalogCachePort';
+import { CategoryRepositoryPort } from '../../ports/CategoryRepositoryPort';
+import { BrandRepositoryPort } from '../../ports/BrandRepositoryPort';
+import { ModelRepositoryPort } from '../../ports/ModelRepositoryPort';
+import { SparePartRepositoryPort } from '../../ports/SparePartRepositoryPort';
+import { ScreenSizeRepositoryPort } from '../../ports/ScreenSizeRepositoryPort';
 
 // isDuplicateKeyError imported from errorHelpers (SSOT)
 

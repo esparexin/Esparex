@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { handlePaginatedContent } from "../../../utils/content-handler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
@@ -17,7 +17,7 @@ import {
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
-} from '@esparex/core/domains/catalog/application/services/CatalogSparePartService';
+} from '@esparex/core';
 // NOTE: resolveEquivalentActiveCategoryIds is intentionally NOT imported here.
 // It performs semantic category broadening for browse/search flows only.
 // Post Ad catalog queries must use exact category isolation — see getSparePartsPublic.
@@ -39,14 +39,14 @@ import {
 } from './shared';
 import { sparePartRepository } from './catalogPortRepositories';
 import { invalidateItemCatalogCache } from './shared';
-import { validateSparePartRelations } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
+import { validateSparePartRelations } from '@esparex/core';
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+} from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { getCache, setCache } from '@esparex/core';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString, toStringArray } from './inputCoercion';
 
