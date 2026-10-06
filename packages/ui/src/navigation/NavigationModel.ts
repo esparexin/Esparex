@@ -6,6 +6,8 @@ export type NavigationItem = {
   href: string;
   icon?: React.ElementType;
   disabled?: boolean;
+  /** Badge rendered on the item (e.g. unread count, pre-formatted by the caller) */
+  badge?: number | string;
   children?: NavigationItem[];
 };
 

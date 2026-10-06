@@ -1,4 +1,4 @@
-import { type ServiceType as CanonicalServiceType } from "@esparex/contracts";
+import { type ServiceType as CanonicalServiceType, type UpdateServiceTypeDTO } from "@esparex/contracts";
 import {
     createServiceType,
     deleteServiceType,
@@ -11,14 +11,13 @@ import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 
 export type { CanonicalServiceType };
 
-export interface ServiceType {
-    id: string;
-    name: string;
-    categoryId?: string;
-    categoryIds?: string[];
-    isActive: boolean;
-    createdAt?: string;
-}
+/**
+ * P1-9: the local `ServiceType` interface that shadowed the canonical contract
+ * type is deleted. This alias IS the canonical `@esparex/contracts`
+ * `ServiceType` — kept under its historic name so existing importers keep
+ * working.
+ */
+export type ServiceType = CanonicalServiceType;
 
 import { type AdminListPagination } from "@/hooks/useAdminCrudList";
 
@@ -43,7 +42,8 @@ export function useAdminServiceTypes(options?: {
     } = useAdminCatalogCollection<
         ServiceType,
         { search: string; categoryId: string; status: string },
-        ServiceTypeMutationPayload
+        ServiceTypeMutationPayload,
+        UpdateServiceTypeDTO
     >({
         initialFilters: { search: "", categoryId: "all", status: "all" },
         fetchList: getServiceTypes,

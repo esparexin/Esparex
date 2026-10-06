@@ -43,7 +43,12 @@ export const businessLocationSchema = z.object({
         z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
         z.literal(''),
     ]).optional(),
-    coordinates: coordinatesSchema,
+    // P1-9: optional at the API wire-contract level. The mobile client cannot
+    // capture coordinates in its registration flow; the response DTO
+    // (BusinessLocation.coordinates?) and the core service (normalizeLocation
+    // with requireLocationId: false) already tolerate their absence. Web still
+    // enforces location capture in its own form validation.
+    coordinates: coordinatesSchema.optional(),
 });
 
 export const businessDocumentsSchema = z.object({
@@ -77,9 +82,14 @@ export const BaseBusinessPayloadShape = {
         z.literal(''),
     ]).optional(),
     workingHours: z.unknown().optional(),
+    // P1-9: optional at the API wire-contract level. The mobile client has no
+    // shop-image upload step in its registration flow; the response DTO
+    // (Business.images?) and the core service (falls back to existing images)
+    // already tolerate absence. When provided, at least one image is required.
     images: z.array(z.string())
         .min(BUSINESS_LIMITS.IMAGES.MIN, BUSINESS_LIMITS.IMAGES.ERROR_MIN)
-        .max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX),
+        .max(BUSINESS_LIMITS.IMAGES.MAX, BUSINESS_LIMITS.IMAGES.ERROR_MAX)
+        .optional(),
     documents: businessDocumentsSchema
 };
 

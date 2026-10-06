@@ -1,28 +1,36 @@
+import type { CreateBusinessPayload, IdProofTypeValue } from '@esparex/contracts';
 import { BusinessFormState } from '../../domain/BusinessFormState';
 
-export interface CreateBusinessPayload {
-  name: string;
-  description?: string;
-  businessTypes: string[];
-  mobile: string;
-  email: string;
-  website?: string;
-  gstNumber?: string;
-  location: {
-    address: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-  };
-  documents: Array<{
-    type: 'id_proof' | 'business_proof' | 'certificate';
-    url: string;
-    idProofType?: string;
-  }>;
-}
-
+/**
+ * Maps the mobile business-registration form state onto the canonical
+ * `CreateBusinessPayload` contract (`@esparex/contracts`).
+ *
+ * P1-9: the local `CreateBusinessPayload` interface that shadowed the canonical
+ * contract type (with a divergent shape) is deleted. This mapper now targets
+ * the canonical shape:
+ * - `documents`: the form's typed `{type, url}` entries are partitioned into
+ *   the canonical `{idProofType, idProof[], businessProof[], certificates[]}`
+ *   shape the server validates.
+ * - `location`: mapped onto the canonical location shape. Coordinates are
+ *   optional at the wire-contract level (P1-9) — the mobile flow has no
+ *   location-capture step.
+ * - `images`: omitted — the mobile flow has no shop-image upload step
+ *   (optional at the wire-contract level, P1-9).
+ */
 export class CreateBusinessRequestMapper {
   static toPayload(state: BusinessFormState): CreateBusinessPayload {
+    const idProof = state.documents
+      .filter((doc) => doc.type === 'id_proof')
+      .map((doc) => doc.url);
+    const businessProof = state.documents
+      .filter((doc) => doc.type === 'business_proof')
+      .map((doc) => doc.url);
+    const certificates = state.documents
+      .filter((doc) => doc.type === 'certificate')
+      .map((doc) => doc.url);
+    const idProofType: IdProofTypeValue =
+      state.documents.find((doc) => doc.type === 'id_proof')?.idProofType ?? 'aadhaar';
+
     return {
       name: state.name.trim(),
       description: state.description.trim() || undefined,
@@ -37,11 +45,12 @@ export class CreateBusinessRequestMapper {
         state: state.state.trim() || undefined,
         pincode: state.pincode.trim() || undefined,
       },
-      documents: state.documents.map((doc) => ({
-        type: doc.type,
-        url: doc.url,
-        idProofType: doc.idProofType,
-      })),
+      documents: {
+        idProofType,
+        idProof,
+        businessProof,
+        ...(certificates.length > 0 ? { certificates } : {}),
+      },
     };
   }
 }

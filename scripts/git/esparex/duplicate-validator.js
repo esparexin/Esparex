@@ -94,6 +94,13 @@ function run(val) {
     'adminModeration.validator',
     'loadEnv',
     'mongoosePlugins',
+    // Phase 2a (P1-1) @deprecated re-export shims — intentionally unreferenced;
+    // deleted in Phase 4 (DECISION-GATE §4). Remove from allowlist on deletion.
+    'MobileBottomNav',
+    'MobileAccountBottomNav',
+    'LoginMobileStep',
+    'HeaderDesktopActions',
+    'MobileHeaderTopBar',
   ]);
 
   const orphans = [];
