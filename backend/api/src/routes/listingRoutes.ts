@@ -9,7 +9,7 @@ import * as statsController from "../controllers/listing/stats.controller";
 import { protect, extractUser } from "../middleware/authMiddleware";
 import { validateObjectId } from "../middleware/validateObjectId";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
-import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
+import { searchLimiter, mutationLimiter, phoneRevealLimiter } from "../middleware/rateLimiter";
 import { validateRequest } from "../middleware/validateRequest";
 import { updateAdSchema, createAdSchema } from "@esparex/core/validators/ad.validator";
 import { idempotencyMiddleware } from "../middleware/idempotency";
@@ -88,8 +88,8 @@ router.get("/:id", searchLimiter, extractUser, validateIdOrSlug('id'), getListin
 router.get("/:id/view", searchLimiter, validateObjectId, engagementController.incrementListingView);
 
 // GET /api/v1/listings/:id/phone
-// Reveal phone number (public with optional auth context)
-router.get("/:id/phone", searchLimiter, validateObjectId, extractUser, engagementController.getListingPhone);
+// Reveal phone number (public with optional auth context; purpose-built PII reveal limiter — P0-4)
+router.get("/:id/phone", phoneRevealLimiter, validateObjectId, extractUser, engagementController.getListingPhone);
 
 // PATCH /api/v1/listings/:id/edit
 // Strict edit with ownership validation (Standardized)
