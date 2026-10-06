@@ -1,7 +1,7 @@
-import { ListingExpiryService } from '../../services/lifecycle/ListingExpiryService';
+import { ListingExpiryService } from '../../domains/listings/application/lifecycle/ListingExpiryService';
 import { LISTING_STATUS, ACTOR_TYPE } from '@esparex/contracts';
 import { getStatusMatchCriteria } from '../../utils/statusQueryMapper';
-import { mutateStatusesBulk } from '../../services/lifecycle/StatusMutationService';
+import { mutateStatusesBulk } from '../../domains/listings/application/lifecycle/StatusMutationService';
 import { lifecycleEvents } from '../../events';
 
 jest.mock('../../composition/listings', () => {
@@ -18,7 +18,7 @@ jest.mock('../../composition/listings', () => {
     };
 });
 
-jest.mock('../../services/lifecycle/StatusMutationService', () => ({
+jest.mock('../../domains/listings/application/lifecycle/StatusMutationService', () => ({
     mutateStatusesBulk: jest.fn(),
 }));
 
