@@ -4,6 +4,7 @@ export * from './pipeline/EarlyExitCostControlPipeline';
 export * from './pipeline/ProviderFailoverManager';
 export * from './pipeline/Stage3Processor';
 export * from './pipeline/ImageModerationOrchestrator';
+export * from './pipeline/TextModerationService';
 export * from './policy/ModerationDecisionPolicy';
 export * from './diagnostics/ModerationFeatureFlags';
 export * from './diagnostics/ModerationMetricsCollector';

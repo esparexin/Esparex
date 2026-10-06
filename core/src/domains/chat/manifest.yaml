@@ -1,5 +1,9 @@
 id: chat
 name: Chat Domain
+# @deprecated (P1-5): empty shell merged into `communications`. The
+# `ChatRepositoryPort` canonical location is
+# `core/src/domains/communications/ports/ChatRepositoryPort.ts`.
+# This manifest and the shell files will be deleted in Phase 4 (DECISION-GATE §4).
 owner: marketplace
 business_owner: Marketplace
 technical_owner: Platform

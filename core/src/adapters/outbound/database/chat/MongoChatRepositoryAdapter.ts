@@ -4,18 +4,18 @@ import { ChatReport } from '../../../../models/ChatReport';
 import { ChatMessage } from '../../../../models/ChatMessage';
 import Ad from '../../../../models/Ad';
 import BlockedUser from '../../../../models/BlockedUser';
-import {
+import type {
     ChatRepositoryPort,
-    type ChatAdSummary,
-    type ChatConversationEntity,
-    type ChatMessageEntity,
-    type ChatReportEntity,
-    type CreateConversationData,
-    type CreateMessageData,
-    type CreateReportData,
-    type CreateSystemMessageData,
-    type PopulatedConv,
-} from '../../../../domains/chat';
+    ChatAdSummary,
+    ChatConversationEntity,
+    ChatMessageEntity,
+    ChatReportEntity,
+    CreateConversationData,
+    CreateMessageData,
+    CreateReportData,
+    CreateSystemMessageData,
+    PopulatedConv,
+} from '../../../../domains/communications/ports/ChatRepositoryPort';
 import { PAGE_SIZE_INBOX, PAGE_SIZE_MESSAGES } from '../../../../domains/communications/application/services/chat/ChatUtils';
 
 export class MongoChatRepositoryAdapter implements ChatRepositoryPort {

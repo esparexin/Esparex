@@ -6,3 +6,5 @@ export * from './application/services/chat/ChatConversationService';
 export * from './application/services/chat/ChatMessageService';
 export * from './application/services/chat/ChatReportService';
 export * from './application/services/chat/ChatUtils';
+export * from './ports/ChatAvailabilityPort';
+export * from './ports/ChatRepositoryPort';

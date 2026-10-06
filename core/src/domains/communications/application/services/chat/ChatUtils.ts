@@ -1,4 +1,5 @@
 import type { IConversationDTO } from "@esparex/contracts";
+import { containsPhoneNumber, maskPhoneNumbers } from "@esparex/shared";
 import { isListingChatClosed } from '../ChatAvailabilityService';
 import type { IChatAttachment } from '../../../../../models/ChatMessage';
 
@@ -14,6 +15,13 @@ export const DEFAULT_BLACKLIST: RegExp[] = [
     /advance.?payment/i,
 ];
 
+/**
+ * @deprecated Phone-number detection is owned by `@esparex/shared`
+ * (`detectPhoneNumbers` / `containsPhoneNumber` / `maskPhoneNumbers`, P1-7).
+ * This alias remains for import compatibility; it will be removed in Phase 4.
+ * NOTE: the legacy shared `/g`-flagged regex was stateful across `.test()`
+ * calls; the canonical primitive rebuilds the regex per call.
+ */
 export const PHONE_REGEX = /(\+?\d[\d\s\-().]{6,}\d)/g;
 export const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 export const URL_REGEX = /https?:\/\/\S+/gi;
@@ -41,15 +49,13 @@ export function computeRiskScore(text: string): number {
     const urlHits = (text.match(URL_REGEX) || []).length;
     if (urlHits >= 2) score += 0.3;
     if (urlHits >= 4) score += 0.2;
-    if (PHONE_REGEX.test(text)) score += 0.25;
+    if (containsPhoneNumber(text)) score += 0.25;
     if (DEFAULT_BLACKLIST.some((re) => re.test(text))) score += 0.4;
     return Math.min(score, 1);
 }
 
 export function maskSensitiveData(text: string): string {
-    return text
-        .replace(PHONE_REGEX, '[phone hidden]')
-        .replace(EMAIL_REGEX, '[email hidden]');
+    return maskPhoneNumbers(text).replace(EMAIL_REGEX, '[email hidden]');
 }
 
 export function isImageAttachment(attachment: IChatAttachment): boolean {
@@ -88,8 +94,7 @@ export function buildConversationPreview(text: string, attachments: IChatAttachm
     return snippet ? `${attachmentSummary} · ${snippet}` : attachmentSummary;
 }
 
-import type { PopulatedUser, PopulatedAd, PopulatedConv } from '../../../../chat/ports/ChatRepositoryPort';
-export type { PopulatedUser, PopulatedAd, PopulatedConv };
+import type { PopulatedUser, PopulatedAd, PopulatedConv } from '../../../ports/ChatRepositoryPort';
 
 export function normalizeNestedId(value?: { id?: string; _id?: unknown } | null): string {
     if (!value) return '';
