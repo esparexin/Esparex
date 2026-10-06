@@ -1,12 +1,11 @@
 /**
- * Service Types Seed
+ * Service Types Seed — thin caller (P1-8, DECISION-GATE §2/§5).
  * Seeds default service types for each device category.
  * Idempotent — safe to re-run; uses upsert by (name, categoryId).
+ * Write logic lives in the catalog domain (`CatalogSeedService.seedServiceTypes`);
+ * this module keeps the seed data and delegates. No direct model imports.
  */
-
-import Category from "@esparex/core/models/Category";
-import ServiceType from "@esparex/core/models/ServiceType";
-import logger from "@esparex/core/utils/logger";
+import { CatalogSeedService } from "@esparex/core/domains/catalog/application/services/CatalogSeedService";
 
 interface ServiceTypeEntry {
     name: string;
@@ -65,53 +64,5 @@ const SERVICE_TYPE_SEED_DATA: ServiceTypeEntry[] = [
 ];
 
 export async function seedServiceTypes() {
-    logger.info("🌱 Seeding service types...");
-
-    // Build a map: slugOrName → Category document
-    const uniqueNames = [...new Set(SERVICE_TYPE_SEED_DATA.map(e => e.categorySlugOrName))];
-    const categoryMap = new Map<string, string>(); // slugOrName → categoryId
-
-    for (const nameOrSlug of uniqueNames) {
-        const cat = await Category.findOne({
-            $or: [
-                { slug: { $regex: new RegExp(`^${nameOrSlug}$`, "i") } },
-                { name: { $regex: new RegExp(`^${nameOrSlug}$`, "i") } },
-            ],
-            isDeleted: { $ne: true },
-        }).select("_id name").lean();
-
-        if (cat) {
-            categoryMap.set(nameOrSlug, String(cat._id));
-            logger.info(`  ✓ Matched category "${nameOrSlug}" → ${cat._id}`);
-        } else {
-            logger.warn(`  ⚠ Category not found for "${nameOrSlug}" — skipping its service types`);
-        }
-    }
-
-    let created = 0;
-    let skipped = 0;
-
-    for (const entry of SERVICE_TYPE_SEED_DATA) {
-        const categoryId = categoryMap.get(entry.categorySlugOrName);
-        if (!categoryId) { skipped++; continue; }
-
-        const existing = await ServiceType.findOne({
-            name: { $regex: new RegExp(`^${entry.name}$`, "i") },
-            categoryIds: categoryId,
-        });
-
-        if (existing) {
-            skipped++;
-            continue;
-        }
-
-        await ServiceType.create({
-            name: entry.name,
-            categoryIds: [categoryId],
-            isActive: true,
-        });
-        created++;
-    }
-
-    logger.info(`✅ Service types seeded: ${created} created, ${skipped} skipped (already existed or category not found).`);
+    return CatalogSeedService.seedServiceTypes(SERVICE_TYPE_SEED_DATA);
 }

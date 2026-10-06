@@ -35,6 +35,7 @@ import {
     deriveApprovalStatus,
     sendValidationError
 } from './shared';
+import { categoryRepository } from './catalogPortRepositories';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 
@@ -254,11 +255,11 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, CategoryModel, {
+    return handleCatalogToggleStatus(req, res, categoryRepository, {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
         postOp: (item) => {
             clearCategoryCanonicalCache();
-            void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: [item._id] });
+            void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: [String(item._id ?? item.id)] });
         }
     });
 };

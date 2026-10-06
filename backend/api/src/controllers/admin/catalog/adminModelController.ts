@@ -8,6 +8,7 @@ import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBra
 import { validateBrandIsActive } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
 import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
 import { invalidateItemCatalogCache } from './shared';
+import { modelRepository } from './catalogPortRepositories';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, getActiveCategoryIds, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogDelete, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
@@ -89,7 +90,7 @@ export const getModelBySlug = async (req: Request, res: Response) => {
 };
 
 export const createModel = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, CatalogModel, modelCreateSchema, {
+    return handleCatalogCreate(req, res, modelRepository, modelCreateSchema, {
         auditAction: 'MODEL_CREATE',
         preOp: async (payload) => {
             const brandId = toOptionalString(payload.brandId);
@@ -115,7 +116,7 @@ export const createModel = async (req: Request, res: Response) => {
 };
 
 export const updateModel = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, CatalogModel, modelUpdateSchema, {
+    return handleCatalogUpdate(req, res, modelRepository, modelUpdateSchema, {
         auditAction: 'MODEL_RENAME',
         preUpdate: async (_id, payload, existingModel) => {
             const brandId = toOptionalString(payload.brandId);
@@ -142,19 +143,19 @@ export const updateModel = async (req: Request, res: Response) => {
 };
 
 export const toggleModelStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, CatalogModel, {
+    return handleCatalogToggleStatus(req, res, modelRepository, {
         auditAction: 'TOGGLE_MODEL_STATUS',
         postOp: invalidateItemCatalogCache,
     });
 };
 
 export const deleteModel = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, CatalogModel, checkModelDependencies, {
+    return handleCatalogDelete(req, res, modelRepository, checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
         postOp: invalidateItemCatalogCache,
     });
 };
 
-export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL', postOp: invalidateItemCatalogCache });
+export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, modelRepository, 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL', postOp: invalidateItemCatalogCache });
 
-export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: invalidateItemCatalogCache });
+export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, modelRepository, 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: invalidateItemCatalogCache });

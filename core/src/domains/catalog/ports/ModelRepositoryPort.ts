@@ -2,6 +2,7 @@ import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 export interface Model {
     readonly id: string;
+    readonly _id?: string;
     readonly name: string;
     readonly canonicalName: string;
     readonly slug: string;

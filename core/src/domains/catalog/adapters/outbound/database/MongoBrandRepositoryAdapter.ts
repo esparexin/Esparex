@@ -17,6 +17,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     private toDomain(doc: DbBrand): Brand {
         return {
             id: String(doc._id),
+            _id: String(doc._id),
             name: doc.name,
             canonicalName: doc.canonicalName,
             isActive: doc.isActive,
@@ -58,6 +59,21 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
         if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc !== null;
+    }
+
+    async create(data: Partial<Brand> | Record<string, unknown>, tx?: unknown): Promise<Brand> {
+        const payload: Record<string, unknown> = { ...data };
+        const docs = await BrandModel.create([payload], { session: tx as ClientSession | undefined });
+        const created = await BrandModel.findById(docs[0]._id).lean<DbBrand | null>();
+        if (!created) throw new Error('BrandRepositoryPort.create: created document not found');
+        return this.toDomain(created);
+    }
+
+    async update(id: string, data: Partial<Brand> | Record<string, unknown>, tx?: unknown): Promise<Brand | null> {
+        const query = BrandModel.findByIdAndUpdate(id, data as Record<string, unknown>, { new: true }).lean<DbBrand | null>();
+        if (tx) query.session(tx as ClientSession);
+        const doc = await query.exec();
+        return doc ? this.toDomain(doc) : null;
     }
 
     async updateCategoryIds(brandId: string, categoryIds: string[], tx?: unknown): Promise<boolean> {

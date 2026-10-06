@@ -37,6 +37,7 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
 } from './shared';
+import { sparePartRepository } from './catalogPortRepositories';
 import { invalidateItemCatalogCache } from './shared';
 import { validateSparePartRelations } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
 import {
@@ -249,7 +250,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, SparePartModel, sparePartCreateSchema, {
+    return handleCatalogCreate(req, res, sparePartRepository, sparePartCreateSchema, {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
@@ -283,7 +284,7 @@ export const createSparePart = async (req: Request, res: Response) => {
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
+    return handleCatalogUpdate(req, res, sparePartRepository, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
             if (payload.name) payload.slug = slugify(payload.name as string, { lower: true, strict: true });
@@ -319,7 +320,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
  * Toggle spare part status
  */
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, SparePartModel, {
+    return handleCatalogToggleStatus(req, res, sparePartRepository, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
         postOp: invalidateItemCatalogCache
     });
@@ -329,7 +330,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, SparePartModel, checkSparePartDependencies, {
+    return handleCatalogDelete(req, res, sparePartRepository, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
         postOp: invalidateItemCatalogCache
     });

@@ -7,6 +7,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { invalidateItemCatalogCache } from './shared';
+import { serviceTypeRepository, screenSizeRepository } from './catalogPortRepositories';
 import {
     sendCatalogError,
     QueryRecord,
@@ -122,7 +123,7 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
  * Create new service type
  */
 export const createServiceType = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
+    return handleCatalogCreate(req, res, serviceTypeRepository, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: (payload) => {
             payload.approvalStatus = deriveApprovalStatus({
@@ -140,7 +141,7 @@ export const createServiceType = async (req: Request, res: Response) => {
  * Update existing service type
  */
 export const updateServiceType = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
+    return handleCatalogUpdate(req, res, serviceTypeRepository, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: (id, payload) => {
             payload.approvalStatus = deriveApprovalStatus({
@@ -158,7 +159,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
  * Toggle service type active status
  */
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ServiceTypeModel, {
+    return handleCatalogToggleStatus(req, res, serviceTypeRepository, {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
         postOp: invalidateItemCatalogCache
     });
@@ -168,7 +169,7 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
  * Delete service type (soft delete with dependency check)
  */
 export const deleteServiceType = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ServiceTypeModel, checkServiceTypeDependencies, {
+    return handleCatalogDelete(req, res, serviceTypeRepository, checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
         postOp: invalidateItemCatalogCache
     });
@@ -272,7 +273,7 @@ export const getScreenSizeById = async (req: Request, res: Response) => {
  * Create new screen size
  */
 export const createScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ScreenSizeModel, screenSizeCreateSchema, {
+    return handleCatalogCreate(req, res, screenSizeRepository, screenSizeCreateSchema, {
         auditAction: 'SCREEN_SIZE_CREATE',
         preOp: async (payload) => {
             if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
@@ -298,7 +299,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
  * Update existing screen size
  */
 export const updateScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ScreenSizeModel, screenSizeUpdateSchema, {
+    return handleCatalogUpdate(req, res, screenSizeRepository, screenSizeUpdateSchema, {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
             if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
@@ -325,7 +326,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
  * Toggle screen size active status
  */
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ScreenSizeModel, {
+    return handleCatalogToggleStatus(req, res, screenSizeRepository, {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
         postOp: invalidateItemCatalogCache
     });
@@ -335,7 +336,7 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ScreenSizeModel, undefined, {
+    return handleCatalogDelete(req, res, screenSizeRepository, undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
         postOp: invalidateItemCatalogCache
     });

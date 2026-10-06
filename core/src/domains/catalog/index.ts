@@ -17,3 +17,4 @@ export { CatalogCachePort, InvalidateCatalogCacheOptions } from './ports/Catalog
 export { Model, ModelRepositoryPort } from './ports/ModelRepositoryPort';
 export { SparePart, SparePartRepositoryPort } from './ports/SparePartRepositoryPort';
 export { ScreenSize, ScreenSizeBulkDeleteCriteria, ScreenSizeRepositoryPort } from './ports/ScreenSizeRepositoryPort';
+export { ServiceType, ServiceTypeRepositoryPort } from './ports/ServiceTypeRepositoryPort';

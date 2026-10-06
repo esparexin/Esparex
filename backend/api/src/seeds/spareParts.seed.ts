@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
-import SparePart from "@esparex/core/models/SparePart";
-import Category from "@esparex/core/models/Category";
-import slugify from "slugify";
-import logger from '@esparex/core/utils/logger';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import { LISTING_TYPE } from "@esparex/contracts";
+/**
+ * Spare-part seed — thin caller (P1-8, DECISION-GATE §2/§5).
+ * Seed write logic lives in the catalog domain (`CatalogSeedService.seedSpareParts`);
+ * this module keeps the seed data and delegates. No direct model imports.
+ */
+import { CatalogSeedService } from "@esparex/core/domains/catalog/application/services/CatalogSeedService";
+
 type SparePartSeed = {
     name: string;
     type: "PRIMARY" | "SECONDARY";
@@ -48,55 +48,5 @@ const SPARE_PARTS_SEED: SparePartSeed[] = [
 ];
 
 export async function seedSpareParts() {
-    logger.info("🌱 Seeding spare parts...");
-
-    for (const part of SPARE_PARTS_SEED) {
-        const slug = slugify(part.name, { lower: true });
-
-        // Resolve category IDs from slugs
-        const categoryIds = [];
-        for (const catSlug of part.categories) {
-            const cat = await Category.findOne({ slug: new RegExp(`^${escapeRegExp(catSlug)}$`, 'i') });
-            if (cat) {
-                categoryIds.push(cat._id);
-            }
-        }
-
-        if (categoryIds.length === 0) {
-            logger.warn(`❌ Skipping ${part.name}: No valid categories found`);
-            continue;
-        }
-
-        try {
-            await SparePart.findOneAndUpdate(
-                { slug },
-                {
-                    $set: {
-                        name: part.name,
-                        categoryIds,
-                        listingType: [LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART],
-                        isActive: true,
-                        isDeleted: false,
-                        usageCount: 0,
-                        sortOrder: 0,
-                        createdBy: new mongoose.Types.ObjectId() // system seed
-                    }
-                },
-                { upsert: true, new: true }
-            );
-            logger.info(`✅ Synced: ${part.name}`);
-        } catch (error: unknown) {
-            const duplicateKey = typeof error === 'object'
-                && error !== null
-                && 'code' in error
-                && (error as { code?: unknown }).code === 11000;
-            if (duplicateKey) {
-                logger.warn(`⚠️  Skipped (duplicate key): ${part.name}`);
-            } else {
-                logger.error(`❌ Error inserting ${part.name}:`, error);
-            }
-        }
-    }
-
-    logger.info("✅ Spare parts seeding completed");
+    return CatalogSeedService.seedSpareParts(SPARE_PARTS_SEED);
 }
