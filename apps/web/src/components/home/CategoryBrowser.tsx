@@ -4,7 +4,6 @@ import { getCategoryVisual } from "@/config/categoryVisuals";
 import type { CategoryVisual } from "@/config/categoryVisuals";
 import Link from "next/link";
 import type { Category } from "@esparex/contracts";
-import { motion } from "framer-motion";
 import { buildCategoryBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { cn } from "@/lib/utils";
 
@@ -15,21 +14,6 @@ interface CategoryBrowserProps {
 export function CategoryBrowser({ categories }: CategoryBrowserProps) {
     // Limit to exactly 10 categories to form a perfect 5x2 dashboard grid on mobile (and 1x10 row on desktop)
     const displayCategories = categories.length > 0 ? categories.slice(0, 10) : [];
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.05,
-            },
-        },
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 15 },
-        visible: { opacity: 1, y: 0 },
-    };
 
     return (
         <section
@@ -46,18 +30,14 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                 </div>
 
                 <div className="relative">
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
+                    <div
                         className="
                             grid grid-cols-5 gap-1.5
                             sm:flex sm:flex-wrap sm:items-center sm:justify-start sm:gap-2.5 md:gap-3.5
                             w-full
                         "
                     >
-                    {displayCategories.map((cat) => {
+                    {displayCategories.map((cat, index) => {
                         const slug = cat.slug?.toLowerCase();
 
                         const config: CategoryVisual = getCategoryVisual(slug || cat.name || "");
@@ -65,7 +45,11 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         const Icon = config.icon;
 
                         return (
-                            <motion.div key={cat.id} variants={itemVariants}>
+                            <div
+                                key={cat.id}
+                                className="animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
                                 <Link
                                     href={buildCategoryBrowseRoute(cat)}
                                     aria-label={`Browse ${cat.name}`}
@@ -96,10 +80,10 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                         {cat.name}
                                     </span>
                                 </Link>
-                            </motion.div>
+                            </div>
                         );
                     })}
-                </motion.div>
+                </div>
                 </div>
             </div>
         </section>
