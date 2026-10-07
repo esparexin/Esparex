@@ -15,7 +15,7 @@ export const DEFAULT_BLACKLIST: RegExp[] = [
     /advance.?payment/i,
 ];
 
-export const EMAIL_REGEX = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/g;
+export const EMAIL_REGEX = /[^\s@]+@[^\s@.]+(\.[^\s@.]+)*/g;
 export const URL_REGEX = /https?:\/\/\S+/gi;
 
 export function encodeHtmlEntities(raw: string): string {
