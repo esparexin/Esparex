@@ -76,10 +76,10 @@
     "vitest": "^4.0.16"
   },
   "browserslist": [
-    "chrome 109+",
-    "edge 109+",
-    "firefox 109+",
-    "safari 16+",
+    "chrome >= 109",
+    "edge >= 109",
+    "firefox >= 109",
+    "safari >= 16",
     "not dead"
   ]
 }
