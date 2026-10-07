@@ -62,7 +62,9 @@ function run(val) {
   let out = '';
   try {
     const depcruiseBin = path.join(ROOT, 'node_modules/.bin/depcruise');
-    const cmd = fs.existsSync(depcruiseBin) ? `"${depcruiseBin}"` : 'npx depcruise';
+    const depcruiseJs = path.join(ROOT, 'node_modules/dependency-cruiser/bin/dependency-cruiser.mjs');
+    // RC-1 fix: --no-bin-links environments lack .bin/ symlinks.
+    const cmd = fs.existsSync(depcruiseBin) ? `"${depcruiseBin}"` : fs.existsSync(depcruiseJs) ? `node "${depcruiseJs}"` : 'npx depcruise';
     out = execSync(`${cmd} --config .dependency-cruiser.js core backend/api apps/web/src apps/admin/src`, {
       cwd: ROOT,
       encoding: 'utf-8',

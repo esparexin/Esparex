@@ -35,8 +35,17 @@ function run(val) {
   let rawOut = '';
   let exitFailed = false;
 
+  // RC-1 fix: --no-bin-links environments lack .bin/ symlinks. Invoke tsx
+  // directly via node for resilience, falling back to npx.
+  const tsxBin = path.join(ROOT, 'node_modules/.bin/tsx');
+  const tsxJs = path.join(ROOT, 'node_modules/tsx/dist/cli.mjs');
+  const tsxCmd = fs.existsSync(tsxBin)
+    ? 'npx tsx'
+    : fs.existsSync(tsxJs)
+      ? `node "${tsxJs}"`
+      : 'npx tsx';
   try {
-    rawOut = execSync('npx tsx tooling/architecture/verify-architecture.ts', {
+    rawOut = execSync(`${tsxCmd} tooling/architecture/verify-architecture.ts`, {
       cwd: ROOT,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -59,10 +68,10 @@ function run(val) {
     return;
   }
 
-  checkViolations(val, lines, summary, exitFailed);
+  checkViolations(val, lines, summary, exitFailed, rawOut);
 }
 
-function checkViolations(val, lines, summary, exitFailed) {
+function checkViolations(val, lines, summary, exitFailed, rawOut) {
   const missingBarrels = baseline.baselines.missingPublicBarrels || [];
   const missingManifests = baseline.baselines.missingDomainManifests || [];
 
@@ -85,9 +94,20 @@ function checkViolations(val, lines, summary, exitFailed) {
     }
     val.error(`Architecture Platform Verification failed ratchet check (${newViolations.length} new violations detected)`);
   } else if (exitFailed || (summary && !summary.passed)) {
-    val.error(
-      `Architecture Platform Verification failed: score ${summary ? summary.score : 'unknown'}/100 is below the threshold of 90`
-    );
+    // RC-2 fix: Distinguish execution failure from score failure. The old message
+    // "score 100/100 is below threshold of 90" was paradoxical and hid the real
+    // cause (e.g., missing binary preventing script execution).
+    if (exitFailed) {
+      val.error(
+        `Architecture Platform Verification failed: verify-architecture.ts did not execute successfully. ` +
+        `Check that required binaries (tsx) are available. ` +
+        `Raw output: ${(rawOut || '').slice(0, 500)}`
+      );
+    } else {
+      val.error(
+        `Architecture Platform Verification failed: score ${summary ? summary.score : 'unknown'}/100 is below the threshold of 90`
+      );
+    }
   } else {
     const scoreText = summary ? `${summary.score}/100` : 'passed';
     val.info(`Architecture Platform Verification passed ratchet check (Score: ${scoreText})`);
