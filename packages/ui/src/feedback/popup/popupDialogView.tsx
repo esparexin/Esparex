@@ -38,7 +38,14 @@ export function PopupDialogView({
         <RadixDialog.Content
           style={zIndexStyle("popupContent")}
           className={joinClasses(
-            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
+            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-md rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
+            // F-A2: bound to the visual viewport (keyboard-aware) with an
+            // internal scroll region — the previous overflow-hidden with no
+            // max-height clipped action buttons irretrievably on short
+            // viewports. Safe-area bottom padding for home-indicator devices.
+            "max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))]",
+            "overflow-y-auto overscroll-contain",
+            "pb-[max(1.25rem,env(safe-area-inset-bottom))]",
             config.cardClass
           )}
           onInteractOutside={() => onClose()}

@@ -72,3 +72,5 @@ export * from "./layout/PageLayout";
 export * from "./navigation/NavigationModel";
 export * from "./navigation/BottomNavigation";
 export * from "./navigation/Pagination";
+export * from "./hooks/useVisualViewport";
+export * from "./feedback/useDialogFocusRestore";
