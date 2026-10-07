@@ -40,7 +40,15 @@ function getServerSnapshot(): string | null {
 export function CookieConsentBanner() {
     const pathname = usePathname();
     const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-    const hasAnyBottomNav = getMobileChromePolicy(pathname).hasAnyBottomNav;
+    const policy = getMobileChromePolicy(pathname);
+    const hasAnyBottomNav = policy.hasAnyBottomNav;
+
+    // Suppress the banner when a tall context action bar is present.
+    // The bar (~6-7rem) would overlap the banner's fixed offset.
+    // The banner will appear once the user navigates away from the detail page.
+    if (policy.showContextActionBar) {
+        return null;
+    }
 
     const visible = consent === null;
 
