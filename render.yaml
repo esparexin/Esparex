@@ -115,11 +115,10 @@ services:
         sync: false
 
       # ── OTP ─────────────────────────────────────────────────────────────────
-      # OTP_PROVIDER=test: testing OTP (123456) intentionally active for staging /
-      # pre-launch validation. For live production SMS delivery, configure sync: false
-      # or set to "msg91" in the Render dashboard once MSG91/DLT registration is active.
+      # OTP provider is managed in the Render dashboard (production runs msg91).
+      # sync: false keeps the blueprint from overwriting the dashboard value.
       - key: OTP_PROVIDER
-        value: test
+        sync: false
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false
 

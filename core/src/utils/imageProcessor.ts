@@ -4,11 +4,13 @@ import logger from './logger';
 import { env } from '../config/env';
 import { imageDomainRegistry } from "@esparex/contracts";
 
-let cached: typeof import('sharp') | undefined;
+import type { SharpConstructor } from 'sharp';
 
-async function getSharp(): Promise<typeof import('sharp')> {
+let cached: SharpConstructor | undefined;
+
+async function getSharp(): Promise<SharpConstructor> {
     if (!cached) {
-        cached = (await import('sharp')).default as typeof import('sharp');
+        cached = (await import('sharp')).default;
     }
     return cached;
 }
