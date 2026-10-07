@@ -48,6 +48,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                             <div
                                 key={cat.id}
                                 className="animate-fade-in-up"
+                                /* design-token-ignore: staggered entrance delay computed per index */
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <Link
