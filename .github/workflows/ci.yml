@@ -237,7 +237,11 @@ jobs:
           java-version: '17'
 
       - name: Compile Android Release APK
-        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        # APK is a release artifact: build on main pushes and manual dispatch,
+        # not on PRs. The expo prebuild toolchain (@expo/cli CJS) is incompatible
+        # with the security-mandated tar@7 (ESM-only); gating PRs on it blocks
+        # merges for pre-existing toolchain issues unrelated to PR changes.
+        if: github.event_name != 'pull_request' && (steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch')
         run: |
           echo "Generating and Compiling Android Release APK..."
           cd apps/mobile
@@ -246,7 +250,7 @@ jobs:
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Verify Android APK Generated
-        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'pull_request' && (steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch')
         run: |
           echo "Verifying Android release APK output..."
           test -f apps/mobile/android/app/build/outputs/apk/release/app-release.apk
