@@ -103,11 +103,10 @@ function run(val) {
     'application',
     // Phase 2a (P1-1) @deprecated re-export shims — intentionally unreferenced;
     // deleted in Phase 4 (DECISION-GATE §4). Remove from allowlist on deletion.
-    'MobileBottomNav',
+    // (MobileBottomNav, LoginMobileStep, HeaderDesktopActions, MobileHeaderTopBar
+    // deleted in Phase 4; MobileAccountBottomNav retained — still imported by
+    // navigation SSOT specs.)
     'MobileAccountBottomNav',
-    'LoginMobileStep',
-    'HeaderDesktopActions',
-    'MobileHeaderTopBar',
   ]);
 
   const orphans = [];
