@@ -8,7 +8,7 @@ interface BusinessRegistrationPromoProps {
 
 export function BusinessRegistrationPromo({ onRegister }: BusinessRegistrationPromoProps) {
   return (
-    <Card className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs max-w-2xl">
+    <Card className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm max-w-2xl">
       {/* Header */}
       <div className="flex items-start gap-3.5">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -48,7 +48,7 @@ export function BusinessRegistrationPromo({ onRegister }: BusinessRegistrationPr
       <div className="flex items-center justify-start pt-1 border-t border-border/40">
         <Button
           onClick={onRegister}
-          className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] cursor-pointer inline-flex items-center justify-center gap-2"
+          className="w-full sm:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-sm active:scale-[0.98] cursor-pointer inline-flex items-center justify-center gap-2"
         >
           <span>Start business registration</span>
           <ArrowRight className="h-4 w-4" />

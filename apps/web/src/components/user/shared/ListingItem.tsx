@@ -148,7 +148,7 @@ export function ListingItem({
         {detailHref ? (
           <Link
             href={detailHref}
-            className="min-w-0 hover:text-primary transition-colors cursor-pointer after:absolute after:inset-0 after:content-[''] after:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xs"
+            className="min-w-0 hover:text-primary transition-colors cursor-pointer after:absolute after:inset-0 after:content-[''] after:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
           >
             <h3 className="text-body font-semibold text-foreground leading-normal line-clamp-1">
               {title}

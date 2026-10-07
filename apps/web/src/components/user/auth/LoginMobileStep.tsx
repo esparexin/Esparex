@@ -56,7 +56,7 @@ export function LoginMobileStep({
               <FieldControl>
                 <div
                   className={cn(
-                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-colors shadow-xs overflow-hidden",
+                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-colors shadow-sm overflow-hidden",
                     "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
                     isValidMobile && "border-primary/80 ring-2 ring-primary/10"
                   )}

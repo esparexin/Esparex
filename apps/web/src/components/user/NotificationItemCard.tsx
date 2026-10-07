@@ -77,7 +77,7 @@ export function NotificationItemCard({
                 "data-[highlighted]:bg-muted/70",
                 notification.isRead
                     ? "bg-card hover:bg-muted/50 text-muted-foreground"
-                    : "bg-primary/5 hover:bg-primary/10 text-foreground border-primary/20 shadow-xs"
+                    : "bg-primary/5 hover:bg-primary/10 text-foreground border-primary/20 shadow-sm"
             )}
             onClick={() => onSelect(notification)}
             disabled={isProcessing}
@@ -85,12 +85,12 @@ export function NotificationItemCard({
         >
             <div
                 className={cn(
-                    "flex shrink-0 items-center justify-center rounded-xl border border-border bg-card shadow-xs transition-transform group-hover:scale-105",
+                    "flex shrink-0 items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-transform group-hover:scale-105",
                     "h-9 w-9 mt-0.5",
                     !notification.isRead && "border-primary/20 bg-background"
                 )}
             >
-                <Icon className={cn(meta.iconTone, "h-4.5 w-4.5")} />
+                <Icon className={cn(meta.iconTone, "h-[18px] w-[18px]")} />
             </div>
 
             <div className="min-w-0 flex-1 flex flex-col justify-center pr-2">

@@ -176,7 +176,7 @@ export function AdPlacementSlot({
       <aside
         role="region"
         aria-label="Sponsored Advertisement"
-        className={`w-full rounded-2xl overflow-hidden border border-border bg-card shadow-2xs group transition-all my-3 ${className}`}
+        className={`w-full rounded-2xl overflow-hidden border border-border bg-card shadow-sm group transition-all my-3 ${className}`}
       >
         <div className="flex items-center justify-between px-3 py-1.5 bg-muted/40 border-b border-border">
           <span className="text-tiny font-bold uppercase tracking-wider text-foreground-subtle">

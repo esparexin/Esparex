@@ -83,7 +83,7 @@ export function CatalogSlugPage({
             </div>
           </div>
         ) : (
-          <div className="rounded-[2rem] border border-dashed border-border bg-card px-6 py-16 text-center shadow-xs">
+          <div className="rounded-[2rem] border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
             <h2 className="text-h2 font-bold text-foreground">No live listings yet</h2>
             <p className="mx-auto mt-3 max-w-2xl text-body leading-6 text-muted-foreground">
               This {entity.replace("-", " ")} exists in the catalog, but there are no live public

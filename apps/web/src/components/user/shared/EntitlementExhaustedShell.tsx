@@ -23,7 +23,7 @@ export function EntitlementExhaustedShell({
 
   return (
     <div className="p-6 text-center space-y-6 max-w-md mx-auto my-auto">
-      <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center mx-auto text-amber-600 shadow-xs">
+      <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center mx-auto text-amber-600 shadow-sm">
         <AlertCircle className="w-8 h-8" />
       </div>
 

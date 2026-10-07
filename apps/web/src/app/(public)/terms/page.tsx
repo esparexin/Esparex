@@ -267,7 +267,7 @@ export default function TermsPage() {
                     </p>
                 </section>
 
-                <section className="p-5 rounded-2xl bg-card border border-border shadow-xs">
+                <section className="p-5 rounded-2xl bg-card border border-border shadow-sm">
                     <h2 className="text-h3 font-bold text-foreground mb-2">13. Grievance Redressal &amp; Nodal Contact</h2>
                     <p className="text-caption text-foreground-secondary mb-4">
                         For any complaints, report of rule violations, legal notices, or consumer grievances regarding the Platform, please contact our designated Grievance Officer:

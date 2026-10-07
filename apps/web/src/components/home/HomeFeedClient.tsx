@@ -232,7 +232,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                     disabled={isFetching}
                                     aria-label="Load more listings"
                                     aria-busy={isFetching}
-                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-sm hover:shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>

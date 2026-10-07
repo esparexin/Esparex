@@ -75,7 +75,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                 </nav>
 
                 {/* Profile Identity Card */}
-                <Card className="relative border border-border shadow-xs overflow-hidden rounded-2xl md:rounded-3xl bg-card">
+                <Card className="relative border border-border shadow-sm overflow-hidden rounded-2xl md:rounded-3xl bg-card">
                     {/* Share Profile Icon Button in Top Right */}
                     <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10">
                         <Button
@@ -85,7 +85,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             onClick={handleShare}
                             aria-label={copied ? "Link copied to clipboard" : "Share seller profile"}
                             title={copied ? "Link copied!" : "Share Profile"}
-                            className="size-8 sm:size-8.5 rounded-full bg-card/85 backdrop-blur-md border border-border/80 text-foreground hover:bg-card hover:text-primary transition-colors shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
+                            className="size-8 sm:size-[34px] rounded-full bg-card/85 backdrop-blur-md border border-border/80 text-foreground hover:bg-card hover:text-primary transition-colors shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             {copied ? <Check className="size-3.5 text-primary" /> : <Share2 className="size-3.5" />}
                         </Button>
@@ -115,7 +115,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                                     </div>
                                     {profile.user.isVerified && (
                                         <div
-                                            className="absolute -top-1 -right-1 z-10 size-5 sm:size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xs ring-2 ring-card"
+                                            className="absolute -top-1 -right-1 z-10 size-5 sm:size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm ring-2 ring-card"
                                             title="Verified Seller"
                                             aria-label="Verified Seller"
                                         >
@@ -155,7 +155,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                     </div>
 
                     {ads.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2.5 py-10 sm:py-14 text-center rounded-2xl border border-border bg-card shadow-xs">
+                        <div className="flex flex-col items-center justify-center gap-2.5 py-10 sm:py-14 text-center rounded-2xl border border-border bg-card shadow-sm">
                             <div className="size-10 sm:size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground"><LayoutGrid className="size-5 sm:size-6" /></div>
                             <div className="space-y-0.5">
                                 <p className="font-semibold text-foreground text-body-lg">No active listings</p>

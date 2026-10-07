@@ -111,7 +111,7 @@ export function BoostPlanDialog({
                 onClick={() => setActiveCategory("SPOTLIGHT")}
                 className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "SPOTLIGHT"
-                    ? "bg-card text-warning shadow-xs"
+                    ? "bg-card text-warning shadow-sm"
                     : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
@@ -131,7 +131,7 @@ export function BoostPlanDialog({
                 onClick={() => setActiveCategory("BOOST_AD")}
                 className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "BOOST_AD"
-                    ? "bg-card text-link shadow-xs"
+                    ? "bg-card text-link shadow-sm"
                     : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
@@ -212,7 +212,7 @@ export function BoostPlanDialog({
                   isAdExpired ||
                   (!isWalletCreditSelected && !selectedPlan)
                 }
-                className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
+                className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
                   isPromotionBlocked || isAdExpired
                     ? "bg-muted text-foreground-subtle cursor-not-allowed"
                     : activeCategory === "SPOTLIGHT"

@@ -179,7 +179,7 @@ export function EntitySearchCombobox<T>({
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
                     className={cn(
-                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
+                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
                         loading ? "pr-14" : "pr-9"
                     )}
                     role="combobox"
@@ -248,7 +248,7 @@ export function EntitySearchCombobox<T>({
                                              onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-2xs placeholder:font-normal placeholder:text-foreground-subtle"
+                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-sm placeholder:font-normal placeholder:text-foreground-subtle"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button

@@ -68,7 +68,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   if (validPayments.length === 0) {
     return (
-      <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center">
         <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground border border-border/60 mb-3.5">
           <FileText className="h-6 w-6 sm:h-7 sm:w-7" />
         </div>
@@ -77,7 +77,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
           <Button
             type="button"
             onClick={onBrowsePlans}
-            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
           >
             Browse Plans
           </Button>
@@ -88,7 +88,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   return (
     <>
-      <div className="bg-transparent sm:bg-surface rounded-none sm:rounded-xl p-0 sm:p-4 border-0 sm:border border-border/60 shadow-none sm:shadow-2xs space-y-3">
+      <div className="bg-transparent sm:bg-surface rounded-none sm:rounded-xl p-0 sm:p-4 border-0 sm:border border-border/60 shadow-none sm:shadow-sm space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between pb-1 sm:pb-0">
           <h4 className="text-body-lg font-semibold text-foreground flex items-center gap-2">
@@ -104,9 +104,9 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
         </div>
 
         {/* Single-Instance Responsive Table */}
-        <div className="overflow-x-auto relative rounded-xl border border-border/40 bg-card shadow-2xs">
+        <div className="overflow-x-auto relative rounded-xl border border-border/40 bg-card shadow-sm">
           <table className="w-full text-left text-caption">
-            <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
+            <thead className="sticky top-0 z-10 bg-surface shadow-sm">
               <tr className="border-b border-border/40 text-muted-foreground font-semibold text-tiny">
                 <th scope="col" className="py-2.5 px-3">Date</th>
                 <th scope="col" className="py-2.5 px-3">Order Description</th>

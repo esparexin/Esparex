@@ -67,7 +67,7 @@ export function HeaderTopBar({
         <button
           type="button"
           onClick={onOpenLocationSelector}
-          className="ml-auto flex items-center justify-end gap-1.5 flex-1 min-w-0 max-w-[180px] xs:max-w-[220px] sm:max-w-[260px] h-full text-right hover:text-primary transition-colors cursor-pointer group"
+          className="ml-auto flex items-center justify-end gap-1.5 flex-1 min-w-0 max-w-[180px] max-w-[220px] sm:max-w-[260px] h-full text-right hover:text-primary transition-colors cursor-pointer group"
           aria-label={`Current location: ${displayLocation}. Tap to change location.`}
         >
           <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />

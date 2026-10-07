@@ -74,7 +74,7 @@ export function ListingTitleField({ label, error, required = true, registerProps
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="pr-16 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                    className="pr-16 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-tiny font-normal tabular-nums",
@@ -106,7 +106,7 @@ export function ListingDescriptionField({ label = "Description", error, required
                         {...registerProps}
                         placeholder={placeholder}
                         maxLength={maxLength}
-                        className="min-h-[120px] pb-6 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle leading-relaxed border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
+                        className="min-h-[120px] pb-6 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle leading-relaxed border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none"
                     />
                     <span className={cn(
                         "pointer-events-none absolute right-3 bottom-2 text-tiny font-normal tabular-nums",
@@ -162,8 +162,8 @@ export function CategorySelectorGrid({
                         className={cn(
                             "flex flex-col items-center justify-center gap-1 h-[56px] sm:h-[60px] py-1 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border",
                             selected
-                                ? "bg-primary/10 border border-primary text-primary font-medium shadow-2xs"
-                                : "bg-card hover:bg-muted border-border text-foreground hover:border-border shadow-2xs",
+                                ? "bg-primary/10 border border-primary text-primary font-medium shadow-sm"
+                                : "bg-card hover:bg-muted border-border text-foreground hover:border-border shadow-sm",
                             disabled && !selected ? "opacity-40 cursor-not-allowed" : ""
                         )}
                     >

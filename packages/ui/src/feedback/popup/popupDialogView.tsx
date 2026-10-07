@@ -108,7 +108,7 @@ export function PopupDialogView({
                 type="button"
                 onClick={onClose}
                 className={joinClasses(
-                  "rounded-xl px-4 py-2 text-caption font-semibold transition-colors shadow-xs",
+                  "rounded-xl px-4 py-2 text-caption font-semibold transition-colors shadow-sm",
                   config.buttonClass
                 )}
               >

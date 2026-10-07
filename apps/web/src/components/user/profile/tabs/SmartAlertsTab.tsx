@@ -132,7 +132,7 @@ export function SmartAlertsTab({
                     type="button"
                     onClick={handleOpenCreateModal}
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-3 sm:px-4 rounded-xl shadow-xs gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption h-9 px-3 sm:px-4 rounded-xl shadow-sm gap-1.5 shrink-0 whitespace-nowrap cursor-pointer"
                 >
                     <Plus className="h-4 w-4" />
                     <span>Create Alert</span>

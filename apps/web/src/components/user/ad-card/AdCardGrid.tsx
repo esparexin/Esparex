@@ -65,12 +65,12 @@ export const AdCardGrid = memo(function AdCardGrid({
       handleCardClick={handleCardClick}
       handleKeyDown={handleKeyDown}
       className={cn(
-        "duration-200 border border-border bg-card text-card-foreground shadow-2xs transition-all hover:shadow-xs hover:border-border-hover",
+        "duration-200 border border-border bg-card text-card-foreground shadow-sm transition-all hover:shadow-sm hover:border-border-hover",
         responsiveCompactList
           ? "flex flex-row sm:flex-col items-stretch rounded-xl sm:rounded-2xl"
           : "flex flex-col rounded-2xl hover:-translate-y-0.5",
         isSpotlightAd(ad) &&
-          "ring-2 ring-amber-400/50 shadow-xs",
+          "ring-2 ring-amber-400/50 shadow-sm",
         className
       )}
     >

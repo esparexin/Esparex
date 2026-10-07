@@ -60,7 +60,7 @@ export function BrowseFiltersDrawerPanels({
                 className={cn(
                   "flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-caption font-medium transition-colors border min-h-[40px]",
                   isSelected
-                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-2xs"
+                    ? "bg-primary text-primary-foreground border-primary font-semibold shadow-sm"
                     : "border-border/80 bg-background text-foreground-secondary hover:bg-muted"
                 )}
               >

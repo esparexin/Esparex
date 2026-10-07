@@ -96,7 +96,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                             aria-selected={selectedStatus === status}
                             onClick={() => onStatusChange(status)}
                             className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${selectedStatus === status
-                                ? "bg-card text-foreground shadow-xs"
+                                ? "bg-card text-foreground shadow-sm"
                                 : "text-foreground-secondary hover:text-primary hover:bg-card/60"
                                 }`}
                         >

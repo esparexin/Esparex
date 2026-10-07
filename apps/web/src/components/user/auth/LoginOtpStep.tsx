@@ -122,7 +122,7 @@ export function LoginOtpStep({
                 <FieldControl>
                   <Input
                     placeholder="Enter your name"
-                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-xs"
+                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-sm"
                     disabled={isBlocked || isLocked}
                     autoComplete="name"
                     {...field}
@@ -176,7 +176,7 @@ export function LoginOtpStep({
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
+          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-sm flex items-center justify-center gap-1.5"
         >
           {isSendingOTP ? (
             <>

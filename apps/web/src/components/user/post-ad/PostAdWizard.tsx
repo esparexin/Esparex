@@ -119,7 +119,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               variant="primary"
               onClick={currentStep === 2 ? submitAd : nextStep}
               disabled={isButtonDisabled}
-              className="flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold h-11 text-body shadow-xs active:scale-[0.98]"
+              className="flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold h-11 text-body shadow-sm active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

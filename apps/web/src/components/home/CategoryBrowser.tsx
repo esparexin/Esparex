@@ -58,19 +58,19 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                         group flex flex-col items-center justify-center gap-1.5
                                         py-1.5 md:py-2 px-1.5 md:px-2.5 rounded-xl hover:bg-muted/80
                                         transition-all duration-200 active:scale-95
-                                        min-w-0 sm:w-20 md:w-22 cursor-pointer
+                                        min-w-0 sm:w-20 md:w-[88px] cursor-pointer
                                     "
                                 >
                                     <div
                                         className={cn(
-                                            "flex h-8.5 w-8.5 md:h-9.5 md:w-9.5 items-center justify-center rounded-xl transition-all duration-300 shadow-2xs border border-border/60",
+                                            "flex h-[34px] w-[34px] md:h-[38px] md:w-[38px] items-center justify-center rounded-xl transition-all duration-300 shadow-sm border border-border/60",
                                             config.bg || "bg-muted/40",
-                                            "group-hover:scale-105 group-hover:shadow-xs"
+                                            "group-hover:scale-105 group-hover:shadow-sm"
                                         )}
                                     >
                                         <Icon
                                             className={cn(
-                                                "h-4 w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 group-hover:scale-110",
+                                                "h-4 w-4 md:h-[18px] md:w-[18px] transition-transform duration-300 group-hover:scale-110",
                                                 config.color || "text-foreground-subtle"
                                             )}
                                             aria-hidden="true"

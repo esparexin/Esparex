@@ -31,7 +31,7 @@ export function BusinessSidebarCard({
     <div className="flex flex-col gap-3 sm:gap-4">
       {/* About & Credentials Card */}
       {hasAboutOrDetails ? (
-        <Card className="rounded-2xl border border-border shadow-xs bg-card">
+        <Card className="rounded-2xl border border-border shadow-sm bg-card">
           <CardHeader className="pb-1 pt-3 sm:pt-3.5 px-3.5 sm:px-5">
             <CardTitle className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider">
               About Business
@@ -67,7 +67,7 @@ export function BusinessSidebarCard({
       ) : null}
 
       {/* Store Location & Address */}
-      <Card className="rounded-2xl border border-border shadow-xs bg-card">
+      <Card className="rounded-2xl border border-border shadow-sm bg-card">
         <CardHeader className="pb-1 pt-3 sm:pt-3.5 px-3.5 sm:px-5">
           <CardTitle className="text-tiny font-bold text-foreground-subtle uppercase tracking-wider flex items-center gap-1.5">
             <MapPin className="size-3.5 text-foreground-subtle shrink-0" />

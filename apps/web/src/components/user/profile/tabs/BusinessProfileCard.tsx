@@ -34,11 +34,11 @@ export function BusinessProfileCard({
     onOpenClose,
 }: BusinessProfileCardProps) {
     return (
-        <Card className="rounded-2xl border border-border shadow-xs bg-card p-4">
+        <Card className="rounded-2xl border border-border shadow-sm bg-card p-4">
             {/* Business Identity Row */}
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-11 w-11 rounded-xl bg-muted border border-border shadow-xs flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="h-11 w-11 rounded-xl bg-muted border border-border shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                         {businessData.logo ? (
                             <img src={businessData.logo} alt={businessData.name} className="h-full w-full object-cover" />
                         ) : (

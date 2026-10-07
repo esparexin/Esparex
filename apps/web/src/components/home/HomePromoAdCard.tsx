@@ -8,7 +8,7 @@ export function HomePromoAdCard({ className }: { className?: string }) {
     return (
         <article
             className={cn(
-                "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/10 via-card to-card text-card-foreground shadow-2xs duration-200 transition-all hover:border-primary/50 hover:shadow-xs hover:-translate-y-0.5",
+                "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/10 via-card to-card text-card-foreground shadow-sm duration-200 transition-all hover:border-primary/50 hover:shadow-sm hover:-translate-y-0.5",
                 className
             )}
             aria-label="Sell on Esparex - Promotional Listing"
@@ -20,12 +20,12 @@ export function HomePromoAdCard({ className }: { className?: string }) {
                 <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-emerald-500/15 blur-lg" aria-hidden="true" />
 
                 {/* Badge without sparkle symbol */}
-                <div className="relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary text-primary-foreground shadow-xs mb-2">
+                <div className="relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-bold bg-primary text-primary-foreground shadow-sm mb-2">
                     <span>Sell on Esparex</span>
                 </div>
 
                 {/* Icon with subtle hover zoom */}
-                <div className="relative z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-card border border-primary/25 text-primary shadow-xs transition-transform duration-300 group-hover:scale-105">
+                <div className="relative z-10 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-card border border-primary/25 text-primary shadow-sm transition-transform duration-300 group-hover:scale-105">
                     <PlusCircle className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                 </div>
 
@@ -47,7 +47,7 @@ export function HomePromoAdCard({ className }: { className?: string }) {
 
                 <Link
                     href="/post-ad"
-                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold shadow-2xs transition-all active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center justify-center gap-1.5 w-full h-8 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold shadow-sm transition-all active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                     <span>Post Free Ad</span>
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

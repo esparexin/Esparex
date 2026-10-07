@@ -101,7 +101,7 @@ export function FileUploadCard({
                         </div>
                     )}
                     <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-black/60 via-transparent to-transparent p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-tiny font-bold text-white shadow-xs">
+                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-tiny font-bold text-white shadow-sm">
                             Attached
                         </span>
                         <Button
@@ -113,7 +113,7 @@ export function FileUploadCard({
                                 onRemove();
                             }}
                             aria-label={`Remove ${title}`}
-                            className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+                            className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-sm hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                         >
                             <X className="h-3.5 w-3.5 text-destructive" />
                         </Button>

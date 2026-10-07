@@ -23,7 +23,7 @@ export function LegalGrievanceCard() {
                     <a
                         href={`mailto:${LEGAL_GRIEVANCE_EMAIL}`}
                         aria-label={`Send grievance email to ${LEGAL_GRIEVANCE_EMAIL}`}
-                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                     >
                         {LEGAL_GRIEVANCE_EMAIL}
                     </a>
@@ -33,7 +33,7 @@ export function LegalGrievanceCard() {
                     <a
                         href={`mailto:${LEGAL_SUPPORT_EMAIL}`}
                         aria-label={`Send support email to ${LEGAL_SUPPORT_EMAIL}`}
-                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                     >
                         {LEGAL_SUPPORT_EMAIL}
                     </a>
@@ -43,7 +43,7 @@ export function LegalGrievanceCard() {
                     <a
                         href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`}
                         aria-label={`Call customer helpline at ${LEGAL_SUPPORT_PHONE}`}
-                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                        className="text-primary hover:underline font-semibold focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                     >
                         {LEGAL_SUPPORT_PHONE}
                     </a>

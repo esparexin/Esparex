@@ -53,7 +53,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
 
   if (isError) {
     return (
-      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-xs">
+      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-sm">
         <p className="text-body font-semibold text-destructive">Failed to load saved ads</p>
         <p className="text-caption text-destructive/80 mt-1">Please try refreshing the page.</p>
       </Card>
@@ -64,21 +64,21 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
-        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center">
           <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 dark:text-pink-400 border border-pink-500/20 mb-3.5">
             <Heart className="h-6 w-6 sm:h-7 sm:w-7 fill-pink-500/20" />
           </div>
           <h3 className="text-body-lg font-semibold text-foreground">No saved ads yet</h3>
           <Button
             onClick={() => navigateTo("browse")}
-            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
           >
             Explore Marketplace
           </Button>
         </Card>
       ) : (
         /* Saved Ads Compact List View */
-        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           {savedAds.map((ad) => {
             const detailHref = buildPublicListingDetailRoute({
               id: ad.id,
@@ -122,7 +122,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                   <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
                     <Link
                       href={detailHref}
-                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xs after:absolute after:inset-0 after:content-[''] after:z-10"
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm after:absolute after:inset-0 after:content-[''] after:z-10"
                     >
                       {ad.title}
                     </Link>

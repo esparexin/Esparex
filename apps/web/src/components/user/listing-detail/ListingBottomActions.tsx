@@ -248,7 +248,7 @@ export function ListingBottomActions({
                 aria-label="Chat with seller"
                 className="w-full h-11 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 active:scale-[0.98] text-primary-foreground font-semibold gap-1.5 shadow-md shadow-primary/10 transition-all text-caption sm:text-small"
               >
-                <MessageCircle className="h-4.5 w-4.5 shrink-0" />
+                <MessageCircle className="h-[18px] w-[18px] shrink-0" />
                 <span>Chat</span>
               </Button>
             ) : null}

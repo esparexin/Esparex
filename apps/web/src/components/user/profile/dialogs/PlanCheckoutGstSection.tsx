@@ -43,7 +43,7 @@ export function PlanCheckoutGstSection({
                         maxLength={15}
                         value={gstin}
                         onChange={(e) => onGstinChange(e.target.value.toUpperCase())}
-                        className="h-11 rounded-xl text-body-lg md:text-body bg-card border-border px-3.5 uppercase font-mono font-normal text-foreground placeholder:text-foreground-subtle placeholder:normal-case shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                        className="h-11 rounded-xl text-body-lg md:text-body bg-card border-border px-3.5 uppercase font-mono font-normal text-foreground placeholder:text-foreground-subtle placeholder:normal-case shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
                     />
                     {gstin && !isGstValid && (
                         <p className="text-caption font-medium text-destructive">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>

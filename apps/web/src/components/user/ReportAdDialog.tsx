@@ -174,7 +174,7 @@ export function ReportAdDialog({
                   if (additionalInfoError) setAdditionalInfoError(null);
                   if (globalError) setGlobalError(null);
                 }}
-                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-sm resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
               />
               <FormError message={additionalInfoError} />
             </div>

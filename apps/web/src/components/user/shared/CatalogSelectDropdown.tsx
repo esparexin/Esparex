@@ -55,7 +55,7 @@ export function CatalogSelectDropdown({
                         id={resolvedId}
                         aria-invalid={Boolean(error)}
                         className={cn(
-                            "h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-background shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
+                            "h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-background shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
                             error && "border-destructive ring-destructive/20",
                             disabled && "opacity-60 cursor-not-allowed"
                         )}

@@ -103,7 +103,7 @@ export function Header({
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
-      className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
+      className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-sm transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
@@ -130,7 +130,7 @@ export function Header({
             <Input
               id="header-desktop-search"
               aria-label="Search for mobiles, parts, services"
-              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-xl shadow-xs text-body-lg md:text-body"
+              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-xl shadow-sm text-body-lg md:text-body"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

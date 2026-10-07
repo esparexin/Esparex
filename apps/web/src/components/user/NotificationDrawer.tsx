@@ -107,7 +107,7 @@ export function NotificationDrawer({
               return (
                 <div
                   key={notification.id}
-                  className="relative overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-all"
+                  className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all"
                   onTouchStart={(e) => handleTouchStart(notification.id, e)}
                 >
                   {/* Swipe Action Background Layer */}
@@ -120,7 +120,7 @@ export function NotificationDrawer({
                           void onMarkRead(notification.id);
                           setSwipedId(null);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                         aria-label={`Mark notification as read: ${notification.title}`}
                       >
                         <CheckCheck className="h-4 w-4" />
@@ -134,7 +134,7 @@ export function NotificationDrawer({
                           void onDelete(notification.id);
                           setSwipedId(null);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20"
                         aria-label={`Delete notification: ${notification.title}`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function NotificationDrawer({
                       !notification.isRead ? "bg-primary/5" : "bg-card"
                     )}
                   >
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-xs">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-sm">
                       <Icon className={cn(meta.iconTone, "h-4 w-4")} />
                     </div>
 

@@ -150,7 +150,7 @@ export function ListingImagesField({
                                     disabled={disabled}
                                     onClick={handleOpenPicker}
                                     aria-label="Add more photos"
-                                    className="aspect-square flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card hover:bg-muted/40 hover:border-primary/50 text-foreground transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs"
+                                    className="aspect-square flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card hover:bg-muted/40 hover:border-primary/50 text-foreground transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm"
                                 >
                                     <Upload className="w-4 h-4 text-primary" />
                                     <span className="text-tiny font-semibold text-muted-foreground">+ Add</span>

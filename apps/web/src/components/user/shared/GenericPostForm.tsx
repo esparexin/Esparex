@@ -95,7 +95,7 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                                 form={formId}
                                 variant="primary"
                                 disabled={isSubmitting}
-                                className="w-full h-11 rounded-xl font-semibold text-body transition-all active:scale-[0.98] shadow-xs"
+                                className="w-full h-11 rounded-xl font-semibold text-body transition-all active:scale-[0.98] shadow-sm"
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">

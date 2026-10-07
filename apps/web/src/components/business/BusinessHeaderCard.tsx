@@ -71,7 +71,7 @@ export function BusinessHeaderCard({
   const hasBothContactActions = Boolean((business.whatsappNumber || business.mobile) && business.mobile);
 
   return (
-    <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border shadow-xs bg-card">
+    <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border shadow-sm bg-card">
       {/* Cover Banner */}
       <div className="relative h-20 sm:h-32 md:h-40 w-full bg-gradient-to-r from-primary/15 via-emerald-500/10 to-teal-500/15 dark:from-primary/20 dark:to-muted border-b border-border/60 overflow-hidden">
         {hasValidCover && (
@@ -91,7 +91,7 @@ export function BusinessHeaderCard({
           variant="secondary"
           size="icon"
           onClick={handleShare}
-          className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 size-8.5 sm:size-9 rounded-full bg-card/85 hover:bg-card text-foreground backdrop-blur-md shadow-xs border border-border/60 transition-all cursor-pointer z-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 size-[34px] sm:size-9 rounded-full bg-card/85 hover:bg-card text-foreground backdrop-blur-md shadow-sm border border-border/60 transition-all cursor-pointer z-10 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label={copied ? "Link Copied!" : "Share Store"}
           title={copied ? "Link Copied!" : "Share Store"}
         >
@@ -124,7 +124,7 @@ export function BusinessHeaderCard({
 
             {/* Trust & Verification Icon on Avatar */}
             <span
-              className="absolute -bottom-1 -right-1 size-5 sm:size-6 rounded-full bg-card p-0.5 shadow-xs flex items-center justify-center ring-2 ring-card"
+              className="absolute -bottom-1 -right-1 size-5 sm:size-6 rounded-full bg-card p-0.5 shadow-sm flex items-center justify-center ring-2 ring-card"
               title={business.status === "live" ? "Verified Partner" : "Registered Store"}
               aria-label={`Verification status: ${business.status === "live" ? "Verified Partner" : "Registered Store"}`}
             >
@@ -178,7 +178,7 @@ export function BusinessHeaderCard({
             {business.whatsappNumber || business.mobile ? (
               <Button
                 asChild
-                className="h-10 sm:h-9.5 px-3 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2"
+                className="h-10 sm:h-[38px] px-3 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-caption font-semibold gap-1.5 shadow-sm cursor-pointer w-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2"
               >
                 <a
                   href={buildWhatsappHref(business.whatsappNumber || business.mobile!)}
@@ -195,7 +195,7 @@ export function BusinessHeaderCard({
             {business.mobile ? (
               <Button
                 asChild
-                className="h-10 sm:h-9.5 px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-2xs cursor-pointer w-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="h-10 sm:h-[38px] px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold gap-1.5 shadow-sm cursor-pointer w-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <a
                   href={`tel:${business.mobile}`}

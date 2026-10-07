@@ -57,7 +57,7 @@ export function BusinessCatalogTabs({
 
   if (tabs.length === 0) {
     return (
-      <Card className="rounded-2xl border-border shadow-xs bg-card">
+      <Card className="rounded-2xl border-border shadow-sm bg-card">
         <CardContent className="py-12 text-center text-caption text-foreground-subtle font-medium">
           This store does not have any live public listings yet.
         </CardContent>
@@ -105,7 +105,7 @@ export function BusinessCatalogTabs({
                   className={cn(
                     "flex-1 sm:flex-initial text-center px-3 sm:px-4 py-2 rounded-xl text-caption font-semibold transition-all whitespace-nowrap cursor-pointer select-none truncate focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
                     isActive
-                      ? "bg-card text-foreground shadow-xs border border-border font-bold"
+                      ? "bg-card text-foreground shadow-sm border border-border font-bold"
                       : "text-foreground-secondary hover:text-foreground hover:bg-muted/60"
                   )}
                 >
@@ -125,7 +125,7 @@ export function BusinessCatalogTabs({
               placeholder={`Search in ${activeTabLabel.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-8 pr-7 h-9 sm:h-9.5 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+              className="w-full pl-8 pr-7 h-9 sm:h-[38px] text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
               aria-label={`Search in ${activeTabLabel.toLowerCase()}`}
             />
             {query && (
@@ -154,12 +154,12 @@ export function BusinessCatalogTabs({
           </div>
         ) : effectiveActiveTab === "ads" && !query ? (
           <div className="flex items-center justify-center py-10 sm:py-14">
-            <Button asChild className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs cursor-pointer">
+            <Button asChild className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-sm cursor-pointer">
               <Link href="/post-ad">Post Free Ad</Link>
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center rounded-2xl border border-border bg-card shadow-xs">
+          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center rounded-2xl border border-border bg-card shadow-sm">
             <div className="size-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
               <LayoutGrid className="size-5" />
             </div>

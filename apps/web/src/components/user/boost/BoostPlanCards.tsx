@@ -36,8 +36,8 @@ export function WalletCreditCard({
       className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
         isSelected
           ? isSpotlight
-            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-xs"
-            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-xs"
+            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-sm"
+            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-sm"
           : isSpotlight
           ? "border-warning/20 bg-warning/5 hover:bg-warning/10"
           : "border-primary/20 bg-primary/5 hover:bg-primary/10"
@@ -56,9 +56,9 @@ export function WalletCreditCard({
           }`}
         >
           {isSpotlight ? (
-            <Sparkles className="h-4.5 w-4.5" />
+            <Sparkles className="h-[18px] w-[18px]" />
           ) : (
-            <Zap className="h-4.5 w-4.5" />
+            <Zap className="h-[18px] w-[18px]" />
           )}
         </div>
         <div>
@@ -124,8 +124,8 @@ export function CatalogPlanCard({
       className={`relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer select-none ${
         isSelected
           ? activeCategory === "SPOTLIGHT"
-            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-xs"
-            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-xs"
+            ? "border-warning/30 bg-warning/10 ring-2 ring-warning/20 shadow-sm"
+            : "border-primary/30 bg-primary/10 ring-2 ring-primary/20 shadow-sm"
           : "border-border bg-muted/50 hover:bg-muted"
       }`}
     >

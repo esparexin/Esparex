@@ -160,13 +160,13 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
         : "Not provided";
 
     return (
-        <Card className="rounded-2xl border border-border bg-card shadow-xs w-full overflow-hidden">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm w-full overflow-hidden">
             <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
                 <CardContent className="p-4 sm:p-5 pb-24 md:pb-5 space-y-4">
                     {/* Profile Photo Header with Hover Action Overlay */}
                     <div className="flex items-center gap-4 pb-3 border-b border-border">
                         <div className="relative group shrink-0">
-                            <div className="h-16 w-16 rounded-full border border-border overflow-hidden bg-card flex items-center justify-center relative shadow-xs">
+                            <div className="h-16 w-16 rounded-full border border-border overflow-hidden bg-card flex items-center justify-center relative shadow-sm">
                                 {previewPhoto ? (
                                     <Image src={previewPhoto} alt="Profile" fill priority unoptimized className="object-cover" sizes="64px" />
                                 ) : (
@@ -174,11 +174,11 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                                 )}
                             </div>
                             <div className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <button type="button" onClick={handleTriggerUpload} className="h-7 w-7 rounded-full bg-white/90 hover:bg-white text-foreground flex items-center justify-center transition-transform hover:scale-105 shadow-2xs" title="Upload photo" aria-label="Upload photo">
+                                <button type="button" onClick={handleTriggerUpload} className="h-7 w-7 rounded-full bg-white/90 hover:bg-white text-foreground flex items-center justify-center transition-transform hover:scale-105 shadow-sm" title="Upload photo" aria-label="Upload photo">
                                     <Camera className="h-3.5 w-3.5" />
                                 </button>
                                 {previewPhoto && (
-                                    <button type="button" onClick={handlePhotoDelete} className="h-7 w-7 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center justify-center transition-transform hover:scale-105 shadow-2xs" title="Remove photo" aria-label="Remove photo">
+                                    <button type="button" onClick={handlePhotoDelete} className="h-7 w-7 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center justify-center transition-transform hover:scale-105 shadow-sm" title="Remove photo" aria-label="Remove photo">
                                         <Trash2 className="h-3.5 w-3.5" />
                                     </button>
                                 )}
@@ -229,7 +229,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
 
                     {/* Responsive Save CTA: Sticky bottom above mobile nav on mobile, in-flow at card bottom on desktop */}
                     <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-md md:static md:bottom-auto md:z-auto md:p-0 md:bg-transparent md:border-t md:border-border md:shadow-none md:pt-4 flex items-center justify-end">
-                        <Button type="submit" size="sm" disabled={isSaving || !isFormDirty} className="w-full md:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0">
+                        <Button type="submit" size="sm" disabled={isSaving || !isFormDirty} className="w-full md:w-auto h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-body px-6 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center shrink-0">
                             {isSaving ? "Saving..." : "Save changes"}
                         </Button>
                     </div>

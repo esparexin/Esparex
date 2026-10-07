@@ -22,7 +22,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
     const config = {
         pending: {
             icon: <Clock className="w-4 h-4 text-warning shrink-0" />,
-            bg: "bg-warning/10 border-warning/20 shadow-xs",
+            bg: "bg-warning/10 border-warning/20 shadow-sm",
             title: "Application Pending Review",
             description: "Moderation team is verifying your business documents (24-48h).",
             actionLabel: "View Application",
@@ -30,7 +30,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
         },
         rejected: {
             icon: <XCircle className="w-4 h-4 text-destructive shrink-0" />,
-            bg: "bg-destructive/10 border-destructive/20 shadow-xs",
+            bg: "bg-destructive/10 border-destructive/20 shadow-sm",
             title: "Application Rejected",
             description: rejectionReason || "Application did not meet verification criteria. Please review and resubmit.",
             actionLabel: "Resubmit",
@@ -38,7 +38,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
         },
         suspended: {
             icon: <AlertTriangle className="w-4 h-4 text-warning shrink-0" />,
-            bg: "bg-warning/10 border-warning/20 shadow-xs",
+            bg: "bg-warning/10 border-warning/20 shadow-sm",
             title: "Account Suspended",
             description: "Your business account has been suspended. Contact support for assistance.",
             actionLabel: "Support",
@@ -71,7 +71,7 @@ export function BusinessStatusBanner({ status, rejectionReason, onAction }: Busi
                     onClick={onAction}
                     size="sm"
                     variant="ghost"
-                    className="h-8 px-2.5 text-caption font-medium rounded-lg bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-2xs flex items-center gap-1 shrink-0 group transition-all"
+                    className="h-8 px-2.5 text-caption font-medium rounded-lg bg-card/90 hover:bg-card text-foreground border border-border/80 shadow-sm flex items-center gap-1 shrink-0 group transition-all"
                 >
                     <span>{current.actionLabel}</span>
                     <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />

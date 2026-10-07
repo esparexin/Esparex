@@ -114,7 +114,7 @@ export function MultiBrandSearchSelect({
                     }
                 }}
                 className={cn(
-                    "flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-border bg-background px-3 py-1.5 shadow-2xs transition-all cursor-text",
+                    "flex min-h-[44px] w-full items-center gap-2 rounded-xl border border-border bg-background px-3 py-1.5 shadow-sm transition-all cursor-text",
                     isOpen && "ring-2 ring-primary/20 border-primary",
                     error && "border-destructive ring-destructive/20",
                     disabled && "cursor-not-allowed opacity-60 bg-muted/30"
@@ -149,7 +149,7 @@ export function MultiBrandSearchSelect({
                     {selectedBrandEntries.map((brand) => (
                         <span
                             key={brand.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary shadow-2xs"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary shadow-sm"
                         >
                             <span>{brand.name}</span>
                             {!disabled && (

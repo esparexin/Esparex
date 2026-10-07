@@ -69,7 +69,7 @@ export function ReportChatDialog({
             >
               <SelectTrigger
                 id="chat-report-reason"
-                className="w-full h-11 rounded-xl border border-border bg-card px-3 text-body-lg md:text-body text-foreground shadow-xs"
+                className="w-full h-11 rounded-xl border border-border bg-card px-3 text-body-lg md:text-body text-foreground shadow-sm"
               >
                 <SelectValue placeholder="Select reason" />
               </SelectTrigger>
@@ -87,7 +87,7 @@ export function ReportChatDialog({
             </Label>
             <Textarea
               id="chat-report-desc"
-              className="w-full min-h-[96px] rounded-xl border border-border bg-card p-3 text-body-lg md:text-body text-foreground shadow-xs focus-visible:ring-2 focus-visible:ring-primary/20 resize-none leading-relaxed"
+              className="w-full min-h-[96px] rounded-xl border border-border bg-card p-3 text-body-lg md:text-body text-foreground shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 resize-none leading-relaxed"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
               placeholder="Describe the issue..."

@@ -105,7 +105,7 @@ export function DeleteAccountDialog({
                             <SelectTrigger
                                 id="delete-account-reason"
                                 aria-invalid={!!deleteAccountErrors?.reason}
-                                className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs"
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-sm"
                             >
                                 <SelectValue placeholder="Select a reason" />
                             </SelectTrigger>
@@ -138,7 +138,7 @@ export function DeleteAccountDialog({
                             maxLength={500}
                             disabled={isLocked}
                             rows={2}
-                            className="min-h-[72px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-2.5 leading-snug focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
+                            className="min-h-[72px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-sm resize-none p-2.5 leading-snug focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
                             aria-invalid={!!deleteAccountErrors?.feedback}
                         />
                         <FormError message={deleteAccountErrors?.feedback} />
@@ -155,7 +155,7 @@ export function DeleteAccountDialog({
                             value={deleteConfirmText}
                             onChange={(e) => setDeleteConfirmText(e.target.value)}
                             disabled={isLocked}
-                            className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
+                            className="h-11 rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-sm focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:border-primary"
                             aria-invalid={!!deleteAccountErrors?.confirmText}
                             aria-describedby={deleteAccountErrors?.confirmText ? "delete-confirm-error" : undefined}
                         />
@@ -184,7 +184,7 @@ export function DeleteAccountDialog({
                         disabled={isLocked}
                         aria-busy={isDeleting}
                         size="sm"
-                        className="h-9 px-3.5 rounded-xl font-semibold text-caption shadow-xs"
+                        className="h-9 px-3.5 rounded-xl font-semibold text-caption shadow-sm"
                     >
                         {isDeleting ? (
                             <>

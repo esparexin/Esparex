@@ -41,7 +41,7 @@ export function DeliveryChannelsSelector({ value = [], onChange, error }: Delive
                                 onChange(next);
                             }}
                             className={cn(
-                                "flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-caption font-semibold transition-all border select-none cursor-pointer shadow-2xs",
+                                "flex items-center gap-1.5 h-9 px-3.5 rounded-xl text-caption font-semibold transition-all border select-none cursor-pointer shadow-sm",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                                 !ch.active
                                     ? "bg-muted/30 text-muted-foreground/50 border-border/40 cursor-not-allowed"

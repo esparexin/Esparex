@@ -124,14 +124,14 @@ export function CookieConsentBanner() {
                         <Button
                             variant="outline"
                             onClick={handleDecline}
-                            className="flex-1 md:flex-none h-10 md:h-9 px-4 text-body font-medium rounded-xl border-border bg-card hover:bg-muted/60 text-foreground transition-all shadow-2xs active:scale-[0.98]"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-4 text-body font-medium rounded-xl border-border bg-card hover:bg-muted/60 text-foreground transition-all shadow-sm active:scale-[0.98]"
                         >
                             Essential
                         </Button>
                         <Button
                             variant="primary"
                             onClick={handleAccept}
-                            className="flex-1 md:flex-none h-10 md:h-9 px-5 text-body font-semibold rounded-xl transition-all shadow-xs active:scale-[0.98]"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-5 text-body font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]"
                         >
                             Accept All
                         </Button>

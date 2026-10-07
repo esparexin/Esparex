@@ -41,8 +41,7 @@ const customTwMerge = extendTailwindMerge({
         "border-link-dark"
       ],
       shadow: [
-        "shadow-2xs",
-        "shadow-xs",
+        "shadow-sm",
         "shadow-premium",
         "shadow-subtle",
         "shadow-elevated"

@@ -106,7 +106,7 @@ export function MultiSelectCatalogDropdown({
                 aria-expanded={open}
                 aria-haspopup="listbox"
                 className={cn(
-                    "flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-left text-body-lg md:text-body font-normal text-foreground shadow-2xs transition-all",
+                    "flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 text-left text-body-lg md:text-body font-normal text-foreground shadow-sm transition-all",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
                     error && "border-destructive ring-destructive/20",
                     disabled && "cursor-not-allowed opacity-60"
@@ -128,7 +128,7 @@ export function MultiSelectCatalogDropdown({
                         return (
                             <span
                                 key={itemId}
-                                className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary shadow-2xs"
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-caption font-medium text-primary shadow-sm"
                             >
                                 <span>{item.name}</span>
                                 {!disabled && (
