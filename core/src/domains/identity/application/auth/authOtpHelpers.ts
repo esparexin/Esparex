@@ -16,6 +16,8 @@ export type AuthFailure = {
     status: number;
     error: string;
     code?: string;
+    /** Raw provider HTTP status (e.g. 403 from MSG91) when the failure came from the OTP provider. */
+    providerStatus?: number;
     attemptsLeft?: number;
     resendsLeft?: number;
     lockUntil?: string;
