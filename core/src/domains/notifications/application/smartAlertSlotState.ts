@@ -2,7 +2,7 @@ import { PLATFORM_QUOTAS } from '@esparex/contracts';
 import UserWallet from '../../../models/UserWallet';
 import Entitlement from '../../../models/Entitlement';
 
-export interface SmartAlertWalletSnapshot {
+interface SmartAlertWalletSnapshot {
     smartAlertSlots?: unknown;
     monthlyFreeAlertsUsed?: unknown;
 }

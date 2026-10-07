@@ -11,7 +11,7 @@ export const toLower = (value: unknown): string =>
 export const isListingLifecycleDomain = (domain: ValidDomain): boolean =>
     domain === 'ad' || domain === 'service' || domain === 'spare_part_listing';
 
-export const isModerationDeactivationAction = (metadata?: Record<string, unknown>): boolean => {
+const isModerationDeactivationAction = (metadata?: Record<string, unknown>): boolean => {
     const action = toLower(metadata?.action);
     return action === 'moderation_deactivate' || action === 'moderation_soft_delete';
 };

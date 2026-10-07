@@ -92,7 +92,7 @@ const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined 
 const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown } | null | undefined): mongoose.Types.ObjectId | undefined =>
     normalizeObjectId(business?.locationId || (typeof business?.location === 'object' && business?.location ? (business.location as { locationId?: unknown }).locationId : undefined));
 
-export const validateSparePartsForCategory = async (
+const validateSparePartsForCategory = async (
     sparePartIds: string[],
     categoryId: string
 ): Promise<Array<{ _id: unknown; name: unknown; brandId?: unknown }>> => {

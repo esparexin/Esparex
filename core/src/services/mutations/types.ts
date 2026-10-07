@@ -6,7 +6,7 @@ export interface MutationContext {
     adminId?: string;
 }
 
-export interface MutationConfig {
+interface MutationConfig {
     /** 
      * Explicit list of fields that are allowed to be mutated by users.
      * Any field not in this list will be stripped from the payload.
@@ -31,7 +31,7 @@ export interface MutationConfig {
     trackReviewVersion?: boolean;
 }
 
-export interface MutationHooks<T> {
+interface MutationHooks<T> {
     /**
      * Run before any mutations are applied.
      * Throw an AppError here to abort (e.g. ownership check failures).

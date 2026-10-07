@@ -45,38 +45,14 @@ export const createDuplicateError = (
     return err;
 };
 
-export const createVersionConflictError = (): DuplicateAwareError => {
-    const err = new AppError('Version conflict: Ad was modified by another process', 409, BusinessErrorCode.IDEMPOTENCY_CONFLICT) as DuplicateAwareError;
-    return err;
-};
 
-export const createBadRequestError = (
-    message: string,
-    code?: string
-): DuplicateAwareError => {
-    const err = new Error(message) as DuplicateAwareError;
-    err.code = code;
-    return err;
-};
 
 // ─────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────
 
-export const extractDocumentVersion = (value: unknown): number | undefined => {
-    if (typeof value === 'number' && value >= 0) return value;
-    return undefined;
-};
 
-export const isDuplicateFingerprintConflict = (error: unknown): boolean => {
-    const err = error as { code?: number; keyPattern?: Record<string, unknown>; keyValue?: Record<string, unknown>; message?: string };
-    return err?.code === 11000 && (!!err?.keyPattern?.duplicateFingerprint || !!err?.keyValue?.duplicateFingerprint || (typeof err?.message === 'string' && err.message.includes('duplicateFingerprint')));
-};
 
-export const isSeoSlugConflict = (error: unknown): boolean => {
-    const err = error as { code?: number; keyPattern?: Record<string, unknown>; keyValue?: Record<string, unknown>; message?: string };
-    return err?.code === 11000 && (!!err?.keyPattern?.seoSlug || !!err?.keyValue?.seoSlug || (typeof err?.message === 'string' && err.message.includes('seoSlug')));
-};
 
 // ─────────────────────────────────────────────────
 // RE-EXPORTS (Backward Compatibility)

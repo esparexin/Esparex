@@ -1,4 +1,4 @@
-export const LOCAL_REDIS_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+const LOCAL_REDIS_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
 
 export type RedisConfigSource = 'url' | 'discrete';
 
@@ -29,7 +29,7 @@ const trimRedisValue = (value: string | null | undefined): string | undefined =>
     return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const decodeRedisCredential = (value: string): string => {
+const decodeRedisCredential = (value: string): string => {
     try {
         return decodeURIComponent(value);
     } catch {

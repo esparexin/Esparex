@@ -58,7 +58,7 @@ const readyStateToLabel = (readyState: number): string => {
     }
 };
 
-export const probeConnection = async (conn: Connection | null, label: 'user' | 'admin'): Promise<DbConnectionHealth> => {
+const probeConnection = async (conn: Connection | null, label: 'user' | 'admin'): Promise<DbConnectionHealth> => {
     if (!conn) {
         dbConnectionStatus.labels(label).set(0);
         return {

@@ -127,4 +127,3 @@ export const getWorkerStatusProbe = async (): Promise<{
     };
 };
 
-export const getKnownWorkers = (): readonly string[] => knownWorkers;

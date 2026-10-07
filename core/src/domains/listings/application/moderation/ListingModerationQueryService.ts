@@ -223,7 +223,7 @@ _id: ModerationListingType;
 count: number;
 };
 
-export const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
+const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
 const match: Record<string, unknown> = {
     ...buildPublicAdFilter(),
 };

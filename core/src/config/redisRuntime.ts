@@ -1,4 +1,3 @@
-import type { ConnectionOptions as BullMqConnectionOptions } from 'bullmq';
 import type { RedisOptions } from 'ioredis';
 import { env } from './env';
 import {
@@ -68,6 +67,3 @@ export const getRedisConnectionOptions = (): RedisOptions => ({
     tls: redisRuntimeConfig.tlsEnabled ? {} : undefined,
 });
 
-export const getBullMqConnectionOptions = (): BullMqConnectionOptions => ({
-    ...getRedisConnectionOptions(),
-});

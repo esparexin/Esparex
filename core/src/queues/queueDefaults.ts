@@ -1,7 +1,7 @@
 import type { JobsOptions, Queue } from 'bullmq';
 
-export const QUEUE_DEFAULT_ATTEMPTS = 5;
-export const QUEUE_DEFAULT_BACKOFF_DELAY_MS = 2_000;
+const QUEUE_DEFAULT_ATTEMPTS = 5;
+const QUEUE_DEFAULT_BACKOFF_DELAY_MS = 2_000;
 
 const BASE_BACKOFF = {
     type: 'exponential' as const,

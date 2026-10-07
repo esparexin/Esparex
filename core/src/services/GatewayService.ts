@@ -2,7 +2,7 @@ import { getRazorpayClient } from '../config/razorpay';
 import { type ITransaction } from '../models/Transaction';
 import logger from '../utils/logger';
 
-export type RazorpayOrderLike = {
+type RazorpayOrderLike = {
     amount?: number;
     currency?: string;
     status?: string;

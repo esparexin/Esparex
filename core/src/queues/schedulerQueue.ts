@@ -138,5 +138,5 @@ export const closeSchedulerQueue = async () => {
     processorsRegistered = false;
 };
 
-export { shouldDisableSchedulerQueue, schedulerRepeatCrons };
+export { shouldDisableSchedulerQueue};
 export default schedulerQueue;
