@@ -445,7 +445,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
                 response: { status: number };
             };
             forbidden.response = { status: 403 };
-            (mockAxios.isAxiosError as unknown as jest.Mock).mockReturnValueOnce(true);
+            jest.mocked(mockAxios.isAxiosError).mockReturnValueOnce(true);
             mockAxios.post.mockRejectedValueOnce(forbidden);
 
             const result = await AuthService.sendLoginOtp(VALID_MOBILE);
