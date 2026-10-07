@@ -120,7 +120,7 @@ export function AdImageCarousel({
                         >
                             <Heart
                                 className={`h-4 w-4 transition-colors ${
-                                    isFavorited ? "fill-red-500 text-red-500" : "text-foreground"
+                                    isFavorited ? "fill-destructive text-destructive" : "text-foreground"
                                 }`}
                             />
                         </Button>

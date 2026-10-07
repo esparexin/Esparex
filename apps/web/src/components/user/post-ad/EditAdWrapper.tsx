@@ -70,7 +70,7 @@ export function EditAdWrapper({ children }: { children: React.ReactNode }) {
     if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
-                <div className="border border-red-200/80 bg-red-50/50 text-red-900 p-6 rounded-xl max-w-md w-full">
+                <div className="border border-destructive/20 bg-destructive/10 text-destructive p-6 rounded-xl max-w-md w-full">
                     <h3 className="font-semibold text-h4 mb-2">Error Loading Listing</h3>
                     <p className="text-body text-destructive">{error}</p>
                 </div>

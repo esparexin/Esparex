@@ -112,7 +112,7 @@ export function renderServiceItem(
         service.onsiteService !== undefined ? {
           label: service.onsiteService ? "On-site" : "Remote",
           icon: service.onsiteService ? <Home className="h-3 w-3" /> : <Wifi className="h-3 w-3" />,
-          className: service.onsiteService ? "text-green-600" : "text-muted-foreground"
+          className: service.onsiteService ? "text-success" : "text-muted-foreground"
         } : null,
         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
       ].filter((v): v is NonNullable<typeof v> => v != null))}
