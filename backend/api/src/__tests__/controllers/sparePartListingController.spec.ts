@@ -1,4 +1,4 @@
-jest.mock("@esparex/core/domains/listings/application/ad/ad/AdAggregationService", () => ({
+jest.mock("@esparex/core/domains/listings/application/ad/AdAggregationService", () => ({
     __esModule: true,
     getAds: jest.fn(),
 }));

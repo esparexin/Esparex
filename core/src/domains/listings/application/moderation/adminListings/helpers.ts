@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../../../../shared-kernel/errors/AppError';
-import { getAdForModerationById } from '../../../../../domains/listings/application/ad/ad/AdDetailService';
+import { getAdForModerationById } from '../../../../../domains/listings/application/ad/AdDetailService';
 import { isValidListingType } from '../ListingModerationQueryService';
 import { ACTOR_TYPE } from '@esparex/contracts';
 

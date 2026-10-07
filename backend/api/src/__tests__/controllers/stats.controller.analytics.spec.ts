@@ -8,7 +8,7 @@ jest.mock('@esparex/core/models/Ad', () => ({
     default: { index: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn(), aggregate: jest.fn() }
 }));
 
-jest.mock('@esparex/core/domains/listings/application/ad/ad/AdMetricsService');
+jest.mock('@esparex/core/domains/listings/application/ad/AdMetricsService');
 jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
     ListingExpiryService: {
         runSweep: jest.fn().mockResolvedValue(undefined),

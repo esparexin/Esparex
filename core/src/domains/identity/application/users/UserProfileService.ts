@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { userRepository } from '../../../../composition/identity';
 import { LISTING_STATUS, type SellerPublicUser, type SellerProfileServiceResult } from '@esparex/contracts';
-import * as AdAggregationService from '../../../../domains/listings/application/ad/ad/AdAggregationService';
+import * as AdAggregationService from '../../../../domains/listings/application/ad/AdAggregationService';
 import Ad from '../../../../models/Ad';
 import User from '../../../../models/User';
 import { buildPublicAdFilter } from '../../../../utils/FeedVisibilityGuard';

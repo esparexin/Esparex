@@ -1,18 +1,18 @@
-import { AppError } from '../../../../../shared-kernel/errors/AppError';
-import logger from '../../../../../utils/logger';
-import { getListingRepository, getListingUnitOfWork } from '../../../../../composition/listings';
-import { type Listing } from '../../../../../domains/listings';
-import { isValidObjectId } from '../../../../../utils/idUtils';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
+import logger from '../../../../utils/logger';
+import { getListingRepository, getListingUnitOfWork } from '../../../../composition/listings';
+import { type Listing } from '../../../../domains/listings';
+import { isValidObjectId } from '../../../../utils/idUtils';
 
 
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
-import { AdContext } from '../../../../../types/ad.types';
-import { generateUniqueSlugWithChecker } from '../../../../../utils/slugGenerator';
-import { AdCreationService } from '../AdCreationService';
-import { mutateStatus } from '../../../../../services/lifecycle/StatusMutationService';
-import { enqueueImageOptimization } from '../../../../../queues/imageQueue';
+import { AdContext } from '../../../../types/ad.types';
+import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
+import { AdCreationService } from './AdCreationService';
+import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
+import { enqueueImageOptimization } from '../../../../queues/imageQueue';
 
 export const updateAdLogic = async (
     adId: string,
@@ -42,7 +42,7 @@ export const updateAdLogic = async (
                 throw new AppError('Pending listings are view-only and cannot be edited', 400);
 
             if (context.actor === 'USER' && !context.allowSuspendedUser) {
-                const User = (await import('../../../../../models/User')).default;
+                const User = (await import('../../../../models/User')).default;
                 const user = await User.findById(context.authUserId).select('isSuspended').lean();
                 if ((user as { isSuspended?: boolean } | null)?.isSuspended)
                     throw Object.assign(new Error('Account suspended'), { statusCode: 403, code: 'ACCOUNT_SUSPENDED' });
@@ -163,10 +163,10 @@ export const updateAdLogic = async (
         if (oldPriceValue && updatedAdTyped.price < oldPriceValue) {
             void (async () => {
                 try {
-                    const SavedAd = (await import('../../../../../models/SavedAd')).default;
+                    const SavedAd = (await import('../../../../models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId }).select('userId').lean();
                     if (keepers.length > 0) {
-                        const { dispatchTemplatedNotification } = await import('../../../../notifications/application/NotificationService');
+                        const { dispatchTemplatedNotification } = await import('../../../notifications/application/NotificationService');
                         for (const keeper of keepers) {
                             await dispatchTemplatedNotification(
                                 String(keeper.userId),
@@ -189,7 +189,7 @@ export const updateAdLogic = async (
         if (removedImagesCache.length > 0) {
             void (async () => {
                 try {
-                    const { deleteFromS3Url } = await import('../../../../../utils/s3');
+                    const { deleteFromS3Url } = await import('../../../../utils/s3');
                     for (const url of removedImagesCache) {
                         await deleteFromS3Url(url).catch(e => logger.error(`Failed to delete orphaned image: ${url}`, e));
                     }

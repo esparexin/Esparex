@@ -106,7 +106,7 @@ jest.mock('../../queues/imageQueue', () => ({
 
 import Ad from '../../models/Ad';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
-import { updateAdLogic } from '../../domains/listings/application/ad/ad/AdUpdateService';
+import { updateAdLogic } from '../../domains/listings/application/ad/AdUpdateService';
 import { getListingRepository } from '../../composition/listings';
 
 const mockedAdModel = Ad as any;

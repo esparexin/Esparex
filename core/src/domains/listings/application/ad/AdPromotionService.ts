@@ -1,14 +1,14 @@
 import type { ClientSession } from 'mongoose';
-import { AppError } from '../../../../../shared-kernel/errors/AppError';
-import logger from '../../../../../utils/logger';
-import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
+import { AppError } from '../../../../shared-kernel/errors/AppError';
+import logger from '../../../../utils/logger';
+import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../composition/listings';
 import { LISTING_TYPE } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
-import { consumeCredit } from '../../../../payments/application/WalletService';
-import { isValidObjectId } from '../../../../../utils/idUtils';
+import { consumeCredit } from '../../../payments/application/WalletService';
+import { isValidObjectId } from '../../../../utils/idUtils';
 // Canonical boost-window math (boosts/shared) — the inline setDate math lost P0-1.
-import { computeBoostWindow } from '../../../../boosts/shared/computeBoostWindow';
+import { computeBoostWindow } from '../../../boosts/shared/computeBoostWindow';
 
 export interface PromoteAdParams {
     id: string;
@@ -31,8 +31,8 @@ export const promoteAdLogic = async (params: PromoteAdParams) => {
         userId,
         isAdmin = false
     } = params;
-    const Boost = (await import('../../../../../models/Boost')).default;
-    const User = (await import('../../../../../models/User')).default;
+    const Boost = (await import('../../../../models/Boost')).default;
+    const User = (await import('../../../../models/User')).default;
 
     if (!isValidObjectId(id)) throw new AppError('Invalid Ad ID', 400);
 

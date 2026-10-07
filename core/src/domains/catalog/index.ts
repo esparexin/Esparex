@@ -18,3 +18,12 @@ export { Model, ModelRepositoryPort } from './ports/ModelRepositoryPort';
 export { SparePart, SparePartRepositoryPort } from './ports/SparePartRepositoryPort';
 export { ScreenSize, ScreenSizeBulkDeleteCriteria, ScreenSizeRepositoryPort } from './ports/ScreenSizeRepositoryPort';
 export { ServiceType, ServiceTypeRepositoryPort } from './ports/ServiceTypeRepositoryPort';
+
+export {
+    IMarketplaceTrust,
+    IMarketplaceTrustBase,
+    marketplaceTrustDefinition,
+    marketplaceTrustBaseDefinition,
+    applyCatalogLifecycleFields,
+    catalogEntityToJsonTransform,
+} from './domain/catalogLifecycle';

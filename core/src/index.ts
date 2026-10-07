@@ -20,12 +20,12 @@ export * from './domains/catalog/application/services/CatalogSearchGovernanceSer
 export * from './domains/catalog/application/services/CatalogSeedService';
 export * from './domains/catalog/application/services/CatalogSparePartService';
 export * from './domains/catalog/application/services/CatalogValidationService';
-export * from './domains/listings/application/ad/ad/AdMetricsService';
+export * from './domains/listings/application/ad/AdMetricsService';
 export * from './domains/listings/application/ad/AdOrchestrator';
-export * from './domains/listings/application/ad/ad/_shared/adFilterHelpers';
+export * from './domains/listings/application/ad/_shared/adFilterHelpers';
 export * from './domains/listings/application/aggregation/adAggregation/pipeline';
 export * from './domains/listings/application/mutations/AdMutationService';
-export * as AdMetricsService from './domains/listings/application/ad/ad/AdMetricsService';
+export * as AdMetricsService from './domains/listings/application/ad/AdMetricsService';
 // ─── P1-10: identity/payments services ───
 export * from './domains/identity/application/users/UserStatusService';
 export * from './domains/payments/application/DashboardFacade';
@@ -36,9 +36,9 @@ export * as AdOrchestrator from './domains/listings/application/ad/AdOrchestrato
 export * as AdMutationService from './domains/listings/application/mutations/AdMutationService';
 export * as AdEngagementService from './domains/listings/application/ad/AdEngagementService';
 export * as CatalogRequestService from './domains/catalog/application/services/CatalogRequestService';
-export { getReportedAdsAggregation } from './domains/listings/application/ad/ad/AdDetailService';
-export * as AdAggregationService from './domains/listings/application/ad/ad/AdAggregationService';
-export * as AdDetailService from './domains/listings/application/ad/ad/AdDetailService';
+export { getReportedAdsAggregation } from './domains/listings/application/ad/AdDetailService';
+export * as AdAggregationService from './domains/listings/application/ad/AdAggregationService';
+export * as AdDetailService from './domains/listings/application/ad/AdDetailService';
 export * from './domains/listings/application/aggregation/adAggregation/metadata';
 export * from './domains/listings/application/saved/SavedAdService';
 

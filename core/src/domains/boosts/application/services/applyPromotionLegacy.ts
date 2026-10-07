@@ -20,7 +20,7 @@ export async function applyPromotionLegacy(params: {
     const { userId, listingId, entityType, promotionType, durationDays, isAdmin, legacySource } = params;
 
     if (legacySource === 'ad-mutation') {
-        const { promoteAdLogic } = await import('../../../listings/application/ad/ad/AdPromotionService');
+        const { promoteAdLogic } = await import('../../../listings/application/ad/AdPromotionService');
         await promoteAdLogic({
             id: listingId,
             userId,

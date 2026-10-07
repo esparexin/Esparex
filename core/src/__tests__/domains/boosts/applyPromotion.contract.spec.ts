@@ -86,7 +86,7 @@ jest.mock('../../../domains/payments/application/PromotionService', () => ({
 }));
 
 const mockLegacyPromoteAdLogic = jest.fn();
-jest.mock('../../../domains/listings/application/ad/ad/AdPromotionService', () => ({
+jest.mock('../../../domains/listings/application/ad/AdPromotionService', () => ({
     promoteAdLogic: (...args: unknown[]) => mockLegacyPromoteAdLogic(...args),
 }));
 

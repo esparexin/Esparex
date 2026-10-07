@@ -11,7 +11,7 @@ import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance'
 import {
   IMarketplaceTrust,
   marketplaceTrustDefinition,
-} from './catalogLifecycle'
+} from '../domains/catalog'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string

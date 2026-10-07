@@ -16,7 +16,7 @@ import {
     assessCrossUserDuplicateRisk,
     logDuplicateEvent
 } from './AdDuplicateService';
-import { validateSellerTypeThreshold } from './ad/AdPolicyService';
+import { validateSellerTypeThreshold } from './AdPolicyService';
 
 // ─────────────────────────────────────────────────
 // TYPES

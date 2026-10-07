@@ -23,7 +23,7 @@ jest.mock('@esparex/core/domains/listings/application', () => ({
     getOwnerListings: mockGetOwnerListings,
 }));
 
-jest.mock('@esparex/core/domains/listings/application/ad/ad/AdMetricsService', () => ({
+jest.mock('@esparex/core/domains/listings/application/ad/AdMetricsService', () => ({
     getSellerListingStats: jest.fn().mockResolvedValue({}),
     getListingStatusCountsForSeller: (...args: unknown[]) => mockGetListingStatusCounts(...args),
 }));

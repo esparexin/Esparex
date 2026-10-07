@@ -4,11 +4,11 @@ import { AdContext } from '../../../../types/ad.types';
 import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
 
 // Leaf Services
-import { updateAdLogic } from '../ad/ad/AdUpdateService';
-import type { PromoteAdParams } from '../ad/ad/AdPromotionService';
+import { updateAdLogic } from '../ad/AdUpdateService';
+import type { PromoteAdParams } from '../ad/AdPromotionService';
 import { applyPromotion } from '../../../boosts/application/services/ApplyPromotionService';
-import { repostAdLogic } from '../ad/ad/AdRepostService';
-import { assertOwnership } from '../ad/ad/AdPolicyService';
+import { repostAdLogic } from '../ad/AdRepostService';
+import { assertOwnership } from '../ad/AdPolicyService';
 
 // Re-export for backward compatibility
 export { assertOwnership };

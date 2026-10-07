@@ -8,7 +8,7 @@ import {
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 import { getUserConnection } from '../config/db';
-import { IMarketplaceTrust, marketplaceTrustDefinition } from './catalogLifecycle';
+import { IMarketplaceTrust, marketplaceTrustDefinition } from '../domains/catalog';
 
 export interface IVariant extends Document {
     name: string;

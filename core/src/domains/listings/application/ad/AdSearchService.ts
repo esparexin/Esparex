@@ -1,4 +1,4 @@
-import { getStatusMatchCriteria } from '../../../../../utils/statusQueryMapper';
+import { getStatusMatchCriteria } from '../../../../utils/statusQueryMapper';
 import {
     mongoose,
     Report,
@@ -41,7 +41,7 @@ export const buildAdMatchStage = async (
         if (cached && Array.isArray(cached)) {
             resolvedCategoryIds = cached;
         } else {
-            const { resolveCategoryWithSubcategoryIds } = await import('../../../../catalog/application/services/CatalogCategoryService');
+            const { resolveCategoryWithSubcategoryIds } = await import('../../../catalog/application/services/CatalogCategoryService');
             const hierarchy = await resolveCategoryWithSubcategoryIds(inputCategory);
             resolvedCategoryIds = hierarchy.categoryIds;
             if (resolvedCategoryIds.length > 0) {
