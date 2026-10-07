@@ -76,7 +76,8 @@ export function PopupDialogView({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground-subtle transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              // F-T1: 44px touch target (was h-8 w-8 = 32px)
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-foreground-subtle transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label="Dismiss notification"
             >
               <X className="h-4 w-4" />
@@ -98,7 +99,9 @@ export function PopupDialogView({
                       onClose();
                     }}
                     className={joinClasses(
-                      "rounded-xl px-4 py-2 text-caption font-semibold transition-colors",
+                      // F-T2/F-T5: 44px min-height (was ~34px) + focus-visible
+                      "rounded-xl px-4 py-2 min-h-11 text-caption font-semibold transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       isThrottled
                         ? "cursor-not-allowed bg-muted text-foreground-subtle"
                         : index === 0
@@ -115,7 +118,9 @@ export function PopupDialogView({
                 type="button"
                 onClick={onClose}
                 className={joinClasses(
-                  "rounded-xl px-4 py-2 text-caption font-semibold transition-colors shadow-sm",
+                  // F-T2/F-T5: 44px min-height + focus-visible
+                  "rounded-xl px-4 py-2 min-h-11 text-caption font-semibold transition-colors shadow-sm",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   config.buttonClass
                 )}
               >

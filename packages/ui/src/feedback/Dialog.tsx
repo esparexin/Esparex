@@ -164,12 +164,14 @@ const DialogContent = React.forwardRef<
       {!hideClose && (
         <RadixDialog.Close
           className={cn(
-            "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-sm opacity-70 ring-offset-background",
+            // F-T1: 44px touch target (was h-9 w-9 = 36px)
+            "absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-sm opacity-70 ring-offset-background",
             "transition-opacity hover:opacity-100",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:pointer-events-none",
             "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
           )}
+          aria-label="Close dialog"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
