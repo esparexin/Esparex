@@ -12,8 +12,8 @@ module.exports = {
     },
     {
       name: 'domain-cannot-import-infrastructure-or-adapters',
-      severity: 'error',
-      comment: 'Domain logic and ports must not depend on database adapters, infrastructure, or third-party drivers. DECISION-GATE C-7: widened to all of core/src/domains/ (was: domain|ports only). Existing violations are grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator).',
+      severity: 'warn',
+      comment: 'Domain logic and ports must not depend on database adapters, infrastructure, or third-party drivers. DECISION-GATE C-7: widened to all of core/src/domains/ (was: domain|ports only). Existing violations are grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator via repo:gate). Severity is warn here because the validator is the enforcing gate; depcruise reports for visibility.',
       from: { path: '^core/src/domains/' },
       to: {
         path: '(^core/src/adapters|^core/src/infrastructure|mongoose|express|ioredis|redis|cloudinary|razorpay)',
@@ -74,8 +74,8 @@ module.exports = {
     },
     {
       name: 'controllers-via-composition-facades',
-      severity: 'error',
-      comment: 'DECISION-GATE C-11: controllers must import core capabilities only via the @esparex/core root barrel (which carries the composition facades) or per-domain public barrels — never deep domain internals, services, or models. The single pre-existing deep import is grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator).',
+      severity: 'warn',
+      comment: 'DECISION-GATE C-11: controllers must import core capabilities only via the @esparex/core root barrel (which carries the composition facades) or per-domain public barrels — never deep domain internals, services, or models. The single pre-existing deep import is grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator via repo:gate). Severity is warn here because the validator is the enforcing gate; depcruise reports for visibility.',
       from: { path: '^backend/[^/]+/src/controllers' },
       to: {
         path: '(^core/src/domains/[^/]+/(domain|application|ports|adapters|mappers|classifiers|pipeline|policy|diagnostics)/|^core/src/services/|^core/src/models/)',
