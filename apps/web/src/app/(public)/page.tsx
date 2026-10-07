@@ -5,7 +5,6 @@ import type { Category } from "@esparex/contracts";
 
 import { getHomeAds } from "@/lib/api/user/listings";
 import {
-    buildFeedLocationIdentity,
     FEED_LOCATION_COOKIE_NAME,
     parseFeedLocationCookie,
 } from "@/lib/location/feedIdentity";
@@ -96,17 +95,6 @@ export default async function Home() {
             typeof ssrFeedLocation.lng === "number" &&
             !isRegionLocationLevel(ssrFeedLocation.level)
     );
-    const ssrLocationIdentity = buildFeedLocationIdentity(
-        {
-            locationId: ssrFeedLocation?.locationId,
-            city: ssrFeedLocation?.city,
-            level: ssrFeedLocation?.level,
-            latitude: ssrFeedLocation?.lat,
-            longitude: ssrFeedLocation?.lng,
-        },
-        ssrFeedLocation !== null
-    );
-
     const [categories, initialHomeAds] = await Promise.all([
         withTimeout(getHomeCategories(), 5000, []),
         withTimeout(
@@ -161,7 +149,7 @@ export default async function Home() {
                     <AdPlacementSlot placement="homepage_hero_top" />
                 </Container>
 
-                <HomeFeed initialData={initialHomeAds} initialLocationIdentity={ssrLocationIdentity} />
+                <HomeFeed initialData={initialHomeAds} />
 
                 {/* ui-guard-ignore: nested-container Sibling container wrappers for separate ad placement slots */}
                 <Container variant="lg">

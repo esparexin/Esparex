@@ -20,7 +20,6 @@ const HOME_FEED_PAGE_SIZE = 12;
 
 interface HomeFeedProps {
     initialData?: HomeAdsPayload;
-    initialLocationIdentity?: string;
 }
 
 function FeedSkeletonGrid() {
@@ -69,7 +68,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
  * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
  * Preserves the current grid across location updates; new results replace it only when ready.
  */
-export function HomeFeedClient({ initialData, initialLocationIdentity = "default" }: HomeFeedProps) {
+export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
@@ -124,8 +123,14 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
         };
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    // Reuse the SSR payload only when the client identity matches what the server rendered.
-    const shouldUseInitialData = !cursor && selectedType === "all" && locationIdentity === initialLocationIdentity;
+    // Reuse the SSR payload as the baseline whenever we're on the first page
+    // with the default filter. The location identity check was too strict: it
+    // discarded perfectly good SSR ads just because the client resolved a
+    // slightly different location, causing a visible flash (SSR ads → loading
+    // → refetched ads). The location-specific refetch still happens in the
+    // background via requestParams; keepPreviousData in the query hook ensures
+    // the SSR ads stay visible until the new data arrives.
+    const shouldUseInitialData = !cursor && selectedType === "all";
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
