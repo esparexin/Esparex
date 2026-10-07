@@ -88,8 +88,9 @@ export function MobileNavDrawer({
             </div>
 
             {isLoggedIn ? (
-              <div
-                className="flex items-center gap-3 cursor-pointer active:opacity-90 transition-opacity"
+              <button
+                type="button"
+                className="flex items-center gap-3 cursor-pointer active:opacity-90 transition-opacity w-full text-left"
                 onClick={() => {
                   void router.push('/account/profile');
                   close();
@@ -114,7 +115,7 @@ export function MobileNavDrawer({
                   <p className="font-bold text-body-lg text-white truncate">{user?.name}</p>
                   <p className="text-caption text-foreground-subtle mt-0.5">Edit profile</p>
                 </div>
-              </div>
+              </button>
             ) : (
               <div className="space-y-3">
                 <div>

@@ -20,6 +20,7 @@ export interface EntitySearchComboboxProps<T> {
     disabled?: boolean;
     isCustom?: boolean;
     className?: string;
+    id?: string;
     onSelect: (item: T) => void;
     onClear?: () => void;
     onSearchChange?: (search: string) => void;
@@ -42,6 +43,7 @@ export function EntitySearchCombobox<T>({
     disabled = false,
     isCustom = false,
     className,
+    id,
     autoFocus = false,
     onSelect,
     onClear,
@@ -162,6 +164,7 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
+                    id={id}
                     autoFocus={autoFocus && !isMobile}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
