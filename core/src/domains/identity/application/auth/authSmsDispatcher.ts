@@ -3,10 +3,20 @@ import logger from '../../../../utils/logger';
 import { env } from '../../../../config/env';
 import { isStaticOtpBypassEnabled } from './authOtpHelpers';
 
+export type OtpProviderErrorCode =
+    | 'OTP_PROVIDER_AUTH_REJECTED'
+    | 'OTP_PROVIDER_TIMEOUT'
+    | 'OTP_PROVIDER_ERROR';
+
 export interface ProviderDispatchResult {
     success: boolean;
     reqId?: string;
     error?: string;
+    /** Raw HTTP status returned by the provider (e.g. 403). Surfaced so provider
+     *  rejections are never collapsed into a generic 502 again. */
+    providerStatus?: number;
+    /** Stable machine-readable provider failure class. */
+    providerCode?: OtpProviderErrorCode;
 }
 
 export interface ProviderVerifyResult {
@@ -14,7 +24,39 @@ export interface ProviderVerifyResult {
     error?: string;
     isExpired?: boolean;
     isInvalid?: boolean;
+    providerStatus?: number;
+    providerCode?: OtpProviderErrorCode;
 }
+
+/**
+ * Classify a provider transport failure. MSG91 answers credential/throttle
+ * rejections with HTTP 401/403 (not the HTTP-200 AuthenticationFailure body),
+ * so those must map to OTP_PROVIDER_AUTH_REJECTED explicitly.
+ */
+const mapProviderDispatchError = (err: unknown): { providerStatus?: number; providerCode: OtpProviderErrorCode } => {
+    const providerStatus = axios.isAxiosError(err) ? err.response?.status : undefined;
+    if (providerStatus === 401 || providerStatus === 403) {
+        return { providerStatus, providerCode: 'OTP_PROVIDER_AUTH_REJECTED' };
+    }
+    const axiosCode = axios.isAxiosError(err) ? err.code : undefined;
+    const message = err instanceof Error ? err.message : String(err);
+    if (axiosCode === 'ECONNABORTED' || axiosCode === 'ETIMEDOUT' || /timeout/i.test(message)) {
+        return { providerStatus, providerCode: 'OTP_PROVIDER_TIMEOUT' };
+    }
+    return { providerStatus, providerCode: 'OTP_PROVIDER_ERROR' };
+};
+
+/**
+ * Classify a non-success provider body (HTTP 200 with type:"error").
+ * MSG91 returns {"type":"error","code":"201","message":"AuthenticationFailure"}
+ * for a bad/expired authkey.
+ */
+const mapProviderBodyError = (type?: string, message?: string): OtpProviderErrorCode => {
+    if (type === 'error' && /auth/i.test(message || '')) {
+        return 'OTP_PROVIDER_AUTH_REJECTED';
+    }
+    return 'OTP_PROVIDER_ERROR';
+};
 
 /**
  * Dispatch OTP via WhatsApp using MSG91 EsparexLogin OTP Widget API.
@@ -91,15 +133,19 @@ export const dispatchOtpWhatsApp = async (mobile: string): Promise<ProviderDispa
         });
         return {
             success: false,
-            error: responseData?.message || 'Failed to deliver OTP via WhatsApp.'
+            error: responseData?.message || 'Failed to deliver OTP via WhatsApp.',
+            providerStatus: response.status,
+            providerCode: mapProviderBodyError(responseData?.type, responseData?.message)
         };
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        const providerStatus = axios.isAxiosError(err) ? err.response?.status : undefined;
-        logger.error('WhatsApp OTP dispatch failed', { phone: mobile.slice(-4), error: message, providerStatus });
+        const { providerStatus, providerCode } = mapProviderDispatchError(err);
+        logger.error('WhatsApp OTP dispatch failed', { phone: mobile.slice(-4), error: message, providerStatus, providerCode });
         return {
             success: false,
-            error: 'Failed to deliver OTP via WhatsApp. Please try again.'
+            error: 'Failed to deliver OTP via WhatsApp. Please try again.',
+            providerStatus,
+            providerCode
         };
     }
 };
@@ -164,15 +210,19 @@ export const retryOtpWhatsApp = async (mobile: string, reqId?: string): Promise<
         });
         return {
             success: false,
-            error: responseData?.message || 'Failed to resend WhatsApp OTP.'
+            error: responseData?.message || 'Failed to resend WhatsApp OTP.',
+            providerStatus: response.status,
+            providerCode: mapProviderBodyError(responseData?.type, responseData?.message)
         };
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        const providerStatus = axios.isAxiosError(err) ? err.response?.status : undefined;
-        logger.error('WhatsApp OTP retry failed', { phone: mobile.slice(-4), error: message, providerStatus });
+        const { providerStatus, providerCode } = mapProviderDispatchError(err);
+        logger.error('WhatsApp OTP retry failed', { phone: mobile.slice(-4), error: message, providerStatus, providerCode });
         return {
             success: false,
-            error: 'Failed to resend WhatsApp OTP. Please try again.'
+            error: 'Failed to resend WhatsApp OTP. Please try again.',
+            providerStatus,
+            providerCode
         };
     }
 };
@@ -251,9 +301,12 @@ export const verifyOtpWithProvider = async (reqId: string, otp: string): Promise
         }
 
         logger.error('MSG91 server-side OTP verification request failed', { error: errMessage });
+        const { providerStatus, providerCode } = mapProviderDispatchError(err);
         return {
             success: false,
-            error: 'Server-side OTP verification failed. Please try again.'
+            error: 'Server-side OTP verification failed. Please try again.',
+            providerStatus,
+            providerCode
         };
     }
 };

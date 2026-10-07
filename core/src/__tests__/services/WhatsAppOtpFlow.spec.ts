@@ -418,7 +418,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
     });
 
     describe('4. Provider Failures & Resilience', () => {
-        it('should handle MSG91 delivery failure gracefully with 502 OTP_DELIVERY_FAILED', async () => {
+        it('should handle MSG91 delivery failure gracefully with 502 and a specific provider code', async () => {
             mockUserModel.findOne.mockResolvedValue(mockUserRecord);
             mockOtpModel.findOne.mockReturnValue({
                 sort: jest.fn().mockResolvedValue(null)
@@ -431,11 +431,34 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
             expect(result.success).toBe(false);
             if (!result.success) {
                 expect(result.status).toBe(502);
-                expect(result.code).toBe('OTP_DELIVERY_FAILED');
+                expect(result.code).toBe('OTP_PROVIDER_TIMEOUT');
             }
         });
 
-        it('should handle MSG91 verification service failure gracefully with 502 OTP_VERIFICATION_FAILED', async () => {
+        it('should surface MSG91 403 rejections as OTP_PROVIDER_AUTH_REJECTED (never a bare 502)', async () => {
+            mockUserModel.findOne.mockResolvedValue(mockUserRecord);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(null)
+            });
+
+            const forbidden = new Error('Request failed with status code 403') as Error & {
+                response: { status: number };
+            };
+            forbidden.response = { status: 403 };
+            jest.mocked(mockAxios.isAxiosError).mockReturnValueOnce(true);
+            mockAxios.post.mockRejectedValueOnce(forbidden);
+
+            const result = await AuthService.sendLoginOtp(VALID_MOBILE);
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.status).toBe(502);
+                expect(result.code).toBe('OTP_PROVIDER_AUTH_REJECTED');
+                expect(result.providerStatus).toBe(403);
+            }
+        });
+
+        it('should handle MSG91 verification service failure gracefully with 502 and a specific provider code', async () => {
             const activeOtp = {
                 _id: 'otp-id-whatsapp',
                 mobile: CANONICAL_MOBILE,
@@ -458,7 +481,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
             expect(result.success).toBe(false);
             if (!result.success) {
                 expect(result.status).toBe(502);
-                expect(result.code).toBe('OTP_VERIFICATION_FAILED');
+                expect(result.code).toBe('OTP_PROVIDER_ERROR');
             }
         });
     });
