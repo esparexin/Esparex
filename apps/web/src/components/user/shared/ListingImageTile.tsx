@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
 import { X } from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
@@ -77,7 +77,7 @@ export function ListingImageTile({
         "border-border"
       )}
     >
-      <Image
+      <SafeImage
         src={img.preview}
         alt={`Photo ${index + 1}`}
         fill

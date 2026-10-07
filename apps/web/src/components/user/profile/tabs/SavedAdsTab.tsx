@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/common/SafeImage";
 import Link from "next/link";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { unsaveAd, type SavedAd } from "@/lib/api/user/users";
@@ -100,7 +100,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
               >
                 {/* Left Thumbnail */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
-                  <Image
+                  <SafeImage
                     src={imageSrc}
                     alt={ad.title}
                     fill

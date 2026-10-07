@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/common/SafeImage";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalProfileSchema, type PersonalProfileValues, MOBILE_VISIBILITY } from "@esparex/contracts";
@@ -168,7 +168,7 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                         <div className="relative group shrink-0">
                             <div className="h-16 w-16 rounded-full border border-border overflow-hidden bg-card flex items-center justify-center relative shadow-sm">
                                 {previewPhoto ? (
-                                    <Image src={previewPhoto} alt="Profile" fill priority unoptimized className="object-cover" sizes="64px" />
+                                    <SafeImage src={previewPhoto} alt="Profile" fill priority unoptimized className="object-cover" sizes="64px" />
                                 ) : (
                                     <User className="h-8 w-8 text-foreground-subtle" />
                                 )}
@@ -178,9 +178,9 @@ export function PersonalTab({ user, onUpdateUser, onDirtyChange }: PersonalTabPr
                                     <Camera className="h-3.5 w-3.5" />
                                 </button>
                                 {previewPhoto && (
-                                    <button type="button" onClick={handlePhotoDelete} className="h-7 w-7 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 flex items-center justify-center transition-transform hover:scale-105 shadow-sm" title="Remove photo" aria-label="Remove photo">
+                                    <Button type="button" variant="destructive" size="icon" onClick={handlePhotoDelete} className="h-7 w-7 rounded-full shadow-sm" title="Remove photo" aria-label="Remove photo">
                                         <Trash2 className="h-3.5 w-3.5" />
-                                    </button>
+                                    </Button>
                                 )}
                             </div>
                         </div>
