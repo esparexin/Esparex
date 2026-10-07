@@ -55,7 +55,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("desktop")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "desktop" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "desktop" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Desktop view"
             >
@@ -65,7 +65,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("tablet")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "tablet" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "tablet" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Tablet view"
             >
@@ -75,7 +75,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("mobile")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "mobile" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "mobile" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Mobile view"
             >
@@ -87,7 +87,7 @@ export function AdPreviewSimulatorModal({
 
         <div className="p-4 bg-muted/30 rounded-2xl flex items-center justify-center min-h-[300px]">
           <div
-            className={`bg-card border border-border rounded-2xl p-4 shadow-xs transition-all text-center flex flex-col items-center justify-center gap-2 ${
+            className={`bg-card border border-border rounded-2xl p-4 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 ${
               previewDevice === "desktop"
                 ? "w-[480px] h-[260px]"
                 : previewDevice === "tablet"

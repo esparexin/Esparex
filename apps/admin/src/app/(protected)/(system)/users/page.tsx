@@ -232,23 +232,23 @@ export default function UsersPage() {
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-border bg-card px-2.5 py-1.5 shadow-xs transition hover:border-border/80">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-border bg-card px-2.5 py-1.5 shadow-sm transition hover:border-border/80">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
                             <p className="mt-0.5 text-body font-bold text-foreground">{formatStableNumber(overview.totalUsers)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-emerald-300">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-emerald-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
                             <p className="mt-0.5 text-body font-bold text-success">{formatStableNumber(overview.individuals)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-blue-300">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-blue-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
                             <p className="mt-0.5 text-body font-bold text-info">{formatStableNumber(overview.businesses)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-indigo-300">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-indigo-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
                             <p className="mt-0.5 text-body font-bold text-primary">{formatStableNumber(overview.verifiedBusinesses)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-red-300">
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-red-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
                             <p className="mt-0.5 text-body font-bold text-destructive">{formatStableNumber(overview.blockedUsers)}</p>
                         </Link>

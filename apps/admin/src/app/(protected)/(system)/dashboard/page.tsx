@@ -24,7 +24,7 @@ import { formatAppTime, formatStableNumber } from "@esparex/shared";
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
   loading: () => (
-    <div className="bg-card p-6 rounded-xl border border-border shadow-xs h-[400px] flex items-center justify-center">
+    <div className="bg-card p-6 rounded-xl border border-border shadow-sm h-[400px] flex items-center justify-center">
       <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
     </div>
   ),
@@ -292,7 +292,7 @@ export default function DashboardPage() {
 
         {/* Right Sidebar Column: Live Activity Audit Feed */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="bg-card border border-border rounded-xl p-4 shadow-xs flex flex-col gap-3">
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Live Activity</h3>

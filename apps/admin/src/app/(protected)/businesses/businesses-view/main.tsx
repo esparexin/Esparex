@@ -154,9 +154,9 @@ export default function BusinessesView() {
                             type="button"
                             key={key}
                             onClick={() => handleCardClick(key)}
-                            className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-xs text-left transition-all cursor-pointer ${
+                            className={`rounded-lg border px-2.5 py-1.5 flex items-center gap-2 shadow-sm text-left transition-all cursor-pointer ${
                                 isActive
-                                    ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-xs"
+                                    ? "bg-primary/10 border-primary/40 ring-2 ring-primary/20 shadow-sm"
                                     : "bg-card border-border hover:border-border/80 hover:bg-muted/40"
                             }`}
                         >
@@ -178,7 +178,7 @@ export default function BusinessesView() {
                                 { key: "warningNotSent", raw: rawWarningNotSent, label: "No Warning", c1: "amber" },
                             ].map(({ key, raw, label, c1 }) => (
                                 <button key={key} onClick={() => replaceQueryState({ [key]: raw === "true" ? null : "true", page: null, ...(key !== "expiringIn3Days" ? { [key === "warningSent" ? "warningNotSent" : "warningSent"]: null } : {}) })}
-                                    className={`px-3 py-2 border rounded-lg text-caption font-bold transition-all cursor-pointer ${raw === "true" ? `${COLOR_VARIANTS[c1]} shadow-xs` : "bg-card border-border text-foreground-secondary hover:bg-muted/50"}`}>
+                                    className={`px-3 py-2 border rounded-lg text-caption font-bold transition-all cursor-pointer ${raw === "true" ? `${COLOR_VARIANTS[c1]} shadow-sm` : "bg-card border-border text-foreground-secondary hover:bg-muted/50"}`}>
                                     {label}
                                 </button>
                             ))}

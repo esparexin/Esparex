@@ -142,7 +142,7 @@ export function NotificationSettings(props: SectionProps) {
         columns={2}
       />
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-xs space-y-4">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <Mail className="h-5 w-5 text-primary" />
           <h3 className="text-body font-bold text-foreground">SMTP Diagnostic Test</h3>

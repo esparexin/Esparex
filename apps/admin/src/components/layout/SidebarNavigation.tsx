@@ -53,7 +53,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                         "group relative flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200",
                                         isMinified ? "justify-center" : "justify-between",
                                         isActive
-                                            ? "bg-primary text-primary-foreground shadow-xs"
+                                            ? "bg-primary text-primary-foreground shadow-sm"
                                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                                     )}
                                 >

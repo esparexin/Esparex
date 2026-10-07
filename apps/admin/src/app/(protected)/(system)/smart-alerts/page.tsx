@@ -107,7 +107,7 @@ export default function SmartAlertsPage() {
                         <button 
                             onClick={() => activeView === 'logs' ? getLogs({ page, limit: 50 }) : getAlerts({ page, limit: 50 })}
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-3 py-1.5 text-body bg-card border border-border rounded-lg shadow-xs hover:bg-muted/50 transition-colors text-foreground-secondary font-medium cursor-pointer"
+                            className="flex items-center gap-2 px-3 py-1.5 text-body bg-card border border-border rounded-lg shadow-sm hover:bg-muted/50 transition-colors text-foreground-secondary font-medium cursor-pointer"
                         >
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-foreground-subtle' : 'text-foreground-tertiary'}`} />
                             Refresh
@@ -115,7 +115,7 @@ export default function SmartAlertsPage() {
                     </div>
                 </div>
 
-                <div className="bg-card rounded-xl shadow-xs border border-border overflow-hidden">
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-body text-left text-foreground-secondary">
                             <thead className="text-caption text-foreground-tertiary uppercase bg-muted/30 border-b border-border">
@@ -314,14 +314,14 @@ export default function SmartAlertsPage() {
                                 <button
                                     disabled={page === 1}
                                     onClick={() => { setPage(p => p - 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-sm hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     disabled={page === pagination.pages}
                                     onClick={() => { setPage(p => p + 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-sm hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Next
                                 </button>

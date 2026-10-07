@@ -131,7 +131,7 @@ export function NotificationHistory({
 
     return (
         <div className="space-y-4 lg:col-span-2">
-            <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
                 <h2 className="mb-4 flex items-center gap-2 text-body-lg font-bold text-foreground">
                     <HistoryIcon size={20} className="text-foreground-subtle" />
                     Delivery History

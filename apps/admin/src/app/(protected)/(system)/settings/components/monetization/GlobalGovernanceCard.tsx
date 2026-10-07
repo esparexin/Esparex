@@ -17,7 +17,7 @@ export function GlobalGovernanceCard({
   saving,
 }: GlobalGovernanceCardProps) {
   return (
-    <Stack gap="lg" className="rounded-2xl border border-border bg-card p-6 shadow-2xs">
+    <Stack gap="lg" className="rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
           <h3 className="text-body-lg font-bold text-foreground">Global Monetization Governance</h3>
@@ -29,7 +29,7 @@ export function GlobalGovernanceCard({
           type="button"
           onClick={() => void onSave()}
           disabled={saving}
-          className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-caption font-bold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-caption font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer"
         >
           {saving ? "Saving..." : "Save Settings"}
         </button>

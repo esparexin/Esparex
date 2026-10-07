@@ -69,7 +69,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
                     {filters ? (
                         <div
                             className={cn(
-                                "grid grid-cols-1 gap-4 items-center rounded-xl border border-border bg-card p-4 shadow-xs",
+                                "grid grid-cols-1 gap-4 items-center rounded-xl border border-border bg-card p-4 shadow-sm",
                                 filterLayoutClassName
                             )}
                         >

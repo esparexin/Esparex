@@ -37,7 +37,7 @@ export function AdminActionMenu({
         <DropdownMenu>
             <DropdownMenuTrigger
                 className={cn(
-                    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-foreground-secondary shadow-xs transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer",
+                    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-foreground-secondary shadow-sm transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer",
                     className
                 )}
                 aria-label={ariaLabel}
