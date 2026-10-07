@@ -1,6 +1,6 @@
 import type { EmailTemplateCustomization } from '@esparex/contracts';
 
-export type ModerationThresholds = {
+type ModerationThresholds = {
   scamDetection: number;
   inappropriateContent: number;
   spamDetection: number;

@@ -9,7 +9,7 @@ import {
     CatalogTextInputField,
 } from "@/components/catalog/primitives";
 
-export type LocationFormLevel = "state" | "city" | "area";
+type LocationFormLevel = "state" | "city" | "area";
 
 export type LocationFormData = {
     name: string;

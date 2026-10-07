@@ -26,7 +26,7 @@ export type PushRegistrationResult =
  *
  * Avoids exception-driven control flow inside ExpoPushNotificationService.
  */
-export type PushRegistrationFailure =
+type PushRegistrationFailure =
   | 'not-device'
   | 'permission-denied'
   | 'token-unavailable';

@@ -1,4 +1,4 @@
-export interface SmartAlertCriteria {
+interface SmartAlertCriteria {
   keywords?: string;
   category?: string;
   brand?: string;

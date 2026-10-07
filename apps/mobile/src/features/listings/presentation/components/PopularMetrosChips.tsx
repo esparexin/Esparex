@@ -4,7 +4,7 @@ import { AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { LocationMeta } from '@esparex/contracts';
 
-export const POPULAR_METROS: LocationMeta[] = [
+const POPULAR_METROS: LocationMeta[] = [
   { locationId: 'loc-hyd', city: 'Hyderabad', state: 'Telangana', display: 'Hyderabad, Telangana' },
   { locationId: 'loc-blr', city: 'Bengaluru', state: 'Karnataka', display: 'Bengaluru, Karnataka' },
   { locationId: 'loc-mum', city: 'Mumbai', state: 'Maharashtra', display: 'Mumbai, Maharashtra' },

@@ -9,7 +9,6 @@ import {
 } from "@/lib/api/serviceTypes";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 
-export type { CanonicalServiceType };
 
 /**
  * P1-9: the local `ServiceType` interface that shadowed the canonical contract

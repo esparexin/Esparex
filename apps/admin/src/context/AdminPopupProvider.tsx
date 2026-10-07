@@ -45,7 +45,7 @@ export function AdminPopupProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
-export function useAdminPopup() {
+function useAdminPopup() {
   const context = useContext(AdminPopupContext);
   if (!context) {
     throw new Error("useAdminPopup must be used within AdminPopupProvider");

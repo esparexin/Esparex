@@ -3,7 +3,7 @@ import { View, TouchableOpacity } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 
-export const TRENDING_KEYWORDS = [
+const TRENDING_KEYWORDS = [
   'iPhone 13 Screen',
   'MacBook Battery',
   'OLED Display',

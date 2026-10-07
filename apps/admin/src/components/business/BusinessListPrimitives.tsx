@@ -40,7 +40,7 @@ const STATUS_STYLES: Record<
     },
 };
 
-export function BusinessStatusBadge({
+function BusinessStatusBadge({
     status,
     glowForLive = false,
 }: {

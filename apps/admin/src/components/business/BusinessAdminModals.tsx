@@ -8,7 +8,7 @@ import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
 import { XCircle, Ban } from "@esparex/ui";
 import { Business } from "@esparex/contracts";
 
-export interface BusinessAdminModalController {
+interface BusinessAdminModalController {
     businesses: Business[];
     selectedBusiness: Business | null;
     rejectTarget: Business | null;

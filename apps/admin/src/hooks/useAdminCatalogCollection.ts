@@ -46,11 +46,11 @@ interface UseAdminCatalogCollectionOptions<
 
 import { AdminApiError } from "@/lib/api/adminClient";
 
-export function extractAdminApiErrorMessage(error: unknown, fallback: string): string {
+function extractAdminApiErrorMessage(error: unknown, fallback: string): string {
     return AdminApiError.resolveMessage(error, fallback);
 }
 
-export function buildAdminListQuery<F extends AdminCollectionFilters>(
+function buildAdminListQuery<F extends AdminCollectionFilters>(
     filters: F,
     pagination: { page: number; limit: number }
 ) {
@@ -70,7 +70,7 @@ export function buildAdminListQuery<F extends AdminCollectionFilters>(
     return query;
 }
 
-export async function fetchAdminCatalogPage<T, F extends AdminCollectionFilters>({
+async function fetchAdminCatalogPage<T, F extends AdminCollectionFilters>({
     filters,
     pagination,
     fetchList,

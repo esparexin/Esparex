@@ -11,7 +11,7 @@ const asString = (value: unknown): string | undefined => {
     return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const buildBusinessFallbackLocationDisplay = (location: unknown): string | undefined => {
+const buildBusinessFallbackLocationDisplay = (location: unknown): string | undefined => {
     if (!location || typeof location !== "object") return undefined;
     const record = location as Record<string, unknown>;
     const display = asString(record.display);
