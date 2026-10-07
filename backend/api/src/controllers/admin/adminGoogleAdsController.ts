@@ -49,11 +49,11 @@ export const createAdPlacement = async (req: Request, res: Response) => {
         }
 
         const placement = await createGoogleAdPlacement(validation.data);
-        await logAdminAction(req, "CREATE_GOOGLE_AD_PLACEMENT", "GoogleAdPlacement", placement.id, {
+        await logAdminAction({ req, action: "CREATE_GOOGLE_AD_PLACEMENT", targetType: "GoogleAdPlacement", targetId: placement.id, metadata: {
             placementKey: placement.placementKey,
             location: placement.location,
             format: placement.format,
-        });
+        }});
 
         sendSuccessResponse(res, placement, "Google Ad placement created successfully");
     } catch (error: unknown) {
@@ -72,10 +72,10 @@ export const updateAdPlacement = async (req: Request, res: Response) => {
         }
 
         const placement = await updateGoogleAdPlacement(id, validation.data);
-        await logAdminAction(req, "UPDATE_GOOGLE_AD_PLACEMENT", "GoogleAdPlacement", id, {
+        await logAdminAction({ req, action: "UPDATE_GOOGLE_AD_PLACEMENT", targetType: "GoogleAdPlacement", targetId: id, metadata: {
             placementKey: placement.placementKey,
             location: placement.location,
-        });
+        }});
 
         sendSuccessResponse(res, placement, "Google Ad placement updated successfully");
     } catch (error: unknown) {
@@ -91,7 +91,7 @@ export const mutateAdPlacementStatus = async (req: Request, res: Response) => {
         const { status } = mutateGoogleAdStatusSchema.parse(req.body);
 
         const placement = await mutateGoogleAdPlacementStatus(id, status);
-        await logAdminAction(req, "MUTATE_GOOGLE_AD_STATUS", "GoogleAdPlacement", id, { status });
+        await logAdminAction({ req, action: "MUTATE_GOOGLE_AD_STATUS", targetType: "GoogleAdPlacement", targetId: id, metadata: { status }});
 
         sendSuccessResponse(res, placement, `Google Ad placement ${status} successfully`);
     } catch (error: unknown) {
@@ -105,7 +105,7 @@ export const removeAdPlacement = async (req: Request, res: Response) => {
         if (!id) return;
 
         await deleteGoogleAdPlacement(id);
-        await logAdminAction(req, "DELETE_GOOGLE_AD_PLACEMENT", "GoogleAdPlacement", id, {});
+        await logAdminAction({ req, action: "DELETE_GOOGLE_AD_PLACEMENT", targetType: "GoogleAdPlacement", targetId: id, metadata: {}});
 
         sendSuccessResponse(res, { id }, "Google Ad placement deleted successfully");
     } catch (error: unknown) {

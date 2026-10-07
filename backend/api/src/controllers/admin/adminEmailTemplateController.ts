@@ -123,13 +123,13 @@ export const updateEmailTemplate = async (req: Request, res: Response) => {
         const nextCustomizations = [...existingCustomizations, updatedCustomization];
         await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getAdminUserId(req));
 
-        await logAdminAction(
+        await logAdminAction({
             req,
-            'UPDATE_EMAIL_TEMPLATE',
-            'Config',
-            `emailTemplates.${key}`,
-            { key, updates: parsed }
-        );
+            action: 'UPDATE_EMAIL_TEMPLATE',
+            targetType: 'Config',
+            targetId: `emailTemplates.${key}`,
+            metadata: { key, updates: parsed }
+        });
 
         const updatedTemplate = emailTemplateCatalogService.getTemplateByKey(key, nextCustomizations);
         sendSuccessResponse(res, updatedTemplate, 'Email template customized successfully');
@@ -155,13 +155,13 @@ export const resetEmailTemplate = async (req: Request, res: Response) => {
 
         await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getAdminUserId(req));
 
-        await logAdminAction(
+        await logAdminAction({
             req,
-            'RESET_EMAIL_TEMPLATE',
-            'Config',
-            `emailTemplates.${key}`,
-            { key }
-        );
+            action: 'RESET_EMAIL_TEMPLATE',
+            targetType: 'Config',
+            targetId: `emailTemplates.${key}`,
+            metadata: { key }
+        });
 
         const resetTemplate = emailTemplateCatalogService.getTemplateByKey(key, nextCustomizations);
         sendSuccessResponse(res, resetTemplate, 'Email template restored to system defaults');
@@ -201,13 +201,13 @@ export const sendTestEmailTemplate = async (req: Request, res: Response) => {
             return sendAdminError(req, res, `SMTP send failed: ${detail}`, 502);
         }
 
-        await logAdminAction(
+        await logAdminAction({
             req,
-            'SEND_TEST_EMAIL_TEMPLATE',
-            'Config',
-            `emailTemplates.${key}`,
-            { key, recipient: parsed.recipientEmail, messageId: result.messageId }
-        );
+            action: 'SEND_TEST_EMAIL_TEMPLATE',
+            targetType: 'Config',
+            targetId: `emailTemplates.${key}`,
+            metadata: { key, recipient: parsed.recipientEmail, messageId: result.messageId }
+        });
 
         sendSuccessResponse(
             res,

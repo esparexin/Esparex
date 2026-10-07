@@ -15,14 +15,6 @@ export const DEFAULT_BLACKLIST: RegExp[] = [
     /advance.?payment/i,
 ];
 
-/**
- * @deprecated Phone-number detection is owned by `@esparex/shared`
- * (`detectPhoneNumbers` / `containsPhoneNumber` / `maskPhoneNumbers`, P1-7).
- * This alias remains for import compatibility; it will be removed in Phase 4.
- * NOTE: the legacy shared `/g`-flagged regex was stateful across `.test()`
- * calls; the canonical primitive rebuilds the regex per call.
- */
-export const PHONE_REGEX = /(\+?\d[\d\s\-().]{6,}\d)/g;
 export const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 export const URL_REGEX = /https?:\/\/\S+/gi;
 
@@ -94,7 +86,7 @@ export function buildConversationPreview(text: string, attachments: IChatAttachm
     return snippet ? `${attachmentSummary} · ${snippet}` : attachmentSummary;
 }
 
-import type { PopulatedUser, PopulatedAd, PopulatedConv } from '../../../ports/ChatRepositoryPort';
+import type { PopulatedConv } from '../../../ports/ChatRepositoryPort';
 
 export function normalizeNestedId(value?: { id?: string; _id?: unknown } | null): string {
     if (!value) return '';

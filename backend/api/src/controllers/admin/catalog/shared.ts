@@ -27,7 +27,7 @@ import {
     deriveApprovalStatus,
 } from '@esparex/core';
 
-import { logAdminAction } from '../../../utils/adminLogger';
+import { logAdminAction, type LogAdminActionParams } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/content-handler";
 import { isAdminRole } from '@esparex/core';
 import { CatalogOrchestrator } from '@esparex/core';
@@ -200,7 +200,7 @@ export async function handleCatalogCreate(
         if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, repository.entityName as Parameters<typeof logAdminAction>[2], getEntityId(item), { data });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { data }});
         }
 
         return sendSuccessResponse(res, item, `${repository.entityName} created successfully`);
@@ -262,7 +262,7 @@ export async function handleCatalogUpdate(
 
         if (options.auditAction) {
             const auditItem = item as CatalogAdminEntity | null;
-            void logAdminAction(req, options.auditAction, repository.entityName as Parameters<typeof logAdminAction>[2], getEntityId(auditItem), { updates: data });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(auditItem), metadata: { updates: data }});
         }
 
         return sendSuccessResponse(res, item, `${repository.entityName} updated successfully`);
@@ -317,7 +317,7 @@ export async function handleCatalogToggleStatus(
         if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, repository.entityName as Parameters<typeof logAdminAction>[2], getEntityId(item), { isActive, approvalStatus });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { isActive, approvalStatus }});
         }
 
         return sendSuccessResponse(res, nextState, `${repository.entityName} status updated to ${isActive ? 'active' : 'inactive'}`);
@@ -372,7 +372,7 @@ export async function handleCatalogDelete(
         if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, repository.entityName as Parameters<typeof logAdminAction>[2], getEntityId(item));
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item)});
         }
 
         return sendSuccessResponse(res, null, `${repository.entityName} deleted successfully`);
@@ -427,7 +427,7 @@ export async function handleCatalogReview(
         if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, repository.entityName as Parameters<typeof logAdminAction>[2], getEntityId(item), { updates });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { updates }});
         }
 
         return sendSuccessResponse(res, item, `${repository.entityName} ${action.toLowerCase()}d successfully`);

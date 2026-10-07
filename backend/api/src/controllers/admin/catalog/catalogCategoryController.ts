@@ -144,7 +144,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
 
         await CatalogOrchestrator.invalidateCatalogCache({ categoryIds: [id] });
         clearCategoryCanonicalCache();
-        await logAdminAction(req, 'UPDATE_CATEGORY_SCHEMA', 'Category', category._id, { filters });
+        await logAdminAction({ req, action: 'UPDATE_CATEGORY_SCHEMA', targetType: 'Category', targetId: category._id, metadata: { filters }});
 
         sendSuccessResponse(res, category, 'Category schema updated successfully');
     } catch (error) {
@@ -240,10 +240,10 @@ export const updateCategory = async (req: Request, res: Response) => {
 
         clearCategoryCanonicalCache();
 
-        void logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory.id, {
+        void logAdminAction({ req, action: 'CATEGORY_RENAME', targetType: 'Category', targetId: updatedCategory.id, metadata: {
             before: { name: oldCategory.name, slug: oldCategory.slug },
             after: { name: updatedCategory.name, slug: updatedCategory.slug }
-        });
+        }});
 
         sendSuccessResponse(res, updatedCategory, 'Category updated successfully');
     } catch (error) {
@@ -273,7 +273,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
     try {
         const result = await CatalogOrchestrator.deleteCategoryOrchestrated(categoryId);
         clearCategoryCanonicalCache();
-        void logAdminAction(req, 'CATEGORY_DELETE', 'Category', categoryId, { alreadyDeleted: result.alreadyDeleted });
+        void logAdminAction({ req, action: 'CATEGORY_DELETE', targetType: 'Category', targetId: categoryId, metadata: { alreadyDeleted: result.alreadyDeleted }});
         sendSuccessResponse(
             res,
             result,

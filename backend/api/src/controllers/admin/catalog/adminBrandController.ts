@@ -119,7 +119,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
         const result = await CatalogOrchestrator.deleteBrandOrchestrated(id);
 
         if (!result.alreadyDeleted) {
-            void logAdminAction(req, 'BRAND_DELETE', 'Brand', new mongoose.Types.ObjectId(id));
+            void logAdminAction({ req, action: 'BRAND_DELETE', targetType: 'Brand', targetId: new mongoose.Types.ObjectId(id)});
         }
 
         return res.status(200).json({

@@ -144,7 +144,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         await saveAdmin(admin);
         await revokeAdminSessionsForAdmin(admin._id.toString());
 
-        await logAdminAction(req, 'RESET_PASSWORD', 'Admin', admin._id.toString(), { email: admin.email });
+        await logAdminAction({ req, action: 'RESET_PASSWORD', targetType: 'Admin', targetId: admin._id.toString(), metadata: { email: admin.email }});
 
         sendSuccessResponse(res, { message: 'Password updated successfully' });
 
@@ -290,14 +290,14 @@ export const adminLogin = async (req: Request, res: Response) => {
             device: req.headers['user-agent'] || ''
         });
 
-        await logAdminAction(
+        await logAdminAction({
             req,
-            'LOGIN',
-            'Admin',
-            String(tokenId),
-            { email: admin.email, role: adminData.role || 'admin' },
-            String(tokenId)
-        );
+            action: 'LOGIN',
+            targetType: 'Admin',
+            targetId: String(tokenId),
+            metadata: { email: admin.email, role: adminData.role || 'admin' },
+            actorIdOverride: String(tokenId)
+        });
 
         sendSuccessResponse(res, {
             accessToken: token, // Frontend expects this in response body too

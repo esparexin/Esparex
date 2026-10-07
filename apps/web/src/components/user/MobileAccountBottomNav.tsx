@@ -1,16 +1,8 @@
 "use client";
 
-/**
- * @deprecated Migrated to the canonical `BottomNavigation` from `@esparex/ui`
- * (P1-1 — single bottom-navigation implementation per DECISION-GATE §3).
- * The live composition now lives in `ProfileSettingsSidebar.tsx`.
- *
- * This module is frozen for compatibility (including `resolveBottomNavActiveTab`,
- * asserted by navigation SSOT tests) and will be deleted in Phase 4
- * (DECISION-GATE §4). Do not import from here in new code.
- */
-
-
+/** @deprecated Canonical `BottomNavigation` from `@esparex/ui` owns this (P1-1).
+ *  Live composition: `ProfileSettingsSidebar.tsx`. Frozen for
+ *  `resolveBottomNavActiveTab` (navigation SSOT tests); delete in Phase 4. */
 import { useMemo } from "react";
 import {
   PROFILE_TAB_ITEMS,

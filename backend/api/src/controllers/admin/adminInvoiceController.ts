@@ -214,11 +214,11 @@ export const createInvoice = async (req: Request, res: Response) => {
             issuedAt: new Date(),
         });
 
-        await logAdminAction(req, 'CREATE_INVOICE', 'Invoice', invoice._id.toString(), {
+        await logAdminAction({ req, action: 'CREATE_INVOICE', targetType: 'Invoice', targetId: invoice._id.toString(), metadata: {
             invoiceNumber,
             customer: customerEmail,
             amount: transaction.amount
-        });
+        }});
 
         return sendSuccessResponse(res, invoice, 'Invoice created successfully');
 

@@ -302,10 +302,10 @@ export const deleteCatalogRequestByAdmin = async (req: Request, res: Response) =
             return sendErrorResponse(req, res, 404, 'Catalog request not found');
         }
 
-        await logAdminAction(req, 'DELETE_CATALOG_REQUEST', 'CatalogRequest', id, {
+        await logAdminAction({ req, action: 'DELETE_CATALOG_REQUEST', targetType: 'CatalogRequest', targetId: id, metadata: {
             requestedName: request.requestedName,
             requestType: request.requestType,
-        });
+        }});
 
         return sendSuccessResponse(res, { id }, 'Catalog request deleted successfully');
     } catch (error) {
@@ -319,10 +319,10 @@ export const bulkDeleteCatalogRequestsByAdmin = async (req: Request, res: Respon
 
         const { deletedCount } = await CatalogRequestService.bulkDeleteCatalogRequests(requestIds);
 
-        await logAdminAction(req, 'BULK_DELETE_CATALOG_REQUESTS', 'CatalogRequest', 'bulk', {
+        await logAdminAction({ req, action: 'BULK_DELETE_CATALOG_REQUESTS', targetType: 'CatalogRequest', targetId: 'bulk', metadata: {
             deletedCount,
             requestIds,
-        });
+        }});
 
         return sendSuccessResponse(res, { deletedCount }, `Deleted ${deletedCount} catalog requests`);
     } catch (error) {

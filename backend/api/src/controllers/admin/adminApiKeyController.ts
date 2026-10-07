@@ -49,11 +49,11 @@ export const createApiKey = async (req: Request, res: Response) => {
             createdBy: new mongoose.Types.ObjectId(String(createdBy)),
         }) as { apiKey: { _id: { toString(): string }; toJSON(): Record<string, unknown> }; rawKey: string };
 
-        await logAdminAction(req, 'CREATE_API_KEY', 'ApiKey', apiKey._id.toString(), {
+        await logAdminAction({ req, action: 'CREATE_API_KEY', targetType: 'ApiKey', targetId: apiKey._id.toString(), metadata: {
             name,
             scopes,
             expiresAt,
-        });
+        }});
 
         sendSuccessResponse(res, { ...apiKey.toJSON(), key: rawKey }, 'API key created successfully');
     } catch (error: unknown) {
@@ -71,7 +71,7 @@ export const revokeApiKey = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'API key not found', 404);
         }
 
-        await logAdminAction(req, 'REVOKE_API_KEY', 'ApiKey', id, { keyPrefix: apiKey.keyPrefix });
+        await logAdminAction({ req, action: 'REVOKE_API_KEY', targetType: 'ApiKey', targetId: id, metadata: { keyPrefix: apiKey.keyPrefix }});
         sendSuccessResponse(res, apiKey, 'API key revoked successfully');
     } catch (error: unknown) {
         sendAdminError(req, res, error);
