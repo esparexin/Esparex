@@ -135,8 +135,17 @@ export const buildListingTypeFilter = (
 
 const LISTINGTYPE_COMPAT_METRIC_MODULE = 'ad_listingtype_compat';
 
-export const normalizeMetricSegment = (value: string): string =>
-    value.toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+/, '').replace(/_+$/, '') || 'unknown';
+export const normalizeMetricSegment = (value: string): string => {
+    // Lowercase and replace non-alphanumeric runs with underscores.
+    let s = value.toLowerCase().replace(/[^a-z0-9_]+/g, '_');
+    // Trim leading underscores (anchored at start — linear).
+    s = s.replace(/^_+/, '');
+    // Trim trailing underscores via index scan (avoids /_+$/ polynomial backtracking).
+    let end = s.length;
+    while (end > 0 && s[end - 1] === '_') end--;
+    s = s.slice(0, end);
+    return s || 'unknown';
+};
 
 export const recordListingTypeCompatMetric = async (
     context: ListingTypeCompatMetricContext,
