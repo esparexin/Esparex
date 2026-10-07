@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { Input } from "@esparex/ui";
@@ -58,6 +59,9 @@ export function EntitySearchCombobox<T>({
     const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const mobileInputRef = useRef<HTMLInputElement>(null);
+    // F-Z7: dropdown position for the portalled desktop listbox (fixed
+    // positioning relative to viewport; updated on scroll/resize).
+    const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
     // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     const isMobile = useIsMobile();
 
@@ -131,11 +135,47 @@ export function EntitySearchCombobox<T>({
         return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
     }, [isListOpen, isMobile, listboxId]);
 
-    const desktopDropdownContent = (
+    // F-Z7: Position the portalled desktop dropdown below the input.
+    // Updates on scroll/resize so the dropdown tracks the input.
+    useEffect(() => {
+        if (!isListOpen || isMobile) {
+            setDropdownRect(null);
+            return;
+        }
+        const updateRect = () => {
+            const el = containerRef.current;
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            setDropdownRect({
+                top: rect.bottom + 6, // mt-1.5 equivalent
+                left: rect.left,
+                width: rect.width,
+            });
+        };
+        updateRect();
+        window.addEventListener("scroll", updateRect, { capture: true, passive: true });
+        window.addEventListener("resize", updateRect);
+        return () => {
+            window.removeEventListener("scroll", updateRect, { capture: true });
+            window.removeEventListener("resize", updateRect);
+        };
+    }, [isListOpen, isMobile]);
+
+    const desktopDropdownContent = dropdownRect ? createPortal(
         <div
             id={listboxId}
             role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 p-1.5 overscroll-contain touch-pan-y"
+            // F-Z7: portalled to document.body with fixed positioning so
+            // overflow-hidden dialog variants cannot clip the dropdown.
+            // Was: absolute positioning inside the container (clipped).
+            style={{
+                position: "fixed",
+                top: dropdownRect.top,
+                left: dropdownRect.left,
+                width: dropdownRect.width,
+                zIndex: 99999, // above dialog content; below debug layer
+            }}
+            className="max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto p-1.5 overscroll-contain touch-pan-y"
         >
             <EntitySearchOptionsList
                 items={filteredItems}
@@ -149,8 +189,9 @@ export function EntitySearchCombobox<T>({
                 renderItem={renderItem}
                 onSelect={handleItemSelect}
             />
-        </div>
-    );
+        </div>,
+        document.body
+    ) : null;
 
     return (
         <div

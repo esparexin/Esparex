@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface UseListKeyboardNavigationProps<T> {
     items: T[];
@@ -16,6 +16,25 @@ export function useListKeyboardNavigation<T>({
     onClose,
 }: UseListKeyboardNavigationProps<T>) {
     const [activeIndex, setActiveIndex] = useState(-1);
+
+    // F-K1: Radix Dialog registers Escape on `document` with capture:true.
+    // Document-capture runs before any React bubble-phase onKeyDown, so the
+    // parent dialog would close (losing form state) before the dropdown can
+    // intercept. Attach at `window` capture phase — window runs before
+    // document in the capture path — and stop propagation so the innermost
+    // interactive layer (the open dropdown) gets first opportunity to close.
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEscapeCapture = (e: KeyboardEvent) => {
+            if (e.key !== "Escape") return;
+            e.stopPropagation(); // preempt Radix document-capture dismissal
+            e.preventDefault();
+            setActiveIndex(-1);
+            onClose?.();
+        };
+        window.addEventListener("keydown", handleEscapeCapture, { capture: true });
+        return () => window.removeEventListener("keydown", handleEscapeCapture, { capture: true });
+    }, [isOpen, onClose]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
