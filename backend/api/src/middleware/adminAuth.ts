@@ -9,14 +9,14 @@
  * Both workspace files now re-export from here.
  */
 import { Request, Response, NextFunction } from 'express';
-import { Admin, type IAdmin } from '@esparex/core';
+import { type IAdmin } from '@esparex/core';
 export { type IAdmin } from '@esparex/core';
 import { getAdminCookieOptions } from '@esparex/core';
 import { verifyAdminToken } from '@esparex/core';
 import type { IAuthUser } from '@esparex/core';
 import { sendErrorResponse } from '../utils/errorResponse';
 import { Role } from "@esparex/contracts";
-import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/domains/identity';
+import { getAdminSessionTtlMs, validateAdminSession, getAdminByIdForAdmin } from '@esparex/core/domains/identity';
 import { USER_STATUS } from "@esparex/contracts";
 import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core';
 import { setReliabilityContext } from '@esparex/core';
@@ -85,7 +85,8 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
             return sendErrorResponse(req, res, 401, 'Unauthorized: Session expired. Please login again.');
         }
 
-        const admin: IAdmin | null = await Admin.findById(decoded.id);
+        // Phase 3b: admin read via the identity domain service (was Admin.findById direct).
+        const admin: IAdmin | null = await getAdminByIdForAdmin(decoded.id);
 
         if (!admin || admin.status !== USER_STATUS.LIVE) {
             if (shouldClearCookie) {

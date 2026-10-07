@@ -4,11 +4,15 @@ import {
     requireVerifiedBusiness,
     requireVerifiedBusinessForServiceParts,
 } from '../../middleware/businessMiddleware';
-import { Business } from '@esparex/core';
+import { userRepository } from '@esparex/core/domains/identity';
 import { LISTING_TYPE } from '@esparex/contracts';
 
-jest.mock('@esparex/core/models/Business', () => ({
-    findOne: jest.fn(),
+// Phase 3b: middleware reads business via the identity repository port.
+jest.mock('@esparex/core/domains/identity', () => ({
+    __esModule: true,
+    userRepository: {
+        findBusinessByUserId: jest.fn(),
+    },
 }));
 
 jest.mock('@esparex/core/utils/logger', () => ({
@@ -20,7 +24,7 @@ jest.mock('@esparex/core/utils/logger', () => ({
     },
 }));
 
-const mockBusinessFindOne = Business.findOne as jest.Mock;
+const mockFindBusinessByUserId = userRepository.findBusinessByUserId as jest.Mock;
 
 describe('businessMiddleware — API Authorization Security Matrix', () => {
     let mockReq: Partial<Request>;
@@ -47,7 +51,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
 
         it('returns 403 Forbidden when no business exists for user', async () => {
             mockReq.user = { _id: 'user_123' } as any;
-            mockBusinessFindOne.mockResolvedValue(null);
+            mockFindBusinessByUserId.mockResolvedValue(null);
 
             await requireBusinessApproved(mockReq as Request, mockRes as Response, mockNext);
 
@@ -57,7 +61,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
 
         it('returns 403 Forbidden when business status is pending', async () => {
             mockReq.user = { _id: 'user_123' } as any;
-            mockBusinessFindOne.mockResolvedValue({ status: 'pending' });
+            mockFindBusinessByUserId.mockResolvedValue({ _id: 'biz_123', status: 'pending' });
 
             await requireBusinessApproved(mockReq as Request, mockRes as Response, mockNext);
 
@@ -68,7 +72,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         it('calls next() and attaches req.business when business status is live', async () => {
             mockReq.user = { _id: 'user_123' } as any;
             const liveBusiness = { _id: 'biz_123', status: 'live' };
-            mockBusinessFindOne.mockResolvedValue(liveBusiness);
+            mockFindBusinessByUserId.mockResolvedValue(liveBusiness);
 
             await requireBusinessApproved(mockReq as Request, mockRes as Response, mockNext);
 
@@ -87,11 +91,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
 
         it('returns 403 BUSINESS_NOT_VERIFIED when user has no verified business status', async () => {
             mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
-            mockBusinessFindOne.mockReturnValue({
-                select: jest.fn().mockReturnValue({
-                    lean: jest.fn().mockResolvedValue(null),
-                }),
-            });
+            mockFindBusinessByUserId.mockResolvedValue(null);
 
             await requireVerifiedBusiness(mockReq as Request, mockRes as Response, mockNext);
 
@@ -115,18 +115,14 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
             await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
 
             expect(mockNext).toHaveBeenCalled();
-            expect(mockBusinessFindOne).not.toHaveBeenCalled();
+            expect(mockFindBusinessByUserId).not.toHaveBeenCalled();
         });
 
         it('enforces verification when creating service listings', async () => {
             mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
             mockReq.body = { listingType: LISTING_TYPE.SERVICE };
 
-            mockBusinessFindOne.mockReturnValue({
-                select: jest.fn().mockReturnValue({
-                    lean: jest.fn().mockResolvedValue({ status: 'pending' }),
-                }),
-            });
+            mockFindBusinessByUserId.mockResolvedValue({ _id: 'biz_123', status: 'pending' });
 
             await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
 
@@ -139,11 +135,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
             mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
             mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
 
-            mockBusinessFindOne.mockReturnValue({
-                select: jest.fn().mockReturnValue({
-                    lean: jest.fn().mockResolvedValue({ status: 'live' }),
-                }),
-            });
+            mockFindBusinessByUserId.mockResolvedValue({ _id: 'biz_123', status: 'live' });
 
             await requireVerifiedBusinessForServiceParts(mockReq as Request, mockRes as Response, mockNext);
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
-import { IdempotencyRequest } from '@esparex/core';
+import { idempotencyRepository } from '@esparex/core';
 import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
 
@@ -93,11 +93,9 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
             requestFingerprint,
         });
 
-        const existing = await IdempotencyRequest.findOne({
-            userId,
-            scope,
-            key,
-        }).lean();
+        // Phase 3b: idempotency reads/writes via the idempotency repository port
+        // (was IdempotencyRequest.findOne direct).
+        const existing = await idempotencyRepository.findRequest(userId, scope, key);
 
         if (existing) {
             if (existing.requestHash !== requestHash) {
@@ -150,27 +148,17 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
         const expiresAt = new Date(now.getTime() + IDEMPOTENCY_TTL_HOURS * 60 * 60 * 1000);
 
         try {
-            const upserted = await IdempotencyRequest.findOneAndUpdate(
-                { userId, scope, key },
-                {
-                    $set: {
-                        requestHash,
-                        status: 'processing',
-                        responseStatus: undefined,
-                        responseBody: undefined,
-                        expiresAt,
-                    },
-                    $setOnInsert: {
-                        userId,
-                        scope,
-                        key,
-                    },
-                },
-                { upsert: true, new: true }
-            ).lean();
+            // Phase 3b: upsert via the idempotency repository port.
+            const upserted = await idempotencyRepository.markProcessing({
+                userId,
+                scope,
+                key,
+                requestHash,
+                expiresAt,
+            });
 
             if (upserted?._id) {
-                request.idempotencyRecordId = upserted._id.toString();
+                request.idempotencyRecordId = String(upserted._id);
             }
         } catch (error) {
             logger.warn('Failed to upsert idempotency request', {
@@ -189,16 +177,10 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
             if (persisted || !request.idempotencyRecordId) return;
             persisted = true;
 
-            void IdempotencyRequest.updateOne(
-                { _id: request.idempotencyRecordId },
-                {
-                    $set: {
-                        status: 'completed',
-                        responseStatus: statusCode,
-                        responseBody: body,
-                    },
-                }
-            ).catch((error: unknown) => {
+            // Phase 3b: completion write via the idempotency repository port.
+            void idempotencyRepository
+                .markCompleted(request.idempotencyRecordId, statusCode, body)
+                .catch((error: unknown) => {
                 logger.warn('Failed to persist idempotency response', {
                     requestId: req.requestId,
                     idempotencyRecordId: request.idempotencyRecordId,

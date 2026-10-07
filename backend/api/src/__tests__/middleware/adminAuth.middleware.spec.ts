@@ -1,10 +1,3 @@
-jest.mock("@esparex/core/models/Admin", () => ({
-    __esModule: true,
-    default: {
-        findById: jest.fn(),
-    },
-}));
-
 jest.mock("@esparex/core/utils/auth", () => ({
     __esModule: true,
     verifyAdminToken: jest.fn(),
@@ -14,6 +7,7 @@ jest.mock("@esparex/core/domains/identity", () => ({
     __esModule: true,
     validateAdminSession: jest.fn(),
     getAdminSessionTtlMs: jest.fn(() => 8 * 60 * 60 * 1000),
+    getAdminByIdForAdmin: jest.fn(),
 }));
 
 jest.mock("@esparex/core/utils/cookieHelper", () => ({
@@ -23,9 +17,8 @@ jest.mock("@esparex/core/utils/cookieHelper", () => ({
 }));
 
 import { Request, Response } from "express";
-import { Admin } from "@esparex/core";
 import { verifyAdminToken } from "@esparex/core";
-import { validateAdminSession } from "@esparex/core/domains/identity";
+import { validateAdminSession, getAdminByIdForAdmin } from "@esparex/core/domains/identity";
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 
 const createMockRes = () => {
@@ -39,7 +32,7 @@ const createMockRes = () => {
 };
 
 describe("adminAuth middleware", () => {
-    const mockFindById = (Admin as any).findById;
+    const mockGetAdminById = getAdminByIdForAdmin as jest.Mock;
     const mockVerifyAdminToken = verifyAdminToken as jest.Mock;
     const mockValidateAdminSession = validateAdminSession as jest.Mock;
 
@@ -85,7 +78,7 @@ describe("adminAuth middleware", () => {
 
         mockVerifyAdminToken.mockReturnValue({ id: "admin_1", role: "admin", jti: "jti_1" });
         mockValidateAdminSession.mockResolvedValue({ id: "session_1" });
-        mockFindById.mockResolvedValue({
+        mockGetAdminById.mockResolvedValue({
             _id: { toString: () => "admin_1" },
             status: "live",
             role: "admin",

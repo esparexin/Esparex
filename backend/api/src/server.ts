@@ -13,8 +13,7 @@ import { env } from '@esparex/core';
 import { waitForRedisReady } from '@esparex/core';
 import { assertDuplicateRolloutReadiness } from '@esparex/core/domains/fraud';
 import { startScheduler, stopScheduler } from '@esparex/core';
-import { Admin } from '@esparex/core';
-import { USER_STATUS } from "@esparex/contracts";
+import { countLiveAdmins } from '@esparex/core/domains/identity';
 import { createServer } from 'http';
 import { initializeEventDispatcher } from '@esparex/core';
 import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core';
@@ -31,7 +30,8 @@ let reliabilityProbeInterval: NodeJS.Timeout | null = null;
 
 async function ensureLiveAdminPresence() {
     try {
-        const liveAdminCount = await Admin.countDocuments({ status: USER_STATUS.LIVE });
+        // Phase 3b: bootstrap probe via the identity domain service (was Admin.countDocuments direct).
+        const liveAdminCount = await countLiveAdmins();
         if (liveAdminCount === 0) {
             logger.warn('🛡️ SECURITY ALARM: No LIVE administrators detected in database.');
             logger.warn('Admin login will fail until the default account is seeded.');

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
 import { verifyToken, JwtPayload } from "@esparex/core";
 import { redis } from "@esparex/core";
-import { User } from "@esparex/core";
+import { userRepository } from '@esparex/core/domains/identity';
 import { isTokenBlacklisted } from "@esparex/core";
 import { sendErrorResponse } from "../utils/errorResponse";
 import { logger } from '@esparex/core';
@@ -129,14 +129,15 @@ export const protect = async (
     const cacheKey = `user:status:${req.user.id}`;
     const cachedUserStatus = parseCachedUserStatus(await redis.get(cacheKey));
 
-    const user = await User.findById(req.user._id).select('status tokenVersion').lean();
+    // Phase 3b: auth snapshot via the identity repository port (was User.findById direct).
+    const user = await userRepository.getUserAuthSnapshot(String(req.user._id));
     if (!user) {
       clearAuthCookie(res);
       sendErrorResponse(req, res, 401, "User not found");
       return;
     }
 
-    const storedTokenVersion = (user as { tokenVersion?: number }).tokenVersion ?? 0;
+    const storedTokenVersion = user.tokenVersion ?? 0;
     const decodedVersion = decoded.tokenVersion ?? 0;
     if (storedTokenVersion !== decodedVersion) {
       await redis.del(cacheKey);

@@ -51,6 +51,7 @@ import './models/registry';
 // Shared modules (star re-exports)
 export * from './composition/catalog';
 export * from './composition/listings';
+export * from './composition/idempotency';
 export * from './config/constants';
 export * from './config/db';
 export * from './config/env';

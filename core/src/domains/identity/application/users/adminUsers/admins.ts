@@ -22,6 +22,19 @@ export const getAdmins = async (pagination: { skip?: number; limit?: number } = 
 export const getAdminByIdForAdmin = async (id: string) => Admin.findById(id).select('-password');
 export const getUserByIdForAdmin = async (id: string) => User.findById(id).select('-password');
 
+/** Phase 3b: live-admin id for audit attribution (fraud-escalation cron). */
+export const findLiveAdminIdForAudit = async (): Promise<string | null> => {
+    const admin = await Admin.findOne({ isDeleted: { $ne: true }, status: USER_STATUS.LIVE })
+        .select('_id')
+        .lean<{ _id: unknown } | null>();
+    return admin?._id ? String(admin._id) : null;
+};
+
+/** Phase 3b: bootstrap presence probe (backend server startup). */
+export const countLiveAdmins = async (): Promise<number> => {
+    return Admin.countDocuments({ status: USER_STATUS.LIVE });
+};
+
 export const updateAdminUser = async (userId: string, data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {
     if (!Types.ObjectId.isValid(userId)) throw new AppError('Invalid User ID format', 400);
     const { name, email, mobile } = data as { name?: string; email?: string; mobile?: string };
