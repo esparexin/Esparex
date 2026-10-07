@@ -10,7 +10,6 @@
     "./domains/analytics": "./dist/domains/analytics/index.js",
     "./domains/boosts": "./dist/domains/boosts/index.js",
     "./domains/catalog": "./dist/domains/catalog/index.js",
-    "./domains/chat": "./dist/domains/chat/index.js",
     "./domains/communications": "./dist/domains/communications/index.js",
     "./domains/credits": "./dist/domains/credits/index.js",
     "./domains/discovery": "./dist/domains/discovery/index.js",

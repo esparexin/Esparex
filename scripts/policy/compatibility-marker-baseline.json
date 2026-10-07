@@ -85,8 +85,6 @@
   "core/src/domains/catalog/application/search/scoring.ts": 3,
   "core/src/domains/catalog/application/search/types.ts": 1,
   "core/src/domains/catalog/application/services/CatalogValidationService.ts": 3,
-  "core/src/domains/chat/index.ts": 1,
-  "core/src/domains/chat/ports/ChatRepositoryPort.ts": 1,
   "core/src/domains/communications/application/services/chat/ChatUtils.ts": 3,
   "core/src/domains/discovery/application/services/FeedService.ts": 1,
   "core/src/domains/discovery/application/services/feed/FeedCursorService.ts": 4,
