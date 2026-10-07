@@ -208,7 +208,7 @@ type ParentQueryBuilder = (
  * the previous if/else-if chain nested 6 deep at the last branch.
  */
 const PARENT_QUERY_BUILDERS: Record<string, ParentQueryBuilder> = {
-    // `name` on a country-level doc matches the country via $or (legacy docs store it either way).
+    // `name` on a country-level doc matches the country via $or (older docs store it either way).
     state: (c, b) => (c.country
         ? { ...b, level: 'country', $or: [{ name: toExactRegex(c.country) }, { country: toExactRegex(c.country) }] }
         : null),
