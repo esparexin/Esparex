@@ -1,4 +1,4 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { Request, Response } from 'express';
 import { createContactSubmission } from '@esparex/core/domains/communications';
 import { contactSubmissionRequestSchema } from '@esparex/contracts';

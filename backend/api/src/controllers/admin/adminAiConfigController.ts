@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
-import { encryptApiKey, maskApiKey } from "@esparex/core/utils/aiEncryption";
-import { AIProviderFactory } from "@esparex/core/services/ai/AIProviderFactory";
-import { generateListingPromptV1, identifyDevicePromptV1 } from "@esparex/core/prompts/listings/v1";
-import { logAdminActionDirect } from "@esparex/core/utils/adminLogger";
-import logger from "@esparex/core/utils/logger";
+import { getSystemConfigDoc } from "@esparex/core";
+import { updateSystemConfigSections, SystemConfigValidationError } from "@esparex/core";
+import { encryptApiKey, maskApiKey } from "@esparex/core";
+import { AIProviderFactory } from "@esparex/core";
+import { generateListingPromptV1, identifyDevicePromptV1 } from "@esparex/core";
+import { logAdminActionDirect } from "@esparex/core";
+import { logger } from "@esparex/core";
 import { z } from "zod";
 
 export const getAiConfig = async (req: Request, res: Response) => {
@@ -56,6 +57,32 @@ export const getAiConfig = async (req: Request, res: Response) => {
     }
 };
 
+const PROVIDER_DEFAULT_MODELS = {
+    gemini: "gemini-2.0-flash",
+    openai: "gpt-4o-mini",
+    claude: "claude-3-5-haiku-20241022",
+    deepseek: "deepseek-chat",
+} as const;
+
+type ProviderName = keyof typeof PROVIDER_DEFAULT_MODELS;
+
+type ProviderIncoming = { enabled?: unknown; defaultModel?: string; apiKey?: string };
+type ProviderExisting = { defaultModel?: string; apiKeyEncrypted?: string };
+
+/** Shape one provider's persisted settings; preserves the stored encrypted key when no new key is supplied. */
+const buildProviderPatch = (
+    incoming: ProviderIncoming | undefined,
+    existing: ProviderExisting | undefined,
+    fallbackModel: string
+) =>
+    incoming
+        ? {
+              enabled: Boolean(incoming.enabled),
+              defaultModel: incoming.defaultModel || fallbackModel,
+              apiKeyEncrypted: incoming.apiKey ? encryptApiKey(incoming.apiKey) : existing?.apiKeyEncrypted,
+          }
+        : undefined;
+
 export const updateAiConfig = async (req: Request, res: Response) => {
     try {
         const doc = await getSystemConfigDoc();
@@ -66,54 +93,26 @@ export const updateAiConfig = async (req: Request, res: Response) => {
 
         const { capabilities, providers } = req.body || {};
 
+        // Phase 3b: persist via the SystemConfig core service (was doc.save() on
+        // the plain object returned by getSystemConfigDoc). Merge logic unchanged.
+        // Empty patches are rejected by the service (400 via SystemConfigValidationError).
+        const aiPatch: Record<string, unknown> = {};
+
         if (capabilities) {
-            doc.ai.capabilities = { ...doc.ai.capabilities, ...capabilities };
+            aiPatch.capabilities = { ...(doc.ai?.capabilities || {}), ...capabilities };
         }
 
         if (providers) {
-            const updatedProviders = { ...(doc.ai.providers || {}) };
-            if (providers.gemini) {
-                updatedProviders.gemini = {
-                    enabled: Boolean(providers.gemini.enabled),
-                    defaultModel: providers.gemini.defaultModel || "gemini-2.0-flash",
-                    apiKeyEncrypted: providers.gemini.apiKey
-                        ? encryptApiKey(providers.gemini.apiKey)
-                        : updatedProviders.gemini?.apiKeyEncrypted,
-                };
-            }
-            if (providers.openai) {
-                updatedProviders.openai = {
-                    enabled: Boolean(providers.openai.enabled),
-                    defaultModel: providers.openai.defaultModel || "gpt-4o-mini",
-                    apiKeyEncrypted: providers.openai.apiKey
-                        ? encryptApiKey(providers.openai.apiKey)
-                        : updatedProviders.openai?.apiKeyEncrypted,
-                };
-            }
-            if (providers.claude) {
-                updatedProviders.claude = {
-                    enabled: Boolean(providers.claude.enabled),
-                    defaultModel: providers.claude.defaultModel || "claude-3-5-haiku-20241022",
-                    apiKeyEncrypted: providers.claude.apiKey
-                        ? encryptApiKey(providers.claude.apiKey)
-                        : updatedProviders.claude?.apiKeyEncrypted,
-                };
-            }
-            if (providers.deepseek) {
-                updatedProviders.deepseek = {
-                    enabled: Boolean(providers.deepseek.enabled),
-                    defaultModel: providers.deepseek.defaultModel || "deepseek-chat",
-                    apiKeyEncrypted: providers.deepseek.apiKey
-                        ? encryptApiKey(providers.deepseek.apiKey)
-                        : updatedProviders.deepseek?.apiKeyEncrypted,
-                };
-            }
-            doc.ai.providers = updatedProviders;
+            const existingProviders = (doc.ai?.providers || {}) as Record<ProviderName, { defaultModel?: string; apiKeyEncrypted?: string } | undefined>;
+            const updatedProviders: Record<string, unknown> = { ...existingProviders };
+            (Object.keys(PROVIDER_DEFAULT_MODELS) as ProviderName[]).forEach((name) => {
+                const patched = buildProviderPatch(providers[name], existingProviders[name], PROVIDER_DEFAULT_MODELS[name]);
+                if (patched) updatedProviders[name] = patched;
+            });
+            aiPatch.providers = updatedProviders;
         }
 
-        doc.updatedAt = new Date();
-        if (req.user?.id) doc.updatedBy = req.user.id;
-        await doc.save();
+        await updateSystemConfigSections({ ai: aiPatch }, req.user?.id);
 
         if (req.user?.id) {
             await logAdminActionDirect(
@@ -130,6 +129,10 @@ export const updateAiConfig = async (req: Request, res: Response) => {
         res.json({ success: true, message: "AI Configuration updated successfully" });
     } catch (err: unknown) {
         logger.error("[adminAiConfigController] updateAiConfig error", { error: err });
+        if (err instanceof SystemConfigValidationError) {
+            res.status(err.statusCode).json({ success: false, error: err.message, code: err.code });
+            return;
+        }
         res.status(500).json({ success: false, error: "Failed to update AI configuration" });
     }
 };

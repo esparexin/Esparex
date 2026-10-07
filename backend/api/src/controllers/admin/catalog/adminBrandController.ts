@@ -1,19 +1,20 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/content-handler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
+import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
 import { invalidateItemCatalogCache } from './shared';
+import { brandRepository } from './catalogPortRepositories';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
-import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { getCache } from '@esparex/core/utils/redisCache';
+import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
+import { getCache } from '@esparex/core';
 import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { AppError } from '@esparex/core';
 
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
@@ -71,7 +72,7 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
 };
 
 export const createBrand = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, BrandModel, brandCreateSchema, {
+    return handleCatalogCreate(req, res, brandRepository, brandCreateSchema, {
         auditAction: 'BRAND_CREATE', slugifyName: true,
         preOp: async (payload) => {
             const categoryIds = Array.isArray(payload.categoryIds) ? (payload.categoryIds as string[]).map(String) : [];
@@ -87,7 +88,7 @@ export const createBrand = async (req: Request, res: Response) => {
 };
 
 export const updateBrand = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
+    return handleCatalogUpdate(req, res, brandRepository, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
             const typedOld = oldBrand as { categoryIds?: unknown[]; approvalStatus?: unknown; isActive?: boolean };
@@ -104,7 +105,7 @@ export const updateBrand = async (req: Request, res: Response) => {
 };
 
 export const toggleBrandStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, BrandModel, {
+    return handleCatalogToggleStatus(req, res, brandRepository, {
         auditAction: 'TOGGLE_BRAND_STATUS',
         postOp: invalidateItemCatalogCache,
     });
@@ -118,7 +119,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
         const result = await CatalogOrchestrator.deleteBrandOrchestrated(id);
 
         if (!result.alreadyDeleted) {
-            void logAdminAction(req, 'BRAND_DELETE', 'Brand', new mongoose.Types.ObjectId(id));
+            void logAdminAction({ req, action: 'BRAND_DELETE', targetType: 'Brand', targetId: new mongoose.Types.ObjectId(id)});
         }
 
         return res.status(200).json({
@@ -144,6 +145,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
     }
 };
 
-export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND', postOp: invalidateItemCatalogCache });
+export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, brandRepository, 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND', postOp: invalidateItemCatalogCache });
 
-export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: invalidateItemCatalogCache });
+export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, brandRepository, 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: invalidateItemCatalogCache });

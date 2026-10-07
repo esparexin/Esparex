@@ -2,7 +2,7 @@
  * AI Moderation Provider Abstraction Types (PR 2)
  */
 
-export interface ModerationSignalDTO {
+interface ModerationSignalDTO {
     classifier: string;
     score: number;
     details?: Record<string, unknown>;

@@ -27,13 +27,13 @@ export interface CategoryVisual {
     bg: string;
 }
 
-export const DEFAULT_CATEGORY_VISUAL: CategoryVisual = {
+const DEFAULT_CATEGORY_VISUAL: CategoryVisual = {
     icon: Package,
     color: "text-foreground-tertiary",
     bg: "bg-slate-50"
 };
 
-export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
+const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
     mobiles: { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },
     "mobile-phones": { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },
     smartphone: { icon: Smartphone, color: "text-link", bg: "bg-blue-50" },

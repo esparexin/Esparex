@@ -1,6 +1,6 @@
 import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS, Role } from "@esparex/contracts";
 export type AdminRole = Role.SUPER_ADMIN | Role.ADMIN | Role.MODERATOR;
-export const ADMIN_STATUS_OPTIONS = [
+const ADMIN_STATUS_OPTIONS = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,
     USER_STATUS.SUSPENDED,
@@ -48,14 +48,6 @@ export const DEFAULT_CREATE_FORM: AdminCreateFormState = {
     permissionsText: "",
 };
 
-export const DEFAULT_EDIT_FORM: AdminEditFormState = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: Role.MODERATOR,
-    status: USER_STATUS.LIVE,
-    permissionsText: "",
-};
 
 export const ROLE_COLORS: Record<string, string> = {
     [Role.SUPER_ADMIN]: "bg-primary/10 text-primary",

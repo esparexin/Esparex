@@ -12,7 +12,7 @@ const latitudeSchema = z
     .max(90, 'Latitude must be between -90 and 90')
     .refine(Number.isFinite, 'Latitude must be a finite number');
 
-export const geoPointCoordinatesTupleSchema = z
+const geoPointCoordinatesTupleSchema = z
     .tuple([longitudeSchema, latitudeSchema])
     .superRefine((value, ctx) => {
         if (value[0] === 0 && value[1] === 0) {

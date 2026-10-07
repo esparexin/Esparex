@@ -18,7 +18,7 @@ import { CreateListingRequestMapper } from './mappers/CreateListingRequestMapper
  *   - upload failures   (retry is viable)
  *   - api failures      (retry is viable)
  */
-export type SubmitErrorKind = 'validation' | 'upload' | 'api';
+type SubmitErrorKind = 'validation' | 'upload' | 'api';
 
 export interface SubmitError {
   kind: SubmitErrorKind;

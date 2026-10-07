@@ -33,44 +33,7 @@ export const normalizeGeoPoint = (coords: unknown): { type: "Point"; coordinates
     }
 };
 
-export type DetectedLocationShape = Partial<Location> & {
-    formattedAddress?: string;
-};
 
-export const toDetectedSelection = (detected: DetectedLocationShape): Location | null => {
-    if (!detected.coordinates) return null;
-
-    const detectedId =
-        detected.locationId ||
-        detected.id ||
-        [detected.city, detected.state]
-            .filter(Boolean)
-            .join("-")
-            .toLowerCase()
-            .replace(/\s+/g, "-");
-
-    const detectedDisplay =
-        detected.display ||
-        detected.formattedAddress ||
-        detected.name ||
-        detected.city;
-
-    return {
-        id: detectedId,
-        locationId: detectedId,
-        slug: detectedId,
-        city: detected.city,
-        state: detected.state,
-        country: detected.country,
-        name: detected.name || detected.city,
-        display: detectedDisplay,
-        displayName: detectedDisplay,
-        level: detected.level ?? "city",
-        coordinates: detected.coordinates,
-        isActive: true,
-        isPopular: false,
-    } as Location;
-};
 
 export const getLocationPrimaryLabel = (loc: Location): string => (
     normalizeLocationName(loc.name || loc.city || loc.display || "")

@@ -6,7 +6,7 @@
  * has introduced a duplicate constant — fix it by importing from shared instead.
  */
 
-import { GOVERNANCE } from '@esparex/core/config/constants';
+import { GOVERNANCE } from '@esparex/core';
 import { AD_LIMITS } from "@esparex/contracts";
 describe('GOVERNANCE / shared constants sync', () => {
     it('GOVERNANCE.AD does not redefine AD_LIMITS.MAX_IMAGES', () => {

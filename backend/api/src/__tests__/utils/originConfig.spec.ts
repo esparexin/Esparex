@@ -4,7 +4,7 @@ import {
     inferCookieDomainFromEnv,
     isAllowedOrigin,
     requiresSharedCookieDomain,
-} from '@esparex/core/utils/originConfig';
+} from '@esparex/core';
 
 describe('originConfig', () => {
     it('infers the shared cookie domain from split-subdomain first-party origins', () => {

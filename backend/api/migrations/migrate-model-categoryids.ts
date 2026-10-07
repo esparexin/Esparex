@@ -1,4 +1,4 @@
-import Model from '@esparex/core/models/Model';
+import { Model } from '@esparex/core';
 import { getAdminConnection } from '../src/config/db';
 
 /**

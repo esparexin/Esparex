@@ -1,7 +1,7 @@
 import type { Business } from "@esparex/contracts";
 import { formatLocation } from "@esparex/shared";
 
-export type CanonicalCoordinates = Business["location"]["coordinates"] | null;
+type CanonicalCoordinates = Business["location"]["coordinates"] | null;
 
 export interface BusinessModifyFormState {
   name: string;

@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
 
-export type PostAdEventName =
+type PostAdEventName =
   | "post_ad_opened"
   | "category_selected"
   | "brand_selected"

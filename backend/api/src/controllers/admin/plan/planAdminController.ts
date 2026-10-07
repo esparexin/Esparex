@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { respond } from "../../../utils/respond";
 import { sendErrorResponse } from "../../../utils/errorResponse";
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import { AppError } from '@esparex/core';
+import { escapeRegExp } from '@esparex/core';
 import { buildPlanPayload, getErrorMessage, getRequiredPlanId } from './shared';
 import {
     adminCreatePlan,
@@ -12,7 +12,7 @@ import {
     adminGetPlanById,
     adminArchivePlan,
     adminRestorePlan,
-} from '@esparex/core/domains/payments/application/PlanService';
+} from '@esparex/core/domains/payments';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {
@@ -21,7 +21,7 @@ export const createPlan = async (req: Request, res: Response) => {
 
         const plan = await adminCreatePlan(safeBody);
         const planId = plan._id;
-        await logAdminAction(req, 'CREATE_PLAN', 'Plan', planId == undefined ? undefined : String(planId));
+        await logAdminAction({ req, action: 'CREATE_PLAN', targetType: 'Plan', targetId: planId == undefined ? undefined : String(planId)});
         res.status(201).json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
         const err = error as Error;
@@ -38,7 +38,7 @@ export const updatePlan = async (req: Request, res: Response) => {
         if (!plan) {
             throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
         }
-        await logAdminAction(req, 'UPDATE_PLAN', 'Plan', planId, { updates: safeBody });
+        await logAdminAction({ req, action: 'UPDATE_PLAN', targetType: 'Plan', targetId: planId, metadata: { updates: safeBody }});
         res.json(respond({ success: true, data: plan }));
     } catch (error: unknown) {
         const appError = error instanceof AppError ? error : null;
@@ -92,7 +92,7 @@ export const togglePlan = async (req: Request, res: Response) => {
         const nextActive = !existing.active;
         const nextStatus = nextActive ? 'ACTIVE' : 'INACTIVE';
         const updated = await adminUpdatePlan(planId, { active: nextActive, status: nextStatus });
-        await logAdminAction(req, 'TOGGLE_PLAN_STATUS', 'Plan', planId, { isActive: nextActive, status: nextStatus });
+        await logAdminAction({ req, action: 'TOGGLE_PLAN_STATUS', targetType: 'Plan', targetId: planId, metadata: { isActive: nextActive, status: nextStatus }});
         res.json(respond({ success: true, data: updated }));
     } catch (error: unknown) {
         const appError = error instanceof AppError ? error : null;
@@ -108,11 +108,11 @@ export const archivePlan = async (req: Request, res: Response) => {
 
         const plan = await adminArchivePlan(planId, adminId, reason);
         const rawPlan: unknown = plan;
-        await logAdminAction(req, 'PLAN_ARCHIVED', 'Plan', planId, {
+        await logAdminAction({ req, action: 'PLAN_ARCHIVED', targetType: 'Plan', targetId: planId, metadata: {
             archivedBy: adminId,
             archivedAt: (rawPlan as Record<string, unknown>).archivedAt,
             reason,
-        });
+        }});
         res.json(respond({ success: true, data: plan, message: 'Plan archived successfully' }));
     } catch (error: unknown) {
         const appError = error instanceof AppError ? error : null;
@@ -127,10 +127,10 @@ export const restorePlan = async (req: Request, res: Response) => {
 
         const plan = await adminRestorePlan(planId, adminId);
         const rawRestorePlan: unknown = plan;
-        await logAdminAction(req, 'PLAN_RESTORED', 'Plan', planId, {
+        await logAdminAction({ req, action: 'PLAN_RESTORED', targetType: 'Plan', targetId: planId, metadata: {
             restoredBy: adminId,
             restoredAt: (rawRestorePlan as Record<string, unknown>).restoredAt,
-        });
+        }});
         res.json(respond({ success: true, data: plan, message: 'Plan restored successfully' }));
     } catch (error: unknown) {
         const appError = error instanceof AppError ? error : null;

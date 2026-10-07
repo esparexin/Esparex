@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
-import { env } from '@esparex/core/config/env';
+import { env } from '@esparex/core';
 import { createLimiter, resolveRequestIp, buildHybridRateLimitKey, createRedisStore, resolveRetryAfterSeconds, respondRateLimited } from './factory';
 
 export const globalLimiter = rateLimit({
@@ -12,8 +12,6 @@ export const globalLimiter = rateLimit({
 });
 
 export const authLoginLimiter = createLimiter({ windowMs: 60 * 1000, max: 5, keyPrefix: 'auth:login:', keyGenerator: (req) => buildHybridRateLimitKey(req) });
-export const authRegisterLimiter = createLimiter({ windowMs: 60 * 1000, max: 5, keyPrefix: 'auth:register:', keyGenerator: (req) => buildHybridRateLimitKey(req) });
-export const adPostLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: 10, keyPrefix: 'ads:post:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const reportLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: 5, keyPrefix: 'reports:', keyGenerator: (req) => buildHybridRateLimitKey(req) });
 export const adminLimiter = createLimiter({ windowMs: 60 * 1000, max: env.ADMIN_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 200), keyPrefix: 'admin:user:', keyGenerator: (req) => { const a = req.admin as { id?: string; _id?: { toString?: () => string } } | undefined; const id = a?.id ?? a?._id?.toString?.(); return id || req.ip || 'unknown'; } });
 export const adminMutationLimiter = createLimiter({ windowMs: 5 * 60 * 1000, max: env.ADMIN_MUTATION_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 100), keyPrefix: 'admin:mutation:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : ''; return uid || req.ip || 'unknown'; } });
@@ -31,7 +29,6 @@ export const chatSendLimiter = createLimiter({ windowMs: 60 * 1000, max: env.NOD
 export const chatStartLimiter = createLimiter({ windowMs: 10 * 60 * 1000, max: env.NODE_ENV === 'production' ? 10 : 100, keyPrefix: 'chat:start:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const chatReportLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 3 : 30, keyPrefix: 'chat:report:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const contactFormLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 3 : 30, keyPrefix: 'contact:form:', keyGenerator: (req) => resolveRequestIp(req), errorCode: 'CONTACT_FORM_RATE_LIMIT' });
-export const catalogSuggestionLimiter = createLimiter({ windowMs: 24 * 60 * 60 * 1000, max: env.NODE_ENV === 'production' ? 5 : 50, keyPrefix: 'catalog:suggest:', errorCode: 'CATALOG_SUGGESTION_RATE_LIMIT', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const authForgotPasswordLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
     max: env.NODE_ENV === 'production' ? 5 : 20,

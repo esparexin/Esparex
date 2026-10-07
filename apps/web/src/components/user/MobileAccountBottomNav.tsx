@@ -1,8 +1,18 @@
 "use client";
 
+/** @deprecated Canonical `BottomNavigation` from `@esparex/ui` owns this (P1-1).
+ *  Live composition: `ProfileSettingsSidebar.tsx`. Frozen for
+ *  `resolveBottomNavActiveTab` (navigation SSOT tests); delete in Phase 4. */
 import { useMemo } from "react";
-import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
+import {
+  PROFILE_TAB_ITEMS,
+  PRIMARY_PROFILE_TABS,
+  resolveBottomNavActiveTab,
+  type ProfileTabValue,
+} from "@/config/navigation";
 import { MoreHorizontal } from "@esparex/ui";
+
+export { resolveBottomNavActiveTab };
 
 interface MobileAccountBottomNavProps {
   activeTab: ProfileTabValue;
@@ -10,17 +20,11 @@ interface MobileAccountBottomNavProps {
   unreadCount?: number;
 }
 
-const PRIMARY_TABS: ProfileTabValue[] = ["personal", "mylistings", "messages", "smartalerts"];
-
-export function resolveBottomNavActiveTab(activeTab: ProfileTabValue): ProfileTabValue {
-  return PRIMARY_TABS.includes(activeTab) ? activeTab : "more";
-}
-
 export function MobileAccountBottomNav({ activeTab, onTabChange, unreadCount = 0 }: MobileAccountBottomNavProps) {
   const resolvedActiveTab = resolveBottomNavActiveTab(activeTab);
 
   const items = useMemo(() => [
-    ...PRIMARY_TABS.map((val) => {
+    ...PRIMARY_PROFILE_TABS.map((val) => {
       const found = PROFILE_TAB_ITEMS.find((item) => item.value === val);
       return {
         value: val,

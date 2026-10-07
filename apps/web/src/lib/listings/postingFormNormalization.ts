@@ -28,7 +28,7 @@ export const resolveCatalogEntityId = (...values: unknown[]): string => {
     return "";
 };
 
-export const normalizeStringTokenList = (value: unknown): string[] => {
+const normalizeStringTokenList = (value: unknown): string[] => {
     if (!value) return [];
 
     const tokens = Array.isArray(value) ? value : [value];
@@ -44,7 +44,7 @@ export const normalizeStringTokenList = (value: unknown): string[] => {
         .filter((token): token is string => token.length > 0);
 };
 
-export const normalizeObjectIdList = (value: unknown): string[] => Array.from(
+const normalizeObjectIdList = (value: unknown): string[] => Array.from(
     new Set(
         normalizeStringTokenList(value)
             .map((token) => sanitizeMongoObjectId(token))
@@ -52,7 +52,7 @@ export const normalizeObjectIdList = (value: unknown): string[] => Array.from(
     )
 );
 
-export const resolveNumericField = (...values: unknown[]): number | undefined => {
+const resolveNumericField = (...values: unknown[]): number | undefined => {
     for (const value of values) {
         if (typeof value === "number" && Number.isFinite(value)) return value;
         if (typeof value === "string" && value.trim().length > 0) {

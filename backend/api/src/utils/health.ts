@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { getHealthCheckData as coreGetHealthCheckData } from '@esparex/core/utils/health';
-import { isDbReady } from '@esparex/core/config/db';
-import logger from '@esparex/core/utils/logger';
+import { getHealthCheckData as coreGetHealthCheckData } from '@esparex/core';
+import { isDbReady } from '@esparex/core';
+import { logger } from '@esparex/core';
 import { otpHealthCheck } from '../middleware/otpGuard';
 
 export const getHealthCheckData = coreGetHealthCheckData;

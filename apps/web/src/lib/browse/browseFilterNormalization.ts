@@ -14,7 +14,7 @@ const readToken = (value: unknown): string | undefined => {
     return normalized.length > 0 ? normalized : undefined;
 };
 
-export const isObjectIdToken = (value: unknown): value is string => {
+const isObjectIdToken = (value: unknown): value is string => {
     const normalized = readToken(value);
     return Boolean(normalized && OBJECT_ID_PATTERN.test(normalized));
 };

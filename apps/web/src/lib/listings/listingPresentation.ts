@@ -96,13 +96,6 @@ export function resolveListingTypeBadge(
     };
 }
 
-/**
- * Account/profile tab vocabulary ("ads" | "services" | "spare-parts").
- * Route vocabulary lives in publicListingRoutes/publicBrowseRoutes and is
- * intentionally separate. Use these translators instead of inline ternaries
- * so the canonical enum stays the single source of truth.
- */
-export type AccountListingTab = "ads" | "services" | "spare-parts";
 
 export function resolveListingTypeFromTab(tab: unknown): ResolvedListingType {
     if (tab === "services") {
@@ -114,15 +107,6 @@ export function resolveListingTypeFromTab(tab: unknown): ResolvedListingType {
     return LISTING_TYPE.AD;
 }
 
-export function resolveTabForListingType(listingType: unknown): AccountListingTab {
-    if (listingType === LISTING_TYPE.SERVICE) {
-        return "services";
-    }
-    if (listingType === LISTING_TYPE.SPARE_PART) {
-        return "spare-parts";
-    }
-    return "ads";
-}
 
 export function resolveListingCategoryLabel(    listing: ListingCategoryLike | null | undefined,
     fallback = "Category"

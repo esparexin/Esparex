@@ -5,7 +5,7 @@ import listingRoutes from './listingRoutes';
 import * as getListingsController from "../controllers/listing/getListings.controller";
 import { searchLimiter } from "../middleware/rateLimiter";
 import { publicCacheControl } from "../middleware/publicCacheControl";
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 
 const router = express.Router();
 

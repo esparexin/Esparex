@@ -7,13 +7,14 @@
  */
 
 import { Request, Response } from 'express';
-import { Document, Model as MongooseModel, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
-import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
+import { isDuplicateKeyError } from '@esparex/core';
+import type { CatalogAdminEntity, CatalogAdminRepository } from './catalogPortRepositories';
 
 // Re-export SSOT validation helpers so controllers import from one place.
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
@@ -24,13 +25,13 @@ import {
     getActiveCategoryIds,
     validateActiveCategories,
     deriveApprovalStatus,
-} from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
+} from '@esparex/core';
 
-import { logAdminAction } from '../../../utils/adminLogger';
+import { logAdminAction, type LogAdminActionParams } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/content-handler";
-import { isAdminRole } from '@esparex/core/utils/roleNormalization';
-import CatalogOrchestrator from '@esparex/core/domains/catalog/application/services/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/domains/catalog/application/services/CatalogCategoryService';
+import { isAdminRole } from '@esparex/core';
+import { CatalogOrchestrator } from '@esparex/core';
+import { clearCategoryCanonicalCache } from '@esparex/core';
 
 export {
     sendCatalogError,
@@ -51,18 +52,12 @@ export type CatalogRequest = Request & {
 
 export type QueryRecord = Record<string, unknown>;
 
-const hasSchemaPath = (
-    model: { schema: { path(field: string): unknown } },
-    path: string
-): boolean => Boolean(model.schema.path(path));
+/** Entity id for audit logging — port entities carry `_id` (string). */
+const getEntityId = (item: CatalogAdminEntity | null | undefined): string | { toString(): string } | undefined => {
+    if (!item) return undefined;
+    return item._id ?? item.id;
+};
 
-export type CatalogStatusFilterToken =
-    | 'live'
-    | 'active'
-    | 'inactive'
-    | 'deactivated'
-    | 'pending'
-    | 'rejected';
 
 export const applyCatalogStatusFilter = (
     targetQuery: QueryRecord,
@@ -166,18 +161,18 @@ export { isDuplicateKeyError };
 ====================================================== */
 
 /**
- * GENERIC CREATE
+ * GENERIC CREATE — data access via the catalog repository port (P1-8).
  */
-export async function handleCatalogCreate<T extends Document>(
+export async function handleCatalogCreate(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    repository: CatalogAdminRepository,
     schema: z.ZodTypeAny,
     options: {
         auditAction?: string;
         slugifyName?: boolean;
         preOp?: (payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
-        postOp?: (item: T) => void | Promise<void>;
+        postOp?: (item: CatalogAdminEntity) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -200,37 +195,37 @@ export async function handleCatalogCreate<T extends Document>(
             data.slug = slugify(data.name as string, { lower: true, strict: true }) + '-' + nanoid(6);
         }
 
-        const item = await model.create(data as Partial<T>);
+        const item = await repository.create(data);
 
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { data }});
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} created successfully`);
+        return sendSuccessResponse(res, item, `${repository.entityName} created successfully`);
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+            return sendContractErrorResponse(req, res, 400, `${repository.entityName} already exists`);
         }
         return sendCatalogError(req, res, error);
     }
 }
 
 /**
- * GENERIC UPDATE
+ * GENERIC UPDATE — data access via the catalog repository port (P1-8).
  */
-export async function handleCatalogUpdate<T extends Document>(
+export async function handleCatalogUpdate(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    repository: CatalogAdminRepository,
     schema: z.ZodTypeAny,
     options: {
         auditAction?: string;
         slugifyName?: boolean;
-        preUpdate?: (id: string, payload: Record<string, unknown>, existing: T) => Promise<Record<string, unknown>>;
-        updateOp?: (id: string, data: Record<string, unknown>, existing: T) => Promise<T | unknown>;
-        postOp?: (item: T) => void | Promise<void>;
+        preUpdate?: (id: string, payload: Record<string, unknown>, existing: CatalogAdminEntity) => Promise<Record<string, unknown>>;
+        updateOp?: (id: string, data: Record<string, unknown>, existing: CatalogAdminEntity) => Promise<CatalogAdminEntity | unknown>;
+        postOp?: (item: CatalogAdminEntity) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -239,9 +234,9 @@ export async function handleCatalogUpdate<T extends Document>(
         }
 
         const id = String(req.params.id);
-        const existing = await model.findById(id);
+        const existing = await repository.findById(id);
         if (!existing) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${repository.entityName} not found`);
         }
 
         let payload: Record<string, unknown> = req.body as Record<string, unknown>;
@@ -261,34 +256,34 @@ export async function handleCatalogUpdate<T extends Document>(
 
         const item = options.updateOp
             ? await options.updateOp(id, data, existing)
-            : await model.findByIdAndUpdate(id, data as Partial<T>, { new: true });
+            : await repository.update(id, data);
         
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp) void options.postOp(item as CatalogAdminEntity);
 
         if (options.auditAction) {
-            const auditItem = item as { _id?: string | { toString: () => string } } | null;
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], auditItem?._id, { updates: data });
+            const auditItem = item as CatalogAdminEntity | null;
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(auditItem), metadata: { updates: data }});
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
+        return sendSuccessResponse(res, item, `${repository.entityName} updated successfully`);
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+            return sendContractErrorResponse(req, res, 400, `${repository.entityName} already exists`);
         }
         return sendCatalogError(req, res, error);
     }
 }
 
 /**
- * GENERIC TOGGLE STATUS
+ * GENERIC TOGGLE STATUS — data access via the catalog repository port (P1-8).
  */
-export async function handleCatalogToggleStatus<T extends Document>(
+export async function handleCatalogToggleStatus(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    repository: CatalogAdminRepository,
     options: { 
         auditAction?: string;
-        postOp?: (item: T) => void | Promise<void>;
+        postOp?: (item: CatalogAdminEntity) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -296,53 +291,52 @@ export async function handleCatalogToggleStatus<T extends Document>(
             return sendContractErrorResponse(req, res, 403, 'Admin access required');
         }
 
-        const item = await model.findById(req.params.id);
+        const item = await repository.findById(String(req.params.id));
         if (!item) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${repository.entityName} not found`);
         }
 
-        const isActive = !(item as T & { isActive?: boolean }).isActive;
-        const typedItem = item as T & { approvalStatus?: unknown; isActive?: boolean; categoryIds?: string[] };
+        const isActive = !item.isActive;
 
-        if (isActive && hasSchemaPath(model, 'categoryIds') && (!typedItem.categoryIds || typedItem.categoryIds.length === 0)) {
+        if (isActive && repository.supportsCategoryIds && (!item.categoryIds || item.categoryIds.length === 0)) {
             return sendContractErrorResponse(req, res, 400, 'Cannot activate brand/model with no assigned categories');
         }
 
         const approvalStatus = deriveApprovalStatus({
-            approvalStatus: typedItem.approvalStatus,
-            isActive: typedItem.isActive,
+            approvalStatus: item.approvalStatus,
+            isActive: item.isActive,
             fallback: CATALOG_APPROVAL_STATUS.APPROVED,
         });
         const nextState: Record<string, unknown> = { isActive };
-        if (hasSchemaPath(model, 'approvalStatus')) {
+        if (repository.supportsApprovalStatus) {
             nextState.approvalStatus = approvalStatus;
         }
 
-        await model.findByIdAndUpdate(req.params.id, nextState);
+        await repository.update(String(req.params.id), nextState);
         
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, approvalStatus });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { isActive, approvalStatus }});
         }
 
-        return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${isActive ? 'active' : 'inactive'}`);
+        return sendSuccessResponse(res, nextState, `${repository.entityName} status updated to ${isActive ? 'active' : 'inactive'}`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
 }
 
 /**
- * GENERIC DELETE
+ * GENERIC DELETE — data access via the catalog repository port (P1-8).
  */
-export async function handleCatalogDelete<T extends Document>(
+export async function handleCatalogDelete(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    repository: CatalogAdminRepository,
     checkDependencies?: (id: string) => Promise<{ count: number; details: unknown }>,
     options: { 
         auditAction?: string;
-        postOp?: (item: T) => void | Promise<void>;
+        postOp?: (item: CatalogAdminEntity) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -355,7 +349,7 @@ export async function handleCatalogDelete<T extends Document>(
         if (checkDependencies) {
             const deps = await checkDependencies(id);
             if (deps.count > 0) {
-                return sendContractErrorResponse(req, res, 400, `Cannot delete ${model.modelName} with active dependencies`, { details: deps.details });
+                return sendContractErrorResponse(req, res, 400, `Cannot delete ${repository.entityName} with active dependencies`, { details: deps.details });
             }
         }
 
@@ -365,40 +359,40 @@ export async function handleCatalogDelete<T extends Document>(
             isActive: false,
         };
 
-        const item = await model.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
+        const item = await repository.update(id, softDeleteUpdate);
         if (!item) {
-            const alreadyDeletedDoc = await model.findById(id).setOptions({ withDeleted: true }).exec();
-            if (alreadyDeletedDoc && (alreadyDeletedDoc as T & { isDeleted?: boolean }).isDeleted) {
+            const alreadyDeletedDoc = await repository.findByIdIncludingDeleted(id);
+            if (alreadyDeletedDoc && alreadyDeletedDoc.isDeleted) {
                 if (options.postOp) void options.postOp(alreadyDeletedDoc);
-                return sendSuccessResponse(res, { alreadyDeleted: true }, `${model.modelName} was already deleted`);
+                return sendSuccessResponse(res, { alreadyDeleted: true }, `${repository.entityName} was already deleted`);
             }
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${repository.entityName} not found`);
         }
 
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item)});
         }
 
-        return sendSuccessResponse(res, null, `${model.modelName} deleted successfully`);
+        return sendSuccessResponse(res, null, `${repository.entityName} deleted successfully`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
 }
 
 /**
- * GENERIC REVIEW (APPROVE/REJECT)
+ * GENERIC REVIEW (APPROVE/REJECT) — data access via the catalog repository port (P1-8).
  */
-export async function handleCatalogReview<T extends Document>(
+export async function handleCatalogReview(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    repository: CatalogAdminRepository,
     action: 'APPROVE' | 'REJECT',
     schema?: z.ZodTypeAny,
     options: { 
         auditAction?: string;
-        postOp?: (item: T) => void | Promise<void>;
+        postOp?: (item: CatalogAdminEntity) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -425,18 +419,18 @@ export async function handleCatalogReview<T extends Document>(
         }
 
 
-        const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
+        const item = await repository.update(String(req.params.id), updates);
         if (!item) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${repository.entityName} not found`);
         }
 
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp) void options.postOp(item);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });
+            void logAdminAction({ req, action: options.auditAction, targetType: repository.entityName as LogAdminActionParams['targetType'], targetId: getEntityId(item), metadata: { updates }});
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} ${action.toLowerCase()}d successfully`);
+        return sendSuccessResponse(res, item, `${repository.entityName} ${action.toLowerCase()}d successfully`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }

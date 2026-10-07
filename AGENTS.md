@@ -1083,7 +1083,7 @@ App-level (`apps/web`, `apps/admin`) types, classes, functions, and interfaces *
 
 ### 6. Dynamic JSCPD Token Duplication Ratchet Governance (`DUP-001`)
 
-The monorepo enforces an automatic dynamic duplication ratchet in `.jscpd-baseline.json` (currently **0.08%**).
+The monorepo enforces an automatic dynamic duplication ratchet in `.jscpd-baseline.json` (see the file for the current value — `DUP-001` tightens it automatically on green runs via `duplicate-validator.js --write-baseline`, wired into CI).
 - The validator enforces `currentRate <= previousBaseline + 0.01%`.
 - Across ~1.8 million tokens in the monorepo, a `0.01%` increase is only **~180 tokens (~15–20 lines of code)**.
 - Every refactoring and modularization task MUST run `npm run guard:duplicate-code` to verify token clone counts before executing `repo:gate`.

@@ -8,14 +8,14 @@
  */
 
 import mongoose from "mongoose";
-import { connectDB } from "@esparex/core/config/db";
-import { expireBusinesses } from "@esparex/core/services/business/BusinessLifecycleService";
-import { cascadeExpireBusinessListings } from "@esparex/core/services/AdminBusinessService";
-import Business from "@esparex/core/models/Business";
-import Ad from "@esparex/core/models/Ad";
+import { connectDB } from "@esparex/core";
+import { expireBusinesses } from "@esparex/core";
+import { cascadeExpireBusinessListings } from "@esparex/core";
+import { Business } from "@esparex/core";
+import { Ad } from "@esparex/core";
 import { BUSINESS_STATUS } from "@esparex/contracts";
 import { LIFECYCLE_STATUS } from "@esparex/contracts";
-import { runExpiryWarningJob } from "@esparex/core/jobs/expiryWarning.job";
+import { runExpiryWarningJob } from "@esparex/core";
 
 async function run(): Promise<void> {
     console.info("[job-verify] Connecting to MongoDB...");

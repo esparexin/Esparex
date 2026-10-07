@@ -3,9 +3,10 @@ import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
 import { LISTING_STATUS, LISTING_TYPE, ACTOR_TYPE } from "@esparex/contracts";
-import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
-import * as AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
+import { mutateStatus } from '@esparex/core';
+import * as AdMutationService from '@esparex/core';
 import { PromotionPolicyService } from '@esparex/core/domains/boosts';
+import { applyPromotion } from '@esparex/core/domains/boosts';
 import type { AuthUser } from '../../types/auth.types';
 
 /**
@@ -245,33 +246,27 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
             );
         }
 
-        const { PromotionService } = await import('@esparex/core/domains/payments/application/PromotionService');
-
-        let promotionResult;
-        if (type === 'push_to_top' || type === 'boost') {
-            promotionResult = await PromotionService.applyBoost({
-                userId,
-                listingId: listing.id,
-                entityType: listing.listingType === 'service' ? 'service' : 'ad',
-                durationDays,
-            });
-        } else {
-            promotionResult = await PromotionService.applySpotlight({
-                userId,
-                listingId: listing.id,
-                entityType: listing.listingType === 'service' ? 'service' : 'ad',
-                spotlightType: type === 'spotlight_cat' ? 'spotlight_cat' : 'spotlight_hp',
-                durationDays,
-            });
-        }
+        // P0-1: single boosts-domain applyPromotion (flag: ENABLE_UNIFIED_APPLY_PROMOTION).
+        // The retired payments PromotionService flow is reachable only via the flag-OFF
+        // legacy branch inside applyPromotion.
+        const promotionResult = await applyPromotion({
+            userId,
+            listingId: listing.id,
+            entityType: listing.listingType === 'service' ? 'service' : 'ad',
+            promotionType: type === 'push_to_top' || type === 'boost'
+                ? 'push_to_top'
+                : type === 'spotlight_cat' ? 'spotlight_cat' : 'spotlight_hp',
+            durationDays,
+            legacySource: 'listing-controller',
+        });
 
         return sendSuccessResponse(
             res,
             {
                 listingId: listing.id,
-                promotionId: promotionResult._id,
-                boostType: promotionResult.boostType,
-                expiresAt: promotionResult.endsAt,
+                promotionId: promotionResult.boost._id,
+                boostType: promotionResult.boost.boostType,
+                expiresAt: promotionResult.boost.endsAt,
             },
             'Promotion applied successfully! 🚀'
         );

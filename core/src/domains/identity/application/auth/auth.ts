@@ -13,17 +13,14 @@ const ADMIN_JWT_SECRET = env.ADMIN_JWT_SECRET || env.JWT_SECRET;
 /* JWT Payload Type                                                           */
 /* -------------------------------------------------------------------------- */
 
-export interface JwtPayload {
-    id: string;
-    role: string;
-    tokenVersion?: number;
-    iat: number;
-    exp: number;
-    sub: string;
-    jti?: string;
-    iss?: string;
-    aud?: string | string[];
-}
+/**
+ * Phase 3a (§5): relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3); re-exported here so existing importers keep working.
+ * This is the signed-token claims contract shared between the core signer
+ * and the backend auth middleware. Deletion of this shim is Phase 4 (§10).
+ */
+import type { JwtPayload } from '@esparex/contracts';
+export type { JwtPayload };
 
 export const signToken = (payload: Record<string, unknown>) => {
     return jwt.sign(payload, JWT_SECRET, {

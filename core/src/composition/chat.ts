@@ -1,4 +1,4 @@
 import { MongoChatRepositoryAdapter } from '../adapters/outbound/database/chat/MongoChatRepositoryAdapter';
-import { ChatRepositoryPort } from '../domains/chat';
+import type { ChatRepositoryPort } from '../domains/communications/ports/ChatRepositoryPort';
 
 export const chatRepository: ChatRepositoryPort = new MongoChatRepositoryAdapter();

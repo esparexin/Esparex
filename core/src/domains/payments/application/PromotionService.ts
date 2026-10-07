@@ -25,6 +25,11 @@ export interface ApplySpotlightParams {
 
 export class PromotionService {
     /**
+     * @deprecated P0-1 (DECISION-GATE §1/§3): superseded by boosts-domain `applyPromotion`.
+     * Kept only as the flag-OFF legacy branch; payments now exposes the credit-debit
+     * port only. Do not call from new code. Deletion in Phase 4.
+     */
+    /**
      * Applies a Boost promotion to a listing using 1 credit from Entitlement ledger or UserWallet.
      */
     static async applyBoost(params: ApplyBoostParams): Promise<IBoost> {

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { userRepository } from '../../../../composition/identity';
-import { LISTING_STATUS } from '@esparex/contracts';
-import * as AdAggregationService from '../../../../domains/listings/application/ad/ad/AdAggregationService';
+import { LISTING_STATUS, type SellerPublicUser, type SellerProfileServiceResult } from '@esparex/contracts';
+import * as AdAggregationService from '../../../../domains/listings/application/ad/AdAggregationService';
 import Ad from '../../../../models/Ad';
 import User from '../../../../models/User';
 import { buildPublicAdFilter } from '../../../../utils/FeedVisibilityGuard';
@@ -13,28 +13,23 @@ export type PublicSellerItem = {
     status: string;
 };
 
-export type SellerPublicUser = {
-    id: string;
-    name?: string;
-    profilePhoto?: string;
-    createdAt?: string;
-    isVerified?: boolean;
-    location?: {
-        city?: string;
-        state?: string;
-        country?: string;
-    };
-};
-
-export type SellerProfilePayload = {
-    user: SellerPublicUser;
-    listingSummary: {
-        totalActive: number;
-        visibleCount: number;
-        hasMore: boolean;
-    };
-    ads: Array<Record<string, unknown>>;
-};
+/**
+ * Phase 3a (§5): `SellerPublicUser` was an identical duplicate of the
+ * canonical symbol in `@esparex/contracts` — now imported.
+ * `SellerProfilePayload` is relocated to `@esparex/contracts` as
+ * `SellerProfileServiceResult` (canonical owner per DECISION-GATE §3) and
+ * re-exported here under its historic name so existing importers
+ * (`backend/api/src/controllers/user/userQueryController.ts`) keep working.
+ *
+ * CONFLICT (recorded, not merged): this shape (service result,
+ * `ads: Array<Record<string, unknown>>`) collides by name with the web
+ * client's `SellerProfilePayload` (`apps/web/src/lib/api/user/users.ts:73`,
+ * client view, `ads: Ad[]`); the web shape is canonicalized as
+ * `SellerProfileResponse`. A future gate decision may unify them. Deletion
+ * of this shim is Phase 4 (§10).
+ */
+export type { SellerPublicUser };
+export type SellerProfilePayload = SellerProfileServiceResult;
 
 export const getUserProfileById = async (
     userId: string

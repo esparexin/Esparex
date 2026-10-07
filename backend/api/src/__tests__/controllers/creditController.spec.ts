@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getCreditWalletSummary } from '../../controllers/payment/creditController';
-import { getAdPostingBalance } from '@esparex/core/domains/boosts/application/services/AdSlotService';
-import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
+import { getAdPostingBalance } from '@esparex/core/domains/boosts';
+import { DashboardFacade } from '@esparex/core/domains/payments';
 
 jest.mock('@esparex/core/domains/credits/application/CreditRulesEngine');
 jest.mock('@esparex/core/domains/boosts/application/services/AdSlotService');

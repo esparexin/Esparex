@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import ServiceType from '../models/ServiceType';
 import { escapeRegExp } from './stringUtils';
 
-export const toServiceTypeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {
+const toServiceTypeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {
     if (value instanceof mongoose.Types.ObjectId) return value;
     if (typeof value !== 'string') return undefined;
     const trimmed = value.trim();

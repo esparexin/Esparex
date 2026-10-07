@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CACHE_KEYS, getMultiCache, setMultiCache } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import { CACHE_KEYS, getMultiCache, setMultiCache } from '../../../../../domains/listings/application/ad/_shared/adServiceBase';
 
 type MetadataRef = mongoose.Types.ObjectId | string;
 type MetadataEntity = Record<string, unknown> & {

@@ -1,5 +1,5 @@
 {
-  "threshold": 2.5,
+  "threshold": 0.5,
   "minLines": 8,
   "minTokens": 100,
   "format": ["typescript", "tsx"],

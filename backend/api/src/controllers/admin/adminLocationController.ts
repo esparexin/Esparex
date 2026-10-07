@@ -11,38 +11,8 @@ import * as adminLocationService from '@esparex/core/services/AdminLocationServi
 // Controllers
 // ---------------------------------------------------------
 
-export const createStateLocation = async (req: Request, res: Response) => {
-    try {
-        const location = await adminLocationService.adminCreateStateLocation(
-            req.body as Record<string, unknown>
-        );
-        return sendSuccessResponse(res, location);
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
 
-export const createCityLocation = async (req: Request, res: Response) => {
-    try {
-        const location = await adminLocationService.adminCreateCityLocation(
-            req.body as Record<string, unknown>
-        );
-        return sendSuccessResponse(res, location);
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
 
-export const createAreaLocation = async (req: Request, res: Response) => {
-    try {
-        const location = await adminLocationService.adminCreateAreaLocation(
-            req.body as Record<string, unknown>
-        );
-        return sendSuccessResponse(res, location);
-    } catch (error: unknown) {
-        return sendBaseAdminError(req, res, error);
-    }
-};
 
 export const getDistinctStates = async (req: Request, res: Response) => {
     try {

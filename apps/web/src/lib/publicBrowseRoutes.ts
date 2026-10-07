@@ -117,7 +117,7 @@ export const normalizePublicBrowseType = (value: unknown): PublicBrowseType => {
         : "all";
 };
 
-export const inferPublicBrowseTypeFromPathname = (pathname?: string | null): PublicBrowseType => {
+const inferPublicBrowseTypeFromPathname = (pathname?: string | null): PublicBrowseType => {
     const normalizedPathname = pathname?.toLowerCase() || "";
     if (normalizedPathname.includes("spare-part")) {
         return LISTING_TYPE.SPARE_PART;

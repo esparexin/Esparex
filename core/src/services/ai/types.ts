@@ -103,7 +103,7 @@ const readUsage = (data: unknown): {
  * Extracts the assistant message text from an OpenAI-compatible
  * chat-completion payload. Returns '' when the shape is unexpected.
  */
-export function extractChatCompletionText(data: unknown): string {
+function extractChatCompletionText(data: unknown): string {
     if (!data || typeof data !== 'object') return '';
     const choices = (data as { choices?: unknown }).choices;
     if (!Array.isArray(choices) || choices.length === 0) return '';

@@ -9,13 +9,13 @@
 
 import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { ZodError } from 'zod';
-import { isZodError } from '@esparex/core/utils/errorHelpers';
+import { isZodError } from '@esparex/core';
 import { AuditService } from '@esparex/core/domains/analytics';
-import type { IAuthUser } from '@esparex/core/types/auth';
+import type { IAuthUser } from '@esparex/core';
 
 
 type RequestWithUser = Request & {

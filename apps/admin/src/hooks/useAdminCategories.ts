@@ -2,10 +2,10 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback, useState } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
 import type { Category } from "@esparex/contracts";
+import type { UpdateCategoryDTO } from "@esparex/contracts";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
-import { ListingTypeValue } from "@esparex/contracts";
 
 interface UseAdminCategoriesOptions {
     initialPagination?: Partial<AdminListPagination>;
@@ -14,11 +14,14 @@ interface UseAdminCategoriesOptions {
         status: string;
     };
 }
-type CategoryMutationPayload = {
+/**
+ * Phase 3a (§5): the local `CategoryMutationPayload` shadow type is deleted.
+ * The mutation payload is derived from the canonical `UpdateCategoryDTO`
+ * (`@esparex/contracts`) with the admin form's required `name` restored, so
+ * the wire shape stays owned by the canonical contract.
+ */
+type CategoryMutationPayload = UpdateCategoryDTO & {
     name: string;
-    isActive?: boolean;
-    hasScreenSizes?: boolean;
-    listingType?: ListingTypeValue[];
 };
 
 export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {

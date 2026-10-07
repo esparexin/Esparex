@@ -23,14 +23,14 @@ export type AuthFailure = {
     lockUntil?: string;
 };
 
-export type SendOtpSuccess = {
+type SendOtpSuccess = {
     success: true;
     isNewUser: boolean;
     otpExpiresIn: number;
     name?: string;
 };
 
-export type VerifyOtpSuccess = {
+type VerifyOtpSuccess = {
     success: true;
     user: Record<string, unknown>;
     token: string;
@@ -43,7 +43,7 @@ export const OTP_EXPIRY_SECONDS = 15 * 60; // 15 minutes (per MSG91 EsparexLogin
 export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_RESEND_COOLDOWN_SECONDS = 30;
 export const OTP_MAX_RESEND_ATTEMPTS = 3;
-export const LOCK_DURATION_MS =
+const LOCK_DURATION_MS =
     env.NODE_ENV === 'production'
         ? 30 * 60 * 1000
         : 2 * 60 * 1000;

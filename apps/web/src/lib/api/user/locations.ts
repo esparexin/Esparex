@@ -76,30 +76,4 @@ export const getStates = async (): Promise<Location[]> => {
     return Array.isArray(result) ? result : [];
 };
 
-export const getCitiesByState = async (stateId: string): Promise<Location[]> => {
-    const normalizedStateId = String(stateId || '').trim();
-    if (!normalizedStateId) return [];
 
-    const { data: result } = await toApiResult<Location[]>(
-        apiClient.get(API_ROUTES.USER.LOCATIONS_CITIES, {
-            params: { stateId: normalizedStateId },
-            skipHealthCheck: true,
-        })
-    );
-
-    return Array.isArray(result) ? result : [];
-};
-
-export const getAreasByCity = async (cityId: string): Promise<Location[]> => {
-    const normalizedCityId = String(cityId || '').trim();
-    if (!normalizedCityId) return [];
-
-    const { data: result } = await toApiResult<Location[]>(
-        apiClient.get(API_ROUTES.USER.LOCATIONS_AREAS, {
-            params: { cityId: normalizedCityId },
-            skipHealthCheck: true,
-        })
-    );
-
-    return Array.isArray(result) ? result : [];
-};

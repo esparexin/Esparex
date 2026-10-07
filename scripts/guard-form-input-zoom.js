@@ -148,7 +148,9 @@ if (violations.length > 0) {
     console.error('Remedy: Use responsive tokens `text-body-lg md:text-body` or `text-base md:text-sm`.\n');
 
     for (const v of violations) {
-        console.error(`  ✗ ${v.file}:${v.line}`);
+        // NOTE: violation lines start with "- " so GOV-GUARDS-001 can parse
+        // them for baseline/ratchet comparison (DECISION-GATE C-2).
+        console.error(`  - ${v.file}:${v.line}`);
         console.error(`    Classes: ${v.classStr}`);
         console.error(`    Snippet: ${v.snippet}\n`);
     }

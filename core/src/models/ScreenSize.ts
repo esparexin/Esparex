@@ -13,7 +13,7 @@ import {
     marketplaceTrustBaseDefinition,
     applyCatalogLifecycleFields,
     catalogEntityToJsonTransform,
-} from './catalogLifecycle';
+} from '../domains/catalog';
 
 export interface IScreenSize extends Document {
     size: string;

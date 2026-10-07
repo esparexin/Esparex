@@ -94,6 +94,19 @@ function run(val) {
     'adminModeration.validator',
     'loadEnv',
     'mongoosePlugins',
+    // P1-10: model registry is imported for side effects via `import './models/registry'`
+    // in core/src/index.ts (mongoose model registration); the guard's import regex
+    // does not detect bare side-effect imports in barrel context.
+    'registry',
+    // P1-10: listings application barrel is referenced by tests via jest.mock
+    // (moduleNameMapper); prod code uses the root barrel instead.
+    'application',
+    // Phase 2a (P1-1) @deprecated re-export shims — intentionally unreferenced;
+    // deleted in Phase 4 (DECISION-GATE §4). Remove from allowlist on deletion.
+    // (MobileBottomNav, LoginMobileStep, HeaderDesktopActions, MobileHeaderTopBar
+    // deleted in Phase 4; MobileAccountBottomNav retained — still imported by
+    // navigation SSOT specs.)
+    'MobileAccountBottomNav',
   ]);
 
   const orphans = [];
@@ -152,12 +165,31 @@ function run(val) {
   try {
     const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
     const currentRate = report.statistics?.total?.percentage || 0;
-    const effectiveBaseline = Math.max(previousBaseline, 0.08);
+    // DECISION-GATE C-5: the effective baseline IS the persisted baseline — no
+    // floor. The writer above tightens it on green runs, so the ratchet is real.
+    const effectiveBaseline = previousBaseline;
 
     if (currentRate > effectiveBaseline + 0.01) {
       val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds baseline ${effectiveBaseline}%`);
     } else {
       val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${effectiveBaseline}%)`);
+      // DECISION-GATE C-5: the baseline tightens on green runs. The AGENTS.md
+      // "automatic dynamic duplication ratchet" is made real by persisting the
+      // lower rate, so the next run must beat it. Only writes on green runs and
+      // only when explicitly asked (--write-baseline), so plain repo:gate runs
+      // stay read-only.
+      if (process.argv.includes('--write-baseline') && currentRate < previousBaseline) {
+        const tightened = Math.round(currentRate * 10000) / 10000;
+        try {
+          fs.writeFileSync(
+            baselinePath,
+            JSON.stringify({ baselinePercentage: tightened, lastUpdated: new Date().toISOString() }, null, 2) + '\n'
+          );
+          val.info(`JSCPD baseline tightened: ${previousBaseline}% -> ${tightened}% (green run)`);
+        } catch (e) {
+          val.error(`Failed to write tightened JSCPD baseline: ${e.message}`);
+        }
+      }
     }
   } catch {
     val.warning('Could not parse JSCPD report file');

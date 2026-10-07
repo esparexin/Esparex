@@ -1,6 +1,6 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { Request, Response } from 'express';
-import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '@esparex/core/services/PageContentService';
+import { findContentBySlug, upsertContentBySlug, getAllContent as fetchAllContent } from '@esparex/core';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";

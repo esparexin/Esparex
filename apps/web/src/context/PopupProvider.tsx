@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext,  useEffect, useMemo } from "react";
 
 import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
@@ -65,10 +65,3 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function usePopupContext() {
-  const context = useContext(PopupContext);
-  if (!context) {
-    throw new Error("usePopupContext must be used within PopupProvider");
-  }
-  return context;
-}

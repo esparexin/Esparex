@@ -5,9 +5,9 @@ owner: Platform Architecture
 last_updated: 2026-08-06
 ---
 
-# UI Foundation Blueprint (SSOT)
+# UI Foundation Blueprint
 
-This document serves as the permanent architectural constitution and master plan for the Esparex UI Modernization Program. It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
+This document is the program plan for the Esparex UI Modernization Program (it defers to `packages/ui/GOVERNANCE.md` for UI governance). It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
 
 ## Core Architecture Principles
 

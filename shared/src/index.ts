@@ -14,6 +14,7 @@ export * from './utils/formatters';
 export * from './utils/statusNormalization';
 export * from './utils/userStatus';
 export * from './utils/securityPatterns';
+export * from './utils/phoneDetection';
 export * from './utils/roleNormalization';
 export * from './utils/resolveCategoryId';
 // geoUtils — radius constants are now in @esparex/contracts; export only utility functions
@@ -59,6 +60,7 @@ export {
 export * from './popup/popupCore';
 export * from './popup/popupEvents';
 export * from './popup/popupQueue';
+export * from './popup/notify';
 
 // API ROUTE CONSTANTS (remain in @esparex/shared — not wire types)
 export * from './routes/api/basePaths';

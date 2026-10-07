@@ -1,8 +1,1 @@
-export {
-    LOCATION_EVENT_REASONS,
-    LOCATION_EVENT_SOURCES,
-    LOCATION_EVENT_TYPES,
-    type LocationEventReason,
-    type LocationEventSource,
-    type LocationEventType,
-} from "@esparex/contracts";
+export { LOCATION_EVENT_REASONS, LOCATION_EVENT_SOURCES, type LocationEventReason, type LocationEventSource } from "@esparex/contracts";

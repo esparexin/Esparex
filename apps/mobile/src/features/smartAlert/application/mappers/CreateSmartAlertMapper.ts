@@ -1,21 +1,13 @@
+import type { SmartAlertCreatePayload } from '@esparex/contracts';
 import { SmartAlertFormState } from '../../domain/SmartAlertFormState';
 
-export interface CreateSmartAlertPayload {
-  name: string;
-  criteria: {
-    keywords?: string;
-    category?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    location?: string;
-  };
-  radiusKm: number;
-  frequency: 'instant' | 'daily';
-  notificationChannels: string[];
-}
-
+/**
+ * Phase 3a (§5): the local `CreateSmartAlertPayload` interface that shadowed
+ * the canonical contract type is deleted. This mapper now targets the
+ * canonical `SmartAlertCreatePayload` from `@esparex/contracts`.
+ */
 export class CreateSmartAlertMapper {
-  static toPayload(state: SmartAlertFormState): CreateSmartAlertPayload {
+  static toPayload(state: SmartAlertFormState): SmartAlertCreatePayload {
     const minP = state.minPrice.trim() ? parseFloat(state.minPrice.trim()) : undefined;
     const maxP = state.maxPrice.trim() ? parseFloat(state.maxPrice.trim()) : undefined;
 

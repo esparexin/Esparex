@@ -35,7 +35,7 @@ interface NominatimAddress {
     postcode?: string;
 }
 
-export interface NominatimResult {
+interface NominatimResult {
     /** Best city/town/mandal name from Nominatim */
     cityName: string;
     /** The county/mandal name (administrative unit above village) */
@@ -57,7 +57,7 @@ const SETTLEMENT_SELECT_FIELDS =
  * All Nominatim API requests MUST use this — anonymous/generic agents
  * are prohibited (AGENTS.md §24.8).
  */
-export const NOMINATIM_USER_AGENT = 'Esparex/1.0';
+const NOMINATIM_USER_AGENT = 'Esparex/1.0';
 
 /* -------------------------------------------------------------------------- */
 /* NOMINATIM HTTP SSOT                                                        */

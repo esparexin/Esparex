@@ -11,7 +11,7 @@ export type { ListingStatus };
 export type ListingType = "ads" | "spare-parts" | "services";
 export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 
-export interface UserListingPagination {
+interface UserListingPagination {
     total: number;
     page: number;
     limit: number;

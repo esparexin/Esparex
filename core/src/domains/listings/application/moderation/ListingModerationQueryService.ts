@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Ad from '../../../../models/Ad';
-import { getAds } from '../../../../domains/listings/application/ad/ad/AdAggregationService';
-import { getAnyAdById } from '../../../../domains/listings/application/ad/ad/AdDetailService';
+import { getAds } from '../../../../domains/listings/application/ad/AdAggregationService';
+import { getAnyAdById } from '../../../../domains/listings/application/ad/AdDetailService';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/contracts';
 import { buildPublicAdFilter } from '../../../../utils/FeedVisibilityGuard';
@@ -223,7 +223,7 @@ _id: ModerationListingType;
 count: number;
 };
 
-export const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
+const getPublicLiveListingCounts = async (listingType?: ModerationListingType): Promise<PublicLiveListingCounts> => {
 const match: Record<string, unknown> = {
     ...buildPublicAdFilter(),
 };

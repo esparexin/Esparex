@@ -22,10 +22,9 @@
  *   - All inserts run with upsert via CatalogImportService (idempotent, no duplicates).
  */
 
-import ScreenSize from '@esparex/core/models/ScreenSize';
-import Category from '@esparex/core/models/Category';
-import { CatalogImportService } from '@esparex/core/domains/catalog/application/services/CatalogImportService';
-import logger from '@esparex/core/utils/logger';
+import { CatalogImportService } from '@esparex/core';
+import { CatalogSeedService } from '@esparex/core';
+import { logger } from '@esparex/core';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Multi-Category Brands to Link
@@ -4879,28 +4878,10 @@ export async function seedBrandsModelsExpansion(): Promise<void> {
     if (brandResult.errors.length) logger.warn('   Errors:', brandResult.errors);
 
     // ── Step 2: LED TVs — ensure standard screen sizes ────────────────────────
+    // P1-8: screen-size write path relocated behind the catalog domain.
     logger.info('📺 Step 2: Ensuring LED TV screen sizes (42", 48", 77", 86")...');
-    const tvCat = await Category.findOne({ slug: 'led-tvs' }).lean();
-    if (!tvCat) {
-        logger.warn('   ⚠️ LED TVs category not found — skipping screen sizes.');
-    } else {
-        for (const item of MISSING_TV_SIZES) {
-            await ScreenSize.findOneAndUpdate(
-                { size: item.size, categoryId: tvCat._id },
-                {
-                    size: item.size,
-                    name: `${item.size} Screen Size`,
-                    displayName: `${item.size} Screen Size`,
-                    value: item.value,
-                    categoryId: tvCat._id,
-                    isActive: true,
-                    isDeleted: false,
-                },
-                { upsert: true }
-            );
-        }
-        logger.info(`   Screen sizes ensured: ${MISSING_TV_SIZES.map(s => s.size).join(', ')}`);
-    }
+    await CatalogSeedService.ensureScreenSizes('led-tvs', MISSING_TV_SIZES);
+    logger.info(`   Screen sizes ensured: ${MISSING_TV_SIZES.map(s => s.size).join(', ')}`);
 
     // ── Step 3: Drones — add 2020–2026 models ─────────────────────────────────
     logger.info('🚁 Step 3: Adding Drone models (2020–2026 across 16 brands)...');

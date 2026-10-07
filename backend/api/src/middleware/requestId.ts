@@ -10,7 +10,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { TraceContext } from "@esparex/shared";
-import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
+import { setReliabilityContext } from '@esparex/core';
 
 /**
  * Extend Express Request to include requestId

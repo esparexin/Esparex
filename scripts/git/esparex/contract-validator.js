@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'CONTRACT-001', name: 'Contract Validation', version: '1.0.0', category: 'Architecture' };
@@ -44,15 +43,16 @@ function getAllWorkspacePackages() {
 }
 
 function run(val) {
-  const changedFiles = (() => {
-    try {
-      const out = execSync('git diff --cached --name-only --diff-filter=ACMR', { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-      return out.split('\n').filter(Boolean);
-    } catch { return []; }
-  })();
+  // DECISION-GATE C-4: staged diff in pre-commit, merge-base diff in CI
+  // (CI checkouts have no staged index — --cached would be vacuous).
+  const { getChangedFiles } = require('./diff-scope');
+  const { files: changedFiles, scope } = getChangedFiles(ROOT);
 
   const stagedPkgFiles = changedFiles.filter(f => f.endsWith('package.json'));
-  if (stagedPkgFiles.length === 0) return;
+  if (stagedPkgFiles.length === 0) {
+    val.info(`Contract validation: no package.json changes in scope (${scope})`);
+    return;
+  }
 
   const workspacePkgs = getAllWorkspacePackages();
   const nameCounts = {};

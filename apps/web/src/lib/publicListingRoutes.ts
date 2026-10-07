@@ -1,7 +1,7 @@
 import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 import { generateAdSlug } from "@/lib/slug";
 
-export type PublicListingType = ListingTypeValue;
+type PublicListingType = ListingTypeValue;
 
 export interface PublicListingRouteInput {
     id?: string | number | null;

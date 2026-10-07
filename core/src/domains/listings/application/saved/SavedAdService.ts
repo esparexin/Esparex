@@ -3,7 +3,7 @@ import SavedAd from '../../../../models/SavedAd';
 import AdMetrics from '../../../../models/AdMetrics';
 import type { ListingUpdate } from '../../ports/ListingRepositoryPort';
 import { getListingRepository } from '../../../../composition/listings';
-import { hydrateAdMetadata, type HydratedAd } from '../ad/ad/AdAggregationService';
+import { hydrateAdMetadata, type HydratedAd } from '../ad/AdAggregationService';
 import { sanitizePersistedImageUrls } from '../../../../utils/s3';
 import { serializeDoc } from '../../../../utils/serialize';
 import { recordAdAnalyticsEvent } from '../../../discovery';

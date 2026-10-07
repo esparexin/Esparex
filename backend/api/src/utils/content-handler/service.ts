@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import type { Document, Model } from 'mongoose';
 import { LISTING_TYPE_VALUES, ListingTypeValue, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { normalizeRole } from '@esparex/core';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/domains/catalog/application/services/CatalogSearchGovernanceService';
-import { runCatalogShadowRead } from '@esparex/core/utils/catalogShadowRead';
+import { getCache, setCache, CACHE_TTLS } from '@esparex/core';
+import { FeatureFlag, isEnabled } from '@esparex/core';
+import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core';
+import { runCatalogShadowRead } from '@esparex/core';
 import type { ContentOptions } from './types';
 import { CATALOG_MODELS, parseSortQuery, tryAdminCatalogReadSwitch } from './helpers';
 

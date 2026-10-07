@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { X } from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 
-export interface ListingImageTileItem {
+interface ListingImageTileItem {
   id?: string | number;
   preview: string;
 }

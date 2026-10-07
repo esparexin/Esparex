@@ -33,7 +33,7 @@ export function getEntityCategoryIds(entity: CategoryLinkedEntity): string[] {
     return [];
 }
 
-export function getUniqueIds(ids: string[]): string[] {
+function getUniqueIds(ids: string[]): string[] {
     return Array.from(new Set(ids));
 }
 
@@ -43,7 +43,7 @@ export function toCategoryOptions(categories: NamedCategory[]): { id: string; na
     );
 }
 
-export function splitAssignableCategoryIds(categoryIds: string[], assignableIdSet: Set<string | undefined>) {
+function splitAssignableCategoryIds(categoryIds: string[], assignableIdSet: Set<string | undefined>) {
     const assignable = categoryIds.filter((id) => assignableIdSet.has(id));
     return {
         assignableCategoryIds: assignable,

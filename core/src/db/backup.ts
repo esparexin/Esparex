@@ -51,7 +51,7 @@ export function ensureBackupDir(): void {
 /**
  * Generate backup filename with timestamp
  */
-export function getBackupFilename(database: string, isEncrypted: boolean): string {
+function getBackupFilename(database: string, isEncrypted: boolean): string {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     return `${database}_${timestamp}.gz${isEncrypted ? '.enc' : ''}`;
 }

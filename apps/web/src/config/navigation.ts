@@ -20,11 +20,11 @@ import type { User as AppUser } from "@esparex/contracts";
 import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 
-export type NavigationRole = "guest" | "user" | "business";
+type NavigationRole = "guest" | "user" | "business";
 export type NavigationSurface = "profile-dropdown" | "mobile-drawer" | "mobile-bottom-nav";
-export type NavigationSection = "main" | "account";
+type NavigationSection = "main" | "account";
 
-export interface WebNavigationItem {
+interface WebNavigationItem {
   id: string;
   label: string;
   slug: string;
@@ -231,7 +231,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
 ];
 
-export function getNavigationRole(user: AppUser | null): NavigationRole {
+function getNavigationRole(user: AppUser | null): NavigationRole {
   if (!user) return "guest";
   const isBusiness = isBusinessActiveStatus(user.businessStatus);
   return isBusiness ? "business" : "user";
@@ -307,4 +307,19 @@ export function getNavigationSections(items: ResolvedNavigationItem[]) {
     main: items.filter((item) => item.section === "main"),
     account: items.filter((item) => item.section === "account"),
   };
+}
+
+/**
+ * Primary tabs shown in the mobile account bottom navigation (P1-1).
+ * Moved here from the deprecated `MobileAccountBottomNav` so the tab set is
+ * part of the navigation SSOT.
+ */
+export const PRIMARY_PROFILE_TABS: ProfileTabValue[] = ["personal", "mylistings", "messages", "smartalerts"];
+
+/**
+ * Resolves any profile tab to the tab highlighted in the mobile account
+ * bottom navigation (secondary tabs collapse to "more").
+ */
+export function resolveBottomNavActiveTab(activeTab: ProfileTabValue): ProfileTabValue {
+  return PRIMARY_PROFILE_TABS.includes(activeTab) ? activeTab : "more";
 }

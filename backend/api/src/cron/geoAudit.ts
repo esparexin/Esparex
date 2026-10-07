@@ -1,18 +1,11 @@
-import User from '@esparex/core/models/User';
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { userRepository } from '@esparex/core/domains/identity';
+import { logger } from '@esparex/core';
+import { runWithDistributedJobLock } from '@esparex/core';
 
 const GEO_AUDIT_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24h
 const GEO_AUDIT_STARTUP_DELAY_MS = 15_000;
 const GEO_AUDIT_LOCK_TTL_MS = 10 * 60 * 1000;
 const GEO_AUDIT_JOB_NAME = 'user_geo_audit';
-
-type GeoAuditUserDoc = {
-    _id: unknown;
-    location?: {
-        coordinates?: unknown;
-    };
-};
 
 const isFiniteNumber = (value: unknown): value is number =>
     typeof value === 'number' && Number.isFinite(value);
@@ -58,15 +51,14 @@ const runGeoAudit = async (): Promise<void> => {
             GEO_AUDIT_JOB_NAME,
             { ttlMs: GEO_AUDIT_LOCK_TTL_MS, failOpen: false },
             async () => {
-                const cursor = User.find({ 'location.coordinates': { $exists: true } })
-                    .select('_id location.coordinates')
-                    .lean()
-                    .cursor();
+                // Phase 3b: user scan via the identity repository port
+                // (was User.find(...).cursor() direct).
+                const users = userRepository.streamUsersWithCoordinates();
 
                 let scannedUsers = 0;
                 const invalidUsers: Array<{ userId: string; reason: string }> = [];
 
-                for await (const user of cursor as AsyncIterable<GeoAuditUserDoc>) {
+                for await (const user of users) {
                     scannedUsers += 1;
                     const result = inspectUserCoordinates(user.location?.coordinates);
                     if (!result.valid) {

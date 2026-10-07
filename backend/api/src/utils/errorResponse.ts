@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
-import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core/utils/errorHelpers';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core';
+import { AppError } from '@esparex/core';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -9,17 +9,6 @@ type ErrorResponseOptions = {
     [key: string]: unknown;
 };
 
-/**
- * Strict error response contract - validated response format
- */
-export interface ErrorResponseContract {
-    success: false;
-    error: string;
-    status: number;
-    path: string;
-    code?: string;
-    details?: Record<string, unknown>;
-}
 
 export const buildErrorResponse = (
     req: Request,

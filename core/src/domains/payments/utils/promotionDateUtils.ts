@@ -1,23 +1,7 @@
 /**
- * Shared date calculation utilities for promotion services.
- * Extracted to satisfy file-size ratchet (baseline +5) in PromotionService.ts.
+ * @deprecated Canonical owner is now `boosts/shared/computeBoostWindow.ts`
+ * (P0-1 consolidation, DECISION-GATE §3). This re-export remains only so the retired
+ * payments `PromotionService` flow keeps compiling. Do not import from here in new
+ * code. Scheduled for deletion in Phase 4 (see DECISION-GATE §4).
  */
-
-export interface BoostWindow {
-    startsAt: Date;
-    endsAt: Date;
-    effectiveDays: number;
-}
-
-/**
- * Computes boost/spotlight start/end dates bounded by the ad's expiry.
- */
-export function computeBoostWindow(adDoc: { expiresAt?: Date | null }, durationDays: number): BoostWindow {
-    const startsAt = new Date();
-    const requestedMs = startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000;
-    const adExpiresMs = adDoc.expiresAt ? new Date(adDoc.expiresAt).getTime() : requestedMs;
-    const effectiveMs = Math.min(requestedMs, adExpiresMs);
-    const endsAt = new Date(effectiveMs);
-    const effectiveDays = Math.max(1, Math.round((effectiveMs - startsAt.getTime()) / (24 * 60 * 60 * 1000)));
-    return { startsAt, endsAt, effectiveDays };
-}
+export { computeBoostWindow } from '../../boosts/shared/computeBoostWindow';

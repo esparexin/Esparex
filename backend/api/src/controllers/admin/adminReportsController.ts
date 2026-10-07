@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { logAdminAction } from '../../utils/adminLogger';
-import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
+import { mutateStatus } from '@esparex/core';
 import { ACTOR_TYPE } from "@esparex/contracts";
 import { AD_STATUS } from "@esparex/contracts";
 import { REPORT_STATUS, REPORT_STATUS_VALUES, type ReportStatusValue } from "@esparex/contracts";
@@ -19,7 +19,7 @@ import {
     saveReport,
     updateReportById,
 } from '@esparex/core/domains/analytics';
-import { getReportedAdsAggregation } from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
+import { getReportedAdsAggregation } from '@esparex/core';
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {
@@ -100,7 +100,7 @@ export const resolveReport = async (req: Request, res: Response) => {
         report.resolvedAt = new Date();
         await saveReport(report);
 
-        await logAdminAction(req, 'RESOLVE_REPORT', 'Report', id, { action, note });
+        await logAdminAction({ req, action: 'RESOLVE_REPORT', targetType: 'Report', targetId: id, metadata: { action, note }});
         sendSuccessResponse(res, report, 'Report resolved successfully');
     } catch (err) {
         sendAdminError(req, res, err);
@@ -128,7 +128,7 @@ export const updateReportStatus = async (req: Request, res: Response) => {
         });
         if (!report) return sendAdminError(req, res, 'Report not found', 404);
 
-        await logAdminAction(req, 'UPDATE_REPORT_STATUS', 'Report', id, { status, note });
+        await logAdminAction({ req, action: 'UPDATE_REPORT_STATUS', targetType: 'Report', targetId: id, metadata: { status, note }});
         sendSuccessResponse(res, report, 'Report status updated successfully');
     } catch (err: unknown) {
         sendAdminError(req, res, err);

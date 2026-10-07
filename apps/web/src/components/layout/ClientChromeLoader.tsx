@@ -3,9 +3,9 @@
 import { usePathname } from "next/navigation";
 import { BottomActionsBar } from "@/components/BottomActionsBar";
 import { StatusBannerHost } from "@/components/common/StatusBannerHost";
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { isWizardPathname } from "@/lib/routeUtils";
+import { BottomNavChrome } from "./BottomNavChrome";
 
 interface ClientChromeLoaderProps {
     apiUnavailable?: boolean;
@@ -22,7 +22,7 @@ export function ClientChromeLoader({ apiUnavailable = false }: ClientChromeLoade
                 hasCompactHeader={!policy.showMobileSearch}
                 hideHeader={isWizardPathname(pathname)}
             />
-            <MobileBottomNav enabled={policy.showMobileBottomNav} />
+            <BottomNavChrome />
             <BottomActionsBar enabled={policy.showBottomActionsBar} />
         </>
     );

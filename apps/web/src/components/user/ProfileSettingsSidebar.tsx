@@ -9,12 +9,12 @@ import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@esparex/contracts";
 
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
-import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
 import { AccountSidebar } from "./profile/AccountSidebar";
 import { ProfileTabContentRouter } from "./profile/ProfileTabContentRouter";
 import { AccountHeader } from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ProfileTabValue } from "@/config/navigation";
+import { AccountTabBar } from "./profile/AccountTabBar";
 import { useProfileSidebarState } from "./profile/useProfileSidebarState";
 
 interface ProfileSettingsProps {
@@ -149,7 +149,11 @@ export function ProfileSettingsSidebar({
       </div>
 
       {!isViewingActiveChat && (
-        <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
+        <AccountTabBar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          unreadCount={chatUnreadCount}
+        />
       )}
 
       {/* Extracted Dialogs */}

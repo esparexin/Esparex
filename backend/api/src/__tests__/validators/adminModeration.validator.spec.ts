@@ -1,7 +1,7 @@
 import {
     adminModerationListingsQuerySchema,
     adminReportedAdsQuerySchema,
-} from "@esparex/core/validators/adminModeration.validator";
+} from "@esparex/core";
 
 describe("adminModerationListingsQuerySchema", () => {
     it("accepts canonical moderation query filters", () => {

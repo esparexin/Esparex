@@ -35,6 +35,10 @@ const aiSectionSchema = z.object({
         temperature: z.number().min(0).max(2).optional(),
         maxTokens: z.number().int().min(1).max(4000).optional(),
     }).strict().optional(),
+    // Phase 3b: admin AI-config console persists provider/capability settings
+    // through updateSystemConfigSections (previously a direct doc.save()).
+    capabilities: z.record(z.string(), z.unknown()).optional(),
+    providers: z.record(z.string(), z.unknown()).optional(),
 }).strict();
 
 const platformSectionSchema = z.object({

@@ -1,8 +1,14 @@
 import { adminFetch } from "./adminClient";
 import { buildQueryString } from "./queryParams";
 import { ADMIN_ROUTES } from "./routes";
+import type { UpdateScreenSizeDTO } from "@esparex/contracts";
 
-export type ScreenSizeMutationPayload = {
+/**
+ * Phase 3a (§5): local `ScreenSizeMutationPayload` shadow type deleted; the
+ * mutation payload is derived from the canonical `UpdateScreenSizeDTO`
+ * (`@esparex/contracts`) with the admin form's required fields restored.
+ */
+export type ScreenSizeMutationPayload = UpdateScreenSizeDTO & {
     size: string;
     name: string;
     value: number;

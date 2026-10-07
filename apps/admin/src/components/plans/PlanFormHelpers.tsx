@@ -1,5 +1,4 @@
 import React from "react";
-import { Package, Zap, BellRing } from "@esparex/ui";
 import type { Plan } from "@esparex/contracts";
 import type { PlanFormValues } from "./planForm.schema";
 
@@ -52,33 +51,6 @@ export const DEFAULT_FORM: PlanFormValues = {
   showOnHomePage: false,
 };
 
-export const TYPE_META: Record<PlanType, { label: string; icon: React.ReactNode; color: string }> = {
-  FREE_DEFAULT: {
-    label: "Free Plan (Default)",
-    icon: <Package size={16} />,
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  AD_PACK: {
-    label: "Ad Pack",
-    icon: <Package size={16} />,
-    color: "bg-primary/10 text-primary border-primary/20",
-  },
-  BOOST_AD: {
-    label: "Boost Ad",
-    icon: <Zap size={16} />,
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  SPOTLIGHT: {
-    label: "Spotlight",
-    icon: <Zap size={16} />,
-    color: "bg-purple-50 text-purple-700 border-purple-200",
-  },
-  SMART_ALERT: {
-    label: "Smart Alert",
-    icon: <BellRing size={16} />,
-    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  },
-};
 
 export function planToForm(plan: Plan): PlanFormValues {
   const legacyCredits = typeof plan.credits === "number" ? plan.credits : 0;

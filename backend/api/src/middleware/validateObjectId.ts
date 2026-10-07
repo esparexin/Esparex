@@ -1,4 +1,4 @@
-import { isValidObjectId } from '@esparex/core/utils/idUtils';
+import { isValidObjectId } from '@esparex/core';
 import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "../utils/errorResponse";
 
@@ -69,82 +69,4 @@ function validateInternal(req: Request, res: Response, next: NextFunction, param
     next();
 }
 
-/**
- * Middleware to validate multiple ObjectId parameters
- * 
- * @param params - Array of parameter names to validate
- * @returns Express middleware function
- * 
- * @example
- * router.post('/ads/:adId/comments/:commentId', 
- *   validateObjectIds('adId', 'commentId'), 
- *   commentController.reply
- * );
- */
-export function validateObjectIds(...params: string[]) {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const errors: string[] = [];
 
-        for (const param of params) {
-            const rawId = req.params[param];
-
-            // Skip if parameter is optional and not provided
-            if (!rawId) {
-                errors.push(`Missing parameter: ${param}`);
-                continue;
-            }
-
-            if (Array.isArray(rawId)) {
-                errors.push(`Invalid ObjectId format for parameter: ${param}`);
-                continue;
-            }
-
-            if (!isValidObjectId(rawId)) {
-                errors.push(`Invalid ObjectId format for parameter: ${param}`);
-            }
-        }
-
-        if (errors.length > 0) {
-            return sendErrorResponse(req, res, 400, 'Validation Failed', {
-                details: {
-                    message: 'One or more route parameters are invalid',
-                    errors
-                }
-            });
-        }
-
-        next();
-    };
-}
-
-/**
- * Optional: Validate ObjectId in request body
- * 
- * @param field - Name of the body field to validate
- * @returns Express middleware function
- * 
- * @example
- * router.post('/ads', validateBodyObjectId('categoryId'), adController.create);
- */
-export function validateBodyObjectId(field: string) {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const bodyRecord = req.body as Record<string, unknown>;
-        const id = bodyRecord[field];
-
-        // Allow undefined/null for optional fields
-        if (!id) {
-            return next();
-        }
-
-        if (!isValidObjectId(id as string)) {
-            return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
-                details: {
-                    message: `Field '${field}' must be a valid ObjectId`,
-                    received: id
-                }
-            });
-        }
-
-        next();
-    };
-}

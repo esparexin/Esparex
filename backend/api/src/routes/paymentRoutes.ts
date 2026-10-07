@@ -3,11 +3,11 @@ import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@esparex/core/validators/finance.validator';
+import * as Validators from '@esparex/core';
 
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core';
+import { logger } from '@esparex/core';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)

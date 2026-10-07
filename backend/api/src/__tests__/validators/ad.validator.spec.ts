@@ -3,7 +3,7 @@ import {
     homeFeedQuerySchema,
     markAsSoldSchema,
     trendingAdsQuerySchema,
-} from '@esparex/core/validators/ad.validator';
+} from '@esparex/core';
 
 const validObjectId = '507f1f77bcf86cd799439011';
 

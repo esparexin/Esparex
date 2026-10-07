@@ -212,6 +212,7 @@ describe('Catalog Outbound Database Repositories', () => {
             expect(BrandModel.findById).toHaveBeenCalledWith('65fa29c9d2c1f2e165fa29ca');
             expect(result).toEqual({
                 id: '65fa29c9d2c1f2e165fa29ca',
+                _id: '65fa29c9d2c1f2e165fa29ca',
                 name: 'Samsung',
                 canonicalName: 'samsung',
                 isActive: true,
@@ -251,6 +252,7 @@ describe('Catalog Outbound Database Repositories', () => {
             });
             expect(result).toEqual({
                 id: '65fa29c9d2c1f2e165fa29ca',
+                _id: '65fa29c9d2c1f2e165fa29ca',
                 name: 'Samsung',
                 canonicalName: 'samsung',
                 isActive: true,

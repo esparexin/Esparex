@@ -2,7 +2,7 @@ import type { LucideIcon } from "@esparex/ui";
 import { ChevronRight, LogOut, Separator } from "@esparex/ui";
 import type { ProfileTabValue } from "@/config/navigation";
 
-export interface AccountNavItem {
+interface AccountNavItem {
   value: ProfileTabValue;
   label: string;
   icon: LucideIcon;

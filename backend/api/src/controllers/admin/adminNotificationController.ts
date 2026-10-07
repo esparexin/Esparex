@@ -12,18 +12,18 @@ import {
     createScheduledNotification,
     getNotificationHistory,
     searchNotificationRecipients,
-} from "@esparex/core/domains/notifications/application/AdminNotificationService";
+} from "@esparex/core/domains/notifications";
 import {
     getPaginationParams,
     sendAdminError,
     sendSuccessResponse,
 } from '../../utils/adminBaseController';
 import { logAdminAction } from "../../utils/adminLogger";
-import { type IUser } from "@esparex/core/models/User";
-import { type INotificationLog } from "@esparex/core/models/NotificationLog";
-import { type IScheduledNotification } from "@esparex/core/models/ScheduledNotification";
+import { type IUser } from "@esparex/core";
+import { type INotificationLog } from "@esparex/core";
+import { type IScheduledNotification } from "@esparex/core";
 import { respond } from "../../utils/respond";
-import { escapeRegExp } from "@esparex/core/utils/stringUtils";
+import { escapeRegExp } from "@esparex/core";
 
 const BATCH_SIZE = 500;
 
@@ -135,13 +135,13 @@ export async function sendNotification(req: Request, res: Response) {
                 status: "pending",
             });
 
-            await logAdminAction(req, "SCHEDULE_NOTIFICATION", "ScheduledNotification", scheduled._id.toString(), {
+            await logAdminAction({ req, action: "SCHEDULE_NOTIFICATION", targetType: "ScheduledNotification", targetId: scheduled._id.toString(), metadata: {
                 title,
                 targetType,
                 targetValue,
                 actionUrl,
                 sendAt: scheduledAt.toISOString(),
-            });
+            }});
 
             return sendSuccessResponse(res, scheduled, `Notification scheduled for ${formatAppDateTime(scheduledAt)}`);
         }
@@ -174,7 +174,7 @@ export async function sendNotification(req: Request, res: Response) {
             status,
         });
 
-        await logAdminAction(req, "SEND_NOTIFICATION", "Notification", log._id.toString(), {
+        await logAdminAction({ req, action: "SEND_NOTIFICATION", targetType: "Notification", targetId: log._id.toString(), metadata: {
             title,
             targetType,
             targetValue,
@@ -182,7 +182,7 @@ export async function sendNotification(req: Request, res: Response) {
             skippedCount,
             failureCount,
             actionUrl,
-        });
+        }});
 
         return sendSuccessResponse(res, log, status === "sent" ? "Notification sent successfully" : "Notification failed");
     } catch (error) {

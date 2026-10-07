@@ -16,7 +16,7 @@ export type RateLimitState = {
     untilMs: number;
 };
 
-export type LockedMobileInfo = {
+type LockedMobileInfo = {
     lockUntilMs: number;
     message: string;
 };

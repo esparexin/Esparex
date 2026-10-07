@@ -1,29 +1,28 @@
 /* global NodeJS */
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
-import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
+import { startSystemMonitor } from '@esparex/core';
 import { getHealthCheckData } from './utils/health';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
-import { initIO } from '@esparex/core/config/socket';
-import { connectDB } from '@esparex/core/config/db';
+import { initIO } from '@esparex/core';
+import { connectDB } from '@esparex/core';
 import mongoose from 'mongoose';
 import { Server } from 'http';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
-import { waitForRedisReady } from '@esparex/core/config/redis';
+import { logger } from '@esparex/core';
+import { env } from '@esparex/core';
+import { waitForRedisReady } from '@esparex/core';
 import { assertDuplicateRolloutReadiness } from '@esparex/core/domains/fraud';
-import { startScheduler, stopScheduler } from '@esparex/core/services/SchedulerBoot';
-import Admin from '@esparex/core/models/Admin';
-import { USER_STATUS } from "@esparex/contracts";
+import { startScheduler, stopScheduler } from '@esparex/core';
+import { countLiveAdmins } from '@esparex/core/domains/identity';
 import { createServer } from 'http';
-import { initializeEventDispatcher } from '@esparex/core/events';
-import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';
-import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
-import { resetAllOpenCircuitBreakers } from '@esparex/core/utils/resilience';
-import { runCatalogApprovalStatusMigration } from '@esparex/core/migrations/catalogApprovalMigration';
+import { initializeEventDispatcher } from '@esparex/core';
+import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core';
+import { warmAllCaches } from '@esparex/core';
+import { resetAllOpenCircuitBreakers } from '@esparex/core';
+import { runCatalogApprovalStatusMigration } from '@esparex/core';
 
-import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
-import redisClient from '@esparex/core/utils/redisCache';
+import { gracefulShutdown } from '@esparex/core';
+import { redisClient } from '@esparex/core';
 
 
 const PORT = env.PORT;
@@ -31,7 +30,8 @@ let reliabilityProbeInterval: NodeJS.Timeout | null = null;
 
 async function ensureLiveAdminPresence() {
     try {
-        const liveAdminCount = await Admin.countDocuments({ status: USER_STATUS.LIVE });
+        // Phase 3b: bootstrap probe via the identity domain service (was Admin.countDocuments direct).
+        const liveAdminCount = await countLiveAdmins();
         if (liveAdminCount === 0) {
             logger.warn('🛡️ SECURITY ALARM: No LIVE administrators detected in database.');
             logger.warn('Admin login will fail until the default account is seeded.');

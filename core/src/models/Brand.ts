@@ -11,7 +11,7 @@ import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance'
 import {
   IMarketplaceTrust,
   marketplaceTrustDefinition,
-} from './catalogLifecycle'
+} from '../domains/catalog'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
@@ -33,7 +33,6 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   createdAt: Date;
   updatedAt: Date;
 }
-
 
 const BrandSchema = new Schema<IBrand>({
   name: { type: String, required: true, trim: true },

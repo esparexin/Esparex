@@ -30,6 +30,7 @@ const GUARDS = [
   { name: 'Location Architecture & SSOT', cmd: 'node scripts/guard-location-ssot.js', baselineKey: 'locationViolations' },
   { name: 'UI Architecture', cmd: 'node scripts/guard-ui-architecture.js', baselineKey: 'uiArchitectureViolations' },
   { name: 'Route Shadowing', cmd: 'node scripts/guard-route-shadowing.js', baselineKey: 'routeShadowingViolations' },
+  { name: 'Route Collision', cmd: 'node scripts/enforce-route-collision-guard.js', baselineKey: 'routeCollisionViolations' },
   { name: 'Zero Primitive Obsession', cmd: 'node scripts/enforce-zero-primitive-obsession.js', baselineKey: 'primitiveObsessionViolations' },
   { name: 'Mapper Ownership', cmd: 'node scripts/enforce-mapper-ownership.js', baselineKey: 'mapperOwnershipViolations' },
   { name: 'Platform SDK Boundary', cmd: 'node scripts/enforce-platform-sdk-boundary.js', baselineKey: 'platformSdkBoundaryViolations' },
@@ -48,6 +49,8 @@ const GUARDS = [
   { name: 'Process Concurrency & Resource Safety', cmd: 'node scripts/guard-process-concurrency.js', baselineKey: 'processConcurrencyViolations' },
   { name: 'Ad SSOT & Listing Lifecycle', cmd: 'node scripts/enforce-ad-ssot-guard.js', baselineKey: 'adSsotViolations' },
   { name: 'Doc Hygiene', cmd: 'node scripts/guard-doc-hygiene.js', baselineKey: 'docHygieneViolations' },
+  { name: 'Mobile Form Input Zoom', cmd: 'node scripts/guard-form-input-zoom.js', baselineKey: 'formInputZoomViolations' },
+  { name: 'Design Token Adoption (tree)', cmd: 'node scripts/enforce-design-token-adoption.js --tree', baselineKey: 'designTokenViolations' },
 ];
 
 function run(val) {

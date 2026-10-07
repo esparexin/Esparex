@@ -30,7 +30,7 @@ jest.mock("@esparex/core/domains/identity", () => ({
 
 import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
-import Admin from "@esparex/core/models/Admin";
+import { Admin } from "@esparex/core";
 import { updateAdminById } from "@esparex/core/domains/identity";
 
 // Valid 24-char hex ObjectId required by isValidObjectId at the controller boundary.

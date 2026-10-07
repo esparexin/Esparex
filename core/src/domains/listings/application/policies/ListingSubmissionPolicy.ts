@@ -4,8 +4,6 @@ import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { checkPostLimit } from '../../../payments/application/PlanService';
 import type { ListingRepositoryPort } from '../../../../domains/listings';
 
-/** @deprecated Use ListingTypeValue from shared/enums/listingType */
-export type SubmissionListingType = ListingTypeValue;
 
 export type ListingSubmissionReservation = {
     source: AdPostingSlotSource | 'admin_bypass';
@@ -46,8 +44,6 @@ export class ListingSubmissionPolicy {
             );
             return { source: result.source };
         }
-
-
 
         // For Services and Spare Parts, enforce active inventory limits
         // defined in the user's plan. Delegates to PlanService which executes

@@ -27,12 +27,4 @@ export function getCanonicalCategorySlug(slug: string): string {
     return DEFAULT_CANONICAL_SLUG_ALIASES[normalized] || normalized;
 }
 
-/**
- * Checks if the current slug is effectively canonical.
- */
-export function isCanonicalSlug(slug: string): boolean {
-    if (!slug) return true;
-    const normalized = slug.toLowerCase().trim();
-    return getCanonicalCategorySlug(normalized) === normalized;
-}
 

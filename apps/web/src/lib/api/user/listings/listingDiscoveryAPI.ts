@@ -1,58 +1,27 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES, sanitizeMongoObjectId } from '@esparex/shared';
-import { toApiResult, toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/result';
+import {  toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson, type ServerFetchOptions } from '../server';
 import { createEmptyPageResult } from '../listingsShared';
 import { normalizeListing, type ListingFilters, type ListingPageResult, type UserListing } from './normalizer';
 import type { LocationLevel } from '@/types/location';
 
-export const getNearbyAdsPage = async (filters: Pick<ListingFilters, "lat" | "lng" | "radiusKm" | "categoryId" | "page" | "limit">): Promise<ListingPageResult> => {
-    if (typeof filters.lat !== "number" || typeof filters.lng !== "number") {
-        return createEmptyPageResult<UserListing>(filters);
-    }
-
-    const params = new URLSearchParams();
-    params.append("lat", String(filters.lat));
-    params.append("lng", String(filters.lng));
-    if (typeof filters.radiusKm === "number") params.append("radiusKm", String(filters.radiusKm));
-    if (filters.categoryId) params.append("categoryId", filters.categoryId);
-    if (filters.page) params.append("page", String(filters.page));
-    if (filters.limit) params.append("limit", String(filters.limit));
-
-    const { data: result } = await toPaginatedApiResult<UserListing>(
-        apiClient.get(`${API_ROUTES.USER.LISTINGS_NEARBY}?${params.toString()}`, {
-            silent: true,
-        })
-    );
-
-    if (!result) return createEmptyPageResult<UserListing>(filters);
-
-    return {
-        data: result.data.map(normalizeListing),
-        pagination: result.pagination,
-    };
-};
-export const getSearchSuggestions = async (query: string): Promise<string[]> => {
-    if (!query || query.trim().length < 2) return [];
-    try {
-        const { data } = await toApiResult<{ suggestions: string[] }>(
-            apiClient.get(`${API_ROUTES.USER.LISTINGS_SUGGESTIONS}?q=${encodeURIComponent(query.trim())}`, { silent: true })
-        );
-        return data?.suggestions || [];
-    } catch {
-        return [];
-    }
-};
 // --- Feed & Search Payload Types ---
 
-export interface HomeAdsPayload {
+import type {
+    HomeAdsPayload as CanonicalHomeAdsPayload,
+    TrendingAdsPayload as CanonicalTrendingAdsPayload,
+} from "@esparex/contracts";
+
+/**
+ * Phase 3a (§5): wire shapes of `HomeAdsPayload` / `TrendingAdsPayload`
+ * relocated to `@esparex/contracts`. These client views extend the canonical
+ * wire payloads with fetch-state fields and the normalized `UserListing[]`
+ * item type — a derived client view, not a shadow contract.
+ */
+export interface HomeAdsPayload extends Omit<CanonicalHomeAdsPayload, "ads"> {
     ads: UserListing[];
-    nextCursor: {
-        createdAt: string;
-        id: string;
-    } | null;
-    hasMore: boolean;
     isFallback?: boolean;
     /** Set when the request was superseded (aborted) — consumers must skip it without clearing state. */
     aborted?: boolean;
@@ -69,7 +38,7 @@ export interface HomeAdsRequestParams {
     listingType?: string;
 }
 
-export interface TrendingAdsPayload {
+export interface TrendingAdsPayload extends Omit<CanonicalTrendingAdsPayload, "ads"> {
     ads: UserListing[];
 }
 

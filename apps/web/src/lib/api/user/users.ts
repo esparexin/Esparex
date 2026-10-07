@@ -3,6 +3,11 @@ import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '@esparex/shared';
 import { type UserListing as Ad, normalizeListing as normalizeAd } from './listings';
 import { User } from "@esparex/contracts";
+import type {
+    SellerPublicUser,
+    SellerListingSummary,
+    SellerProfileResponse,
+} from "@esparex/contracts";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';
 import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
@@ -51,28 +56,25 @@ export type WalletSummary = {
     smartAlertSlots: number;
 };
 
-export type SellerListingSummary = {
-    totalActive: number;
-    visibleCount: number;
-    hasMore: boolean;
-};
-
-export type SellerPublicUser = {
-    id: string;
-    name?: string;
-    profilePhoto?: string;
-    createdAt?: string;
-    isVerified?: boolean;
-    location?: {
-        city?: string;
-        state?: string;
-        country?: string;
-    };
-};
-
-export type SellerProfilePayload = {
-    user: SellerPublicUser;
-    listingSummary: SellerListingSummary;
+/**
+ * Phase 3a (§5): `SellerPublicUser` / `SellerListingSummary` were identical
+ * duplicates of the canonical symbols in `@esparex/contracts` — now imported.
+ * `SellerProfilePayload` derives from the canonical `SellerProfileResponse`;
+ * `ads` keeps the client-normalized `UserListing` item type (the card grid
+ * consumes normalized listings), so this is a derived client view, not a
+ * shadow contract.
+ *
+ * CONFLICT (recorded, not merged): this `SellerProfilePayload`
+ * (client view, `ads: UserListing[]`) collides by name with the core service's
+ * `SellerProfilePayload`
+ * (`core/src/domains/identity/application/users/UserProfileService.ts:29`,
+ * service result, `ads: Array<Record<string, unknown>>`). The canonical names
+ * are `SellerProfileResponse` (this file's historic shape) and
+ * `SellerProfileServiceResult` (core's shape). A future gate decision may
+ * unify them. Deletion of this shim is Phase 4 (§10).
+ */
+export type { SellerPublicUser, SellerListingSummary };
+export type SellerProfilePayload = Omit<SellerProfileResponse, "ads"> & {
     ads: Ad[];
 };
 

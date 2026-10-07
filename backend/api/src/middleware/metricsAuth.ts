@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from '../utils/errorResponse';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 
 /**
  * 🛡️ METRICS ROUTE PROTECTION MIDDLEWARE

@@ -44,10 +44,10 @@ export const revokeAdminSessionById = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Admin session not found', 404);
         }
 
-        await logAdminAction(req, 'REVOKE_ADMIN_SESSION', 'Admin', String(session.adminId), {
+        await logAdminAction({ req, action: 'REVOKE_ADMIN_SESSION', targetType: 'Admin', targetId: String(session.adminId), metadata: {
             sessionId: session._id.toString(),
             tokenId: session.tokenId,
-        });
+        }});
 
         sendSuccessResponse(res, session, 'Admin session revoked successfully');
     } catch (error: unknown) {

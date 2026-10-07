@@ -5,3 +5,5 @@ export * from './PostAdDraft';
 export * from './CreateListingRequest';
 export * from './CreatedListingResponseDto';
 export * from './ListingContactNumberResponse';
+export * from './discovery';
+export * from './reporting';

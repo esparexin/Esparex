@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { SavedAdRequest, getUserId } from './shared';
-import { getSavedAds as getSavedAdsService } from '@esparex/core/domains/listings/application';
-import logger from '@esparex/core/utils/logger';
+import { getSavedAds as getSavedAdsService } from '@esparex/core';
+import { logger } from '@esparex/core';
 
 export const getSavedAds = async (req: Request, res: Response) => {
     try {

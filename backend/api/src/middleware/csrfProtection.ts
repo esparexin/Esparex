@@ -1,10 +1,10 @@
 // backend/src/middleware/csrfProtection.ts
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
-import { getCsrfCookieOptions } from '@esparex/core/utils/cookieHelper';
-import { env } from '@esparex/core/config/env';
+import { getCsrfCookieOptions } from '@esparex/core';
+import { env } from '@esparex/core';
 
 /**
  * 🛡️ CSRF Protection Middleware
@@ -29,7 +29,7 @@ const TOKEN_LENGTH = 32;
 /**
  * Generate a cryptographically secure random token
  */
-export function generateCsrfToken(): string {
+function generateCsrfToken(): string {
     return crypto.randomBytes(TOKEN_LENGTH).toString('hex');
 }
 

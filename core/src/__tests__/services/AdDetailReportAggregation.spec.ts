@@ -7,7 +7,7 @@ jest.mock('@esparex/core/models/Report', () => ({
 
 import type { PipelineStage } from 'mongoose';
 import Report from '../../models/Report';
-import { getReportedAdsAggregation } from '../../domains/listings/application/ad/ad/AdDetailService';
+import { getReportedAdsAggregation } from '../../domains/listings/application/ad/AdDetailService';
 
 const mockedAggregate = jest.mocked(Report.aggregate);
 

@@ -1,6 +1,6 @@
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
-export const CHAT_INBOX_ROUTE = "/account/messages";
+const CHAT_INBOX_ROUTE = "/account/messages";
 export type ChatInboxView = "active" | "archived";
 
 export const resolveChatInboxView = (rawView?: string | string[] | null): ChatInboxView => {

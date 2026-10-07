@@ -9,9 +9,3 @@ export interface ContentOptions {
     queryParams?: Record<string, unknown>;
 }
 
-export type CachedPaginatedPayload = Record<string, unknown> & {
-    items?: unknown[];
-    total?: number;
-    page?: number;
-    limit?: number;
-};

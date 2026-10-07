@@ -165,6 +165,10 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
     });
 
     it("ensures LoginMobileStep defines enterKeyHint='send', type='tel', and Enter key submit handling", () => {
+        // PR-quality split (7e7a610): the mobile step was extracted from the
+        // single responsive Login.tsx into components/user/auth/LoginMobileStep.tsx
+        // at a responsibility seam (no viewport split). The keyboard behavior
+        // lives there — assert there.
         const mobileStepPath = path.join(webSrc, "components", "user", "auth", "LoginMobileStep.tsx");
         const fileContent = fs.readFileSync(mobileStepPath, "utf-8");
 

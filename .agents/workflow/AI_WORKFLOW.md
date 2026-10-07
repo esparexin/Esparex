@@ -287,7 +287,7 @@ Exit Criteria
 Phase 7 — Live Repository Discovery (Repository Intelligence & Risk Management)
 Classification: Execution Phase
 
-Only live source code and live git output are authoritative. Documentation, comments, and prior conversation are not evidence of current state.
+Only live source code and live git output are authoritative for questions of *current code state*. Documentation, comments, and prior conversation are not evidence of current state. For questions of *governance and process*, AGENTS.md and this workflow are authoritative.
 
 Process
 Perform a tiered Repository Intelligence audit before implementation to prevent architectural drift. Do not guess.

@@ -1,6 +1,6 @@
-import type { IAdmin } from '@esparex/core/models/Admin';
-import type { IBusiness } from '@esparex/core/models/Business';
-import type { IAuthUser } from '@esparex/core/types/auth';
+import type { IAdmin } from '@esparex/core';
+import type { IBusiness } from '@esparex/core';
+import type { IAuthUser } from '@esparex/core';
 
 declare global {
     namespace Express {

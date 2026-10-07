@@ -5,7 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { handlePaginatedContent } from "../../../utils/content-handler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
@@ -17,7 +17,7 @@ import {
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
-} from '@esparex/core/domains/catalog/application/services/CatalogSparePartService';
+} from '@esparex/core';
 // NOTE: resolveEquivalentActiveCategoryIds is intentionally NOT imported here.
 // It performs semantic category broadening for browse/search flows only.
 // Post Ad catalog queries must use exact category isolation — see getSparePartsPublic.
@@ -37,15 +37,16 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
 } from './shared';
+import { sparePartRepository } from './catalogPortRepositories';
 import { invalidateItemCatalogCache } from './shared';
-import { validateSparePartRelations } from '@esparex/core/domains/catalog/application/services/CatalogValidationService';
+import { validateSparePartRelations } from '@esparex/core';
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+} from '@esparex/core';
+import { CategoryQueryBuilder } from '@esparex/core';
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { getCache, setCache } from '@esparex/core';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString, toStringArray } from './inputCoercion';
 
@@ -249,7 +250,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, SparePartModel, sparePartCreateSchema, {
+    return handleCatalogCreate(req, res, sparePartRepository, sparePartCreateSchema, {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
@@ -283,7 +284,7 @@ export const createSparePart = async (req: Request, res: Response) => {
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
+    return handleCatalogUpdate(req, res, sparePartRepository, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
             if (payload.name) payload.slug = slugify(payload.name as string, { lower: true, strict: true });
@@ -319,7 +320,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
  * Toggle spare part status
  */
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, SparePartModel, {
+    return handleCatalogToggleStatus(req, res, sparePartRepository, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
         postOp: invalidateItemCatalogCache
     });
@@ -329,7 +330,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, SparePartModel, checkSparePartDependencies, {
+    return handleCatalogDelete(req, res, sparePartRepository, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
         postOp: invalidateItemCatalogCache
     });

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@esparex/ui";
 
-export interface CategoryAssignmentOption {
+interface CategoryAssignmentOption {
     id: string;
     name: string;
     hint?: string;

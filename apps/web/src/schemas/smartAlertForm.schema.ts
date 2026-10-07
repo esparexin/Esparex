@@ -61,4 +61,3 @@ export const smartAlertFormSchema = z
     }
   });
 
-export type SmartAlertFormValues = z.infer<typeof smartAlertFormSchema>;

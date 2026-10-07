@@ -1,25 +1,16 @@
 import mongoose from 'mongoose';
+import type { HomeFeedCursor, HomeFeedRequest } from '@esparex/contracts';
 
-export interface HomeFeedCursor {
-    createdAt: string;
-    id: string;
-}
+/**
+ * Phase 3a (§5): the local `HomeFeedCursor` / `HomeFeedRequest` types are
+ * relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3)
+ * and imported here. Sibling feed services (`FeedCacheService`,
+ * `FeedQueryService`) import `HomeFeedRequest` from this module and keep
+ * working. Deletion of the local names is Phase 4 (§10).
+ */
+export type { HomeFeedCursor, HomeFeedRequest };
 
 export type LocationLevel = 'country' | 'state' | 'district' | 'city' | 'area' | 'village';
-
-export interface HomeFeedRequest {
-    cursor?: string | Partial<HomeFeedCursor>;
-    limit?: number;
-    location?: string;
-    locationId?: string;
-    level?: LocationLevel;
-    lat?: number;
-    lng?: number;
-    radiusKm?: number;
-    category?: string;
-    categoryId?: string;
-    listingType?: string;
-}
 
 export type ParsedHomeFeedCursor = {
     createdAt: Date;

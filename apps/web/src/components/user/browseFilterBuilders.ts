@@ -22,7 +22,6 @@ interface ProximityFilterShape {
   radiusKm?: number;
 }
 
-type ServiceLocationFilterShape = ProximityFilterShape;
 
 type RequestedLocationFilterShape = ProximityFilterShape;
 
@@ -127,10 +126,3 @@ export function applyProximityLocationFilters<TFilter extends ProximityFilterSha
   }
 }
 
-export function applyServiceLocationFilters<TFilter extends ServiceLocationFilterShape>(args: {
-  filters: TFilter;
-  location: LocationData;
-  radiusKm: number;
-}) {
-  applyProximityLocationFilters(args);
-}

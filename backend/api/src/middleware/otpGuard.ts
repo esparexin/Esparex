@@ -9,8 +9,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { OtpProvider } from '@esparex/contracts';
-import logger from '@esparex/core/utils/logger';
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
+import { logger } from '@esparex/core';
+import { bootstrapLogger } from '@esparex/core';
 
 interface OtpGuardConfig {
     isProduction: boolean;

@@ -7,7 +7,7 @@ import {
 
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 
-export const sanitizedBusinessText = (text: string): boolean => {
+const sanitizedBusinessText = (text: string): boolean => {
     if (!text || typeof text !== "string") return false;
     const trimmed = text.trim();
     if (trimmed.length === 0) return false;

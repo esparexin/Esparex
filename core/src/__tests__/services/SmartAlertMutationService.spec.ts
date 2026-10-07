@@ -30,8 +30,9 @@ jest.mock('../../models/Entitlement', () => ({
     },
 }));
 
-jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
-    syncWalletCycle: jest.fn().mockResolvedValue(undefined),
+jest.mock('../../domains/entitlements/application/EntitlementWalletWriter', () => ({
+    resetMonthlyCycleForUser: jest.fn().mockResolvedValue(undefined),
+    incrementMonthlyUsage: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../domains/notifications/application/SmartAlertService', () => ({
@@ -67,6 +68,9 @@ import {
     deleteSmartAlertMutation,
     toggleSmartAlertStatusMutation,
 } from '../../domains/notifications';
+import { incrementMonthlyUsage } from '../../domains/entitlements/application/EntitlementWalletWriter';
+
+const mockedIncrementMonthlyUsage = incrementMonthlyUsage as jest.Mock;
 
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 const mockedUserPlanFind = UserPlanModel.find as jest.Mock;
@@ -75,7 +79,6 @@ const mockedConsumeCredit = consumeCredit as jest.Mock;
 const mockedCredit = credit as jest.Mock;
 const mockedWalletFindOne = WalletModel.findOne as jest.Mock;
 const mockedUserWalletFindOne = UserWallet.findOne as jest.Mock;
-const mockedUserWalletUpdateOne = UserWallet.updateOne as jest.Mock;
 const mockedSmartAlertModel = SmartAlertModel as any;
 const mockedResolveMasterDataIds = resolveMasterDataIds as jest.Mock;
 const mockedNormalizeCoordinates = normalizeCoordinates as jest.Mock;
@@ -108,7 +111,6 @@ beforeEach(() => {
     mockedUserWalletFindOne.mockReturnValue({
         lean: jest.fn().mockResolvedValue({ smartAlertSlots: 2, monthlyFreeAlertsUsed: 0 }),
     });
-    mockedUserWalletUpdateOne.mockResolvedValue({ modifiedCount: 1 });
     mockedCalculateUserPlan.mockReturnValue({ smartAlerts: 1 });
     mockedSmartAlertModel.countDocuments.mockResolvedValue(0);
     mockedSmartAlertModel.create.mockImplementation(async (payload: Record<string, unknown>) => ({
@@ -154,7 +156,7 @@ describe('SmartAlertMutationService', () => {
                 metadata: { action: 'create_smart_alert' },
             })
         );
-        expect(mockedUserWalletUpdateOne).not.toHaveBeenCalled();
+        expect(mockedIncrementMonthlyUsage).not.toHaveBeenCalled();
         expect(mockedSmartAlertModel.create).toHaveBeenCalled();
         expect(alert).toBeDefined();
     });
@@ -237,10 +239,10 @@ describe('SmartAlertMutationService', () => {
         });
 
         expect(mockedConsumeCredit).not.toHaveBeenCalled();
-        expect(mockedUserWalletUpdateOne).toHaveBeenCalledWith(
-            expect.anything(),
-            { $inc: { monthlyFreeAlertsUsed: 1 } },
-            { upsert: true }
+        // P0-6: monthly usage increments funnel through the entitlements-owned
+        // write API (transactional — the old no-session UserWallet.updateOne is gone).
+        expect(mockedIncrementMonthlyUsage).toHaveBeenCalledWith(
+            expect.objectContaining({ field: 'monthlyFreeAlertsUsed', amount: 1 })
         );
         expect(mockedSmartAlertModel.create).toHaveBeenCalled();
         expect(alert).toBeDefined();

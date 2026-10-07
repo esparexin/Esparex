@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { PlanModel, UserPlanModel } from '@esparex/core/domains/payments/application/PlanService';
-import { AppError } from '@esparex/core/shared-kernel/errors/AppError';
+import { PlanModel, UserPlanModel } from '@esparex/core/domains/payments';
+import { AppError } from '@esparex/core';
 
 export { PlanModel, UserPlanModel };
 
@@ -15,7 +15,7 @@ export const getRequiredPlanId = (req: Request): string => {
     return rawId;
 };
 
-export const PLAN_SCALAR_FIELDS = [
+const PLAN_SCALAR_FIELDS = [
     'code',
     'name',
     'description',

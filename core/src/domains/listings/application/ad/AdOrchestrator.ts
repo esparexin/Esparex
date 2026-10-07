@@ -254,7 +254,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         // 📊 BUSINESS METRIC: Listing Creation
         // NOTE: Counter must be pre-registered in @esparex/core/utils/metrics at startup.
         // We only look it up here — never create it — to avoid prom-client double-registration errors.
-        import('@esparex/core/utils/metrics').then(({ register: prometheusRegister }) => {
+        import('../../../../utils/metrics').then(({ register: prometheusRegister }) => {
             const counter = prometheusRegister.getSingleMetric('esparex_listing_creation_total');
             if (counter) {
                 (counter as { inc(labels: Record<string, string>): void }).inc({

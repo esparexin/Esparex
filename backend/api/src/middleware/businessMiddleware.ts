@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import type { IAuthUser } from '@esparex/core/types/auth';
-import Business from '@esparex/core/models/Business';
-import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
+import type { IAuthUser } from '@esparex/core';
+import { userRepository } from '@esparex/core/domains/identity';
+import { isBusinessPublishedStatus } from '@esparex/core';
 import { sendErrorResponse } from "../utils/errorResponse";
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { LISTING_TYPE } from "@esparex/contracts";
 
 /**
@@ -22,8 +22,9 @@ async function resolveBusinessStatus(req: Request): Promise<string | undefined> 
     const userId = (req.user as IAuthUser)?._id || (req.user as IAuthUser)?.id;
     if (!userId) return undefined;
 
-    const biz = await Business.findOne({ userId }).select('status').lean();
-    return (biz as { status?: string } | null)?.status;
+    // Phase 3b: business read via the identity repository port (was Business.findOne direct).
+    const business = await userRepository.findBusinessByUserId(String(userId));
+    return business?.status;
 }
 
 /**
@@ -38,7 +39,8 @@ export const requireBusinessApproved = async (req: Request, res: Response, next:
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
-        const business = await Business.findOne({ userId: user._id });
+        // Phase 3b: business read via the identity repository port (was Business.findOne direct).
+        const business = await userRepository.findBusinessByUserId(String(user._id));
 
         if (!business) {
             return sendErrorResponse(req, res, 403, 'Business Account Required', {

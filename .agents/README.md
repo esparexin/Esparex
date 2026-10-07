@@ -1,6 +1,8 @@
 # Esparex AI Agents Architecture
 
-This directory (`.agents/`) contains the single source of truth for the AI Developer execution architecture. It follows the **Single Responsibility Principle** to keep the AI context lightweight, deterministic, and modular.
+This directory (`.agents/`) holds the AI Developer execution architecture, operating
+under the supreme authority of `AGENTS.md` (the single authoritative source of truth
+for architectural governance). It follows the **Single Responsibility Principle** to keep the AI context lightweight, deterministic, and modular.
 
 ## Architecture Ownership Table
 

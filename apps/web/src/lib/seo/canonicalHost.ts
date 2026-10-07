@@ -4,7 +4,6 @@
  */
 
 export const CANONICAL_ORIGIN = "https://esparex.in";
-export const CANONICAL_HOSTNAME = "esparex.in";
 
 /**
  * Resolves a path or route to an absolute canonical URL on the authoritative public host.
@@ -24,16 +23,3 @@ export function toCanonicalUrl(pathnameOrPath: string): string {
   return `${CANONICAL_ORIGIN}${normalized}`;
 }
 
-/**
- * Normalizes host header string to lower-case without port number.
- */
-export function normalizeHost(host: string): string {
-  return host.split(":")[0]?.toLowerCase().trim() ?? "";
-}
-
-/**
- * Checks whether the given host matches the canonical public SEO hostname.
- */
-export function isCanonicalHost(host: string): boolean {
-  return normalizeHost(host) === CANONICAL_HOSTNAME;
-}

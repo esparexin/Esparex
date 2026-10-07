@@ -27,11 +27,6 @@ export interface UseAdCardBaseOptions extends UseAdCardNavigationOptions {
   ad: AdCardData;
 }
 
-interface AdCardLinkWrapperProps {
-  href?: string;
-  enabled: boolean;
-  children: ReactNode;
-}
 
 /* -------------------------------------------------------------------------- */
 /* Navigation helpers                                                          */
@@ -86,21 +81,12 @@ export function useAdCardNavigation({
   return { useDeclarativeLink, handleCardClick, handleKeyDown };
 }
 
-export function AdCardLinkWrapper({
-  href: _href,
-  enabled: _enabled,
-  children,
-}: AdCardLinkWrapperProps) {
-  // Stretched link pattern delegates navigation to the internal title Link,
-  // preventing invalid HTML5 <button> inside <a> nesting while maintaining 100% surface clickability.
-  return <>{children}</>;
-}
 
-export function toAdRecord(ad: AdCardData): Record<string, unknown> {
+function toAdRecord(ad: AdCardData): Record<string, unknown> {
   return ad as Record<string, unknown>;
 }
 
-export function resolveAdImageUrl(adRecord: Record<string, unknown>): string {
+function resolveAdImageUrl(adRecord: Record<string, unknown>): string {
   const candidateImage =
     (typeof adRecord.image === "string" ? adRecord.image : undefined) ||
     (Array.isArray(adRecord.images) && typeof adRecord.images[0] === "string"
@@ -333,59 +319,6 @@ export function getPlanBadge(
 /* These three serve different domains and must NOT be consolidated.           */
 /* -------------------------------------------------------------------------- */
 
-export function getAdOverlayBadge(
-  ad: AdCardData,
-  className?: string
-): ReactNode | null {
-  const adRecord = toAdRecord(ad);
-  const status =
-    typeof adRecord.status === "string" ? adRecord.status.toLowerCase() : "";
-  const isReserved = adRecord.isReserved === true;
-  const isNew = adRecord.isNew === true;
-
-  const merged = cn(BADGE_BASE, className);
-
-  if (status === "sold") {
-    return (
-      <Badge
-        className={cn("bg-foreground/90 text-background border-0", merged)}
-        aria-label="Listing sold"
-      >
-        Sold
-      </Badge>
-    );
-  }
-
-  if (isReserved) {
-    return (
-      <Badge
-        className={cn(
-          "bg-warning/10 text-warning border border-warning/20",
-          merged
-        )}
-        aria-label="Listing reserved"
-      >
-        Reserved
-      </Badge>
-    );
-  }
-
-  if (isNew) {
-    return (
-      <Badge
-        className={cn(
-          "bg-primary/10 text-primary border border-primary/20",
-          merged
-        )}
-        aria-label="New listing"
-      >
-        New
-      </Badge>
-    );
-  }
-
-  return null;
-}
 
 /* -------------------------------------------------------------------------- */
 /* Compact Status Chip for Condition (Power On / Power Off)                   */

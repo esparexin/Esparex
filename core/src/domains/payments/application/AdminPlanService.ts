@@ -5,7 +5,7 @@ import { getUserConnection } from '../../../config/db';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 import { findPlanByIdOrCode } from './planQueryHelpers';
 
-export const atomicDemoteAndPromoteDefault = async (
+const atomicDemoteAndPromoteDefault = async (
     newPlanId: unknown,
     session: ClientSession
 ): Promise<void> => {
@@ -22,7 +22,7 @@ export const atomicDemoteAndPromoteDefault = async (
     );
 };
 
-export const syncPlanStatusAndActive = (payload: Record<string, unknown>): void => {
+const syncPlanStatusAndActive = (payload: Record<string, unknown>): void => {
     if (payload.status === 'ACTIVE' || payload.active === true) {
         payload.status = 'ACTIVE';
         payload.active = true;

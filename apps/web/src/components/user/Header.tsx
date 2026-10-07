@@ -16,9 +16,9 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
-import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
+import { HeaderActions } from "./header/HeaderActions";
+import { HeaderTopBar } from "./header/HeaderTopBar";
 import { cn } from "@/lib/utils";
 
 export interface HeaderProps {
@@ -147,7 +147,7 @@ export function Header({
           />
         </div>
 
-        <HeaderDesktopActions
+        <HeaderActions
           isMounted={isMounted}
           isAuthLoading={isAuthLoading}
           isLoggedIn={isLoggedIn}
@@ -162,7 +162,7 @@ export function Header({
       </div>
 
       <div className="flex md:hidden flex-col">
-        <MobileHeaderTopBar
+        <HeaderTopBar
           isMounted={isMounted}
           resolvedHeaderLocation={resolvedHeaderLocation}
           showLocation={chromePolicy.showMobileLocation}
@@ -237,3 +237,4 @@ export function Header({
     </header>
   );
 }
+

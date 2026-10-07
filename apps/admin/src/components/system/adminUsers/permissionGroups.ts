@@ -1,4 +1,4 @@
-export interface PermissionScope {
+interface PermissionScope {
     key: string;
     label: string;
 }
