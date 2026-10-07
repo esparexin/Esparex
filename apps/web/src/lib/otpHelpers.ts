@@ -3,10 +3,10 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 export const OTP_LENGTH = 6;
 export const RESEND_COOLDOWN_SECONDS = 30;
 export const DEFAULT_RATE_LIMIT_RETRY_SECONDS = 30 * 60;
-export const OTP_EXPIRED_CODE = "OTP_EXPIRED";
+const OTP_EXPIRED_CODE = "OTP_EXPIRED";
 export const OTP_INVALID_CODE = "OTP_INVALID";
 
-export const RATE_LIMIT_ERROR_CODES = new Set([
+const RATE_LIMIT_ERROR_CODES = new Set([
     "RATE_LIMITED",
     "OTP_SEND_IP_RATE_LIMIT",
     "OTP_SEND_MOBILE_RATE_LIMIT",
@@ -39,7 +39,7 @@ export const appendRateLimitCountdown = (
     return `${message} Try again in ${formatSeconds(remainingSeconds)}.`;
 };
 
-export const extractRawAuthMessage = (value: unknown): string | null => {
+const extractRawAuthMessage = (value: unknown): string | null => {
     if (!value || typeof value !== "object") {
         if (value instanceof Error && typeof value.message === "string") return value.message;
         if (typeof value === "string") return value;

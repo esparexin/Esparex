@@ -11,7 +11,7 @@ import { parseStoredAppLocation } from "./locationStorage.helpers";
 export const SEARCH_LOCATION_STORAGE_KEY = "esparex_location";
 export const GEO_DETECTED_STORAGE_KEY = "esparex_geo_detected";
 export const LOCATION_PROMPT_DISMISSED_KEY = "esparex_location_prompt_dismissed";
-export const LOCATION_PERMISSION_BLOCKED_KEY = "esparex_location_permission_blocked";
+const LOCATION_PERMISSION_BLOCKED_KEY = "esparex_location_permission_blocked";
 
 export function useLocationStorage() {
     const writeStoredLocation = useCallback((nextLocation: AppLocation) => {

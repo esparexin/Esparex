@@ -37,7 +37,7 @@ export function stripEmptyObjectIdFields<T extends Record<string, unknown>>(
     return cleaned as T;
 }
 
-export function createEmptyPagination({ page, limit }: PaginationInput): PaginationEnvelope {
+function createEmptyPagination({ page, limit }: PaginationInput): PaginationEnvelope {
     return {
         page: Number(page || 1),
         limit: Number(limit || 20),

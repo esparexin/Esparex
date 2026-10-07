@@ -55,28 +55,4 @@ export function PageSection({
   );
 }
 
-interface ListRowProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  active?: boolean;
-  clickable?: boolean;
-}
 
-/**
- * Flat List Row Primitive
- * Replaces heavy card containers with clean, border-bottom list rows.
- */
-export function ListRow({ children, active, clickable, className, ...props }: ListRowProps) {
-  return (
-    <div
-      className={cn(
-        'border-b border-border py-3.5 px-4 transition-colors',
-        clickable && 'cursor-pointer hover:bg-muted/80',
-        active && 'bg-accent/60 border-l-4 border-l-primary',
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}

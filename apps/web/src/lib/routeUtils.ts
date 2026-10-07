@@ -131,7 +131,6 @@ export const ROUTES = {
     EDIT_BUSINESS: "business-edit",
 } as const satisfies Record<string, UserPage>;
 
-export type RouteKey = typeof ROUTES[keyof typeof ROUTES];
 
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",

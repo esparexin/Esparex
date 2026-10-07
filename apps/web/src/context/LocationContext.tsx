@@ -32,7 +32,7 @@ import { popupBus } from "@/lib/popup/popupBus";
 
 import type { LocationStatus, LocationData } from "@/types/location";
 export type { LocationStatus, LocationData };
-export type LocationCoordinates = GeoJSONPoint;
+type LocationCoordinates = GeoJSONPoint;
 
 export type LocationDataContextType = {
     location: LocationData;
@@ -67,7 +67,7 @@ export type LocationDispatchContextType = {
     clearLocation: () => void;
 };
 
-export type LocationActionsContextType = LocationDispatchContextType;
+type LocationActionsContextType = LocationDispatchContextType;
 
 const getLocationStatus = (source: LocationData["source"]): LocationStatus =>
     source === "manual" ? "manual_selection" : "granted";

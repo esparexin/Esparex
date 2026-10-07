@@ -1,10 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
-export const downloadInvoice = async (transactionId: string): Promise<void> => {
-    const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
-    window.open(invoiceUrl, "_blank", "noopener,noreferrer");
-};
 
 export const fetchInvoiceHtml = async (transactionId: string): Promise<string> => {
     try {

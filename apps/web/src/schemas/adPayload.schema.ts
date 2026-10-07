@@ -14,7 +14,7 @@ export const PartialAdPayloadSchema = SharedPartialAdPayloadSchema;
 // Frontend-specific UI display fields (category/brand/model names, not IDs).
 // These are tracked in component state and not included in the Zod schema
 // to avoid v3+v4 mixing. Add them to local form state as needed.
-export type AdFormExtras = {
+type AdFormExtras = {
     category?: string;
     brand?: string;
     model?: string;

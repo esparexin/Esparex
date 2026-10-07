@@ -12,7 +12,7 @@ import { BrowseEmptyState } from "./BrowseEmptyState";
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
 import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
-export type BrowseVirtualizedListProps<TItem> = {
+type BrowseVirtualizedListProps<TItem> = {
   items: TItem[];
   view: "grid" | "list";
 };

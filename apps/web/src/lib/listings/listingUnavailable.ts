@@ -54,7 +54,7 @@ export function isListingUnavailableError(error: unknown): boolean {
   );
 }
 
-export function getAccountListingSectionForType(listingType: unknown): AccountListingSection {
+function getAccountListingSectionForType(listingType: unknown): AccountListingSection {
   switch (listingType) {
     case LISTING_TYPE.SERVICE:
       return "services";

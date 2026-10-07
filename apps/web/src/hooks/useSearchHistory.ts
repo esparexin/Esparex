@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore, useCallback } from "react";
 
-export const SEARCH_STORAGE_KEY = "esparex_recent_searches";
+const SEARCH_STORAGE_KEY = "esparex_recent_searches";
 export const POPULAR_SEARCHES = ["iPhone 15", "Display Screen", "Battery Replacement", "Motherboard"] as const;
 
 let memoryCache: string[] = [];

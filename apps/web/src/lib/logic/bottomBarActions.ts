@@ -35,7 +35,6 @@ export const getActionBarVariant = (isOwner: boolean, isSold: boolean, status?: 
 };
 
 // Also export specific feature flags if needed
-export const canCall = (isOwner: boolean) => !isOwner;
 export const canEdit = (isOwner: boolean, isSold: boolean) => isOwner && !isSold;
 export const canPromote = (isOwner: boolean, isSold: boolean, status?: string) =>
     isOwner && !isSold && (status === "live" || status === "active" || status === "approved" || status === "published");

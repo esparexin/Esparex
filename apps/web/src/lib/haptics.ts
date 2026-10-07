@@ -38,7 +38,7 @@ const HAPTIC_PATTERNS: Record<HapticPattern, number | number[]> = {
  * };
  * ```
  */
-export function haptic(pattern: HapticPattern = 'light'): boolean {
+function haptic(pattern: HapticPattern = 'light'): boolean {
   // Check if running in browser
   if (typeof window === 'undefined') return false;
 

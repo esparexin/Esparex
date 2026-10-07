@@ -10,8 +10,8 @@ import { stripEmptyObjectIdFields as stripSharedObjectIdFields } from '../listin
 // --- Shared Constants & Types ---
 
 export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
-export const LISTING_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-export const RESERVED_LISTING_IDENTIFIERS = new Set([
+const LISTING_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const RESERVED_LISTING_IDENTIFIERS = new Set([
     '', 'undefined', 'null', 'nan', 'true', 'false', 'favicon.ico',
 ]);
 
@@ -364,7 +364,7 @@ function coerceListingFallback(data: unknown): UserListing {
     } as UserListing;
 }
 
-export function unwrapListingPayload(data: unknown, depth = 0): unknown {
+function unwrapListingPayload(data: unknown, depth = 0): unknown {
     if (depth > 3 || !data || typeof data !== 'object') return data;
     const record = data as Record<string, unknown>;
     if (record.ad && typeof record.ad === 'object') return record.ad;

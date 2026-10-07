@@ -4,7 +4,7 @@ import * as React from "react";
 import { LayoutGrid, List } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
-export type BrowseViewToggleValue = "grid" | "list";
+type BrowseViewToggleValue = "grid" | "list";
 
 interface ViewToggleProps {
     view: BrowseViewToggleValue;

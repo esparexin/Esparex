@@ -4,7 +4,7 @@
 // (BaseBusinessPayloadSchema); this module owns only upload UX validation.
 import { z } from "zod";
 
-export const BUSINESS_IMAGE_MIME_TYPES = [
+const BUSINESS_IMAGE_MIME_TYPES = [
     "image/jpeg",
     "image/png",
     "image/webp",
@@ -13,13 +13,13 @@ export const BUSINESS_IMAGE_MIME_TYPES = [
     "image/heif",
 ] as const;
 
-export const BUSINESS_DOCUMENT_MIME_TYPES = [
+const BUSINESS_DOCUMENT_MIME_TYPES = [
     ...BUSINESS_IMAGE_MIME_TYPES,
     "application/pdf",
 ] as const;
 
-export const BUSINESS_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
-export const BUSINESS_UPLOAD_MAX_MB = BUSINESS_UPLOAD_MAX_BYTES / (1024 * 1024);
+const BUSINESS_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
+const BUSINESS_UPLOAD_MAX_MB = BUSINESS_UPLOAD_MAX_BYTES / (1024 * 1024);
 export const BUSINESS_IMAGE_ACCEPT = BUSINESS_IMAGE_MIME_TYPES.join(",");
 export const BUSINESS_DOCUMENT_ACCEPT = BUSINESS_DOCUMENT_MIME_TYPES.join(",");
 

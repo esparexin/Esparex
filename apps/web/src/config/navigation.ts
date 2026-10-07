@@ -20,11 +20,11 @@ import type { User as AppUser } from "@esparex/contracts";
 import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 
-export type NavigationRole = "guest" | "user" | "business";
+type NavigationRole = "guest" | "user" | "business";
 export type NavigationSurface = "profile-dropdown" | "mobile-drawer" | "mobile-bottom-nav";
-export type NavigationSection = "main" | "account";
+type NavigationSection = "main" | "account";
 
-export interface WebNavigationItem {
+interface WebNavigationItem {
   id: string;
   label: string;
   slug: string;
@@ -231,7 +231,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
 ];
 
-export function getNavigationRole(user: AppUser | null): NavigationRole {
+function getNavigationRole(user: AppUser | null): NavigationRole {
   if (!user) return "guest";
   const isBusiness = isBusinessActiveStatus(user.businessStatus);
   return isBusiness ? "business" : "user";
