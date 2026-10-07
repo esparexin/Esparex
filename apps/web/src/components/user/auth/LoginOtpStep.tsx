@@ -89,13 +89,11 @@ export function LoginOtpStep({
         </div>
 
         {authError?.type === "blocked" && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{authError.message}</p>
-          </div>
+          <UiFormError message={authError.message} className="text-center" />
         )}
 
         {step === "locked" && (
-          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
+          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5" role="alert">
             <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
               Too many incorrect OTP attempts.
             </p>
@@ -106,9 +104,7 @@ export function LoginOtpStep({
         )}
 
         {!isLocked && otpRateLimitMessage && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
-          </div>
+          <UiFormError message={otpRateLimitMessage} className="text-center" />
         )}
 
         {step === "enterNameAndOtp" && (

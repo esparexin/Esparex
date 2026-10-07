@@ -5,6 +5,7 @@ import { MapPin } from "@esparex/ui";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Input } from "@esparex/ui";
 import { Textarea } from "@esparex/ui";
+import { FormError } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 
 export { ListingImagesField } from "./ListingImagesField";
@@ -178,7 +179,7 @@ export function CategorySelectorGrid({
                 );
             })}
             </div>
-            {error && <p className="text-caption font-medium text-destructive px-1">{error}</p>}
+            {error && <FormError message={error} className="px-1" />}
         </div>
     );
 }

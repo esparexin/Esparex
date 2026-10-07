@@ -110,19 +110,15 @@ export function LoginMobileStep({
         />
 
         {authError?.type === "generic" && (
-          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3">
-            <UiFormError message={authError.message} className="mt-0 text-caption text-destructive" />
-          </div>
+          <UiFormError message={authError.message} className="mt-0" />
         )}
 
         {authError?.type === "blocked" && (
-          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-center">
-            <p className="text-caption font-semibold text-destructive">{authError.message}</p>
-          </div>
+          <UiFormError message={authError.message} className="mt-0 text-center" />
         )}
 
         {!backendReady && (
-          <div className="rounded-2xl border border-warning/20 bg-warning/10 p-3 space-y-1">
+          <div className="rounded-2xl border border-warning/20 bg-warning/10 p-3 space-y-1" role="status">
             <p className="text-caption font-semibold text-warning flex items-center gap-2">
               <Loader2 className="animate-spin h-3.5 w-3.5 text-warning" />
               Waking up server...

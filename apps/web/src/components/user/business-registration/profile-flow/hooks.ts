@@ -19,8 +19,26 @@ export function useProfileWizardController<TFormShape extends FieldValues>(
 
     const handleNext = async () => {
         if (formError) setFormError(null);
-        const isValid = await trigger(getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as Path<TFormShape>[]);
-        if (!isValid) return;
+        const fields = getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as Path<TFormShape>[];
+        const isValid = await trigger(fields);
+        if (!isValid) {
+            // Focus the first invalid field (matches post-ad wizard behavior)
+            const firstInvalid = fields.find((f) => {
+                const err = f.split('.').reduce((acc: any, key) => acc?.[key], errors);
+                return !!err;
+            });
+            if (firstInvalid) {
+                // Use requestAnimationFrame to ensure the error UI is rendered
+                requestAnimationFrame(() => {
+                    try {
+                        form.setFocus(firstInvalid);
+                    } catch {
+                        // Field may not be focusable; ignore
+                    }
+                });
+            }
+            return;
+        }
         setCurrentStep((prev) => prev + 1);
     };
 
