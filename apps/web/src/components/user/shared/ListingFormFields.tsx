@@ -154,8 +154,11 @@ export function CategorySelectorGrid({
                     <button
                         key={cat.id}
                         type="button"
-                        onClick={(e) => {
-                            e.currentTarget.blur();
+                        onClick={() => {
+                            // F-K2: removed e.currentTarget.blur() — it dropped
+                            // focus to document.body on Enter/Space activation,
+                            // losing focus inside the trap and breaking
+                            // screen-reader context.
                             onSelect(cat.id || "");
                         }}
                         disabled={disabled || (disabled && !selected)}

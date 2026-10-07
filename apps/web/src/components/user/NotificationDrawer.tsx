@@ -62,7 +62,10 @@ export function NotificationDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent side="right" className="w-[min(400px,100vw)] max-h-[calc(100vh-2rem)]">
+      {/* F-V5: max-height uses the visual-viewport var (keyboard-aware).
+          Was max-h-[calc(100vh-2rem)]: layout viewport is wrong when the
+          keyboard opens; drawer contains a search input. */}
+      <SheetContent side="right" className="w-[min(400px,100vw)] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)]">
         <SheetTitle className="sr-only">Notifications</SheetTitle>
         <div className="space-y-3 pt-2">
         {/* Header Action Bar */}

@@ -37,16 +37,21 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         hideClose
         onOpenAutoFocus={(e) => {
           e.preventDefault();
-          // responsive-exception: autofocus gated on viewport to avoid mobile keyboard jank (dynamic behavior).
-          if (typeof window !== "undefined" && window.innerWidth >= 640) {
-            document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
-          }
+          // F-K3: focus the input on all viewports (was gated to >=640px,
+          // leaving mobile screen-reader users on the background trigger).
+          // preventScroll avoids jank; the visual-viewport system handles
+          // keyboard elevation.
+          document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
         }}
         className={cn(
           // Mobile: full-viewport opaque modal surface eliminating background bleed.
-          "top-0 bottom-0 left-0 right-0 h-full max-h-none w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
+          // F-V2: height uses the visual-viewport var (keyboard-aware) instead of
+          // overriding bottom/max-height, which broke the Sheet primitive's
+          // keyboard elevation (keyboard covered OTP inputs on iOS).
+          "left-0 right-0 w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
+          "h-[var(--visual-viewport-height,100dvh)]",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-0",
-          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(100dvh-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
+          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(var(--visual-viewport-height,100dvh)-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
           "sm:animate-none sm:transition-none sm:transform-none sm:overflow-hidden"
         )}
       >

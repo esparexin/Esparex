@@ -68,7 +68,10 @@ export function BoostPlanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[min(calc(100dvh-2rem),36rem)] overflow-y-auto overscroll-contain p-6 rounded-2xl bg-card shadow-xl border border-border">
+      {/* F-V4: inherit the Dialog primitive's visual-viewport-bounded max-height.
+          Was max-h-[min(calc(100dvh-2rem),36rem)]: kept full layout-viewport
+          height on keyboard-open, risking sitting under the iOS keyboard. */}
+      <DialogContent className="max-w-md overflow-y-auto overscroll-contain p-6 rounded-2xl bg-card shadow-xl border border-border">
         <DialogHeader className="space-y-1 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0">

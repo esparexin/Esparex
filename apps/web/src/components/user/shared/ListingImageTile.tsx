@@ -1,9 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
-import { X } from "@esparex/ui";
+import {
+  X,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 
 interface ListingImageTileItem {
@@ -42,6 +52,9 @@ export function ListingImageTile({
   setDropTargetIndex,
   onDrop,
 }: ListingImageTileProps) {
+  // D-2: confirm via canonical AlertDialog (was window.confirm — the sole
+  // hand-rolled confirm bypass; 7 other web flows use AlertDialog).
+  const [confirmOpen, setConfirmOpen] = useState(false);
   return (
     <div
       draggable={Boolean(onReorder && !disabled)}
@@ -93,9 +106,7 @@ export function ListingImageTile({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (window.confirm("Remove this photo?")) {
-                onRemove(img.id ?? index);
-              }
+              setConfirmOpen(true);
             }}
             aria-label={getRemovePhotoAriaLabel(index, totalImages)}
             className="p-1 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[28px] min-w-[28px] flex items-center justify-center cursor-pointer shadow-sm"
@@ -103,6 +114,7 @@ export function ListingImageTile({
             <X className="w-3 h-3" />
           </button>
         </div>
+      </div>
         {onSetMain && index !== 0 && (
           <button
             type="button"
@@ -115,13 +127,33 @@ export function ListingImageTile({
             Make Cover
           </button>
         )}
-      </div>
 
       {index === 0 && (
         <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-tiny font-bold text-white uppercase tracking-wider pointer-events-none shadow-sm backdrop-blur-xs">
           {firstImageBadgeLabel}
         </div>
       )}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this photo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This photo will be removed from the listing. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onRemove(img.id ?? index);
+                setConfirmOpen(false);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
