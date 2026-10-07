@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { cookies } from "next/headers";
 import logger from "@/lib/logger";
 import type { Category } from "@esparex/contracts";
@@ -16,6 +17,13 @@ import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/brandEnti
 import { toCanonicalUrl } from "@/lib/seo/canonicalHost";
 import { Container } from "@esparex/ui";
 import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
+
+// Below-fold ad slot: code-split to reduce initial JS bundle.
+// The hero_top slot (above fold) loads normally; this one hydrates after.
+const BelowFoldAdSlot = dynamic(
+    () => import("@/components/common/AdPlacementSlot").then((mod) => mod.AdPlacementSlot),
+    { ssr: false, loading: () => <div className="min-h-[250px]" aria-hidden="true" /> }
+);
 
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
@@ -153,7 +161,7 @@ export default async function Home() {
 
                 {/* ui-guard-ignore: nested-container Sibling container wrappers for separate ad placement slots */}
                 <Container variant="lg">
-                    <AdPlacementSlot placement="homepage_feed_inline" />
+                    <BelowFoldAdSlot placement="homepage_feed_inline" />
                 </Container>
             </section>
         </div>

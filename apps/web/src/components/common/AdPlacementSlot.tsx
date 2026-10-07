@@ -44,9 +44,19 @@ function GoogleAdSenseSlot({
       onImpression(ad.id);
     } else if (statusAttr === "unfilled") {
       setAdStatus("unfilled");
-    } else if (insRef.current.clientHeight > 0 || insRef.current.querySelector("iframe")) {
+    } else if (insRef.current.querySelector("iframe")) {
+      // iframe present → ad filled (no layout read needed)
       setAdStatus("filled");
       onImpression(ad.id);
+    } else {
+      // Defer the clientHeight read to the next frame to avoid forced
+      // synchronous layout during the MutationObserver callback (was 58ms).
+      requestAnimationFrame(() => {
+        if (insRef.current && insRef.current.clientHeight > 0) {
+          setAdStatus("filled");
+          onImpression(ad.id);
+        }
+      });
     }
   }, [ad.id, onImpression]);
 
