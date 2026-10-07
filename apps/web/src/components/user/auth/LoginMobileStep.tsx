@@ -72,7 +72,7 @@ export function LoginMobileStep({
                     enterKeyHint="send"
                     placeholder="9876543210"
                     maxLength={16}
-                    className="h-full border-0 rounded-none bg-transparent px-3.5 text-body-lg sm:text-body tracking-wider font-normal text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none flex-1 min-w-0"
+                    className="h-full border-0 rounded-none bg-transparent px-3.5 text-body-lg md:text-body tracking-wider font-normal text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none flex-1 min-w-0"
                     autoComplete="tel"
                     inputMode="numeric"
                     {...field}

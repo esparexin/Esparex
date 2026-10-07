@@ -136,7 +136,7 @@ export function MultiSelectCatalogDropdown({
                                         type="button"
                                         onClick={(e) => handleRemoveChip(itemId, e)}
                                         aria-label={`Remove ${item.name}`}
-                                        className="rounded-full hover:bg-primary/20 p-0.5 text-primary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                                        className="rounded-full hover:bg-primary/20 p-1.5 text-primary relative before:absolute before:-inset-2 before:content-[''] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                                     >
                                         <X className="h-3 w-3" />
                                     </button>

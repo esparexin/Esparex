@@ -118,7 +118,7 @@ export function LoginOtpStep({
                 <FieldControl>
                   <Input
                     placeholder="Enter your name"
-                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-sm"
+                    className="h-12 px-4 text-body-lg md:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-sm"
                     disabled={isBlocked || isLocked}
                     autoComplete="name"
                     {...field}
