@@ -48,10 +48,13 @@ export const reverseGeocode = async (
     lng: number
 ): Promise<Location | null> => {
     const config: EsparexRequestConfig = {
-        // Avoid browser-level cache reuse with a timestamped query param.
-        // Do not send extra request headers here because cross-origin dev
-        // requests from localhost:3000 -> localhost:5001 must stay CORS-safe.
-        params: { lat, lng, _ts: Date.now() },
+        // Do NOT add a _ts cache-buster here. The backend sets
+        // Cache-Control: public, max-age=300 via publicCacheControl(),
+        // and a unique query param per request defeats that caching,
+        // causing 4s+ Nominatim calls on every geocode. The backend
+        // cache is intentional — location data is stable for minutes.
+        // (Removed 2026-10-07: was causing duplicate 4s requests.)
+        params: { lat, lng },
         skipHealthCheck: true,
         silent: true,
     };
