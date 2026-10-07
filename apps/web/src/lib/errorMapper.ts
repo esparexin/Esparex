@@ -174,7 +174,7 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
                 case 502:
                 case 503:
                 case 504:
-                    return "Payment couldn't be started right now. Please try again in a few moments.";
+                    return 'Server error. Please try again in a few moments.';
                 default:
                     break;
             }

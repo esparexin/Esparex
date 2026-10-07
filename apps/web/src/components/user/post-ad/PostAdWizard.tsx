@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import {
   Button,
   Spinner,
+  FormError,
 } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
@@ -22,7 +23,7 @@ import type { PostAdWizardProps } from "./types";
 
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
-  const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
+  const { currentStep, isEditMode, isSubmitting, submittedAd, formError } = usePostAdFlow();
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { entitlement, isAllowed, isLoading: isLoadingEntitlement } = usePostingEntitlement("ads");
@@ -92,6 +93,11 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         </ListingModalBody>
 
         <ListingModalFooter>
+          {formError && (
+            <div className="w-full mb-3">
+              <FormError message={formError} />
+            </div>
+          )}
           <div className="flex items-center gap-3 sm:gap-4 w-full">
             {currentStep > 1 && !isEditMode && (
               <Button
