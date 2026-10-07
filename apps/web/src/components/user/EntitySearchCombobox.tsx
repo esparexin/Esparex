@@ -62,8 +62,6 @@ export function EntitySearchCombobox<T>({
     const mobileInputRef = useRef<HTMLInputElement>(null);
     // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     const isMobile = useIsMobile();
-    // F-Z7: portalled dropdown position (fixed, viewport-relative).
-    const dropdownRect = useDropdownPosition(containerRef, isListOpen && !isMobile);
 
     const selectedName = displayValue || value || "";
 
@@ -80,6 +78,9 @@ export function EntitySearchCombobox<T>({
     }, [items, search, getLabel]);
 
     const isListOpen = Boolean((isEditing || search) && !disabled);
+
+    // F-Z7: portalled dropdown position (fixed, viewport-relative).
+    const dropdownRect = useDropdownPosition(containerRef, isListOpen && !isMobile);
 
     const handleItemSelect = (item: T) => { onSelect(item); setSearch(""); setIsEditing(false); };
     const handleProposeCustom = (customName: string) => {
