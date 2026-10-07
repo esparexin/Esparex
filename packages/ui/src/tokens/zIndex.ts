@@ -42,20 +42,24 @@ export const Z_INDEX = {
   sheetContent: 1051,           // Sheet/drawer content (must be above userHeader: 999)
 
   // ── Dialog System ────────────────────────────────────────────────────────
-  // Architectural Stacking Invariant:
-  // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1010) > dialogOverlay (1000) > userHeader (999)
-  dialogOverlay: 1000,          // Background overlay for modals (covers sticky header: 999)
-  dialogContent: 1010,          // Modal content card (always above overlay)
-  wizardModal: 1010,            // Wizard modal content
-  listingModal: 1010,           // Listing modal content
+  // Architectural Stacking Invariant (F-Z2 fixed 2026-10-07):
+  // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1070)
+  //   > dialogOverlay (1060) > sheetContent (1051) > sheetOverlay (1050)
+  //   > userHeader (999).
+  // Dialogs sit ABOVE sheets: a Dialog opened over an open Sheet is the more
+  // focused interaction and must render on top (previously inverted).
+  dialogOverlay: 1060,          // Background overlay for modals (above sheets)
+  dialogContent: 1070,          // Modal content card (always above overlay)
+  wizardModal: 1070,            // Wizard modal content
+  listingModal: 1070,           // Listing modal content
 
   // ── AlertDialog System ───────────────────────────────────────────────────
   alertDialogOverlay: 1100,     // AlertDialog backdrop (above standard dialogs)
   alertDialogContent: 1110,     // AlertDialog content card (above alert backdrop)
 
   // ── Auth Modal System ────────────────────────────────────────────────────
-  authModalOverlay: 1000,       // Auth modal backdrop (aligned with dialogOverlay)
-  authModalContent: 1010,       // Auth modal dialog card (aligned with dialogContent)
+  authModalOverlay: 1060,       // Auth modal backdrop (aligned with dialogOverlay)
+  authModalContent: 1070,       // Auth modal dialog card (aligned with dialogContent)
 
   // ── Popovers & Selection Overlays ────────────────────────────────────────
   locationSelectorBackdrop: 9998,
@@ -71,14 +75,16 @@ export const Z_INDEX = {
                                 // order, so it stays visible over page chrome, while
                                 // every dialog/sheet system (>= dialogOverlay 1000)
                                 // always covers it. Never raise above 999.
-  appErrorBanner: 12000,        // App-wide error banner
+  appErrorBanner: 11900,        // App-wide error banner (below popup modals;
+                                // F-Z1: was 12000, colliding with popupOverlay)
 
   // ── Popup System (popupBus / notify) ────────────────────────────────────
   popupOverlay: 12000,          // Popup dialog backdrop (above all dialogs/drawers)
   popupContent: 12010,          // Popup dialog content card
 
   // ── Debugging/Special ────────────────────────────────────────────────────
-  debugLayer: 99999,            // For development only
+  debugLayer: 99998,            // For development only (F-Z5: was 99999,
+                                // colliding with selectContent)
 } as const;
 
 /**
