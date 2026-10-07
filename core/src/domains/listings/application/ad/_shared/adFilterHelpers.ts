@@ -136,7 +136,7 @@ export const buildListingTypeFilter = (
 const LISTINGTYPE_COMPAT_METRIC_MODULE = 'ad_listingtype_compat';
 
 export const normalizeMetricSegment = (value: string): string =>
-    value.toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+    value.toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+/, '').replace(/_+$/, '') || 'unknown';
 
 export const recordListingTypeCompatMetric = async (
     context: ListingTypeCompatMetricContext,
