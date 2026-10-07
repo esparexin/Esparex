@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "baselines": {
+    "controllers-via-composition-facades": {
+      "count": 1,
+      "note": "C-11: controllers must import core via root/domain barrels only. 1 pre-existing deep import (adminLocationController -> services/AdminLocationService, circular type dep) grandfathered; burn down to 0.",
+      "unit": "depcruise error lines"
+    },
+    "domain-cannot-import-infrastructure-or-adapters": {
+      "count": 18,
+      "note": "C-7: rule widened to ^core/src/domains/ (was domain|ports only). 18 pre-existing infra/redis imports grandfathered; burn down to 0.",
+      "unit": "depcruise error lines"
+    },
+    "mongooseValueImportsInDomains": {
+      "count": 61,
+      "note": "C-7: files under core/src/domains (excluding adapters/) with a non-`import type` mongoose import. Audit found 79; burn down to 0. Type-only imports are erased at compile and excluded.",
+      "unit": "files"
+    }
+  },
+  "description": "Burn-down baselines for domain boundary rules (DECISION-GATE C-7, C-11). Each count is a ceiling: the gate FAILS if the current count exceeds the baseline, and the baseline auto-tightens when the count drops (burn-down toward zero).",
+  "updatedAt": "2026-10-07T04:04:31.046Z"
+}

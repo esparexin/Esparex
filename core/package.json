@@ -16,6 +16,7 @@
     "./domains/entitlements": "./dist/domains/entitlements/index.js",
     "./domains/fraud": "./dist/domains/fraud/index.js",
     "./domains/identity": "./dist/domains/identity/index.js",
+    "./domains/idempotency": "./dist/domains/idempotency/index.js",
     "./domains/listings": "./dist/domains/listings/index.js",
     "./domains/location": "./dist/domains/location/index.js",
     "./domains/moderation": "./dist/domains/moderation/index.js",

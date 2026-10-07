@@ -22,6 +22,9 @@ const checks = [
   require('./esparex/auditor-validator'),
   require('./esparex/ui-validator'),
   require('./esparex/script-validator'),
+  require('./esparex/guard-wiring-validator'),
+  require('./esparex/exports-surface-validator'),
+  require('./esparex/doc-conformance-validator'),
 ];
 
 const results = [];

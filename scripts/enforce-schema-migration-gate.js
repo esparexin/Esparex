@@ -7,8 +7,14 @@
 
 const { execSync } = require('child_process');
 
+// DECISION-GATE C-16: SKIP_MIGRATION_GATE is a local escape hatch only. In CI
+// the gate must actually run — a set SKIP_MIGRATION_GATE fails the build.
 if (process.env.SKIP_MIGRATION_GATE) {
-    console.log("[governance] SKIP_MIGRATION_GATE is set; skipping schema migration guard.");
+    if (process.env.CI === 'true') {
+        console.error("[governance] ❌ SKIP_MIGRATION_GATE is set in CI — the schema migration gate cannot be skipped in CI (DECISION-GATE C-16). Unset it.");
+        process.exit(1);
+    }
+    console.log("[governance] SKIP_MIGRATION_GATE is set; skipping schema migration guard (local only).");
     process.exit(0);
 }
 

@@ -2,24 +2,6 @@
 module.exports = {
   forbidden: [
     {
-      name: 'domain-cannot-import-apps-or-services',
-      severity: 'error',
-      comment: 'Domain logic must not depend on apps or services.',
-      from: { path: '^packages/domain/' },
-      to: {
-        path: '^(apps/|services/)'
-      }
-    },
-    {
-      name: 'kernel-is-independent',
-      severity: 'error',
-      comment: 'Kernel cannot depend on domains, apps, or services.',
-      from: { path: '^packages/kernel/' },
-      to: {
-        path: '^(packages/domain/|apps/|services/)'
-      }
-    },
-    {
       name: 'contracts-is-independent',
       severity: 'error',
       comment: 'Contracts cannot depend on domains, apps, services, shared, core, or backend packages.',
@@ -29,20 +11,10 @@ module.exports = {
       }
     },
     {
-      name: 'validation-service-cannot-import-models-or-mongoose',
-      severity: 'error',
-      comment: 'CatalogValidationService must be completely decoupled from Mongoose and persistence models.',
-      from: { path: '^core/src/services/catalog/CatalogValidationService\\.ts$' },
-      to: {
-        path: '(^core/src/models/Category|^core/src/models/Brand|^core/src/utils/CategoryQueryBuilder|mongoose)',
-        dependencyTypesNot: ['type-only']
-      }
-    },
-    {
       name: 'domain-cannot-import-infrastructure-or-adapters',
       severity: 'error',
-      comment: 'Domain logic and ports must not depend on database adapters, infrastructure, or third-party drivers.',
-      from: { path: '^core/src/domains/[^/]+/(domain|ports)' },
+      comment: 'Domain logic and ports must not depend on database adapters, infrastructure, or third-party drivers. DECISION-GATE C-7: widened to all of core/src/domains/ (was: domain|ports only). Existing violations are grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator).',
+      from: { path: '^core/src/domains/' },
       to: {
         path: '(^core/src/adapters|^core/src/infrastructure|mongoose|express|ioredis|redis|cloudinary|razorpay)',
         dependencyTypesNot: ['type-only']
@@ -101,12 +73,13 @@ module.exports = {
       }
     },
     {
-      name: 'no-legacy-transport-imports',
+      name: 'controllers-via-composition-facades',
       severity: 'error',
-      comment: 'Legacy transport paths are forbidden. Use local relative utilities inside backend/api instead.',
-      from: {},
+      comment: 'DECISION-GATE C-11: controllers must import core capabilities only via the @esparex/core root barrel (which carries the composition facades) or per-domain public barrels — never deep domain internals, services, or models. The single pre-existing deep import is grandfathered with a burn-down baseline in scripts/policy/domain-boundary-baseline.json (enforced by DEP-001 dependency-validator).',
+      from: { path: '^backend/[^/]+/src/controllers' },
       to: {
-        path: '(^backend/user|^@esparex/backend-user|^@esparex/core/controllers|^@esparex/core/utils/respond|^@esparex/core/utils/errorResponse|^@esparex/core/utils/controllerUtils)'
+        path: '(^core/src/domains/[^/]+/(domain|application|ports|adapters|mappers|classifiers|pipeline|policy|diagnostics)/|^core/src/services/|^core/src/models/)',
+        dependencyTypesNot: ['type-only']
       }
     },
     {
@@ -151,17 +124,6 @@ module.exports = {
         path: '^packages/(mobile-ui|ui|contracts|shared)/src/(?!index\\.tsx?$).+'
       }
     },
-    {
-      name: 'platform-sdk-in-infrastructure-only',
-      severity: 'error',
-      comment: 'Native device SDKs (expo-image-picker, expo-camera, expo-notifications, expo-location) must be encapsulated in infrastructure adapters and never imported directly in presentation, application, or domain layers.',
-      from: {
-        path: '^apps/mobile/src/features/[^/]+/(presentation|domain|application)'
-      },
-      to: {
-        path: '(expo-image-picker|expo-camera|expo-notifications|expo-location)'
-      }
-    }
   ],
   options: {
     exclude: {

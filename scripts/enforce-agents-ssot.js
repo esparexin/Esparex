@@ -173,4 +173,77 @@ if (violations.length > 0) {
   process.exit(1);
 }
 
+// ─── DECISION-GATE C-18: governance doc sprawl ──────────────────────────────
+// New governance .md files must reference one of the 5 canonical pillars, and
+// no new top-level governance directories may be created.
+{
+  const PILLARS = [
+    "AGENTS.md",
+    "docs/architecture/PLATFORM_ARCHITECTURE.md",
+    "docs/governance/REPOSITORY-GOVERNANCE.md",
+    "docs/tracking/engineering-action-register.md",
+    "packages/ui/GOVERNANCE.md",
+  ];
+  const ALLOWED_TOP_LEVEL = new Set([
+    "docs", ".agents", "governance", "archive", "packages",
+    "apps", "backend", "core", "shared", "scripts", "tooling",
+  ]);
+  const GOVERNANCE_PATH_RE = /(^|\/)(governance|policies|standards|pillars)(\/|$)|(^|\/)(AGENTS|ARCHITECTURE|GOVERNANCE|REPOSITORY-GOVERNANCE|PLATFORM_ARCHITECTURE)(\.md$|$)/i;
+
+  const newFiles = new Set();
+  const collectNew = (cmd) => {
+    try {
+      const out = execSync(cmd, { cwd: process.cwd(), encoding: "utf8" });
+      for (const f of out.split("\n").map((l) => l.trim()).filter(Boolean)) newFiles.add(f);
+    } catch { /* no diff available */ }
+  };
+  collectNew("git diff --cached --name-only --diff-filter=A");
+  try {
+    const base = execSync("git merge-base HEAD origin/develop", { cwd: process.cwd(), encoding: "utf8" }).trim();
+    if (base) collectNew(`git diff --name-only --diff-filter=A ${base}...HEAD`);
+  } catch { /* no merge-base */ }
+
+  const sprawlViolations = [];
+  for (const file of newFiles) {
+    if (!file.endsWith(".md")) continue;
+    const topLevel = file.split("/")[0];
+    const isGovernanceMd =
+      GOVERNANCE_PATH_RE.test(file) ||
+      file.startsWith("docs/governance/") ||
+      file.startsWith("docs/architecture/") ||
+      file.startsWith(".agents/") ||
+      file.startsWith("governance/");
+    if (!isGovernanceMd) continue;
+
+    if (!ALLOWED_TOP_LEVEL.has(topLevel)) {
+      sprawlViolations.push(`${file} :: creates a new top-level governance directory "${topLevel}/" — governance docs must live under ${[...ALLOWED_TOP_LEVEL].join(", ")}`);
+      continue;
+    }
+
+    let content = "";
+    try {
+      content = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    } catch {
+      continue;
+    }
+    const referencesPillar = PILLARS.some(
+      (p) => content.includes(p) || content.includes(path.basename(p))
+    );
+    if (!referencesPillar) {
+      sprawlViolations.push(
+        `${file} :: new governance doc does not reference any of the 5 canonical pillars (${PILLARS.join(", ")}) — link it to its pillar instead of creating parallel authority`
+      );
+    }
+  }
+
+  if (sprawlViolations.length > 0) {
+    console.error("❌ Governance doc sprawl guard failed (C-18).");
+    for (const v of sprawlViolations) console.error(`  - ${v}`);
+    process.exit(1);
+  }
+  if (newFiles.size > 0) {
+    console.log(`✅ Governance doc sprawl check passed (C-18): ${newFiles.size} new file(s) screened.`);
+  }
+}
+
 console.log("✅ AI governance SSOT guard passed.");

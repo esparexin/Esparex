@@ -28,6 +28,12 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '..');
 const isCI = process.env.CI === 'true';
 const isStagedMode = process.argv.includes('--staged');
+// DECISION-GATE C-3: whole-tree (not staged/diff) scan with a ratcheting total
+// baseline, for wiring into GOV-GUARDS-001. Counts every violation across the
+// tree; fails when the total exceeds the baseline; tightens the baseline when
+// the total shrinks.
+const isTreeMode = process.argv.includes('--tree');
+const TREE_BASELINE_PATH = path.join(repoRoot, 'scripts', 'policy', 'design-token-baseline.json');
 
 // ─── Banned patterns ────────────────────────────────────────────────────────
 
@@ -128,7 +134,97 @@ function checkLine(line, prevLine) {
     return { suppressed: false };
 }
 
+// ─── Whole-tree mode (DECISION-GATE C-3) ────────────────────────────────────
+
+function loadTreeBaseline() {
+    try {
+        return JSON.parse(fs.readFileSync(TREE_BASELINE_PATH, 'utf-8'));
+    } catch {
+        return null;
+    }
+}
+
+function saveTreeBaseline(total) {
+    fs.writeFileSync(
+        TREE_BASELINE_PATH,
+        JSON.stringify({ totalViolations: total, updatedAt: new Date().toISOString() }, null, 2) + '\n'
+    );
+}
+
+function walkTreeFiles(dir, out = []) {
+    if (!fs.existsSync(dir)) return out;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const abs = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            if (EXCLUDED_DIRS.includes(entry.name) || entry.name.startsWith('.')) continue;
+            walkTreeFiles(abs, out);
+        } else if (entry.isFile()) {
+            const rel = path.relative(repoRoot, abs).replace(/\\/g, '/');
+            if (isTargetFile(rel)) out.push({ abs, rel });
+        }
+    }
+    return out;
+}
+
+function runTreeMode() {
+    const roots = ['apps', 'packages'].map((d) => path.join(repoRoot, d));
+    const files = roots.flatMap((r) => walkTreeFiles(r));
+    const violations = [];
+
+    for (const { abs, rel } of files) {
+        let content;
+        try {
+            content = fs.readFileSync(abs, 'utf-8');
+        } catch {
+            continue;
+        }
+        const lines = content.split('\n');
+        lines.forEach((line, idx) => {
+            const prevLine = idx > 0 ? lines[idx - 1] : '';
+            const { suppressed, emptySuppression } = checkLine(line, prevLine);
+            if (suppressed || emptySuppression) return;
+            for (const { pattern, name } of BANNED_PATTERNS) {
+                const match = line.match(pattern);
+                if (match) {
+                    // GOV-GUARDS-001 parses lines starting with "- " for ratchet comparison.
+                    violations.push(`- ${rel}:${idx + 1} [${name}] ${match[0]}`);
+                    break;
+                }
+            }
+        });
+    }
+
+    const total = violations.length;
+    const baseline = loadTreeBaseline();
+
+    if (!baseline) {
+        saveTreeBaseline(total);
+        console.log(`✅ Design Token Adoption Guard (--tree): baseline initialized at ${total} total violation(s) across ${files.length} files.`);
+        process.exit(0);
+    }
+
+    if (total > baseline.totalViolations) {
+        console.error(`\n❌ Design Token Adoption Guard (--tree): ${total} total violations exceed ratchet baseline ${baseline.totalViolations}.`);
+        console.error('   New raw palette / inline style violations were introduced — use semantic design tokens.\n');
+        violations.slice(0, 25).forEach((v) => console.error(`  ${v}`));
+        if (violations.length > 25) console.error(`  ... and ${violations.length - 25} more.\n`);
+        process.exit(1);
+    }
+
+    if (total < baseline.totalViolations) {
+        saveTreeBaseline(total);
+        console.log(`✅ Design Token Adoption Guard (--tree): ${total} total violations (baseline tightened from ${baseline.totalViolations}).`);
+    } else {
+        console.log(`✅ Design Token Adoption Guard (--tree): ${total} total violations across ${files.length} files — at ratchet baseline.`);
+    }
+    process.exit(0);
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
+
+if (isTreeMode) {
+    runTreeMode();
+}
 
 const changedFiles = getChangedFiles();
 

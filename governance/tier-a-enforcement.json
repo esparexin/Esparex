@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Tier A enforcement map (DECISION-GATE C-1). Every Tier A rule from AGENTS.md 'Enforcement Tiers' MUST map to >=1 mechanical guard script on the working tree. The meta-guard scripts/enforce-guard-wiring.js verifies this file: unmapped Tier A rules, missing guard files, or unreferenced guard:* scripts fail the gate.",
+  "guardScriptAllowlist": {
+    "guard:api-ssot": "delegates to lint:no-api-string-literals (not a standalone script file)",
+    "guard:audit": "npm audit invocation, no script file",
+    "guard:circular": "madge CLI invocation, no script file",
+    "guard:dependencies": "depcruise CLI invocation, no script file",
+    "guard:duplicate-code": "jscpd CLI invocation, no script file",
+    "guard:license": "license-checker CLI invocation, no script file",
+    "guard:pr-description": "CI-only PR metadata check (scripts/ci/verify-pr-description.js); not part of the working-tree gate",
+    "guard:pr-impact-analysis": "PR-description check; invoked manually per README, not wired to a workflow — allowlisted pending a CI-wiring decision (out of C-1 scope)",
+    "guard:runtime-parity": "Manual runtime parity check; not wired into gate/CI — allowlisted",
+    "guard:core-export-parity": "Export-vs-dist parity check; run manually after core builds, not wired into gate/CI — allowlisted"
+  },
+  "pillars": [
+    "AGENTS.md",
+    "docs/architecture/PLATFORM_ARCHITECTURE.md",
+    "docs/governance/REPOSITORY-GOVERNANCE.md",
+    "docs/tracking/engineering-action-register.md",
+    "packages/ui/GOVERNANCE.md"
+  ],
+  "tierA": [
+    {
+      "guards": [
+        "scripts/enforce-mapper-ownership.js"
+      ],
+      "rule": "mapper ownership"
+    },
+    {
+      "guards": [
+        "scripts/enforce-validation-ssot.js"
+      ],
+      "rule": "zod empty-string union"
+    },
+    {
+      "guards": [
+        "scripts/guard-form-input-zoom.js"
+      ],
+      "rule": "mobile 16px zoom"
+    },
+    {
+      "guards": [
+        "scripts/guard-ui-architecture.js"
+      ],
+      "rule": "single-instance responsive"
+    },
+    {
+      "guards": [
+        "scripts/enforce-zero-primitive-obsession.js"
+      ],
+      "rule": "zero primitive obsession"
+    },
+    {
+      "guards": [
+        "scripts/verify-api-contract.js",
+        "scripts/enforce-api-surface-guard.js"
+      ],
+      "rule": "contract-first ssot"
+    },
+    {
+      "guards": [
+        "scripts/enforce-typography-ssot.js",
+        "scripts/enforce-design-token-adoption.js"
+      ],
+      "rule": "typography/brand tokens"
+    },
+    {
+      "guards": [
+        "scripts/guard-pr-quality.js"
+      ],
+      "rule": "file-size ratchet"
+    },
+    {
+      "guards": [
+        "scripts/git/esparex/duplicate-validator.js"
+      ],
+      "rule": "jscpd ratchet"
+    },
+    {
+      "guards": [
+        "scripts/guard-process-concurrency.js"
+      ],
+      "rule": "process concurrency"
+    },
+    {
+      "guards": [
+        "scripts/enforce-platform-sdk-boundary.js"
+      ],
+      "rule": "platform sdk boundary"
+    },
+    {
+      "guards": [
+        "scripts/enforce-authorization-ssot.js"
+      ],
+      "rule": "auth/role ssot"
+    },
+    {
+      "guards": [
+        "scripts/enforce-notification-governance.js"
+      ],
+      "rule": "popup ssot"
+    },
+    {
+      "guards": [
+        "scripts/enforce-no-ad-hard-delete.js"
+      ],
+      "rule": "no-hard-delete"
+    },
+    {
+      "guards": [
+        "scripts/guard-route-shadowing.js",
+        "scripts/enforce-route-collision-guard.js"
+      ],
+      "rule": "route shadowing/collision"
+    },
+    {
+      "guards": [
+        "scripts/enforce-ad-ssot-guard.js"
+      ],
+      "rule": "mongoose connection binding"
+    },
+    {
+      "guards": [
+        "scripts/enforce-ad-ssot-guard.js"
+      ],
+      "rule": "listing expiry clamp"
+    },
+    {
+      "guards": [
+        "scripts/enforce-ad-ssot-guard.js"
+      ],
+      "rule": "feed filter ssot"
+    },
+    {
+      "guards": [
+        "scripts/guard-ui-architecture.js"
+      ],
+      "rule": "deterministic date formatters"
+    },
+    {
+      "guards": [
+        "scripts/guard-location-ssot.js"
+      ],
+      "rule": "nominatim-first geocode"
+    }
+  ]
+}

@@ -49,6 +49,8 @@ const GUARDS = [
   { name: 'Process Concurrency & Resource Safety', cmd: 'node scripts/guard-process-concurrency.js', baselineKey: 'processConcurrencyViolations' },
   { name: 'Ad SSOT & Listing Lifecycle', cmd: 'node scripts/enforce-ad-ssot-guard.js', baselineKey: 'adSsotViolations' },
   { name: 'Doc Hygiene', cmd: 'node scripts/guard-doc-hygiene.js', baselineKey: 'docHygieneViolations' },
+  { name: 'Mobile Form Input Zoom', cmd: 'node scripts/guard-form-input-zoom.js', baselineKey: 'formInputZoomViolations' },
+  { name: 'Design Token Adoption (tree)', cmd: 'node scripts/enforce-design-token-adoption.js --tree', baselineKey: 'designTokenViolations' },
 ];
 
 function run(val) {

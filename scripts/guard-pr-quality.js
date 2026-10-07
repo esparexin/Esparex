@@ -165,6 +165,101 @@ function getStagedFileLineCount(relFile) {
   }
 }
 
+function currentQuarter() {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-Q${1 + Math.floor(now.getUTCMonth() / 3)}`;
+}
+
+function quarterKey(q) {
+  const [y, qq] = q.split('-Q').map(Number);
+  return y * 4 + qq;
+}
+
+// DECISION-GATE C-17: quarterly −5% ratchet on tree-wide oversized-file counts.
+// The retained oversized files (AGENTS.md §7) must shrink over time: every
+// calendar quarter the cap per file type tightens by 5% (from the lower of the
+// previous cap and the current count). Fails when the current count exceeds the
+// cap. Skipped in --staged (pre-commit) mode to keep the hook fast.
+function runOversizedCensus() {
+  const baselinePath = path.join(ROOT, 'scripts', 'policy', 'oversized-baseline.json');
+  let baseline = null;
+  try {
+    baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf-8'));
+  } catch {
+    baseline = null;
+  }
+
+  let tracked = [];
+  try {
+    tracked = execSync('git ls-files "*.ts" "*.tsx"', { cwd: ROOT, encoding: 'utf8' })
+      .split('\n').filter(Boolean)
+      .filter((f) => !f.endsWith('.d.ts') && !f.includes('node_modules'));
+  } catch {
+    console.log('⚠️  Oversized census: could not list tracked files; skipping ratchet.');
+    return;
+  }
+
+  const counts = {};
+  for (const rule of FILE_LIMITS) counts[rule.type] = 0;
+  for (const relFile of tracked) {
+    const rule = FILE_LIMITS.find((r) => r.test(relFile));
+    if (!rule) continue;
+    let lines = 0;
+    try {
+      lines = fs.readFileSync(path.join(ROOT, relFile), 'utf8').split('\n').length;
+    } catch {
+      continue;
+    }
+    if (lines > rule.max) counts[rule.type]++;
+  }
+
+  const q = currentQuarter();
+  if (!baseline) {
+    baseline = { quarter: q, caps: { ...counts }, counts: { ...counts }, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(baselinePath, JSON.stringify(baseline, null, 2) + '\n');
+    console.log(`📏 Oversized-file census: baseline initialized for ${q}: ${JSON.stringify(counts)}`);
+    return;
+  }
+
+  if (quarterKey(q) > quarterKey(baseline.quarter)) {
+    // New quarter: tighten each cap by 5% from the lower of cap and count.
+    const newCaps = {};
+    for (const type of Object.keys(counts)) {
+      const from = Math.min(baseline.caps[type] ?? counts[type], counts[type]);
+      newCaps[type] = Math.floor(from * 0.95);
+    }
+    baseline = { quarter: q, caps: newCaps, counts: { ...counts }, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(baselinePath, JSON.stringify(baseline, null, 2) + '\n');
+    console.log(`📏 Oversized-file census: new quarter ${q} — caps tightened −5%: ${JSON.stringify(newCaps)}`);
+  }
+
+  const over = [];
+  let tightened = false;
+  for (const type of Object.keys(counts)) {
+    const cap = baseline.caps[type] ?? counts[type];
+    if (counts[type] > cap) {
+      over.push(`${type}: ${counts[type]} oversized files exceed quarterly cap ${cap}`);
+    } else if (counts[type] < cap) {
+      // Opportunistic burn-down: the tree already beat the cap — ratchet it.
+      baseline.caps[type] = counts[type];
+      tightened = true;
+    }
+  }
+  if (tightened) {
+    baseline.counts = { ...counts };
+    baseline.updatedAt = new Date().toISOString();
+    fs.writeFileSync(baselinePath, JSON.stringify(baseline, null, 2) + '\n');
+    console.log(`📏 Oversized-file census: caps tightened to current counts (burn-down).`);
+  }
+  if (over.length > 0) {
+    console.error(`❌ GOVERNANCE FAILURE (C-17 quarterly ratchet): oversized-file counts exceed caps:`);
+    for (const o of over) console.error(`   - ${o}`);
+    console.error(`   👉 Reduce oversized files of these types (split at seams per AGENTS.md §7) to get under the cap.`);
+    process.exit(1);
+  }
+  console.log(`📏 Oversized-file census (${baseline.quarter} caps): ${JSON.stringify(counts)} — within caps.`);
+}
+
 function run() {
   const isStagedMode = process.argv.includes('--staged');
   const isAbsoluteMode = process.argv.includes('--absolute');
@@ -307,6 +402,11 @@ function run() {
     console.log(`ℹ️  PR Quality Guard: 0 matching TypeScript files to evaluate in ${isAbsoluteMode ? 'absolute repository scan' : isStagedMode ? 'staging index' : `diff vs ${baseRefName}`}. (Pass)`);
   } else {
     console.log(`✅ PR Quality Guard Passed: Audited ${auditedCount} file(s) — all satisfy file size limits and baseline ratchet rules.`);
+  }
+
+  // DECISION-GATE C-17: quarterly oversized-file ratchet (skipped pre-commit).
+  if (!isStagedMode) {
+    runOversizedCensus();
   }
 }
 

@@ -58,7 +58,7 @@ const RULES = {
   VIEWPORT_COMPONENT_FORBIDDEN: {
     id: "viewport-component-forbidden",
     severity: "error",
-    description: "Viewport-split component file naming (e.g. *DesktopTable.tsx, *MobileCard.tsx) is prohibited",
+    description: "Viewport-split component pair (e.g. WidgetDesktop.tsx + WidgetMobile.tsx in the same directory) — AGENTS.md mandates a single responsive component instance. Lone viewport affixes are warnings.",
   },
   WAIVER_SYNTAX: {
     id: "waiver-syntax",
@@ -131,6 +131,58 @@ const RULES = {
 const NATIVE_BUTTON_BASELINE = 257; // web + admin scope (was 138 web-only)
 const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
 const RAW_INLINE_SVG_BASELINE = 0;
+
+// ─── Viewport affix detector (DECISION-GATE C-6) ─────────────────────────────
+// General affix detector replacing the narrow Desktop|Mobile + Table|Card|...
+// regex. Detects viewport-denoting affixes as PascalCase/camelCase segments in
+// component file basenames (e.g. OrderTabletCard, WidgetDesktop, HelpPhone).
+// A lone affix is a *candidate* (warning); a complementary affix PAIR in the
+// same directory (WidgetDesktop + WidgetMobile, or WidgetMobile + Widget) is
+// the true single-instance violation (error).
+const VIEWPORT_AFFIXES = ['Desktop', 'Mobile', 'Tablet', 'Phone', 'Handset', 'Portrait', 'Landscape'];
+const VIEWPORT_AFFIX_RE = new RegExp('(?:^|[^A-Z])(' + VIEWPORT_AFFIXES.join('|') + ')(?=[A-Z0-9]|\\.|$)');
+
+function detectViewportAffix(baseName) {
+  const m = baseName.match(VIEWPORT_AFFIX_RE);
+  return m ? m[1] : null;
+}
+
+function stripViewportAffix(baseName, affix) {
+  const idx = baseName.indexOf(affix);
+  if (idx === -1) return baseName;
+  return (baseName.slice(0, idx) + baseName.slice(idx + affix.length)).replace(/[_.-]{2,}/g, '_');
+}
+
+/**
+ * Pair detection: given absolute file paths, returns the subset that form a
+ * viewport-split pair — same directory, same stem after affix stripping, and
+ * complementary affixes (A vs B, or affixed vs bare).
+ */
+function detectViewportPairs(files) {
+  const byDir = new Map();
+  for (const f of files) {
+    const dir = path.dirname(f);
+    const base = path.basename(f).replace(/\.(tsx|jsx)$/, '');
+    if (f.includes('apps/mobile')) continue;
+    const affix = detectViewportAffix(base);
+    if (!byDir.has(dir)) byDir.set(dir, []);
+    byDir.get(dir).push({ file: f, base, affix, stem: affix ? stripViewportAffix(base, affix) : base });
+  }
+  const paired = new Set();
+  for (const entries of byDir.values()) {
+    for (let i = 0; i < entries.length; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        const a = entries[i], b = entries[j];
+        if (a.stem !== b.stem) continue;
+        if (!a.affix && !b.affix) continue;
+        if (a.affix && b.affix && a.affix === b.affix) continue;
+        paired.add(a.file);
+        paired.add(b.file);
+      }
+    }
+  }
+  return paired;
+}
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -251,17 +303,21 @@ function auditFile(filePath) {
     }
   });
 
-  // ── Rule: Viewport-split component file naming ────────────────────────────
+  // ── Rule: Viewport-split component file naming (DECISION-GATE C-6) ─────────
+  // General affix detector (see VIEWPORT_AFFIXES above). auditFile records the
+  // violation at error severity; run() demotes lone affixes (no pair in the
+  // same directory) to warnings, keeping pairs as blocking errors.
   const baseName = path.basename(filePath);
-  const VIEWPORT_SPLIT_PATTERN = /(?:Desktop|Mobile)(?:Table|Card|List|Panel|Grid|Item|Container)\.(?:tsx|jsx)$/;
-  if (VIEWPORT_SPLIT_PATTERN.test(baseName) && !filePath.includes("apps/mobile")) {
+  const stemName = baseName.replace(/\.(tsx|jsx)$/, '');
+  const viewportAffix = detectViewportAffix(stemName);
+  if (viewportAffix && !filePath.includes("apps/mobile")) {
     const isIgnoredFile = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.VIEWPORT_COMPONENT_FORBIDDEN.id}`));
     if (!isIgnoredFile) {
       violations.push({
         rule: RULES.VIEWPORT_COMPONENT_FORBIDDEN,
         file: relPath,
         line: 1,
-        content: `File name '${baseName}' indicates a viewport-split component. AGENTS.md mandates a single responsive component instance.`,
+        content: `File name '${baseName}' carries viewport affix '${viewportAffix}' — a viewport-split pair in the same directory violates the single-instance responsive rule (AGENTS.md).`,
       });
     }
   }
@@ -416,6 +472,22 @@ function run() {
     allViolations.push(...v);
   }
 
+  // DECISION-GATE C-6: pair detection. A viewport affix recorded by auditFile is
+  // only a blocking error when the file forms a split pair in its directory;
+  // lone affixes (e.g. MobileNavDrawer, PersonalProfileMobileVisibilitySection)
+  // are demoted to non-blocking warnings.
+  const pairedFiles = detectViewportPairs(files);
+  const repoRoot = path.resolve(__dirname, '..');
+  for (const v of allViolations) {
+    if (v.rule.id === RULES.VIEWPORT_COMPONENT_FORBIDDEN.id) {
+      const abs = path.resolve(repoRoot, v.file);
+      if (!pairedFiles.has(abs)) {
+        v.rule = { ...v.rule, severity: 'warning' };
+        v.content += ' (lone affix — no split pair detected; warning only)';
+      }
+    }
+  }
+
   const errors = allViolations.filter((v) => v.rule.severity === "error");
   const warnings = allViolations.filter((v) => v.rule.severity === "warning");
 
@@ -508,4 +580,4 @@ if (require.main === module) {
   run();
 }
 
-module.exports = { auditFile, RULES };
+module.exports = { auditFile, RULES, detectViewportAffix, detectViewportPairs, VIEWPORT_AFFIXES };

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { auditFile, RULES } = require('../guard-ui-architecture');
+const { auditFile, RULES, detectViewportAffix, detectViewportPairs } = require('../guard-ui-architecture');
 
 function runTests() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-test-'));
@@ -147,4 +147,74 @@ export function BadWaiver() {
   }
 }
 
+function runViewportPairTests() {
+  // DECISION-GATE C-6 regression tests: general affix detector + pair detection.
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-pair-test-'));
+  let passed = 0;
+  let failed = 0;
+
+  function assert(condition, message) {
+    if (condition) {
+      console.log(`  ✓ ${message}`);
+      passed++;
+    } else {
+      console.error(`  ✗ ${message}`);
+      failed++;
+    }
+  }
+
+  try {
+    console.log('\nTesting viewport affix detector + pair detection (C-6)...\n');
+    const write = (name) => {
+      const f = path.join(tmpDir, name);
+      fs.writeFileSync(f, `export function X() { return <div/>; }\n`);
+      return f;
+    };
+
+    // 1. General affix detector catches affixes the old regex missed (Tablet).
+    assert(detectViewportAffix('OrderTabletCard') === 'Tablet', 'Affix detector flags Tablet segment (OrderTabletCard)');
+    assert(detectViewportAffix('HelpPhonePanel') === 'Phone', 'Affix detector flags Phone segment (HelpPhonePanel)');
+    assert(detectViewportAffix('CleanCard') === null, 'Affix detector ignores affix-free names (CleanCard)');
+    assert(detectViewportAffix('SmartAlertMatches') === null, 'Affix detector ignores non-affix prefixes (SmartAlertMatches)');
+
+    // 2. Complementary pair in the same directory -> both paired (blocking error shape).
+    const d1 = write('WidgetDesktop.tsx');
+    const m1 = write('WidgetMobile.tsx');
+    const paired = detectViewportPairs([d1, m1]);
+    assert(paired.has(d1) && paired.has(m1), 'Pair detection flags WidgetDesktop + WidgetMobile in the same directory');
+
+    // 3. Affixed + bare stem in the same directory -> pair.
+    const b1 = write('Panel.tsx');
+    const b2 = write('PanelMobile.tsx');
+    const pairedBare = detectViewportPairs([b1, b2]);
+    assert(pairedBare.has(b1) && pairedBare.has(b2), 'Pair detection flags PanelMobile + bare Panel stem');
+
+    // 4. Lone affix -> no pair (warning-only shape, not blocking).
+    const solo = write('SoloMobile.tsx');
+    assert(detectViewportPairs([solo]).size === 0, 'Lone affix (SoloMobile) forms no pair');
+
+    // 5. Same affix twice is not a pair; different directories are not a pair.
+    const s1 = write('CardMobile.tsx');
+    const otherDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ui-guard-pair-other-'));
+    const o1 = path.join(otherDir, 'CardDesktop.tsx');
+    fs.writeFileSync(o1, `export function X() { return <div/>; }\n`);
+    assert(detectViewportPairs([s1, s1]).size === 0, 'Identical file listed twice forms no pair');
+    assert(detectViewportPairs([s1, o1]).size === 0, 'Same-stem affixes in different directories form no pair');
+    fs.rmSync(otherDir, { recursive: true, force: true });
+
+    // 6. auditFile still records the violation for affixed names (error shape preserved for direct callers).
+    const vAffix = auditFile(write('OrderTabletCard.tsx'));
+    assert(
+      vAffix.some((v) => v.rule.id === RULES.VIEWPORT_COMPONENT_FORBIDDEN.id),
+      'auditFile records viewport-component-forbidden for Tablet-affixed names'
+    );
+
+    console.log(`\nPair tests completed: ${passed} passed, ${failed} failed.`);
+    if (failed > 0) process.exit(1);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
 runTests();
+runViewportPairTests();

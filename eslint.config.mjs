@@ -180,6 +180,16 @@ export default tseslint.config(
     }
   },
 
+  // 6b. Controller import governance (DECISION-GATE C-11)
+  // Controllers import core only via static barrel imports (composition
+  // facades); dynamic import() of @esparex/core is forbidden for new code.
+  {
+    files: ["backend/**/src/controllers/**/*.{ts,tsx}"],
+    rules: {
+      "esparex/no-dynamic-core-import-in-controllers": "error",
+    },
+  },
+
   // 7. Neutral Shared Zone (Isomorphism Enforcement)
   {
     files: ["shared/**/*.{ts,js,cjs,mjs}"],

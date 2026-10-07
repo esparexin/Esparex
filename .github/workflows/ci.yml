@@ -112,6 +112,40 @@ jobs:
       - name: Run Repository Gate
         run: npm run repo:gate
 
+      # ── DECISION-GATE §6 permanent CI enforcement ──────────────────────────
+      # C-16: validation/objectid/repository-port/schema-migration guards run blocking.
+      - name: Guard blocking suite (C-16)
+        run: |
+          npm run guard:validation-ssot
+          npm run guard:objectid
+          npm run guard:repository-ports
+          npm run guard:schema-migration
+
+      # C-9: wallet writes only via the entitlements domain.
+      - name: Enforce wallet-write SSOT (C-9)
+        run: node scripts/enforce-wallet-write-ssot.js
+
+      # C-10: no new files/imports under the legacy lifecycle cluster.
+      - name: Enforce no-legacy-lifecycle (C-10)
+        run: node scripts/enforce-no-legacy-lifecycle.js
+
+      # C-12: domain manifest conformance (empty facades / application layers).
+      - name: Enforce manifest conformance (C-12)
+        run: node scripts/enforce-manifest-conformance.js
+
+      # C-13: model registry == core/src/models/*.ts (check mode; --write is for local sync).
+      - name: Enforce model registry parity (C-13)
+        run: node scripts/enforce-model-registry-parity.js
+
+      # C-15: no second PHONE_REGEX.
+      - name: Enforce phone-regex SSOT (C-15)
+        run: node scripts/enforce-phone-regex-ssot.js
+
+      # C-5: tighten the JSCPD baseline on green runs (fails the job if the
+      # validator reports a regression; the writer only persists on green).
+      - name: Tighten JSCPD baseline on green (C-5)
+        run: node scripts/git/esparex/duplicate-validator.js --write-baseline
+
       - name: Validate Governance Data (Schema, DAG, References)
         run: npm run governance:validate
 
