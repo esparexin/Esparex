@@ -1,5 +1,4 @@
 "use client";
-
 /**
  * dialog.tsx — Unified Dialog System (Radix UI)
  *
@@ -164,8 +163,7 @@ const DialogContent = React.forwardRef<
       {!hideClose && (
         <RadixDialog.Close
           className={cn(
-            // F-T1: 44px touch target (was h-9 w-9 = 36px)
-            "absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-sm opacity-70 ring-offset-background",
+            "absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-sm opacity-70 ring-offset-background", // 44px target (F-T1)
             "transition-opacity hover:opacity-100",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:pointer-events-none",

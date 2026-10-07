@@ -1,20 +1,10 @@
 "use client";
-
 import React, { useState } from "react";
 import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
-import {
-  X,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@esparex/ui";
+import { X } from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
+import { RemovePhotoConfirmDialog } from "./RemovePhotoConfirmDialog";
 
 interface ListingImageTileItem {
   id?: string | number;
@@ -133,27 +123,11 @@ export function ListingImageTile({
           {firstImageBadgeLabel}
         </div>
       )}
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove this photo?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This photo will be removed from the listing. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                onRemove(img.id ?? index);
-                setConfirmOpen(false);
-              }}
-            >
-              Remove
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RemovePhotoConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => onRemove(img.id ?? index)}
+      />
     </div>
   );
 }
