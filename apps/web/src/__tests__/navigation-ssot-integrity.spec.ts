@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PROFILE_TAB_ITEMS, getNavigationItems, type ProfileTabValue } from "@/config/navigation";
-import { resolveBottomNavActiveTab } from "@/components/user/MobileAccountBottomNav";
+import { PROFILE_TAB_ITEMS, getNavigationItems, type ProfileTabValue, resolveBottomNavActiveTab } from "@/config/navigation";
 
 describe("Navigation SSOT Integrity & Responsive Parity", () => {
   it("maintains unique, non-empty tab values in PROFILE_TAB_ITEMS", () => {

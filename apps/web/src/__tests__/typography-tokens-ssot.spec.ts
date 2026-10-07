@@ -204,7 +204,7 @@ describe("Mobile Typography & Layout SSOT Governance", () => {
     });
 
     it("ensures zero ghost navigation states in mobile bottom nav for all profile tab values", async () => {
-        const { resolveBottomNavActiveTab } = await import("../components/user/MobileAccountBottomNav");
+        const { resolveBottomNavActiveTab } = await import("@/config/navigation");
         const allTabValues: Array<"personal" | "mylistings" | "messages" | "saved" | "business" | "plans" | "buyplans" | "settings" | "smartalerts" | "purchases" | "more"> = [
             "personal",
             "mylistings",
