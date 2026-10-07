@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import type { Transporter } from 'nodemailer';
 import logger from '../../../utils/logger';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
 import { env } from '../../../config/env';
@@ -6,7 +7,7 @@ import { env } from '../../../config/env';
 import type { EmailServicePort, EmailPayload, EmailDispatchResult, EmailVerifyResult } from '../ports/EmailServicePort';
 
 export class EmailService implements EmailServicePort {
-    private transporter: nodemailer.Transporter | null = null;
+    private transporter: Transporter | null = null;
     private configSignature = '';
 
     constructor() {
