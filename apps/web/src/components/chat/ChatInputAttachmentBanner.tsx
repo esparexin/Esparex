@@ -1,5 +1,7 @@
 'use client';
 
+import { FormError } from "@esparex/ui";
+
 interface ChatInputAttachmentBannerProps {
   selectedFile: File | null;
   onRemoveFile: () => void;
@@ -35,9 +37,7 @@ export function ChatInputAttachmentBanner({
 
       {/* Error Announcement */}
       {fileError && (
-        <p className="text-caption font-medium text-destructive px-1" role="alert" aria-live="polite">
-          {fileError}
-        </p>
+        <FormError message={fileError} className="px-1" />
       )}
 
       {/* Upload Progress Bar */}

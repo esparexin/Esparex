@@ -97,7 +97,7 @@ export function ListingImagesField({
                     {images.length === 0 ? (
                         <div className="w-full">
                             {disabled ? (
-                                <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4">
+                                <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4" role="status">
                                     <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                     <span className="text-caption font-semibold">Processing & Compressing Photos...</span>
                                 </div>
