@@ -15,6 +15,11 @@
  * BASELINE (both modes): the integration merge-base (`git merge-base HEAD origin/develop`).
  * HEAD is never used as the ratchet baseline, so restorations that re-add lines dropped
  * by a corrupted merge commit are not misread as new growth.
+ *
+ * WAIVERS (scripts/policy/pr-quality-waivers.json): the guard is BLOCKING by default.
+ * A ratchet violation is only waived when a valid, non-expired waiver entry exists for
+ * the exact file path. Expired waivers FAIL LOUDLY (never silently pass). Growth beyond
+ * the waived allowance FAILS. Waivers require explicit reason + owner approval + expiry.
  */
 
 const { execSync } = require('child_process');
@@ -175,6 +180,66 @@ function quarterKey(q) {
   return y * 4 + qq;
 }
 
+// WAIVER MECHANISM: explicit, auditable exceptions to the +5 ratchet.
+// The guard stays BLOCKING by default; a waiver only suppresses the failure
+// for the exact file when ALL of these hold:
+//   - required fields present: file, allowedLines, baseline, reason, approvedBy, approvedAt, expiresAt
+//   - expiresAt is a valid date AND is in the future (expired waivers FAIL LOUDLY)
+//   - currentLines <= allowedLines (growth beyond the waiver FAILS)
+// Waivers are reported explicitly so the audit trail is visible in CI output.
+function loadWaivers() {
+  const waiverPath = path.join(ROOT, 'scripts', 'policy', 'pr-quality-waivers.json');
+  try {
+    const raw = JSON.parse(fs.readFileSync(waiverPath, 'utf-8'));
+    const list = Array.isArray(raw.waivers) ? raw.waivers : [];
+    const now = new Date();
+    const valid = [];
+    const problems = [];
+    for (const w of list) {
+      const missing = ['file', 'allowedLines', 'baseline', 'reason', 'approvedBy', 'approvedAt', 'expiresAt']
+        .filter((k) => w[k] === undefined || w[k] === null || w[k] === '');
+      if (missing.length > 0) {
+        problems.push(`Waiver for '${w.file || '?'}' missing required fields: ${missing.join(', ')} — treated as NO WAIVER (blocking).`);
+        continue;
+      }
+      if (!Number.isInteger(w.allowedLines) || w.allowedLines <= 0) {
+        problems.push(`Waiver for '${w.file}' has invalid allowedLines '${w.allowedLines}' — treated as NO WAIVER (blocking).`);
+        continue;
+      }
+      const exp = new Date(w.expiresAt);
+      if (isNaN(exp.getTime())) {
+        problems.push(`Waiver for '${w.file}' has unparseable expiresAt '${w.expiresAt}' — treated as NO WAIVER (blocking).`);
+        continue;
+      }
+      valid.push({ ...w, _expired: exp <= now, _expiresAt: exp });
+    }
+    return { waivers: valid, problems };
+  } catch (err) {
+    // No waiver file or unreadable: no waivers in effect (guard stays blocking).
+    return { waivers: [], problems: [] };
+  }
+}
+
+function checkWaiver(waivers, relFile, currentLines) {
+  const w = waivers.find((x) => x.file === relFile);
+  if (!w) return { waived: false };
+  if (w._expired) {
+    return {
+      waived: false,
+      expired: true,
+      reason: `Waiver for '${relFile}' EXPIRED at ${w.expiresAt} (approved by ${w.approvedBy} for: ${w.reason}). Renew or remove the waiver; expired waivers never silently pass.`,
+    };
+  }
+  if (currentLines > w.allowedLines) {
+    return {
+      waived: false,
+      exceeded: true,
+      reason: `Waiver for '${relFile}' allows ${w.allowedLines} lines but file is now ${currentLines}. Growth beyond the waived allowance is blocking (approved by ${w.approvedBy} for: ${w.reason}).`,
+    };
+  }
+  return { waived: true, waiver: w };
+}
+
 // DECISION-GATE C-17: quarterly −5% ratchet on tree-wide oversized-file counts.
 // The retained oversized files (AGENTS.md §7) must shrink over time: every
 // calendar quarter the cap per file type tightens by 5% (from the lower of the
@@ -307,6 +372,13 @@ function run() {
   let auditedCount = 0;
   let violations = [];
   let absoluteWarnings = [];
+  let waivedItems = [];
+
+  // Load waivers (blocking by default; waivers are explicit exceptions only).
+  const { waivers, problems: waiverProblems } = loadWaivers();
+  for (const p of waiverProblems) {
+    console.error(`⚠️  Waiver config problem: ${p}`);
+  }
 
   if (isAbsoluteMode) {
     const { execSync: _exec } = require('child_process');
@@ -359,10 +431,21 @@ function run() {
       const baseLines = getBaseLineCount(relFile);
       const ratchetLimit = baseLines > 0 ? baseLines + 5 : matchedRule.max;
       if (baseLines > 0 && currentLines > ratchetLimit) {
-        violations.push({
-          file: relFile,
-          reason: `Modified ${matchedRule.type} grew beyond ratchet (+5): baseline ${baseLines} → ${currentLines} (limit ${ratchetLimit}, absolute max ${matchedRule.max}). Extract sub-modules before adding logic.`
-        });
+        const waiverCheck = checkWaiver(waivers, relFile, currentLines);
+        if (waiverCheck.waived) {
+          waivedItems.push({
+            file: relFile,
+            reason: `Waived: ${baseLines} → ${currentLines} lines (waiver allows ${waiverCheck.waiver.allowedLines}). Approved by ${waiverCheck.waiver.approvedBy} at ${waiverCheck.waiver.approvedAt}, expires ${waiverCheck.waiver.expiresAt}. Reason: ${waiverCheck.waiver.reason}`,
+          });
+        } else if (waiverCheck.expired || waiverCheck.exceeded) {
+          // Expired or exceeded waivers FAIL LOUDLY — never silently pass.
+          violations.push({ file: relFile, reason: waiverCheck.reason });
+        } else {
+          violations.push({
+            file: relFile,
+            reason: `Modified ${matchedRule.type} grew beyond ratchet (+5): baseline ${baseLines} → ${currentLines} (limit ${ratchetLimit}, absolute max ${matchedRule.max}). Extract sub-modules before adding logic.`
+          });
+        }
       }
       if (currentLines > matchedRule.max) {
         absoluteWarnings.push({
@@ -388,7 +471,20 @@ function run() {
       console.error(`   - ${v.file}: ${v.reason}`);
     }
     console.error(`   👉 Modularize oversized files into smaller components/hooks/services before proceeding.`);
+    if (waivedItems.length > 0) {
+      console.error(`\n   Waived (${waivedItems.length}) — these did NOT block:`);
+      for (const w of waivedItems) {
+        console.error(`   ✓ ${w.file}: ${w.reason}`);
+      }
+    }
     process.exit(1);
+  }
+
+  if (waivedItems.length > 0) {
+    console.log(`\n📋 Waived ratchet violations (${waivedItems.length}) — explicit owner-approved exceptions:`);
+    for (const w of waivedItems) {
+      console.log(`   ✓ ${w.file}: ${w.reason}`);
+    }
   }
 
   if (absoluteWarnings.length > 0 && !isAbsoluteMode) {
