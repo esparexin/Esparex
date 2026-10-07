@@ -27,10 +27,10 @@ export const getActorId = (req: AdminRequest): string =>
 export const getActorRole = (req: AdminRequest): string =>
     ((req.user as AuthUser)?.role) ?? '';
 
-export const getIp = (req: Request): string =>
+const getIp = (req: Request): string =>
     (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
 
-export const getUserAgent = (req: Request): string =>
+const getUserAgent = (req: Request): string =>
     (req.headers['user-agent'] as string) || '';
 
 export const buildLogFn = (req: AdminRequest): AdminLogFn =>
@@ -44,29 +44,7 @@ export const buildLogFn = (req: AdminRequest): AdminLogFn =>
             getIp(req),
             getUserAgent(req)
         );
-import { Role } from '@esparex/contracts';
-import { normalizeRole } from '@esparex/core';
 
-export const checkPermission = (user: AuthUser | undefined, module: string, action: string): boolean => {
-    if (!user) return false;
-    const role = normalizeRole(user.role);
-    if (role === Role.SUPER_ADMIN) return true;
-    if (user.permissions?.includes('*') || user.permissions?.includes('all')) return true;
-
-    // Check specific permission
-    // Format expected: "module:action" or just "module"
-    // But previously it expected nested map. 
-    // The middleware uses: permissions.includes(permission)
-    // So we should expect 'module:action' string to be passed.
-
-    // If exact match
-    if (user.permissions?.includes(action)) return true; // Assuming action is full permission string like 'users:write'
-
-    // If module wildcard
-    if (user.permissions?.includes(`${module}:*`)) return true;
-
-    return false;
-};
 
 export const getPaginationParams = (req: Request) => {
     const rawPage = Array.isArray(req.query.page) ? req.query.page[0] : req.query.page;

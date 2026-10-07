@@ -208,7 +208,6 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
     }
 };
 
-export const enforceCreateListingIdempotency = (scope: string) => buildCreateListingIdempotencyGuard(scope);
 export const enforceCreateAdIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_AD);
 export const enforceCreateServiceIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_SERVICE);
 

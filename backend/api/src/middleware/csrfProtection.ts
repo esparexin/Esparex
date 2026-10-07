@@ -29,7 +29,7 @@ const TOKEN_LENGTH = 32;
 /**
  * Generate a cryptographically secure random token
  */
-export function generateCsrfToken(): string {
+function generateCsrfToken(): string {
     return crypto.randomBytes(TOKEN_LENGTH).toString('hex');
 }
 

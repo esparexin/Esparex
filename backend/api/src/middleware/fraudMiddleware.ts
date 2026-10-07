@@ -9,7 +9,7 @@ import { FeatureFlag, isEnabled } from '@esparex/core';
 import { env } from '@esparex/core';
 
 
-export interface FraudRequest extends Request {
+interface FraudRequest extends Request {
     fraudRisk?: RiskLevel;
     fraudScore?: number;
     riskState?: string;

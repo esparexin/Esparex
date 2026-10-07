@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { randomInt } from 'crypto';
-import { logger } from '@esparex/core';
 import { logAdminAction } from '../../utils/adminLogger';
 import { PAYMENT_STATUS } from "@esparex/contracts";
 import { generateInvoiceNumber } from '@esparex/core';
@@ -9,11 +8,8 @@ import * as invoiceService from '@esparex/core/domains/payments';
 import { renderInvoiceHtml } from '@esparex/core/domains/payments';
 import {
     createPaymentTransaction,
-    findTransactionForUpdate,
-    saveTransaction,
-    getUserForPayment,
 } from '@esparex/core/domains/payments';
-import { findPlanByIdOrCode, upsertUserPlan } from '@esparex/core/domains/payments';
+import { findPlanByIdOrCode } from '@esparex/core/domains/payments';
 import { findUserByEmail } from '@esparex/core/domains/identity';
 import { 
     sendSuccessResponse, 
@@ -231,73 +227,6 @@ export const createInvoice = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Update Invoice Status (Admin)
- * Transition PENDING -> SUCCESS, FAILED, or CANCELLED
- */
-export const updateInvoiceStatus = async (req: Request, res: Response) => {
-    try {
-        const { status, notes } = req.body as { status?: string; notes?: string };
-        const validStatuses = ['PENDING', 'SUCCESS', 'FAILED', 'CANCELLED'];
-
-        if (!status || !validStatuses.includes(status)) {
-            return sendAdminError(req, res, 'Invalid status provided.', 400);
-        }
-
-        const invoice = await invoiceService.findInvoiceForUpdate(req.params.id as string);
-        if (!invoice) {
-            return sendAdminError(req, res, 'Invoice not found.', 404);
-        }
-
-        if (invoice.status === status) {
-            return sendSuccessResponse(res, invoice, 'Status is already set to ' + status);
-        }
-
-        const oldStatus = invoice.status;
-        invoice.status = status as typeof invoice.status;
-        await invoiceService.saveInvoice(invoice);
-
-        // If transitioning to SUCCESS, we MUST update the linked transaction and potentially apply the plan
-        if (status === PAYMENT_STATUS.SUCCESS && oldStatus !== PAYMENT_STATUS.SUCCESS) {
-            const transaction = await findTransactionForUpdate(invoice.transactionId?.toString() || '');
-            if (transaction) {
-                transaction.status = PAYMENT_STATUS.SUCCESS;
-                transaction.gatewayPaymentId = `MANUAL-ADMIN-${Date.now()}`;
-
-                // If it was a plan purchase, apply it
-                if (!transaction.applied) {
-                    const user = await getUserForPayment(invoice.userId?.toString() || '');
-                    const planSnapshot = invoice.planSnapshot;
-
-                    if (user && planSnapshot) {
-                        const startDate = new Date();
-                        const snapshotDurationRaw = (planSnapshot).durationDays;
-                        const durationDays = typeof snapshotDurationRaw === 'number' ? snapshotDurationRaw : 30;
-                        const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
-
-                        await upsertUserPlan(user._id, transaction.planId, startDate, endDate);
-
-                        transaction.applied = true;
-                        logger.info('Plan applied to user via manual invoice success', { userId: user._id, invoiceId: invoice._id });
-                    }
-                }
-                await saveTransaction(transaction);
-            }
-        }
-
-        await logAdminAction(req, 'UPDATE_INVOICE_STATUS', 'Invoice', invoice._id.toString(), {
-            invoiceNumber: invoice.invoiceNumber,
-            from: oldStatus,
-            to: status,
-            notes
-        });
-
-        return sendSuccessResponse(res, invoice, `Invoice status updated to ${status}`);
-
-    } catch (error: unknown) {
-        return sendAdminError(req, res, error);
-    }
-};
 
 /**
  * Get Printable Invoice (HTML version for browser printing)

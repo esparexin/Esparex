@@ -6,7 +6,7 @@ import { castCatalogQueryIds, summarizeCatalogReadDiff, recordCatalogReadDiff } 
 
 export const CATALOG_MODELS = ['Category', 'Brand', 'Model', 'ServiceType', 'ScreenSize', 'SparePart'];
 
-export const ensureAdminCatalogModel = <T>(model: Model<T>): Model<T> => {
+const ensureAdminCatalogModel = <T>(model: Model<T>): Model<T> => {
     const adminConn = getAdminConnection();
     const userConn = getUserConnection();
     for (const modelName of CATALOG_MODELS) {
@@ -16,7 +16,7 @@ export const ensureAdminCatalogModel = <T>(model: Model<T>): Model<T> => {
     return (adminConn.models[model.modelName] as Model<T> | undefined) || adminConn.model<T>(model.modelName, model.schema, model.collection.name);
 };
 
-export const readAdminCatalogPage = async <T>(params: {
+const readAdminCatalogPage = async <T>(params: {
     model: Model<T>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean;
 }) => {
     const adminModel = ensureAdminCatalogModel(params.model);

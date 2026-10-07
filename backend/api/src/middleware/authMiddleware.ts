@@ -212,44 +212,4 @@ export const extractUser = (
   next();
 };
 
-/**
- * Role Restriction
- */
-export const restrictTo = (...roles: string[]) => (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  if (!req.user) {
-    sendErrorResponse(req, res, 401, "Not authorized");
-    return;
-  }
 
-  if (!roles.includes(req.user.role)) {
-    sendErrorResponse(req, res, 403, "You do not have permission to perform this action");
-    return;
-  }
-
-  next();
-};
-
-/**
- * Admin-only Check
- */
-export const adminOnly = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  if (!req.user) {
-    sendErrorResponse(req, res, 401, "Not authorized");
-    return;
-  }
-
-  if (!req.user.isAdmin) {
-    sendErrorResponse(req, res, 403, "Admin access required");
-    return;
-  }
-
-  next();
-};

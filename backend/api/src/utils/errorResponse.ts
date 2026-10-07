@@ -9,17 +9,6 @@ type ErrorResponseOptions = {
     [key: string]: unknown;
 };
 
-/**
- * Strict error response contract - validated response format
- */
-export interface ErrorResponseContract {
-    success: false;
-    error: string;
-    status: number;
-    path: string;
-    code?: string;
-    details?: Record<string, unknown>;
-}
 
 export const buildErrorResponse = (
     req: Request,

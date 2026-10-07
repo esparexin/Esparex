@@ -15,7 +15,7 @@ export const getRequiredPlanId = (req: Request): string => {
     return rawId;
 };
 
-export const PLAN_SCALAR_FIELDS = [
+const PLAN_SCALAR_FIELDS = [
     'code',
     'name',
     'description',

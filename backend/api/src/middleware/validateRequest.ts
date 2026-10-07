@@ -143,44 +143,5 @@ export function validateRequest(
     };
 }
 
-/**
- * Validate file upload
- */
-export function validateFile(options: {
-    maxSize?: number; // in bytes
-    allowedTypes?: string[];
-} = {}) {
-    const { maxSize = 5 * 1024 * 1024, allowedTypes = ['image/jpeg', 'image/png', 'image/webp'] } = options;
-
-    return (req: Request, res: Response, next: NextFunction) => {
-        if (!req.file && !req.files) {
-            return next();
-        }
-
-        const files = req.files ? (Array.isArray(req.files) ? req.files : Object.values(req.files).flat()) : [req.file];
-
-        for (const file of files) {
-            if (!file) continue;
-
-            if (file.size > maxSize) {
-                return res.status(400).json(buildErrorResponse(
-                    req,
-                    400,
-                    `File ${file.originalname} exceeds maximum size of ${maxSize / 1024 / 1024}MB`
-                ));
-            }
-
-            if (!allowedTypes.includes(file.mimetype)) {
-                return res.status(400).json(buildErrorResponse(
-                    req,
-                    400,
-                    `File ${file.originalname} has invalid type. Allowed: ${allowedTypes.join(', ')}`
-                ));
-            }
-        }
-
-        next();
-    };
-}
 
 export default validateRequest;

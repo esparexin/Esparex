@@ -81,7 +81,7 @@ function validateInternal(req: Request, res: Response, next: NextFunction, param
  *   commentController.reply
  * );
  */
-export function validateObjectIds(...params: string[]) {
+function validateObjectIds(...params: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
         const errors: string[] = [];
 
@@ -126,7 +126,7 @@ export function validateObjectIds(...params: string[]) {
  * @example
  * router.post('/ads', validateBodyObjectId('categoryId'), adController.create);
  */
-export function validateBodyObjectId(field: string) {
+function validateBodyObjectId(field: string) {
     return (req: Request, res: Response, next: NextFunction) => {
         const bodyRecord = req.body as Record<string, unknown>;
         const id = bodyRecord[field];

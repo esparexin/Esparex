@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { NOTIFICATION_TYPE_VALUES } from "@esparex/contracts";
 import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_VALUES } from "@esparex/contracts";
-import { commonSchemas, sanitizeString } from "@esparex/core";
+import { commonSchemas } from "@esparex/core";
 
 const adminNotificationTargetTypeEnum = z.enum([
     ADMIN_NOTIFICATION_TARGET_TYPE.ALL,
@@ -40,46 +40,8 @@ const notificationActionUrlSchema = z
         "Action URL must start with / or http(s)://"
     );
 
-export const adminNotificationSendSchema = z
-    .object({
-        title: sanitizeString(1, 100),
-        body: sanitizeString(1, 500),
-        targetType: adminNotificationTargetTypeEnum,
-        targetValue: adminNotificationTopicEnum.optional(),
-        userIds: z.array(commonSchemas.objectId).max(1000).optional(),
-        actionUrl: notificationActionUrlSchema.optional(),
-        sendAt: localDateTimeSchema.optional(),
-    })
-    .superRefine((value, ctx: z.RefinementCtx) => {
-        if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.TOPIC && !value.targetValue) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ["targetValue"],
-                message: "Topic is required when targetType is topic",
-            });
-        }
 
-        if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.USERS) {
-            if (!value.userIds || (value.userIds as string[]).length === 0) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ["userIds"],
-                    message: "userIds are required when targetType is users",
-                });
-            }
-        }
-    });
 
-export const adminNotificationHistoryQuerySchema = commonSchemas.pagination.extend({
-    q: z.string().trim().min(1).max(100).optional(),
-    status: notificationHistoryStatusEnum.default("all"),
-    targetType: adminNotificationTargetTypeEnum.optional(),
-});
-
-export const adminNotificationRecipientQuerySchema = z.object({
-    q: z.string().trim().min(2).max(100),
-    limit: z.coerce.number().int().min(1).max(20).default(8),
-});
 
 export const userNotificationsQuerySchema = commonSchemas.pagination.extend({
     q: z.string().trim().min(1).max(100).optional(),

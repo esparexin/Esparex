@@ -41,7 +41,7 @@ export type LocationConfig = {
     enableAutoComplete: boolean;
 };
 
-export const DEFAULT_LOCATION_CONFIG: LocationConfig = {
+const DEFAULT_LOCATION_CONFIG: LocationConfig = {
     autoCompleteMinChars: 2,
     maxSearchRadius: 100,
     enableReverseGeocoding: true,
@@ -51,7 +51,7 @@ export const DEFAULT_LOCATION_CONFIG: LocationConfig = {
 const LOCATION_CONFIG_TTL_MS = 60 * 1000;
 let cachedLocationConfig: { data: LocationConfig; timestamp: number } | null = null;
 
-export const getLocationConfig = async (): Promise<LocationConfig> => {
+const getLocationConfig = async (): Promise<LocationConfig> => {
     if (cachedLocationConfig && Date.now() - cachedLocationConfig.timestamp < LOCATION_CONFIG_TTL_MS) {
         return cachedLocationConfig.data;
     }

@@ -58,13 +58,6 @@ const getEntityId = (item: CatalogAdminEntity | null | undefined): string | { to
     return item._id ?? item.id;
 };
 
-export type CatalogStatusFilterToken =
-    | 'live'
-    | 'active'
-    | 'inactive'
-    | 'deactivated'
-    | 'pending'
-    | 'rejected';
 
 export const applyCatalogStatusFilter = (
     targetQuery: QueryRecord,

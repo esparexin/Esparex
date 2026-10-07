@@ -23,7 +23,7 @@ export const resolveRequestIp = (req: Request): string => req.ip || req.socket?.
 
 type RequestWithOptionalUser = Request & { user?: { _id?: unknown } };
 
-export const resolveUserOrMobile = (req: RequestWithOptionalUser): string | undefined => {
+const resolveUserOrMobile = (req: RequestWithOptionalUser): string | undefined => {
     const userId = req.user?._id ? String(req.user._id) : undefined;
     if (userId) return userId;
     const body = req.body as { mobile?: unknown; email?: unknown } | undefined;

@@ -200,17 +200,3 @@ export const toggleAdminStatus = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
-    try {
-        const targetId = req.params.id as string;
-        if (!isValidObjectId(targetId)) return sendAdminError(req, res, 'Invalid user id', 400);
-        await userStatusService.updateUserStatus(targetId, USER_STATUS.DELETED, {
-            actor: 'ADMIN',
-            logFn: buildLogFn(req),
-            reason: 'Admin Soft Delete'
-        });
-        sendSuccessResponse(res, null, 'User deleted successfully (Soft Delete)');
-    } catch (error: unknown) {
-        sendAdminError(req, res, error);
-    }
-};

@@ -9,7 +9,7 @@ import { detectDuplicateCandidates } from '@esparex/core';
 
 export const CATALOG_CACHE_TTL = 300;
 
-export const normalizeCacheValue = (value: unknown): string => {
+const normalizeCacheValue = (value: unknown): string => {
     if (Array.isArray(value)) return value.map(normalizeCacheValue).join(',');
     if (value === undefined || value === null || value === '') return 'all';
     return encodeURIComponent(String(value));
