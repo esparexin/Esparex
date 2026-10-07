@@ -1,6 +1,10 @@
-jest.mock("@esparex/core/domains/listings/application/ad/AdAggregationService", () => ({
-    __esModule: true,
-    getAds: jest.fn(),
+const mockGetAds = jest.fn();
+
+jest.mock('@esparex/core', () => ({
+    ...jest.requireActual('@esparex/core'),
+    AdAggregationService: {
+        getAds: (...args: unknown[]) => mockGetAds(...args),
+    },
 }));
 
 jest.mock("../../utils/respond", () => ({
@@ -9,7 +13,6 @@ jest.mock("../../utils/respond", () => ({
 
 import type { Request, Response } from "express";
 import { getListings } from "../../controllers/listing/getListings.controller";
-import * as AdAggregationService from '@esparex/core';
 
 describe("getListings.controller spare-part discovery", () => {
     beforeEach(() => {
@@ -17,8 +20,7 @@ describe("getListings.controller spare-part discovery", () => {
     });
 
     it("returns a standardized pagination envelope for public spare-part browse via unified getListings", async () => {
-        const mockedGetAds = AdAggregationService.getAds as jest.Mock;
-        mockedGetAds.mockResolvedValueOnce({
+        mockGetAds.mockResolvedValueOnce({
             data: [{ id: "part-1", title: "iPhone screen" }],
             pagination: { page: 2, limit: 20, total: 45, hasMore: true, totalPages: 3 },
         });
@@ -53,7 +55,7 @@ describe("getListings.controller spare-part discovery", () => {
             })
         );
         
-        expect(mockedGetAds).toHaveBeenCalledWith(
+        expect(mockGetAds).toHaveBeenCalledWith(
             expect.objectContaining({
                 listingType: "spare_part"
             }),

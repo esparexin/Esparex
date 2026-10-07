@@ -8,10 +8,16 @@ jest.mock('@esparex/core/models/Ad', () => ({
     default: { index: jest.fn(), findOne: jest.fn(), countDocuments: jest.fn(), aggregate: jest.fn() }
 }));
 
-jest.mock('@esparex/core/domains/listings/application/ad/AdMetricsService');
-jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+const mockGetSellerListingStats = jest.fn();
+const mockRunSweep = jest.fn().mockResolvedValue(undefined);
+
+jest.mock('@esparex/core', () => ({
+    ...jest.requireActual('@esparex/core'),
+    AdMetricsService: {
+        getSellerListingStats: (...args: unknown[]) => mockGetSellerListingStats(...args),
+    },
     ListingExpiryService: {
-        runSweep: jest.fn().mockResolvedValue(undefined),
+        runSweep: (...args: unknown[]) => mockRunSweep(...args),
     },
 }));
 jest.mock('../../utils/controllerUtils');
@@ -24,10 +30,8 @@ jest.mock('../../utils/errorResponse', () => ({
 
 // Use dynamic require to ensure mocks are in place before controller imports its dependencies
 const statsController = require('../../controllers/listing/stats.controller');
-const { AdMetricsService } = require('@esparex/core/domains/listings');
 const controllerUtils = require('../../utils/controllerUtils');
 
-const mockGetSellerListingStats = AdMetricsService.getSellerListingStats;
 const mockGetAndVerifyOwnedListing = controllerUtils.getAndVerifyOwnedListing;
 
 describe('stats.controller - Analytics & Stats', () => {

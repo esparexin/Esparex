@@ -9,18 +9,16 @@ const mockLogger = {
     debug: jest.fn(),
 };
 
-jest.mock('@esparex/core/domains/listings/application', () => ({
-    getOwnerListings: mockGetOwnerListings,
-}));
-
-jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+jest.mock('@esparex/core', () => ({
+    ...jest.requireActual('@esparex/core'),
+    AdAggregationService: {
+        getOwnerListings: (...args: unknown[]) => mockGetOwnerListings(...args),
+    },
     ListingExpiryService: {
         runSweep: (...args: unknown[]) => mockRunSweep(...args),
     },
-}));
-
-jest.mock('@esparex/core/utils/statusQueryMapper', () => ({
-    getStatusMatchCriteria: jest.fn((s: string) => ({ $in: [s] })),
+    getStatusMatchCriteria: (s: string) => ({ $in: [s] }),
+    logger: mockLogger,
 }));
 
 jest.mock('../../utils/respond', () => ({
@@ -29,11 +27,6 @@ jest.mock('../../utils/respond', () => ({
 
 jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: mockSendErrorResponse,
-}));
-
-jest.mock('@esparex/core/utils/logger', () => ({
-    __esModule: true,
-    default: mockLogger,
 }));
 
 import type { Request, Response } from 'express';
