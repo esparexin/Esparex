@@ -2,6 +2,10 @@ import { API_ROUTES } from "@esparex/shared";
 import { apiClient } from "@/lib/api/client";
 import type { SmartAlert } from "@/hooks/useSmartAlerts";
 import type { SmartAlertCreatePayload, SmartAlertQuotaDTO } from "@esparex/contracts";
+import type {
+  SmartAlertMatchRecord,
+  FetchSmartAlertMatchesResponse,
+} from "@esparex/contracts";
 
 const normalizeSmartAlert = (raw: unknown): SmartAlert | null => {
   if (!raw || typeof raw !== "object") return null;
@@ -85,38 +89,17 @@ export interface FetchSmartAlertMatchesParams {
   alertId?: string;
 }
 
-export interface SmartAlertMatchRecord {
-  id: string;
-  alertId: string;
-  alertName: string;
-  deliveredAt: string | Date;
-  isRead: boolean;
-  adId: string;
-  actionUrl?: string;
-  ad?: {
-    id: string;
-    title: string;
-    price: number;
-    currency?: string;
-    images?: string[];
-    status: string;
-    location?: {
-      city?: string;
-      state?: string;
-      display?: string;
-    };
-    seoSlug?: string;
-    listingType?: string;
-  } | null;
-}
-
-export interface FetchSmartAlertMatchesResponse {
-  matches: SmartAlertMatchRecord[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Phase 3a (§5): `SmartAlertMatchRecord` / `FetchSmartAlertMatchesResponse`
+ * are relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3)
+ * and re-exported here so existing importers keep working. `SmartAlertsResponse`
+ * stays local: it is a client-composed normalized view (UI-typed alerts +
+ * quota), not an endpoint wire shape. Deletion of these shims is Phase 4 (§10).
+ */
+export type {
+  SmartAlertMatchRecord,
+  FetchSmartAlertMatchesResponse,
+};
 
 export const fetchSmartAlertMatches = async (
   params: FetchSmartAlertMatchesParams = {}

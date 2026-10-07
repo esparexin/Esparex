@@ -46,13 +46,19 @@ export const getSearchSuggestions = async (query: string): Promise<string[]> => 
 };
 // --- Feed & Search Payload Types ---
 
-export interface HomeAdsPayload {
+import type {
+    HomeAdsPayload as CanonicalHomeAdsPayload,
+    TrendingAdsPayload as CanonicalTrendingAdsPayload,
+} from "@esparex/contracts";
+
+/**
+ * Phase 3a (§5): wire shapes of `HomeAdsPayload` / `TrendingAdsPayload`
+ * relocated to `@esparex/contracts`. These client views extend the canonical
+ * wire payloads with fetch-state fields and the normalized `UserListing[]`
+ * item type — a derived client view, not a shadow contract.
+ */
+export interface HomeAdsPayload extends Omit<CanonicalHomeAdsPayload, "ads"> {
     ads: UserListing[];
-    nextCursor: {
-        createdAt: string;
-        id: string;
-    } | null;
-    hasMore: boolean;
     isFallback?: boolean;
     /** Set when the request was superseded (aborted) — consumers must skip it without clearing state. */
     aborted?: boolean;
@@ -69,7 +75,7 @@ export interface HomeAdsRequestParams {
     listingType?: string;
 }
 
-export interface TrendingAdsPayload {
+export interface TrendingAdsPayload extends Omit<CanonicalTrendingAdsPayload, "ads"> {
     ads: UserListing[];
 }
 

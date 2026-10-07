@@ -1,4 +1,4 @@
-import { ReportReasonValue } from "@esparex/contracts";
+import { ReportReasonValue, type AdReportPayload } from "@esparex/contracts";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -10,15 +10,12 @@ export interface BuildAdReportPayloadInput {
     additionalInfo?: string;
 }
 
-export interface AdReportPayload {
-    targetType: "ad";
-    targetId: string;
-    adId: string;
-    adTitle: string;
-    reason: ReportReasonValue;
-    additionalDetails?: string;
-    description?: string;
-}
+/**
+ * Phase 3a (§5): relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3); re-exported here so existing importers keep working.
+ * Deletion of this shim is Phase 4 (§10).
+ */
+export type { AdReportPayload };
 
 export const normalizeReportTargetId = (adId: string | number): string | null => {
     const normalized = normalizeOptionalObjectId(adId);

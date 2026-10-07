@@ -37,11 +37,11 @@ describe('UpdateBusinessRequestMapper', () => {
 
     const payload = UpdateBusinessRequestMapper.toPayload(partialState);
 
-    expect(payload.documents).toHaveLength(1);
-    expect(payload.documents?.[0]).toEqual({
-      type: 'business_proof',
-      url: 'https://cdn.example.com/biz.pdf',
-      idProofType: undefined,
-    });
+    // Canonical documents shape: typed entries partitioned into
+    // idProof/businessProof/certificates (Phase 3a §5).
+    expect(payload.documents?.idProofType).toBe('aadhaar');
+    expect(payload.documents?.businessProof).toEqual(['https://cdn.example.com/biz.pdf']);
+    expect(payload.documents?.idProof).toEqual([]);
+    expect(payload.documents?.certificates).toBeUndefined();
   });
 });

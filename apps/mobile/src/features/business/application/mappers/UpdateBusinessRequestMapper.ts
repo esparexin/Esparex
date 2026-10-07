@@ -1,26 +1,18 @@
+import type { UpdateBusinessPayload, IdProofTypeValue } from '@esparex/contracts';
 import { BusinessFormState } from '../../domain/BusinessFormState';
 
-export interface UpdateBusinessPayload {
-  name?: string;
-  description?: string;
-  businessTypes?: string[];
-  mobile?: string;
-  email?: string;
-  website?: string;
-  gstNumber?: string;
-  location?: {
-    address?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-  };
-  documents?: Array<{
-    type: 'id_proof' | 'business_proof' | 'certificate';
-    url: string;
-    idProofType?: string;
-  }>;
-}
-
+/**
+ * Maps a partial mobile business-edit form state onto the canonical
+ * `UpdateBusinessPayload` contract (`@esparex/contracts`).
+ *
+ * Phase 3a (§5): the local `UpdateBusinessPayload` interface that shadowed the
+ * canonical contract type (with a divergent shape — cf. P1-9 for the sibling
+ * Create mapper) is deleted. This mapper now targets the canonical shape:
+ * - `documents`: the form's typed `{type, url}` entries are partitioned into
+ *   the canonical `{idProofType, idProof[], businessProof[], certificates[]}`
+ *   shape the server validates.
+ * - `location`: mapped onto the canonical location shape.
+ */
 export class UpdateBusinessRequestMapper {
   static toPayload(state: Partial<BusinessFormState>): UpdateBusinessPayload {
     const payload: UpdateBusinessPayload = {};
@@ -62,11 +54,23 @@ export class UpdateBusinessRequestMapper {
     }
 
     if (state.documents !== undefined) {
-      payload.documents = state.documents.map((doc) => ({
-        type: doc.type,
-        url: doc.url,
-        idProofType: doc.idProofType,
-      }));
+      const idProof = state.documents
+        .filter((doc) => doc.type === 'id_proof')
+        .map((doc) => doc.url);
+      const businessProof = state.documents
+        .filter((doc) => doc.type === 'business_proof')
+        .map((doc) => doc.url);
+      const certificates = state.documents
+        .filter((doc) => doc.type === 'certificate')
+        .map((doc) => doc.url);
+      const idProofType: IdProofTypeValue =
+        state.documents.find((doc) => doc.type === 'id_proof')?.idProofType ?? 'aadhaar';
+      payload.documents = {
+        idProofType,
+        idProof,
+        businessProof,
+        ...(certificates.length > 0 ? { certificates } : {}),
+      };
     }
 
     return payload;

@@ -1,5 +1,11 @@
 import { LISTING_STATUS } from '@esparex/contracts';
-import { ACTOR_TYPE, type ActorMetadata } from '@esparex/contracts';
+import { ACTOR_TYPE, type ActorMetadata, type ListingApprovedEventPayload } from '@esparex/contracts';
+
+/**
+ * Phase 3a (§5): the local `ListingApprovedEventPayload` type is relocated to
+ * `@esparex/contracts` (canonical owner per DECISION-GATE §3) and imported
+ * here. Deletion of the local name (unused beyond this file) is Phase 4 (§10).
+ */
 
 type ListingDomain = 'ad' | 'service' | 'spare_part_listing';
 
@@ -74,15 +80,6 @@ export const enforceLifecycleMutationPolicy = (input: LifecycleMutationPolicyInp
     if (!(expiresAt instanceof Date) || Number.isNaN(expiresAt.getTime())) {
         throw toPolicyError('Live transition requires expiresAt timestamp.', 'EXPIRES_AT_REQUIRED', 400);
     }
-};
-
-export type ListingApprovedEventPayload = {
-    listingId: string;
-    listingType: string;
-    approvedAt: string;
-    actorType: string;
-    actorId?: string;
-    source: string;
 };
 
 export const assertListingApprovedEvent = (payload: unknown): ListingApprovedEventPayload => {

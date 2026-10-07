@@ -70,20 +70,17 @@ export type SmartAlertFieldErrors = {
   notificationChannels?: string;
 };
 
-export const DELETE_ACCOUNT_REASONS = [
-  "not_useful",
-  "privacy_concerns",
-  "too_many_emails",
-  "found_alternative",
-  "other",
-] as const;
-
-export type DeleteAccountReason = (typeof DELETE_ACCOUNT_REASONS)[number];
-
-export type DeleteAccountPayload = {
-  reason: DeleteAccountReason;
-  feedback?: string;
-};
+/**
+ * Phase 3a (§5): `DELETE_ACCOUNT_REASONS` / `DeleteAccountReason` were
+ * identical duplicates of the canonical symbols in `@esparex/contracts`
+ * (`v1/identity/schema/userProfile.schema`); `DeleteAccountPayload` is
+ * relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3).
+ * All three are re-exported here under their historic names so existing
+ * importers keep working. Deletion of these shims is Phase 4 (§10).
+ */
+export { DELETE_ACCOUNT_REASONS } from "@esparex/contracts";
+export type { DeleteAccountReason } from "@esparex/contracts";
+export type { DeleteAccountPayload } from "@esparex/contracts";
 
 export type ProfilePlanType = "Spotlight" | "More Ads" | "Top Ad" | "Alert Slots";
 

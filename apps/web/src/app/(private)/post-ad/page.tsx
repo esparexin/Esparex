@@ -9,18 +9,16 @@ import {
 } from "@/lib/api/routes";
 import { buildUserApiUrl } from "@/lib/api/user/server";
 import { buildLoginUrl } from "@/lib/authHelpers";
+import type {
+    PostingBalancePayload,
+    PostingBalanceResponse,
+} from "@esparex/contracts";
 
-type PostingBalancePayload = {
-    totalRemaining?: number;
-    freeRemaining?: number;
-    paidCredits?: number;
-};
-
-type PostingBalanceResponse = {
-    success?: boolean;
-    data?: PostingBalancePayload;
-    error?: string;
-};
+/**
+ * Phase 3a (§5): the local `PostingBalancePayload` / `PostingBalanceResponse`
+ * types are relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3) and imported under their historic local names.
+ */
 
 const loginRedirectUrl = buildLoginUrl("/post-ad");
 

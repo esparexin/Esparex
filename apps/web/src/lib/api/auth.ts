@@ -1,24 +1,16 @@
 import { apiClient, EsparexRequestConfig } from "@/lib/api/client";
-import { User } from "@esparex/contracts";
+import { User, type AuthPayloadFields, type AuthResponse } from "@esparex/contracts";
 import { API_ROUTES } from "./routes";
 import { getMe } from "./user/users";
 
-export interface AuthPayloadFields {
-    user?: User;
-    token?: string;
-    error?: string;
-    message?: string;
-    code?: string;
-    isNewUser?: boolean;
-    otpExpiresIn?: number;
-    name?: string;
-    attemptsLeft?: number;
-    lockUntil?: string;
-}
-
-export interface AuthResponse extends AuthPayloadFields {
-    success: boolean;
-}
+/**
+ * Phase 3a (§5): the local `AuthPayloadFields` / `AuthResponse` interfaces are
+ * relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3)
+ * and re-exported here so existing importers keep working. The tolerant
+ * pre-normalization `AuthApiRawResponse` stays local — it is a client-side
+ * parse shape, not an API contract. Deletion of these shims is Phase 4 (§10).
+ */
+export type { AuthPayloadFields, AuthResponse };
 
 type AuthApiRawResponse = Partial<AuthPayloadFields> & {
     success?: boolean;

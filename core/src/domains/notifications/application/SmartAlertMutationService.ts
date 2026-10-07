@@ -18,26 +18,17 @@ import {
     normalizeLocation,
 } from "../../../services/location/LocationNormalizer";
 import { UnifiedMutationEngine } from '../../../services/mutations/UnifiedMutationEngine';
+import type {
+    SmartAlertCriteriaPayload,
+    SmartAlertPayload,
+} from '@esparex/contracts';
 
-export type SmartAlertCriteriaPayload = {
-    keywords?: string;
-    category?: string;
-    brand?: string;
-    model?: string;
-    categoryId?: unknown;
-    brandId?: unknown;
-    modelId?: unknown;
-    coordinates?: unknown;
-} & Record<string, unknown>;
-
-export type SmartAlertPayload = {
-    criteria?: SmartAlertCriteriaPayload;
-    frequency?: unknown;
-    name?: unknown;
-    coordinates?: unknown;
-    radiusKm?: unknown;
-    notificationChannels?: unknown;
-} & Record<string, unknown>;
+/**
+ * Phase 3a (§5): the local `SmartAlertCriteriaPayload` / `SmartAlertPayload`
+ * types are relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3) and imported here. Deletion of the local names (unused
+ * beyond this file) is Phase 4 (§10).
+ */
 
 type AdminContext = { id?: string; _id?: string } | undefined;
 

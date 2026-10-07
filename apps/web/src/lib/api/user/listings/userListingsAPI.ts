@@ -36,7 +36,12 @@ export const getMyListings = async (type?: string, status?: string, page = 1, li
 };
 
 
-export type ListingStatsResponse = Record<string, Record<string, number>>;
+/**
+ * Phase 3a (§5): relocated to `@esparex/contracts`; re-exported here.
+ * Phase 4 deletes this shim.
+ */
+import type { ListingStatsResponse } from "@esparex/contracts";
+export type { ListingStatsResponse };
 /**
  * Fetch aggregated listing status counts for all types in one pass.
  */

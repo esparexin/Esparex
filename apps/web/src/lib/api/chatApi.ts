@@ -11,18 +11,22 @@ import type {
   IMessageListResponse,
   IChatSendResponse,
   IChatUploadUrlResponse,
-  ChatAttachment,
 } from "@esparex/contracts";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
 /* -------------------------------------------------------------------------- */
 
-export interface SendMessagePayload {
-  conversationId: string;
-  text: string;
-  attachments?: ChatAttachment[];
-}
+/**
+ * Phase 3a (§5): local `SendMessagePayload` relocated to `@esparex/contracts`
+ * as `ChatSendMessagePayload`; re-exported under its historic name.
+ * CONFLICT (not merged, §10): mobile's `SendMessagePayload`
+ * (`apps/mobile/src/features/chat/presentation/hooks/useSendMessage.ts:5`,
+ * { conversationId, text, senderId?, tempId? }) is canonicalized separately
+ * as `MobileChatSendMessagePayload`. Phase 4 deletes this shim.
+ */
+import type { ChatSendMessagePayload as SendMessagePayload } from "@esparex/contracts";
+export type { SendMessagePayload };
 
 export type ConversationListView = 'active' | 'archived';
 

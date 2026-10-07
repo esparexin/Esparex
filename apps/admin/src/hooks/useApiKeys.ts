@@ -4,6 +4,17 @@ import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { ApiKeyItem } from "@/types/adminSession";
+import type {
+    ApiKeysListResponse as ApiKeysPayload,
+    CreatedApiKeyResponse as CreatedApiKeyPayload,
+} from "@esparex/contracts";
+
+/**
+ * Phase 3a (§5): the local `ApiKeysPayload` / `CreatedApiKeyPayload` types are
+ * relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3) as
+ * `ApiKeysListResponse` / `CreatedApiKeyResponse` and imported under their
+ * historic local names.
+ */
 
 const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
     id: String(raw.id || raw._id || ""),
@@ -18,14 +29,6 @@ const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
     lastUsedAt: typeof raw.lastUsedAt === "string" ? raw.lastUsedAt : undefined,
     createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date(0).toISOString(),
 });
-
-type ApiKeysPayload = {
-    items?: Array<Record<string, unknown>>;
-};
-
-type CreatedApiKeyPayload = {
-    key?: string;
-};
 
 export function useApiKeys(initialStatus: string = "all") {
     const [items, setItems] = useState<ApiKeyItem[]>([]);

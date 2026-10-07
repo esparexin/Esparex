@@ -17,11 +17,13 @@ describe('CreateSmartAlertMapper', () => {
     const payload = CreateSmartAlertMapper.toPayload(state);
 
     expect(payload.name).toBe('iPhone 13 Alert');
-    expect(payload.criteria.keywords).toBe('iPhone 13');
-    expect(payload.criteria.category).toBe('Mobile Phones');
-    expect(payload.criteria.minPrice).toBe(30000);
-    expect(payload.criteria.maxPrice).toBe(50000);
-    expect(payload.criteria.location).toBe('Mumbai');
+    // Canonical `SmartAlertCreatePayload.criteria` is optional at the wire
+    // level; this mapper always provides it (Phase 3a §5).
+    expect(payload.criteria?.keywords).toBe('iPhone 13');
+    expect(payload.criteria?.category).toBe('Mobile Phones');
+    expect(payload.criteria?.minPrice).toBe(30000);
+    expect(payload.criteria?.maxPrice).toBe(50000);
+    expect(payload.criteria?.location).toBe('Mumbai');
     expect(payload.radiusKm).toBe(25);
     expect(payload.frequency).toBe('instant');
   });

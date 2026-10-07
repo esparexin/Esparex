@@ -1,11 +1,13 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import type { RevalidatePayload } from "@esparex/contracts";
 
-type RevalidatePayload = {
-    tag?: string;
-    path?: string;
-    secret?: string;
-};
+/**
+ * Phase 3a (§5): the local `RevalidatePayload` type is relocated to
+ * `@esparex/contracts` (canonical owner per DECISION-GATE §3) and imported
+ * under its historic local name. This is the POST body contract of this
+ * internal revalidation route.
+ */
 
 const resolveSecret = () =>
     process.env.INTERNAL_REVALIDATE_SECRET ||
