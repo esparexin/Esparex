@@ -39,9 +39,14 @@ function run(val) {
   }
 
   const knipBin = path.join(ROOT, 'node_modules/.bin/knip');
+  const knipJs = path.join(ROOT, 'node_modules/knip/bin/knip.js');
+  // RC-1 fix: --no-bin-links environments lack .bin/ symlinks; npx --no-install
+  // also requires them. Fall back to direct node invocation for resilience.
   const cmd = fs.existsSync(knipBin)
     ? `"${knipBin}" --reporter json --no-exit-code`
-    : 'npx --no-install knip --reporter json --no-exit-code';
+    : fs.existsSync(knipJs)
+      ? `node "${knipJs}" --reporter json --no-exit-code`
+      : 'npx --no-install knip --reporter json --no-exit-code';
 
   let data = null;
   try {
