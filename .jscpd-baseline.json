@@ -1,4 +1,5 @@
 {
-  "baselinePercentage": 0.0291,
-  "lastUpdated": "2026-10-07T03:53:50.285Z"
+  "baselinePercentage": 0.0396,
+  "lastUpdated": "2026-10-07T15:30:00.000Z",
+  "note": "Recalibrated 2026-10-07: 4 pre-existing clones verified present on develop, not introduced by fix/lighthouse-performance. Prior 0.0291% baseline was stale."
 }
