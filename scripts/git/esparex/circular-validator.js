@@ -9,7 +9,9 @@ const META = { id: 'CIRC-001', name: 'Circular Dependency Validation', version: 
 function run(val) {
   try {
     const madgeBin = path.join(ROOT, 'node_modules/.bin/madge');
-    const cmd = fs.existsSync(madgeBin) ? `"${madgeBin}"` : 'npx madge';
+    const madgeJs = path.join(ROOT, 'node_modules/madge/bin/cli.js');
+    // RC-1 fix: --no-bin-links environments lack .bin/ symlinks.
+    const cmd = fs.existsSync(madgeBin) ? `"${madgeBin}"` : fs.existsSync(madgeJs) ? `node "${madgeJs}"` : 'npx madge';
     const out = execSync(`${cmd} --circular --extensions ts,tsx core/src backend/api/src apps/web/src apps/admin/src`, {
       cwd: ROOT,
       encoding: 'utf-8',
