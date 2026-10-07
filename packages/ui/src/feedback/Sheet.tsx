@@ -7,6 +7,7 @@ import { XIcon } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
+import { useDialogFocusRestore } from "./useDialogFocusRestore";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -54,14 +55,17 @@ function SheetContent({
   children,
   side = "right",
   onOpenAutoFocus,
+  onCloseAutoFocus,
   hideClose = false,
   style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
-  onOpenAutoFocus?: (e: React.FocusEvent<HTMLElement>) => void;
+  onOpenAutoFocus?: (e: Event) => void;
+  onCloseAutoFocus?: (e: Event) => void;
   hideClose?: boolean;
 }) {
+  const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -81,7 +85,8 @@ function SheetContent({
           "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-[var(--keyboard-height,0px)] transition-[bottom,transform] duration-[var(--duration-keyboard)] ease-out h-auto max-h-[var(--visual-viewport-height,100dvh)] border-t",
           className,
         )}
-        onOpenAutoFocus={onOpenAutoFocus}
+        onOpenAutoFocus={(e) => handleOpenAutoFocus(e, onOpenAutoFocus)}
+        onCloseAutoFocus={(e) => handleCloseAutoFocus(e, onCloseAutoFocus)}
         {...props}
       >
         {children}

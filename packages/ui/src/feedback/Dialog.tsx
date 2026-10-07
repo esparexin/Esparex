@@ -12,7 +12,9 @@
  *   ✅ Escape key closes modal                 (automatic via Radix)
  *   ✅ Overlay click closes modal              (automatic via Radix)
  *   ✅ Scroll locking                          (automatic via Radix)
- *   ✅ Focus returns to trigger on close       (automatic via Radix)
+ *   ✅ Focus returns to the opener on close    (via useDialogFocusRestore —
+ *      Radix only restores to <DialogTrigger>, which this codebase never
+ *      renders; all dialogs are controlled via the `open` prop)
  *   ✅ Smooth entry/exit animations            (tailwindcss-animate)
  *
  * Export API is identical to the previous custom implementation — all consumers
@@ -26,6 +28,7 @@ import { X } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
+import { useDialogFocusRestore } from "./useDialogFocusRestore";
 
 // ── Root ────────────────────────────────────────────────────────────────────
 const Dialog = RadixDialog.Root;
@@ -80,8 +83,9 @@ export type DialogContentProps = React.ComponentPropsWithoutRef<typeof RadixDial
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof RadixDialog.Content>,
   DialogContentProps
->(({ className, children, hideClose = false, variant, padding = "default", overlayZIndex, overlayClassName, ...props }, ref) => {
+>(({ className, children, hideClose = false, variant, padding = "default", overlayZIndex, overlayClassName, onOpenAutoFocus, onCloseAutoFocus, ...props }, ref) => {
   const activeVariant = variant ?? "centered";
+  const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
 
   const getPaddingClass = () => {
     if (padding === "none") return "p-0";
@@ -152,6 +156,8 @@ const DialogContent = React.forwardRef<
         aria-describedby={props["aria-describedby"] ?? undefined}
         style={{ zIndex: Z_INDEX.dialogContent }}
         className={cn(getVariantStyles(), className)}
+        onOpenAutoFocus={(e) => handleOpenAutoFocus(e, onOpenAutoFocus)}
+        onCloseAutoFocus={(e) => handleCloseAutoFocus(e, onCloseAutoFocus)}
         {...props}
       >
       {children}
