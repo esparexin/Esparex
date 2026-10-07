@@ -88,10 +88,14 @@ function scanAddedLines(relPath, addedLines) {
     violations.push(`second scroll-lock writer in ${relPath} (owner: packages/ui/src/feedback/Sheet.tsx via Radix RemoveScroll)`);
   }
   // 2. Second keyboard-height compensator (owners: Sheet.tsx + useVisualViewport.ts).
+  // Canonical hook lives in @esparex/ui (promoted from apps/web in popup remediation).
+  // AdminViewportShell is a mount point (calls the hook), not a compensator.
   if (
     text.includes('--keyboard-height') &&
     relPath !== 'packages/ui/src/feedback/Sheet.tsx' &&
-    relPath !== 'apps/web/src/hooks/useVisualViewport.ts'
+    relPath !== 'packages/ui/src/hooks/useVisualViewport.ts' &&
+    relPath !== 'apps/web/src/hooks/useVisualViewport.ts' &&
+    relPath !== 'apps/admin/src/components/providers/AdminViewportShell.tsx'
   ) {
     violations.push(`second keyboard-height compensator in ${relPath} (owners: Sheet.tsx + useVisualViewport.ts)`);
   }

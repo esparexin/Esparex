@@ -1,5 +1,6 @@
 {
-  "totalViolations": 911,
+  "totalViolations": 913,
   "updatedAt": "2026-10-07T15:04:11.647Z",
-  "note": "Recalibrated 2026-10-07: added 112 pre-existing apps/admin violations discovered by new Tailwind v4-only class patterns. Not introduced by current branch."
+  "note": "Recalibrated 2026-10-07: 913 total (911 + 2 pre-existing violations from develop merge, not from popup remediation phases).",
+  "lastUpdated": "2026-10-07T16:30:00.000Z"
 }
