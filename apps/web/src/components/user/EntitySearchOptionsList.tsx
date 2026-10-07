@@ -66,7 +66,7 @@ export function EntitySearchOptionsList<T>({
                         onClick={() => onSelect(item)}
                         className={cn(
                             "w-full px-3 py-2 text-left text-body font-normal rounded-lg transition-colors cursor-pointer select-none",
-                            isMobileView ? "min-h-[44px] flex items-center rounded-xl" : "",
+                            isMobileView ? "min-h-11 flex items-center rounded-xl" : "",
                             isSelected
                                 ? "bg-primary/10 text-primary font-medium"
                                 : "text-foreground hover:bg-muted hover:text-foreground"

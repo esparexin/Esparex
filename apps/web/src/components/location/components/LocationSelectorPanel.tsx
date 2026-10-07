@@ -89,7 +89,7 @@ export function LocationSelectorPanel({
                     type="button"
                     variant="outline"
                     className={cn(
-                        "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
+                        "h-auto min-h-11 w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
                         isDetecting && "border-primary/50 bg-primary/10"
                     )}
                     disabled={isDetecting || !!successFeedback}

@@ -87,7 +87,7 @@ function SortDropdownMenu({
                     onSelect={() => onSelect(key)}
                     aria-selected={sort === key}
                     className={cn(
-                        "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-body",
+                        "min-h-11 cursor-pointer rounded-lg px-3 py-2.5 text-body",
                         sort === key
                             ? "bg-primary text-primary-foreground font-medium focus:bg-primary focus:text-primary-foreground"
                             : "text-foreground focus:bg-muted focus:text-primary"

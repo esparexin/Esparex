@@ -97,7 +97,7 @@ export function AccountNavItemList({
             type="button"
             role="listitem"
             onClick={() => onTabChange(item.value)}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-foreground-secondary hover:bg-muted/60 active:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px]"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-foreground-secondary hover:bg-muted/60 active:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-11"
           >
             <Icon className="h-5 w-5 text-foreground-subtle flex-shrink-0" />
             <span className="flex-1 text-foreground font-medium text-body">{item.label}</span>
@@ -126,7 +126,7 @@ export function AccountNavItemList({
           <button
             type="button"
             onClick={() => { void onLogout(); }}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
           >
             <LogOut className="h-5 w-5 flex-shrink-0" />
             <span>Log out</span>

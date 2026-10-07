@@ -55,7 +55,7 @@ export default function NotFound() {
                         <Button
                             asChild
                             variant="primary"
-                            className="min-h-[44px] rounded-xl text-body font-semibold"
+                            className="min-h-11 rounded-xl text-body font-semibold"
                         >
                             <Link href="/">
                                 <Home size={16} />
@@ -65,7 +65,7 @@ export default function NotFound() {
                         <Button
                             asChild
                             variant="outline"
-                            className="min-h-[44px] rounded-xl text-body font-semibold"
+                            className="min-h-11 rounded-xl text-body font-semibold"
                         >
                             <Link href="/search">
                                 <Search size={16} className="text-primary" />
