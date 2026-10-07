@@ -10,7 +10,7 @@ function run(val) {
       cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
     });
     const summary = out.split('\n').filter((l) => l.includes('/')).slice(0, 3);
-    val.info(`C-1 guard wiring intact — ${summary.join('; ').replace(/[🔌✅]/g, '').trim()}`);
+    val.info(`C-1 guard wiring intact — ${summary.join('; ').replace(/[🔌✅]/gu, '').trim()}`);
   } catch (e) {
     const output = ((e.stdout || '') + (e.stderr || '')).trim();
     const violations = output.split('\n').filter((l) => l.trim().startsWith('- '));

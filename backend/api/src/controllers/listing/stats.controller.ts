@@ -7,6 +7,7 @@ import { AdAggregationService } from '@esparex/core';
 import { AdMetricsService } from '@esparex/core';
 
 import { ListingExpiryService } from '@esparex/core';
+import { getStatusMatchCriteria } from '@esparex/core';
 
 /**
  * GET /api/v1/listings/mine/stats
@@ -38,7 +39,7 @@ export const getMyListings = async (req: Request, res: Response) => {
         await ListingExpiryService.runSweep();
 
         const { type, status, page = 1, limit = 20 } = req.query;
-        const { getStatusMatchCriteria } = await import('@esparex/core');
+        
 
         const query: Record<string, unknown> = {
             sellerId: userId,
@@ -162,7 +163,7 @@ export const getMyTabListings = async (req: Request, res: Response) => {
         if (tab) {
             const tabStr = String(tab).trim().toLowerCase();
             if (tabStr === 'live' || tabStr === 'active') {
-                const { getStatusMatchCriteria } = await import('@esparex/core');
+                
                 const liveCriteria = getStatusMatchCriteria('live');
                 const liveStatuses = typeof liveCriteria === 'object' && '$in' in liveCriteria && Array.isArray(liveCriteria.$in)
                     ? liveCriteria.$in

@@ -18,6 +18,7 @@ import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
 import type { AdFilters, PaginationOptions, AdsListResult } from '@esparex/core';
+import { CACHE_TTLS, buildDeterministicSearchCacheKey, getCache, setCache } from '@esparex/core';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -216,9 +217,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             Number.isFinite(requestedPage) &&
             requestedPage <= 5;
 
-        const { getCache,
-            setCache,
-            buildDeterministicSearchCacheKey } = await import('@esparex/core');
+        
         let cacheKey: string | null = null;
         let cachedResult: CachedSearchResult | null = null;
 
@@ -253,7 +252,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         );
 
         if (cacheKey && shouldUseSearchCache) {
-            const { CACHE_TTLS } = await import('@esparex/core');
+            
             await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 

@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { AdOrchestrator, deriveLocationMetadata, generatePresignedUploadUrl, linkListingToCatalogRequests, resolveCatalogRequestsForSubmission } from '@esparex/core';
 
 import { sendSuccessResponse } from "../../utils/respond";
-import { AdOrchestrator } from '@esparex/core';
 
 import { LocationFacade } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';
+import { sendErrorResponse } from '../../utils/errorResponse';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =
     '`sellerId` is not accepted on user listing mutations. The authenticated session determines ownership.';
@@ -19,7 +20,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // SSOT: Security guard to prevent seller impersonation
         if (Object.prototype.hasOwnProperty.call(body, 'sellerId')) {
-            const { sendErrorResponse } = await import("../../utils/errorResponse");
+            
             return sendErrorResponse(req, res, 400, IMMUTABLE_SELLER_ID_MESSAGE, {
                 code: 'IMMUTABLE_SELLER_ID',
                 details: [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
@@ -28,14 +29,14 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         const normalizedLocation = LocationFacade.normalize(body.location);
         if (!normalizedLocation || !normalizedLocation.coordinates) {
-            const { sendErrorResponse } = await import("../../utils/errorResponse");
+            
             return sendErrorResponse(req, res, 400, 'Valid location with coordinates is required.', {
                 code: 'INVALID_LOCATION',
                 details: [{ field: 'location', message: 'Valid location with coordinates is required.' }]
             });
         }
 
-        const { deriveLocationMetadata } = await import('@esparex/core');
+        
         const meta = await deriveLocationMetadata(normalizedLocation.locationId, normalizedLocation.coordinates);
         if (meta.city && !normalizedLocation.city) normalizedLocation.city = meta.city;
         if (meta.state && !normalizedLocation.state) normalizedLocation.state = meta.state;
@@ -44,7 +45,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // Controller Orchestration: Resolve custom brand/model proposal requests prior to Ad creation
         if (body.customBrandName || body.customModelName) {
-            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core');
+            
             const resolved = await resolveCatalogRequestsForSubmission({
                 categoryId: String(body.categoryId || ''),
                 brandId: body.brandId ? String(body.brandId) : undefined,
@@ -76,7 +77,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         if (ad && pendingRequestIds.length > 0) {
             try {
-                const { linkListingToCatalogRequests } = await import('@esparex/core');
+                
                 const createdAdId = (ad as { id?: string; _id?: string }).id ?? (ad as { _id?: string })._id;
                 if (createdAdId) {
                     await linkListingToCatalogRequests(pendingRequestIds, createdAdId);
@@ -100,11 +101,11 @@ export const getPresignedUploadUrl = async (req: Request, res: Response, next: N
         const body = req.body as { fileType?: string; contentType?: string; folder?: string; adId?: string };
         const requestedType = body.contentType || body.fileType;
         if (!requestedType) {
-            const { sendErrorResponse } = await import("../../utils/errorResponse");
+            
             return sendErrorResponse(req, res, 400, 'contentType (or fileType) is required for upload presign.');
         }
 
-        const { generatePresignedUploadUrl } = await import('@esparex/core');
+        
         const user = req.user as AuthUser;
         const uploadFolder = body.folder || 'listings';
         const fileExtension = requestedType.split('/')[1] || 'jpg';
@@ -116,5 +117,4 @@ export const getPresignedUploadUrl = async (req: Request, res: Response, next: N
         next(error);
     }
 };
-
 
