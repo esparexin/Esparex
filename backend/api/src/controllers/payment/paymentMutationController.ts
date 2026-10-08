@@ -66,7 +66,8 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
         const isZeroCost = plan.price === 0;
         const razorpayConfig = await getRazorpayRuntimeConfig();
-        const isMock = isZeroCost || env.MOCK_PAYMENTS || req.headers['x-mock-payment'] === 'true';
+        // P1-F22: mock from plan cost + server flag only (header bypass removed).
+        const isMock = isZeroCost || env.MOCK_PAYMENTS;
 
         if (!isMock && !razorpayConfig.enabled) {
             return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
@@ -118,19 +119,13 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                     receipt: `rcpt_${crypto.randomBytes(8).toString('hex')}`
                 });
             } catch (rzpErr) {
+                // P1-F29: paid orders never degrade to mock (zero-cost never
+                // reaches here); outages surface as 502/503 with dev diagnostics.
                 const errDetail = formatErrorDetails(rzpErr);
-                if (env.NODE_ENV === 'development' && env.MOCK_PAYMENTS) {
-                    logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order because MOCK_PAYMENTS=true.', {
-                        hint: 'Verify RAZORPAY_KEY_ID in backend/.env',
-                        error: errDetail
-                    });
-                    rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
-                } else {
-                    logger.error('[PAYMENT] Razorpay order creation failed:', {
-                        error: errDetail
-                    });
-                    throw new Error(`Razorpay API Error: ${errDetail}`);
-                }
+                logger.error('[PAYMENT] Razorpay order creation failed:', {
+                    error: errDetail
+                });
+                throw new Error(`Razorpay API Error: ${errDetail}`);
             }
         }
 
