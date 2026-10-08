@@ -87,6 +87,11 @@ export const isPublicAdVisible = (
     return true;
 };
 
+// Owner-tab filter companion (kept in ./ownerTabFilter so this guard
+// stays within ratchet). Re-exported here so '@esparex/core' consumers
+// keep a single visibility-rule import surface.
+export { buildOwnerTabFilter } from './ownerTabFilter';
+
 /**
  * Runtime assertion: verifies a query filter object includes the moderationStatus
  * exclusion. Call this defensively in any controller that builds custom feed queries

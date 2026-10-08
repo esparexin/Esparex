@@ -6,6 +6,7 @@ import { generateInvoiceNumber } from '@esparex/core';
 import { getPrimaryPlanCreditCount, formatAppDate } from "@esparex/shared";
 import * as invoiceService from '@esparex/core/domains/payments';
 import { renderInvoiceHtml } from '@esparex/core/domains/payments';
+import { splitGstFromInclusive } from '@esparex/core/domains/payments';
 import {
     createPaymentTransaction,
 } from '@esparex/core/domains/payments';
@@ -183,9 +184,10 @@ export const createInvoice = async (req: Request, res: Response) => {
                 taxBreakdown.total = subTotal;
             }
         } else {
-            // Plan fallback
-            taxBreakdown.gst = transactionAmount - (transactionAmount / 1.18); // Approx if inclusive? 
-            // Actually plans are usually inclusive. Let's assume manual amount is final.
+            // Plan fallback: inclusive amount split via canonical SSOT.
+            // Plans are usually GST-inclusive; manual amount is final.
+            const split = splitGstFromInclusive(transactionAmount);
+            taxBreakdown.gst = split.gstAmount;
             taxBreakdown.total = transactionAmount;
         }
 
