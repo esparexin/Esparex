@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isListingDetailRequest, shouldSuppressPopupForApiError } from "@/lib/api/client";
+import { isListingDetailRequest, shouldSuppressPopupForApiError } from "@/lib/api/requestMatchers";
 
 describe("api client popup suppression", () => {
     it("suppresses global popups for listing-detail 404s", () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { APIClient, apiClient, isSendOtpRequest, isAuthMutationRequest } from "@/lib/api/client";
+import { APIClient, apiClient } from "@/lib/api/client";
+import { isSendOtpRequest, isAuthMutationRequest } from "@/lib/api/requestMatchers";
 
 describe("APIClient Health Gate Resilience", () => {
     it("exports APIClient class and singleton apiClient proxy", () => {
