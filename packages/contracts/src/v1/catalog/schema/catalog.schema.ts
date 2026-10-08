@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from "../../listings/enums/listingType";
 import { CATALOG_APPROVAL_STATUS } from "../enums/catalogApprovalStatus";
-import { objectIdSchema } from "../../common/schema/common.schemas";
+import { objectIdSchema, optionalTrimmedString } from "../../common/schema/common.schemas";
 
 // Base Validations
 // Single ObjectId owner: common.schemas objectIdSchema (audit E2).
@@ -30,8 +30,8 @@ export const CategoryFilterSchema = z.object({
 
 export const CreateCategorySchema = z.object({
     name: z.string().min(1).max(50),
-    displayName: z.string().min(1).max(50).optional(),
-    canonicalName: z.string().min(1).max(80).optional(),
+    displayName: optionalTrimmedString(z.string().min(1).max(50)),
+    canonicalName: optionalTrimmedString(z.string().min(1).max(80)),
     slug: SlugSchema,
     aliases: z.array(z.string().min(1).max(80)).optional(),
     synonyms: z.array(z.string().min(1).max(80)).optional(),
@@ -62,8 +62,8 @@ export const CategorySchema = CreateCategorySchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateBrandSchema = z.object({
     name: z.string().min(2),
-    displayName: z.string().min(2).optional(),
-    canonicalName: z.string().min(2).max(120).optional(),
+    displayName: optionalTrimmedString(z.string().min(2)),
+    canonicalName: optionalTrimmedString(z.string().min(2).max(120)),
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
@@ -84,8 +84,8 @@ export const BrandSchema = CreateBrandSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateModelSchema = z.object({
     name: z.string().min(1),
-    displayName: z.string().min(1).optional(),
-    canonicalName: z.string().min(1).max(120).optional(),
+    displayName: optionalTrimmedString(z.string().min(1)),
+    canonicalName: optionalTrimmedString(z.string().min(1).max(120)),
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
@@ -95,7 +95,7 @@ export const CreateModelSchema = z.object({
     variantOfModelId: ObjectIdSchema.nullable().optional(),
     hierarchyPath: z.array(z.string()).optional(),
     treeDepth: z.number().int().min(0).optional(),
-    variantType: z.string().min(1).max(80).optional(),
+    variantType: optionalTrimmedString(z.string().min(1).max(80)),
     isParentModel: z.boolean().optional(),
     isActive: z.boolean().default(true),
     approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
@@ -113,8 +113,8 @@ export const ModelSchema = CreateModelSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateSparePartSchema = z.object({
     name: z.string().min(2),
-    displayName: z.string().min(2).optional(),
-    canonicalName: z.string().min(2).max(120).optional(),
+    displayName: optionalTrimmedString(z.string().min(2)),
+    canonicalName: optionalTrimmedString(z.string().min(2).max(120)),
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
@@ -142,8 +142,8 @@ export const SparePartSchema = CreateSparePartSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateServiceTypeSchema = z.object({
     name: z.string().min(2),
-    displayName: z.string().min(2).optional(),
-    canonicalName: z.string().min(2).max(120).optional(),
+    displayName: optionalTrimmedString(z.string().min(2)),
+    canonicalName: optionalTrimmedString(z.string().min(2).max(120)),
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
@@ -165,9 +165,9 @@ export const ServiceTypeSchema = CreateServiceTypeSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateScreenSizeSchema = z.object({
     size: z.string().min(1),
-    name: z.string().min(1).optional(),
-    displayName: z.string().min(1).optional(),
-    canonicalName: z.string().min(1).max(120).optional(),
+    name: optionalTrimmedString(z.string().min(1)),
+    displayName: optionalTrimmedString(z.string().min(1)),
+    canonicalName: optionalTrimmedString(z.string().min(1).max(120)),
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),

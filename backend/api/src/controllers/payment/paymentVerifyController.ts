@@ -34,7 +34,7 @@ export async function verifyPayment(req: Request, res: Response) {
         const paymentIdStr = razorpay_payment_id.trim();
         const signatureStr = razorpay_signature.trim();
 
-        // P1-F23: mock ack needs prefix AND flag (legacy `||` acked any order
+        // P1-F23: mock ack needs prefix AND flag (prior `||` acked any order
         // when flagged, skipping signature check). No fulfillment here (Phase 5 ADR).
         if (orderIdStr.startsWith('order_mock_')) {
             if (!env.MOCK_PAYMENTS) return sendErrorResponse(req, res, 400, 'Mock payments are disabled');

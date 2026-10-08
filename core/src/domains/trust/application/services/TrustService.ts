@@ -6,6 +6,10 @@ import logger from '../../../../utils/logger';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';
 
+// P2: single promotion-eligibility predicate owned by trust (missing = eligible).
+export const isPromotionEligible = (trustScore: unknown, strikeCount: unknown): boolean =>
+    !(Number(trustScore) < 30 || Number(strikeCount) >= 2);
+
 /**
  * 🏆 OFFICIAL TRUST SCORE ENGINE (V1)
  * Calculates a dynamic 0-100 seller reputation score based on strict SSOT rules.

@@ -33,6 +33,7 @@ import { AppError } from '../../../../shared-kernel/errors/AppError';
 import logger from '../../../../utils/logger';
 import { FeatureFlag, isEnabled } from '../../../../config/featureFlags';
 import { PromotionPolicyService } from './PromotionPolicyService';
+import { isPromotionEligible } from '../../../trust';
 import { computeBoostWindow } from '../../shared/computeBoostWindow';
 import type { PromotionCreditType } from '../ports/PromotionCreditPort';
 import { paymentsPromotionCreditPort } from '../../../payments/application/PromotionCreditPortAdapter';
@@ -135,7 +136,8 @@ export async function applyPromotion(params: ApplyPromotionParams): Promise<Appl
             throw new AppError('Unauthorized', 403);
         }
         const user = await UserModel.findById(userId).select('trustScore strikeCount').lean();
-        if (!user || Number(user.trustScore) < 30 || Number(user.strikeCount) >= 2) {
+        // P2: eligibility predicate owned by trust (single implementation).
+        if (!user || !isPromotionEligible(user.trustScore, user.strikeCount)) {
             throw new AppError('Account ineligible for promotion due to trust or moderation standing.', 403);
         }
         if (BLOCKED_MODERATION_STATES.has(String(adDoc.moderationStatus))) {
