@@ -25,21 +25,21 @@ Semantic (semantic.light / semantic.dark)
 
 ### Colors — Primitive Palette (`base`)
 
-#### Brand (Green)
+#### Brand (Canonical Primary Blue)
 
 | Token | Value | Notes |
 |-------|-------|-------|
-| `base.brand[50]` | `#f0fdf4` | Tinted background / subtle fill |
-| `base.brand[100]` | `#dcfce7` | Light accent |
-| `base.brand[200]` | `#bbf7d0` | Soft highlight |
-| `base.brand[300]` | `#86efac` | Muted brand tint |
-| `base.brand[400]` | `#4ade80` | Accent border / hover |
-| `base.brand[500]` | `#22c55e` | Secondary green |
-| `base.brand[600]` | `#16a34a` | Primary Green (`#16A34A` SSOT) |
-| `base.brand[700]` | `#15803d` | Dark brand shade |
-| `base.brand[800]` | `#087a3e` | Deep Green (`#087A3E` SSOT) |
-| `base.brand[900]` | `#14532d` | Deepest brand shade |
-| `base.brand[950]` | `#052e16` | Darkest brand contrast |
+| `base.brand[50]` | `#eff6ff` | Tinted background / subtle fill |
+| `base.brand[100]` | `#dbeafe` | Light accent |
+| `base.brand[200]` | `#bfdbfe` | Soft highlight |
+| `base.brand[300]` | `#93c5fd` | Muted brand tint |
+| `base.brand[400]` | `#60a5fa` | Accent border / hover |
+| `base.brand[500]` | `#3b82f6` | Secondary brand |
+| `base.brand[600]` | `#2563eb` | Canonical primary/action (`#2563EB` SSOT) |
+| `base.brand[700]` | `#1d4ed8` | Dark brand shade |
+| `base.brand[800]` | `#1e40af` | Deep brand shade |
+| `base.brand[900]` | `#1e3a8a` | Deepest brand shade |
+| `base.brand[950]` | `#172554` | Darkest brand contrast |
 
 #### Warm Neutral
 
@@ -93,7 +93,7 @@ Semantic (semantic.light / semantic.dark)
 
 | Token | Value | Intent |
 |-------|-------|--------|
-| `base.action` | `#16a34a` | Primary brand interactive control color |
+| `base.action` | `#2563eb` | Canonical primary/action interactive control color |
 | `base['inverse-surface']` | `#1c1917` | Dark stone card in light mode (e.g. wallet card) |
 | `base['inverse-muted']` | `#a8a29e` | Muted text on inverse surface |
 | `base['inverse-subtle']` | `#d6d3d1` | Subtle text on inverse surface |
