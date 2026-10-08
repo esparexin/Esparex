@@ -8,7 +8,7 @@
 
 | File | Purpose | When to Use |
 |------|---------|-----------|
-| **esparex-ui-ux-complete-skill.md** | Complete design system documentation | Building components, code reviews, learning |
+| **SKILL.md** | Complete design system documentation | Building components, code reviews, learning |
 | **HOW-TO-USE-THIS-SKILL.md** | Detailed usage guide with scenarios | New developers, understanding HOW to use skill |
 | **QUICK-REFERENCE-CARD.md** | 1-page cheat sheet | Print it! Keep at your desk, quick lookup |
 | **IDE-AI-PROMPTS.md** | 16 ready-to-use AI prompts | Building with Claude/Copilot in your IDE |
@@ -23,7 +23,7 @@
 ### Minutes 0-2: Download Files
 ```
 You should have 5 files downloaded:
-✓ esparex-ui-ux-complete-skill.md
+✓ SKILL.md
 ✓ HOW-TO-USE-THIS-SKILL.md
 ✓ QUICK-REFERENCE-CARD.md
 ✓ IDE-AI-PROMPTS.md
@@ -87,11 +87,11 @@ You just built your first design-system-compliant component!
 
 ```
 1. Read: "🚨 Non-Negotiable Core Laws" 
-   From: esparex-ui-ux-complete-skill.md
+   From: SKILL.md
    Time: 10 minutes
    
 2. Read: "🎯 Quick Decision Tree"
-   From: esparex-ui-ux-complete-skill.md
+   From: SKILL.md
    Time: 10 minutes
    
 3. Build a test button using Prompt #1
@@ -161,7 +161,7 @@ Quality: 100% design-system compliant ✓
 
 ### "I don't understand a rule"
 ```
-→ Open: esparex-ui-ux-complete-skill.md
+→ Open: SKILL.md
 → Search for "Rule #X"
 → Read the explanation
 → See ❌ WRONG and ✅ RIGHT examples
@@ -266,7 +266,7 @@ Slow productivity
 
 ✓ After:
 New dev: "How do we build UIs?"
-You: "Read esparex-ui-ux-complete-skill.md (40 min)"
+You: "Read SKILL.md (40 min)"
 New dev: "Show me an example"
 You: "Use PROMPT #1 in IDE-AI-PROMPTS.md"
 New dev productive: Day 1 ✓
@@ -316,11 +316,11 @@ Time: 5 minutes ✓
 ──────────────────────
 Teammate's PR doesn't follow design system
 
-1. Open esparex-ui-ux-complete-skill.md
+1. Open SKILL.md
 2. Find the relevant rule
 3. Reference in code review comment:
    "Please use semantic tokens as per Rule #1:
-    esparex-ui-ux-complete-skill.md"
+    SKILL.md"
 4. Show the example from the skill
 
 Teammate updates code ✓
@@ -420,7 +420,7 @@ Option B: Print quick reference (if you haven't)
 → Tape to your monitor/desk
 
 Option C: Read the 6 core rules
-→ Open: esparex-ui-ux-complete-skill.md
+→ Open: SKILL.md
 → Read: "🚨 Non-Negotiable Core Laws"
 → 10 minutes
 ```
@@ -466,7 +466,7 @@ For any task:
 
 ### Option B: "I want to understand first"
 ```
-→ Go to: esparex-ui-ux-complete-skill.md
+→ Go to: SKILL.md
 → Read: "🚨 Non-Negotiable Core Laws" (section)
 → Takes 10 minutes
 → Now you understand the why
@@ -508,7 +508,7 @@ Designers learn:
 
 ### For QA/Testers:
 ```
-→ esparex-ui-ux-complete-skill.md
+→ SKILL.md
   Section: "✅ A11y Compliance Checklist"
   
 QA learns:
@@ -519,7 +519,7 @@ QA learns:
 
 ### For PMs:
 ```
-→ esparex-ui-ux-complete-skill.md
+→ SKILL.md
   Section: "Why These Changes?"
   
 PMs understand:
@@ -538,7 +538,7 @@ Use this map:
 
 ```
 Want to learn?
-→ esparex-ui-ux-complete-skill.md (complete reference)
+→ SKILL.md (complete reference)
 
 Want quick lookup?
 → QUICK-REFERENCE-CARD.md (1-page cheat)

@@ -297,7 +297,7 @@ import { popupBus } from '@esparex/popup-bus';
 
 ## 🎓 STILL LEARNING?
 
-1. Read the full skill: `esparex-ui-ux-complete-skill.md`
+1. Read the full skill: `SKILL.md`
 2. Watch teammates code
 3. Ask in `#design-system` Slack
 4. Copy examples and adapt
@@ -337,7 +337,7 @@ import { popupBus } from '@esparex/popup-bus';
 | "How do I make X?" | See QUICK DECISION TREE |
 | "Is my component accessible?" | Run 5-MINUTE A11Y CHECK |
 | "Code review says something's wrong" | Search this card for the rule, copy the example |
-| "Still confused?" | Read `esparex-ui-ux-complete-skill.md` or ask #design-system |
+| "Still confused?" | Read `SKILL.md` or ask #design-system |
 
 ---
 

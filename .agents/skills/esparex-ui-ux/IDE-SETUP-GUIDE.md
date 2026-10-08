@@ -8,7 +8,7 @@
 
 ```
 1. Upload 4 files to your IDE AI:
-   ✓ esparex-ui-ux-complete-skill.md
+   ✓ SKILL.md
    ✓ HOW-TO-USE-THIS-SKILL.md
    ✓ QUICK-REFERENCE-CARD.md
    ✓ IDE-AI-PROMPTS.md
@@ -59,7 +59,7 @@
 1. In Claude chat, look for: "+" or "Attach" button
 2. Click to attach files
 3. Select these 4 files:
-   ✓ esparex-ui-ux-complete-skill.md
+   ✓ SKILL.md
    ✓ HOW-TO-USE-THIS-SKILL.md
    ✓ QUICK-REFERENCE-CARD.md
    ✓ IDE-AI-PROMPTS.md
@@ -449,7 +449,7 @@ Before pasting a prompt:
    → Wait for confirmation
 
 3. Try referencing specific file:
-   → "Based on esparex-ui-ux-complete-skill.md..."
+   → "Based on SKILL.md..."
    → "According to QUICK-REFERENCE-CARD.md..."
 ```
 
@@ -483,7 +483,7 @@ Before pasting a prompt:
 ```
 1. Make sure files are attached (see above)
 2. In prompt, explicitly reference files:
-   "Based on the attached esparex-ui-ux-complete-skill.md..."
+   "Based on the attached SKILL.md..."
 3. Include specific section name:
    "Using Rule #1 from the skill file..."
 4. Ask follow-up:
@@ -574,7 +574,7 @@ WEAK:
 
 STRONG:
 "Follow Rule #1 (semantic tokens) and Rule #6 (WCAG 2.2 AA)
-from esparex-ui-ux-complete-skill.md"
+from SKILL.md"
 
 Claude will be more precise
 ```
