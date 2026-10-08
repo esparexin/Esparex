@@ -46,8 +46,8 @@ describe("Sheet Scroll Restoration Regression Suite", () => {
         expect(fileContent).not.toContain("--keyboard-height");
         // Inner scroll container properly enabled to shrink below min-content with overscroll containment.
         expect(fileContent).toContain("flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain");
-        // Uses dedicated useNeutralizeWindowScroll hook to neutralize iOS WebKit window scroll drift.
-        expect(fileContent).toContain("useNeutralizeWindowScroll(open)");
+        // Eliminates window.scrollTo(0,0) hook that fought iOS WebKit native input focus scrolling.
+        expect(fileContent).not.toContain("useNeutralizeWindowScroll");
     });
 });
 

@@ -4,7 +4,6 @@ import { useRef, useCallback } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetClose, X, ArrowLeft } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { LoginFlow } from "@/components/auth/LoginFlow";
-import { useNeutralizeWindowScroll } from "@/hooks/useNeutralizeWindowScroll";
 
 interface AuthModalProps {
   open: boolean;
@@ -14,8 +13,6 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   const backActionRef = useRef<(() => void) | null>(null);
-
-  useNeutralizeWindowScroll(open);
 
   const handleOpenChange = useCallback((nextOpen: boolean) => {
     onOpenChange(nextOpen);
