@@ -1,7 +1,8 @@
 import { mapErrorToMessage } from "@/lib/errorMapper";
+import { OTP_RESEND_COOLDOWN_SECONDS } from "@esparex/contracts";
 
 export const OTP_LENGTH = 6;
-export const RESEND_COOLDOWN_SECONDS = 30;
+export const RESEND_COOLDOWN_SECONDS = OTP_RESEND_COOLDOWN_SECONDS;
 export const DEFAULT_RATE_LIMIT_RETRY_SECONDS = 30 * 60;
 const OTP_EXPIRED_CODE = "OTP_EXPIRED";
 export const OTP_INVALID_CODE = "OTP_INVALID";

@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios';
+import { OTP_EXPIRY_SECONDS } from '@esparex/contracts';
 import { IAuthService, AuthResult, SendOtpResult } from './AuthService';
 import { ITokenStorage } from './ITokenStorage';
 import { IPushTokenRegistrationService } from '../../features/notifications/application/IPushTokenRegistrationService';
@@ -16,7 +17,7 @@ export class AuthServiceImpl implements IAuthService {
     return {
       success: response.data?.success ?? true,
       isNewUser: Boolean(data?.isNewUser),
-      otpExpiresIn: typeof data?.otpExpiresIn === 'number' ? data.otpExpiresIn : 300,
+      otpExpiresIn: typeof data?.otpExpiresIn === 'number' ? data.otpExpiresIn : OTP_EXPIRY_SECONDS,
       name: data?.name,
       message: response.data?.message || 'OTP sent successfully',
     };

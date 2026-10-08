@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { TouchableOpacity, View, BackHandler, Animated } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { AppInput, AppButton, AppText, SegmentedOtpInput } from '@esparex/mobile-ui';
-import { TEXT_LIMITS, authNameSchema } from '@esparex/contracts';
+import { TEXT_LIMITS, authNameSchema, OTP_RESEND_COOLDOWN_SECONDS } from '@esparex/contracts';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';
 import { navigate } from '../../../navigation/navigationRef';
@@ -11,7 +11,7 @@ import { AuthStackParamList, ROUTES } from '../../../navigation/routes';
 import { useOtpTimer } from '../hooks/useOtpTimer';
 import { useShakeAnimation } from '../hooks/useShakeAnimation';
 
-const RESEND_COOLDOWN_SECONDS = 60;
+const RESEND_COOLDOWN_SECONDS = OTP_RESEND_COOLDOWN_SECONDS;
 
 export const OTPScreen = () => {
   const navigation = useNavigation();
