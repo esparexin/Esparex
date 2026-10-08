@@ -43,9 +43,14 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 ### 🔍 [Audits](audits/) — FROZEN evidence (not active guidance)
 - **Owner**: QA & Governance Team
 - **Key Specifications** (all frozen; see file headers):
+  - [ADMIN_UI_UX_AUDIT.md](audits/ADMIN_UI_UX_AUDIT.md) — Admin Panel UI/UX Audit Report.
   - [HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md](audits/HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md) — Home Feed Listing Type & Location Architecture Audit.
   - [MOBILE_UX_ROOT_CAUSE_AUDIT.md](audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md) — Mobile UI/UX Root Cause Audit & Verification Report (August 2026).
   - [TECHNICAL_DEBT_REMEDIATION_BASELINE.md](audits/TECHNICAL_DEBT_REMEDIATION_BASELINE.md) — Technical Debt Remediation Baseline & Safety Classification.
+  - [catalog-architecture-ssot-audit.md](audits/catalog-architecture-ssot-audit.md) — Enterprise Catalog Architecture & SSOT Audit.
+  - [listing-consumer-response-contract.md](audits/listing-consumer-response-contract.md) — Listing Consumer Response Contract Audit.
+  - [listing-forms-compatibility-audit.md](audits/listing-forms-compatibility-audit.md) — Listing Forms Architecture Compatibility Audit.
+  - [security-inventory-audit.md](audits/security-inventory-audit.md) — Security Inventory & Architecture Audit (Phase 1 Snapshot).
 
 ### 📈 [Performance](performance/) & 🛡️ [Security](security/) — point-in-time baselines (frozen where marked)
 - **Owner**: Engineering Performance & Security Teams
