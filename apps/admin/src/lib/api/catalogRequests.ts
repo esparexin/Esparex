@@ -63,14 +63,7 @@ export interface CatalogRequestListFilters {
     limit?: number;
 }
 
-interface CatalogRequestStatsBucket {
-    pending: number;
-    approved: number;
-    rejected: number;
-    duplicate: number;
-    resolved: number;
-    total: number;
-}
+
 
 
 export async function listAdminCatalogRequests(filters: CatalogRequestListFilters) {

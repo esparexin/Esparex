@@ -17,19 +17,7 @@ export type PushRegistrationResult =
   | { success: true; token: PushToken }
   | { success: false; reason: 'permission-denied' };
 
-// ---------------------------------------------------------------------------
-// Failure kinds — used internally by the infrastructure layer
-// ---------------------------------------------------------------------------
 
-/**
- * PushRegistrationFailure — structured failure kind for non-user-facing errors.
- *
- * Avoids exception-driven control flow inside ExpoPushNotificationService.
- */
-type PushRegistrationFailure =
-  | 'not-device'
-  | 'permission-denied'
-  | 'token-unavailable';
 
 // ---------------------------------------------------------------------------
 // Permission status

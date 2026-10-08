@@ -23,10 +23,7 @@ export function useProfileWizardController<TFormShape extends FieldValues>(
         const isValid = await trigger(fields);
         if (!isValid) {
             // Focus the first invalid field (matches post-ad wizard behavior)
-            const firstInvalid = fields.find((f) => {
-                const err = f.split('.').reduce((acc: any, key) => acc?.[key], errors);
-                return !!err;
-            });
+            const firstInvalid = fields.find((f) => form.getFieldState(f, form.formState).invalid);
             if (firstInvalid) {
                 // Use requestAnimationFrame to ensure the error UI is rendered
                 requestAnimationFrame(() => {

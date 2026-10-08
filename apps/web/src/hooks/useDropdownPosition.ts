@@ -25,7 +25,6 @@ export function useDropdownPosition(
 
   useEffect(() => {
     if (!isOpen) {
-      setRect(null);
       return;
     }
     const update = () => {
@@ -43,5 +42,5 @@ export function useDropdownPosition(
     };
   }, [isOpen, anchorRef, offsetY]);
 
-  return rect;
+  return isOpen ? rect : null;
 }

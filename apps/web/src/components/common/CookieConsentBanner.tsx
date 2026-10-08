@@ -46,11 +46,7 @@ export function CookieConsentBanner() {
     // Suppress the banner when a tall context action bar is present.
     // The bar (~6-7rem) would overlap the banner's fixed offset.
     // The banner will appear once the user navigates away from the detail page.
-    if (policy.showContextActionBar) {
-        return null;
-    }
-
-    const visible = consent === null;
+    const visible = consent === null && !policy.showContextActionBar;
 
     const setConsent = useCallback((value: string) => {
         try {
