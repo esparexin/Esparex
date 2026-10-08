@@ -20,13 +20,13 @@ export function ConfirmDeactivateDialog({ isOpen, onClose, onConfirm, isMutating
             title={title}
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-4 p-4 bg-warning/10 rounded-xl border border-warning/20">
+                    <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
                     <div>
-                        <h3 className="text-sm font-bold text-amber-900">Are you sure?</h3>
-                        <p className="mt-1 text-sm text-amber-800 leading-relaxed">
+                        <h3 className="text-body font-bold text-warning-dark">Are you sure?</h3>
+                        <p className="mt-1 text-body text-warning-dark leading-relaxed">
                             {description}
-                            <span className="block mt-2 font-semibold italic text-amber-900/60">Existing subscriptions will not be affected.</span>
+                            <span className="block mt-2 font-semibold italic text-warning-dark/60">Existing subscriptions will not be affected.</span>
                         </p>
                     </div>
                 </div>

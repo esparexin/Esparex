@@ -51,7 +51,7 @@ export function ArchivePlanModal({ plan, isOpen, onClose, onConfirm, isMutating 
             <DialogContent className="max-w-md p-0 overflow-hidden">
                 <DialogHeader className="p-6 border-b border-border bg-muted/20">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-warning/10 text-warning flex items-center justify-center">
                             <Archive size={20} aria-hidden="true" />
                         </div>
                         <div>
@@ -64,11 +64,11 @@ export function ArchivePlanModal({ plan, isOpen, onClose, onConfirm, isMutating 
                 </DialogHeader>
 
                 <div className="p-6 space-y-4">
-                    <div className="flex gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900">
-                        <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" aria-hidden="true" />
+                    <div className="flex gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20 text-warning-dark">
+                        <AlertTriangle size={16} className="text-warning mt-0.5 shrink-0" aria-hidden="true" />
                         <div className="text-caption">
                             <p className="font-semibold">This action will archive the plan.</p>
-                            <p className="mt-0.5 text-amber-800">
+                            <p className="mt-0.5 text-warning-dark">
                                 Archived plans are hidden from active use but preserved in the database for
                                 financial history and audit integrity. You can restore it at any time.
                             </p>

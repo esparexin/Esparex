@@ -18,11 +18,11 @@ interface DashboardCardProps {
 }
 
 const variantStyles: Record<NonNullable<DashboardCardProps["variant"]>, string> = {
-    default: "bg-sky-50 text-sky-700 border border-sky-100",
-    info: "bg-sky-50 text-sky-700 border border-sky-100",
-    warning: "bg-amber-50 text-amber-800 border border-amber-100",
-    danger: "bg-rose-50 text-rose-700 border border-rose-100",
-    success: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+    default: "bg-primary-subtle text-primary border border-primary/20",
+    info: "bg-primary-subtle text-primary border border-primary/20",
+    warning: "bg-warning/10 text-warning-dark border border-warning/20",
+    danger: "bg-destructive/10 text-destructive border border-destructive/20",
+    success: "bg-success/10 text-success-dark border border-success/20",
 };
 
 export function DashboardCard({
@@ -47,7 +47,7 @@ export function DashboardCard({
                             <span className="text-tiny text-foreground-subtle font-medium italic truncate">{description}</span>
                         )}
                         {trend && (
-                            <span className={`text-tiny font-semibold ${trend.isUp ? "text-emerald-600" : "text-rose-600"}`}>
+                            <span className={`text-tiny font-semibold ${trend.isUp ? "text-success" : "text-destructive"}`}>
                                 {trend.isUp ? "↑" : "↓"} {trend.value}%
                             </span>
                         )}

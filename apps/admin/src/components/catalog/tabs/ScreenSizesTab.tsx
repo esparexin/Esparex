@@ -114,7 +114,7 @@ export default function ScreenSizesTab() {
                         cell: (screenSize) => (
                             <CatalogEntityCell
                                 icon={<Monitor size={20} />}
-                                iconClassName="bg-sky-50 text-sky-600"
+                                iconClassName="bg-primary-subtle text-primary"
                                 title={screenSize.size}
                                 subtitle={screenSize.name}
                             />
@@ -129,7 +129,7 @@ export default function ScreenSizesTab() {
                     },
                     {
                         header: "Sort Order",
-                        cell: (screenSize) => <span className="text-sm font-semibold text-foreground-secondary">{screenSize.value}</span>,
+                        cell: (screenSize) => <span className="text-body font-semibold text-foreground-secondary">{screenSize.value}</span>,
                     },
                     {
                         header: "Status",

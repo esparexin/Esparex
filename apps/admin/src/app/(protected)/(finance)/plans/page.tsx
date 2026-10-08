@@ -126,7 +126,7 @@ export default function PlansPage() {
             header: "Pricing",
             cell: (plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-foreground-secondary">
+                    <span className="font-bold text-body text-foreground-secondary">
                         {plan.price === 0 ? "Free" : `${plan.currency} ${plan.price}`}
                     </span>
                     <span className="text-tiny text-foreground-subtle font-medium">
@@ -153,7 +153,7 @@ export default function PlansPage() {
             cell: (plan) => (
                 <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     {plan.type === "FREE_DEFAULT" && (
-                        <div>Free Slots: <strong className="font-semibold text-emerald-700">{plan.limits?.maxAds ?? 2}/month</strong></div>
+                        <div>Free Slots: <strong className="font-semibold text-success-dark">{plan.limits?.maxAds ?? 2}/month</strong></div>
                     )}
                     {plan.type === "AD_PACK" && (
                         <div>Ad Slots: <strong className="font-semibold text-warning">{plan.limits?.maxAds ?? 1} Slots</strong></div>
@@ -236,7 +236,7 @@ export default function PlansPage() {
                                 onClick={() => setArchivingPlan(plan)}
                                 disabled={isMutating}
                                 aria-label={`Archive plan ${plan.name}`}
-                                className="p-1.5 rounded text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-1.5 rounded text-warning hover:bg-warning/10 transition-colors flex items-center gap-1 text-caption font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Archive size={13} aria-hidden="true" /> Archive
                             </button>
@@ -247,7 +247,7 @@ export default function PlansPage() {
                                 onClick={() => void handleRestore(plan.id)}
                                 disabled={isMutating}
                                 aria-label={`Restore plan ${plan.name}`}
-                                className="p-1.5 rounded text-sky-600 hover:bg-sky-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-1.5 rounded text-primary hover:bg-primary/10 transition-colors flex items-center gap-1 text-caption font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <RotateCcw size={13} aria-hidden="true" /> Restore
                             </button>
@@ -255,11 +255,11 @@ export default function PlansPage() {
                         {/* Protected Default Plan lock badge */}
                         {isProtectedPlan && !isArchived && (
                             <span
-                                className="text-xs text-sky-700 bg-sky-50 border border-sky-200 font-semibold flex items-center gap-1 px-2 py-1 rounded-md"
+                                className="text-caption text-primary bg-primary-subtle border border-primary/20 font-semibold flex items-center gap-1 px-2 py-1 rounded-md"
                                 title="Active Default Free Plan is mandatory and protected — cannot be disabled or archived."
                                 aria-label="Active Default Free Plan protected"
                             >
-                                <ShieldCheck size={13} className="text-sky-600" aria-hidden="true" /> Protected
+                                <ShieldCheck size={13} className="text-primary" aria-hidden="true" /> Protected
                             </span>
                         )}
                     </div>
@@ -293,7 +293,7 @@ export default function PlansPage() {
                                 <Filter className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                                 <select
                                     aria-label="Filter by plan type"
-                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={typeFilter}
                                     onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
                                 >
@@ -309,7 +309,7 @@ export default function PlansPage() {
                     />
 
                     {error && (
-                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                        <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4 text-body font-medium flex items-center gap-2">
                             <AlertCircle size={18} /> {error}
                         </div>
                     )}

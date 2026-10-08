@@ -260,7 +260,7 @@ function LocationAnalyticsPageContent({
                         {data.hotZones?.length ? (
                             <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                                    <Flame size={18} className="text-orange-500" />
+                                    <Flame size={18} className="text-warning" />
                                     <h3 className="font-bold text-foreground">Hot Zones</h3>
                                     <span className="ml-auto text-caption text-foreground-subtle font-medium">High search & ad activity</span>
                                 </div>
@@ -269,7 +269,7 @@ function LocationAnalyticsPageContent({
                                         <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
                                                 <div className="font-semibold text-foreground text-body flex items-center gap-1.5">
-                                                    {zone.isHotZone && <Flame size={13} className="text-orange-500" />}
+                                                    {zone.isHotZone && <Flame size={13} className="text-warning" />}
                                                     {zone.city}
                                                 </div>
                                                 <div className="text-caption text-foreground-subtle">{zone.state}</div>

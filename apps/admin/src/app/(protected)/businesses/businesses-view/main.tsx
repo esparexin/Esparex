@@ -123,8 +123,8 @@ export default function BusinessesView() {
         { key: "all", label: "All", value: overview.total, isActive: isStatActive("all"), color: "text-foreground-secondary" },
         { key: "live", label: "Live", value: overview.live, isActive: isStatActive("live"), color: "text-primary" },
         { key: "pending", label: "Pending", value: overview.pending, isActive: isStatActive("pending"), color: "text-warning" },
-        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-rose-600" },
-        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-red-600" },
+        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-destructive" },
+        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-destructive" },
         { key: "expired", label: "Expired", value: (overview as Record<string, number>).expired ?? 0, isActive: isStatActive("expired"), color: "text-warning" },
         { key: "deactivated", label: "Deactivated", value: (overview as Record<string, number>).deactivated ?? 0, isActive: isStatActive("deactivated"), color: "text-foreground-secondary" },
     ];

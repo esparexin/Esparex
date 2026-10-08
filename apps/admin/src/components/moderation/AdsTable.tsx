@@ -153,9 +153,9 @@ export function AdsTable({
             id: "details",
             cell: (item) => (
                 <div className="space-y-0.5 min-w-[180px] max-w-[280px]">
-                    <div className="font-semibold text-foreground text-sm truncate">{item.title}</div>
+                    <div className="font-semibold text-foreground text-body truncate">{item.title}</div>
                     <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-semibold text-primary">
+                        <span className="text-caption font-semibold text-primary">
                             {getListingPriceSummary(item)}
                         </span>
                         {item.listingType && item.listingType !== "ad" && (
@@ -178,7 +178,7 @@ export function AdsTable({
             header: "Seller",
             id: "seller",
             cell: (item) => (
-                <div className="space-y-0.5 text-xs text-foreground-secondary min-w-[130px]">
+                <div className="space-y-0.5 text-caption text-foreground-secondary min-w-[130px]">
                     <div className="font-semibold text-foreground truncate">{item.sellerName || "Unknown"}</div>
                     <div>{item.sellerPhone || "—"}</div>
                     <div className="text-foreground-subtle text-tiny truncate max-w-[120px]">{item.sellerId || "-"}</div>
@@ -192,7 +192,7 @@ export function AdsTable({
                 const geo = geoLevel(item);
                 return (
                     <div className="flex flex-col gap-0.5 min-w-[140px]">
-                        <div className="flex items-center gap-1.5 text-xs text-foreground-secondary">
+                        <div className="flex items-center gap-1.5 text-caption text-foreground-secondary">
                             <MapPin size={13} className="shrink-0 text-foreground-subtle" />
                             <span className="font-medium text-foreground truncate max-w-[130px]">{item.locationLabel || "Unknown"}</span>
                         </div>
@@ -211,7 +211,7 @@ export function AdsTable({
             cell: (item) => {
                 const attribute = getListingAttribute(item, listingType);
                 return (
-                    <div className="text-xs font-semibold text-foreground-secondary">
+                    <div className="text-caption font-semibold text-foreground-secondary">
                         {attribute.value}
                     </div>
                 );
@@ -234,7 +234,7 @@ export function AdsTable({
                         )}
                     </div>
                     {item.reportCount > 0 && (
-                        <span className="text-tiny text-rose-600 font-semibold">
+                        <span className="text-tiny text-destructive font-semibold">
                             {item.reportCount} report{item.reportCount !== 1 ? "s" : ""}
                         </span>
                     )}
@@ -253,7 +253,7 @@ export function AdsTable({
             cell: (item) => {
                 const dateOpts: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' };
                 return (
-                    <div className="text-xs text-foreground-secondary">
+                    <div className="text-caption text-foreground-secondary">
                         {formatAppDate(item.createdAt, dateOpts)}
                     </div>
                 );

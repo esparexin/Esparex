@@ -132,7 +132,7 @@ export default function InvoicesPage() {
       cell: (invoice) => (
         <div>
           <div className="font-semibold text-foreground">{invoice.invoiceNumber}</div>
-          <div className="text-xs text-foreground-tertiary">
+          <div className="text-caption text-foreground-tertiary">
             {formatAppDate(invoice.issuedAt)}
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function InvoicesPage() {
       cell: (invoice) => (
         <div>
           <div className="font-medium">{invoice.userId?.name || "Customer"}</div>
-          <div className="text-xs text-foreground-tertiary">{invoice.userId?.email || invoice.userId?.mobile || "-"}</div>
+          <div className="text-caption text-foreground-tertiary">{invoice.userId?.email || invoice.userId?.mobile || "-"}</div>
         </div>
       )
     },
@@ -158,12 +158,12 @@ export default function InvoicesPage() {
     {
       header: "Status",
       cell: (invoice) => (
-        <span className={`rounded px-2 py-1 text-xs font-semibold ${
+        <span className={`rounded px-2 py-1 text-caption font-semibold ${
           invoice.status === "SUCCESS"
-            ? "bg-emerald-100 text-emerald-700"
+            ? "bg-success/10 text-success-dark"
             : invoice.status === "PENDING"
-              ? "bg-amber-100 text-amber-700"
-              : "bg-red-100 text-red-700"
+              ? "bg-warning/10 text-warning-dark"
+              : "bg-destructive/10 text-destructive"
         }`}>
           {invoice.status}
         </span>
@@ -178,7 +178,7 @@ export default function InvoicesPage() {
               href={invoice.pdfUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+              className="inline-flex items-center gap-1 text-caption font-medium text-primary hover:text-primary-hover"
             >
               <Download size={14} />
               PDF
@@ -188,7 +188,7 @@ export default function InvoicesPage() {
               href={`${ADMIN_API_BASE}${ADMIN_ROUTES.INVOICE_PRINT(invoice.id)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-foreground-secondary hover:text-foreground-secondary"
+              className="inline-flex items-center gap-1 text-caption font-medium text-foreground-secondary hover:text-foreground-secondary"
             >
               <FileText size={14} />
               View

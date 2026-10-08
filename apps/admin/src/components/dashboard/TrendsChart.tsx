@@ -40,11 +40,11 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                 <h3 className="text-base font-bold text-foreground leading-none">{title}</h3>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5">
-                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-primary rounded-full" />
                         <span className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Ads</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-success rounded-full" />
                         <span className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Users</span>
                     </div>
                 </div>

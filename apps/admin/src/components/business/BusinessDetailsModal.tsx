@@ -56,7 +56,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
 
     const renderDocumentPreview = (url: string | undefined, alt: string) => {
         if (!url) {
-            return <span className="text-foreground-subtle text-xs italic">No document uploaded</span>;
+            return <span className="text-foreground-subtle text-caption italic">No document uploaded</span>;
         }
 
         if (isPdf(url)) {
@@ -68,7 +68,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     className="flex h-full w-full flex-col items-center justify-center rounded-md border border-dashed border-border bg-card p-4 text-center transition-colors hover:border-primary hover:bg-muted/50"
                 >
                     <FileText size={28} className="text-primary" />
-                    <span className="mt-3 text-xs font-semibold text-foreground-secondary">Open PDF document</span>
+                    <span className="mt-3 text-caption font-semibold text-foreground-secondary">Open PDF document</span>
                     <span className="mt-1 inline-flex items-center gap-1 text-tiny font-medium text-primary">
                         <ExternalLink size={12} /> View full file
                     </span>
@@ -79,7 +79,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
         return (
             <a href={url} target="_blank" rel="noreferrer" className="relative block h-full w-full">
                 <img src={url} className="w-full h-full object-cover rounded-md" alt={alt} />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-caption font-bold gap-2">
                     <ExternalLink size={16} /> VIEW FULL
                 </div>
             </a>
@@ -113,16 +113,16 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                     <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-tiny font-bold uppercase border border-destructive/20 shrink-0">Low Trust</span>
                                 )}
                                 {/* Trust Score inline on mobile */}
-                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg} ${scoreColor} shrink-0`}>
+                                <span className={`text-caption font-bold px-2 py-0.5 rounded-full ${scoreBg} ${scoreColor} shrink-0`}>
                                     Trust: {trustScore}
                                 </span>
                             </div>
                             <DialogDescription className="sr-only">Review business profile and verification documents</DialogDescription>
-                            <p className="text-foreground-tertiary text-xs mt-0.5">
+                            <p className="text-foreground-tertiary text-caption mt-0.5">
                                 <span className="capitalize font-medium">{business.status === 'live' ? 'Approved' : business.status}</span>
                                 {' • '}Submitted {formatAppDate(new Date(business.createdAt))}
                                 {business.isDeleted && (
-                                    <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100 text-tiny">
+                                    <span className="ml-2 inline-flex items-center gap-1 text-destructive font-bold bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 text-tiny">
                                         <XCircle size={9} /> DELETED
                                     </span>
                                 )}
@@ -317,7 +317,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {business.status === BUSINESS_STATUS.LIVE && onSuspend && (
                             <button
                                 onClick={() => onSuspend(business.id)}
-                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-orange-50 text-orange-600 font-semibold border border-orange-100 hover:bg-orange-100 transition-colors text-sm"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-warning/10 text-warning font-semibold border border-warning/20 hover:bg-warning/20 transition-colors text-body"
                             >
                                 <Ban size={15} /> Suspend
                             </button>
@@ -340,7 +340,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 </button>
                                 <button
                                     onClick={() => onApprove(business.id)}
-                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-md shadow-emerald-200 transition-colors text-sm"
+                                    className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-success text-white font-semibold hover:bg-success-dark shadow-md shadow-success/20 transition-colors text-body"
                                 >
                                     <CheckCircle2 size={16} /> Approve
                                 </button>

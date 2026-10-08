@@ -46,8 +46,8 @@ const ACTION_PRESENTATION: Record<UserActionType, ActionPresentation> = {
         confirmLabel: "Confirm Suspension",
         submittingLabel: "Suspending...",
         icon: Shield,
-        headerClassName: "border-amber-100 bg-amber-50 text-amber-900",
-        actionClassName: "bg-amber-600 hover:bg-amber-700",
+        headerClassName: "border-warning/20 bg-warning/10 text-warning-dark",
+        actionClassName: "bg-warning hover:bg-warning-dark",
         requiresReason: true,
     },
     ban: {
@@ -57,8 +57,8 @@ const ACTION_PRESENTATION: Record<UserActionType, ActionPresentation> = {
         confirmLabel: "Confirm Block",
         submittingLabel: "Blocking...",
         icon: Ban,
-        headerClassName: "border-red-100 bg-red-50 text-red-900",
-        actionClassName: "bg-red-600 hover:bg-red-700",
+        headerClassName: "border-destructive/20 bg-destructive/10 text-destructive",
+        actionClassName: "bg-destructive hover:bg-destructive",
         requiresReason: true,
     },
     activate: {
@@ -68,8 +68,8 @@ const ACTION_PRESENTATION: Record<UserActionType, ActionPresentation> = {
         confirmLabel: "Reactivate Account",
         submittingLabel: "Reactivating...",
         icon: PlayCircle,
-        headerClassName: "border-emerald-100 bg-emerald-50 text-emerald-900",
-        actionClassName: "bg-emerald-600 hover:bg-emerald-700",
+        headerClassName: "border-success/20 bg-success/10 text-success-dark",
+        actionClassName: "bg-success hover:bg-success-dark",
         requiresReason: false,
     },
     verify: {
@@ -79,8 +79,8 @@ const ACTION_PRESENTATION: Record<UserActionType, ActionPresentation> = {
         confirmLabel: "Verify User",
         submittingLabel: "Verifying...",
         icon: CheckCircle2,
-        headerClassName: "border-emerald-100 bg-emerald-50 text-emerald-900",
-        actionClassName: "bg-emerald-600 hover:bg-emerald-700",
+        headerClassName: "border-success/20 bg-success/10 text-success-dark",
+        actionClassName: "bg-success hover:bg-success-dark",
         requiresReason: false,
     },
     unverify: {
@@ -132,7 +132,7 @@ export function UserActionDialog({
                             <DialogTitle className="text-base font-bold text-foreground">
                                 {presentation.title}
                             </DialogTitle>
-                            <DialogDescription className="mt-0.5 text-xs text-foreground-secondary">
+                            <DialogDescription className="mt-0.5 text-caption text-foreground-secondary">
                                 {presentation.description}{" "}
                                 <span className="font-semibold text-foreground">
                                     {getUserDisplayName(user)}

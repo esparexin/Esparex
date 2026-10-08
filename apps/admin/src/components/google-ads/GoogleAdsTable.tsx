@@ -77,8 +77,8 @@ export function GoogleAdsTable({
                         onClick={() => onToggleStatus(row)}
                         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-tiny font-bold uppercase tracking-wider transition-all cursor-pointer ${
                             isActive
-                                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
-                                : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200"
+                                ? "bg-success/10 text-success-dark hover:bg-success/20 border border-success/20"
+                                : "bg-warning/10 text-warning-dark hover:bg-warning/20 border border-warning/20"
                         }`}
                     >
                         {isActive ? <CheckCircle size={12} /> : <AlertCircle size={12} />}

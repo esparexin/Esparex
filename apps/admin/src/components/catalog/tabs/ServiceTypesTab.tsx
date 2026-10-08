@@ -110,7 +110,7 @@ export default function ServiceTypesTab() {
                         cell: (serviceType) => (
                             <CatalogEntityCell
                                 icon={<Wrench size={20} />}
-                                iconClassName="bg-blue-50 text-blue-600"
+                                iconClassName="bg-primary-subtle text-primary"
                                 title={serviceType.name}
                             />
                         ),
@@ -179,13 +179,13 @@ export default function ServiceTypesTab() {
                             setFormData={setFormData}
                             nameLabel={
                                 <>
-                                    Name <span className="text-red-500">*</span>
+                                    Name <span className="text-destructive">*</span>
                                 </>
                             }
                             namePlaceholder="e.g. Screen Replacement"
                             categoryLabel={
                                 <>
-                                    Assigned Categories <span className="text-red-500">*</span>
+                                    Assigned Categories <span className="text-destructive">*</span>
                                 </>
                             }
                             categoryOptions={categoryOptions}
