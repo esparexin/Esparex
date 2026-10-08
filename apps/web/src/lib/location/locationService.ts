@@ -29,7 +29,6 @@ export {
 
 export {
     getDisplayLocationLabel,
-    getCompactLocationLabel,
     getHeaderLocationText,
     getSearchLocationLabel,
     isGenericDetectedLocation,

@@ -225,7 +225,6 @@ app.use('/api', fallbackRoutes);
 // --- SSOT API Namespace ---
 app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
-// app.use('/api/v1/catalog-requests', catalogRequestRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
 
