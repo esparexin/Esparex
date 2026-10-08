@@ -181,7 +181,7 @@ export function BusinessRegistrationWizardScreen({ initialBusiness, onSuccess, o
   return (
     <Screen className="flex-1">
       <View className="flex-row items-center justify-between px-4 py-3 bg-card border-b border-border">
-        <AppText variant="h3" className="font-bold text-foreground text-body-lg">
+        <AppText variant="body-lg" className="font-bold text-foreground">
           {isEditMode ? 'Edit Business Profile' : 'Business Registration'}
         </AppText>
         <AppText variant="caption" className="font-semibold text-foreground-secondary">

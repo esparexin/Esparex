@@ -20,7 +20,7 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
             <View className="mr-1.5">
               <AppIcon name="ShieldAlert" size={16} color={base.warning} />
             </View>
-            <AppText variant="h4" className="text-foreground font-bold text-body">
+            <AppText variant="body" className="text-foreground font-bold">
               Safety First
             </AppText>
           </View>

@@ -75,7 +75,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
         return (
           <View className="items-center my-2 px-4">
             <View className="bg-slate-200 dark:bg-slate-800 rounded-full px-3 py-1">
-              <AppText variant="caption" className="text-slate-600 dark:text-slate-400 text-xs">
+              <AppText variant="caption" className="text-foreground-secondary">
                 {item.text}
               </AppText>
             </View>
@@ -175,7 +175,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
                   accessibilityRole="button"
                   accessibilityLabel={`Quick reply: ${reply}`}
                 >
-                  <AppText variant="caption" className="text-brand-700 font-medium text-caption">
+                  <AppText variant="caption" className="text-brand-700 font-medium">
                     {reply}
                   </AppText>
                 </TouchableOpacity>

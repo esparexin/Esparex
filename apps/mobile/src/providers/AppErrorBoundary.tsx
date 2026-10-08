@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   icon: {
-    fontSize: 28,
+    fontSize: 30,
   },
   title: {
     fontSize: 20,
@@ -126,6 +126,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: semantic.light['primary-foreground'],
     fontWeight: '600',
-    fontSize: 15,
+    fontSize: 14,
   },
 });

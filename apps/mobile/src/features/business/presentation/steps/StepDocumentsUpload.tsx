@@ -70,7 +70,7 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
         <View className="flex-row items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800">
           <View className="flex-1 mr-3">
-            <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+            <AppText variant="body" className="font-semibold text-foreground">
               Identity Proof (Aadhaar / PAN) *
             </AppText>
             <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5">
@@ -101,7 +101,7 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
         <View className="flex-row items-center justify-between py-3">
           <View className="flex-1 mr-3">
-            <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+            <AppText variant="body" className="font-semibold text-foreground">
               Business Proof (GST / Shop License)
             </AppText>
             <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5">
