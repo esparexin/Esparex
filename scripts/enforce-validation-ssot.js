@@ -118,6 +118,18 @@ for (const file of allSchemaFiles) {
                 `[ZOD EMPTY-STRING TRAP] ${rel}:${idx + 1} uses authNameSchema.optional() without z.literal(""). Use z.union([authNameSchema, z.literal("")]).optional() instead.`
             );
         }
+        // Flag constrained optional STRING chains that reject "" from form inputs
+        // (min/length/email/regex/url/uuid/datetime). Array/object/number chains
+        // (z.array/z.object/z.number/z.enum) are excluded — "" never binds to them.
+        const isStringChain = /z\.string\(\)/.test(line) && !/z\.(array|object|number|enum|boolean)\(/.test(line);
+        const hasRejectingConstraint = /\.(min|length|email|regex|url|uuid|datetime)\(/.test(line);
+        const hasOptional = /\.optional\(\)/.test(line);
+        const hasEmptyEscape = /z\.literal\(["']["']\)/.test(line) || /\.or\(/.test(line) || /z\.union\(/.test(line) || /z\.preprocess\(/.test(line);
+        if (isStringChain && hasRejectingConstraint && hasOptional && !hasEmptyEscape) {
+            violations.push(
+                `[ZOD EMPTY-STRING TRAP] ${rel}:${idx + 1} uses a constrained z.string().optional() without z.literal(""). Use z.union([<schema>, z.literal("")]).optional() instead.`
+            );
+        }
     });
 }
 

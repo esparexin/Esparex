@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/contracts';
+import { objectIdSchema } from '@esparex/contracts';
 import { normalizeObjectIdLike } from '../utils/idUtils';
 import { validateCatalogName } from '@esparex/shared';
 
-// Shared Helpers
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
+// Shared Helpers (objectId canonical in @esparex/contracts)
 
 
 const optionalObjectIdSchema = z.preprocess((value) => {
