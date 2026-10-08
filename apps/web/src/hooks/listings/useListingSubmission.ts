@@ -44,7 +44,6 @@ interface UseListingSubmissionProps<TFieldValues extends FieldValues, TResult = 
     form: UseFormReturn<TFieldValues>;
     listingImages: ListingImage[];
     isEditMode: boolean;
-    editId?: string;
     schema: z.ZodTypeAny;
     partialSchema?: z.ZodTypeAny;
     submitFn: (payload: TFieldValues, options?: { idempotencyKey?: string }) => Promise<TResult>;
@@ -68,7 +67,6 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
     form,
     listingImages,
     isEditMode,
-    editId: _editId,
     schema,
     partialSchema,
     submitFn,

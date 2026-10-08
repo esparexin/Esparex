@@ -3,7 +3,8 @@ import { API_ROUTES } from '../../routes';
 import { toApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson } from '../server';
-import { normalizeListingIdentifier, isValidListingIdentifier, normalizeListing, normalizeListingContactNumberResponse, type UserListing, type ListingAnalytics, type ListingContactNumberResponse } from './normalizer';
+import { normalizeListingIdentifier, isValidListingIdentifier } from './listingIdNormalizer';
+import { normalizeListing, normalizeListingContactNumberResponse, type UserListing, type ListingAnalytics, type ListingContactNumberResponse } from './normalizer';
 
 export interface GetListingByIdOptions {
     throwOnServerError?: boolean;

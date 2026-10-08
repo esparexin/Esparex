@@ -92,7 +92,6 @@ export function usePostAdSubmissionFlow({
         form,
         listingImages,
         isEditMode,
-        editId: editAdId,
         schema: postAdSchema,
         partialSchema: partialAdSchema,
         submitFn: submitAdApiCall,

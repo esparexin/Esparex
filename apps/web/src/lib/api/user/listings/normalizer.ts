@@ -6,14 +6,13 @@ import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/loca
 import { formatAppDate, decodeHtmlEntities } from '@/lib/formatters';
 import type { LocationLevel } from '@/types/location';
 import { stripEmptyObjectIdFields as stripSharedObjectIdFields } from '../listingsShared';
+// P4: identifier + geo normalization live in sibling modules (single owner).
+import { OBJECT_ID_PATTERN, extractId } from './listingIdNormalizer';
+import { normalizeListingGeo } from './listingGeoNormalizer';
 
 // --- Shared Constants & Types ---
 
-export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
-const LISTING_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const RESERVED_LISTING_IDENTIFIERS = new Set([
-    '', 'undefined', 'null', 'nan', 'true', 'false', 'favicon.ico',
-]);
+// P4: OBJECT_ID_PATTERN + identifier helpers live in ./listingIdNormalizer.
 
 export interface UserListing extends Ad {
     priceMin?: number | null;
@@ -80,15 +79,8 @@ export type { ListingContactNumberResponse };
 
 // --- Helpers ---
 
-export function normalizeListingIdentifier(value: string | number): string {
-    const raw = String(value).trim();
-    if (!raw) return '';
-    try {
-        return decodeURIComponent(raw).trim();
-    } catch {
-        return raw;
-    }
-}
+// P4: normalizeListingIdentifier/isValidListingIdentifier/extractId live in
+// ./listingIdNormalizer (single owner).
 
 export function normalizeListingContactNumberResponse(data: unknown): ListingContactNumberResponse | null {
     if (!data || typeof data !== 'object') return null;
@@ -111,30 +103,6 @@ export function normalizeListingContactNumberResponse(data: unknown): ListingCon
         ...(mobile ? { mobile } : {}),
         ...(masked ? { masked } : {}),
     };
-}
-
-export function isValidListingIdentifier(value: string | number): boolean {
-    const identifier = normalizeListingIdentifier(value);
-    if (!identifier || identifier.length > 200) return false;
-    if (RESERVED_LISTING_IDENTIFIERS.has(identifier.toLowerCase())) return false;
-    if (identifier.includes("/") || identifier.includes("\\")) return false;
-
-    if (OBJECT_ID_PATTERN.test(identifier)) return true;
-    if (identifier.length < 2) return false;
-    return LISTING_SLUG_PATTERN.test(identifier.toLowerCase());
-}
-
-
-
-export function extractId(value: unknown): string | undefined {
-    if (typeof value === 'string' || typeof value === 'number') {
-        return String(value);
-    }
-    if (value && typeof value === 'object') {
-        const record = value as Record<string, unknown>;
-        return String(record.id || record._id || '');
-    }
-    return undefined;
 }
 
 function normalizeImageUrl(url: string): string {
@@ -214,43 +182,7 @@ function toListingSchemaCompatible(data: unknown): unknown {
     normalizeHydratedNameField("brandName", "brand");
     normalizeHydratedNameField("modelName", "model");
 
-    if (record.location && typeof record.location === 'object' && !Array.isArray(record.location)) {
-        const loc = { ...(record.location as Record<string, unknown>) };
-        if (loc.coordinates) {
-            let coords: [number, number] | null = null;
-            if (Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
-                const lng = Number(loc.coordinates[0]);
-                const lat = Number(loc.coordinates[1]);
-                if (Number.isFinite(lng) && Number.isFinite(lat)) {
-                    coords = [lng, lat];
-                }
-            } else if (typeof loc.coordinates === 'object' && loc.coordinates !== null) {
-                const pointObj = loc.coordinates as Record<string, unknown>;
-                if (Array.isArray(pointObj.coordinates) && pointObj.coordinates.length === 2) {
-                    const lng = Number(pointObj.coordinates[0]);
-                    const lat = Number(pointObj.coordinates[1]);
-                    if (Number.isFinite(lng) && Number.isFinite(lat)) {
-                        coords = [lng, lat];
-                    }
-                }
-            }
-
-            if (
-                coords &&
-                !(coords[0] === 0 && coords[1] === 0) &&
-                coords[0] >= -180 && coords[0] <= 180 &&
-                coords[1] >= -90 && coords[1] <= 90
-            ) {
-                loc.coordinates = {
-                    type: 'Point',
-                    coordinates: coords,
-                };
-            } else {
-                delete loc.coordinates;
-            }
-        }
-        record.location = loc;
-    }
+    record.location = normalizeListingGeo(record.location);
 
     if (Array.isArray(record.sparePartsSnapshot)) {
         record.sparePartsSnapshot = record.sparePartsSnapshot
