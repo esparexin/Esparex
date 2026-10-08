@@ -123,13 +123,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         };
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    // Reuse the SSR payload as the baseline whenever we're on the first page
-    // with the default filter. The location identity check was too strict: it
-    // discarded perfectly good SSR ads just because the client resolved a
-    // slightly different location, causing a visible flash (SSR ads → loading
-    // → refetched ads). The location-specific refetch still happens in the
-    // background via requestParams; keepPreviousData in the query hook ensures
-    // the SSR ads stay visible until the new data arrives.
+    // Reuse SSR payload on initial default page; background query refetches for client location.
     const shouldUseInitialData = !cursor && selectedType === "all";
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
