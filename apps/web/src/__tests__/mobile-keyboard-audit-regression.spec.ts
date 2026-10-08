@@ -14,8 +14,12 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
     });
 
     it("ensures useVisualViewport computes --keyboard-height and sets data-keyboard-open on documentElement", () => {
-        const hookPath = path.join(webSrc, "hooks", "useVisualViewport.ts");
-        const fileContent = fs.readFileSync(hookPath, "utf-8");
+        const webHookPath = path.join(webSrc, "hooks", "useVisualViewport.ts");
+        const webFileContent = fs.readFileSync(webHookPath, "utf-8");
+        expect(webFileContent).toContain('export { useVisualViewport } from "@esparex/ui"');
+
+        const canonicalHookPath = path.join(packagesUiSrc, "hooks", "useVisualViewport.ts");
+        const fileContent = fs.readFileSync(canonicalHookPath, "utf-8");
 
         expect(fileContent).toContain("--keyboard-height");
         expect(fileContent).toContain("--visual-viewport-height");
@@ -117,7 +121,7 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         const fileContent = fs.readFileSync(sheetPath, "utf-8");
 
         expect(fileContent).toContain("onOpenAutoFocus");
-        expect(fileContent).toContain("onOpenAutoFocus={onOpenAutoFocus}");
+        expect(fileContent).toContain("handleOpenAutoFocus(e, onOpenAutoFocus)");
     });
 
     it("ensures duration token exists in design-tokens", () => {

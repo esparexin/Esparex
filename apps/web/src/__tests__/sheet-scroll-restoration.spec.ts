@@ -36,7 +36,8 @@ describe("Sheet Scroll Restoration Regression Suite", () => {
         const fileContent = fs.readFileSync(authModalPath, "utf-8");
 
         // Full-viewport opaque surface covers 100% of mobile screen preventing background bleed.
-        expect(fileContent).toContain("top-0 bottom-0 left-0 right-0 h-full max-h-none");
+        expect(fileContent).toContain("left-0 right-0 w-full max-w-none border-none rounded-none bg-card");
+        expect(fileContent).toContain("h-[var(--visual-viewport-height,100dvh)]");
         // Desktop retains centered max-w-sm card contract.
         expect(fileContent).toContain("sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm");
         // Inner container compensates for mobile safe-area without duplicate keyboard compensators.
