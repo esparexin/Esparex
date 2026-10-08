@@ -53,7 +53,7 @@ export function AdminActionMenu({
                             onClick={item.onClick}
                             disabled={item.disabled}
                             variant={item.variant === "danger" ? "destructive" : "default"}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium cursor-pointer rounded-lg"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-caption font-medium cursor-pointer rounded-lg"
                         >
                             {Icon && <Icon size={14} className="shrink-0" />}
                             <span>{item.label}</span>

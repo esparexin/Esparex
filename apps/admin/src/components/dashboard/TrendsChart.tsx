@@ -37,7 +37,7 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
     return (
         <div className="bg-card p-4 rounded-lg border border-border shadow-xs">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-foreground leading-none">{title}</h3>
+                <h3 className="text-body-lg font-bold text-foreground leading-none">{title}</h3>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5">
                         <div className="w-2.5 h-2.5 bg-primary rounded-full" />

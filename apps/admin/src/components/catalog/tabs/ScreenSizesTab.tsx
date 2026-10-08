@@ -194,7 +194,7 @@ export default function ScreenSizesTab() {
                                     required
                                     type="number"
                                     min={1}
-                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={formData.value}
                                     onChange={(e) => setFormData((prev) => ({ ...prev, value: Number(e.target.value) }))}
                                 />

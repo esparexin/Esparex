@@ -108,7 +108,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <DialogTitle className="text-xl font-bold text-foreground leading-tight">{business.name}</DialogTitle>
+                                <DialogTitle className="text-h3 font-bold text-foreground leading-tight">{business.name}</DialogTitle>
                                 {trustScore < 30 && (
                                     <span className="px-2 py-0.5 rounded-full bg-destructive/10 text-destructive text-tiny font-bold uppercase border border-destructive/20 shrink-0">Low Trust</span>
                                 )}

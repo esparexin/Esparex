@@ -143,7 +143,7 @@ function LocationAnalyticsPageContent({
                         <input
                             type="text"
                             placeholder="Filter by city..."
-                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={cityInput}
                             onChange={(e) => setCityInput(e.target.value)}
                         />
@@ -151,12 +151,12 @@ function LocationAnalyticsPageContent({
                     <input
                         type="text"
                         placeholder="Filter by district..."
-                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={districtInput}
                         onChange={(e) => setDistrictInput(e.target.value)}
                     />
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialState}
                         onChange={(e) => replaceQueryState({ state: e.target.value || null })}
                     >
@@ -168,7 +168,7 @@ function LocationAnalyticsPageContent({
                         ))}
                     </select>
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialCountry}
                         onChange={(e) => replaceQueryState({ country: e.target.value || null })}
                     >

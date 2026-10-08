@@ -42,7 +42,7 @@ export function DashboardCard({
                 <div className="min-w-0 flex-1">
                     <p className="text-tiny font-bold text-foreground-tertiary uppercase tracking-wider truncate mb-0.5">{title}</p>
                     <div className="flex items-baseline gap-1.5">
-                        <span className="text-base font-bold text-foreground tracking-tight">{value}</span>
+                        <span className="text-body-lg font-bold text-foreground tracking-tight">{value}</span>
                         {description && (
                             <span className="text-tiny text-foreground-subtle font-medium italic truncate">{description}</span>
                         )}

@@ -20,10 +20,10 @@ export default function Error({
             <div className="max-w-md w-full text-center">
                 <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
                     <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
-                        <span className="text-3xl">⚠️</span>
+                        <span className="text-display">⚠️</span>
                     </div>
                     <p className="text-caption font-bold uppercase tracking-widest text-destructive mb-2">Error</p>
-                    <h1 className="text-2xl font-bold text-foreground mb-3">Something went wrong</h1>
+                    <h1 className="text-h2 font-bold text-foreground mb-3">Something went wrong</h1>
                     <p className="text-foreground-tertiary text-body mb-8">
                         An unexpected error occurred in the Esparex Admin Console.
                         {error.digest && (

@@ -110,7 +110,7 @@ export default function BusinessPlansPage() {
             header: "Pricing & Duration",
             cell: (plan: Plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-foreground-secondary">
+                    <span className="font-bold text-body text-foreground-secondary">
                         {plan.price === 0 ? "Free / Included" : `${plan.currency} ${plan.price}`}
                     </span>
                     <span className="text-tiny text-foreground-subtle font-medium">
@@ -136,7 +136,7 @@ export default function BusinessPlansPage() {
         {
             header: "Posting Quotas",
             cell: (plan: Plan) => (
-                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     <div>Ads: <span className="font-medium text-foreground">{plan.limits?.maxAds ?? "Configurable"}</span></div>
                     <div>Services: <span className="font-medium text-foreground">{plan.limits?.maxServices ?? "Configurable"}</span></div>
                     <div>Spare Parts: <span className="font-medium text-foreground">{plan.limits?.maxParts ?? "Configurable"}</span></div>

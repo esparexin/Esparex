@@ -170,7 +170,7 @@ export default function BusinessesView() {
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
-                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
+                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
                         <div className="flex items-center gap-2">
                             {[
                                 { key: "expiringIn3Days", raw: rawExpiringIn3Days, label: "Expiring (3d)", c1: "rose" },

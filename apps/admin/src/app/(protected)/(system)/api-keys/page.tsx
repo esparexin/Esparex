@@ -111,14 +111,14 @@ export default function ApiKeysPage() {
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
                         <input
-                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="rounded-lg border border-input bg-background text-body-lg md:text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Internal integrations"
                             value={name}
                             disabled={isMutating}
                             onChange={(event) => setName(event.target.value)}
                         />
                         <input
-                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="rounded-lg border border-input bg-background text-body-lg md:text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Scope list, comma separated"
                             value={scopes}
                             disabled={isMutating}

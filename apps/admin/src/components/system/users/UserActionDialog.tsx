@@ -129,7 +129,7 @@ export function UserActionDialog({
                             <Icon size={20} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-foreground">
+                            <DialogTitle className="text-body-lg font-bold text-foreground">
                                 {presentation.title}
                             </DialogTitle>
                             <DialogDescription className="mt-0.5 text-caption text-foreground-secondary">
@@ -153,7 +153,7 @@ export function UserActionDialog({
                                 Reason for Action <span className="text-destructive">*</span>
                             </label>
                             <textarea
-                                className="min-h-[100px] w-full rounded-lg border border-input bg-background p-3 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                className="min-h-[100px] w-full rounded-lg border border-input bg-background p-3 text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                 placeholder="Explain why this account is being actioned to maintain the audit log..."
                                 value={reason}
                                 onChange={(event) => setReason(event.target.value)}

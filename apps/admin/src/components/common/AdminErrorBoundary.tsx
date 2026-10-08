@@ -34,7 +34,7 @@ export class AdminErrorBoundary extends Component<Props, State> {
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                         <AlertTriangle size={24} />
                     </div>
-                    <h3 className="mb-2 text-lg font-semibold text-foreground">
+                    <h3 className="mb-2 text-h4 font-semibold text-foreground">
                         {this.props.fallbackLabel || "Component Rendering Failed"}
                     </h3>
                     <p className="max-w-md text-body text-foreground-secondary">

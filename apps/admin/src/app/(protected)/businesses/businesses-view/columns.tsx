@@ -55,7 +55,8 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
                 return (
                     <div className="flex flex-col gap-1.5 w-16 group cursor-default">
                         <div className="flex items-center justify-between">
-                            <div className="text-tiny font-black tracking-tighter tabular-nums" style={{ color }}>{score}%</div>
+                            {/* design-token-ignore: dynamic trust score hue color calculation */}
+                            <div className="text-tiny font-bold tracking-tighter tabular-nums" style={{ color }}>{score}%</div>
                             {score > 85 && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_4px_theme(colors.emerald.400)]" />}
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden border border-border/50 shadow-inner">
@@ -66,7 +67,7 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
             },
         },
         { header: "Category", cell: (biz) => <BusinessTypesCell businessTypes={biz.businessTypes} /> },
-        { header: "Location", cell: (biz) => <div className="flex items-center gap-1.5 text-xs text-foreground-secondary"><MapPin size={12} className="text-foreground-subtle shrink-0" /><span className="truncate max-w-[110px]">{biz.location?.city || "—"}</span></div> },
+        { header: "Location", cell: (biz) => <div className="flex items-center gap-1.5 text-caption text-foreground-secondary"><MapPin size={12} className="text-foreground-subtle shrink-0" /><span className="truncate max-w-[110px]">{biz.location?.city || "—"}</span></div> },
         { header: "Active Since", cell: (biz) => <div className="space-y-0.5"><div className="text-caption text-foreground-secondary font-medium">{biz.approvedAt ? formatAppDate(new Date(biz.approvedAt)) : "N/A"}</div>{biz.expiresAt && <div className="text-tiny text-foreground-subtle italic">Exp {formatAppDate(new Date(biz.expiresAt))}</div>}</div> },
         createBusinessStatusColumn(true),
         createBusinessActionsColumn({

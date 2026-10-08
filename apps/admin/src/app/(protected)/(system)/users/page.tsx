@@ -275,7 +275,7 @@ export default function UsersPage() {
                         extraFilters={
                             <>
                                 <select
-                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={roleFilter}
                                     onChange={(event) => {
                                         const nextRole = event.target.value;
@@ -295,7 +295,7 @@ export default function UsersPage() {
                                     <option value="business">Businesses</option>
                                 </select>
                                 <select
-                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={verifiedFilter}
                                     onChange={(event) => {
                                         const nextVerified = event.target.value as "all" | "true" | "false";

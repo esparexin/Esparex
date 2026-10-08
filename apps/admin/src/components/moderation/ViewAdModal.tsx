@@ -82,7 +82,7 @@ export function ViewAdModal({
                 <div className="flex items-center justify-between shrink-0 border-b border-border px-6 py-4">
                     <div>
                         <p className="text-tiny font-semibold uppercase tracking-widest text-foreground-subtle">Moderation</p>
-                        <DialogTitle className="text-lg font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
+                        <DialogTitle className="text-h4 font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
                     </div>
                     <button
                         type="button"
@@ -171,7 +171,7 @@ export function ViewAdModal({
                                             </span>
                                         );
                                     })()}
-                                    <div className="text-2xl font-bold text-foreground">
+                                    <div className="text-h2 font-bold text-foreground">
                                         {getListingPriceSummary(ad)}
                                     </div>
                                     <div className="text-caption text-foreground-secondary">{formatAppDateTime(ad.createdAt)}</div>
@@ -247,7 +247,7 @@ export function ViewAdModal({
                             <div className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
                                 <div className="min-w-0 space-y-2">
                                     <h3 className="text-body font-semibold text-foreground">{presentation.informationHeader}</h3>
-                                    <div className="truncate text-lg font-semibold text-foreground" title={ad.title}>{ad.title}</div>
+                                    <div className="truncate text-h4 font-semibold text-foreground" title={ad.title}>{ad.title}</div>
                                     <p className="text-body text-foreground-secondary whitespace-pre-wrap">{ad.description || "No description"}</p>
                                     {effectiveListingType === "service" && (<>
                                         {typeof ad.diagnosticFee === "number" && (

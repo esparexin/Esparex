@@ -293,7 +293,7 @@ export default function PlansPage() {
                                 <Filter className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                                 <select
                                     aria-label="Filter by plan type"
-                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={typeFilter}
                                     onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
                                 >

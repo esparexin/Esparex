@@ -167,7 +167,7 @@ export default function DashboardPage() {
           </div>
         ) : null
       }
-      className="h-full overflow-y-auto px-4 lg:px-6 py-4"
+      className="h-full overflow-y-auto pb-4"
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left Main Column: Metrics, Queues & Charts */}
