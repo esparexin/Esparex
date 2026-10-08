@@ -164,8 +164,9 @@ export const expireOutdatedAds = async (): Promise<number> => {
 
 export const expireBoosts = async (): Promise<number> => {
     const now = new Date();
+    // P5: never resurrect spotlight badges on soft-deleted ads.
     const count = await getListingRepository().updateMany(
-        { isSpotlight: true, spotlightExpiresAt: { $lt: now } },
+        { isSpotlight: true, spotlightExpiresAt: { $lt: now }, isDeleted: { $ne: true } },
         { isSpotlight: false, spotlightExpiresAt: null }
     );
 
