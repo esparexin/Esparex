@@ -44,7 +44,7 @@ const otpGuardState: {
  * @throws {Error} If critical OTP requirements not met in production
  */
 export function validateOtpConfiguration(config: OtpGuardConfig): void {
-    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
+    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId: _msg91SenderId, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
 
     otpGuardState.warnings = [];
 
@@ -56,9 +56,16 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         return;
     }
 
-    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS/WhatsApp provider validation
+    // Production must strictly use OTP_PROVIDER=msg91 — fail closed
+    if (isProduction && otpProvider !== OtpProvider.MSG91) {
+        throw new Error(
+            `OTP provider "${otpProvider}" is prohibited in production. OTP_PROVIDER must be explicitly configured as "msg91".`
+        );
+    }
+
+    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS/WhatsApp provider validation (dev only)
     if (otpProvider === OtpProvider.TEST) {
-        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+        if (!msg91AuthKey || !msg91WidgetId) {
             const warning = 'MSG91 provider not configured; testing OTP (123456) will be used';
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);
@@ -78,7 +85,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         if (!msg91AuthKey) {
             missingKeys.push('MSG91_AUTH_KEY');
         }
-        if (!msg91WidgetId && !msg91SenderId) {
+        if (!msg91WidgetId) {
             missingKeys.push('MSG91_WIDGET_ID');
         }
 
@@ -107,7 +114,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
 
     // Development environment with a real provider: warn but allow
     if (isDevelopment) {
-        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+        if (!msg91AuthKey || !msg91WidgetId) {
             const warning = `OTP provider "${otpProvider}" not fully configured; WhatsApp dispatch will use mock in dev mode`;
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);

@@ -27,6 +27,36 @@ describe('otpGuard production fail-fast', () => {
         ).toThrow(/MSG91_WIDGET_ID/);
     });
 
+    it('throws when MSG91_SENDER_ID is provided but MSG91_WIDGET_ID is missing in production', () => {
+        expect(() =>
+            validateOtpConfiguration({
+                isProduction: true,
+                isDevelopment: false,
+                isTest: false,
+                msg91AuthKey: 'test-auth-key',
+                msg91SenderId: 'ESPRX',
+                msg91WidgetId: undefined,
+                authBypassOtpLock: undefined,
+                otpProvider: OtpProvider.MSG91,
+            })
+        ).toThrow(/MSG91_WIDGET_ID/);
+    });
+
+    it('throws at startup when OTP_PROVIDER=test is attempted in production (fail closed)', () => {
+        expect(() =>
+            validateOtpConfiguration({
+                isProduction: true,
+                isDevelopment: false,
+                isTest: false,
+                msg91AuthKey: undefined,
+                msg91SenderId: undefined,
+                msg91WidgetId: undefined,
+                authBypassOtpLock: undefined,
+                otpProvider: OtpProvider.TEST,
+            })
+        ).toThrow(/prohibited in production/);
+    });
+
     it('boots cleanly when widget credentials are present in production', () => {
         expect(() =>
             validateOtpConfiguration({
@@ -44,11 +74,11 @@ describe('otpGuard production fail-fast', () => {
         expect(otpHealthCheck().status).toBe('healthy');
     });
 
-    it('keeps OTP_PROVIDER=test bootable in production (static OTP mode)', () => {
+    it('allows OTP_PROVIDER=test in development', () => {
         expect(() =>
             validateOtpConfiguration({
-                isProduction: true,
-                isDevelopment: false,
+                isProduction: false,
+                isDevelopment: true,
                 isTest: false,
                 msg91AuthKey: undefined,
                 msg91SenderId: undefined,

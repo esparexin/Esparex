@@ -30,20 +30,30 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
  * @desc    Verify OTP and get token
  * @access  Public
  */
-router.post('/verify-otp', otpConfigurationCheck, (req, res, next) => {
-    const otpBody = req.body as { mobile?: unknown; otp?: unknown; name?: unknown };
-    const mobile = typeof otpBody.mobile === 'string'
-        ? otpBody.mobile.replace(/\D/g, '').slice(-4)
-        : undefined;
-    const otpLength = typeof otpBody.otp === 'string' ? otpBody.otp.length : undefined;
+router.post(
+    '/verify-otp',
+    otpConfigurationCheck,
+    validateRequest(verifyOtpSchema),
+    otpIpLimiter,
+    otpVerifyLimiter,
+    (req, res, next) => {
+        const otpBody = req.body as { mobile?: unknown; otp?: unknown; name?: unknown };
+        const mobile = typeof otpBody.mobile === 'string'
+            ? otpBody.mobile.replace(/\D/g, '').slice(-4)
+            : undefined;
+        const otpLength = typeof otpBody.otp === 'string' ? otpBody.otp.length : undefined;
 
-    logger.info('[AUTH] VERIFY OTP REQUEST', {
-        mobile,
-        otpLength,
-        hasName: typeof otpBody.name === 'string' && otpBody.name.trim().length > 0
-    });
-    next();
-}, otpVerifyLimiter, validateRequest(verifyOtpSchema), fraudMiddleware, idempotencyMiddleware, (req, res, next) => AuthController.verify(req, res, next));
+        logger.info('[AUTH] VERIFY OTP REQUEST', {
+            mobile,
+            otpLength,
+            hasName: typeof otpBody.name === 'string' && otpBody.name.trim().length > 0
+        });
+        next();
+    },
+    fraudMiddleware,
+    idempotencyMiddleware,
+    (req, res, next) => AuthController.verify(req, res, next)
+);
 
 /**
  * @route   POST /api/v1/auth/cancel-otp
