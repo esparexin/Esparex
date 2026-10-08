@@ -19,7 +19,6 @@ describe('otpGuard production fail-fast', () => {
                 isDevelopment: false,
                 isTest: false,
                 msg91AuthKey: undefined,
-                msg91SenderId: undefined,
                 msg91WidgetId: undefined,
                 authBypassOtpLock: undefined,
                 otpProvider: OtpProvider.MSG91,
@@ -27,14 +26,13 @@ describe('otpGuard production fail-fast', () => {
         ).toThrow(/MSG91_WIDGET_ID/);
     });
 
-    it('throws when MSG91_SENDER_ID is provided but MSG91_WIDGET_ID is missing in production', () => {
+    it('throws when MSG91_AUTH_KEY is provided but MSG91_WIDGET_ID is missing in production', () => {
         expect(() =>
             validateOtpConfiguration({
                 isProduction: true,
                 isDevelopment: false,
                 isTest: false,
                 msg91AuthKey: 'test-auth-key',
-                msg91SenderId: 'ESPRX',
                 msg91WidgetId: undefined,
                 authBypassOtpLock: undefined,
                 otpProvider: OtpProvider.MSG91,
@@ -49,7 +47,6 @@ describe('otpGuard production fail-fast', () => {
                 isDevelopment: false,
                 isTest: false,
                 msg91AuthKey: undefined,
-                msg91SenderId: undefined,
                 msg91WidgetId: undefined,
                 authBypassOtpLock: undefined,
                 otpProvider: OtpProvider.TEST,
@@ -64,7 +61,6 @@ describe('otpGuard production fail-fast', () => {
                 isDevelopment: false,
                 isTest: false,
                 msg91AuthKey: 'test-auth-key',
-                msg91SenderId: undefined,
                 msg91WidgetId: 'test-widget-id',
                 authBypassOtpLock: undefined,
                 otpProvider: OtpProvider.MSG91,
@@ -81,7 +77,6 @@ describe('otpGuard production fail-fast', () => {
                 isDevelopment: true,
                 isTest: false,
                 msg91AuthKey: undefined,
-                msg91SenderId: undefined,
                 msg91WidgetId: undefined,
                 authBypassOtpLock: undefined,
                 otpProvider: OtpProvider.TEST,

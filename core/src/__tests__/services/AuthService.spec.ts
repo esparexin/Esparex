@@ -36,34 +36,11 @@ jest.mock('../../models/User', () => ({
 
 jest.mock('../../models/Otp', () => ({
     __esModule: true,
-    default: {
-        findOne: jest.fn(),
-        create: jest.fn(),
-        deleteMany: jest.fn(),
-        deleteOne: jest.fn(),
-    }
+    default: { findOne: jest.fn(), create: jest.fn(), deleteMany: jest.fn(), deleteOne: jest.fn() }
 }));
-
-jest.mock('../../models/Plan', () => ({
-    __esModule: true,
-    default: {
-        findOne: jest.fn(),
-    }
-}));
-
-jest.mock('../../models/UserPlan', () => ({
-    __esModule: true,
-    default: {
-        findOneAndUpdate: jest.fn(),
-    }
-}));
-
-jest.mock('../../models/Business', () => ({
-    __esModule: true,
-    default: {
-        findOne: jest.fn(),
-    }
-}));
+jest.mock('../../models/Plan', () => ({ __esModule: true, default: { findOne: jest.fn() } }));
+jest.mock('../../models/UserPlan', () => ({ __esModule: true, default: { findOneAndUpdate: jest.fn() } }));
+jest.mock('../../models/Business', () => ({ __esModule: true, default: { findOne: jest.fn() } }));
 
 jest.mock('../../domains/identity/application/auth/auth', () => ({
     generateToken: jest.fn().mockReturnValue('mock-jwt-token'),
@@ -162,9 +139,28 @@ describe('AuthService', () => {
             }
             expect(mockOtpModel.create).toHaveBeenCalledWith(expect.objectContaining({
                 mobile: CANONICAL_MOBILE,
-                otpHash: 'hashed-123456'
+                reqId: 'dev-mock-req-id',
+                channel: 'whatsapp'
             }));
-            // In test env, dispatchOtpSms is mocked or early returns
+        });
+
+        it('should generate and hash OTP locally when provider is test', async () => {
+            const originalProvider = env.OTP_PROVIDER;
+            (env as any).OTP_PROVIDER = OtpProvider.TEST;
+            try {
+                mockUserModel.findOne.mockResolvedValue(mockUser);
+                mockOtpModel.findOne.mockReturnValue({
+                    sort: jest.fn().mockResolvedValue(null)
+                });
+                const result = await AuthService.sendLoginOtp(MOBILE);
+                expect(result.success).toBe(true);
+                expect(mockOtpModel.create).toHaveBeenCalledWith(expect.objectContaining({
+                    mobile: CANONICAL_MOBILE,
+                    otpHash: 'hashed-123456'
+                }));
+            } finally {
+                (env as any).OTP_PROVIDER = originalProvider;
+            }
         });
 
         it('should identify a new user', async () => {

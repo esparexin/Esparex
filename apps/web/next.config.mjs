@@ -120,7 +120,6 @@ const connectSrc = [
     'https://maps.googleapis.com',
     'https://maps.gstatic.com',
     'https://nominatim.openstreetmap.org',
-    'https://control.msg91.com',
     'https://images.unsplash.com',
     'https://ipapi.co',
     'https://ipinfo.io',

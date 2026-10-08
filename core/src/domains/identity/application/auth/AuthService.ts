@@ -133,6 +133,8 @@ export class AuthService {
         const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
         let reqId: string | undefined;
 
+        let otpHash: string | undefined;
+
         if (env.OTP_PROVIDER === OtpProvider.MSG91) {
             const dispatchResult = await dispatchOtpWhatsApp(canonicalMobile);
             if (!dispatchResult.success) {
@@ -142,10 +144,10 @@ export class AuthService {
                 });
             }
             reqId = dispatchResult.reqId;
+        } else {
+            const otpValue = generateSecureOtp();
+            otpHash = hashOtp(otpValue);
         }
-
-        const otpValue = generateSecureOtp();
-        const otpHash = hashOtp(otpValue);
 
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         await Otp.create({

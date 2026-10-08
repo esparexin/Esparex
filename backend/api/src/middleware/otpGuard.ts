@@ -17,7 +17,6 @@ interface OtpGuardConfig {
     isDevelopment: boolean;
     isTest: boolean;
     msg91AuthKey?: string;
-    msg91SenderId?: string;
     msg91WidgetId?: string;
     authBypassOtpLock?: string;
     otpProvider: OtpProvider;
@@ -44,7 +43,7 @@ const otpGuardState: {
  * @throws {Error} If critical OTP requirements not met in production
  */
 export function validateOtpConfiguration(config: OtpGuardConfig): void {
-    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId: _msg91SenderId, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
+    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
 
     otpGuardState.warnings = [];
 
