@@ -33,7 +33,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
-        side="bottom"
+        side="none"
         hideClose
         onOpenAutoFocus={(e) => {
           e.preventDefault();
@@ -48,11 +48,10 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           // F-V2: height uses the visual-viewport var (keyboard-aware) instead of
           // overriding bottom/max-height, which broke the Sheet primitive's
           // keyboard elevation (keyboard covered OTP inputs on iOS).
-          "left-0 right-0 w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
+          "top-0 left-0 right-0 w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden",
           "h-[var(--visual-viewport-height,100dvh)]",
           "p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-0",
-          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(var(--visual-viewport-height,100dvh)-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl",
-          "sm:animate-none sm:transition-none sm:transform-none sm:overflow-hidden"
+          "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(var(--visual-viewport-height,100dvh)-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl"
         )}
       >
         <SheetTitle className="sr-only">Authentication</SheetTitle>
