@@ -1,6 +1,8 @@
 import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 import { sanitizeLocationLabel } from "@esparex/shared";
 import { parseBrowseTokenList, serializeBrowseTokenList } from "@/lib/browse/browseFilterNormalization";
+// P7: single ObjectId pattern owner (was local duplicate).
+import { OBJECT_ID_PATTERN } from "./api/user/listings/listingIdNormalizer";
 
 export type PublicBrowseType = "all" | ListingTypeValue;
 
@@ -47,7 +49,6 @@ type SearchParamsRecord = Record<string, string | string[] | undefined>;
 const PUBLIC_BROWSE_PATH = "/search";
 const PUBLIC_BROWSE_TYPES = new Set<PublicBrowseType>(["all", LISTING_TYPE.AD, LISTING_TYPE.SERVICE, LISTING_TYPE.SPARE_PART]);
 const PUBLIC_SORTS = new Set(["relevance", "newest", "price_low_high", "price_high_low"]);
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 const readString = (value: unknown): string | undefined => {
     if (typeof value !== "string") {

@@ -1,7 +1,7 @@
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../composition/listings';
 import { ListingTypeValue } from '@esparex/contracts';
 import { AdContext } from '../../../../types/ad.types';
-import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
+import { mutateStatus } from '../lifecycle/StatusMutationService';
 
 // Leaf Services
 import { updateAdLogic } from '../ad/AdUpdateService';

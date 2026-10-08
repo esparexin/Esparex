@@ -89,7 +89,7 @@ jest.mock('../../utils/s3', () => ({
     sanitizeStoredImageUrls: jest.fn((urls) => urls),
 }));
 
-jest.mock('../../services/lifecycle/AdStatusService', () => ({
+jest.mock('../../domains/listings/application/lifecycle/AdStatusService', () => ({
     computeActiveExpiry: jest.fn().mockResolvedValue(new Date(Date.now() + 30 * 86400000)),
 }));
 

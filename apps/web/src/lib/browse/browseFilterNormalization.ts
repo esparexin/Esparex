@@ -1,7 +1,7 @@
 import type { Category } from "@/lib/api/user/categories";
 import { CatalogFacade } from "@esparex/shared";
-
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+// P7: single ObjectId pattern owner (was local duplicate).
+import { OBJECT_ID_PATTERN } from "../api/user/listings/listingIdNormalizer";
 
 export type BrowseBrandOption = {
     value: string;

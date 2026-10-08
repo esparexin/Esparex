@@ -16,7 +16,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { connectDB, closeDB } from '../core/src/config/db';
-import { ListingExpiryService } from '../core/src/services/lifecycle/ListingExpiryService';
+import { ListingExpiryService } from '../core/src/domains/listings/application/lifecycle/ListingExpiryService';
 import { getListingRepository } from '../core/src/composition/listings';
 import { client as redisClient } from '../core/src/utils/redisCache';
 

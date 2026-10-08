@@ -1,6 +1,8 @@
 import { apiClient, type EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
 import { API_ROUTES } from '@esparex/shared';
+// P7: single asOptionalString owner (was local duplicate with identical semantics).
+import { asOptionalString } from '@esparex/shared';
 import type { GeoJSONPoint } from '@/types/location';
 import {
     normalizeBusinessStatus,
@@ -50,11 +52,7 @@ import { fetchUserApiJson, type ServerFetchOptions } from './server';
 
 // ...
 
-const asOptionalString = (value: unknown): string | undefined => {
-    if (typeof value !== "string") return undefined;
-    const normalized = value.trim();
-    return normalized.length > 0 ? normalized : undefined;
-};
+// P7: asOptionalString imported from @esparex/shared (single owner).
 
 const joinLocationParts = (...parts: unknown[]): string | undefined => {
     const normalizedParts = parts
