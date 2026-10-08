@@ -47,8 +47,8 @@ export function EmptyState({
       <h3
         className={cn(
           isSimple
-            ? "text-body-lg sm:text-h4 font-semibold text-foreground tracking-tight"
-            : "text-body-lg font-bold text-foreground md:text-h4"
+            ? "text-body-lg font-semibold text-foreground tracking-tight"
+            : "text-body-lg font-bold text-foreground tracking-tight"
         )}
       >
         {title}
@@ -57,7 +57,7 @@ export function EmptyState({
         <p
           className={cn(
             isSimple
-              ? "mt-1 max-w-sm text-caption sm:text-small text-muted-foreground leading-normal"
+              ? "mt-1 max-w-sm text-caption text-muted-foreground leading-normal"
               : "mt-1.5 max-w-sm text-caption text-muted-foreground leading-relaxed"
           )}
         >
