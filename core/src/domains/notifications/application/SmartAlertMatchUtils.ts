@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import type { Types } from 'mongoose';
 import { toObjectId } from '../../../utils/idUtils';
 
 // ─── Smart-alert match utils (P3 extract-before-split from SmartAlertService) ─

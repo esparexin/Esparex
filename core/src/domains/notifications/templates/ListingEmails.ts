@@ -1,6 +1,6 @@
 // --- ListingEmails (P3 extract-before-split from EmailLayout) ---
 // Marketplace listing lifecycle emails. Single owner per group.
-import { escapeHtml, renderEmailLayout } from './EmailLayout';
+import { escapeHtml, renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Seller Listing Approved Email

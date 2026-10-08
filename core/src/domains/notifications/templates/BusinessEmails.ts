@@ -1,6 +1,6 @@
 // --- BusinessEmails (P3 extract-before-split from EmailLayout) ---
 // Business lifecycle emails. Single owner per group.
-import { escapeHtml, renderEmailLayout } from './EmailLayout';
+import { escapeHtml, renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Business Plan Expiry Alert Email

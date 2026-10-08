@@ -1,6 +1,6 @@
 // --- AuthEmails (P3 extract-before-split from EmailLayout) ---
 // Authentication emails (password reset). Single owner per group.
-import { renderEmailLayout } from './EmailLayout';
+import { renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Admin Password Reset Email

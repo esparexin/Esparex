@@ -1,6 +1,6 @@
 // --- CommerceEmails (P3 extract-before-split from EmailLayout) ---
 // Commerce emails (purchase confirmation, invoice). Single owner per group.
-import { escapeHtml, renderEmailLayout } from './EmailLayout';
+import { escapeHtml, renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Purchase Confirmation Email

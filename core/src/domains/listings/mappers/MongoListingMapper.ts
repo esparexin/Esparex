@@ -1,6 +1,7 @@
-import type { Listing } from '../../../../domains/listings';
+import type { Listing } from '..';
 
-// ─── Listing mapper (P3 extract-before-split from MongoListingRepositoryAdapter) ─
+// ─── Listing mapper (P3 extract-before-split from MongoListingRepositoryAdapter,
+// P8 moved to domains/listings/mappers per mapper-ownership + adapter naming rule) ─
 // Mappers own DTO/domain transformations; repositories never map (AGENTS.md).
 
 export type DbListing = {

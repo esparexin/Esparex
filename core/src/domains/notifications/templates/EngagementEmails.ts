@@ -1,6 +1,6 @@
 // --- EngagementEmails (P3 extract-before-split from EmailLayout) ---
 // Engagement emails (contact inquiry, notification). Single owner per group.
-import { escapeHtml, renderEmailLayout } from './EmailLayout';
+import { escapeHtml, renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Contact Inquiry / Grievance Notification Email

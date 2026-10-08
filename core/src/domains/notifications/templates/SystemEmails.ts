@@ -1,6 +1,6 @@
 // --- SystemEmails (P3 extract-before-split from EmailLayout) ---
 // Ops/system alert emails. Single owner per group.
-import { escapeHtml, renderEmailLayout } from './EmailLayout';
+import { escapeHtml, renderEmailLayout } from './EmailLayoutBase';
 
 /**
  * Reliability / Ops System Alert Email

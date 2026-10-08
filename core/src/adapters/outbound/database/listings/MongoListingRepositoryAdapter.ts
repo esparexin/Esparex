@@ -13,7 +13,7 @@ import {
     type DbListing,
     PUBLIC_LISTING_PROJECTION,
     toDomain,
-} from './MongoListingMapper';
+} from '../../../../domains/listings/mappers/MongoListingMapper';
 
 // ─── Filter builder ─────────────────────────────────────────────────────────
 
