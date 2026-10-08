@@ -45,11 +45,12 @@
 | `ADMIN_SESSION_TTL_MS` | No | — | all | Render | No | Admin session TTL |
 | `AUTH_LOCAL_RELAXED` | No | `false` | dev only | local | No | Relaxed auth in dev (blocked in prod) |
 | `ALLOW_DEFAULT_ADMIN_SEED` | No | `false` | dev only | local | No | Seed default admin (blocked in prod) |
+| `OTP_PROVIDER` | Yes (prod) | `test` (dev) | all | Render | No | OTP provider (`msg91` required in prod) |
 | `OTP_HASH_SECRET` | No | — | prod | Render | Yes | OTP hashing secret |
-| `HMAC_SECRET` | No | (dev fallback) | all | all | Yes | OTP HMAC signing key |
-| `MSG91_AUTH_KEY` | No | — | prod | Render | Yes | MSG91 SMS API key |
-| `MSG91_SENDER_ID` | No | — | prod | Render | No | SMS sender ID |
-| `MSG91_TEMPLATE_ID` | No | — | prod | Render | No | SMS template ID |
+| `HMAC_SECRET` | No | (dev fallback) | all | all | Yes | AI encryption secret key |
+| `MSG91_AUTH_KEY` | Yes (prod) | — | prod | Render | Yes | MSG91 API auth key |
+| `MSG91_WIDGET_ID` | Yes (prod) | — | prod | Render | No | MSG91 OTP Widget ID |
+| `MSG91_TOKEN_AUTH` | No | — | prod | Render | Yes | MSG91 OTP Widget token auth |
 | `AUTH_BYPASS_OTP_LOCK` | No | — | dev only | local | No | Disable OTP brute-force lock (blocked in prod) |
 | `USE_DEFAULT_OTP` | No | `false` | dev only | local | No | Use static OTP (blocked in prod) |
 | `DEV_STATIC_OTP` | No | `123456` | dev only | local | No | Static OTP value for dev |
@@ -251,7 +252,7 @@ Admin: copy `apps/admin/.env.local.example` → `apps/admin/.env.local`
 3. **`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`** — S3 bucket access.
 4. **`RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET`** — Payment processing.
 5. **`FIREBASE_SERVICE_ACCOUNT_JSON`** — Full Firebase Admin access.
-6. **`HMAC_SECRET`** — OTP signing (has insecure dev fallback).
+6. **`HMAC_SECRET`** — AI secret encryption key (has insecure dev fallback).
 7. **`OTP_HASH_SECRET`** — OTP hashing.
 
 ### NEXT_PUBLIC_* Exposure

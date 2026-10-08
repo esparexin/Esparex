@@ -33,7 +33,6 @@ jest.mock('../../config/env', () => ({
         MSG91_AUTH_KEY: 'test-msg91-auth-key',
         MSG91_WIDGET_ID: 'test-widget-id-3461',
         MSG91_TOKEN_AUTH: 'test-widget-client-token',
-        MSG91_OTP_CHANNEL: 'whatsapp',
         USE_DEFAULT_OTP: false,
         DEV_STATIC_OTP: '123456',
         AUTH_BYPASS_OTP_LOCK: 'false',
@@ -108,7 +107,6 @@ jest.mock('../../utils/securityMonitoring', () => ({
 }));
 
 import { AuthService } from '../../domains/identity/application/auth/AuthService';
-import { dispatchOtpSms } from '../../domains/identity/application/auth/authSmsDispatcher';
 import User from '../../models/User';
 import Otp from '../../models/Otp';
 import { Role, USER_STATUS } from '@esparex/contracts';
@@ -495,10 +493,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
     });
 
     describe('6. Guarantee: NO SMS API Called Anywhere', () => {
-        it('should verify dispatchOtpSms throws error and never calls any SMS endpoint', async () => {
-            await expect(dispatchOtpSms()).rejects.toThrow(/SMS OTP is disabled in this phase/i);
-
-            // Verify no call to the old SMS endpoint
+        it('should verify no call to the old SMS endpoint was made anywhere in the flow', () => {
             const allAxiosCalls = mockAxios.post.mock.calls;
             for (const [url] of allAxiosCalls) {
                 expect(url).not.toBe('https://api.msg91.com/api/v5/otp');

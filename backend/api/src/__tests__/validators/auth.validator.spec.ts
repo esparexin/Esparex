@@ -1,4 +1,11 @@
 import { verifyOtpSchema, loginSchema } from '@esparex/core';
+import {
+    OTP_TIMING,
+    OTP_EXPIRY_SECONDS,
+    OTP_RESEND_COOLDOWN_SECONDS,
+    OTP_MAX_RESEND_ATTEMPTS,
+    OTP_MAX_ATTEMPTS,
+} from '@esparex/contracts';
 
 describe('Auth Validation Schemas', () => {
     
@@ -74,6 +81,20 @@ describe('Auth Validation Schemas', () => {
             if (result.success) {
                 expect(result.data.otp).toBe('123456');
             }
+        });
+    });
+
+    describe('Canonical OTP Timing Configuration (SSOT)', () => {
+        it('matches audited business timing constants', () => {
+            expect(OTP_TIMING.EXPIRY_SECONDS).toBe(900);
+            expect(OTP_TIMING.RESEND_COOLDOWN_SECONDS).toBe(30);
+            expect(OTP_TIMING.MAX_RESEND_ATTEMPTS).toBe(3);
+            expect(OTP_TIMING.MAX_VERIFY_ATTEMPTS).toBe(5);
+
+            expect(OTP_EXPIRY_SECONDS).toBe(900);
+            expect(OTP_RESEND_COOLDOWN_SECONDS).toBe(30);
+            expect(OTP_MAX_RESEND_ATTEMPTS).toBe(3);
+            expect(OTP_MAX_ATTEMPTS).toBe(5);
         });
     });
 });

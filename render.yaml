@@ -30,9 +30,11 @@ services:
         sync: false
       - key: ADMIN_JWT_SECRET
         sync: false
+      - key: OTP_PROVIDER
+        value: msg91
       - key: OTP_HASH_SECRET
         sync: false
-      # HMAC_SECRET: used for OTP HMAC signing. The code has an insecure dev
+      # HMAC_SECRET: used for AI secret encryption. The code has an insecure dev
       # fallback — this entry ensures the production value is always injected
       # explicitly from the Render dashboard. (D1 audit I-010)
       - key: HMAC_SECRET
@@ -87,16 +89,12 @@ services:
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
 
-      # ── SMS ────────────────────────────────────────────────────────────────
+      # ── WhatsApp OTP (MSG91 Widget) ────────────────────────────────────────
       - key: MSG91_AUTH_KEY
-        sync: false
-      - key: MSG91_SENDER_ID
         sync: false
       # MSG91_WIDGET_ID / MSG91_TOKEN_AUTH: required by the MSG91 OTP Widget
       # (WhatsApp) dispatch path in core/src/domains/identity/.../authSmsDispatcher.ts.
-      # Previously undeclared here, so a production deploy could boot with
-      # OTP_PROVIDER=msg91 while the widget credentials were never injected,
-      # failing every POST /api/v1/auth/send-otp with 502 OTP_DELIVERY_FAILED.
+      # Production fails fast at startup if MSG91_WIDGET_ID is missing.
       - key: MSG91_WIDGET_ID
         sync: false
       - key: MSG91_TOKEN_AUTH

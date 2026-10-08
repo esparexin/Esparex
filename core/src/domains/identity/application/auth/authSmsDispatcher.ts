@@ -310,12 +310,3 @@ export const verifyOtpWithProvider = async (reqId: string, otp: string): Promise
         };
     }
 };
-
-/**
- * SMS OTP is explicitly DISABLED in this phase.
- * Calling this function will throw an error to guarantee no SMS is ever sent.
- */
-export const dispatchOtpSms = async (): Promise<void> => {
-    logger.warn('SMS OTP is DISABLED in this phase. WhatsApp OTP is the only active channel.');
-    throw new Error('SMS OTP is disabled in this phase. WhatsApp OTP only.');
-};

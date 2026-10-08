@@ -4,7 +4,11 @@ import logger from '../../../../utils/logger';
 import { env } from '../../../../config/env';
 import { 
     OtpProvider,
-    Role
+    Role,
+    OTP_EXPIRY_SECONDS,
+    OTP_MAX_ATTEMPTS,
+    OTP_RESEND_COOLDOWN_SECONDS,
+    OTP_MAX_RESEND_ATTEMPTS,
 } from '@esparex/contracts';
 import { 
     getMobileVariants, 
@@ -39,10 +43,12 @@ type VerifyOtpSuccess = {
 export type SendOtpResult = SendOtpSuccess | AuthFailure;
 export type VerifyOtpResult = VerifyOtpSuccess | AuthFailure;
 
-export const OTP_EXPIRY_SECONDS = 15 * 60; // 15 minutes (per MSG91 EsparexLogin widget configuration)
-export const OTP_MAX_ATTEMPTS = 5;
-export const OTP_RESEND_COOLDOWN_SECONDS = 30;
-export const OTP_MAX_RESEND_ATTEMPTS = 3;
+export {
+    OTP_EXPIRY_SECONDS,
+    OTP_MAX_ATTEMPTS,
+    OTP_RESEND_COOLDOWN_SECONDS,
+    OTP_MAX_RESEND_ATTEMPTS,
+};
 const LOCK_DURATION_MS =
     env.NODE_ENV === 'production'
         ? 30 * 60 * 1000
