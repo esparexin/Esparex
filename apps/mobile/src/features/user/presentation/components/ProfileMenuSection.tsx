@@ -41,7 +41,7 @@ export const ProfileMenuSection = ({ title, items }: ProfileMenuSectionProps) =>
                   {item.label}
                 </AppText>
                 {item.subtitle && (
-                  <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5 text-xs">
+                  <AppText variant="caption" className="text-foreground-secondary mt-0.5">
                     {item.subtitle}
                   </AppText>
                 )}

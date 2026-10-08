@@ -11,7 +11,7 @@ import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import { AdContext } from '../../../../types/ad.types';
 import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
 import { AdCreationService } from './AdCreationService';
-import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
+import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { enqueueImageOptimization } from '../../../../queues/imageQueue';
 
 export const updateAdLogic = async (

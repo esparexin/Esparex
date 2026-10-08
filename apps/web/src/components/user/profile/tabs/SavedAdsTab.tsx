@@ -9,7 +9,7 @@ import { formatPrice, formatDate } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import { Button, Card, Spinner } from "@esparex/ui";
+import { Button, Card, Spinner, EmptyState } from "@esparex/ui";
 import { Heart, MapPin, Calendar, ArrowRight } from "@esparex/ui";
 import { notify } from "@/lib/feedback";
 import { useQueryClient } from "@tanstack/react-query";
@@ -64,17 +64,21 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
-        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 dark:text-pink-400 border border-pink-500/20 mb-3.5">
-            <Heart className="h-6 w-6 sm:h-7 sm:w-7 fill-pink-500/20" />
-          </div>
-          <h3 className="text-body-lg font-semibold text-foreground">No saved ads yet</h3>
-          <Button
-            onClick={() => navigateTo("browse")}
-            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
-          >
-            Explore Marketplace
-          </Button>
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs">
+          <EmptyState
+            icon={Heart}
+            title="No saved ads yet"
+            description="Ads you bookmark while browsing will appear here."
+            action={
+              <Button
+                type="button"
+                onClick={() => navigateTo("browse")}
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-xs cursor-pointer"
+              >
+                Explore Marketplace
+              </Button>
+            }
+          />
         </Card>
       ) : (
         /* Saved Ads Compact List View */

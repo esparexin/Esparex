@@ -7,7 +7,7 @@ jest.mock('@esparex/core/domains/listings/application/mutations/AdMutationServic
     repostAd: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/lifecycle/StatusMutationService', () => ({
+jest.mock('@esparex/core/domains/listings/application/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 

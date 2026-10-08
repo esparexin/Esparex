@@ -20,9 +20,9 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 - **Key Specifications**:
   - [PLATFORM_ARCHITECTURE.md](architecture/PLATFORM_ARCHITECTURE.md) — System architecture operating model v4.0.
   - [PLATFORM_CAPABILITY_CATALOG.md](architecture/PLATFORM_CAPABILITY_CATALOG.md) — Capability & hardware integration inventory.
-  - [UI_TECHNICAL_SPECIFICATION.md](architecture/UI_TECHNICAL_SPECIFICATION.md) — Living SSOT for UI component & layout rules.
+  - [UI_TECHNICAL_SPECIFICATION.md](architecture/UI_TECHNICAL_SPECIFICATION.md) — Cross-platform UI component & layout technical specification.
   - [USER_FACING_FRONTEND_CATALOG.md](USER_FACING_FRONTEND_CATALOG.md) — Complete user-facing frontend inventory (Public & Private pages, features, user flows).
-  - [decision-register.md](architecture/decision-register.md) — Master Architecture Decision Register (D-001 .. D-009).
+  - [DECISION_LOG.md](../.agents/logs/DECISION_LOG.md) — Master Architecture & Agent Decision Log (cross-reference [engineering-action-register.md](tracking/engineering-action-register.md)).
   - [PDR-001-action-color.md](architecture/adr/PDR-001-action-color.md) — Action color (blue era; superseded by `AGENTS.md` §21 Green, historical only).
   - [PDR-002-category-hierarchy-depth.md](architecture/adr/PDR-002-category-hierarchy-depth.md) — Category hierarchy depth bounding constraint (formerly ADR-005).
 
@@ -43,9 +43,14 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 ### 🔍 [Audits](audits/) — FROZEN evidence (not active guidance)
 - **Owner**: QA & Governance Team
 - **Key Specifications** (all frozen; see file headers):
+  - [ADMIN_UI_UX_AUDIT.md](audits/ADMIN_UI_UX_AUDIT.md) — Admin Panel UI/UX Audit Report.
   - [HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md](audits/HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md) — Home Feed Listing Type & Location Architecture Audit.
   - [MOBILE_UX_ROOT_CAUSE_AUDIT.md](audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md) — Mobile UI/UX Root Cause Audit & Verification Report (August 2026).
   - [TECHNICAL_DEBT_REMEDIATION_BASELINE.md](audits/TECHNICAL_DEBT_REMEDIATION_BASELINE.md) — Technical Debt Remediation Baseline & Safety Classification.
+  - [catalog-architecture-ssot-audit.md](audits/catalog-architecture-ssot-audit.md) — Enterprise Catalog Architecture & SSOT Audit.
+  - [listing-consumer-response-contract.md](audits/listing-consumer-response-contract.md) — Listing Consumer Response Contract Audit.
+  - [listing-forms-compatibility-audit.md](audits/listing-forms-compatibility-audit.md) — Listing Forms Architecture Compatibility Audit.
+  - [security-inventory-audit.md](audits/security-inventory-audit.md) — Security Inventory & Architecture Audit (Phase 1 Snapshot).
 
 ### 📈 [Performance](performance/) & 🛡️ [Security](security/) — point-in-time baselines (frozen where marked)
 - **Owner**: Engineering Performance & Security Teams

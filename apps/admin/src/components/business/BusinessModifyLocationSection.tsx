@@ -71,7 +71,7 @@ export function BusinessModifyLocationSection({
           ) : null}
         </div>
         {selectedLocationLabel ? (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-caption text-emerald-900">
+          <div className="rounded-lg border border-success/20 bg-success/10 px-3 py-2 text-caption text-success-dark">
             Linked to: <span className="font-semibold">{selectedLocationLabel}</span>
           </div>
         ) : null}

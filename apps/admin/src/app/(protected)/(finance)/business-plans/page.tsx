@@ -39,12 +39,14 @@ export default function BusinessPlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus
+        togglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
-    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const search = normalizeSearchParamValue(rawSearch);
@@ -65,22 +67,6 @@ export default function BusinessPlansPage() {
             q: search,
         });
     }, [pathname, router, search, searchParams]);
-
-    const onToggleClick = async (plan: Plan) => {
-        if (plan.active) {
-            setTogglingPlanId(plan.id);
-        } else {
-            await handleToggleStatus(plan.id);
-        }
-    };
-
-    const confirmToggleStatus = async () => {
-        if (!togglingPlanId) return;
-        const result = await handleToggleStatus(togglingPlanId);
-        if (result.success) {
-            setTogglingPlanId(null);
-        }
-    };
 
     const columns: ColumnDef<Plan>[] = [
         {
@@ -110,7 +96,7 @@ export default function BusinessPlansPage() {
             header: "Pricing & Duration",
             cell: (plan: Plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-foreground-secondary">
+                    <span className="font-bold text-body text-foreground-secondary">
                         {plan.price === 0 ? "Free / Included" : `${plan.currency} ${plan.price}`}
                     </span>
                     <span className="text-tiny text-foreground-subtle font-medium">
@@ -136,7 +122,7 @@ export default function BusinessPlansPage() {
         {
             header: "Posting Quotas",
             cell: (plan: Plan) => (
-                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     <div>Ads: <span className="font-medium text-foreground">{plan.limits?.maxAds ?? "Configurable"}</span></div>
                     <div>Services: <span className="font-medium text-foreground">{plan.limits?.maxServices ?? "Configurable"}</span></div>
                     <div>Spare Parts: <span className="font-medium text-foreground">{plan.limits?.maxParts ?? "Configurable"}</span></div>
@@ -235,7 +221,7 @@ export default function BusinessPlansPage() {
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}
-                onClose={() => setTogglingPlanId(null)}
+                onClose={cancelToggleStatus}
                 onConfirm={confirmToggleStatus}
                 isMutating={isMutating}
                 title="Deactivate Business Plan"

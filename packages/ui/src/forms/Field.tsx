@@ -60,7 +60,7 @@ export function Field({
                         <label
                             htmlFor={resolvedId}
                             className={cn(
-                                "text-caption sm:text-small font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                                "text-small font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
                                 labelClassName
                             )}
                         >

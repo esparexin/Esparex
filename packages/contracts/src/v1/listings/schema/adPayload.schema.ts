@@ -26,8 +26,8 @@ export const BaseAdPayloadSchema = z.object({
     modelId: optionalObjectId, // Canonical
     pendingBrandRequestId: optionalObjectId,
     pendingModelRequestId: optionalObjectId,
-    customBrandName: z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX).optional(),
-    customModelName: z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX).optional(),
+    customBrandName: z.union([z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX), z.literal('')]).optional(),
+    customModelName: z.union([z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX), z.literal('')]).optional(),
 
     screenSize: z.string(),
     listingType: z.enum(LISTING_TYPE_VALUES).optional(),

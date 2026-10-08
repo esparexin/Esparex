@@ -56,7 +56,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.mobile}
                             {user.isPhoneVerified ? (
-                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                <CheckCircle2 size={14} className="text-success" />
                             ) : null}
                         </div>
                     </div>
@@ -65,7 +65,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.email || "N/A"}
                             {user.isEmailVerified ? (
-                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                <CheckCircle2 size={14} className="text-success" />
                             ) : null}
                         </div>
                     </div>
@@ -73,7 +73,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="mb-1 text-tiny text-foreground-tertiary">Overall Verification</div>
                         <div className="font-semibold text-foreground text-body">
                             {user.isVerified ? (
-                                <span className="text-emerald-600">Verified</span>
+                                <span className="text-success">Verified</span>
                             ) : (
                                 <span className="text-foreground-subtle">Unverified</span>
                             )}

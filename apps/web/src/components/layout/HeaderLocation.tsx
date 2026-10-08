@@ -5,7 +5,7 @@ import { ChevronDown, MapPin, Target, X } from "@esparex/ui";
 import { Spinner } from "@esparex/ui";
 import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
-import { useMounted } from "@/hooks/useMounted";
+import { useMounted } from "@esparex/shared";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { cn } from "@/lib/utils";
 

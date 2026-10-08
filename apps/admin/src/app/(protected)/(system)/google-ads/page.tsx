@@ -186,13 +186,13 @@ export default function GoogleAdsPage() {
                 {/* Master Config & Publisher Banner */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-border bg-card p-3 shadow-xs gap-3">
                     <div className="flex items-center gap-2.5">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/10 text-success-dark border border-success/20 shrink-0">
                             <ShieldCheck size={18} />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
                                 <h3 className="text-body font-bold text-foreground">Google AdSense Publisher Account</h3>
-                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-tiny font-bold text-success-dark">
                                     <CheckCircle size={10} /> Active
                                 </span>
                             </div>

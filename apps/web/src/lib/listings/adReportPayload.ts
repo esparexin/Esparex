@@ -1,7 +1,7 @@
 import { ReportReasonValue, type AdReportPayload } from "@esparex/contracts";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
-
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+// P7: single ObjectId pattern owner (was local duplicate).
+import { OBJECT_ID_PATTERN } from "@/lib/api/user/listings/listingIdNormalizer";
 
 export interface BuildAdReportPayloadInput {
     adId: string | number;

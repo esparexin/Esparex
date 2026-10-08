@@ -123,8 +123,8 @@ export default function BusinessesView() {
         { key: "all", label: "All", value: overview.total, isActive: isStatActive("all"), color: "text-foreground-secondary" },
         { key: "live", label: "Live", value: overview.live, isActive: isStatActive("live"), color: "text-primary" },
         { key: "pending", label: "Pending", value: overview.pending, isActive: isStatActive("pending"), color: "text-warning" },
-        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-rose-600" },
-        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-red-600" },
+        { key: "expiringIn3Days", label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, isActive: rawExpiringIn3Days === "true", color: "text-destructive" },
+        { key: "suspended", label: "Suspended", value: overview.suspended, isActive: isStatActive("suspended"), color: "text-destructive" },
         { key: "expired", label: "Expired", value: (overview as Record<string, number>).expired ?? 0, isActive: isStatActive("expired"), color: "text-warning" },
         { key: "deactivated", label: "Deactivated", value: (overview as Record<string, number>).deactivated ?? 0, isActive: isStatActive("deactivated"), color: "text-foreground-secondary" },
     ];
@@ -170,7 +170,7 @@ export default function BusinessesView() {
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
-                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
+                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
                         <div className="flex items-center gap-2">
                             {[
                                 { key: "expiringIn3Days", raw: rawExpiringIn3Days, label: "Expiring (3d)", c1: "rose" },

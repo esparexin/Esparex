@@ -203,7 +203,7 @@ function LocationsPageContent({
                         cell: (location) => (
                             <CatalogEntityCell
                                 icon={<MapPin size={20} />}
-                                iconClassName="rounded-full bg-blue-50 text-blue-600"
+                                iconClassName="rounded-full bg-primary-subtle text-primary"
                                 title={location.name || location.city}
                                 subtitle={`${location.state || "Unknown State"}, ${location.country}`}
                             />
@@ -220,7 +220,7 @@ function LocationsPageContent({
                     {
                         header: "Stats",
                         cell: (location) => (
-                            <div className="text-xs space-y-0.5">
+                            <div className="text-caption space-y-0.5">
                                 <div className="text-foreground-secondary">
                                     <span className="font-bold">{location.adsCount || 0}</span> Ads
                                 </div>
@@ -250,7 +250,7 @@ function LocationsPageContent({
                                 />
                                 <CatalogActionIconButton
                                     onClick={() => setDeletingLocation(location)}
-                                    className="p-1.5 text-foreground-subtle hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
                                     title="Delete"
                                     icon={<Trash2 size={18} />}
                                 />

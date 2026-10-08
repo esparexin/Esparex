@@ -62,6 +62,7 @@ export function CampaignEditModal({
             />
           </div>
 
+          {/* design-token-ignore: baseline-grandfathered static two-col grid; the two-col utility breaches the UI-001 ceiling and Grid cols prop is responsive-mismatched (1col mobile) */}
           <div className="grid gap-3" style={{gridTemplateColumns:'repeat(2,1fr)'}}>
             <div>
               <label className="block text-caption font-semibold text-foreground-secondary mb-1">Placement Slot</label>
@@ -96,6 +97,7 @@ export function CampaignEditModal({
             </div>
           </div>
 
+          {/* design-token-ignore: baseline-grandfathered static two-col grid; the two-col utility breaches the UI-001 ceiling and Grid cols prop is responsive-mismatched (1col mobile) */}
           <div className="grid gap-3" style={{gridTemplateColumns:'repeat(2,1fr)'}}>
             <div>
               <label className="block text-caption font-semibold text-foreground-secondary mb-1">Priority Rank (1 = Highest)</label>

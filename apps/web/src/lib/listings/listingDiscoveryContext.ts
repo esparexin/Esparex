@@ -1,4 +1,5 @@
-import { LocationFacade } from "@esparex/shared";
+import { LocationFacade, asOptionalString } from "@esparex/shared";
+import { OBJECT_ID_PATTERN } from "@/lib/api/user/listings/listingIdNormalizer";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 export interface RelatedBusinessesDiscoveryContext {
@@ -22,18 +23,12 @@ type ListingDiscoverySource = {
     listingType?: unknown;
 } | null | undefined;
 
-const asOptionalString = (value: unknown): string | undefined => {
-    if (typeof value !== "string" && typeof value !== "number") {
-        return undefined;
-    }
-
-    const normalized = String(value).trim();
-    return normalized.length > 0 ? normalized : undefined;
-};
+// P7: asOptionalString from @esparex/shared (single owner; string-only is
+// correct here — numeric city/listingType values are invalid inputs).
 
 const normalizeCanonicalObjectId = (value: unknown): string | undefined => {
     const normalized = normalizeOptionalObjectId(value);
-    return normalized && /^[a-f\d]{24}$/i.test(normalized) ? normalized : undefined;
+    return normalized && OBJECT_ID_PATTERN.test(normalized) ? normalized : undefined;
 };
 
 const asFiniteNumber = (value: unknown): number | undefined => (

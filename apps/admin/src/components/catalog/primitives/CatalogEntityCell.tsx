@@ -12,7 +12,7 @@ export function CatalogEntityCell({
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconClassName}`}>{icon}</div>
             <div>
                 <div className="font-bold text-foreground">{title}</div>
-                {subtitle ? <div className="text-xs text-foreground-tertiary">{subtitle}</div> : null}
+                {subtitle ? <div className="text-caption text-foreground-tertiary">{subtitle}</div> : null}
             </div>
         </div>
     );

@@ -7,7 +7,7 @@ import { AdAggregationService } from '@esparex/core';
 import { AdMetricsService } from '@esparex/core';
 
 import { ListingExpiryService } from '@esparex/core';
-import { getStatusMatchCriteria } from '@esparex/core';
+import { buildOwnerTabFilter, getStatusMatchCriteria } from '@esparex/core';
 
 /**
  * GET /api/v1/listings/mine/stats
@@ -161,39 +161,8 @@ export const getMyTabListings = async (req: Request, res: Response) => {
         }
 
         if (tab) {
-            const tabStr = String(tab).trim().toLowerCase();
-            if (tabStr === 'live' || tabStr === 'active') {
-                
-                const liveCriteria = getStatusMatchCriteria('live');
-                const liveStatuses = typeof liveCriteria === 'object' && '$in' in liveCriteria && Array.isArray(liveCriteria.$in)
-                    ? liveCriteria.$in
-                    : ['live', 'approved', 'active', 'published'];
-
-                // Live/active ads must not have passed expiresAt.
-                // Deactivated ads are explicitly exempt — they carry no expiry semantics.
-                query.$and = [
-                    { status: { $in: [...liveStatuses, 'deactivated'] } },
-                    {
-                        $or: [
-                            { status: 'deactivated' },
-                            { expiresAt: { $exists: false } },
-                            { expiresAt: { $gt: new Date() } },
-                        ]
-                    }
-                ];
-            } else if (tabStr === 'pending') {
-                query.status = 'pending';
-            } else if (tabStr === 'expired') {
-                query.$or = [
-                    { status: { $in: ['expired', 'sold'] } },
-                    {
-                        status: { $in: ['live', 'approved', 'active', 'published'] },
-                        expiresAt: { $lte: new Date() }
-                    }
-                ];
-            } else {
-                query.status = { $in: [] };
-            }
+            // Canonical owner-tab visibility (SSOT: core buildOwnerTabFilter).
+            Object.assign(query, buildOwnerTabFilter(tab as string));
         }
 
         const { items, total } = await AdAggregationService.getOwnerListings(

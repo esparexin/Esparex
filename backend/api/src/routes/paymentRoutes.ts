@@ -39,7 +39,10 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
 router.post('/orders', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.createPaymentOrderSchema), paymentController.createPaymentOrder);
 
 // Verify Client Payment (Mobile Native Checkout Signature)
-router.post('/verify', protect, paymentRateLimiter, validateRequest(Validators.verifyPaymentSchema), paymentController.verifyPayment);
+// Phase 1 audit P0 (F25): idempotency enabled (passthrough without
+// `x-request-id`; 409 on duplicate). Fail-closed unification deferred to
+// Phase 5 with ADR; middleware stays fail-open for non-payment routes.
+router.post('/verify', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.verifyPaymentSchema), paymentController.verifyPayment);
 
 import * as creditController from '../controllers/payment/creditController';
 

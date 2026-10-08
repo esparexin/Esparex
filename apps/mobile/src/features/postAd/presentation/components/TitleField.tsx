@@ -39,7 +39,7 @@ export const TitleField = ({
             ) : (
               <>
                 <AppIcon name="Sparkles" size={12} color={base.brand[500]} />
-                <AppText variant="caption" className="ml-1 text-sky-700 dark:text-sky-300 font-semibold text-xs">
+                <AppText variant="caption" className="ml-1 text-primary font-semibold">
                   Auto-fill (AI)
                 </AppText>
               </>

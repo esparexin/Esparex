@@ -2,11 +2,14 @@
 
 /**
  * 🛡️ Esparex Governance: Type Safety & Escape Hatch Baseline Guard
- * 
+ *
  * Enforces zero tolerance for TypeScript escape hatches across the monorepo:
  * 1. Double/chained assertions (`as unknown as`, `as any as`, `as never as`)
  * 2. TypeScript compiler suppressions (`@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`)
  * 3. Unsafe type assertions (`as any`, `as never`) in production source files
+ * 4. (Phase 0 audit F24, REPORT-ONLY): explicit `: any` annotations in production
+ *    source files. Logged for burn-down visibility; does NOT fail the gate until
+ *    Phase 2 fixes the known instance(s) and the check is promoted to blocking.
  */
 
 const { execSync } = require('child_process');
@@ -80,6 +83,26 @@ function run() {
     if (hasFailure) {
       console.error(`\n❌ Fix the underlying type definitions, generics, or schemas instead of bypassing TypeScript.`);
       process.exit(1);
+    }
+
+    // 4. Phase 0 audit F24 (REPORT-ONLY): explicit `: any` in production source.
+    //    Informational until Phase 2 promotes to blocking. Never sets hasFailure.
+    try {
+      const explicitAnyRaw = execSync(
+        "git grep -n -E ':[[:space:]]*any([,)>;=\\]]|$)' -- 'apps/**/src/**' 'packages/**/src/**' 'core/src/**' 'backend/api/src/**' 'shared/src/**' ':!**/__tests__/**' ':!**/*.spec.*' ':!**/*.test.*' || true",
+        { cwd: ROOT, encoding: 'utf8' }
+      );
+      const explicitAny = explicitAnyRaw.trim().split('\n').filter(Boolean).filter(line => {
+        const codePart = line.split(':').slice(2).join(':').trim();
+        return !codePart.startsWith('//') && !codePart.startsWith('*') && !codePart.startsWith('/*');
+      });
+      console.log(`   Explicit ': any' annotations in prod (REPORT-ONLY, Phase 0 F24): ${explicitAny.length}`);
+      explicitAny.slice(0, 20).forEach(line => console.log(`     [audit] ${line}`));
+      if (explicitAny.length > 20) {
+        console.log(`     ... and ${explicitAny.length - 20} more (see Phase 2 for remediation)`);
+      }
+    } catch (reportErr) {
+      console.log(`   Explicit ': any' audit skipped: ${reportErr.message}`);
     }
 
     console.log(`✅ Type Safety Guard Passed (All baselines strictly enforced at 0).`);

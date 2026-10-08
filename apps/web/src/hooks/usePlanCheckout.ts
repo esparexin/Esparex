@@ -149,11 +149,10 @@ export function usePlanCheckout() {
       const baselineWallet = waitForCredit ? await getWalletSummary() : null;
       const order = await createPurchaseOrder(planId);
 
-      // If order is zero-cost (amount === 0) or explicit mock mode enabled, complete checkout immediately
+      // P1-F24: zero-cost completes locally (server fulfills inline); mock dev-only (Phase 5 ADR).
       const isMockOrder = typeof order.orderId === "string" && order.orderId.startsWith("order_mock_");
-      const allowMockBypass = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
 
-      if (amount === 0 || (isMockOrder && allowMockBypass)) {
+      if (amount === 0 || (isMockOrder && process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true")) {
         await onPaymentVerified();
         setIsProcessing(false);
         return;
@@ -185,9 +184,15 @@ export function usePlanCheckout() {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
               });
+            } else {
+              throw new Error("Incomplete Razorpay response");
             }
           } catch (verifyError) {
+            // P1-F24: failed verification must abort, never count as success.
             logger.error("Client signature verification failed", verifyError);
+            onPaymentFailed?.(verifyError instanceof Error ? verifyError.message : "Payment verification failed");
+            setIsProcessing(false);
+            return;
           }
 
           if (waitForCredit) {

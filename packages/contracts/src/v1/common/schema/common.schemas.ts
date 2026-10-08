@@ -137,7 +137,7 @@ export const locationSchema = z.object({
     city: z.string().min(1, 'City is required'),
     state: z.string().min(1, 'State is required'),
     country: z.string().min(1, 'Country is required').default('Unknown'),
-    pincode: z.string().min(4).max(10).optional(),
+    pincode: optionalTrimmedString(z.string().min(4).max(10)),
     coordinates: coordinatesSchema.optional(),
     locationId: objectIdSchema.optional()
 });

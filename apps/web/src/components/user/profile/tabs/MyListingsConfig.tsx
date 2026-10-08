@@ -39,7 +39,6 @@ export interface ListingActionHandlers {
   onRepostService?: (id: string) => void;
   onRepostSpare?: (id: string) => void;
   onBoost?: (listing: UserListing) => void;
-  getStatusBadge: (status: string) => React.ReactNode;
 }
 
 export function renderAdItem(
@@ -59,7 +58,6 @@ export function renderAdItem(
       expiresAt={listing.expiresAt}
       views={listing.views}
       likes={listing.likes}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={adsStatus !== listing.status}
       editHref={`/edit-ad/${listing.id}`}
       detailHref={buildPublicListingDetailRoute({
@@ -94,7 +92,6 @@ export function renderServiceItem(
       priceLabel={service.priceMin ? `From ₹${formatStableNumber(service.priceMin)}` : "Price on request"}
       badgeColor="violet"
       createdAt={service.createdAt}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={servicesStatus !== service.status}
       editHref={`/edit-service/${service.id}`}
       detailHref={buildPublicListingDetailRoute({
@@ -141,7 +138,6 @@ export function renderSpareItem(
       priceLabel={`₹${formatStableNumber(listing.price)}`}
       badgeColor="teal"
       createdAt={listing.createdAt}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={spareStatus !== listing.status}
       editHref={`/edit-spare-part/${listing.id}`}
       detailHref={buildPublicListingDetailRoute({

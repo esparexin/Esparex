@@ -108,7 +108,7 @@ export default function CatalogRequestsTab() {
       <button
         type="button"
         onClick={openBulkReject}
-        className="rounded-lg bg-amber-600 px-3 py-2 text-caption font-semibold text-white hover:bg-amber-700 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-warning px-3 py-2 text-caption font-semibold text-white hover:bg-warning-dark transition-all shadow-xs cursor-pointer"
       >
         Quick Reject
       </button>

@@ -1,13 +1,15 @@
 ---
 version: 1.1
-status: Approved
+status: Approved (Historical Modernization Reference)
+tier: Tier 4 — Reference & Program Plan
+authority: Subordinate to AGENTS.md & packages/ui/GOVERNANCE.md
 owner: Platform Architecture
 last_updated: 2026-08-06
 ---
 
 # UI Foundation Blueprint
 
-This document is the program plan for the Esparex UI Modernization Program (it defers to `packages/ui/GOVERNANCE.md` for UI governance). It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
+This document is the historical program plan for the Esparex UI Modernization Program (it defers to `AGENTS.md` and `packages/ui/GOVERNANCE.md` for UI governance). It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
 
 ## Core Architecture Principles
 

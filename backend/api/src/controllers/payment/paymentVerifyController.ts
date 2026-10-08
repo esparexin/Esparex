@@ -34,8 +34,11 @@ export async function verifyPayment(req: Request, res: Response) {
         const paymentIdStr = razorpay_payment_id.trim();
         const signatureStr = razorpay_signature.trim();
 
-        // Mock orders: no signature verification needed
-        if (orderIdStr.startsWith('order_mock_') || env.MOCK_PAYMENTS) {
+        // P1-F23: mock ack needs prefix AND flag (prior `||` acked any order
+        // when flagged, skipping signature check). No fulfillment here (Phase 5 ADR).
+        if (orderIdStr.startsWith('order_mock_')) {
+            if (!env.MOCK_PAYMENTS) return sendErrorResponse(req, res, 400, 'Mock payments are disabled');
+            logSecurity('payment_mock_acknowledged', 'medium', { userId: req.user._id?.toString(), razorpay_order_id: orderIdStr });
             return res.json(respond({ success: true, message: 'Mock payment acknowledged' }));
         }
 
@@ -85,10 +88,11 @@ export async function verifyPayment(req: Request, res: Response) {
 
         return res.json(respond({ success: true, message: 'Payment verified and processed successfully' }));
     } catch (error) {
+        // P1-F26: generic 500 (detail stays in logs above).
         logger.error('[VERIFY_PAYMENT] Payment verification failed', {
             error: error instanceof Error ? error.message : String(error)
         });
-        return sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to verify payment');
+        return sendErrorResponse(req, res, 500, 'Failed to verify payment');
     }
 }
 

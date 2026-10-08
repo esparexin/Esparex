@@ -5,6 +5,7 @@ import { upgradePlan } from '../../services/business/BusinessSubscriptionService
 import User from '../../models/User';
 import { emailService } from '../../domains/notifications/application/EmailService';
 import { renderPurchaseConfirmationEmail } from '../../domains/notifications/templates/EmailLayout';
+import { formatStableDate } from '@esparex/shared';
 
 /**
  * 💳 Payment Event Listener
@@ -53,7 +54,7 @@ export const registerPaymentEventListener = () => {
                 if (user && typeof user.email === 'string' && user.email.includes('@')) {
                     const planName = payload.planId || 'Esparex Subscription';
                     const amountStr = `₹${(payload.amount / 100).toLocaleString('en-IN')}`;
-                    const formattedDate = new Date().toLocaleDateString('en-IN', {
+                    const formattedDate = formatStableDate(new Date(), {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric'

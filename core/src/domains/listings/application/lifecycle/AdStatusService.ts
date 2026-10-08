@@ -135,7 +135,10 @@ export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: st
     const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : now;
     // Always compute extension from the later of currentExpiry or now to ensure a strictly future expiry timestamp
     const baseTime = currentExpiry < now ? now : currentExpiry;
-    const newExpiresAt = new Date(baseTime + daysToAdd * MS_IN_DAY);
+    // P2: 30-day hard ceiling (AGENTS.md §20). Extensions/renewals must never
+    // extend beyond now + GOVERNANCE.AD.EXPIRY_DAYS, even from a future base.
+    const maxExpiresAt = now + GOVERNANCE.AD.EXPIRY_DAYS * MS_IN_DAY;
+    const newExpiresAt = new Date(Math.min(baseTime + daysToAdd * MS_IN_DAY, maxExpiresAt));
     const isExpired = ad.status === LIFECYCLE_STATUS.EXPIRED;
     const toStatus = isExpired ? LIFECYCLE_STATUS.LIVE : (ad.status ?? LIFECYCLE_STATUS.LIVE);
     
@@ -161,8 +164,9 @@ export const expireOutdatedAds = async (): Promise<number> => {
 
 export const expireBoosts = async (): Promise<number> => {
     const now = new Date();
+    // P5: never resurrect spotlight badges on soft-deleted ads.
     const count = await getListingRepository().updateMany(
-        { isSpotlight: true, spotlightExpiresAt: { $lt: now } },
+        { isSpotlight: true, spotlightExpiresAt: { $lt: now }, isDeleted: { $ne: true } },
         { isSpotlight: false, spotlightExpiresAt: null }
     );
 

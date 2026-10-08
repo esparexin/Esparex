@@ -21,7 +21,9 @@ const violations = [];
 const TARGET_DIRECTORIES = [
     path.join(ROOT, "apps", "web", "src"),
     path.join(ROOT, "apps", "admin", "src"),
+    path.join(ROOT, "apps", "mobile", "src"),
     path.join(ROOT, "packages", "ui", "src"),
+    path.join(ROOT, "packages", "mobile-ui", "src"),
 ];
 
 const SUPPRESSION_PATTERN = /css-hygiene-ignore(?::\s*(.+))?/;

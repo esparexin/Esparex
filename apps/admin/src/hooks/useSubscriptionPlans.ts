@@ -11,6 +11,7 @@ export function useSubscriptionPlans() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isMutating, setIsMutating] = useState(false);
+    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
 
     const fetchPlans = useCallback(async (filters: { q?: string; type?: string; userType?: string } = {}) => {
         setLoading(true);
@@ -22,7 +23,6 @@ export function useSubscriptionPlans() {
             if (filters.userType) query.set("userType", filters.userType);
 
             const response = await adminFetch<unknown>(`${ADMIN_ROUTES.PLANS}?${query.toString()}`);
-
             const parsed = parseAdminResponse<Plan>(response);
             setPlans(parsed.items);
             return { success: true, data: parsed.items };
@@ -36,55 +36,44 @@ export function useSubscriptionPlans() {
         }
     }, []);
 
-    const handleToggleStatus = async (planId: string) => {
+    const runMutation = useCallback(async (action: () => Promise<unknown>, title: string, message: string, failTitle: string) => {
         setIsMutating(true);
         try {
-            await adminFetch(ADMIN_ROUTES.PLAN_TOGGLE(planId), {
-                method: "PATCH"
-            });
-            showAdminPopup({ type: "success", title: "Success", message: "Plan status updated successfully" });
+            await action();
+            showAdminPopup({ type: "success", title, message });
             await fetchPlans();
             return { success: true };
         } catch (err) {
-            const msg = err instanceof Error ? err.message : "Failed to toggle plan status";
-            showAdminPopup({ type: "error", title: "Error", message: msg });
+            const msg = err instanceof Error ? err.message : failTitle;
+            showAdminPopup({ type: "error", title: failTitle, message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);
         }
-    };
+    }, [fetchPlans]);
 
-    const handleArchive = async (planId: string, reason?: string) => {
-        setIsMutating(true);
-        try {
-            await archivePlan(planId, reason);
-            showAdminPopup({ type: "success", title: "Plan Archived", message: "Plan has been archived successfully." });
-            await fetchPlans();
-            return { success: true };
-        } catch (err) {
-            const msg = err instanceof Error ? err.message : "Failed to archive plan";
-            showAdminPopup({ type: "error", title: "Archive Failed", message: msg });
-            return { success: false, error: msg };
-        } finally {
-            setIsMutating(false);
-        }
-    };
+    const handleToggleStatus = useCallback((planId: string) =>
+        runMutation(() => adminFetch(ADMIN_ROUTES.PLAN_TOGGLE(planId), { method: "PATCH" }), "Success", "Plan status updated successfully", "Failed to toggle plan status"), [runMutation]);
 
-    const handleRestore = async (planId: string) => {
-        setIsMutating(true);
-        try {
-            await restorePlan(planId);
-            showAdminPopup({ type: "success", title: "Plan Restored", message: "Plan has been restored to Inactive status." });
-            await fetchPlans();
-            return { success: true };
-        } catch (err) {
-            const msg = err instanceof Error ? err.message : "Failed to restore plan";
-            showAdminPopup({ type: "error", title: "Restore Failed", message: msg });
-            return { success: false, error: msg };
-        } finally {
-            setIsMutating(false);
-        }
-    };
+    const handleArchive = useCallback((planId: string, reason?: string) =>
+        runMutation(() => archivePlan(planId, reason), "Plan Archived", "Plan has been archived successfully.", "Archive Failed"), [runMutation]);
+
+    const handleRestore = useCallback((planId: string) =>
+        runMutation(() => restorePlan(planId), "Plan Restored", "Plan has been restored to Inactive status.", "Restore Failed"), [runMutation]);
+
+    const onToggleClick = useCallback(async (plan: Plan) => {
+        if (plan.active) setTogglingPlanId(plan.id);
+        else await handleToggleStatus(plan.id);
+    }, [handleToggleStatus]);
+
+    const confirmToggleStatus = useCallback(async () => {
+        if (!togglingPlanId) return { success: false };
+        const result = await handleToggleStatus(togglingPlanId);
+        if (result.success) setTogglingPlanId(null);
+        return result;
+    }, [handleToggleStatus, togglingPlanId]);
+
+    const cancelToggleStatus = useCallback(() => setTogglingPlanId(null), []);
 
     return {
         plans,
@@ -95,5 +84,10 @@ export function useSubscriptionPlans() {
         handleToggleStatus,
         handleArchive,
         handleRestore,
+        togglingPlanId,
+        setTogglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     };
 }

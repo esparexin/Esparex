@@ -136,7 +136,7 @@ export default function SettingsPage() {
           className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-body font-medium ${
             error
               ? "border-destructive/20 bg-destructive/10 text-destructive"
-              : "border-emerald-100 bg-emerald-50 text-emerald-700"
+              : "border-success/20 bg-success/10 text-success-dark"
           }`}
         >
           {error ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}

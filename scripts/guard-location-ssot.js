@@ -75,6 +75,13 @@ try {
 // 5. Nominatim-first reverse geocode (AGENTS.md geocode governance)
 checkNominatimFirst();
 
+// 6. Zero shadow location formatters outside @esparex/shared.
+//    formatLocation / normalizeGeoPoint / getLocationLabel implementations
+//    live only in shared/src/location. Pure single-line delegates that call
+//    the shared canonical (getLocationLabel / toCanonicalGeoPoint /
+//    LocationFacade) are permitted adapters; anything else fails.
+checkNoShadowFormatters();
+
 if (violations.length > 0) {
     console.error('❌ Location Architecture Guard Violations Found:\n');
     violations.forEach((v) => console.error(`  • ${v}`));
@@ -111,5 +118,38 @@ function checkNominatimFirst() {
     }
     if (!/\$near/.test(reverseSource)) {
         violations.push('ReverseGeocodeService must retain raw $near as degraded fallback when Nominatim is unavailable.');
+    }
+}
+
+function checkNoShadowFormatters() {
+    const fs = require('fs');
+    let matches = '';
+    try {
+        matches = execSync(
+            "git grep -n -E '(function formatLocation[\\s(]|const formatLocation[\\s=]|function normalizeGeoPoint[\\s(]|const normalizeGeoPoint[\\s=])' -- 'apps/' 'core/src/' 'backend/api/src/' 'packages/' || true",
+            { cwd: ROOT, encoding: 'utf8' }
+        ).trim();
+    } catch (error) {
+        violations.push(`Failed to check shadow location formatters: ${error.message}`);
+        return;
+    }
+    if (!matches) return;
+    const offenders = [];
+    for (const line of matches.split('\n')) {
+        const filePath = line.split(':')[0];
+        if (filePath.startsWith('shared/src/location/')) continue;
+        const abs = path.join(ROOT, filePath);
+        let content = '';
+        try {
+            content = fs.readFileSync(abs, 'utf8');
+        } catch {
+            continue;
+        }
+        const delegatesToShared =
+            /getLocationLabel|toCanonicalGeoPoint|LocationFacade\.format/.test(content);
+        if (!delegatesToShared) offenders.push(line);
+    }
+    if (offenders.length > 0) {
+        violations.push(`Shadow location formatter implementation detected (canonical owner is shared/src/location):\n${offenders.join('\n')}`);
     }
 }

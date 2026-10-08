@@ -83,7 +83,7 @@ export const MainTabs = () => {
         options={{
           title: 'Chat',
           tabBarBadge: unreadChatCount > 0 ? unreadChatCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: palette.destructive, color: palette['destructive-foreground'], fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: palette.destructive, color: palette['destructive-foreground'], fontSize: 11 },
         }}
       />
       <Tab.Screen

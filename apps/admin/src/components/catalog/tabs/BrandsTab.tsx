@@ -176,7 +176,7 @@ export default function BrandsTab() {
                         cell: (brand) => (
                             <CatalogEntityCell
                                 icon={<Tag size={20} />}
-                                iconClassName="bg-orange-50 text-orange-600"
+                                iconClassName="bg-warning/10 text-warning"
                                 title={brand.name}
                             />
                         )
@@ -215,7 +215,7 @@ export default function BrandsTab() {
                             const lifecycleStatus = deriveCatalogLifecycleStatus(brand);
                             if (brand.isDeleted) {
                                 return (
-                                    <div className="text-xs font-medium text-foreground-subtle">
+                                    <div className="text-caption font-medium text-foreground-subtle">
                                         Hidden record
                                     </div>
                                 );
@@ -226,7 +226,7 @@ export default function BrandsTab() {
                                         <>
                                             <CatalogActionIconButton
                                                 onClick={() => void handleApprove(brand.id)}
-                                                className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                                className="p-1.5 text-success hover:bg-success/10 rounded-lg transition-all"
                                                 title="Approve"
                                                 icon={<CheckCircle size={18} />}
                                             />
@@ -235,7 +235,7 @@ export default function BrandsTab() {
                                                     setRejectionReason("");
                                                     setRejectingBrand(brand);
                                                 }}
-                                                className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                                                className="p-1.5 text-warning hover:bg-warning/10 rounded-lg transition-all"
                                                 title="Reject"
                                                 icon={<XCircle size={18} />}
                                             />
@@ -316,24 +316,24 @@ export default function BrandsTab() {
                 onClose={() => { closeDelete(); setDeleteError(null); }}
                 onConfirm={confirmDelete}
                 customContent={deleteError ? (
-                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 space-y-2">
+                    <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 space-y-2">
                         <div className="flex items-start gap-3">
-                            <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
+                            <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                             <div>
-                                <p className="text-sm font-semibold text-rose-800">
+                                <p className="text-body font-semibold text-destructive">
                                     Deletion Blocked (409 Conflict)
                                 </p>
-                                <p className="mt-1 text-sm text-rose-700">
+                                <p className="mt-1 text-body text-destructive">
                                     {deleteError.message}
                                 </p>
                             </div>
                         </div>
                         {deleteError.details && (
                             <div className="mt-2 pl-8 space-y-1">
-                                <p className="text-xs font-semibold text-rose-800 uppercase tracking-wider">
+                                <p className="text-caption font-semibold text-destructive uppercase tracking-wider">
                                     Active Dependencies:
                                 </p>
-                                <ul className="text-xs text-rose-700 list-disc list-inside space-y-1">
+                                <ul className="text-caption text-destructive list-disc list-inside space-y-1">
                                     {typeof deleteError.details.listings === "number" && deleteError.details.listings > 0 && (
                                         <li>Marketplace Listings: <strong>{deleteError.details.listings}</strong></li>
                                     )}
@@ -355,19 +355,19 @@ export default function BrandsTab() {
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                        <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4">
+                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                             <div>
-                                <p className="text-sm font-semibold text-red-700">
+                                <p className="text-body font-semibold text-destructive">
                                     Cascade delete — this cannot be undone
                                 </p>
-                                <p className="mt-1 text-sm text-red-600">
+                                <p className="mt-1 text-body text-destructive">
                                     Deleting <strong>&ldquo;{deletingBrand?.name}&rdquo;</strong> will also 
                                     soft-delete all Models and Spare Parts linked exclusively to this brand.
                                 </p>
                             </div>
                         </div>
-                        <p className="text-sm text-foreground-secondary">
+                        <p className="text-body text-foreground-secondary">
                             To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
                         </p>
                     </>

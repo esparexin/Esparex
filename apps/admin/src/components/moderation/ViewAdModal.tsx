@@ -82,7 +82,7 @@ export function ViewAdModal({
                 <div className="flex items-center justify-between shrink-0 border-b border-border px-6 py-4">
                     <div>
                         <p className="text-tiny font-semibold uppercase tracking-widest text-foreground-subtle">Moderation</p>
-                        <DialogTitle className="text-lg font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
+                        <DialogTitle className="text-h4 font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
                     </div>
                     <button
                         type="button"
@@ -171,7 +171,7 @@ export function ViewAdModal({
                                             </span>
                                         );
                                     })()}
-                                    <div className="text-2xl font-bold text-foreground">
+                                    <div className="text-h2 font-bold text-foreground">
                                         {getListingPriceSummary(ad)}
                                     </div>
                                     <div className="text-caption text-foreground-secondary">{formatAppDateTime(ad.createdAt)}</div>
@@ -183,7 +183,7 @@ export function ViewAdModal({
                                             </span>
                                         )}
                                     </div>
-                                    <div className="space-y-1 text-sm text-foreground-secondary">
+                                    <div className="space-y-1 text-body text-foreground-secondary">
                                         <div>
                                             <span className="font-semibold">Approved at:</span>{" "}
                                             {ad.approvedAt ? formatAppDateTime(ad.approvedAt) : "-"}
@@ -246,47 +246,47 @@ export function ViewAdModal({
 
                             <div className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
                                 <div className="min-w-0 space-y-2">
-                                    <h3 className="text-sm font-semibold text-foreground">{presentation.informationHeader}</h3>
-                                    <div className="truncate text-lg font-semibold text-foreground" title={ad.title}>{ad.title}</div>
-                                    <p className="text-sm text-foreground-secondary whitespace-pre-wrap">{ad.description || "No description"}</p>
+                                    <h3 className="text-body font-semibold text-foreground">{presentation.informationHeader}</h3>
+                                    <div className="truncate text-h4 font-semibold text-foreground" title={ad.title}>{ad.title}</div>
+                                    <p className="text-body text-foreground-secondary whitespace-pre-wrap">{ad.description || "No description"}</p>
                                     {effectiveListingType === "service" && (<>
                                         {typeof ad.diagnosticFee === "number" && (
-                                            <div className="text-sm text-foreground-secondary">
+                                            <div className="text-body text-foreground-secondary">
                                                 <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {formatStableNumber(ad.diagnosticFee)}
                                             </div>
                                         )}
                                         {ad.included && (
-                                            <div className="text-sm text-foreground-secondary">
+                                            <div className="text-body text-foreground-secondary">
                                                 <span className="font-semibold">Included:</span> {ad.included}
                                             </div>
                                         )}
                                         {ad.excluded && (
-                                            <div className="text-sm text-foreground-secondary">
+                                            <div className="text-body text-foreground-secondary">
                                                 <span className="font-semibold">Excluded:</span> {ad.excluded}
                                             </div>
                                         )}
                                     </>)}
-                                    <div className="flex items-start gap-2 text-sm text-foreground-secondary">
+                                    <div className="flex items-start gap-2 text-body text-foreground-secondary">
                                         <MapPin size={15} className="mt-0.5" />
                                         <span>{locationDisplay}</span>
                                     </div>
                                 </div>
 
                                 <div className="min-w-0 space-y-2">
-                                    <h3 className="text-sm font-semibold text-foreground">Seller Information</h3>
-                                    <div className="flex min-w-0 items-center gap-2 text-sm text-foreground-secondary">
+                                    <h3 className="text-body font-semibold text-foreground">Seller Information</h3>
+                                    <div className="flex min-w-0 items-center gap-2 text-body text-foreground-secondary">
                                         <User size={14} className="shrink-0" />
                                         <span className="truncate">{ad.sellerName || "Unknown seller"}</span>
-                                        {ad.sellerId && <span className="text-xs text-foreground-tertiary">({ad.sellerId})</span>}
+                                        {ad.sellerId && <span className="text-caption text-foreground-tertiary">({ad.sellerId})</span>}
                                     </div>
-                                    <div className="flex items-center gap-2 text-sm text-foreground-secondary">
+                                    <div className="flex items-center gap-2 text-body text-foreground-secondary">
                                         <Phone size={14} />
                                         <span>{ad.sellerPhone || "Not available"}</span>
                                     </div>
                                     {ad.sellerId && (
                                         <Link
                                             href={`/users/${encodeURIComponent(ad.sellerId)}`}
-                                            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                                            className="inline-flex items-center gap-1 text-body font-medium text-primary hover:underline"
                                         >
                                             View Seller Profile <ExternalLink size={14} />
                                         </Link>
@@ -301,7 +301,7 @@ export function ViewAdModal({
                                             <button
                                                 type="button"
                                                 onClick={() => void onApprove(ad.id)}
-                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-body font-semibold text-white hover:bg-emerald-700 transition-colors"
+                                                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-success px-4 text-body font-semibold text-white hover:bg-success-dark transition-colors"
                                             >
                                                 <Check size={15} /> Approve
                                             </button>
@@ -320,7 +320,7 @@ export function ViewAdModal({
                                                 <button
                                                     type="button"
                                                     onClick={() => void onDeactivate(ad.id)}
-                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-orange-600 px-4 text-body font-semibold text-white hover:bg-orange-700 transition-colors"
+                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-warning px-4 text-body font-semibold text-white hover:bg-warning-dark transition-colors"
                                                 >
                                                     <Pause size={15} /> Deactivate
                                                 </button>
@@ -329,7 +329,7 @@ export function ViewAdModal({
                                                 <button
                                                     type="button"
                                                     onClick={() => void onBlockSeller(ad.sellerId!)}
-                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 text-body font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                                                    className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-4 text-body font-semibold text-destructive hover:bg-destructive/10 transition-colors"
                                                 >
                                                     Block Seller
                                                 </button>
@@ -340,7 +340,7 @@ export function ViewAdModal({
                                         <button
                                             type="button"
                                             onClick={() => void onActivate(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-body font-semibold text-white hover:bg-emerald-800 transition-colors"
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-success-dark px-4 text-body font-semibold text-white hover:bg-success-dark transition-colors"
                                         >
                                             <Play size={15} /> Activate
                                         </button>
@@ -349,7 +349,7 @@ export function ViewAdModal({
                                         <button
                                             type="button"
                                             onClick={() => void onExtend(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 px-4 text-body font-semibold text-sky-700 hover:bg-sky-100 transition-colors"
+                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-primary/20 bg-primary-subtle px-4 text-body font-semibold text-primary hover:bg-primary/10 transition-colors"
                                         >
                                             <RefreshCw size={15} /> {ad.status === LIFECYCLE_STATUS.EXPIRED ? "Restore & Extend" : "Extend Expiry"}
                                         </button>
@@ -398,7 +398,7 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void reportContext.onTakeDown?.()}
-                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-red-600 px-4 text-caption font-semibold text-white hover:bg-red-700 transition-colors shadow-xs"
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-destructive px-4 text-caption font-semibold text-white hover:bg-destructive transition-colors shadow-xs"
                                     >
                                         <ShieldAlert size={14} /> Take Down Ad & Resolve Report
                                     </button>
@@ -407,7 +407,7 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void onBlockSeller(ad.sellerId!)}
-                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 text-caption font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-destructive/20 bg-destructive/10 px-3.5 text-caption font-semibold text-destructive hover:bg-destructive/10 transition-colors"
                                     >
                                         Block Seller
                                     </button>

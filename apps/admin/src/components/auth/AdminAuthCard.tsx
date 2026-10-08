@@ -30,7 +30,7 @@ export function AdminAuthCard({ title, subtitle, children }: AdminAuthCardProps)
               className="h-8 w-auto object-contain"
             />
           </div>
-          <Heading variant="h2" className="font-extrabold tracking-tight">
+          <Heading variant="h2" className="font-bold tracking-tight">
             {title}
           </Heading>
           {subtitle && (

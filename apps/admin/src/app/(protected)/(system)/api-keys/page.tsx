@@ -57,14 +57,14 @@ export default function ApiKeysPage() {
             cell: (item) => (
                 <div>
                     <div className="font-semibold text-foreground">{item.name}</div>
-                    <div className="font-mono text-xs text-foreground-tertiary">{item.keyPrefix}</div>
+                    <div className="font-mono text-caption text-foreground-tertiary">{item.keyPrefix}</div>
                 </div>
             ),
         },
         {
             header: "Scopes",
             cell: (item) => (
-                <div className="max-w-[300px] text-xs text-foreground-secondary">
+                <div className="max-w-[300px] text-caption text-foreground-secondary">
                     {item.scopes.length > 0 ? item.scopes.join(", ") : "No scopes"}
                 </div>
             ),
@@ -88,7 +88,7 @@ export default function ApiKeysPage() {
                     type="button"
                     disabled={item.status === "revoked" || isMutating}
                     onClick={() => void handleRevokeKey(item.id)}
-                    className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                    className="rounded-md border border-destructive/20 px-2 py-1 text-caption font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
                 >
                     Revoke
                 </button>
@@ -111,14 +111,14 @@ export default function ApiKeysPage() {
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
                         <input
-                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="rounded-lg border border-input bg-background text-body-lg md:text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Internal integrations"
                             value={name}
                             disabled={isMutating}
                             onChange={(event) => setName(event.target.value)}
                         />
                         <input
-                            className="rounded-lg border border-input bg-background text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="rounded-lg border border-input bg-background text-body-lg md:text-body text-foreground placeholder:text-muted-foreground px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             placeholder="Scope list, comma separated"
                             value={scopes}
                             disabled={isMutating}
@@ -134,12 +134,12 @@ export default function ApiKeysPage() {
                         </Button>
                     </div>
                     {newKey && (
-                        <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800 animate-in fade-in slide-in-from-top-2">
+                        <div className="mt-4 rounded-lg border border-success/20 bg-success/10 p-4 text-body text-success-dark animate-in fade-in slide-in-from-top-2">
                             <div className="font-bold flex items-center gap-2">
                                 <ShieldCheck size={16} /> IMPORTANT: Copy this key now!
                             </div>
                             <p className="mt-1 text-tiny opacity-80">We only show it once for security reasons. If lost, you must revoke and create a new one.</p>
-                            <div className="mt-2 font-mono break-all bg-white/50 p-2 rounded border border-emerald-200 select-all">{newKey}</div>
+                            <div className="mt-2 font-mono break-all bg-white/50 p-2 rounded border border-success/20 select-all">{newKey}</div>
                         </div>
                     )}
                 </div>
@@ -156,7 +156,7 @@ export default function ApiKeysPage() {
                 />
 
                 {error && (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-body font-medium text-destructive">
                         <AlertCircle size={16} /> {error}
                     </div>
                 )}

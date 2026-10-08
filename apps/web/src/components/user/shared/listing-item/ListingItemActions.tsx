@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import {
   Edit2,
@@ -14,6 +13,7 @@ import {
   Sparkles,
   Zap,
   Button,
+  StatusChip,
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import {
@@ -29,7 +29,6 @@ interface ListingItemActionsProps {
   title: string;
   detailHref?: string;
   editHref: string;
-  getStatusBadge: (status: string) => React.ReactNode;
   showStatusBadge?: boolean;
   showEdit: boolean;
   showDeactivate: boolean;
@@ -54,7 +53,6 @@ export function ListingItemActions({
   title,
   detailHref,
   editHref,
-  getStatusBadge,
   showStatusBadge = true,
   showEdit,
   showDeactivate,
@@ -84,7 +82,7 @@ export function ListingItemActions({
       >
         {showStatusBadge && (
           <div className="[&>*]:!text-tiny [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
-            {getStatusBadge(status)}
+            <StatusChip status={status} />
           </div>
         )}
 
@@ -115,7 +113,7 @@ export function ListingItemActions({
               {showMarkSold && (
                 <DropdownMenuItem
                   onClick={onMarkSold}
-                  className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-success-dark focus:text-success-dark focus:bg-success/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <CheckSquare className="h-3 w-3 mr-1.5 shrink-0" />
                   Mark as Sold
@@ -124,7 +122,7 @@ export function ListingItemActions({
               {showDeactivate && (
                 <DropdownMenuItem
                   onClick={onDeactivate}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-warning-dark focus:text-warning-dark focus:bg-warning/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
                   <PowerOff className="h-3 w-3 mr-1.5 shrink-0" />
                   Deactivate
@@ -142,9 +140,9 @@ export function ListingItemActions({
               {showBoost && (
                 <DropdownMenuItem
                   onClick={onBoost}
-                  className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
+                  className="text-warning-dark focus:text-warning-dark focus:bg-warning/10 cursor-pointer text-tiny font-medium py-1 px-2 flex items-center"
                 >
-                  <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-amber-500" />
+                  <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-warning" />
                   Apply Boost / Spotlight
                 </DropdownMenuItem>
               )}
@@ -195,8 +193,8 @@ export function ListingItemActions({
       {/* ── Row B: Direct Action Shortcut (Spotlight / Boost + Edit) ── */}
       <div className="flex items-center gap-1.5 justify-end w-full">
         {isSpotlight && isActive ? (
-          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-300/80 text-tiny font-bold px-2 py-1 rounded-md shadow-2xs shrink-0">
-            <Sparkles className="h-3 w-3 text-amber-500 fill-amber-400" />
+          <span className="inline-flex items-center gap-1 bg-warning/10 text-warning-dark border border-warning/30 text-tiny font-bold px-2 py-1 rounded-md shadow-2xs shrink-0">
+            <Sparkles className="h-3 w-3 text-warning fill-warning" />
             Spotlight
           </span>
         ) : onBoost && isActive ? (
@@ -207,9 +205,9 @@ export function ListingItemActions({
             onClick={onBoost}
             aria-label="Promote listing"
             title="Promote / Boost Ad"
-            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1"
+            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-warning/30 bg-warning/10 text-warning-dark hover:bg-warning/20 hover:border-warning transition-colors shadow-2xs cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-1"
           >
-            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
+            <Zap className="h-3.5 w-3.5 text-warning fill-warning shrink-0" />
           </Button>
         ) : null}
 

@@ -12,6 +12,9 @@ export * from './application/RevenueAnalytics';
 // Domain Policies
 export * from './domain/policies/PlanEngine';
 
+// Domain Utilities
+export * from './utils/gst';
+
 // Ports
 export * from './ports/PaymentGatewayPort';
 export * from './ports/DocumentStoragePort';

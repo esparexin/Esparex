@@ -7,6 +7,7 @@ import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { consumeCredit } from '../../../payments/application/WalletService';
 import { isValidObjectId } from '../../../../utils/idUtils';
+import { isPromotionEligible } from '../../../trust';
 // Canonical boost-window math (boosts/shared) — the inline setDate math lost P0-1.
 import { computeBoostWindow } from '../../../boosts/shared/computeBoostWindow';
 
@@ -49,7 +50,8 @@ export const promoteAdLogic = async (params: PromoteAdParams) => {
 
     if (!isAdmin) {
         const user = await User.findById(userId).select('trustScore strikeCount');
-        if (!user || user.trustScore < 30 || user.strikeCount >= 2) {
+        // P2: eligibility predicate owned by trust (single implementation).
+        if (!user || !isPromotionEligible(user.trustScore, user.strikeCount)) {
             throw new AppError('Account ineligible for promotion due to trust or moderation standing.', 403);
         }
 

@@ -4,17 +4,17 @@ export const base = {
   black: '#000000',
   white: '#ffffff',
   brand: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    200: '#bbf7d0',
-    300: '#86efac',
-    400: '#4ade80',
-    500: '#22c55e',
-    600: '#16a34a', // Primary Green (#16A34A)
-    700: '#15803d',
-    800: '#087a3e', // Deep Green (#087A3E)
-    900: '#14532d',
-    950: '#052e16',
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6',
+    600: '#2563eb', // Canonical primary/action (#2563EB)
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+    950: '#172554',
   },
   warmNeutral: {
     50: '#fafaf8',  // App Background (#FAFAF8)
@@ -42,6 +42,7 @@ export const base = {
     900: '#0f172a',
     950: '#020617',
   },
+  // Success/verification signals (legitimate green — not primary/action).
   success: '#16a34a',
   'success-subtle': '#dcfce7',
   'success-dark': '#087a3e',
@@ -53,8 +54,9 @@ export const base = {
   info: '#2563eb',
   'info-subtle': '#eff6ff',
   'info-dark': '#1d4ed8',
-  // Primary brand interactive control color (buttons, links, prices)
-  'action': '#16a34a',
+  // Canonical primary/action color (#2563EB SSOT). Consumers must use
+  // semantic primary/action tokens, never hard-code this value.
+  'action': '#2563eb',
   // Inverse surface (dark stone) — used for dark-background cards in light mode (e.g. wallet card)
   'inverse-surface': '#1c1917',
   'inverse-muted': '#a8a29e',

@@ -1,6 +1,5 @@
 import { z } from 'zod';
-
-const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
+import { objectIdSchema } from '@esparex/contracts';
 
 const optionalObjectIdSchema = z.preprocess((value) => {
     if (value === null || value === undefined) return undefined;

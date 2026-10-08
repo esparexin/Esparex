@@ -134,9 +134,9 @@ export default function FinancePage() {
         {
             header: "Status",
             cell: (t) => (
-                <span className={`px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider ${t.status === 'SUCCESS' ? "bg-emerald-100 text-emerald-700" :
-                        t.status === 'FAILED' ? "bg-red-100 text-red-700" :
-                            "bg-amber-100 text-amber-700"
+                <span className={`px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider ${t.status === 'SUCCESS' ? "bg-success/10 text-success-dark" :
+                        t.status === 'FAILED' ? "bg-destructive/10 text-destructive" :
+                            "bg-warning/10 text-warning-dark"
                     }`}>
                     {t.status}
                 </span>
@@ -145,7 +145,7 @@ export default function FinancePage() {
         {
             header: "Description",
             cell: (t) => (
-                <div className="text-xs text-foreground-tertiary max-w-[200px] truncate italic">
+                <div className="text-caption text-foreground-tertiary max-w-[200px] truncate italic">
                     {t.description || 'System transaction'}
                 </div>
             )
@@ -153,7 +153,7 @@ export default function FinancePage() {
         {
             header: "Date",
             cell: (t) => (
-                <div className="text-xs text-foreground-tertiary font-medium">
+                <div className="text-caption text-foreground-tertiary font-medium">
                     {formatAppDate(t.createdAt)}
                     <span className="text-tiny text-foreground-subtle ml-2">
                         {formatAppTime(t.createdAt, { hour: '2-digit', minute: '2-digit' })}

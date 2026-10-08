@@ -1,14 +1,29 @@
 import { z } from 'zod';
 import sanitizeHtml from 'sanitize-html';
+import {
+    objectIdSchema,
+    emailSchema,
+    priceSchema,
+    coordinatesSchema,
+    authMobileSchema,
+} from '@esparex/contracts';
 
 /**
- * Common validation schemas for reuse
+ * Common validation schemas for reuse.
+ *
+ * SSOT: field-level schemas (objectId, mobile, email, price, coordinates)
+ * are canonical in @esparex/contracts — this module re-exports them so
+ * existing `commonSchemas.*` consumers delegate to the single owner.
+ * Pagination/sort/search/dateRange below are Express query-string adapters
+ * (string transforms) and intentionally remain here; the contracts
+ * equivalents (paginationQuerySchema/sortQuerySchema/dateRangeSchema) use
+ * coercion/Date semantics for wire payloads.
  */
 export const commonSchemas = {
     /**
-     * MongoDB ObjectId validation
+     * MongoDB ObjectId validation (canonical: contracts objectIdSchema).
      */
-    objectId: z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format'),
+    objectId: objectIdSchema,
 
     /**
      * Pagination query params
@@ -42,15 +57,15 @@ export const commonSchemas = {
     }),
 
     /**
-     * Mobile number validation (Indian format, 10-digit storage — no prefix added)
+     * Mobile number validation (canonical: contracts authMobileSchema —
+     * Indian 10-digit with +91/0 prefix normalization).
      */
-    mobile: z.string()
-        .regex(/^[6-9]\d{9}$/, 'Invalid mobile number format'),
+    mobile: authMobileSchema,
 
     /**
-     * Email validation
+     * Email validation (canonical: contracts emailSchema).
      */
-    email: z.string().email('Invalid email format').max(255, 'Email too long').toLowerCase(),
+    email: emailSchema,
 
     /**
      * URL validation
@@ -58,9 +73,9 @@ export const commonSchemas = {
     url: z.string().url('Invalid URL format').max(2048, 'URL too long'),
 
     /**
-     * Price validation
+     * Price validation (canonical: contracts priceSchema, PRICE_LIMITS).
      */
-    price: z.number().min(0, 'Price must be positive').max(10000000, 'Price too high'),
+    price: priceSchema,
 
     /**
      * Image URL validation
@@ -68,22 +83,10 @@ export const commonSchemas = {
     imageUrl: z.string().url().regex(/\.(jpg|jpeg|png|webp|gif)$/i, 'Invalid image format'),
 
     /**
-     * Coordinates validation
+     * Coordinates validation (canonical: contracts coordinatesSchema,
+     * GeoJSON Point with [0,0] Null Island guard).
      */
-    coordinates: z.object({
-        type: z.literal('Point'),
-        coordinates: z.tuple([
-            z.number().min(-180).max(180).refine(Number.isFinite, 'Longitude must be finite'),
-            z.number().min(-90).max(90).refine(Number.isFinite, 'Latitude must be finite'),
-        ]).superRefine((value, ctx) => {
-            if (value[0] === 0 && value[1] === 0) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: 'Coordinates [0,0] are not allowed',
-                });
-            }
-        }),
-    }),
+    coordinates: coordinatesSchema,
 };
 
 /**

@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 import { USER_STATUS, UserStatusValue, BusinessErrorCode } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE } from '@esparex/contracts';
-import { mutateStatuses } from '../../../../services/lifecycle/StatusMutationService';
+import { mutateStatuses } from '../../../listings/application/lifecycle/StatusMutationService';
 import { AppError } from '../../../../shared-kernel/errors/AppError';
 import type { AdminLogFn } from '../../../../utils/adminLogger';
 

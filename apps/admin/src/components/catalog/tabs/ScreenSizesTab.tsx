@@ -12,7 +12,6 @@ import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import {
     CatalogActiveCheckboxField,
-    CatalogActiveStatusFilter,
     CatalogActiveToggleButton,
     CatalogEditDeleteActions,
     CatalogEntityCell,
@@ -114,7 +113,7 @@ export default function ScreenSizesTab() {
                         cell: (screenSize) => (
                             <CatalogEntityCell
                                 icon={<Monitor size={20} />}
-                                iconClassName="bg-sky-50 text-sky-600"
+                                iconClassName="bg-primary-subtle text-primary"
                                 title={screenSize.size}
                                 subtitle={screenSize.name}
                             />
@@ -129,7 +128,7 @@ export default function ScreenSizesTab() {
                     },
                     {
                         header: "Sort Order",
-                        cell: (screenSize) => <span className="text-sm font-semibold text-foreground-secondary">{screenSize.value}</span>,
+                        cell: (screenSize) => <span className="text-body font-semibold text-foreground-secondary">{screenSize.value}</span>,
                     },
                     {
                         header: "Status",
@@ -153,31 +152,27 @@ export default function ScreenSizesTab() {
                 ]}
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
-                    <>
-                        <CatalogSearchAndCategoryFilters
-                            searchValue={searchInput}
-                            searchPlaceholder="Search screen sizes..."
-                            onSearchChange={setSearchInput}
-                            categories={categoryOptions}
-                            categoryValue={initialCategoryId}
-                            onCategoryChange={(categoryId) =>
-                                replaceQueryState({
-                                    categoryId: categoryId !== "all" ? categoryId : null,
-                                    page: null,
-                                })
-                            }
-                            withCategoryFilterIcon
-                        />
-                        <CatalogActiveStatusFilter
-                            value={initialStatus}
-                            onChange={(status) =>
-                                replaceQueryState({
-                                    status: status !== "all" ? status : null,
-                                    page: null,
-                                })
-                            }
-                        />
-                    </>
+                    <CatalogSearchAndCategoryFilters
+                        searchValue={searchInput}
+                        searchPlaceholder="Search screen sizes..."
+                        onSearchChange={setSearchInput}
+                        categories={categoryOptions}
+                        categoryValue={initialCategoryId}
+                        onCategoryChange={(categoryId) =>
+                            replaceQueryState({
+                                categoryId: categoryId !== "all" ? categoryId : null,
+                                page: null,
+                            })
+                        }
+                        withCategoryFilterIcon
+                        statusValue={initialStatus}
+                        onStatusChange={(status) =>
+                            replaceQueryState({
+                                status: status !== "all" ? status : null,
+                                page: null,
+                            })
+                        }
+                    />
                 }
                 formRenderer={(formData, setFormData) => (
                     <>
@@ -194,7 +189,7 @@ export default function ScreenSizesTab() {
                                     required
                                     type="number"
                                     min={1}
-                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={formData.value}
                                     onChange={(e) => setFormData((prev) => ({ ...prev, value: Number(e.target.value) }))}
                                 />

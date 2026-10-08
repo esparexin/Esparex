@@ -181,7 +181,7 @@ export default function CategoriesTab() {
                         header: "Screen Sizes",
                         cell: (category) =>
                             category.hasScreenSizes ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-tiny font-semibold text-blue-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-primary-subtle px-2.5 py-1 text-tiny font-semibold text-primary">
                                     <Monitor size={11} aria-hidden="true" focusable="false" /> Yes
                                 </span>
                             ) : (
@@ -212,7 +212,7 @@ export default function CategoriesTab() {
                                 />
                                 <CatalogActionIconButton
                                     onClick={() => setDeletingCategory(category)}
-                                    className="p-1.5 text-foreground-subtle hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
                                     title="Delete"
                                     icon={<Trash2 size={18} aria-hidden="true" focusable="false" />}
                                 />
@@ -252,13 +252,13 @@ export default function CategoriesTab() {
 
                             <div className="rounded-lg border border-border bg-muted/30 px-3 py-2">
                                 <p className="text-tiny font-medium uppercase tracking-wider text-foreground-subtle">URL Slug</p>
-                                <p className="mt-0.5 font-mono text-sm text-foreground-secondary break-all">
+                                <p className="mt-0.5 font-mono text-body text-foreground-secondary break-all">
                                     {isEditing && formData._editingSlug
                                         ? formData._editingSlug
                                         : deriveSlug(formData.name) || "auto-generated from name"}
                                 </p>
                                 {isEditing && (
-                                    <p className="mt-1 text-tiny text-amber-600">
+                                    <p className="mt-1 text-tiny text-warning">
                                         ⚠ Slug is fixed on create. Changing name will not change the slug.
                                     </p>
                                 )}
@@ -300,20 +300,20 @@ export default function CategoriesTab() {
                 title="Delete Category"
             >
                 <div className="p-6 space-y-4">
-                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" aria-hidden="true" focusable="false" />
+                    <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" aria-hidden="true" focusable="false" />
                         <div>
-                            <p className="text-sm font-semibold text-red-700">
+                            <p className="text-body font-semibold text-destructive">
                                 Cascade delete — this cannot be undone
                             </p>
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="mt-1 text-body text-destructive">
                                 Deleting <strong>&ldquo;{deletingCategory?.name}&rdquo;</strong> will also
                                 soft-delete all Brands, Models, Spare Parts, and Screen Sizes linked exclusively
                                 to this category.
                             </p>
                         </div>
                     </div>
-                    <p className="text-sm text-foreground-secondary">
+                    <p className="text-body text-foreground-secondary">
                         To hide this category temporarily, <strong>deactivate it</strong> instead of deleting.
                     </p>
                     <div className="flex justify-end gap-3 pt-2">

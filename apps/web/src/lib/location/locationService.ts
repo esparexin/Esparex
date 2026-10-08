@@ -12,7 +12,6 @@ export {
     normalizeToAppLocation,
     reverseGeocode,
     normalizeLocationName,
-    formatLocation,
 } from "./locationNormalizer";
 
 export type {

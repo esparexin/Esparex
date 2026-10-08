@@ -4,7 +4,7 @@ import { logger } from '@esparex/core';
 import { logAdminAction } from '../../utils/adminLogger';
 import { mutateStatus } from '@esparex/core';
 import { ACTOR_TYPE } from "@esparex/contracts";
-import { AD_STATUS } from "@esparex/contracts";
+import { LISTING_STATUS } from "@esparex/contracts";
 import { REPORT_STATUS, REPORT_STATUS_VALUES, type ReportStatusValue } from "@esparex/contracts";
 import { getSingleParam } from '../../utils/requestParams';
 import {
@@ -81,7 +81,7 @@ export const resolveReport = async (req: Request, res: Response) => {
             await mutateStatus({
                 domain: 'ad',
                 entityId: targetAdId.toString(),
-                toStatus: AD_STATUS.REJECTED,
+                toStatus: LISTING_STATUS.REJECTED,
                 actor: { type: ACTOR_TYPE.ADMIN, id: req.user!._id.toString() },
                 reason: `Taken down via report: ${report.reason}. ${note || ''}`,
                 patch: {

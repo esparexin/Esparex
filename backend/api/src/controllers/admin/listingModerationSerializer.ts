@@ -1,4 +1,4 @@
-import { AD_STATUS } from "@esparex/contracts";
+import { LISTING_STATUS } from "@esparex/contracts";
 import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 
 // Local type definitions to avoid circular dependency via domain barrel.
@@ -8,14 +8,14 @@ type ModerationListingType = ListingTypeValue;
 type ModerationStatus = string;
 
 const MODERATION_STATUS_SET = new Set<ModerationStatus>([
-    AD_STATUS.PENDING,
-    AD_STATUS.LIVE,
+    LISTING_STATUS.PENDING,
+    LISTING_STATUS.LIVE,
     'active',
     'approved',
-    AD_STATUS.REJECTED,
-    AD_STATUS.EXPIRED,
-    AD_STATUS.SOLD,
-    AD_STATUS.DEACTIVATED,
+    LISTING_STATUS.REJECTED,
+    LISTING_STATUS.EXPIRED,
+    LISTING_STATUS.SOLD,
+    LISTING_STATUS.DEACTIVATED,
 ]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

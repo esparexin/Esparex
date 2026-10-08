@@ -1,6 +1,13 @@
 # PDR-001: Action Color Semantic Promotion (formerly ADR-004)
 
-> **Status:** Superseded by `AGENTS.md` §21 (Green `#16A34A` + Warm Neutral). Historical blue-era record only — do not use for new work.
+> **Status (2026-10-08 SSOT cleanup):** `#2563EB` reinstated as the canonical
+> primary/action color. `base.brand` ramp, `base.action`, and semantic
+> `primary`/`action`/`ring` are consolidated around `#2563EB` in
+> `@esparex/design-tokens` (single owner). Green (`#16A34A`/`#087A3E`) is
+> retained ONLY for success/verification signals, never as primary/action.
+> Historical note below is preserved for context.
+
+> **Status (prior):** Superseded by `AGENTS.md` §21 (Green `#16A34A` + Warm Neutral). Historical blue-era record only — do not use for new work.
 
 **Date**: 2026-08-07  
 **Status (original)**: Approved (blue era)  

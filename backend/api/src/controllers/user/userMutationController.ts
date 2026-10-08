@@ -29,6 +29,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+// P4 note: validateUploadPath stays co-located until Phase 5 extracts avatar
+// upload into IdentityService (moving it alone would breach the file-size
+// ratchet on the receiving module for zero structural gain).
 function validateUploadPath(filePath: string): string {
     const tempDir = os.tmpdir();
     const resolvedPath = path.resolve(filePath);

@@ -65,7 +65,7 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
 
                     <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-1.5 shadow-xs">
                         <div className="text-right hidden sm:block">
-                            <p className="text-xs font-semibold leading-tight text-foreground">
+                            <p className="text-caption font-semibold leading-tight text-foreground">
                                 {admin?.firstName} {admin?.lastName}
                             </p>
                             <span className="mt-0.5 inline-flex rounded-full bg-muted px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">

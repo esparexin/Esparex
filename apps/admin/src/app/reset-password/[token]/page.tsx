@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
     >
       {isSuccess ? (
             <div className="space-y-6 text-center">
-              <div className="mx-auto w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 animate-in zoom-in-75 duration-300">
+              <div className="mx-auto w-14 h-14 rounded-full bg-success/10 border border-success/20 flex items-center justify-center text-success animate-in zoom-in-75 duration-300">
                 <CheckCircle2 size={32} />
               </div>
               <div className="space-y-2">
@@ -205,8 +205,8 @@ export default function ResetPasswordPage() {
 
                 {errorMessage && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200/80 text-red-700 rounded-xl text-caption font-semibold animate-in fade-in duration-200">
-                      <AlertCircle size={15} className="shrink-0 text-red-600" />
+                    <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl text-caption font-semibold animate-in fade-in duration-200">
+                      <AlertCircle size={15} className="shrink-0 text-destructive" />
                       <span>{errorMessage}</span>
                     </div>
                     <div className="text-center">

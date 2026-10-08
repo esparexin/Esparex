@@ -63,7 +63,7 @@ jest.mock("@esparex/core/services/AdminBusinessService", () => ({
     serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
-jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
+jest.mock("@esparex/core/domains/listings/application/lifecycle/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn(),
     mutateStatuses: jest.fn(),
