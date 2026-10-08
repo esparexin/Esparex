@@ -1,6 +1,6 @@
 # Esparex UI Architecture
 
-The `@esparex/ui` package acts as the single source of truth (SSOT) for all design system primitives and structural patterns across the Esparex Monorepo.
+The `@esparex/ui` package serves as the canonical library for shared web and admin design system primitives across the Esparex monorepo, governed by [packages/ui/GOVERNANCE.md](../GOVERNANCE.md) and [AGENTS.md](../../../AGENTS.md).
 
 To prevent architectural drift and component duplication, the package is structured around strict ownership boundaries. Future contributors must adhere to this matrix when introducing new capabilities.
 
