@@ -7,6 +7,8 @@ import { Input } from "@esparex/ui";
 import { Sheet, SheetContent, SheetTitle } from "@esparex/ui";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useListKeyboardNavigation } from "@/hooks/useListKeyboardNavigation";
+import { useDropdownPosition } from "@/hooks/useDropdownPosition";
+import { DesktopDropdownPortal } from "./DesktopDropdownPortal";
 import { EntitySearchOptionsList } from "./EntitySearchOptionsList";
 
 export interface EntitySearchComboboxProps<T> {
@@ -20,6 +22,7 @@ export interface EntitySearchComboboxProps<T> {
     disabled?: boolean;
     isCustom?: boolean;
     className?: string;
+    id?: string;
     onSelect: (item: T) => void;
     onClear?: () => void;
     onSearchChange?: (search: string) => void;
@@ -42,6 +45,7 @@ export function EntitySearchCombobox<T>({
     disabled = false,
     isCustom = false,
     className,
+    id,
     autoFocus = false,
     onSelect,
     onClear,
@@ -74,6 +78,9 @@ export function EntitySearchCombobox<T>({
     }, [items, search, getLabel]);
 
     const isListOpen = Boolean((isEditing || search) && !disabled);
+
+    // F-Z7: portalled dropdown position (fixed, viewport-relative).
+    const dropdownRect = useDropdownPosition(containerRef, isListOpen && !isMobile);
 
     const handleItemSelect = (item: T) => { onSelect(item); setSearch(""); setIsEditing(false); };
     const handleProposeCustom = (customName: string) => {
@@ -129,26 +136,21 @@ export function EntitySearchCombobox<T>({
         return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
     }, [isListOpen, isMobile, listboxId]);
 
-    const desktopDropdownContent = (
-        <div
-            id={listboxId}
-            role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 p-1.5 overscroll-contain touch-pan-y"
-        >
-            <EntitySearchOptionsList
-                items={filteredItems}
-                loading={loading}
-                activeIndex={activeIndex}
-                isMobileView={false}
-                emptyMessage={emptyMessage}
-                sanitizedTitle={sanitizedTitle}
-                getLabel={getLabel}
-                getId={getId}
-                renderItem={renderItem}
-                onSelect={handleItemSelect}
-            />
-        </div>
-    );
+    const desktopDropdownContent = dropdownRect ? (
+        <DesktopDropdownPortal
+            listboxId={listboxId}
+            dropdownRect={dropdownRect}
+            items={filteredItems}
+            loading={loading}
+            activeIndex={activeIndex}
+            emptyMessage={emptyMessage}
+            sanitizedTitle={sanitizedTitle}
+            getLabel={getLabel}
+            getId={getId}
+            renderItem={renderItem}
+            onSelect={handleItemSelect}
+        />
+    ) : null;
 
     return (
         <div
@@ -162,6 +164,7 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
+                    id={id}
                     autoFocus={autoFocus && !isMobile}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
@@ -179,7 +182,7 @@ export function EntitySearchCombobox<T>({
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
                     className={cn(
-                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
+                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
                         loading ? "pr-14" : "pr-9"
                     )}
                     role="combobox"
@@ -248,7 +251,7 @@ export function EntitySearchCombobox<T>({
                                              onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-2xs placeholder:font-normal placeholder:text-foreground-subtle"
+                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-sm placeholder:font-normal placeholder:text-foreground-subtle"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button

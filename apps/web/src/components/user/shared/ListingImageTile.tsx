@@ -1,10 +1,10 @@
 "use client";
-
-import React from "react";
-import Image from "next/image";
+import React, { useState } from "react";
+import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
 import { X } from "@esparex/ui";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
+import { RemovePhotoConfirmDialog } from "./RemovePhotoConfirmDialog";
 
 interface ListingImageTileItem {
   id?: string | number;
@@ -42,6 +42,9 @@ export function ListingImageTile({
   setDropTargetIndex,
   onDrop,
 }: ListingImageTileProps) {
+  // D-2: confirm via canonical AlertDialog (was window.confirm — the sole
+  // hand-rolled confirm bypass; 7 other web flows use AlertDialog).
+  const [confirmOpen, setConfirmOpen] = useState(false);
   return (
     <div
       draggable={Boolean(onReorder && !disabled)}
@@ -70,14 +73,14 @@ export function ListingImageTile({
         setDropTargetIndex(null);
       }}
       className={cn(
-        "relative aspect-square rounded-xl overflow-hidden border bg-muted group shadow-2xs transition-all duration-200",
+        "relative aspect-square rounded-xl overflow-hidden border bg-muted group shadow-sm transition-all duration-200",
         onReorder && !disabled && "cursor-grab active:cursor-grabbing",
         draggedIndex === index && "opacity-40 scale-90 border-primary border-dashed",
         dropTargetIndex === index && "ring-2 ring-primary ring-offset-2 scale-105",
         "border-border"
       )}
     >
-      <Image
+      <SafeImage
         src={img.preview}
         alt={`Photo ${index + 1}`}
         fill
@@ -93,16 +96,15 @@ export function ListingImageTile({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (window.confirm("Remove this photo?")) {
-                onRemove(img.id ?? index);
-              }
+              setConfirmOpen(true);
             }}
             aria-label={getRemovePhotoAriaLabel(index, totalImages)}
-            className="p-1 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[28px] min-w-[28px] flex items-center justify-center cursor-pointer shadow-xs"
+            className="p-1 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[28px] min-w-[28px] flex items-center justify-center cursor-pointer shadow-sm"
           >
             <X className="w-3 h-3" />
           </button>
         </div>
+      </div>
         {onSetMain && index !== 0 && (
           <button
             type="button"
@@ -115,13 +117,17 @@ export function ListingImageTile({
             Make Cover
           </button>
         )}
-      </div>
 
       {index === 0 && (
-        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-tiny font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs backdrop-blur-xs">
+        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-tiny font-bold text-white uppercase tracking-wider pointer-events-none shadow-sm backdrop-blur-xs">
           {firstImageBadgeLabel}
         </div>
       )}
+      <RemovePhotoConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => onRemove(img.id ?? index)}
+      />
     </div>
   );
 }

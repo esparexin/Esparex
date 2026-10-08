@@ -210,7 +210,7 @@ export default function AuditLogsPage() {
                 </div>
             ) : null}
 
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-border bg-muted/20 flex items-center gap-2 text-foreground">
                     <Activity size={18} className="text-foreground-subtle" />
                     <h2 className="text-body font-bold text-foreground-secondary">Audit Trail</h2>

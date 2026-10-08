@@ -1,7 +1,6 @@
 "use client";
-
 import { useState, useCallback } from "react";
-
+import { useEscapeCapture } from "./useEscapeCapture";
 interface UseListKeyboardNavigationProps<T> {
     items: T[];
     isOpen: boolean;
@@ -16,6 +15,13 @@ export function useListKeyboardNavigation<T>({
     onClose,
 }: UseListKeyboardNavigationProps<T>) {
     const [activeIndex, setActiveIndex] = useState(-1);
+
+    // F-K1: close dropdown on Escape before Radix dialog dismissal.
+    // (Capture-phase logic lives in useEscapeCapture.)
+    useEscapeCapture(isOpen, () => {
+        setActiveIndex(-1);
+        onClose?.();
+    });
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {

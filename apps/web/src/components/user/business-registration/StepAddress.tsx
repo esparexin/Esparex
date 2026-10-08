@@ -287,7 +287,7 @@ export function StepAddress({
                             }
                             placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                             maxLength={300}
-                            className="min-h-[84px] sm:min-h-[92px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed placeholder:text-foreground-subtle border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
+                            className="min-h-[84px] sm:min-h-[92px] rounded-xl text-body-lg md:text-body font-normal leading-relaxed placeholder:text-foreground-subtle border-border bg-card shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary resize-none p-3"
                             aria-invalid={Boolean(formData.errors?.address)}
                         />
                     </Field>

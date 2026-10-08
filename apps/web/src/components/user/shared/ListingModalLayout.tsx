@@ -65,7 +65,10 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, class
             <DialogContent
                 hideClose
                 variant="bottomSheet"
-                className={cn("h-[88dvh] sm:h-[82dvh] sm:max-h-[760px] sm:min-h-[580px]", className)}
+                // F-V3: height uses the visual-viewport var (keyboard-aware).
+                // Was fixed h-[88dvh]: on iOS keyboard-open the dialog kept
+                // layout-viewport height and pushed its header off-screen.
+                className={cn("h-[var(--visual-viewport-height,100dvh)] sm:h-[82dvh] sm:max-h-[760px] sm:min-h-[580px]", className)}
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <header className="shrink-0 bg-card border-b border-border flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">

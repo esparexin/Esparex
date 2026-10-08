@@ -4,7 +4,7 @@ import { Z_INDEX } from "@esparex/ui";
 describe("Platform Dialog System Governance & Infrastructure Audit", () => {
   it("enforces the architectural stacking invariant across headers, dialogs, and alert dialogs", () => {
     // Architectural Invariant:
-    // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1010) > dialogOverlay (1000) > userHeader (999)
+    // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1070) > dialogOverlay (1060) > userHeader (999)
     expect(Z_INDEX.userHeader).toBe(999);
     expect(Z_INDEX.desktopHeader).toBe(999);
 
@@ -15,8 +15,8 @@ describe("Platform Dialog System Governance & Infrastructure Audit", () => {
     expect(Z_INDEX.alertDialogContent).toBeGreaterThan(Z_INDEX.alertDialogOverlay);
 
     // Exact expected z-index tokens
-    expect(Z_INDEX.dialogOverlay).toBe(1000);
-    expect(Z_INDEX.dialogContent).toBe(1010);
+    expect(Z_INDEX.dialogOverlay).toBe(1060);
+    expect(Z_INDEX.dialogContent).toBe(1070);
     expect(Z_INDEX.alertDialogOverlay).toBe(1100);
     expect(Z_INDEX.alertDialogContent).toBe(1110);
   });

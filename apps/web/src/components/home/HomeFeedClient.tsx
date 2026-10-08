@@ -20,7 +20,6 @@ const HOME_FEED_PAGE_SIZE = 12;
 
 interface HomeFeedProps {
     initialData?: HomeAdsPayload;
-    initialLocationIdentity?: string;
 }
 
 function FeedSkeletonGrid() {
@@ -69,7 +68,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
  * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
  * Preserves the current grid across location updates; new results replace it only when ready.
  */
-export function HomeFeedClient({ initialData, initialLocationIdentity = "default" }: HomeFeedProps) {
+export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
     const [nextCursor, setNextCursor] = useState<{ createdAt: string; id: string } | null>(initialData?.nextCursor ?? null);
     const [feedAds, setFeedAds] = useState<Ad[]>(initialData?.ads ?? []);
@@ -124,8 +123,8 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
         };
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    // Reuse the SSR payload only when the client identity matches what the server rendered.
-    const shouldUseInitialData = !cursor && selectedType === "all" && locationIdentity === initialLocationIdentity;
+    // Reuse SSR payload on initial default page; background query refetches for client location.
+    const shouldUseInitialData = !cursor && selectedType === "all";
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
@@ -227,7 +226,7 @@ export function HomeFeedClient({ initialData, initialLocationIdentity = "default
                                     disabled={isFetching}
                                     aria-label="Load more listings"
                                     aria-busy={isFetching}
-                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-sm hover:shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>

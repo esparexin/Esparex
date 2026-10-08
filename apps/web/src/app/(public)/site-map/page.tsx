@@ -37,7 +37,7 @@ export default function SiteMapPage() {
 
                 <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[200px]">
                     {/* Marketplace & Discovery */}
-                    <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="p-4 rounded-2xl bg-card border border-border shadow-sm">
                         <h2 className="font-bold mb-3 text-body text-foreground">Marketplace</h2>
                         <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/" className="text-foreground-secondary hover:text-primary transition-colors block">Home</Link></li>
@@ -48,7 +48,7 @@ export default function SiteMapPage() {
                     </div>
 
                     {/* Electronics Categories */}
-                    <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="p-4 rounded-2xl bg-card border border-border shadow-sm">
                         <h2 className="font-bold mb-3 text-body text-foreground">Categories</h2>
                         <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/category/mobiles" className="text-foreground-secondary hover:text-primary transition-colors block">Mobile Phones</Link></li>
@@ -63,7 +63,7 @@ export default function SiteMapPage() {
                     </div>
 
                     {/* Support & Guides */}
-                    <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="p-4 rounded-2xl bg-card border border-border shadow-sm">
                         <h2 className="font-bold mb-3 text-body text-foreground">Support &amp; Company</h2>
                         <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/about" className="text-foreground-secondary hover:text-primary transition-colors block">About Esparex</Link></li>
@@ -75,7 +75,7 @@ export default function SiteMapPage() {
                     </div>
 
                     {/* Legal & Compliance */}
-                    <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                    <div className="p-4 rounded-2xl bg-card border border-border shadow-sm">
                         <h2 className="font-bold mb-3 text-body text-foreground">Legal &amp; Compliance</h2>
                         <ul className="flex flex-col gap-2 text-caption">
                             <li><Link href="/terms" className="text-foreground-secondary hover:text-primary transition-colors block">Terms of Service</Link></li>

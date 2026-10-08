@@ -68,7 +68,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   if (validPayments.length === 0) {
     return (
-      <Card className="rounded-2xl border border-border/80 bg-card shadow-xs">
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
         <EmptyState
           icon={FileText}
           title="No Payment Receipts Yet"
@@ -78,7 +78,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
               <Button
                 type="button"
                 onClick={onBrowsePlans}
-                className="h-10 rounded-xl px-6 font-semibold text-body shadow-xs cursor-pointer"
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-sm cursor-pointer"
               >
                 Browse Plans
               </Button>
@@ -91,7 +91,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   return (
     <>
-      <div className="bg-transparent sm:bg-surface rounded-none sm:rounded-xl p-0 sm:p-4 border-0 sm:border border-border/60 shadow-none sm:shadow-2xs space-y-3">
+      <div className="bg-transparent sm:bg-surface rounded-none sm:rounded-xl p-0 sm:p-4 border-0 sm:border border-border/60 shadow-none sm:shadow-sm space-y-3">
         {/* Header */}
         <div className="flex items-center justify-between pb-1 sm:pb-0">
           <h4 className="text-body-lg font-semibold text-foreground flex items-center gap-2">
@@ -107,9 +107,9 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
         </div>
 
         {/* Single-Instance Responsive Table */}
-        <div className="overflow-x-auto relative rounded-xl border border-border/40 bg-card shadow-2xs">
+        <div className="overflow-x-auto relative rounded-xl border border-border/40 bg-card shadow-sm">
           <table className="w-full text-left text-caption">
-            <thead className="sticky top-0 z-10 bg-surface shadow-2xs">
+            <thead className="sticky top-0 z-10 bg-surface shadow-sm">
               <tr className="border-b border-border/40 text-muted-foreground font-semibold text-tiny">
                 <th scope="col" className="py-2.5 px-3">Date</th>
                 <th scope="col" className="py-2.5 px-3">Order Description</th>

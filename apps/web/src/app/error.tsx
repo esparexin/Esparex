@@ -73,7 +73,7 @@ export default function Error({
                             type="button"
                             variant="primary"
                             onClick={reset}
-                            className="flex-1 min-h-[44px] rounded-xl text-body font-semibold"
+                            className="flex-1 min-h-11 rounded-xl text-body font-semibold"
                         >
                             <RefreshCcw className="h-4 w-4" />
                             <span>Try Again</span>
@@ -81,7 +81,7 @@ export default function Error({
                         <Button
                             asChild
                             variant="outline"
-                            className="flex-1 min-h-[44px] rounded-xl text-body font-semibold"
+                            className="flex-1 min-h-11 rounded-xl text-body font-semibold"
                         >
                             <Link href="/">
                                 <Home className="h-4 w-4 text-foreground-subtle" />

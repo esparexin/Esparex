@@ -34,7 +34,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   const endDateFormatted = subscription.endDate ? formatStableDate(subscription.endDate) : null;
 
   return (
-    <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-xs relative overflow-hidden">
+    <div className="bg-card rounded-2xl p-4 sm:p-5 border border-border shadow-sm relative overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
@@ -94,7 +94,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           <button
             type="button"
             onClick={onBrowsePlans}
-            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-body font-semibold transition-colors shadow-xs whitespace-nowrap w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-body font-semibold transition-colors shadow-sm whitespace-nowrap w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Upgrade Plan
           </button>

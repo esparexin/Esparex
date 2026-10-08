@@ -9,15 +9,7 @@ const notificationTypeFilterEnum = z.enum([
     ...NOTIFICATION_TYPE_VALUES,
 ] as ["all", ...(typeof NOTIFICATION_TYPE_VALUES)[number][]]);
 
-const notificationActionUrlSchema = z
-    .string()
-    .trim()
-    .min(1)
-    .max(500)
-    .refine(
-        (value) => value.startsWith("/") || /^https?:\/\//i.test(value),
-        "Action URL must start with / or http(s)://"
-    );
+
 
 
 

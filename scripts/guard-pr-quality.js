@@ -214,7 +214,7 @@ function loadWaivers() {
       valid.push({ ...w, _expired: exp <= now, _expiresAt: exp });
     }
     return { waivers: valid, problems };
-  } catch (err) {
+  } catch {
     // No waiver file or unreadable: no waivers in effect (guard stays blocking).
     return { waivers: [], problems: [] };
   }

@@ -115,7 +115,7 @@ export function LocationSelectorDropdown({
                     title={hasSelection ? "Tap to change location" : undefined}
                     className={cn(
                         "pl-10 h-11 rounded-xl transition-all text-body-lg md:text-body truncate placeholder:text-caption sm:placeholder:text-body",
-                        hasSelection ? "pr-18 sm:pr-20 bg-card font-normal sm:font-medium text-foreground border-border cursor-pointer" : "pr-28 sm:pr-32 bg-background cursor-text",
+                        hasSelection ? "pr-[72px] sm:pr-20 bg-card font-normal sm:font-medium text-foreground border-border cursor-pointer" : "pr-28 sm:pr-32 bg-background cursor-text",
                         error ? "border-destructive ring-destructive/50" : "",
                         className
                     )}
@@ -140,7 +140,7 @@ export function LocationSelectorDropdown({
                             aria-label="Use Current Location"
                         >
                             <Target className={cn("w-3.5 h-3.5 shrink-0", isDetecting && "animate-spin")} />
-                            <span className="hidden xs:inline sm:inline text-caption font-semibold">Auto Detect</span>
+                            <span className="hidden inline sm:inline text-caption font-semibold">Auto Detect</span>
                         </button>
                     ) : null}
                 </div>

@@ -193,7 +193,7 @@ export function ListingItemActions({
       {/* ── Row B: Direct Action Shortcut (Spotlight / Boost + Edit) ── */}
       <div className="flex items-center gap-1.5 justify-end w-full">
         {isSpotlight && isActive ? (
-          <span className="inline-flex items-center gap-1 bg-warning/10 text-warning-dark border border-warning/30 text-tiny font-bold px-2 py-1 rounded-md shadow-2xs shrink-0">
+          <span className="inline-flex items-center gap-1 bg-warning/10 text-warning-dark border border-warning/30 text-tiny font-bold px-2 py-1 rounded-md shadow-sm shrink-0">
             <Sparkles className="h-3 w-3 text-warning fill-warning" />
             Spotlight
           </span>
@@ -205,7 +205,7 @@ export function ListingItemActions({
             onClick={onBoost}
             aria-label="Promote listing"
             title="Promote / Boost Ad"
-            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-warning/30 bg-warning/10 text-warning-dark hover:bg-warning/20 hover:border-warning transition-colors shadow-2xs cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-1"
+            className="size-8 md:size-7 flex items-center justify-center shrink-0 rounded-md border-warning/30 bg-warning/10 text-warning-dark hover:bg-warning/20 hover:border-warning transition-colors shadow-sm cursor-pointer p-0 focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-1"
           >
             <Zap className="h-3.5 w-3.5 text-warning fill-warning shrink-0" />
           </Button>

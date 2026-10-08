@@ -78,10 +78,15 @@ export function BusinessPostFAB() {
         return null;
     }
 
+    // When a tall context action bar is present (e.g., listing-detail owner
+    // actions ~6-7rem tall), hide the FAB entirely. Offsetting is fragile;
+    // the bar occupies the bottom chrome and the FAB would overlap it.
+    if (policy.showContextActionBar) {
+        return null;
+    }
+
     const mobileBottomOffset = policy.hasAnyBottomNav
         ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]"
-        : policy.showContextActionBar
-        ? "bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"
         : "bottom-[calc(1.5rem+env(safe-area-inset-bottom))]";
 
     return (

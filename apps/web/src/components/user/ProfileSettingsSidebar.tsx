@@ -95,7 +95,7 @@ export function ProfileSettingsSidebar({
                 size="sm"
                 variant="primary"
                 onClick={() => navigateTo("post-ad")}
-                className="text-caption h-8 px-3 font-semibold rounded-lg shadow-xs"
+                className="text-caption h-8 px-3 font-semibold rounded-lg shadow-sm"
               >
                 + Post Ad
               </Button>

@@ -1,5 +1,4 @@
 "use client";
-
 /**
  * dialog.tsx — Unified Dialog System (Radix UI)
  *
@@ -12,7 +11,9 @@
  *   ✅ Escape key closes modal                 (automatic via Radix)
  *   ✅ Overlay click closes modal              (automatic via Radix)
  *   ✅ Scroll locking                          (automatic via Radix)
- *   ✅ Focus returns to trigger on close       (automatic via Radix)
+ *   ✅ Focus returns to the opener on close    (via useDialogFocusRestore —
+ *      Radix only restores to <DialogTrigger>, which this codebase never
+ *      renders; all dialogs are controlled via the `open` prop)
  *   ✅ Smooth entry/exit animations            (tailwindcss-animate)
  *
  * Export API is identical to the previous custom implementation — all consumers
@@ -26,6 +27,7 @@ import { X } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
 import { OVERLAY_STYLES } from "../styles/overlay";
+import { useDialogFocusRestore } from "./useDialogFocusRestore";
 
 // ── Root ────────────────────────────────────────────────────────────────────
 const Dialog = RadixDialog.Root;
@@ -80,8 +82,9 @@ export type DialogContentProps = React.ComponentPropsWithoutRef<typeof RadixDial
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof RadixDialog.Content>,
   DialogContentProps
->(({ className, children, hideClose = false, variant, padding = "default", overlayZIndex, overlayClassName, ...props }, ref) => {
+>(({ className, children, hideClose = false, variant, padding = "default", overlayZIndex, overlayClassName, onOpenAutoFocus, onCloseAutoFocus, ...props }, ref) => {
   const activeVariant = variant ?? "centered";
+  const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
 
   const getPaddingClass = () => {
     if (padding === "none") return "p-0";
@@ -109,7 +112,7 @@ const DialogContent = React.forwardRef<
         return [
           "fixed bottom-[var(--keyboard-height,0px)] left-0 right-0 top-auto translate-x-0 translate-y-0 transition-[bottom] duration-200 ease-out w-full max-w-none h-auto max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] rounded-t-2xl border-none p-0 bg-background flex flex-col overflow-hidden shadow-2xl",
           "sm:fixed sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%]",
-          "sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[calc(100dvh-3rem)]",
+          "sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[calc(var(--visual-viewport-height,100dvh)-3rem)]",
           "sm:rounded-2xl sm:shadow-2xl sm:shadow-black/15 sm:border sm:border-border",
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -152,18 +155,21 @@ const DialogContent = React.forwardRef<
         aria-describedby={props["aria-describedby"] ?? undefined}
         style={{ zIndex: Z_INDEX.dialogContent }}
         className={cn(getVariantStyles(), className)}
+        onOpenAutoFocus={(e) => handleOpenAutoFocus(e, onOpenAutoFocus)}
+        onCloseAutoFocus={(e) => handleCloseAutoFocus(e, onCloseAutoFocus)}
         {...props}
       >
       {children}
       {!hideClose && (
         <RadixDialog.Close
           className={cn(
-            "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-sm opacity-70 ring-offset-background",
+            "absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-sm opacity-70 ring-offset-background", // 44px target (F-T1)
             "transition-opacity hover:opacity-100",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:pointer-events-none",
             "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
           )}
+          aria-label="Close dialog"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>

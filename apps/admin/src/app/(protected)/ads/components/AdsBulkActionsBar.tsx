@@ -37,7 +37,7 @@ export function AdsBulkActionsBar({
                         type="button"
                         size="sm"
                         onClick={onBulkApprove}
-                        className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs text-caption font-semibold"
+                        className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm text-caption font-semibold"
                     >
                         Approve Selected
                     </Button>
@@ -45,7 +45,7 @@ export function AdsBulkActionsBar({
                         type="button"
                         size="sm"
                         onClick={onBulkReject}
-                        className="bg-warning text-warning-foreground hover:bg-warning/90 shadow-xs text-caption font-semibold"
+                        className="bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm text-caption font-semibold"
                     >
                         Reject Selected
                     </Button>
@@ -61,7 +61,7 @@ export function AdsBulkActionsBar({
                                 size="sm"
                                 variant="outline"
                                 onClick={onBulkDeactivate}
-                                className="text-caption font-semibold shadow-xs"
+                                className="text-caption font-semibold shadow-sm"
                             >
                                 Deactivate Selected
                             </Button>
@@ -69,7 +69,7 @@ export function AdsBulkActionsBar({
                                 type="button"
                                 size="sm"
                                 onClick={onBulkExpire}
-                                className="bg-warning text-warning-foreground hover:bg-warning/90 shadow-xs text-caption font-semibold"
+                                className="bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm text-caption font-semibold"
                             >
                                 Expire Selected
                             </Button>
@@ -80,7 +80,7 @@ export function AdsBulkActionsBar({
                             type="button"
                             size="sm"
                             onClick={onBulkExtend}
-                            className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-xs text-caption font-semibold"
+                            className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm text-caption font-semibold"
                         >
                             Extend Selected
                         </Button>
@@ -90,7 +90,7 @@ export function AdsBulkActionsBar({
                         size="sm"
                         variant="outline"
                         onClick={onBulkResendWarnings}
-                        className="text-caption font-semibold shadow-xs"
+                        className="text-caption font-semibold shadow-sm"
                     >
                         Resend Warnings
                     </Button>
@@ -100,7 +100,7 @@ export function AdsBulkActionsBar({
                             size="sm"
                             variant="outline"
                             onClick={onBulkResendSpotlightWarnings}
-                            className="text-caption font-semibold shadow-xs"
+                            className="text-caption font-semibold shadow-sm"
                         >
                             Spotlight Warnings
                         </Button>
@@ -113,7 +113,7 @@ export function AdsBulkActionsBar({
                 size="sm"
                 variant="destructive"
                 onClick={onBulkDelete}
-                className="text-caption font-semibold shadow-xs"
+                className="text-caption font-semibold shadow-sm"
             >
                 Delete Selected
             </Button>

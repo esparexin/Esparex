@@ -97,7 +97,7 @@ export function ListingImagesField({
                     {images.length === 0 ? (
                         <div className="w-full">
                             {disabled ? (
-                                <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4">
+                                <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4" role="status">
                                     <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                     <span className="text-caption font-semibold">Processing & Compressing Photos...</span>
                                 </div>
@@ -150,7 +150,7 @@ export function ListingImagesField({
                                     disabled={disabled}
                                     onClick={handleOpenPicker}
                                     aria-label="Add more photos"
-                                    className="aspect-square flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card hover:bg-muted/40 hover:border-primary/50 text-foreground transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs"
+                                    className="aspect-square flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border bg-card hover:bg-muted/40 hover:border-primary/50 text-foreground transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm"
                                 >
                                     <Upload className="w-4 h-4 text-primary" />
                                     <span className="text-tiny font-semibold text-muted-foreground">+ Add</span>

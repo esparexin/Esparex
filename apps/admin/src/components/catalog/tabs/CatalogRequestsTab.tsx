@@ -108,21 +108,21 @@ export default function CatalogRequestsTab() {
       <button
         type="button"
         onClick={openBulkReject}
-        className="rounded-lg bg-warning px-3 py-2 text-caption font-semibold text-white hover:bg-warning-dark transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-warning px-3 py-2 text-caption font-semibold text-white hover:bg-warning-dark transition-all shadow-sm cursor-pointer"
       >
         Quick Reject
       </button>
       <button
         type="button"
         onClick={openBulkDuplicate}
-        className="rounded-lg bg-primary px-3 py-2 text-caption font-semibold text-primary-foreground hover:bg-primary/90 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-primary px-3 py-2 text-caption font-semibold text-primary-foreground hover:bg-primary/90 transition-all shadow-sm cursor-pointer"
       >
         Quick Duplicate
       </button>
       <button
         type="button"
         onClick={openBulkDelete}
-        className="rounded-lg bg-destructive px-3 py-2 text-caption font-semibold text-destructive-foreground hover:bg-destructive/90 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-destructive px-3 py-2 text-caption font-semibold text-destructive-foreground hover:bg-destructive/90 transition-all shadow-sm cursor-pointer"
       >
         Quick Delete
       </button>

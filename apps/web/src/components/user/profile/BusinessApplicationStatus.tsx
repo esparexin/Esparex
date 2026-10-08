@@ -56,12 +56,12 @@ function StatusCard({
     actions,
 }: StatusCardProps) {
     return (
-        <Card className="rounded-2xl border border-border shadow-xs bg-card p-3.5 sm:p-4">
+        <Card className="rounded-2xl border border-border shadow-sm bg-card p-3.5 sm:p-4">
             {/* Unified Compact Header: Identity + Badge + Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-border/70">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${iconBgClass}`}>
-                        <Icon className="h-4.5 w-4.5" />
+                        <Icon className="h-[18px] w-[18px]" />
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -123,7 +123,7 @@ function WithdrawModal({
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={onConfirm}
-                            className="h-10 flex-1 sm:flex-initial rounded-xl bg-destructive text-destructive-foreground px-5 text-body font-semibold hover:bg-destructive/90 shadow-xs cursor-pointer"
+                            className="h-10 flex-1 sm:flex-initial rounded-xl bg-destructive text-destructive-foreground px-5 text-body font-semibold hover:bg-destructive/90 shadow-sm cursor-pointer"
                         >
                             Withdraw
                         </AlertDialogAction>
@@ -263,7 +263,7 @@ export function BusinessApplicationStatus({
                                 onClick={onEditApplication}
                                 size="sm"
                                 disabled={!onEditApplication}
-                                className="h-8 px-3 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption gap-1.5 whitespace-nowrap"
+                                className="h-8 px-3 rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption gap-1.5 whitespace-nowrap"
                             >
                                 <Edit2 className="h-3.5 w-3.5" />
                                 Edit & Resubmit
@@ -297,7 +297,7 @@ export function BusinessApplicationStatus({
                             type="button"
                             onClick={() => { window.location.href = '/contact'; }}
                             size="sm"
-                            className="h-8 px-3.5 rounded-xl shadow-xs bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption whitespace-nowrap"
+                            className="h-8 px-3.5 rounded-xl shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption whitespace-nowrap"
                         >
                             Contact Support
                         </Button>

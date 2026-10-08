@@ -20,7 +20,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
   return (
     <div
-      className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between relative overflow-hidden bg-card shadow-xs ${
+      className={`rounded-2xl p-4 sm:p-5 border transition-all flex flex-col justify-between relative overflow-hidden bg-card shadow-sm ${
         isCurrent
           ? 'border-primary ring-2 ring-primary/20'
           : isSpotlight
@@ -31,7 +31,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
       }`}
     >
       {plan.popular && !isCurrent && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold text-tiny uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-xs">
+        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold text-tiny uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-sm">
           Popular
         </div>
       )}
@@ -83,7 +83,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
 
       <button
         onClick={() => onSelect(plan)}
-        className={`w-full h-10 mt-5 rounded-xl text-body font-semibold transition-all cursor-pointer shadow-xs active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+        className={`w-full h-10 mt-5 rounded-xl text-body font-semibold transition-all cursor-pointer shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
           isCurrent
             ? 'bg-muted text-foreground-subtle cursor-default border border-border'
             : isSpotlight

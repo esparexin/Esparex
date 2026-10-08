@@ -226,7 +226,7 @@ export function CreateSmartAlertDialog({
                                         ? "Derived from selected Model"
                                         : "Enter keywords (e.g., LED TV 55, OLED)"
                                 }
-                                className="h-11 rounded-xl text-body-lg md:text-body font-normal text-foreground border-border bg-card shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-foreground-subtle disabled:cursor-not-allowed placeholder:text-caption sm:placeholder:text-body"
+                                className="h-11 rounded-xl text-body-lg md:text-body font-normal text-foreground border-border bg-card shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary disabled:bg-muted/50 disabled:text-foreground-subtle disabled:cursor-not-allowed placeholder:text-caption sm:placeholder:text-body"
                                 value={formData.keywords || ""}
                                 maxLength={150}
                                 onChange={(e) => updateFormData({ keywords: e.target.value })}
@@ -267,7 +267,10 @@ export function CreateSmartAlertDialog({
                     </div>
 
                     {/* Fixed Footer Outside Scroll Area */}
-                    <DialogFooter className="mt-0 shrink-0 pt-3 border-t border-border/80 bg-card flex flex-row items-center gap-3">
+                    {/* F-V6: safe-area bottom padding for home-indicator devices
+                        (was missing; buttons sat at the raw bottom edge).
+                        Matches ReportAdDialog footer pattern. */}
+                    <DialogFooter className="mt-0 shrink-0 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-border/80 bg-card flex flex-row items-center gap-3">
                         <Button
                             type="button"
                             variant="outline"

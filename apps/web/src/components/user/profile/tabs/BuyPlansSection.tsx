@@ -54,8 +54,8 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
                 onClick={() => setSelectedCategory(catType)}
                 className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
                   isSelected
-                    ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-2xs'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-sm'
                 }`}
               >
                 <span>{catType}</span>
@@ -87,7 +87,7 @@ export const BuyPlansSection: React.FC<BuyPlansSectionProps> = ({
           ))}
         </div>
       ) : (
-        <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-xs">
+        <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-sm">
           <h4 className="text-body-lg font-semibold text-foreground">No Packages Available</h4>
           <p className="text-caption text-foreground-subtle">
             There are currently no active packages in the {currentCategory} category.

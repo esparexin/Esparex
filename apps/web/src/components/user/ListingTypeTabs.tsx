@@ -121,10 +121,10 @@ export function ListingTypeTabs({
               "inline-flex items-center justify-center rounded-full border transition-all duration-150 shrink-0 select-none whitespace-nowrap cursor-pointer",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               compact
-                ? "h-7.5 px-2.5 text-tiny font-semibold"
-                : "h-8 sm:h-8.5 px-3 sm:px-3.5 text-caption font-medium",
+                ? "h-[30px] px-2.5 text-tiny font-semibold"
+                : "h-8 sm:h-[34px] px-3 sm:px-3.5 text-caption font-medium",
               isActive
-                ? "border-primary bg-primary text-primary-foreground shadow-2xs font-semibold"
+                ? "border-primary bg-primary text-primary-foreground shadow-sm font-semibold"
                 : "border-border/80 bg-card text-foreground hover:bg-muted hover:text-primary active:scale-95"
             )}
           >

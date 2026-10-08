@@ -58,6 +58,16 @@ const BANNED_PATTERNS = [
         name: 'Inline style block',
         remediation: 'Use Tailwind utility classes or design tokens. Exception: dynamic canvas/animation values — add design-token-ignore comment.',
     },
+    {
+        pattern: /\b(shadow-2xs|shadow-xs|rounded-xs|outline-hidden)\b/,
+        name: 'Tailwind v4-only class (project uses v3)',
+        remediation: 'Use v3 equivalents: shadow-xs→shadow-sm, shadow-2xs→shadow-sm, rounded-xs→rounded-sm, outline-hidden→outline-none. See ROOT-CAUSE-AUDIT for the v4-on-v3 incident.',
+    },
+    {
+        pattern: /\b(h|w|min-h|min-w|size)-(\d+\.5)\b/,
+        name: 'Fractional spacing (v4-only, project uses v3)',
+        remediation: 'Use arbitrary values: h-4.5→h-[18px] (4.5*4px). Fractional spacing is v4-only.',
+    },
 ];
 
 const SUPPRESSION_PATTERN = /design-token-ignore(?::\s*(.+))?/;

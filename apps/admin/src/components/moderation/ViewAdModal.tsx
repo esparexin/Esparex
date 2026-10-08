@@ -105,7 +105,7 @@ export function ViewAdModal({
                     {error && <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-body text-destructive mb-4">{error}</div>}
 
                     {reportContext && (
-                        <div className="rounded-xl border border-warning/20 bg-warning/10 p-4 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+                        <div className="rounded-xl border border-warning/20 bg-warning/10 p-4 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
                             <div className="flex items-start gap-3">
                                 <div className="rounded-lg bg-warning/10 p-2 text-warning shrink-0 mt-0.5">
                                     <ShieldAlert size={20} />
@@ -398,7 +398,7 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void reportContext.onTakeDown?.()}
-                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-destructive px-4 text-caption font-semibold text-white hover:bg-destructive transition-colors shadow-xs"
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-destructive px-4 text-caption font-semibold text-white hover:bg-destructive transition-colors shadow-sm"
                                     >
                                         <ShieldAlert size={14} /> Take Down Ad & Resolve Report
                                     </button>

@@ -67,7 +67,7 @@ export function DeviceConditionSection() {
                                     className="flex"
                                     orientation="horizontal"
                                 >
-                                    <div className="w-fit inline-flex items-center p-1 rounded-xl border border-border bg-muted/40 shadow-2xs gap-1.5">
+                                    <div className="w-fit inline-flex items-center p-1 rounded-xl border border-border bg-muted/40 shadow-sm gap-1.5">
                                         <RadioGroupPrimitive.Item 
                                             value="power_off"
                                             title="Power Off"
@@ -76,7 +76,7 @@ export function DeviceConditionSection() {
                                                 "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
                                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
                                                 "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
-                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-foreground data-[state=checked]:shadow-2xs"
+                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-foreground data-[state=checked]:shadow-sm"
                                             )}
                                         >
                                             <Leaf 
@@ -99,7 +99,7 @@ export function DeviceConditionSection() {
                                                 "group flex items-center justify-center gap-1.5 px-3.5 h-8 sm:h-9 rounded-lg border transition-all duration-200 cursor-pointer select-none", 
                                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-1",
                                                 "border-transparent bg-transparent text-foreground-secondary hover:text-foreground hover:bg-card/60",
-                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-destructive data-[state=checked]:shadow-2xs"
+                                                "data-[state=checked]:bg-card data-[state=checked]:border-border data-[state=checked]:text-destructive data-[state=checked]:shadow-sm"
                                             )}
                                         >
                                             <Zap 

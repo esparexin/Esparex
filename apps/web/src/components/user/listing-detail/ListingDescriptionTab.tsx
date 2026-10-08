@@ -48,7 +48,7 @@ export function ListingDescriptionTab({
                                     {serviceTypes.map((st, idx) => (
                                         <span
                                             key={st._id ?? idx}
-                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-background text-foreground border border-border shadow-2xs"
+                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-semibold bg-background text-foreground border border-border shadow-sm"
                                         >
                                             {st.name}
                                         </span>
@@ -117,7 +117,7 @@ export function ListingDescriptionTab({
                             {resolvedSpareParts.map((part) => (
                                 <span
                                     key={part.id}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-caption font-semibold text-foreground shadow-2xs"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-caption font-semibold text-foreground shadow-sm"
                                 >
                                     <span className="size-2 rounded-full bg-primary" />
                                     {part.name}

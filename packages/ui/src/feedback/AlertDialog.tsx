@@ -61,6 +61,12 @@ function AlertDialogContent({
         style={{ zIndex: Z_INDEX.alertDialogContent }}
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border p-6 shadow-2xl duration-200 sm:max-w-lg",
+          // F-V1: bound height to the visual viewport (keyboard-aware) with
+          // safe-area insets; internal scroll region prevents clipped actions
+          // on short viewports. Mirrors the Dialog centered variant contract.
+          "max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))]",
+          "overflow-y-auto overscroll-contain",
+          "pb-[max(1.5rem,env(safe-area-inset-bottom))]",
           className,
         )}
         {...props}

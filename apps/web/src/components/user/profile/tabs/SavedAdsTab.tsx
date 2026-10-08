@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/common/SafeImage";
 import Link from "next/link";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { unsaveAd, type SavedAd } from "@/lib/api/user/users";
@@ -53,7 +53,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
 
   if (isError) {
     return (
-      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-xs">
+      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-sm">
         <p className="text-body font-semibold text-destructive">Failed to load saved ads</p>
         <p className="text-caption text-destructive/80 mt-1">Please try refreshing the page.</p>
       </Card>
@@ -64,7 +64,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
-        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs">
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
           <EmptyState
             icon={Heart}
             title="No saved ads yet"
@@ -73,7 +73,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
               <Button
                 type="button"
                 onClick={() => navigateTo("browse")}
-                className="h-10 rounded-xl px-6 font-semibold text-body shadow-xs cursor-pointer"
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-sm cursor-pointer"
               >
                 Explore Marketplace
               </Button>
@@ -82,7 +82,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
         </Card>
       ) : (
         /* Saved Ads Compact List View */
-        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           {savedAds.map((ad) => {
             const detailHref = buildPublicListingDetailRoute({
               id: ad.id,
@@ -104,7 +104,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
               >
                 {/* Left Thumbnail */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
-                  <Image
+                  <SafeImage
                     src={imageSrc}
                     alt={ad.title}
                     fill
@@ -126,7 +126,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                   <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
                     <Link
                       href={detailHref}
-                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xs after:absolute after:inset-0 after:content-[''] after:z-10"
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm after:absolute after:inset-0 after:content-[''] after:z-10"
                     >
                       {ad.title}
                     </Link>

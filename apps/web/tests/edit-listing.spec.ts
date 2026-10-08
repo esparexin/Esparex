@@ -333,6 +333,11 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await expect(removeButton).toBeVisible();
         await removeButton.click();
 
+        // Confirm removal in the AlertDialog (replaced window.confirm in popup remediation)
+        const confirmDialog = page.locator('[role="alertdialog"]');
+        await expect(confirmDialog).toBeVisible({ timeout: 5_000 });
+        await confirmDialog.locator('button:has-text("Remove")').click();
+
         // Upload a replacement image (target gallery input specifically to avoid strict mode violation with camera input)
         const fileInput = page.locator('input[type="file"][multiple]').or(page.locator('input[type="file"]').last()).first();
         await fileInput.setInputFiles({

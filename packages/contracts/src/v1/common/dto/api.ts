@@ -30,14 +30,6 @@ export interface ApiResponse<T> {
     message?: string;
 }
 
-// For legacy/inconsistent controllers that use 'output' or 'status' in body
-export interface LegacyApiResponse<T> {
-    status: number;
-    output?: T;
-    message?: string;
-    error?: string;
-}
-
 export interface HomeAdsResponse {
     spotlight: Ad[];
     latest: Ad[];

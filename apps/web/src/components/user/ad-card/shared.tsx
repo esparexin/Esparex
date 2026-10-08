@@ -175,7 +175,7 @@ export function resolveDeviceCondition(
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-tiny font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
+  "border-0 text-tiny font-bold uppercase tracking-wide h-[18px] px-1.5 rounded-md shadow-sm flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -216,7 +216,7 @@ export function ListingTypeBadge({
   return (
     <Badge
       className={cn(
-        "border text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center shadow-2xs select-none backdrop-blur-xs",
+        "border text-tiny font-bold px-1.5 h-[18px] rounded-md uppercase tracking-wide flex items-center shadow-sm select-none backdrop-blur-xs",
         typeBadge.className,
         className
       )}

@@ -42,7 +42,23 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
     }
     if (fieldType === "radio" && filter.options?.length) {
         return <Field key={filter.id} label={filter.name} labelClassName="text-body font-semibold text-foreground-secondary" required={filter.isRequired} error={error}>
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={filter.name}>
+            <div
+                className="flex flex-wrap gap-2"
+                role="radiogroup"
+                aria-label={filter.name}
+                onKeyDown={(e) => {
+                    // Arrow-key navigation for radiogroup (WCAG)
+                    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+                    const buttons = Array.from(e.currentTarget.querySelectorAll('[role="radio"]')) as HTMLButtonElement[];
+                    const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
+                    if (currentIndex === -1) return;
+                    e.preventDefault();
+                    const dir = (e.key === "ArrowRight" || e.key === "ArrowDown") ? 1 : -1;
+                    const nextIndex = (currentIndex + dir + buttons.length) % buttons.length;
+                    buttons[nextIndex]?.focus();
+                    buttons[nextIndex]?.click();
+                }}
+            >
                 {filter.options.map((opt) => {
                     const checked = value === opt.value;
                     return <button key={opt.value} type="button" role="radio" aria-checked={checked} onClick={() => updateAttribute(filter.id, opt.value)}

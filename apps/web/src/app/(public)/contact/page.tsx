@@ -41,7 +41,7 @@ export default function ContactPage() {
 
                 {/* Contact Cards Grid */}
                 <div className="flex flex-wrap gap-4 [&>*]:flex-1 [&>*]:min-w-[240px]">
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-sm min-h-[72px]">
                         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <Mail className="h-5 w-5 text-primary" />
                         </div>
@@ -50,14 +50,14 @@ export default function ContactPage() {
                             <a
                                 href={`mailto:${LEGAL_SUPPORT_EMAIL}`}
                                 aria-label={`Email customer support at ${LEGAL_SUPPORT_EMAIL}`}
-                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                             >
                                 {LEGAL_SUPPORT_EMAIL}
                             </a>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-sm min-h-[72px]">
                         <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <Phone className="h-5 w-5 text-emerald-600" />
                         </div>
@@ -66,14 +66,14 @@ export default function ContactPage() {
                             <a
                                 href={`tel:${LEGAL_SUPPORT_PHONE.replace(/\s+/g, '')}`}
                                 aria-label={`Call helpline at ${LEGAL_SUPPORT_PHONE}`}
-                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden rounded-xs"
+                                className="text-caption font-semibold text-foreground hover:text-primary transition-colors block mt-0.5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm"
                             >
                                 {LEGAL_SUPPORT_PHONE}
                             </a>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-xs min-h-[72px]">
+                    <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-card border border-border shadow-sm min-h-[72px]">
                         <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center shrink-0" aria-hidden="true">
                             <MapPin className="h-5 w-5 text-violet-600" />
                         </div>
@@ -85,7 +85,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Business & Partnerships */}
-                <div className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3">
+                <div className="p-6 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-3">
                     <h2 className="text-h3 font-bold text-foreground">B2B Wholesale &amp; Partnerships</h2>
                     <p className="text-caption text-foreground-secondary leading-relaxed">
                         Are you an electronic component importer, spare parts wholesaler, or multi-location repair chain? Partner with Esparex to list verified bulk inventory and access thousands of technicians across India.
@@ -99,10 +99,10 @@ export default function ContactPage() {
                 </div>
 
                 {/* Statutory Grievance Redressal Desk */}
-                <div className="p-6 rounded-2xl bg-muted/30 border border-border shadow-xs flex flex-col gap-4">
+                <div className="p-6 rounded-2xl bg-muted/30 border border-border shadow-sm flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <ShieldCheck className="h-4.5 w-4.5 text-primary" />
+                            <ShieldCheck className="h-[18px] w-[18px] text-primary" />
                         </div>
                         <h2 className="text-h3 font-bold text-foreground">Statutory Grievance Redressal Desk</h2>
                     </div>

@@ -52,7 +52,7 @@ export function SmartAlertMatchesSection({
             )}
 
             {isLoadingMatches ? (
-                <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border overflow-hidden">
+                <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border overflow-hidden">
                     {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="p-4 animate-pulse h-20" />
                     ))}
@@ -79,7 +79,7 @@ export function SmartAlertMatchesSection({
                 </div>
             ) : (
                 <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border overflow-hidden">
+                    <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border overflow-hidden">
                         {matchesData.matches.map((match) => {
                             const ad = match.ad;
                             const isSold = ad?.status === "sold";

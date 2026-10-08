@@ -200,7 +200,7 @@ export function CampaignEditModal({
             type="button"
             onClick={() => void onSave()}
             disabled={saving}
-            className="px-4 py-2 rounded-xl text-caption font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer"
+            className="px-4 py-2 rounded-xl text-caption font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm disabled:opacity-50 cursor-pointer"
           >
             {saving ? "Saving..." : "Save Campaign"}
           </button>

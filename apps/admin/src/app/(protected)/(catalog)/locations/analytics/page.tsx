@@ -137,7 +137,7 @@ function LocationAnalyticsPageContent({
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 rounded-xl border border-border shadow-xs">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
                         <input
@@ -204,7 +204,7 @@ function LocationAnalyticsPageContent({
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <TrendingUp size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Top Cities by Ads</h3>
@@ -229,7 +229,7 @@ function LocationAnalyticsPageContent({
                                 </div>
                             </div>
 
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <BarChart2 size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Ads by State</h3>
@@ -258,7 +258,7 @@ function LocationAnalyticsPageContent({
                         </div>
 
                         {data.hotZones?.length ? (
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <Flame size={18} className="text-warning" />
                                     <h3 className="font-bold text-foreground">Hot Zones</h3>
@@ -319,7 +319,7 @@ function StatCard({ icon, label, value, color }: {
         violet: "bg-muted text-foreground-secondary",
     };
     return (
-        <div className="bg-card rounded-xl border border-border shadow-xs p-3.5 flex items-center gap-3">
+        <div className="bg-card rounded-xl border border-border shadow-sm p-3.5 flex items-center gap-3">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${colorMap[color]}`}>
                 {icon}
             </div>

@@ -45,7 +45,7 @@ export function ListingSubmissionSuccessModal({
                     <div className="flex flex-col gap-2 pt-1">
                         <Button
                             onClick={onPrimaryAction}
-                            className="w-full h-9 sm:h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-body rounded-xl shadow-xs cursor-pointer"
+                            className="w-full h-9 sm:h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-body rounded-xl shadow-sm cursor-pointer"
                         >
                             Done
                         </Button>

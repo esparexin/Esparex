@@ -1,14 +1,9 @@
 import {
   createUnifiedPopupBus,
   emitGenericErrorPopup,
-  type PopupAction,
-  type PopupState,
-  type PopupType,
 } from "@esparex/shared";
 
 const popupBus = createUnifiedPopupBus("admin");
-
-export type { PopupAction, PopupState, PopupType };
 export const subscribeAdminPopupEvents = popupBus.subscribe;
 export const showAdminPopup = popupBus.show;
 export const hideAdminPopup = popupBus.hide;

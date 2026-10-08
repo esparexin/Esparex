@@ -56,14 +56,14 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
                 <div className="flex items-center gap-3">
                     <button
                         type="button"
-                        className="relative rounded-full border border-border bg-card p-2 text-foreground-tertiary shadow-xs transition-colors hover:bg-accent hover:text-foreground"
+                        className="relative rounded-full border border-border bg-card p-2 text-foreground-tertiary shadow-sm transition-colors hover:bg-accent hover:text-foreground"
                         aria-label="Notifications"
                     >
                         <Bell size={18} />
                         <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-card bg-destructive" />
                     </button>
 
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-1.5 shadow-xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-1.5 shadow-sm">
                         <div className="text-right hidden sm:block">
                             <p className="text-caption font-semibold leading-tight text-foreground">
                                 {admin?.firstName} {admin?.lastName}

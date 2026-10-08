@@ -142,7 +142,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
               <div
                 role="alert"
                 aria-live="polite"
-                className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-caption text-destructive shadow-xs animate-in fade-in slide-in-from-top-1"
+                className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-caption text-destructive shadow-sm animate-in fade-in slide-in-from-top-1"
               >
                 <div className="flex items-center gap-2 font-semibold text-destructive">
                   <AlertCircle size={16} className="text-destructive shrink-0" />

@@ -120,9 +120,9 @@ export function ListingDetailSidebar({
                         size="sm"
                         onClick={onReport}
                         aria-label="Report this listing"
-                        className="gap-1.5 text-caption font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 h-auto px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                        className="gap-1.5 text-caption font-semibold text-destructive hover:text-destructive/90 hover:bg-destructive/10 dark:hover:bg-red-950/30 h-auto px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                     >
-                        <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                        <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                         <span>Report this listing</span>
                     </Button>
                 </div>

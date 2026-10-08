@@ -56,7 +56,7 @@ export function LoginMobileStep({
               <FieldControl>
                 <div
                   className={cn(
-                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-colors shadow-xs overflow-hidden",
+                    "flex items-center h-12 rounded-xl border border-border/80 bg-background transition-colors shadow-sm overflow-hidden",
                     "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
                     isValidMobile && "border-primary/80 ring-2 ring-primary/10"
                   )}
@@ -72,7 +72,7 @@ export function LoginMobileStep({
                     enterKeyHint="send"
                     placeholder="9876543210"
                     maxLength={16}
-                    className="h-full border-0 rounded-none bg-transparent px-3.5 text-body-lg sm:text-body tracking-wider font-normal text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none flex-1 min-w-0"
+                    className="h-full border-0 rounded-none bg-transparent px-3.5 text-body-lg md:text-body tracking-wider font-normal text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none flex-1 min-w-0"
                     autoComplete="tel"
                     inputMode="numeric"
                     {...field}
@@ -110,19 +110,15 @@ export function LoginMobileStep({
         />
 
         {authError?.type === "generic" && (
-          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3">
-            <UiFormError message={authError.message} className="mt-0 text-caption text-destructive" />
-          </div>
+          <UiFormError message={authError.message} className="mt-0" />
         )}
 
         {authError?.type === "blocked" && (
-          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-center">
-            <p className="text-caption font-semibold text-destructive">{authError.message}</p>
-          </div>
+          <UiFormError message={authError.message} className="mt-0 text-center" />
         )}
 
         {!backendReady && (
-          <div className="rounded-2xl border border-warning/20 bg-warning/10 p-3 space-y-1">
+          <div className="rounded-2xl border border-warning/20 bg-warning/10 p-3 space-y-1" role="status">
             <p className="text-caption font-semibold text-warning flex items-center gap-2">
               <Loader2 className="animate-spin h-3.5 w-3.5 text-warning" />
               Waking up server...

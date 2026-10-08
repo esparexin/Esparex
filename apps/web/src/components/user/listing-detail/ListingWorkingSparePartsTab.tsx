@@ -100,7 +100,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
                     {resolvedSpareParts.map((part) => (
                         <div
                             key={part.id}
-                            className="flex items-start justify-between gap-3 p-3.5 rounded-2xl border border-border bg-card shadow-2xs hover:border-primary/40 transition-colors"
+                            className="flex items-start justify-between gap-3 p-3.5 rounded-2xl border border-border bg-card shadow-sm hover:border-primary/40 transition-colors"
                         >
                             <div className="flex items-start gap-2.5 min-w-0">
                                 <div className="size-9 rounded-xl bg-indigo-50/80 flex items-center justify-center shrink-0 border border-indigo-100 text-indigo-600">

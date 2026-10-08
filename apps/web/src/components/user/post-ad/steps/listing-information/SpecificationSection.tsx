@@ -74,7 +74,7 @@ export function SpecificationSection() {
                                         className={cn(
                                             "h-8 sm:h-9 px-3 sm:px-4 rounded-xl border text-caption sm:text-small font-medium transition-all duration-200 cursor-pointer select-none",
                                             isSelected
-                                                ? "bg-primary border-primary text-primary-foreground font-medium shadow-2xs"
+                                                ? "bg-primary border-primary text-primary-foreground font-medium shadow-sm"
                                                 : "bg-card border-border text-foreground-secondary hover:border-primary/40 hover:bg-muted/30",
                                             isEditMode && "cursor-not-allowed opacity-60"
                                         )}

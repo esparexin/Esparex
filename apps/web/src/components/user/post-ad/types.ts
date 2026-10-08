@@ -7,6 +7,5 @@ export interface PostAdWizardProps {
     businessId?: string,
     serviceId?: string
   ) => void;
-  setHasUnsavedChanges?: (hasChanges: boolean) => void;
   editAdId?: string;
 }

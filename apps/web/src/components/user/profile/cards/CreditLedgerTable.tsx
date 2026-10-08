@@ -22,7 +22,7 @@ export interface CreditLedgerTableProps {
  */
 export const CreditLedgerTable: React.FC<CreditLedgerTableProps> = ({ items, onRowClick }) => {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-2xs">
+    <div className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-sm">
       <table className="w-full text-left text-caption">
         <thead className="bg-muted/40 border-b border-border/40 text-muted-foreground font-semibold text-tiny">
           <tr>

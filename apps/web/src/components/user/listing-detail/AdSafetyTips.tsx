@@ -11,7 +11,7 @@ export function AdSafetyTips({ adId, listingType = "ad" }: AdSafetyTipsProps) {
     const isSparePart = listingType === "spare_part";
 
     return (
-        <div className="rounded-xl border border-border bg-card p-3.5 space-y-2.5 shadow-2xs">
+        <div className="rounded-xl border border-border bg-card p-3.5 space-y-2.5 shadow-sm">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-caption font-bold text-foreground">
                     <ShieldAlert className="h-4 w-4 text-amber-500 shrink-0" />

@@ -25,7 +25,7 @@ export function AccountSidebar({
 }: AccountSidebarProps) {
   return (
     <aside className="hidden md:block space-y-1" aria-label="Account navigation">
-      <div className="rounded-xl border border-border bg-card p-2 shadow-xs">
+      <div className="rounded-xl border border-border bg-card p-2 shadow-sm">
         <AccountNavItemList
           items={items}
           activeTab={activeTab}
@@ -36,7 +36,7 @@ export function AccountSidebar({
         />
       </div>
 
-      <div className="mt-3 p-3.5 rounded-xl border border-border bg-card shadow-xs">
+      <div className="mt-3 p-3.5 rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-tiny font-bold text-muted-foreground uppercase tracking-wider">Current Plan</p>
@@ -50,7 +50,7 @@ export function AccountSidebar({
               type="button"
               onClick={() => onTabChange("buyplans")}
               size="sm"
-              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs"
+              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-sm"
             >
               Upgrade
             </Button>

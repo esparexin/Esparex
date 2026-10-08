@@ -28,14 +28,14 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
 
     if (!mounted) {
         return (
-            <div className="bg-card p-4 rounded-lg border border-border shadow-xs h-[320px] flex items-center justify-center">
+            <div className="bg-card p-4 rounded-lg border border-border shadow-sm h-[320px] flex items-center justify-center">
                 <span className="text-tiny font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
             </div>
         );
     }
 
     return (
-        <div className="bg-card p-4 rounded-lg border border-border shadow-xs">
+        <div className="bg-card p-4 rounded-lg border border-border shadow-sm">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-body-lg font-bold text-foreground leading-none">{title}</h3>
                 <div className="flex items-center gap-3">

@@ -184,7 +184,7 @@ export default function GoogleAdsPage() {
         >
             <Stack direction="col" gap="md">
                 {/* Master Config & Publisher Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-border bg-card p-3 shadow-xs gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl border border-border bg-card p-3 shadow-sm gap-3">
                     <div className="flex items-center gap-2.5">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/10 text-success-dark border border-success/20 shrink-0">
                             <ShieldCheck size={18} />

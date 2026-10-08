@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import {
   Button,
   Spinner,
+  FormError,
 } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
@@ -22,7 +23,7 @@ import type { PostAdWizardProps } from "./types";
 
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
-  const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
+  const { currentStep, isEditMode, isSubmitting, submittedAd, formError } = usePostAdFlow();
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { entitlement, isAllowed, isLoading: isLoadingEntitlement } = usePostingEntitlement("ads");
@@ -92,6 +93,11 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         </ListingModalBody>
 
         <ListingModalFooter>
+          {formError && (
+            <div className="w-full mb-3">
+              <FormError message={formError} />
+            </div>
+          )}
           <div className="flex items-center gap-3 sm:gap-4 w-full">
             {currentStep > 1 && !isEditMode && (
               <Button
@@ -119,7 +125,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               variant="primary"
               onClick={currentStep === 2 ? submitAd : nextStep}
               disabled={isButtonDisabled}
-              className="flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold h-11 text-body shadow-xs active:scale-[0.98]"
+              className="flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold h-11 text-body shadow-sm active:scale-[0.98]"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

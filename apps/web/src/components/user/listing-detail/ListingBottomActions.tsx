@@ -78,12 +78,12 @@ export function ListingBottomActions({
     if (variant === "sold-owner") {
       return (
         <div className="md:hidden">
-          <div className="fixed bottom-0 left-0 right-0 bg-green-50 border-t-2 border-green-600 shadow-lg z-40">
+          <div className="fixed bottom-0 left-0 right-0 bg-success/10 border-t-2 border-success shadow-lg z-40">
             <div className="px-4 pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
               <div className="flex items-center justify-center gap-3">
-                <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
+                <CheckCircle className="h-6 w-6 text-success shrink-0" />
                 <div className="text-center">
-                  <p className="font-semibold text-green-600">Ad Marked as Sold</p>
+                  <p className="font-semibold text-success">Ad Marked as Sold</p>
                   <p className="text-caption text-foreground-subtle mt-0.5">
                     This ad is now archived and removed from listings
                   </p>
@@ -166,8 +166,8 @@ export function ListingBottomActions({
       <div className="md:hidden">
         <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border shadow-lg z-40">
           {/* Owner Notice */}
-          <div className="px-4 py-1.5 bg-green-50 border-b border-green-200">
-            <p className="text-caption text-center text-green-700">
+          <div className="px-4 py-1.5 bg-success/10 border-b border-success/20">
+            <p className="text-caption text-center text-success">
               <Info className="h-3 w-3 inline mr-1" />
               You&apos;re viewing your active listing
             </p>
@@ -248,7 +248,7 @@ export function ListingBottomActions({
                 aria-label="Chat with seller"
                 className="w-full h-11 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 active:scale-[0.98] text-primary-foreground font-semibold gap-1.5 shadow-md shadow-primary/10 transition-all text-caption sm:text-small"
               >
-                <MessageCircle className="h-4.5 w-4.5 shrink-0" />
+                <MessageCircle className="h-[18px] w-[18px] shrink-0" />
                 <span>Chat</span>
               </Button>
             ) : null}

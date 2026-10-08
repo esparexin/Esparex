@@ -89,13 +89,11 @@ export function LoginOtpStep({
         </div>
 
         {authError?.type === "blocked" && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{authError.message}</p>
-          </div>
+          <UiFormError message={authError.message} className="text-center" />
         )}
 
         {step === "locked" && (
-          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
+          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5" role="alert">
             <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
               Too many incorrect OTP attempts.
             </p>
@@ -106,9 +104,7 @@ export function LoginOtpStep({
         )}
 
         {!isLocked && otpRateLimitMessage && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
-          </div>
+          <UiFormError message={otpRateLimitMessage} className="text-center" />
         )}
 
         {step === "enterNameAndOtp" && (
@@ -122,7 +118,7 @@ export function LoginOtpStep({
                 <FieldControl>
                   <Input
                     placeholder="Enter your name"
-                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-xs"
+                    className="h-12 px-4 text-body-lg md:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-sm"
                     disabled={isBlocked || isLocked}
                     autoComplete="name"
                     {...field}
@@ -176,7 +172,7 @@ export function LoginOtpStep({
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
+          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-sm flex items-center justify-center gap-1.5"
         >
           {isSendingOTP ? (
             <>

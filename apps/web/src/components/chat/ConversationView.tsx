@@ -199,7 +199,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
         )}
         {messages.length === 0 && !isLoading && (
           <div className="py-3 px-3 flex flex-col items-center justify-center text-center max-w-xs mx-auto shrink-0 mb-2">
-            <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1.5 shadow-2xs border border-primary/20">
+            <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-1.5 shadow-sm border border-primary/20">
               <MessageSquare className="h-4 w-4" />
             </div>
             <h4 className="text-caption font-bold text-foreground tracking-tight">

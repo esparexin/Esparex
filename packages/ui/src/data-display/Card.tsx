@@ -10,8 +10,8 @@ export interface CardProps extends React.ComponentProps<"div"> {
 
 const elevationVariants: Record<NonNullable<CardProps["elevation"]>, string> = {
   0: "shadow-none border-transparent",
-  1: "shadow-2xs",
-  2: "shadow-xs hover:shadow-sm hover:-translate-y-0.5",
+  1: "shadow-sm",
+  2: "shadow-sm hover:shadow-sm hover:-translate-y-0.5",
   3: "shadow-md",
   4: "shadow-xl",
 };

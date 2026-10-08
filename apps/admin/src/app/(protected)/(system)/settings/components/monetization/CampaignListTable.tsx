@@ -45,7 +45,7 @@ export function CampaignListTable({
   onOpenPreview,
 }: CampaignListTableProps) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-2xs flex flex-col gap-6">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col gap-6">
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
           <h3 className="text-body-lg font-bold text-foreground">In-Content Campaigns & Placements</h3>
@@ -65,7 +65,7 @@ export function CampaignListTable({
           <button
             type="button"
             onClick={onNew}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-caption font-bold transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-caption font-bold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>New Campaign</span>

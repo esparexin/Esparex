@@ -26,7 +26,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
         <div className="space-y-3 pb-4 border-b border-border">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-xs">
+                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Building2 className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -50,7 +50,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
                     const Icon = detail.icon;
                     return (
                         <div key={idx} className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/50 border border-border">
-                            <div className="h-6 w-6 rounded-lg bg-card flex items-center justify-center shadow-xs shrink-0">
+                            <div className="h-6 w-6 rounded-lg bg-card flex items-center justify-center shadow-sm shrink-0">
                                 <Icon className="h-3 w-3 text-primary" />
                             </div>
                             <div className="min-w-0">
@@ -65,7 +65,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
             {/* Visit Button */}
             <Button
                 variant="outline"
-                className="w-full gap-2 bg-primary hover:bg-primary/90 border-none text-primary-foreground text-body h-10 rounded-xl font-semibold transition-all active:scale-95 shadow-xs cursor-pointer"
+                className="w-full gap-2 bg-primary hover:bg-primary/90 border-none text-primary-foreground text-body h-10 rounded-xl font-semibold transition-all active:scale-95 shadow-sm cursor-pointer"
                 onClick={() => {
                     if (ad.businessId) {
                         const businessSlug = generateAdSlug(businessName || "business");

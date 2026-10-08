@@ -41,7 +41,7 @@ export function Login({
               width={44}
               height={44}
               priority
-              className="w-full h-full object-contain brightness-0 invert drop-shadow-xs"
+              className="w-full h-full object-contain brightness-0 invert drop-shadow-sm"
             />
           </div>
         </div>

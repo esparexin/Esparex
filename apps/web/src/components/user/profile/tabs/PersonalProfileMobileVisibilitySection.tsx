@@ -38,7 +38,7 @@ export function PersonalProfileMobileVisibilitySection({
                                     onClick={() => field.onChange(opt.value)}
                                     className={`h-9 px-2 text-caption font-semibold rounded-lg transition-all flex items-center justify-center text-center truncate cursor-pointer ${
                                         isSelected
-                                            ? "bg-primary text-primary-foreground shadow-2xs"
+                                            ? "bg-primary text-primary-foreground shadow-sm"
                                             : "text-foreground-secondary hover:bg-muted hover:text-foreground"
                                     }`}
                                 >

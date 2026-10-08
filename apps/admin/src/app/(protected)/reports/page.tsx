@@ -257,7 +257,7 @@ export default function ReportsPage() {
                         <button
                             type="button"
                             onClick={() => void handleOpenView(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-caption font-semibold text-foreground-secondary hover:bg-muted hover:text-foreground transition-colors shadow-xs"
+                            className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-caption font-semibold text-foreground-secondary hover:bg-muted hover:text-foreground transition-colors shadow-sm"
                             aria-label={`View ad ${item.ad?.title || item.id}`}
                         >
                             <Eye size={14} />

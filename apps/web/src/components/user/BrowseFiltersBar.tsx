@@ -106,7 +106,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                 className={cn(
                   "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                   activeTab === "type"
-                    ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                    ? "bg-card text-foreground border-primary font-bold shadow-sm"
                     : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
                 )}
               >
@@ -120,7 +120,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "category"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -133,7 +133,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "budget"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -146,7 +146,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "condition"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -184,7 +184,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           </Button>
 <Button
             onClick={handleApply}
-            className="flex-1 h-10 text-small font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+            className="flex-1 h-10 text-small font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
           >
             Apply Filters
           </Button>

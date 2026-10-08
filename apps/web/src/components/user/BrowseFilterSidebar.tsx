@@ -67,7 +67,7 @@ export function BrowseFilterSidebar({
     <div
       role="region"
       aria-label="Filter listings"
-      className={cn("w-[260px] rounded-2xl border border-border bg-card p-5 shadow-xs space-y-5", className)}
+      className={cn("w-[260px] rounded-2xl border border-border bg-card p-5 shadow-sm space-y-5", className)}
     >
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-border/60 pb-3.5">
@@ -105,7 +105,7 @@ export function BrowseFilterSidebar({
                   className={cn(
                     "flex items-center justify-center rounded-xl px-2.5 py-1.5 text-caption font-medium transition-all border text-center cursor-pointer",
                     isSelected
-                      ? "bg-primary text-primary-foreground border-primary shadow-2xs font-semibold"
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm font-semibold"
                       : "border-border/80 bg-background text-foreground hover:bg-muted/80 hover:text-primary"
                   )}
                 >
@@ -138,7 +138,7 @@ export function BrowseFilterSidebar({
               className={cn(
                 "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all cursor-pointer",
                 !selectedCategory || selectedCategory === "all"
-                  ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                  ? "bg-primary text-primary-foreground font-semibold shadow-sm"
                   : "text-foreground hover:bg-muted/80 hover:text-primary"
               )}
             >
@@ -154,7 +154,7 @@ export function BrowseFilterSidebar({
                   className={cn(
                     "flex w-full items-center justify-between rounded-xl px-3 py-2 text-small font-medium transition-all cursor-pointer",
                     isSelected
-                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-sm"
                       : "text-foreground hover:bg-muted/80 hover:text-primary"
                   )}
                 >

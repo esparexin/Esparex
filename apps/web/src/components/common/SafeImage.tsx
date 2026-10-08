@@ -35,24 +35,13 @@ export function SafeImage({
     setErrorSrc(src as string);
   };
 
-  // Direct S3 & external CDN URLs skip local Next.js image proxying to prevent 400 errors and lower server overhead
-  const isExternalS3 = (() => {
-    if (typeof currentSrc !== "string") return false;
-    try {
-      if (currentSrc.startsWith("http://") || currentSrc.startsWith("https://")) {
-        const base = typeof window !== "undefined" ? window.location.origin : "https://esparex.in";
-        const url = new URL(currentSrc, base);
-        // Local relative assets or same-origin paths do not need unoptimized flag
-        if (typeof window !== "undefined" && url.origin === window.location.origin) {
-          return false;
-        }
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  })();
+  // Phase 1 (LCP): Enable Next.js image optimization for S3/external URLs.
+  // Previously, all external URLs were forced to unoptimized=true to "prevent
+  // 400 errors", but next.config.mjs already configures S3 remotePatterns,
+  // and unoptimized bypasses resizing/WebP/srcset — the #1 LCP contributor
+  // (10.6s). The onError fallback handles any optimization failures gracefully.
+  // Only honor an explicit unoptimized prop; do not auto-bypass.
+  const shouldUnoptimize = unoptimized === true;
 
   return (
     <Image
@@ -60,7 +49,7 @@ export function SafeImage({
       src={currentSrc}
       alt={alt}
       loading={props.priority ? "eager" : props.loading}
-      unoptimized={unoptimized ?? isExternalS3}
+      unoptimized={shouldUnoptimize}
       onError={handleError}
       className={cn(
         "transition-opacity duration-300",

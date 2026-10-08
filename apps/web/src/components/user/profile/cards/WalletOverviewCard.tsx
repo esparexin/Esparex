@@ -126,7 +126,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   const hasFreeAdsUsage = freeAdsUsed > 0;
 
   return (
-    <Card className="border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs rounded-none sm:rounded-2xl">
+    <Card className="border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-sm rounded-none sm:rounded-2xl">
       <CardContent className="p-0 sm:p-5 space-y-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between gap-2">

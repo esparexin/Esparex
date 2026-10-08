@@ -61,13 +61,14 @@ export function LoginForm({
     if (authError?.type === "generic") clearAuthErrorOfTypes(["generic"]);
 
     const serverErr = mobileServerError(values.mobile);
-    if (serverErr) { form.setError("mobile", { message: serverErr }); return; }
+    if (serverErr) { form.setError("mobile", { message: serverErr }); form.setFocus("mobile"); return; }
 
     const lockInfo = getMobileLockInfo(values.mobile);
     if (lockInfo && lockInfo.remainingSeconds > 0) {
       form.setError("mobile", {
         message: `Account temporarily locked. Try again in ${formatSeconds(lockInfo.remainingSeconds)}.`,
       });
+      form.setFocus("mobile");
       return;
     }
 
@@ -82,6 +83,7 @@ export function LoginForm({
     }
     if (otpValue.length !== 6) {
       form.setError("otp", { message: "Please enter the 6-digit OTP code." });
+      form.setFocus("otp");
       return;
     }
 

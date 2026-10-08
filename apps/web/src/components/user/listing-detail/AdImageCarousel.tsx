@@ -62,7 +62,7 @@ export function AdImageCarousel({
     return (
         <section aria-label="Listing image gallery" className="w-full space-y-2.5">
             <div
-                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[440px] bg-muted/60 dark:bg-card/80 rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-border/80 shadow-2xs select-none"
+                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[440px] bg-muted/60 dark:bg-card/80 rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-border/80 shadow-sm select-none"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onClick={() => setIsLightboxOpen(true)}
@@ -95,7 +95,7 @@ export function AdImageCarousel({
                         fill
                         sizes={MARKETPLACE_CARD_FILL_SIZES}
                         priority
-                        className="w-full h-full object-contain drop-shadow-xs transition-transform duration-300 group-hover/main:scale-[1.01]"
+                        className="w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover/main:scale-[1.01]"
                     />
                 </div>
 
@@ -105,7 +105,7 @@ export function AdImageCarousel({
                         <Button
                             size="icon"
                             variant="secondary"
-                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                             onClick={onShare}
                             aria-label="Share this listing"
                         >
@@ -114,13 +114,13 @@ export function AdImageCarousel({
                         <Button
                             size="icon"
                             variant="secondary"
-                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+                            className="h-9 w-9 rounded-full bg-white/90 dark:bg-black/75 backdrop-blur-md hover:bg-white dark:hover:bg-black shadow-sm border border-border/40 transition-all active:scale-90 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                             onClick={onFavorite}
                             aria-label={isFavorited ? "Remove from saved ads" : "Save this listing"}
                         >
                             <Heart
                                 className={`h-4 w-4 transition-colors ${
-                                    isFavorited ? "fill-red-500 text-red-500" : "text-foreground"
+                                    isFavorited ? "fill-destructive text-destructive" : "text-foreground"
                                 }`}
                             />
                         </Button>
@@ -137,7 +137,7 @@ export function AdImageCarousel({
                     <>
                         <button
                             type="button"
-                            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 prevImage();
@@ -148,7 +148,7 @@ export function AdImageCarousel({
                         </button>
                         <button
                             type="button"
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/65 active:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 nextImage();
@@ -172,7 +172,7 @@ export function AdImageCarousel({
                             aria-selected={index === currentImageIndex}
                             onClick={() => setCurrentImageIndex(index)}
                             aria-label={`View photo ${index + 1} of ${safeImages.length}`}
-                            className={`shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
+                            className={`shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                                 index === currentImageIndex
                                     ? "border-primary ring-2 ring-primary/20 scale-95 opacity-100"
                                     : "border-border/60 hover:border-border opacity-70 hover:opacity-100"

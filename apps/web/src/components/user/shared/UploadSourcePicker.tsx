@@ -95,7 +95,7 @@ export function UploadSourcePicker({
                             onClick={handleCameraSelect}
                             className="w-full flex items-center gap-3.5 px-4 h-12 rounded-xl text-left text-body font-semibold text-foreground hover:bg-muted active:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation cursor-pointer"
                         >
-                            <Camera className="h-4.5 w-4.5 text-foreground-secondary shrink-0" />
+                            <Camera className="h-[18px] w-[18px] text-foreground-secondary shrink-0" />
                             <span>{effectiveCameraLabel}</span>
                         </button>
                     )}
@@ -105,7 +105,7 @@ export function UploadSourcePicker({
                         onClick={handleGallerySelect}
                         className="w-full flex items-center gap-3.5 px-4 h-12 rounded-xl text-left text-body font-semibold text-foreground hover:bg-muted active:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation cursor-pointer"
                     >
-                        <GalleryIcon className="h-4.5 w-4.5 text-foreground-secondary shrink-0" />
+                        <GalleryIcon className="h-[18px] w-[18px] text-foreground-secondary shrink-0" />
                         <span>{effectiveGalleryLabel}</span>
                     </button>
 
@@ -115,7 +115,7 @@ export function UploadSourcePicker({
                             onClick={handleRemoveSelect}
                             className="w-full flex items-center gap-3.5 px-4 h-12 rounded-xl text-left text-body font-semibold text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive touch-manipulation cursor-pointer"
                         >
-                            <Trash2 className="h-4.5 w-4.5 text-destructive shrink-0" />
+                            <Trash2 className="h-[18px] w-[18px] text-destructive shrink-0" />
                             <span>Remove Photo</span>
                         </button>
                     )}

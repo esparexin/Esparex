@@ -11,7 +11,7 @@ export function BusinessListingPageBackdrop({ listingType = "listing" }: Busines
     return (
         <div className="fixed inset-0 overflow-hidden bg-muted/90 pointer-events-none select-none z-0" inert>
             {/* Header Shell */}
-            <header className="w-full bg-card border-b border-border px-4 py-3 sm:px-6 flex items-center justify-between shadow-xs">
+            <header className="w-full bg-card border-b border-border px-4 py-3 sm:px-6 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-body-lg">
                         E
@@ -46,7 +46,7 @@ export function BusinessListingPageBackdrop({ listingType = "listing" }: Busines
                     <div className="w-36 h-5 rounded bg-muted-foreground/20" />
                     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
                         {["Mobiles", "Laptops", "LED TVs", "Tablets", "Drones", "Audio"].map((cat, i) => (
-                            <div key={i} className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 shadow-xs">
+                            <div key={i} className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 shadow-sm">
                                 <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-caption">
                                     {cat.substring(0, 2).toUpperCase()}
                                 </div>
@@ -61,7 +61,7 @@ export function BusinessListingPageBackdrop({ listingType = "listing" }: Busines
                     <div className="w-44 h-5 rounded bg-muted-foreground/20" />
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {[1, 2, 3, 4].map((item) => (
-                            <div key={item} className="rounded-2xl border border-border bg-card p-3 space-y-3 shadow-xs">
+                            <div key={item} className="rounded-2xl border border-border bg-card p-3 space-y-3 shadow-sm">
                                 <div className="w-full h-36 rounded-xl bg-muted flex items-center justify-center text-foreground-subtle text-caption font-medium">
                                     Listing Preview
                                 </div>

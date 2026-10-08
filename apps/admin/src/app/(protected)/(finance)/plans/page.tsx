@@ -46,7 +46,6 @@ export default function PlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus,
         handleArchive,
         handleRestore,
         togglingPlanId,

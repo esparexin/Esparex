@@ -37,7 +37,7 @@ export function BlockChatDialog({ open, isSubmitting, onCancel, onConfirm }: Blo
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isSubmitting}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+            className="bg-destructive hover:bg-destructive/90 text-white font-semibold"
           >
             {isSubmitting ? 'Blocking…' : 'Block'}
           </AlertDialogAction>
