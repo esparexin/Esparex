@@ -1,1 +1,5 @@
 {
+  "totalViolations": 566,
+  "updatedAt": "2026-10-08T11:42:00.000Z",
+  "note": "Calibrated after merge of develop into fix/lighthouse-performance."
+}

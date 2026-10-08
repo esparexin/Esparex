@@ -193,6 +193,8 @@ export default function AIConfigPage() {
             <Stack direction="col" gap="lg">
                 {/* KPI Header Grid */}
                 <Grid cols={3} gap="sm">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-success/10 text-success-dark border border-success/20 shrink-0">
                             <ShieldCheck size={22} />
                         </div>
                         <div>

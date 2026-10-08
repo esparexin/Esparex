@@ -236,12 +236,20 @@ export default function UsersPage() {
                             <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
                             <p className="mt-0.5 text-body font-bold text-foreground">{formatStableNumber(overview.totalUsers)}</p>
                         </Link>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-success/20 bg-success-subtle/40 px-2.5 py-1.5 shadow-sm transition hover:border-success/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-success-dark">Individuals</p>
+                            <p className="mt-0.5 text-body font-bold text-success">{formatStableNumber(overview.individuals)}</p>
+                        </Link>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-primary/20 bg-primary-subtle/40 px-2.5 py-1.5 shadow-sm transition hover:border-primary/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-primary">Businesses</p>
                             <p className="mt-0.5 text-body font-bold text-info">{formatStableNumber(overview.businesses)}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-indigo-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
                             <p className="mt-0.5 text-body font-bold text-primary">{formatStableNumber(overview.verifiedBusinesses)}</p>
                         </Link>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-destructive/20 bg-destructive/10 px-2.5 py-1.5 shadow-sm transition hover:border-destructive/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-destructive">Blocked Users</p>
                             <p className="mt-0.5 text-body font-bold text-destructive">{formatStableNumber(overview.blockedUsers)}</p>
                         </Link>
                     </div>

@@ -64,6 +64,21 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+          <EmptyState
+            icon={Heart}
+            title="No saved ads yet"
+            description="Ads you bookmark while browsing will appear here."
+            action={
+              <Button
+                type="button"
+                onClick={() => navigateTo("browse")}
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-sm cursor-pointer"
+              >
+                Explore Marketplace
+              </Button>
+            }
+          />
         </Card>
       ) : (
         /* Saved Ads Compact List View */

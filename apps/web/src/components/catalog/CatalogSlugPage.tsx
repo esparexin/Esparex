@@ -83,6 +83,11 @@ export function CatalogSlugPage({
             </div>
           </div>
         ) : (
+          <EmptyState
+            title="No live listings yet"
+            description={`This ${entity.replace("-", " ")} exists in the catalog, but there are no live public listings connected to it right now.`}
+            action={
+              <Button asChild variant="outline" className="rounded-xl px-5">
                 <Link href={browseHref}>{config.browseLabel}</Link>
               </Button>
             }

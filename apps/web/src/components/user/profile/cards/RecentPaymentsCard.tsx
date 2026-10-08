@@ -68,6 +68,23 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   if (validPayments.length === 0) {
     return (
+      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+        <EmptyState
+          icon={FileText}
+          title="No Payment Receipts Yet"
+          description="Receipts for plan purchases and spotlight promotions will appear here."
+          action={
+            onBrowsePlans ? (
+              <Button
+                type="button"
+                onClick={onBrowsePlans}
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-sm cursor-pointer"
+              >
+                Browse Plans
+              </Button>
+            ) : undefined
+          }
+        />
       </Card>
     );
   }

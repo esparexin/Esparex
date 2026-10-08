@@ -24,6 +24,8 @@ import { formatAppTime, formatStableNumber } from "@esparex/shared";
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
   loading: () => (
+    <div className="bg-card p-6 rounded-xl border border-border shadow-sm h-[400px] flex items-center justify-center">
+      <span className="text-caption font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
     </div>
   ),
 });

@@ -237,6 +237,17 @@ export default function AdminUsersPage() {
                     <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
                     <p className="mt-0.5 text-h4 font-bold text-purple-700">{superAdmins}</p>
                 </div>
+                <div className="rounded-lg border border-primary/20 bg-primary-subtle/40 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-primary">Admins</p>
+                    <p className="mt-0.5 text-h4 font-bold text-primary">{adminCount}</p>
+                </div>
+                <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-warning-dark">Moderators</p>
+                    <p className="mt-0.5 text-h4 font-bold text-warning-dark">{moderators}</p>
+                </div>
+                <div className="rounded-lg border border-success/20 bg-success/10 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-success-dark">Active</p>
+                    <p className="mt-0.5 text-h4 font-bold text-success-dark">{activeAdmins}</p>
                 </div>
                 <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm">
                     <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Total Accounts</p>

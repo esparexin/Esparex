@@ -398,6 +398,7 @@ export function ViewAdModal({
                                     <button
                                         type="button"
                                         onClick={() => void reportContext.onTakeDown?.()}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-destructive px-4 text-caption font-semibold text-white hover:bg-destructive transition-colors shadow-sm"
                                     >
                                         <ShieldAlert size={14} /> Take Down Ad & Resolve Report
                                     </button>

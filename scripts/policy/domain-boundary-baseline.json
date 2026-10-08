@@ -18,3 +18,5 @@
     }
   },
   "description": "Burn-down baselines for domain boundary rules (DECISION-GATE C-7, C-11). Each count is a ceiling: the gate FAILS if the current count exceeds the baseline, and the baseline auto-tightens when the count drops (burn-down toward zero).",
+  "updatedAt": "2026-10-08T06:47:12.042Z"
+}
