@@ -85,7 +85,7 @@ export function isGenericDetectedLocation(location: {
     ].some((candidate) => isGenericLocationLabel(candidate));
 }
 
-export type LocationLabelSurface = 'search' | 'display' | 'header';
+export type LocationLabelSurface = 'search' | 'display' | 'header' | 'compact';
 
 /**
  * getLocationLabel — Canonical location label formatter (audit F1).
@@ -159,6 +159,16 @@ export function getLocationLabel(
         );
     }
 
+    if (surface === 'compact') {
+        // Compact card surface: city-first single label for dense UI
+        // (Ad cards, list rows). Previously forked in web locationNormalizer.
+        return pickLocationLabel(
+            location.city,
+            location.display,
+            location.name
+        );
+    }
+
     return pickLocationLabel(
         location.display,
         location.formattedAddress,
@@ -180,6 +190,10 @@ export const getDisplayLocationLabel = (location: LocationLabelInput): string | 
 /** Canonical alias: getLocationLabel(location, 'header'). */
 export const getHeaderLocationLabel = (location: LocationLabelInput): string | undefined =>
     getLocationLabel(location, 'header');
+
+/** Canonical alias: getLocationLabel(location, 'compact'). */
+export const getCompactLocationLabel = (location: LocationLabelInput): string | undefined =>
+    getLocationLabel(location, 'compact');
 
 export function getHeaderLocationText(location: LocationLabelInput) {
     const label = getHeaderLocationLabel(location);

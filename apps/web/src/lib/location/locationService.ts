@@ -12,7 +12,6 @@ export {
     normalizeToAppLocation,
     reverseGeocode,
     normalizeLocationName,
-    formatLocation,
 } from "./locationNormalizer";
 
 export type {
@@ -30,6 +29,7 @@ export {
 
 export {
     getDisplayLocationLabel,
+    getCompactLocationLabel,
     getHeaderLocationText,
     getSearchLocationLabel,
     isGenericDetectedLocation,
