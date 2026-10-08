@@ -9,7 +9,6 @@ import {
     CatalogEntityCell,
     CatalogActiveToggleButton,
     CatalogEditDeleteActions,
-    CatalogActiveStatusFilter,
     CatalogSearchAndCategoryFilters,
 } from "@/components/catalog/primitives";
 import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
@@ -146,31 +145,27 @@ export default function ServiceTypesTab() {
                 ]}
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
-                    <>
-                        <CatalogSearchAndCategoryFilters
-                            searchValue={searchInput}
-                            searchPlaceholder="Search service types..."
-                            onSearchChange={setSearchInput}
-                            categories={categoryOptions}
-                            categoryValue={initialCategoryId}
-                            onCategoryChange={(categoryId) =>
-                                replaceQueryState({
-                                    categoryId: categoryId !== "all" ? categoryId : null,
-                                    page: null,
-                                })
-                            }
-                            withCategoryFilterIcon
-                        />
-                        <CatalogActiveStatusFilter
-                            value={initialStatus}
-                            onChange={(status) =>
-                                replaceQueryState({
-                                    status: status !== "all" ? status : null,
-                                    page: null,
-                                })
-                            }
-                        />
-                    </>
+                    <CatalogSearchAndCategoryFilters
+                        searchValue={searchInput}
+                        searchPlaceholder="Search service types..."
+                        onSearchChange={setSearchInput}
+                        categories={categoryOptions}
+                        categoryValue={initialCategoryId}
+                        onCategoryChange={(categoryId) =>
+                            replaceQueryState({
+                                categoryId: categoryId !== "all" ? categoryId : null,
+                                page: null,
+                            })
+                        }
+                        withCategoryFilterIcon
+                        statusValue={initialStatus}
+                        onStatusChange={(status) =>
+                            replaceQueryState({
+                                status: status !== "all" ? status : null,
+                                page: null,
+                            })
+                        }
+                    />
                 }
                 formRenderer={(formData, setFormData) => (
                     <>

@@ -12,7 +12,6 @@ import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import {
     CatalogActiveCheckboxField,
-    CatalogActiveStatusFilter,
     CatalogActiveToggleButton,
     CatalogEditDeleteActions,
     CatalogEntityCell,
@@ -153,31 +152,27 @@ export default function ScreenSizesTab() {
                 ]}
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
-                    <>
-                        <CatalogSearchAndCategoryFilters
-                            searchValue={searchInput}
-                            searchPlaceholder="Search screen sizes..."
-                            onSearchChange={setSearchInput}
-                            categories={categoryOptions}
-                            categoryValue={initialCategoryId}
-                            onCategoryChange={(categoryId) =>
-                                replaceQueryState({
-                                    categoryId: categoryId !== "all" ? categoryId : null,
-                                    page: null,
-                                })
-                            }
-                            withCategoryFilterIcon
-                        />
-                        <CatalogActiveStatusFilter
-                            value={initialStatus}
-                            onChange={(status) =>
-                                replaceQueryState({
-                                    status: status !== "all" ? status : null,
-                                    page: null,
-                                })
-                            }
-                        />
-                    </>
+                    <CatalogSearchAndCategoryFilters
+                        searchValue={searchInput}
+                        searchPlaceholder="Search screen sizes..."
+                        onSearchChange={setSearchInput}
+                        categories={categoryOptions}
+                        categoryValue={initialCategoryId}
+                        onCategoryChange={(categoryId) =>
+                            replaceQueryState({
+                                categoryId: categoryId !== "all" ? categoryId : null,
+                                page: null,
+                            })
+                        }
+                        withCategoryFilterIcon
+                        statusValue={initialStatus}
+                        onStatusChange={(status) =>
+                            replaceQueryState({
+                                status: status !== "all" ? status : null,
+                                page: null,
+                            })
+                        }
+                    />
                 }
                 formRenderer={(formData, setFormData) => (
                     <>
