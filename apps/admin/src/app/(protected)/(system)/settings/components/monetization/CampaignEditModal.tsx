@@ -62,7 +62,7 @@ export function CampaignEditModal({
             />
           </div>
 
-          <div className="grid gap-3" style={{gridTemplateColumns:'repeat(2,1fr)'}}>
+          <div className="grid gap-3 grid-cols-2">
             <div>
               <label className="block text-caption font-semibold text-foreground-secondary mb-1">Placement Slot</label>
               <select
@@ -96,7 +96,7 @@ export function CampaignEditModal({
             </div>
           </div>
 
-          <div className="grid gap-3" style={{gridTemplateColumns:'repeat(2,1fr)'}}>
+          <div className="grid gap-3 grid-cols-2">
             <div>
               <label className="block text-caption font-semibold text-foreground-secondary mb-1">Priority Rank (1 = Highest)</label>
               <input
