@@ -7,7 +7,7 @@ const objectIdLike = z
 
 export const SavedSearchCreateSchema = z
   .object({
-    query: z.string().trim().max(120).optional(),
+    query: z.union([z.string().trim().max(120), z.literal('')]).optional(),
     categoryId: objectIdLike.optional(),
     locationId: objectIdLike.optional(),
     priceMin: z.number().min(0).optional(),

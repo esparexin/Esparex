@@ -1,7 +1,7 @@
 /**
  * Canonical text-moderation rules (P1-7).
  *
- * Merges the text / phone-number / prohibited-keyword rules from the legacy
+ * Merges the text / phone-number / prohibited-keyword rules from the former
  * `core/src/services/lifecycle/ModerationService.ts` into the moderation
  * domain pipeline (DECISION-GATE §3: the moderation domain owns moderation).
  *

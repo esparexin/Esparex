@@ -174,12 +174,12 @@ export function NotificationSettings(props: SectionProps) {
           <div
             className={`rounded-lg px-4 py-3 text-caption flex items-center gap-2 ${
               testResult.success
-                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                ? "bg-success/10 text-success-dark border border-success/20"
                 : "bg-destructive/10 text-destructive border border-destructive/20"
             }`}
           >
             {testResult.success ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
             ) : (
               <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
             )}

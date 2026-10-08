@@ -148,8 +148,8 @@ const walkDir = (dir) => {
                     }
                 }
 
-                // Web application zero-tolerance checks
-                if (relPath.startsWith("apps/web/src") && !relPath.includes("__tests__")) {
+                // Web and Admin application zero-tolerance checks
+                if ((relPath.startsWith("apps/web/src") || relPath.startsWith("apps/admin/src")) && !relPath.includes("__tests__")) {
                     if (!line.trim().startsWith("//") && !line.trim().startsWith("*")) {
                         const cleanedLine = line
                             .replace(/\btext-body-lg\b/g, "")
@@ -190,14 +190,12 @@ const walkDir = (dir) => {
             });
 
             // Mobile Input Zoom Safety Gate (WCAG 2.2 AA / iOS Safari auto-zoom prevention)
-            // Inputs in user-facing applications (apps/web, apps/mobile, packages/ui, packages/mobile-ui)
+            // Inputs in user-facing applications (apps/web, apps/admin, apps/mobile, packages/ui, packages/mobile-ui)
             // must render >= 16px (1rem / text-base / text-body-lg) on mobile viewports (< md:)
             const relPath = path.relative(repoRoot, fullPath);
-            const isUserFacingApp = !fullPath.includes("apps/admin");
-            if (isUserFacingApp) {
-                const inputTagRegex = /<(?:input|textarea|select|Input|Textarea|ControlledInput|ControlledTextarea|SelectTrigger)\b[^>]*className=(?:\{cn\(|["`])([^"`}>]+)[^>]*>/gs;
-                let inputMatch;
-                while ((inputMatch = inputTagRegex.exec(content)) !== null) {
+            const inputTagRegex = /<(?:input|textarea|select|Input|Textarea|ControlledInput|ControlledTextarea|SelectTrigger)\b[^>]*className=(?:\{cn\(|["`])([^"`}>]+)[^>]*>/gs;
+            let inputMatch;
+            while ((inputMatch = inputTagRegex.exec(content)) !== null) {
                     const classStr = inputMatch[1];
                     const sub16pxRegex = /\b(?<![a-z0-9_-]:)(?:text-xs|text-caption|text-small|text-tiny|text-sm|text-body)(?!-[a-z0-9])\b/;
                     if (sub16pxRegex.test(classStr)) {
@@ -214,7 +212,6 @@ const walkDir = (dir) => {
                         }
                     }
                 }
-            }
         }
     }
 };

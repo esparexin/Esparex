@@ -233,37 +233,11 @@ export class APIClient {
             headers.set('x-correlation-id', TraceContext.getCorrelationId());
             config.headers = headers;
 
-            // 🔐 HMAC SIGNATURE FOR FINANCIAL SAFETY
-            // NOTE: Browser-side HMAC is not a true security boundary — NEXT_PUBLIC_* vars are
-            // visible in the compiled client JS bundle. Signing is skipped if no secret is set.
-            const SENSITIVE_ENDPOINTS = [
-                '/users/:id/wallet',
-                '/wallet/adjust',
-                '/payments/create'
-            ];
-
-            const normalizedPath = normalizeRequestPath(config.url);
-            const isSensitive = SENSITIVE_ENDPOINTS.some(pattern => {
-                const regex = new RegExp('^' + pattern.replace(':id', '[^/]+').replace(/^\/+/, '') + '$', 'i');
-                return regex.test(normalizedPath);
-            });
-
-            if (isSensitive && config.data && this.isStateChangingMethod(config.method)) {
-                const secret = process.env.NEXT_PUBLIC_HMAC_SECRET;
-                if (secret) {
-                    try {
-                        const CryptoJS = (await import('crypto-js')).default;
-                        const bodyStr = JSON.stringify(config.data);
-                        const signature = CryptoJS.HmacSHA256(bodyStr, secret).toString(CryptoJS.enc.Hex);
-                        
-                        const headers = new AxiosHeaders(config.headers);
-                        headers.set('x-signature', signature);
-                        config.headers = headers;
-                    } catch (cryptoError) {
-                        logger.error('[API Client] Failed to generate HMAC signature:', cryptoError);
-                    }
-                }
-            }
+            // 🔐 FINANCIAL SAFETY (Phase 1 audit P0: F31/F21)
+            // Browser-side HMAC removed — NEXT_PUBLIC_* vars ship in the client
+            // bundle and are not a security boundary. Server-side auth (protect),
+            // CSRF double-submit, velocity limits, and idempotency are the real
+            // enforcement for sensitive endpoints. Do not reintroduce client secrets.
 
             const isCsrfBootstrapRequest = config.url?.endsWith(API_ROUTES.USER.CSRF_TOKEN);
             if (!isCsrfBootstrapRequest && this.isStateChangingMethod(method)) {

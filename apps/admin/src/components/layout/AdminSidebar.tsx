@@ -123,7 +123,6 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                             className={cn("h-7 w-auto object-contain", isMinified && "lg:hidden")}
                         />
                         {isMinified && (
-                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-extrabold text-primary-foreground shadow-sm text-caption"> {/* ui-guard-ignore: parallel-responsive-dom [Minified sidebar icon] */}
                                 E
                             </span>
                         )}

@@ -17,7 +17,6 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from './middleware/cookieParser';
-import '@esparex/core';
 import { env } from '@esparex/core';
 import { validateOtpConfiguration } from './middleware/otpGuard';
 import { registerDeprecationRoutes } from './middleware/deprecations';
@@ -82,17 +81,9 @@ import { maintenanceMiddleware } from './middleware/maintenanceMiddleware';
 import { enforceErrorResponseContract } from './middleware/errorResponseContract';
 
 /* -------------------------------------------------------------------------- */
-/* DB / HEALTH                                                                 */
+/* DB / HEALTH (health routes + CORS owned by ./routes/healthRoutes, ./config/cors) */
 /* -------------------------------------------------------------------------- */
-import { isDbReady } from '@esparex/core';
 import { logger } from '@esparex/core';
-import {
-    DEFAULT_STATIC_ALLOWED_ORIGINS,
-    getAllowedOriginList,
-    isAllowedOrigin,
-    normalizeOrigin,
-} from '@esparex/core';
-import { getHealthCheckData, healthCheckHandler } from './utils/health';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */
@@ -110,62 +101,9 @@ app.disable("x-powered-by");
 app.set('trust proxy', 1);
 
 /* -------------------------------------------------------------------------- */
-/* CORS — MUST BE FIRST                                                        */
+/* CORS — MUST BE FIRST (options owned by ./config/cors)                       */
 /* -------------------------------------------------------------------------- */
-const configuredOrigins = getAllowedOriginList({
-    NODE_ENV: env.NODE_ENV,
-    CORS_ORIGIN: env.CORS_ORIGIN,
-    COOKIE_DOMAIN: env.COOKIE_DOMAIN,
-    FRONTEND_URL: env.FRONTEND_URL,
-    FRONTEND_INTERNAL_URL: env.FRONTEND_INTERNAL_URL,
-    ADMIN_FRONTEND_URL: env.ADMIN_FRONTEND_URL,
-    ADMIN_URL: env.ADMIN_URL,
-});
-
-const allowedOriginsList = [
-    ...DEFAULT_STATIC_ALLOWED_ORIGINS,
-    ...configuredOrigins
-].map(normalizeOrigin);
-
-const corsOptions: cors.CorsOptions = {
-    origin: (origin, callback) => {
-        if (isAllowedOrigin(origin, allowedOriginsList, env.NODE_ENV)) {
-            return callback(null, true);
-        }
-
-        return callback(new Error('CORS blocked'));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'Accept',
-        'X-Requested-With',   // ✅ REQUIRED FOR AXIOS
-        'accessToken',
-        'x-user-session',
-        'X-Encrypted',
-        'x-geo-lat',
-        'x-geo-lng',
-        'Idempotency-Key',
-        'Cache-Control',
-        'Pragma',
-        'x-no-retry',         // ✅ REQUIRED FOR OTP REQUESTS
-        'X-CSRF-Token',       // ✅ REQUIRED FOR CSRF PROTECTION
-        'x-correlation-id',   // ✅ REQUIRED FOR DISTRIBUTED TRACING
-        'x-trace-id',         // ✅ REQUIRED FOR DISTRIBUTED TRACING
-        'x-request-id'        // ✅ REQUIRED FOR LOG CORRELATION
-    ],
-    exposedHeaders: [
-        'X-RateLimit-Limit',
-        'X-RateLimit-Remaining',
-        'X-RateLimit-Reset',
-        'Retry-After',
-        'X-Correlation-ID',
-        'X-Trace-ID',
-        'X-Request-ID'
-    ]
-};
+import { corsOptions } from './config/cors';
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions)); // ✅ ENABLE PREFLIGHT for all routes
@@ -224,9 +162,7 @@ app.use(verifyCsrfToken);
 // Registering it after metrics middlewares produces 'correlationId: no-context'.
 import requestIdMiddleware from './middleware/requestId';
 import { sentryRequestHandler, sentryTracingHandler } from './middleware/sentryErrorHandler';
-import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
-import { getSystemMetricsSummary } from '@esparex/core';
-import { requireMetricsAuth } from './middleware/metricsAuth';
+import { apiLatencyMiddleware, memoryUsageMiddleware } from './middleware/metricsMiddleware';
 
 app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
 app.use((req, res, next) => {
@@ -269,120 +205,11 @@ if (env.NODE_ENV !== 'production') {
 app.use('/api/v1', globalLimiter);
 
 /* -------------------------------------------------------------------------- */
-/* HEALTH & ROOT (NO DB GUARD)                                                  */
+/* HEALTH & ROOT (NO DB GUARD — routes owned by ./routes/healthRoutes)         */
 /* -------------------------------------------------------------------------- */
-app.get('/health', healthCheckHandler);
+import healthRoutes from './routes/healthRoutes';
 
-app.get('/health/worker', async (_req, res) => {
-    try {
-        const health = await getHealthCheckData(true);
-        const statusCode = health.workerStatus === 'up' ? 200 : 503;
-        res.status(statusCode).json({
-            status: health.workerStatus,
-            workerHealth: health.workerHealth,
-            timestamp: new Date().toISOString(),
-        });
-    } catch (error) {
-        res.status(500).json({ status: 'error', error: error instanceof Error ? error.message : String(error) });
-    }
-});
-
-app.get('/system/status', async (_req, res) => {
-    try {
-        const health = await getHealthCheckData(true);
-        const statusCode = health.status === 'error' ? 503 : 200;
-
-        res.status(statusCode).json({
-            success: health.success,
-            status: health.status,
-            timestamp: new Date().toISOString(),
-            services: {
-                db: {
-                    status: health.databaseHealth.overall,
-                    details: health.databaseHealth,
-                },
-                redis: {
-                    status: health.redisConnected ? 'up' : 'down',
-                    latencyMs: health.redisPingLatencyMs,
-                    details: health.redisHealth,
-                },
-                queue: {
-                    status: health.queueStatus,
-                    details: health.queueHealth,
-                },
-                worker: {
-                    status: health.workerStatus,
-                    details: health.workerHealth,
-                },
-            },
-            uptime: health.uptime,
-            memoryUsage: health.memoryUsage,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            status: 'error',
-            error: error instanceof Error ? error.message : String(error),
-        });
-    }
-});
-
-app.get('/system/metrics-summary', requireMetricsAuth, async (_req, res) => {
-    try {
-        const summary = await getSystemMetricsSummary();
-        const apiReliability = getApiReliabilitySummary();
-        const statusCode = summary.api.status === 'error' ? 503 : 200;
-        res.status(statusCode).json({
-            success: summary.api.success,
-            status: summary.api.status,
-            generatedAt: summary.timestamp,
-            api: {
-                ...summary.api,
-                failureRateWindow: apiReliability.lastWindow,
-                failureThresholds: apiReliability.thresholds,
-            },
-            queue: summary.queue,
-            workers: summary.worker,
-            dependency: summary.dependency,
-            failureRates: summary.failureRates,
-            security: summary.security,
-            circuitBreakers: summary.circuitBreakers,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            status: 'error',
-            error: error instanceof Error ? error.message : String(error),
-        });
-    }
-});
-
-app.get('/', (_req, res) => {
-    res.json({
-        status: 'ok',
-        message: 'Esparex API is running',
-        version: '1.0.0',
-        isDbReady: isDbReady(),
-        timestamp: new Date().toISOString()
-    });
-});
-
-/**
- * 📊 PROMETHEUS METRICS ENDPOINT
- * 
- * Exposes internal metrics for Prometheus scraping.
- * Protected by basic auth or internal network restricted in production.
- */
-import { register } from '@esparex/core';
-app.get('/metrics', requireMetricsAuth, async (_req, res) => {
-    try {
-        res.set('Content-Type', register.contentType);
-        res.end(await register.metrics());
-    } catch (err) {
-        logger.error('Failed to collect Prometheus metrics', { error: err });
-        res.status(500).end('Internal Server Error');
-    }
-});
+app.use('/', healthRoutes);
 
 /* -------------------------------------------------------------------------- */
 /* FAIL-FAST DB GATE (DATA ROUTES ONLY)                                         */
@@ -398,7 +225,6 @@ app.use('/api', fallbackRoutes);
 // --- SSOT API Namespace ---
 app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
-// app.use('/api/v1/catalog-requests', catalogRequestRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
 

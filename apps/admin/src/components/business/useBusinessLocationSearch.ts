@@ -20,7 +20,6 @@ interface UseBusinessLocationSearchParams {
 export function useBusinessLocationSearch({
   form,
   setForm,
-  setError: _setError,
   initialDisplay,
 }: UseBusinessLocationSearchParams) {
   const [locationQuery, setLocationQuery] = useState("");

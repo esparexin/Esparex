@@ -37,15 +37,15 @@ const toneStyles = {
   danger: {
     header: "bg-destructive/10",
     iconWrap: "bg-destructive/20 text-destructive",
-    notice: "bg-amber-50 border-amber-200 text-amber-800",
+    notice: "bg-warning/10 border-warning/20 text-warning-dark",
     field: "focus-visible:ring-2 focus-visible:ring-destructive/40 focus-visible:border-destructive",
     action: "destructive" as const,
   },
   warning: {
-    header: "bg-amber-500/10",
-    iconWrap: "bg-amber-500/20 text-amber-600",
-    notice: "bg-amber-50 border-amber-200 text-amber-800",
-    field: "focus-visible:ring-2 focus-visible:ring-amber-500/40 focus-visible:border-amber-500",
+    header: "bg-warning/10",
+    iconWrap: "bg-warning/20 text-warning",
+    notice: "bg-warning/10 border-warning/20 text-warning-dark",
+    field: "focus-visible:ring-2 focus-visible:ring-warning/40 focus-visible:border-warning",
     action: "primary" as const,
   },
 } as const;

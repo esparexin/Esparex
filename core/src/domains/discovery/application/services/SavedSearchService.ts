@@ -6,6 +6,7 @@ import { notificationMatchQueue } from '../../../../queues/adQueue';
 import { releaseQueueIdempotencySlot, reserveQueueIdempotencySlot } from '../../../../queues/queueIdempotency';
 import { withQueueDefaults } from '../../../../queues/queueDefaults';
 import logger from '../../../../utils/logger';
+import { isPublicAdVisible } from '../../../../utils/FeedVisibilityGuard';
 import { toObjectId } from '../../../../utils/idUtils';
 import { addJobWithTrace } from '../../../../utils/queueWrapper';
 import { isQueueConnectionAvailable } from '../../../../queues/redisConnection';
@@ -120,7 +121,8 @@ export const processSavedSearchAlertDispatch = async (adId: string): Promise<voi
     }
 
     const listing = await getListingRepository().findById(adId);
-    if (!listing || listing.status !== 'live' || listing.isDeleted) {
+    // P2: canonical visibility (null-safe) instead of ad-hoc live/deleted check.
+    if (!listing || !isPublicAdVisible(listing)) {
         return;
     }
 

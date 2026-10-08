@@ -29,19 +29,19 @@ export function CatalogRejectModal({
             title={`Reject`}
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                <div className="flex items-start gap-3 rounded-xl border border-warning/20 bg-warning/10 p-4">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
                     <div>
-                        <p className="text-sm font-semibold text-orange-700">Rejection confirmation</p>
-                        <p className="mt-1 text-sm text-orange-600">
+                        <p className="text-body font-semibold text-warning-dark">Rejection confirmation</p>
+                        <p className="mt-1 text-body text-warning">
                             Please provide a reason for rejecting <strong>&ldquo;{itemName}&rdquo;</strong>.
                         </p>
                     </div>
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-sm font-semibold text-foreground">
-                        Rejection Reason <span className="text-red-500">*</span>
+                    <label className="mb-2 block text-body font-semibold text-foreground">
+                        Rejection Reason <span className="text-destructive">*</span>
                     </label>
                     <Textarea
                         value={reason}

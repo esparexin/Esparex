@@ -29,7 +29,6 @@ This skill is powered by a 6-part integrated documentation and execution system 
 | [IDE-AI-PROMPTS.md](./IDE-AI-PROMPTS.md) | 16 production-ready IDE AI prompts | Generating components, a11y fixes, reviews, token conversion in chat |
 | [HOW-TO-USE-THIS-SKILL.md](./HOW-TO-USE-THIS-SKILL.md) | Step-by-step scenario walkthroughs | Common developer scenarios, PR reviews, 40-minute onboarding |
 | [IDE-SETUP-GUIDE.md](./IDE-SETUP-GUIDE.md) | IDE setup for Claude / Copilot / Cursor | Connecting design system files to your IDE AI assistant |
-| [esparex-ui-ux-complete-skill.md](./esparex-ui-ux-complete-skill.md) | Deprecated v2.0 snapshot (pointer to this file) | Do not use directly |
 
 ---
 

@@ -76,7 +76,7 @@ export function AdminModerationActions({
                     label="Approve"
                     ariaLabel="Approve"
                     onClick={onApprove!}
-                    className="text-emerald-600 hover:bg-emerald-50"
+                    className="text-success hover:bg-success/10"
                 >
                     <Check size={16} />
                 </ActionButton>
@@ -87,7 +87,7 @@ export function AdminModerationActions({
                     label="Reject"
                     ariaLabel="Reject"
                     onClick={onReject!}
-                    className="text-red-600 hover:bg-red-50"
+                    className="text-destructive hover:bg-destructive/10"
                 >
                     <X size={16} />
                 </ActionButton>
@@ -98,7 +98,7 @@ export function AdminModerationActions({
                     label="Deactivate"
                     ariaLabel="Deactivate"
                     onClick={onDeactivate!}
-                    className="text-orange-600 hover:bg-orange-50"
+                    className="text-warning hover:bg-warning/10"
                 >
                     <Pause size={16} />
                 </ActionButton>
@@ -109,7 +109,7 @@ export function AdminModerationActions({
                     label="Activate"
                     ariaLabel="Activate"
                     onClick={onActivate!}
-                    className="text-emerald-700 hover:bg-emerald-50"
+                    className="text-success-dark hover:bg-success/10"
                 >
                     <Check size={16} />
                 </ActionButton>
@@ -131,7 +131,7 @@ export function AdminModerationActions({
                     label="Block Seller"
                     ariaLabel="Block seller"
                     onClick={onBlockSeller}
-                    className="text-rose-700 hover:bg-rose-50"
+                    className="text-destructive hover:bg-destructive/10"
                 >
                     <Ban size={16} />
                 </ActionButton>

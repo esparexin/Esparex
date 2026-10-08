@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { PaymentSummaryDTO } from '@esparex/contracts';
 import { downloadInvoiceFile } from '@/lib/api/user/payments';
-import { Eye, Download, FileText, Button, Card } from "@esparex/ui";
+import { Eye, Download, FileText, Button, Card, EmptyState } from "@esparex/ui";
 import { InvoicePreviewDialog } from '../dialogs/InvoicePreviewDialog';
 import { formatStableDate, formatStableNumber } from '@/lib/formatters';
 
@@ -68,20 +68,6 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
 
   if (validPayments.length === 0) {
     return (
-      <Card className="rounded-2xl border border-border/80 bg-card shadow-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center">
-        <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground border border-border/60 mb-3.5">
-          <FileText className="h-6 w-6 sm:h-7 sm:w-7" />
-        </div>
-        <h3 className="text-body-lg font-semibold text-foreground">No Payment Receipts Yet</h3>
-        {onBrowsePlans && (
-          <Button
-            type="button"
-            onClick={onBrowsePlans}
-            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-sm inline-flex items-center justify-center gap-2 cursor-pointer"
-          >
-            Browse Plans
-          </Button>
-        )}
       </Card>
     );
   }

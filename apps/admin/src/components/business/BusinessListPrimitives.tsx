@@ -11,28 +11,28 @@ const STATUS_STYLES: Record<
     }
 > = {
     live: {
-        pill: "bg-emerald-100 text-emerald-700 border-emerald-200",
-        dot: "bg-emerald-500",
+        pill: "bg-success/10 text-success-dark border-success/20",
+        dot: "bg-success",
     },
     pending: {
-        pill: "bg-amber-100 text-amber-700 border-amber-200",
-        dot: "bg-amber-500 animate-pulse",
+        pill: "bg-warning/10 text-warning-dark border-warning/20",
+        dot: "bg-warning animate-pulse",
     },
     rejected: {
-        pill: "bg-red-100 text-red-700 border-red-200",
-        dot: "bg-red-500",
+        pill: "bg-destructive/10 text-destructive border-destructive/20",
+        dot: "bg-destructive",
     },
     suspended: {
-        pill: "bg-red-100 text-red-700 border-red-200",
-        dot: "bg-red-500",
+        pill: "bg-destructive/10 text-destructive border-destructive/20",
+        dot: "bg-destructive",
     },
     deleted: {
         pill: "bg-muted text-foreground-secondary border-border",
         dot: "bg-foreground-tertiary",
     },
     expired: {
-        pill: "bg-amber-100 text-amber-800 border-amber-200",
-        dot: "bg-amber-600",
+        pill: "bg-warning/10 text-warning-dark border-warning/20",
+        dot: "bg-warning",
     },
     deactivated: {
         pill: "bg-muted text-foreground-secondary border-border",
@@ -69,9 +69,9 @@ function BusinessStatusBadge({
 const ACTION_TONES: Record<"default" | "primary" | "success" | "danger" | "warning", string> = {
     default: "hover:bg-muted text-foreground-subtle hover:text-primary",
     primary: "hover:bg-primary/10 text-foreground-subtle hover:text-primary",
-    success: "hover:bg-emerald-50 text-foreground-subtle hover:text-emerald-600",
+    success: "hover:bg-success/10 text-foreground-subtle hover:text-success",
     danger: "hover:bg-destructive/10 text-foreground-subtle hover:text-destructive",
-    warning: "hover:bg-amber-50 text-foreground-subtle hover:text-amber-600",
+    warning: "hover:bg-warning/10 text-foreground-subtle hover:text-warning",
 };
 
 export function BusinessActionButton({
@@ -121,7 +121,7 @@ export function BusinessSearchToolbar({
             extraFilters={
                 <>
                     {extraFilters}
-                    {summary ? <div className="ml-auto text-xs text-foreground-subtle font-medium">{summary}</div> : null}
+                    {summary ? <div className="ml-auto text-caption text-foreground-subtle font-medium">{summary}</div> : null}
                 </>
             }
         />
@@ -136,7 +136,7 @@ export function BusinessTypesCell({
     max?: number;
 }) {
     return (
-        <div className="text-xs text-foreground-secondary truncate max-w-[120px]">
+        <div className="text-caption text-foreground-secondary truncate max-w-[120px]">
             {(businessTypes ?? []).slice(0, max).join(", ") || "—"}
         </div>
     );

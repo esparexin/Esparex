@@ -2,16 +2,11 @@
 /**
  * No-legacy-lifecycle guard (DECISION-GATE C-10).
  *
- * The legacy cluster core/src/services/lifecycle/ is consolidation-approved
- * for deletion (DECISION-GATE §4, P1-4) once its consumers migrate. Until then:
- *  - no NEW files may be added under core/src/services/lifecycle/
- *  - no NEW importers of services/lifecycle may appear
- *
- * The 5 remaining shims and their 16 live importers are grandfathered below;
- * both lists are burn-down lists — shrink them as the migration completes, and
- * delete this guard when the directory is gone.
- *
- * Exit 0 = no new files/imports. Exit 1 = lists the additions.
+ * The legacy cluster core/src/services/lifecycle/ was deleted in Phase 7 after
+ * full consumer migration (all importers now target the listings domain).
+ * Both burn-down lists below are intentionally empty: any reappearance of the
+ * directory, its files, or an importer fails the gate. The guard is retained
+ * (rather than deleted) to prevent resurrection.
  */
 
 'use strict';
@@ -23,34 +18,13 @@ const { execSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const LIFECYCLE_DIR = path.join(ROOT, 'core', 'src', 'services', 'lifecycle');
 
-// Burn-down: remaining shims (delete entries as shims are removed).
-const KNOWN_FILES = new Set([
-  'core/src/services/lifecycle/AdStatusService.ts',
-  'core/src/services/lifecycle/LifecycleGuard.ts',
-  'core/src/services/lifecycle/LifecyclePolicyGuard.ts',
-  'core/src/services/lifecycle/ListingExpiryService.ts',
-  'core/src/services/lifecycle/StatusMutationService.ts',
-]);
+// Burn-down complete (Phase 7): shims deleted. Empty set — any file
+// reappearing under the legacy dir fails the gate.
+const KNOWN_FILES = new Set([]);
 
-// Burn-down: live non-test importers (delete entries as imports migrate).
-const KNOWN_IMPORTERS = new Set([
-  'core/src/domains/analytics/application/services/ReportService.ts',
-  'core/src/domains/identity/application/users/UserStatusService.ts',
-  'core/src/domains/listings/application/ad/AdCreationService.ts',
-  'core/src/domains/listings/application/ad/AdOrchestrator.ts',
-  'core/src/domains/listings/application/ad/AdRepostService.ts',
-  'core/src/domains/listings/application/ad/AdUpdateService.ts',
-  'core/src/domains/listings/application/ad/_shared/adServiceBase.ts',
-  'core/src/domains/listings/application/lifecycle/index.ts',
-  'core/src/domains/listings/application/moderation/adminListings/mutations.ts',
-  'core/src/domains/listings/application/mutations/AdMutationService.ts',
-  'core/src/domains/moderation/pipeline/TextModerationService.ts',
-  'core/src/events/listeners/NotificationTriggerListener.ts',
-  'core/src/index.ts',
-  'core/src/jobs/expireAds.job.ts',
-  'core/src/utils/adFilterHelper.ts',
-  'scripts/sweep-expired-listings.ts',
-]);
+// Burn-down complete (Phase 7): all importers migrated to the listings
+// domain. Empty set — any new importer fails the gate.
+const KNOWN_IMPORTERS = new Set([]);
 
 const IMPORT_PATTERN = /(?:import|export)[^'"]*['"][^'"]*services\/lifecycle[^'"]*['"]|require\(\s*['"][^'"]*services\/lifecycle[^'"]*['"]\s*\)/;
 

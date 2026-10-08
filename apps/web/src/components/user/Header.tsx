@@ -10,7 +10,7 @@ import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
 import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
-import { useMounted } from "@/hooks/useMounted";
+import { useMounted } from "@esparex/shared";
 import type { UserPage } from "@/lib/routeUtils";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";

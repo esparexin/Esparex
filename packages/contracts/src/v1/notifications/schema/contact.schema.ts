@@ -14,7 +14,7 @@ export const contactSubmissionRequestSchema = z.object({
     name: z.string().min(TEXT_LIMITS.NAME.MIN).max(TEXT_LIMITS.NAME.MAX),
     email: emailSchema,
     mobile: z.string().optional(),
-    subject: z.string().max(CONTACT_LIMITS.SUBJECT.MAX).optional(),
+    subject: z.union([z.string().max(CONTACT_LIMITS.SUBJECT.MAX), z.literal('')]).optional(),
     category: z.string().optional(),
     message: z.string().min(CONTACT_LIMITS.MESSAGE.MIN).max(CONTACT_LIMITS.MESSAGE.MAX),
 });

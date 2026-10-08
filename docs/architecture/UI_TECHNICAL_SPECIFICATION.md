@@ -1,7 +1,8 @@
 # Esparex UI Technical Specification (`UI_TECHNICAL_SPECIFICATION.md`)
 
 ```text
-Status:          LIVING SINGLE SOURCE OF TRUTH (SSOT)
+Status:          Tier 2 — Cross-Platform UI Technical Specification
+Authority:       Subordinate to AGENTS.md (Supreme Governance) & packages/ui/GOVERNANCE.md (UI Primitives SSOT)
 Owner:           Platform Architecture & Frontend/Mobile Engineering
 Applies To:      Web (apps/web), Admin (apps/admin), Mobile Web, Android, iOS (apps/mobile)
 Packages:        @esparex/design-tokens, @esparex/ui, @esparex/mobile-ui
@@ -11,7 +12,7 @@ Packages:        @esparex/design-tokens, @esparex/ui, @esparex/mobile-ui
 
 ## 🎯 1. Overview & Core Philosophy
 
-This technical specification is the single reference document for developers implementing UI across Esparex. Every page, form, layout, button, modal, and control must adhere strictly to these technical standards.
+This technical specification is the cross-platform engineering guide for developers implementing UI across Esparex. Every page, form, layout, button, modal, and control must adhere strictly to these technical standards, operating under the supreme architectural authority of [AGENTS.md](../../AGENTS.md).
 
 * **"Foundation & Blueprint"** ➔ See [ui-foundation-blueprint](./ui-foundation-blueprint.md)
 * **"How should UI be implemented from now on?"** ➔ Follow this document.

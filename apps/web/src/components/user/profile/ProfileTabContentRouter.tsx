@@ -17,7 +17,6 @@ import { BusinessTab } from "./tabs/BusinessTab";
 import { MyListingsTab } from "./tabs/MyListingsTab";
 import { SavedAdsTab } from "./tabs/SavedAdsTab";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
-import { getStatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/formatters";
 
 import type { useBusiness } from "@/hooks/useBusiness";
@@ -86,7 +85,6 @@ export function ProfileTabContentRouter({
           navigateTo={(page, adId, category, businessId, serviceId) =>
             navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)
           }
-          getStatusBadge={getStatusBadge}
           formatDate={formatDate}
           businessStatus={normalizedBusinessStatus}
           onRegisterBusiness={() => navigateTo("business-register")}

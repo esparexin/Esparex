@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ interface ListingItemProps {
   expiresAt?: string | Date;
   views?: number | { total: number; unique?: number; favorites?: number; lastViewedAt?: string };
   likes?: number;
-  getStatusBadge: (status: string) => React.ReactNode;
   editHref: string;
   detailHref?: string;
   onDelete: () => void;
@@ -67,7 +65,6 @@ export function ListingItem({
   expiresAt,
   views,
   likes: _likes,
-  getStatusBadge,
   editHref,
   detailHref,
   onDelete,
@@ -163,7 +160,7 @@ export function ListingItem({
         <p
           className={cn(
             "text-body font-semibold md:text-h4 md:font-bold leading-normal",
-            priceClassName || "text-emerald-700 font-bold"
+            priceClassName || "text-success-dark font-bold"
           )}
         >
           {priceLabel}
@@ -189,7 +186,6 @@ export function ListingItem({
           title={title}
           detailHref={detailHref}
           editHref={editHref}
-          getStatusBadge={getStatusBadge}
           showStatusBadge={showStatusBadge}
           showEdit={showEdit}
           showDeactivate={showDeactivate}

@@ -125,7 +125,7 @@
 | `NEXT_PUBLIC_APP_ENV` | No | `local` | all | Vercel | No | Deployment environment label |
 | `NEXT_PUBLIC_PROD_RISK_OVERRIDE` | No | `false` | prod | Vercel | No | Bypass production validation guards |
 | `NEXT_PUBLIC_LOCAL_DEV_AUTH` | No | `false` | dev only | local | No | Enable local auth bypass |
-| `NEXT_PUBLIC_HMAC_SECRET` | No | — | all | Vercel Web | Yes* | Browser HMAC key (*exposed to client) |
+| ~~`NEXT_PUBLIC_HMAC_SECRET`~~ removed (Phase 1 audit P0 F31: browser HMAC deleted; server auth/CSRF/velocity/idempotency are the boundary) | — | — | — | — | — | Do not reintroduce client secrets |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | No | — | all | Vercel Web | No | Firebase web API key |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | No | — | all | Vercel Web | No | Firebase auth domain |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | No | — | all | Vercel Web | No | Firebase project ID |
@@ -258,7 +258,7 @@ Admin: copy `apps/admin/.env.local.example` → `apps/admin/.env.local`
 
 All `NEXT_PUBLIC_*` variables are bundled into the client-side JavaScript. Never put secrets here. The Firebase config values are intentionally public by Firebase's design (they are not secrets — Firebase enforces security through App Check and Security Rules).
 
-⚠️ **`NEXT_PUBLIC_HMAC_SECRET`** is a special case — it IS a secret value exposed to the browser. The code notes this is "not a true security boundary." This should be removed when the browser-side HMAC implementation is refactored.
+⚠️ **`NEXT_PUBLIC_HMAC_SECRET`** — REMOVED (Phase 1 audit P0 F31). Browser-side HMAC was deleted; no secret may live in `NEXT_PUBLIC_*` vars. Server-side auth/CSRF/velocity/idempotency enforce financial endpoints.
 
 ### Production Safety Gates
 

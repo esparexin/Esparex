@@ -79,7 +79,7 @@ export function SmartAlertsScreen({ onUpgradePlan, onBack }: SmartAlertsScreenPr
   const renderAlertItem = ({ item }: { item: SmartAlert }) => (
     <Card className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-3">
       <View className="flex-row justify-between items-center mb-1.5">
-        <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100 text-base">
+        <AppText variant="body-lg" className="font-bold text-foreground">
           {item.name}
         </AppText>
         <TouchableOpacity

@@ -110,9 +110,9 @@ export function CampaignListTable({
                     <span
                       className={`px-2 py-0.5 rounded-full text-tiny font-semibold ${
                         camp.status === "active"
-                          ? "bg-emerald-50 text-emerald-700"
+                          ? "bg-success/10 text-success-dark"
                           : camp.status === "paused"
-                          ? "bg-amber-50 text-amber-700"
+                          ? "bg-warning/10 text-warning-dark"
                           : "bg-muted text-foreground-secondary"
                       }`}
                     >

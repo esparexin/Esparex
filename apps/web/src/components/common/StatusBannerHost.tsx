@@ -2,7 +2,7 @@
 
 import { AlertTriangle, WifiOff, Z_INDEX, cn } from "@esparex/ui";
 import { useBackendStatus } from "@/context/BackendStatusContext";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useOnlineStatus } from "@esparex/shared";
 
 interface StatusBannerHostProps {
     apiUnavailable?: boolean;

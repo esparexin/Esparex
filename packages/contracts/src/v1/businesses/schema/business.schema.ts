@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { BUSINESS_LIMITS, CONTACT_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
 import { coordinatesSchema } from '../../common/schema/coordinates.schema';
-import { emailSchema } from '../../common/schema/common.schemas';
+import { emailSchema, objectIdSchema, optionalTrimmedString } from '../../common/schema/common.schemas';
 import { ID_PROOF_TYPE_VALUES } from '../../identity/enums/idProofType';
 
 const FULL_ADDRESS_PINCODE_PATTERN = /\b[1-9]\d{5}\b/;
@@ -14,7 +14,7 @@ export const businessPhoneSchema = z.string()
     );
 
 export const businessLocationSchema = z.object({
-    locationId: z.union([z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid location ID'), z.literal('')]).optional(),
+    locationId: z.union([objectIdSchema, z.literal('')]).optional(),
     address: z.string()
         .trim()
         .min(15, 'Complete business address is required')
@@ -35,10 +35,10 @@ export const businessLocationSchema = z.object({
                 });
             }
         }),
-    display: z.string().trim().max(150).optional(),
-    city: z.string().trim().max(50).optional(),
-    state: z.string().trim().max(50).optional(),
-    country: z.string().trim().max(50).optional(),
+    display: z.union([z.string().trim().max(150), z.literal('')]).optional(),
+    city: z.union([z.string().trim().max(50), z.literal('')]).optional(),
+    state: z.union([z.string().trim().max(50), z.literal('')]).optional(),
+    country: z.union([z.string().trim().max(50), z.literal('')]).optional(),
     pincode: z.union([
         z.string().regex(BUSINESS_LIMITS.PINCODE.PATTERN, BUSINESS_LIMITS.PINCODE.ERROR_FORMAT),
         z.literal(''),
@@ -63,11 +63,7 @@ export const BaseBusinessPayloadShape = {
         .trim()
         .min(TEXT_LIMITS.BUSINESS_NAME.MIN, TEXT_LIMITS.BUSINESS_NAME.ERROR_MIN)
         .max(TEXT_LIMITS.BUSINESS_NAME.MAX, TEXT_LIMITS.BUSINESS_NAME.ERROR_MAX),
-    description: z.string()
-        .trim()
-        .min(20, 'Description must be at least 20 characters')
-        .max(2000, 'Description must be 2000 characters or fewer')
-        .optional(),
+    description: optionalTrimmedString(z.string().trim().min(20, 'Description must be at least 20 characters').max(2000, 'Description must be 2000 characters or fewer')),
     businessTypes: z.array(z.string().trim().min(2).max(50)).min(1, 'Select at least one business type').optional(),
     location: businessLocationSchema,
     mobile: businessPhoneSchema.optional(),

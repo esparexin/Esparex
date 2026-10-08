@@ -4,7 +4,7 @@ import User from '../../../../models/User';
 import Business from '../../../../models/Business';
 import { getListingRepository, getListingsCache } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
-import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
+import { mutateStatus } from '../../../listings/application/lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from '@esparex/contracts';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;

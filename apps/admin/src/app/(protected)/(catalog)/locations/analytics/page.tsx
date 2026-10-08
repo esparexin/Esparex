@@ -143,7 +143,7 @@ function LocationAnalyticsPageContent({
                         <input
                             type="text"
                             placeholder="Filter by city..."
-                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={cityInput}
                             onChange={(e) => setCityInput(e.target.value)}
                         />
@@ -151,12 +151,12 @@ function LocationAnalyticsPageContent({
                     <input
                         type="text"
                         placeholder="Filter by district..."
-                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={districtInput}
                         onChange={(e) => setDistrictInput(e.target.value)}
                     />
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialState}
                         onChange={(e) => replaceQueryState({ state: e.target.value || null })}
                     >
@@ -168,7 +168,7 @@ function LocationAnalyticsPageContent({
                         ))}
                     </select>
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialCountry}
                         onChange={(e) => replaceQueryState({ country: e.target.value || null })}
                     >
@@ -260,7 +260,7 @@ function LocationAnalyticsPageContent({
                         {data.hotZones?.length ? (
                             <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                                    <Flame size={18} className="text-orange-500" />
+                                    <Flame size={18} className="text-warning" />
                                     <h3 className="font-bold text-foreground">Hot Zones</h3>
                                     <span className="ml-auto text-caption text-foreground-subtle font-medium">High search & ad activity</span>
                                 </div>
@@ -269,7 +269,7 @@ function LocationAnalyticsPageContent({
                                         <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
                                                 <div className="font-semibold text-foreground text-body flex items-center gap-1.5">
-                                                    {zone.isHotZone && <Flame size={13} className="text-orange-500" />}
+                                                    {zone.isHotZone && <Flame size={13} className="text-warning" />}
                                                     {zone.city}
                                                 </div>
                                                 <div className="text-caption text-foreground-subtle">{zone.state}</div>

@@ -1,3 +1,5 @@
+import { toCanonicalGeoPoint } from '@esparex/shared';
+
 type LocationCoordinateShape =
     | {
         type?: string;
@@ -39,23 +41,13 @@ const toIdString = (value: LocationResponseLike["_id"]): string | undefined => {
     return undefined;
 };
 
-const normalizeGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinates: [number, number] } | undefined => {
-    if (!value) return undefined;
-
-    if (typeof value === "object") {
-        if (value.type === "Point" && Array.isArray(value.coordinates)) {
-            const [lng, lat] = value.coordinates;
-            if (Number.isFinite(lat) && Number.isFinite(lng)) {
-                return {
-                    type: "Point",
-                    coordinates: [Number(lng), Number(lat)],
-                };
-            }
-        }
-    }
-
-    return undefined;
-};
+/**
+ * Coordinate normalization is canonical in @esparex/shared
+ * (toCanonicalGeoPoint: safe, returns undefined on bad input).
+ * Do not fork another implementation here.
+ */
+const normalizeGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinates: [number, number] } | undefined =>
+    toCanonicalGeoPoint(value);
 
 /**
  * COORDINATE CONTRACT: All location responses MUST return coordinates as GeoJSON Point.

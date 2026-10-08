@@ -79,13 +79,13 @@ export default function SmartAlertsPage() {
                     <div className="inline-flex p-1 bg-muted rounded-xl border border-border">
                         <button
                             onClick={() => { setActiveView('logs'); setPage(1); setSelectedIds(new Set()); }}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
+                            className={`px-4 py-2 rounded-lg text-body font-bold transition-all ${activeView === 'logs' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
                         >
                             Delivery Logs
                         </button>
                         <button
                             onClick={() => { setActiveView('management'); setPage(1); setSelectedIds(new Set()); }}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'management' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
+                            className={`px-4 py-2 rounded-lg text-body font-bold transition-all ${activeView === 'management' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
                         >
                             Alert Management
                         </button>
@@ -98,7 +98,7 @@ export default function SmartAlertsPage() {
                                     void handleBulkResend(Array.from(selectedIds));
                                     setSelectedIds(new Set());
                                 }}
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-colors font-bold"
+                                className="flex items-center gap-2 px-3 py-1.5 text-body bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-bold"
                             >
                                 <History className="h-4 w-4" />
                                 Resend Warnings ({selectedIds.size})
@@ -188,34 +188,34 @@ export default function SmartAlertsPage() {
                                                 {typeof log.alertId === "object" ? (
                                                     <div className="flex flex-col">
                                                         <span className="font-medium text-foreground flex items-center gap-2">
-                                                            <BellRing className="h-3 w-3 text-emerald-500" />
+                                                            <BellRing className="h-3 w-3 text-success" />
                                                             {log.alertId.name || 'Unnamed Alert'}
                                                         </span>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-foreground-subtle font-mono text-xs">{log.alertId}</span>
+                                                    <span className="text-foreground-subtle font-mono text-caption">{log.alertId}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {typeof log.adId === "object" ? (
                                                     <div className="flex flex-col">
-                                                        <span className="font-medium text-foreground hover:text-blue-600 cursor-pointer flex items-center gap-2 transition-colors">
+                                                        <span className="font-medium text-foreground hover:text-primary cursor-pointer flex items-center gap-2 transition-colors">
                                                             <span className="line-clamp-1">{log.adId.title}</span>
                                                         </span>
                                                         <div className="flex items-center gap-1.5 mt-1.5">
                                                             {log.adId.location && (
                                                                 <>
                                                                     <Navigation className="h-3 w-3 text-foreground-subtle" />
-                                                                    <span className="text-xs text-foreground-tertiary mr-1">{log.adId.location}</span>
+                                                                    <span className="text-caption text-foreground-tertiary mr-1">{log.adId.location}</span>
                                                                 </>
                                                             )}
-                                                            <span className="text-tiny font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                                            <span className="text-tiny font-bold text-success-dark bg-success/10 px-1.5 py-0.5 rounded">
                                                                 {(log.adId.price ?? 0) > 0 ? formatPrice(log.adId.price ?? 0) : "Free"}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-foreground-subtle font-mono text-xs">{log.adId}</span>
+                                                    <span className="text-foreground-subtle font-mono text-caption">{log.adId}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
@@ -232,15 +232,15 @@ export default function SmartAlertsPage() {
                                                         })}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-xs text-foreground-subtle italic">Unknown Criteria</span>
+                                                    <span className="text-caption text-foreground-subtle italic">Unknown Criteria</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-foreground-secondary">
+                                                    <span className="text-body font-medium text-foreground-secondary">
                                                         {formatAppDate(log.deliveredAt, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </span>
-                                                    <span className="text-xs text-foreground-subtle mt-0.5">
+                                                    <span className="text-caption text-foreground-subtle mt-0.5">
                                                         {formatAppTime(log.deliveredAt, { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
@@ -285,7 +285,7 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs font-medium text-foreground-secondary">Count: {alert.expiryWarningCount || 0}</span>
+                                                    <span className="text-caption font-medium text-foreground-secondary">Count: {alert.expiryWarningCount || 0}</span>
                                                     {alert.expiryWarningSentAt && (
                                                         <span className="text-tiny text-foreground-subtle italic">{formatAppDateTime(new Date(alert.expiryWarningSentAt))}</span>
                                                     )}
@@ -294,7 +294,7 @@ export default function SmartAlertsPage() {
                                             <td className="px-6 py-4 text-right">
                                                 <button
                                                     onClick={() => handleDeleteAlert(String(alert._id || alert.id))}
-                                                    className="p-1.5 text-foreground-subtle hover:text-red-600 transition-colors"
+                                                    className="p-1.5 text-foreground-subtle hover:text-destructive transition-colors"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

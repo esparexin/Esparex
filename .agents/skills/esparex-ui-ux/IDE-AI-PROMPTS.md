@@ -7,9 +7,8 @@
 ## 📌 BEFORE USING THESE PROMPTS
 
 Make sure you have:
-- ✅ Uploaded `esparex-ui-ux-complete-skill.md` to your IDE
-- ✅ Uploaded `HOW-TO-USE-THIS-SKILL.md` to your IDE  
-- ✅ Uploaded `QUICK-REFERENCE-CARD.md` to your IDE
+- ✅ Referenced `SKILL.md` in your IDE context
+- ✅ Referenced `QUICK-REFERENCE-CARD.md` in your IDE
 - ✅ Reference the files when using prompts below
 
 **IDE Setup:**
@@ -847,12 +846,9 @@ Reference:
 ### Step 1: Attach Files to IDE
 ```
 In your IDE with AI:
-1. Click "Attach files" / "Upload" button
-2. Select the 3 .md files:
-   - esparex-ui-ux-complete-skill.md
-   - HOW-TO-USE-THIS-SKILL.md
+1. Reference the skill in your IDE context:
+   - SKILL.md
    - QUICK-REFERENCE-CARD.md
-3. Click "Attach" or "Upload"
 ```
 
 ### Step 2: Copy a Prompt

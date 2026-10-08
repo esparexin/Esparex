@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LocationFacade } from "@esparex/shared";
-import { formatLocation as formatLocationWeb } from "@/lib/location/locationService";
+import { LocationFacade, getCompactLocationLabel } from "@esparex/shared";
 import { normalizeToAppLocation } from "@/lib/location/locationService";
 import { createPoint, getLatitude, getLongitude } from "@esparex/shared";
 import logger from "@/lib/logger";
@@ -15,7 +14,7 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
         logger.info(`[EMPIRICAL LOCATION TRACE] LocationFacade methods verified: normalize, format, validate, resolveId.`);
     });
 
-    it("2. Formatter Precedence Divergence Test — Compares Shared Facade vs Web formatters", () => {
+    it("2. Formatter Surface Test — Shared Facade display vs compact surfaces", () => {
         const sampleRawLocation = {
             display: "Indiranagar, Bengaluru, Karnataka",
             city: "Bengaluru",
@@ -24,16 +23,16 @@ describe("Location Subsystem Empirical Runtime Instrumentation Trace", () => {
         };
 
         const sharedFormatted = LocationFacade.format(sampleRawLocation);
-        const webFormatted = formatLocationWeb(sampleRawLocation);
+        const compactFormatted = getCompactLocationLabel(sampleRawLocation);
 
         logger.info(`[EMPIRICAL FORMATTER TRACE] LocationFacade.format Output: "${sharedFormatted}"`);
-        logger.info(`[EMPIRICAL FORMATTER TRACE] Web formatLocation Output: "${webFormatted}"`);
+        logger.info(`[EMPIRICAL FORMATTER TRACE] getCompactLocationLabel Output: "${compactFormatted}"`);
 
         // Shared facade format prioritizes display ("Indiranagar, Bengaluru, Karnataka")
         expect(sharedFormatted).toBe("Indiranagar, Bengaluru, Karnataka");
 
-        // Web formatLocation prioritizes city ("Bengaluru") for compact card display
-        expect(webFormatted).toBe("Bengaluru");
+        // Compact surface prioritizes city ("Bengaluru") for card display (single SSOT)
+        expect(compactFormatted).toBe("Bengaluru");
     });
 
     it("3. GeoJSON Coordinate Contract Trace — Verifies [lng, lat] array ordering", () => {

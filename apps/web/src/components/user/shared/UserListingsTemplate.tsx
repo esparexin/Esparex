@@ -121,11 +121,11 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         {onRetry && <Button onClick={onRetry} variant="outline" size="sm" className="cursor-pointer">Retry</Button>}
                     </div>
                 ) : items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-                        <div className="mb-4 text-foreground-subtle flex justify-center [&>svg]:h-10 [&>svg]:w-10 md:[&>svg]:h-12 md:[&>svg]:w-12">{emptyState.icon}</div>
-                        <h3 className="text-body font-semibold text-foreground mb-1">{emptyState.title}</h3>
-                        <p className="text-caption text-muted-foreground max-w-[240px] mb-6">{emptyState.description}</p>
-                        {emptyState.cta}
+                    <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
+                        <div className="mb-3 text-foreground-subtle flex justify-center [&>svg]:h-10 [&>svg]:w-10">{emptyState.icon}</div>
+                        <h3 className="text-body-lg font-semibold text-foreground">{emptyState.title}</h3>
+                        <p className="text-caption text-muted-foreground max-w-[280px] mt-1">{emptyState.description}</p>
+                        {emptyState.cta && <div className="mt-4">{emptyState.cta}</div>}
                     </div>
                 ) : (
                     <>

@@ -2,8 +2,8 @@
  * ESPAREX — listings/application/lifecycle/index.ts
  *
  * Canonical barrel for the listings lifecycle cluster (P1-4, DECISION-GATE §2).
- * The legacy `core/src/services/lifecycle/` modules are @deprecated shims
- * re-exporting these canonical implementations (deleted in Phase 4).
+ * The former `core/src/services/lifecycle/` shims were deleted after consumer
+ * migration (Phase 7); this barrel is the single import surface.
  */
 export * as TransitionEngine from './StatusMutationService';
 export * as AdLifecycleFacade from './AdStatusService';

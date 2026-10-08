@@ -4,6 +4,8 @@ import logger from "@/lib/logger";
 import { unwrapApiPayload } from "@/lib/api/result";
 import { ListingTypeValue } from "@esparex/contracts";
 import type { Brand as ContractBrand, ScreenSize as ContractScreenSize, DeviceModel as ContractDeviceModel } from "@esparex/contracts";
+// P7: single ObjectId pattern owner (was local duplicate).
+import { OBJECT_ID_PATTERN } from "./listings/listingIdNormalizer";
 
 export type Brand = Pick<ContractBrand, 'id' | 'name'> & { _id?: string; categoryIds?: string[] };
 export type DeviceModel = Pick<ContractDeviceModel, 'id' | 'name'> & { _id?: string; brandId?: string; categoryId?: string; status?: string };
@@ -185,8 +187,6 @@ export type CatalogModelPayload = {
             name?: string;
         };
 };
-
-const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 export async function fetchCatalogRecordServer(
     entity: "brand" | "model",

@@ -2,18 +2,17 @@ import mongoose from 'mongoose';
 import { AppError } from '../../../../shared-kernel/errors/AppError';
 import { sanitizePlainText } from '../../../../utils/stringUtils';
 import { getListingRepository } from '../../../../composition/listings';
-import SparePart from '../../../../models/SparePart';
+import { validateSparePartsForCategory } from './AdSparePartValidator';
 import Brand from '../../../../models/Brand';
 import { normalizeLocation } from '../../../../services/location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
-import { resolveEquivalentActiveCategoryIds } from '../../../catalog/application/services/CatalogCategoryService';
 import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { resolveLocationPathIds } from '../../../../utils/locationHierarchy';
 import { processImages } from '../../../../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../../../../utils/s3';
 import { AdContext } from '../../../../types/ad.types';
-import { computeActiveExpiry } from '../../../../services/lifecycle/AdStatusService';
+import { computeActiveExpiry } from '../lifecycle/AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { FeatureFlag, isEnabled } from '../../../../config/featureFlags';
 import { computeListingQualityScore } from '../../../../utils/adQualityScorer';
@@ -92,28 +91,7 @@ const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined 
 const extractBusinessLocationId = (business: { locationId?: unknown; location?: unknown } | null | undefined): mongoose.Types.ObjectId | undefined =>
     normalizeObjectId(business?.locationId || (typeof business?.location === 'object' && business?.location ? (business.location as { locationId?: unknown }).locationId : undefined));
 
-const validateSparePartsForCategory = async (
-    sparePartIds: string[],
-    categoryId: string
-): Promise<Array<{ _id: unknown; name: unknown; brandId?: unknown }>> => {
-    const uniqueSparePartIds = Array.from(new Set(sparePartIds));
-    if (uniqueSparePartIds.length === 0) return [];
-
-    const equivalentCategoryIds = await resolveEquivalentActiveCategoryIds(categoryId);
-    const categoryScope = equivalentCategoryIds.length > 0 ? equivalentCategoryIds : [categoryId];
-
-    const validParts = await SparePart.find({
-        _id: { $in: uniqueSparePartIds },
-        categoryIds: { $in: categoryScope },
-        isActive: true
-    }).select('_id name brandId').lean();
-
-    if (validParts.length !== uniqueSparePartIds.length) {
-        throw new AppError('One or more selected spare parts are invalid for the selected category.', 400);
-    }
-
-    return validParts;
-};
+// P3: spare-part validation lives in ./AdSparePartValidator (single owner).
 
 /**
  * AdCreationService

@@ -96,7 +96,7 @@ jest.mock('../../domains/listings/application/ad/AdCreationService', () => ({
     },
 }));
 
-jest.mock('../../services/lifecycle/StatusMutationService', () => ({
+jest.mock('../../domains/listings/application/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
@@ -105,7 +105,7 @@ jest.mock('../../queues/imageQueue', () => ({
 }));
 
 import Ad from '../../models/Ad';
-import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
+import * as StatusMutationService from '../../domains/listings/application/lifecycle/StatusMutationService';
 import { updateAdLogic } from '../../domains/listings/application/ad/AdUpdateService';
 import { getListingRepository } from '../../composition/listings';
 

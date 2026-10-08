@@ -193,8 +193,6 @@ export default function AIConfigPage() {
             <Stack direction="col" gap="lg">
                 {/* KPI Header Grid */}
                 <Grid cols={3} gap="sm">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                             <ShieldCheck size={22} />
                         </div>
                         <div>
@@ -259,7 +257,7 @@ export default function AIConfigPage() {
                                         <div className="flex items-center gap-3">
                                             <span className="font-bold text-body text-foreground">{prov.name}</span>
                                             {provData.hasKey && (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-tiny font-bold text-emerald-700 border border-emerald-200">
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-tiny font-bold text-success-dark border border-success/20">
                                                     <CheckCircle size={10} /> Key Configured
                                                 </span>
                                             )}

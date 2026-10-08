@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
-import Ad from '../../models/Ad';
 import { calculateUserPlan } from '../../domains/payments/application/PlanService';
+import { getListingRepository } from '../../composition/listings';
 
 
 import logger from '../../utils/logger';
@@ -94,14 +94,15 @@ export async function syncPriorityScore(
         // 4. Clamp to valid range (1–10)
         const clampedScore = Math.min(10, Math.max(1, priorityScore));
 
-        // 5. Write to all seller's active/pending ads
-        await Ad.updateMany(
+        // 5. Write to all seller's active/pending ads via the repository port
+        // (P5: no direct model writes outside adapters; identical filter+update).
+        await getListingRepository().updateMany(
             {
-                sellerId: new mongoose.Types.ObjectId(userIdStr),
+                sellerId: userIdStr,
                 status: { $in: ['live', 'pending'] },
                 isDeleted: { $ne: true },
             },
-            { $set: { sellerPriorityScore: clampedScore } }
+            { sellerPriorityScore: clampedScore }
         );
 
         logger.debug('BusinessPlanSyncService: sellerPriorityScore synced', {

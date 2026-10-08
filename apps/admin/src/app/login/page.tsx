@@ -246,7 +246,7 @@ function LoginForm() {
                   render={({ field }) => (
                     <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
                       <FieldLabel className="text-caption font-semibold text-foreground-secondary ml-0.5 flex items-center gap-1.5">
-                        <KeyRound size={12} className="text-amber-600" />
+                        <KeyRound size={12} className="text-warning" />
                         Two-Factor Authentication Code
                         <span className="text-destructive">*</span>
                       </FieldLabel>
@@ -257,12 +257,12 @@ function LoginForm() {
                             inputMode="numeric"
                             autoComplete="one-time-code"
                             disabled={submitting}
-                            className="h-11 text-center tracking-[0.25em] text-body-lg md:text-body bg-amber-50/70 border-amber-300 focus-visible:ring-amber-400 focus-visible:border-amber-400 font-mono font-semibold"
+                            className="h-11 text-center tracking-[0.25em] text-body-lg md:text-body bg-warning/10 border-warning focus-visible:ring-warning focus-visible:border-warning font-mono font-semibold"
                             {...field}
                           />
                         </InputGroup>
                       </FieldControl>
-                      <FieldDescription className="ml-0.5 text-tiny text-amber-800">
+                      <FieldDescription className="ml-0.5 text-tiny text-warning-dark">
                         Open your authenticator app and enter the 6-digit code.
                       </FieldDescription>
                       <FieldMessage className="ml-0.5 text-caption" />
@@ -272,8 +272,8 @@ function LoginForm() {
               )}
 
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200/80 text-red-700 rounded-xl text-caption font-semibold animate-in fade-in duration-200">
-                  <AlertCircle size={15} className="shrink-0 text-red-600" />
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 text-destructive rounded-xl text-caption font-semibold animate-in fade-in duration-200">
+                  <AlertCircle size={15} className="shrink-0 text-destructive" />
                   <span>{error}</span>
                 </div>
               )}

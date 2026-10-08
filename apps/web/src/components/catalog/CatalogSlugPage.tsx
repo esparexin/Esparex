@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { AdCardGrid } from "@/components/user/ad-card";
-import { Button } from "@esparex/ui";
+import { Button, EmptyState } from "@esparex/ui";
 import type { ListingPageResult } from "@/lib/api/user/listings";
 import {
   ENTITY_CONFIG,
@@ -83,18 +83,10 @@ export function CatalogSlugPage({
             </div>
           </div>
         ) : (
-          <div className="rounded-[2rem] border border-dashed border-border bg-card px-6 py-16 text-center shadow-sm">
-            <h2 className="text-h2 font-bold text-foreground">No live listings yet</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-body leading-6 text-muted-foreground">
-              This {entity.replace("-", " ")} exists in the catalog, but there are no live public
-              listings connected to it right now.
-            </p>
-            <div className="mt-6">
-              <Button asChild variant="outline" className="rounded-full px-5">
                 <Link href={browseHref}>{config.browseLabel}</Link>
               </Button>
-            </div>
-          </div>
+            }
+          />
         )}
       </section>
     </div>

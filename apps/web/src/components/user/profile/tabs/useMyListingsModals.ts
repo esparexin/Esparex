@@ -23,7 +23,6 @@ interface UseMyListingsModalsParams {
   handleRepostAd: (id: string) => void;
   handleRepostService: (id: string) => void;
   handleRepostSpare: (id: string) => void;
-  getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
   fetchMyAds: () => void | Promise<unknown>;
 }
 
@@ -43,7 +42,6 @@ export function useMyListingsModals({
   handleRepostAd,
   handleRepostService,
   handleRepostSpare,
-  getStatusBadge,
   fetchMyAds,
 }: UseMyListingsModalsParams) {
   const [adToDelete, setAdToDelete] = useState<UserListing | null>(null);
@@ -130,7 +128,6 @@ export function useMyListingsModals({
     onRepostService: (id: string) => handleRepostService(id),
     onRepostSpare: (id: string) => handleRepostSpare(id),
     onBoost: (listing: UserListing) => { setBoostAd(listing); setIsBoostOpen(true); },
-    getStatusBadge,
   };
 
   const dialogProps: MyListingsDialogsProps = {

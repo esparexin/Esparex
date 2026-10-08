@@ -19,7 +19,7 @@ export function StepBusinessReview({ formState }: StepBusinessReviewProps) {
         </AppText>
 
         <View className="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100 mb-1.5 text-sm">
+          <AppText variant="body" className="font-bold text-foreground mb-1.5">
             Business Details
           </AppText>
           <AppText variant="caption" className="text-slate-600 dark:text-slate-400 mb-1">
@@ -41,7 +41,7 @@ export function StepBusinessReview({ formState }: StepBusinessReviewProps) {
         </View>
 
         <View className="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100 mb-1.5 text-sm">
+          <AppText variant="body" className="font-bold text-foreground mb-1.5">
             Shop Address
           </AppText>
           <AppText variant="caption" className="text-slate-600 dark:text-slate-400">
@@ -50,7 +50,7 @@ export function StepBusinessReview({ formState }: StepBusinessReviewProps) {
         </View>
 
         <View className="mb-2 pb-2">
-          <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100 mb-1.5 text-sm">
+          <AppText variant="body" className="font-bold text-foreground mb-1.5">
             Attached Verification Documents
           </AppText>
           <AppText variant="caption" className="text-slate-600 dark:text-slate-400">

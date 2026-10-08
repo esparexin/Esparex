@@ -58,7 +58,7 @@ export const ROLE_COLORS: Record<string, string> = {
     user_manager: "bg-info/10 text-info",
     finance_manager: "bg-success/10 text-success",
     content_moderator: "bg-warning/10 text-warning",
-    editor: "bg-sky-100 text-sky-700",
+    editor: "bg-primary-subtle text-primary",
     viewer: "bg-muted text-foreground-secondary",
 };
 

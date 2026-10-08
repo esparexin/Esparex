@@ -18,8 +18,8 @@ export function TitleSection() {
                 name="title"
                 render={({ field }) => (
                     <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                            <FieldLabel required className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary">
+                        <div className="flex items-center justify-between gap-2">
+                            <FieldLabel required className="text-small font-medium leading-snug text-foreground-secondary">
                                 Ad Title
                             </FieldLabel>
                             {isAiAvailable && (

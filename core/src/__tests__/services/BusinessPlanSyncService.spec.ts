@@ -14,11 +14,8 @@ jest.mock('../../models/UserPlan', () => ({
     },
 }));
 
-jest.mock('../../models/Ad', () => ({
-    __esModule: true,
-    default: {
-        updateMany: jest.fn(),
-    },
+jest.mock('../../composition/listings', () => ({
+    getListingRepository: jest.fn(),
 }));
 
 jest.mock('../../domains/payments/application/PlanService', () => ({
@@ -30,19 +27,22 @@ jest.mock('../../utils/logger', () => ({
     default: {
         debug: jest.fn(),
         error: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
     },
 }));
 
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { calculateUserPlan } from '../../domains/payments/application/PlanService';
 import { syncPriorityScore } from '../../services/business/BusinessPlanSyncService';
 
 
 const mockPlan = Plan as any;
 const mockUserPlan = UserPlan as any;
-const mockAd = Ad as any;
+const mockGetListingRepository = getListingRepository as jest.Mock;
+const mockUpdateMany = jest.fn();
 const mockCalculateUserPlan = calculateUserPlan as jest.Mock;
 
 describe('BusinessPlanSyncService', () => {
@@ -50,6 +50,7 @@ describe('BusinessPlanSyncService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockGetListingRepository.mockReturnValue({ updateMany: mockUpdateMany });
     });
 
     it('should calculate priority score from active user plans and update ads', async () => {
@@ -61,17 +62,17 @@ describe('BusinessPlanSyncService', () => {
         });
 
         mockCalculateUserPlan.mockReturnValue({ priorityScore: 10 });
-        mockAd.updateMany.mockResolvedValue({ modifiedCount: 3 });
+        mockUpdateMany.mockResolvedValue(3);
 
         await syncPriorityScore(userId);
 
         expect(mockCalculateUserPlan).toHaveBeenCalledWith([mockPlanDoc]);
-        expect(mockAd.updateMany).toHaveBeenCalledWith(
+        expect(mockUpdateMany).toHaveBeenCalledWith(
             expect.objectContaining({
                 status: { $in: ['live', 'pending'] },
                 isDeleted: { $ne: true },
             }),
-            { $set: { sellerPriorityScore: 10 } }
+            { sellerPriorityScore: 10 }
         );
     });
 
@@ -88,7 +89,7 @@ describe('BusinessPlanSyncService', () => {
                 lean: jest.fn().mockResolvedValue({ features: { priorityWeight: 2 } }),
             }),
         });
-        mockAd.updateMany.mockResolvedValue({ modifiedCount: 1 });
+        mockUpdateMany.mockResolvedValue(1);
 
         await syncPriorityScore(userId);
 
@@ -99,9 +100,9 @@ describe('BusinessPlanSyncService', () => {
                 active: true,
             })
         );
-        expect(mockAd.updateMany).toHaveBeenCalledWith(
+        expect(mockUpdateMany).toHaveBeenCalledWith(
             expect.anything(),
-            { $set: { sellerPriorityScore: 2 } }
+            { sellerPriorityScore: 2 }
         );
     });
 
@@ -121,9 +122,9 @@ describe('BusinessPlanSyncService', () => {
 
         await syncPriorityScore(userId);
 
-        expect(mockAd.updateMany).toHaveBeenCalledWith(
+        expect(mockUpdateMany).toHaveBeenCalledWith(
             expect.anything(),
-            { $set: { sellerPriorityScore: 1 } }
+            { sellerPriorityScore: 1 }
         );
     });
 });

@@ -21,7 +21,7 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
             <AppText variant="caption" className="font-bold text-amber-600 dark:text-amber-400 mb-2">
               ⌛ Verification Pending
             </AppText>
-            <AppText variant="h2" className="font-bold text-foreground mb-2 text-xl">
+            <AppText variant="h3" className="font-bold text-foreground mb-2">
               {business.name}
             </AppText>
             <AppText variant="body" className="text-foreground-subtle leading-5 mb-3">
@@ -50,7 +50,7 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
             <AppText variant="caption" className="font-bold text-emerald-600 dark:text-emerald-400 mb-2">
               ✓ Verified Business
             </AppText>
-            <AppText variant="h2" className="font-bold text-foreground mb-2 text-xl">
+            <AppText variant="h3" className="font-bold text-foreground mb-2">
               {business.name}
             </AppText>
             <AppText variant="body" className="text-foreground-subtle leading-5">
@@ -73,7 +73,7 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
             <AppText variant="caption" className="font-bold text-rose-600 dark:text-rose-400 mb-2">
               ❌ Application Rejected
             </AppText>
-            <AppText variant="h2" className="font-bold text-foreground mb-2 text-xl">
+            <AppText variant="h3" className="font-bold text-foreground mb-2">
               {business.name}
             </AppText>
             <AppText variant="body" className="text-foreground-subtle leading-5 mb-3">
@@ -88,7 +88,7 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
       default:
         return (
           <Card className="p-5 rounded-2xl bg-card border border-border">
-            <AppText variant="h2" className="font-bold text-foreground mb-2 text-xl">
+            <AppText variant="h3" className="font-bold text-foreground mb-2">
               {business.name}
             </AppText>
             <AppText variant="body" className="text-foreground-subtle">

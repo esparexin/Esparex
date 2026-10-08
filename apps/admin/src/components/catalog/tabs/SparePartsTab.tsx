@@ -252,7 +252,7 @@ export default function SparePartsTab() {
                                 }))}
                                 categoryFooter={
                                     formData.categoryIds.some((id) => !assignableSpareCategoryIds.has(id)) ? (
-                                        <p className="text-tiny text-red-600 font-bold animate-pulse">
+                                        <p className="text-tiny text-destructive font-bold animate-pulse">
                                             * Please uncheck red-highlighted categories to save changes.
                                         </p>
                                     ) : null
@@ -289,20 +289,20 @@ export default function SparePartsTab() {
                                     ))}
                                 </div>
                                 {formData.listingType.length === 0 ? (
-                                    <p className="text-tiny font-bold italic text-amber-600">
+                                    <p className="text-tiny font-bold italic text-warning">
                                         * No visibility selected will hide this part from all workflows.
                                     </p>
                                 ) : null}
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">Status</label>
+                                <label className="text-caption font-bold text-foreground-tertiary uppercase tracking-wider">Status</label>
                                 <CatalogActiveCheckboxField
                                     checked={formData.isActive}
                                     onChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
                                     label={
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-semibold">Active Status</span>
+                                            <span className="text-body font-semibold">Active Status</span>
                                             <span className="text-tiny text-foreground-tertiary font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
                                         </div>
                                     }
@@ -319,24 +319,24 @@ export default function SparePartsTab() {
                 title="Delete Spare Part"
             >
                 <div className="space-y-6">
-                    <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-lg border border-amber-100">
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <div className="flex items-start gap-4 p-4 bg-warning/10 rounded-lg border border-warning/20">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning">
                             <AlertTriangle size={24} />
                         </div>
                         <div className="space-y-1">
-                            <h4 className="text-sm font-bold text-amber-900 uppercase tracking-tight">Destructive Action</h4>
-                            <p className="text-sm text-amber-800 leading-relaxed">
+                            <h4 className="text-body font-bold text-warning-dark uppercase tracking-tight">Destructive Action</h4>
+                            <p className="text-body text-warning-dark leading-relaxed">
                                 Are you sure you want to delete <span className="font-bold">&quot;{deletingItem?.name}&quot;</span>? 
                                 This cannot be undone.
                             </p>
                         </div>
                     </div>
 
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                        <h4 className="flex items-center gap-2 text-sm font-semibold text-red-900 leading-none mb-2">
+                    <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+                        <h4 className="flex items-center gap-2 text-body font-semibold text-destructive leading-none mb-2">
                             Cascade Impact Warning
                         </h4>
-                        <p className="text-xs text-red-700 leading-relaxed">
+                        <p className="text-caption text-destructive leading-relaxed">
                             Any User Ads using this Master Part will lose their reference, although the ads themselves will persist.
                         </p>
                     </div>

@@ -49,7 +49,7 @@ export function AdsColumnVisibilityMenu({
                 aria-expanded={showColumnMenu}
                 aria-label="Toggle column visibility"
                 onClick={() => setShowColumnMenu(!showColumnMenu)}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-muted transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-body font-medium text-foreground-secondary hover:bg-muted transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
             >
                 <EyeOff size={14} />
                 <span>Columns</span>
@@ -69,7 +69,7 @@ export function AdsColumnVisibilityMenu({
                         {columnOptions.map((opt) => (
                             <label
                                 key={opt.id}
-                                className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-foreground-secondary hover:bg-muted cursor-pointer transition-colors"
+                                className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-body text-foreground-secondary hover:bg-muted cursor-pointer transition-colors"
                             >
                                 <Checkbox
                                     checked={columnVisibility[opt.id] !== false}

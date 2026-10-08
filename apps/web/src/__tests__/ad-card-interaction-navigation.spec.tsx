@@ -295,7 +295,6 @@ describe("Ad Card & Listing Click Interaction & Navigation Architecture", () => 
           priceLabel="₹35,000"
           editHref="/edit-ad/507f1f77bcf86cd799439011"
           detailHref={detailHref}
-          getStatusBadge={() => null}
           onDelete={vi.fn()}
         />
       );

@@ -69,14 +69,14 @@ export function AdminPermissionScopeSelector({
                         onClick={() => onChange(PERMISSION_PRESETS.moderator.join(", "))}
                         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-tiny font-medium text-foreground-secondary hover:bg-muted hover:text-foreground transition-all cursor-pointer"
                     >
-                        <Sparkles size={11} className="text-amber-500" /> Moderator
+                        <Sparkles size={11} className="text-warning" /> Moderator
                     </button>
                     <button
                         type="button"
                         onClick={() => onChange(PERMISSION_PRESETS.admin.join(", "))}
                         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-tiny font-medium text-foreground-secondary hover:bg-muted hover:text-foreground transition-all cursor-pointer"
                     >
-                        <Sparkles size={11} className="text-blue-500" /> Admin
+                        <Sparkles size={11} className="text-primary" /> Admin
                     </button>
                     <button
                         type="button"

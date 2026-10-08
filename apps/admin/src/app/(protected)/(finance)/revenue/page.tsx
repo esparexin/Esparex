@@ -60,7 +60,7 @@ export default function RevenuePage() {
       tabs={<AdminModuleTabs tabs={financeTabs} />}
     >
       {error ? (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-body text-destructive">
           <AlertCircle size={16} /> {error}
         </div>
       ) : null}

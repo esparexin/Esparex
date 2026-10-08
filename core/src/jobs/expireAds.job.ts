@@ -1,6 +1,6 @@
 import logger from "../utils/logger";
-import { expireBoosts } from "../services/lifecycle/AdStatusService";
-import { ListingExpiryService } from "../services/lifecycle/ListingExpiryService";
+import { expireBoosts } from "../domains/listings/application/lifecycle/AdStatusService";
+import { ListingExpiryService } from "../domains/listings/application/lifecycle/ListingExpiryService";
 import { runWithDistributedJobLock } from "../utils/distributedJobLock";
 
 export const runExpireAdsJob = async () => {

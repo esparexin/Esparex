@@ -8,7 +8,7 @@ This guide walks you through exactly how to use the skill after you paste it int
 
 ### 1.1 Get the Skill File
 ```
-Open: esparex-ui-ux-complete-skill.md
+Open: SKILL.md
 ```
 
 ### 1.2 Copy All Content
@@ -620,7 +620,7 @@ After 1 month:
 **Just starting out? Follow this:**
 
 ```
-1. Download: esparex-ui-ux-complete-skill.md ✓
+1. Download: SKILL.md ✓
 2. Bookmark it or save locally ✓
 3. Read: "🚨 Non-Negotiable Core Laws" (15 min) ✓
 4. Read: "🎯 Quick Decision Tree" (10 min) ✓
@@ -640,7 +640,7 @@ You're now using the design system correctly ✓
 ## 📞 Support & Resources
 
 **Slack Channel**: #design-system  
-**Documentation**: esparex-ui-ux-complete-skill.md  
+**Documentation**: SKILL.md  
 **Tool**: axe DevTools (Chrome extension)  
 **Font**: Geist (https://vercel.com/font)
 
