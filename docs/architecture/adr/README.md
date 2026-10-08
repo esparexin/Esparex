@@ -22,7 +22,7 @@ Place an ADR in this directory if the decision involves:
 2. **Product & UX Domain Rules**: e.g., category hierarchy depth limits, multi-step listing wizard stages, user profile display standards.
 3. **Application-Specific Design Patterns**: e.g., Web or Admin layout implementations that do not alter monorepo package boundaries or dependency rules.
 
-*Companion Document*: Cross-reference decisions placed here with the platform [Architecture Decision Register](../decision-register.md) using the `D-{sequential-number}` format.
+*Companion Document*: Cross-reference decisions placed here with the platform [Decision Log](../../../.agents/logs/DECISION_LOG.md) and [Engineering Action Register](../../tracking/engineering-action-register.md) using the `D-{sequential-number}` or `EA-{sequential-number}` format.
 
 ---
 

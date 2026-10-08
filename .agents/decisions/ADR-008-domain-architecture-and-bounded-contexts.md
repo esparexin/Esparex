@@ -79,8 +79,8 @@ Each bounded context must expose only its public API through a root `index.ts` f
 Every architectural decision follows a formalized validation lifecycle:
 `Decision` ──► `Implementation` ──► `Verification` ──► `Telemetry` ──► `Retirement`
 
-Detailed standards, automation scripts, and release scorecard metrics are maintained in our decoupled governance modules:
-- **Detailed Rules & Budgets**: [STANDARDS.md](../governance/STANDARDS.md)
-- **Migration & Refactoring Roadmap**: [IMPLEMENTATION_GUIDE.md](../governance/IMPLEMENTATION_GUIDE.md)
-- **Scorecard Metrics & Budgeting**: [ARCHITECTURE_SCORECARD.md](../governance/ARCHITECTURE_SCORECARD.md)
-- **Automation Setup & Scripts**: [ENFORCEMENT.md](../governance/ENFORCEMENT.md)
+Detailed standards, automation scripts, and release scorecard metrics are maintained in our canonical governance modules:
+- **Detailed Rules & Architectural Policy**: [AGENTS.md](../../AGENTS.md)
+- **Repository Standards & Topology**: [REPOSITORY-GOVERNANCE.md](../../docs/governance/REPOSITORY-GOVERNANCE.md)
+- **Bounded Context Migration Runbook**: [bounded_context_migration.md](../workflow/bounded_context_migration.md)
+- **Engineering Execution & Evidence**: [engineering-action-register.md](../../docs/tracking/engineering-action-register.md)
