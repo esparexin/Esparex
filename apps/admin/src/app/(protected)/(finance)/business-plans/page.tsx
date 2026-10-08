@@ -39,12 +39,14 @@ export default function BusinessPlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus
+        togglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
-    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const search = normalizeSearchParamValue(rawSearch);
@@ -65,22 +67,6 @@ export default function BusinessPlansPage() {
             q: search,
         });
     }, [pathname, router, search, searchParams]);
-
-    const onToggleClick = async (plan: Plan) => {
-        if (plan.active) {
-            setTogglingPlanId(plan.id);
-        } else {
-            await handleToggleStatus(plan.id);
-        }
-    };
-
-    const confirmToggleStatus = async () => {
-        if (!togglingPlanId) return;
-        const result = await handleToggleStatus(togglingPlanId);
-        if (result.success) {
-            setTogglingPlanId(null);
-        }
-    };
 
     const columns: ColumnDef<Plan>[] = [
         {
@@ -235,7 +221,7 @@ export default function BusinessPlansPage() {
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}
-                onClose={() => setTogglingPlanId(null)}
+                onClose={cancelToggleStatus}
                 onConfirm={confirmToggleStatus}
                 isMutating={isMutating}
                 title="Deactivate Business Plan"

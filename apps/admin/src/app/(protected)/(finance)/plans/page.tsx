@@ -49,11 +49,14 @@ export default function PlansPage() {
         handleToggleStatus,
         handleArchive,
         handleRestore,
+        togglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
-    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
     const [archivingPlan, setArchivingPlan] = useState<Plan | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
@@ -78,24 +81,6 @@ export default function PlansPage() {
             type: typeFilter === "all" ? null : typeFilter,
         });
     }, [pathname, router, search, searchParams, typeFilter]);
-
-    const onToggleClick = async (plan: Plan) => {
-        if (plan.active) {
-            // If active, we need a confirmation before disabling
-            setTogglingPlanId(plan.id);
-        } else {
-            // If inactive, we just enable it blindly
-            await handleToggleStatus(plan.id);
-        }
-    };
-
-    const confirmToggleStatus = async () => {
-        if (!togglingPlanId) return;
-        const result = await handleToggleStatus(togglingPlanId);
-        if (result.success) {
-            setTogglingPlanId(null);
-        }
-    };
 
     const columns: ColumnDef<Plan>[] = [
         {
@@ -337,7 +322,7 @@ export default function PlansPage() {
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}
-                onClose={() => setTogglingPlanId(null)}
+                onClose={cancelToggleStatus}
                 onConfirm={confirmToggleStatus}
                 isMutating={isMutating}
                 title="Deactivate Plan"
