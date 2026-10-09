@@ -184,17 +184,14 @@ const BADGE_BASE =
 export function isSpotlightAd(ad: AdCardData): boolean {
   const r = toAdRecord(ad);
   const status = typeof r.status === "string" ? r.status.toLowerCase() : "";
-  if (status && status !== "live" && status !== "active") {
-    return false;
-  }
+  if (status && status !== "live" && status !== "active") return false;
   const exp = r.spotlightExpiresAt ? new Date(String(r.spotlightExpiresAt)).getTime() : 0;
+  if (exp > 0 && exp <= Date.now()) return false;
   return Boolean(
-    ad.isSpotlight || r.isSpotlight || r.spotlight ||
-    r.planType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT_CAT' ||
-    (exp > 0 && exp > Date.now())
+    (exp > 0 && exp > Date.now()) || (Boolean(ad.isSpotlight || r.isSpotlight || r.spotlight) && exp === 0) ||
+    r.planType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT_CAT'
   );
 }
-
 
 /* -------------------------------------------------------------------------- */
 /* Listing type badge (Ad, Service, Parts)                                   */

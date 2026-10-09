@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolveListingTypeBadge, resolveListingTypeValue } from "@/lib/listings/listingPresentation";
-import { ListingTypeBadge, shouldDisplayCategoryBadge } from "@/components/user/ad-card/shared";
+import { ListingTypeBadge, shouldDisplayCategoryBadge, isSpotlightAd } from "@/components/user/ad-card/shared";
 import { AdCardGrid } from "@/components/user/ad-card/AdCardGrid";
 import { AdCardList } from "@/components/user/ad-card/AdCardList";
 
@@ -88,6 +88,44 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
 
       const deviceAd = { id: "5", title: "Pixel 7 Pro", listingType: "ad" } as any;
       expect(shouldDisplayCategoryBadge("Smartphones", deviceAd)).toBe(true);
+    });
+  });
+
+  describe("isSpotlightAd (Spotlight Expiration SSOT)", () => {
+    it("strictly evaluates to false when spotlightExpiresAt is in the past", () => {
+      const expiredAd = {
+        id: "exp-1",
+        title: "iPhone 12",
+        status: "live",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() - 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(expiredAd)).toBe(false);
+    });
+
+    it("evaluates to true when spotlightExpiresAt is in the future", () => {
+      const activeAd = {
+        id: "act-1",
+        title: "iPhone 13",
+        status: "live",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(activeAd)).toBe(true);
+    });
+
+    it("returns false for non-live listings even if spotlight is active", () => {
+      const soldAd = {
+        id: "sold-1",
+        title: "Galaxy S22",
+        status: "sold",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(soldAd)).toBe(false);
     });
   });
 });

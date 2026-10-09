@@ -350,19 +350,15 @@ export function normalizeListing(data: unknown): UserListing {
     const nowMs = Date.now();
     const spotlightExpMs = spotlightExpiresAt ? new Date(String(spotlightExpiresAt)).getTime() : 0;
     const isSpotlight = Boolean(
-        rawRecord?.isSpotlight === true ||
-        rawRecord?.spotlight === true ||
-        (validated as Record<string, unknown>)?.isSpotlight === true ||
-        (spotlightExpMs > 0 && spotlightExpMs > nowMs)
+        (spotlightExpMs > 0 && spotlightExpMs > nowMs) ||
+        (spotlightExpMs === 0 && (rawRecord?.isSpotlight === true || rawRecord?.spotlight === true || (validated as Record<string, unknown>)?.isSpotlight === true))
     );
 
     const boostExpiresAt = rawRecord?.boostExpiresAt ?? (validated as Record<string, unknown>)?.boostExpiresAt;
     const boostExpMs = boostExpiresAt ? new Date(String(boostExpiresAt)).getTime() : 0;
     const isBoosted = Boolean(
-        rawRecord?.isBoosted === true ||
-        rawRecord?.boosted === true ||
-        (validated as Record<string, unknown>)?.isBoosted === true ||
-        (boostExpMs > 0 && boostExpMs > nowMs)
+        (boostExpMs > 0 && boostExpMs > nowMs) ||
+        (boostExpMs === 0 && (rawRecord?.isBoosted === true || rawRecord?.boosted === true || (validated as Record<string, unknown>)?.isBoosted === true))
     );
 
     return {

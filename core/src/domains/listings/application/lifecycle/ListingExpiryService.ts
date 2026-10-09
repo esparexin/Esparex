@@ -69,4 +69,8 @@ export class ListingExpiryService {
             listingIds,
         };
     }
+    static async sweepExpiredSpotlights(now: Date = new Date()): Promise<number> {
+        const { SpotlightExpiryService } = await import('./SpotlightExpiryService');
+        return SpotlightExpiryService.sweep(now);
+    }
 }
