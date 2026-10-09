@@ -45,8 +45,8 @@ export function LoginMobileStep({
   } = flow;
 
   return (
-    <div className="flex flex-col gap-6 flex-1 min-h-0 justify-between">
-      <div className="space-y-4">
+    <div className="flex flex-col gap-4 sm:gap-6 flex-1 min-h-0 justify-start sm:justify-between">
+      <div className="space-y-3 sm:space-y-4">
         <FieldRoot<LoginFormValues, "mobile">
           name="mobile"
           render={({ field }) => (
@@ -133,7 +133,7 @@ export function LoginMobileStep({
         )}
       </div>
 
-      <div className="pt-4 sm:pt-6 mt-auto pb-2">
+      <div className="pt-2 sm:pt-6 mt-2 sm:mt-auto pb-2">
         <Button
           type="submit"
           disabled={isSendingOTP || !isValidMobile || isSendRateLimited || Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) || !backendReady}
