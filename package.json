@@ -182,7 +182,8 @@
     "@grpc/grpc-js": ">=1.14.5",
     "@firebase/firestore": {
       "@grpc/grpc-js": ">=1.14.5"
-    }
+    },
+    "postcss-selector-parser": ">=7.1.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
