@@ -48,10 +48,6 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                 Spotlight
               </AppText>
             </View>
-          ) : listing.isFeatured ? (
-            <View className="absolute top-2 left-2 z-10">
-              <Badge label="Featured" variant="warning" size="sm" />
-            </View>
           ) : null}
 
           {listing.seller.isVerified && (

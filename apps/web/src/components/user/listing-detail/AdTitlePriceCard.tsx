@@ -35,11 +35,6 @@ export function AdTitlePriceCard({
                         Spotlight
                     </Badge>
                 )}
-                {ad.isFeatured && !ad.isSpotlight && !ad.isBoosted && (
-                    <Badge className="bg-yellow-500 flex-shrink-0 text-caption text-white rounded-lg border-none">
-                        Featured
-                    </Badge>
-                )}
             </div>
 
             <div className="flex flex-wrap items-baseline justify-between gap-2">

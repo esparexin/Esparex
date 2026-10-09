@@ -38,8 +38,6 @@ function areAdCardListPropsEqual(
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.title === nextProps.ad.title &&
     isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
-    (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
-    (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
     (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
