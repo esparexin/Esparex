@@ -3,23 +3,19 @@
 import { useEffect, useState } from "react";
 
 /**
- * useVisualViewport
- * 
- * Synchronizes the mobile visual viewport height (`window.visualViewport.height`)
- * into a canonical CSS custom property `--visual-viewport-height` on `<html>`.
- * 
- * This enables fixed/sticky dialogs, drawers, and sheets on iOS Safari and
- * Android Chrome to accurately bound their max-height and positioning above
- * the on-screen virtual keyboard without manual calculation or layout jitter.
+ * useVisualViewport: Synchronizes mobile visual viewport dimensions and offsetTop
+ * into canonical CSS properties --visual-viewport-height and --visual-viewport-offset-top.
  */
 export interface VisualViewportState {
   viewportHeight: number | null;
+  viewportOffsetTop: number;
   keyboardHeight: number;
   isKeyboardOpen: boolean;
 }
 
 export function useVisualViewport(): VisualViewportState {
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewportOffsetTop, setViewportOffsetTop] = useState(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
@@ -37,12 +33,8 @@ export function useVisualViewport(): VisualViewportState {
         const currentHeight = vv ? vv.height : window.innerHeight;
         const layoutHeight = window.innerHeight;
 
-        // On Android with interactiveWidget: 'resizes-content', window.innerHeight shrinks when keyboard opens.
-        // On iOS Safari, window.innerHeight stays constant while visualViewport shrinks.
-        // Track maximum observed height to reliably detect keyboard across both operating systems.
-        if (layoutHeight > maxObservedHeight) {
-          maxObservedHeight = layoutHeight;
-        }
+        // Track maximum observed height to reliably detect keyboard across Android & iOS.
+        if (layoutHeight > maxObservedHeight) maxObservedHeight = layoutHeight;
 
         const benchmarkHeight = Math.max(maxObservedHeight, layoutHeight);
         const keyboardActive = currentHeight < benchmarkHeight * 0.82;
@@ -54,12 +46,18 @@ export function useVisualViewport(): VisualViewportState {
           ? Math.max(0, Math.round(layoutHeight - currentHeight))
           : 0;
 
+        // On iOS Safari, focusing an input pans visualViewport downwards relative to layout coordinates.
+        // Capturing offsetTop allows fixed dialogs and sheets to coordinate with WebKit's pan.
+        const currentOffsetTop = keyboardActive && vv ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+
         setViewportHeight(currentHeight);
+        setViewportOffsetTop(currentOffsetTop);
         setKeyboardHeight(computedKeyboardHeight);
         setIsKeyboardOpen(keyboardActive);
 
         const root = document.documentElement;
         root.style.setProperty("--visual-viewport-height", `${Math.round(currentHeight)}px`);
+        root.style.setProperty("--visual-viewport-offset-top", `${currentOffsetTop}px`);
         root.style.setProperty("--keyboard-height", `${computedKeyboardHeight}px`);
         root.setAttribute("data-keyboard-open", keyboardActive ? "true" : "false");
       });
@@ -86,5 +84,5 @@ export function useVisualViewport(): VisualViewportState {
     };
   }, []);
 
-  return { viewportHeight, keyboardHeight, isKeyboardOpen };
+  return { viewportHeight, viewportOffsetTop, keyboardHeight, isKeyboardOpen };
 }

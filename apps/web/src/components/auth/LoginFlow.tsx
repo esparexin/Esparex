@@ -42,7 +42,7 @@ export function LoginFlow({
   );
 
   return (
-    <div className="relative flex flex-col">
+    <div className="relative flex-1 min-h-0 flex flex-col">
       <Login
         onLoginSuccess={handleLoginSuccess}
         onBack={onBack}
