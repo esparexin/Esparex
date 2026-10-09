@@ -66,7 +66,7 @@ export function LoginForm({
       form.setError("mobile", {
         message: `Account temporarily locked. Try again in ${formatSeconds(lockInfo.remainingSeconds)}.`,
       });
-      form.setFocus("mobile");
+      document.querySelector<HTMLInputElement>('input[name="mobile"]')?.focus({ preventScroll: true });
       return;
     }
 
@@ -76,12 +76,12 @@ export function LoginForm({
   const onOtpSubmit = async () => {
     if (requiresName && !nameValue.trim()) {
       form.setError("name", { message: "Please enter your name to continue" });
-      form.setFocus("name");
+      document.querySelector<HTMLInputElement>('input[name="name"]')?.focus({ preventScroll: true });
       return;
     }
     if (otpValue.length !== 6) {
       form.setError("otp", { message: "Please enter the 6-digit OTP code." });
-      form.setFocus("otp");
+      document.getElementById("otp-digit-1")?.focus({ preventScroll: true });
       return;
     }
 
@@ -124,7 +124,7 @@ export function LoginForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="flex flex-col gap-5 flex-1 min-h-0"
       >
         {step === "enterMobile" ? (
           <LoginMobileStep

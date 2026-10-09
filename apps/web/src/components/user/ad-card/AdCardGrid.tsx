@@ -29,13 +29,16 @@ function areAdCardGridPropsEqual(
   prevProps: AdCardGridProps,
   nextProps: AdCardGridProps
 ): boolean {
+  const prevImg = (prevProps.ad as { image?: string }).image ?? (prevProps.ad as { images?: string[] }).images?.[0];
+  const nextImg = (nextProps.ad as { image?: string }).image ?? (nextProps.ad as { images?: string[] }).images?.[0];
+
   return (
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.isSaved === nextProps.isSaved &&
     isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
     prevProps.ad.title === nextProps.ad.title &&
     prevProps.ad.price === nextProps.ad.price &&
-    prevProps.ad.image === nextProps.ad.image &&
+    prevImg === nextImg &&
     prevProps.responsiveCompactList === nextProps.responsiveCompactList &&
     (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType &&
     (prevProps.ad as Record<string, unknown>).deviceCondition === (nextProps.ad as Record<string, unknown>).deviceCondition &&

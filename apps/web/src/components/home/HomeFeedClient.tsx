@@ -2,7 +2,7 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Loader2, PackageOpen } from "@esparex/ui";
+import { Button, Loader2, PackageOpen, cn } from "@esparex/ui";
 import { type UserListing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
@@ -124,7 +124,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
     // Reuse SSR payload on initial default page; background query refetches for client location.
-    const shouldUseInitialData = !cursor && selectedType === "all";
+    const shouldUseInitialData = !cursor && selectedType === "all" && !hasUserLocation;
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
@@ -183,17 +183,12 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
                 {(isLoading || isFetching) && displayedAds.length === 0 && <FeedSkeletonGrid />}
 
-                {isError && displayedAds.length === 0 && (
-                    <FeedErrorState onRetry={() => refetch()} />
-                )}
-
-                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && (
-                    <FeedEmptyState selectedType={selectedType} />
-                )}
+                {isError && displayedAds.length === 0 && <FeedErrorState onRetry={() => refetch()} />}
+                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && <FeedEmptyState selectedType={selectedType} />}
 
                 {displayedAds.length > 0 && (
                     <>
-                        <div aria-busy={isFetching} className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
+                        <div aria-busy={isFetching} className={cn("grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4 transition-opacity duration-200", isFetching && "opacity-80")}>
                             {displayedAds.map((ad, index) => (
                                 <Fragment key={ad.id}>
                                     <AdCardGrid
