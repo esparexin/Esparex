@@ -37,7 +37,7 @@ export function LoginForm({
     clearAuthErrorOfTypes,
     isOtpStep,
     requiresName,
-    mobileServerError,
+    isSendRateLimited,
     getMobileLockInfo,
     requestOtp,
     handleResendOtp,
@@ -59,9 +59,7 @@ export function LoginForm({
 
   const onMobileSubmit = async (values: LoginFormValues) => {
     if (authError?.type === "generic") clearAuthErrorOfTypes(["generic"]);
-
-    const serverErr = mobileServerError(values.mobile);
-    if (serverErr) { form.setError("mobile", { message: serverErr }); form.setFocus("mobile"); return; }
+    if (isSendRateLimited) return;
 
     const lockInfo = getMobileLockInfo(values.mobile);
     if (lockInfo && lockInfo.remainingSeconds > 0) {

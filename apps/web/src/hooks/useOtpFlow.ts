@@ -45,6 +45,7 @@ export interface OtpFlowState {
     isSendRateLimited: boolean;
     isVerifyRateLimited: boolean;
     canResend: boolean;
+    sendRateLimitMessage: string;
     mobileServerError: (mobile: string) => string;
     otpErrorMessage: string;
     otpRateLimitMessage: string;
@@ -104,6 +105,8 @@ export function useOtpFlow(
         (message: string) => appendRateLimitCountdown(message, rateLimitRemainingSeconds > 0, rateLimitRemainingSeconds),
         [rateLimitRemainingSeconds]
     );
+
+    const sendRateLimitMessage = isSendRateLimited && rateLimit ? formatRateLimitMessage(rateLimit.message) : "";
 
     const mobileServerError = useCallback((_mobile: string) => {
         return step === "enterMobile" && rateLimit?.scope === "send" ? formatRateLimitMessage(rateLimit.message) : "";
@@ -283,7 +286,7 @@ export function useOtpFlow(
         isSendingOTP, isVerifying,
         authError, clearAuthErrorOfTypes,
         isOtpStep, requiresName, isBlocked, isLocked, isSendRateLimited,
-        isVerifyRateLimited, canResend, mobileServerError, otpErrorMessage,
+        isVerifyRateLimited, canResend, sendRateLimitMessage, mobileServerError, otpErrorMessage,
         otpRateLimitMessage, lockRemainingSeconds, resendRemainingSeconds, rateLimitRemainingSeconds,
         getMobileLockInfo, requestOtp, handleResendOtp, resetToMobileStep, verifyOtpCode,
     };
