@@ -5,4 +5,4 @@ export * from './radius';
 export * from './breakpoints';
 export * from './shadows';
 export * from './motion';
-export * from './z-index';
+export * from './durations';

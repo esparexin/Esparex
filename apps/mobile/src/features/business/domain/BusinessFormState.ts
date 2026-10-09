@@ -1,6 +1,6 @@
 import { Business, IdProofTypeValue } from '@esparex/contracts';
 
-export interface BusinessFormDocument {
+interface BusinessFormDocument {
   type: 'id_proof' | 'business_proof' | 'certificate';
   url: string;
   idProofType?: IdProofTypeValue;

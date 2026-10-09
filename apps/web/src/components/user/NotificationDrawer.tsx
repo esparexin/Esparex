@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, CheckCheck, Drawer, Inbox, Trash2 } from "@esparex/ui";
+import { Button, CheckCheck, Sheet, SheetTrigger, SheetContent, SheetTitle, Inbox, Trash2 } from "@esparex/ui";
 import { type Notification } from "@/lib/api/user/notifications";
 import { NOTIFICATION_META } from "@/components/user/NotificationItemCard";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
@@ -60,13 +60,14 @@ export function NotificationDrawer({
   };
 
   return (
-    <Drawer
-      title="Notifications"
-      open={open}
-      onOpenChange={onOpenChange}
-      trigger={trigger}
-    >
-      <div className="space-y-3 pt-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      {/* F-V5: max-height uses the visual-viewport var (keyboard-aware).
+          Was max-h-[calc(100vh-2rem)]: layout viewport is wrong when the
+          keyboard opens; drawer contains a search input. */}
+      <SheetContent side="right" className="w-[min(400px,100vw)] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)]">
+        <SheetTitle className="sr-only">Notifications</SheetTitle>
+        <div className="space-y-3 pt-2">
         {/* Header Action Bar */}
         <div className="flex items-center justify-between border-b border-border pb-2">
           <span className="text-caption font-semibold text-muted-foreground">
@@ -109,7 +110,7 @@ export function NotificationDrawer({
               return (
                 <div
                   key={notification.id}
-                  className="relative overflow-hidden rounded-xl border border-border bg-card shadow-xs transition-all"
+                  className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all"
                   onTouchStart={(e) => handleTouchStart(notification.id, e)}
                 >
                   {/* Swipe Action Background Layer */}
@@ -122,7 +123,7 @@ export function NotificationDrawer({
                           void onMarkRead(notification.id);
                           setSwipedId(null);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                         aria-label={`Mark notification as read: ${notification.title}`}
                       >
                         <CheckCheck className="h-4 w-4" />
@@ -136,7 +137,7 @@ export function NotificationDrawer({
                           void onDelete(notification.id);
                           setSwipedId(null);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/20"
                         aria-label={`Delete notification: ${notification.title}`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -159,7 +160,7 @@ export function NotificationDrawer({
                       !notification.isRead ? "bg-primary/5" : "bg-card"
                     )}
                   >
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-xs">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card shadow-sm">
                       <Icon className={cn(meta.iconTone, "h-4 w-4")} />
                     </div>
 
@@ -186,6 +187,7 @@ export function NotificationDrawer({
           </div>
         )}
       </div>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 }

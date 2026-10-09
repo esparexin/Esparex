@@ -2,10 +2,10 @@ import { adminFetch } from '@/lib/api/adminClient';
 import { ADMIN_ROUTES } from '@/lib/api/routes';
 import { buildQueryString } from '@/lib/api/queryParams';
 
-export type CatalogRequestType = 'brand' | 'model';
+type CatalogRequestType = 'brand' | 'model';
 export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'merged' | 'resolved';
 
-export interface CatalogRequestUserRef {
+interface CatalogRequestUserRef {
     id?: string;
     _id?: string;
     firstName?: string;
@@ -14,14 +14,14 @@ export interface CatalogRequestUserRef {
     mobile?: string;
 }
 
-export interface CatalogRequestCategoryRef {
+interface CatalogRequestCategoryRef {
     id?: string;
     _id?: string;
     name?: string;
     slug?: string;
 }
 
-export interface CatalogRequestBrandRef {
+interface CatalogRequestBrandRef {
     id?: string;
     _id?: string;
     name?: string;
@@ -63,23 +63,8 @@ export interface CatalogRequestListFilters {
     limit?: number;
 }
 
-export interface CatalogRequestStatsBucket {
-    pending: number;
-    approved: number;
-    rejected: number;
-    duplicate: number;
-    resolved: number;
-    total: number;
-}
 
-export interface CatalogRequestStats {
-    total: number;
-    byStatus: CatalogRequestStatsBucket;
-    byRequestType: {
-        brand: CatalogRequestStatsBucket;
-        model: CatalogRequestStatsBucket;
-    };
-}
+
 
 export async function listAdminCatalogRequests(filters: CatalogRequestListFilters) {
     const query = buildQueryString({

@@ -20,9 +20,9 @@ describe("OTP Lockout & Mobile Normalization Logic", () => {
     expect(normalizedIncomplete).toBe("98765432");
     expect(validateIndianMobile(incompleteWithPlus)).toBe(false);
 
-    // Incomplete 8-digit autofill with 91 prefix
-    const incompleteWith91 = "9198765432";
-    expect(normalizeTo10Digits(incompleteWith91)).toBe("98765432");
+    // Incomplete 7-digit string starting with 91
+    const incompleteWith91 = "9198765";
+    expect(normalizeTo10Digits(incompleteWith91)).toBe("9198765");
     expect(validateIndianMobile(incompleteWith91)).toBe(false);
 
     // Short 5-digit string

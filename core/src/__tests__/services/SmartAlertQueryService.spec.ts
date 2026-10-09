@@ -26,8 +26,8 @@ jest.mock('../../models/Entitlement', () => ({
     },
 }));
 
-jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
-    syncWalletCycle: jest.fn().mockResolvedValue(undefined),
+jest.mock('../../domains/entitlements/application/EntitlementWalletWriter', () => ({
+    resetMonthlyCycleForUser: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../../domains/payments', () => ({

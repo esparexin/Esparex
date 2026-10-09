@@ -131,7 +131,6 @@ export const ROUTES = {
     EDIT_BUSINESS: "business-edit",
 } as const satisfies Record<string, UserPage>;
 
-export type RouteKey = typeof ROUTES[keyof typeof ROUTES];
 
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     home: "/",
@@ -157,7 +156,9 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "my-business": "/account/business",
     "business-register": "/account/business/apply",
     purchases: "/account/purchases",
-    notifications: "/notifications",
+    // Historic alias key: no physical /notifications route exists (see sitemap FORBIDDEN
+    // + robots Disallow). Canonical notifications surface is /account/alerts.
+    notifications: "/account/alerts",
     "post-spare-part-listing": "/post-spare-part-listing",
     about: "/about",
     faq: "/faq",

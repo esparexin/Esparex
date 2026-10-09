@@ -8,8 +8,7 @@ import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
 import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "@esparex/ui";
-import { formatPrice } from "@esparex/shared";
-import { format } from "date-fns";
+import { formatAppDate, formatAppDateTime, formatAppTime, formatPrice } from "@esparex/shared";
 
 type AlertLog = {
     _id: string;
@@ -80,13 +79,13 @@ export default function SmartAlertsPage() {
                     <div className="inline-flex p-1 bg-muted rounded-xl border border-border">
                         <button
                             onClick={() => { setActiveView('logs'); setPage(1); setSelectedIds(new Set()); }}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
+                            className={`px-4 py-2 rounded-lg text-body font-bold transition-all ${activeView === 'logs' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
                         >
                             Delivery Logs
                         </button>
                         <button
                             onClick={() => { setActiveView('management'); setPage(1); setSelectedIds(new Set()); }}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'management' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
+                            className={`px-4 py-2 rounded-lg text-body font-bold transition-all ${activeView === 'management' ? 'bg-white text-foreground shadow-sm' : 'text-foreground-tertiary hover:text-foreground-secondary'}`}
                         >
                             Alert Management
                         </button>
@@ -99,7 +98,7 @@ export default function SmartAlertsPage() {
                                     void handleBulkResend(Array.from(selectedIds));
                                     setSelectedIds(new Set());
                                 }}
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-colors font-bold"
+                                className="flex items-center gap-2 px-3 py-1.5 text-body bg-primary text-white rounded-lg shadow-sm hover:bg-primary-hover transition-colors font-bold"
                             >
                                 <History className="h-4 w-4" />
                                 Resend Warnings ({selectedIds.size})
@@ -108,7 +107,7 @@ export default function SmartAlertsPage() {
                         <button 
                             onClick={() => activeView === 'logs' ? getLogs({ page, limit: 50 }) : getAlerts({ page, limit: 50 })}
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-3 py-1.5 text-body bg-card border border-border rounded-lg shadow-xs hover:bg-muted/50 transition-colors text-foreground-secondary font-medium cursor-pointer"
+                            className="flex items-center gap-2 px-3 py-1.5 text-body bg-card border border-border rounded-lg shadow-sm hover:bg-muted/50 transition-colors text-foreground-secondary font-medium cursor-pointer"
                         >
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-foreground-subtle' : 'text-foreground-tertiary'}`} />
                             Refresh
@@ -116,7 +115,7 @@ export default function SmartAlertsPage() {
                     </div>
                 </div>
 
-                <div className="bg-card rounded-xl shadow-xs border border-border overflow-hidden">
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-body text-left text-foreground-secondary">
                             <thead className="text-caption text-foreground-tertiary uppercase bg-muted/30 border-b border-border">
@@ -189,34 +188,34 @@ export default function SmartAlertsPage() {
                                                 {typeof log.alertId === "object" ? (
                                                     <div className="flex flex-col">
                                                         <span className="font-medium text-foreground flex items-center gap-2">
-                                                            <BellRing className="h-3 w-3 text-emerald-500" />
+                                                            <BellRing className="h-3 w-3 text-success" />
                                                             {log.alertId.name || 'Unnamed Alert'}
                                                         </span>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-foreground-subtle font-mono text-xs">{log.alertId}</span>
+                                                    <span className="text-foreground-subtle font-mono text-caption">{log.alertId}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
                                                 {typeof log.adId === "object" ? (
                                                     <div className="flex flex-col">
-                                                        <span className="font-medium text-foreground hover:text-blue-600 cursor-pointer flex items-center gap-2 transition-colors">
+                                                        <span className="font-medium text-foreground hover:text-primary cursor-pointer flex items-center gap-2 transition-colors">
                                                             <span className="line-clamp-1">{log.adId.title}</span>
                                                         </span>
                                                         <div className="flex items-center gap-1.5 mt-1.5">
                                                             {log.adId.location && (
                                                                 <>
                                                                     <Navigation className="h-3 w-3 text-foreground-subtle" />
-                                                                    <span className="text-xs text-foreground-tertiary mr-1">{log.adId.location}</span>
+                                                                    <span className="text-caption text-foreground-tertiary mr-1">{log.adId.location}</span>
                                                                 </>
                                                             )}
-                                                            <span className="text-tiny font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                                            <span className="text-tiny font-bold text-success-dark bg-success/10 px-1.5 py-0.5 rounded">
                                                                 {(log.adId.price ?? 0) > 0 ? formatPrice(log.adId.price ?? 0) : "Free"}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-foreground-subtle font-mono text-xs">{log.adId}</span>
+                                                    <span className="text-foreground-subtle font-mono text-caption">{log.adId}</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
@@ -233,16 +232,16 @@ export default function SmartAlertsPage() {
                                                         })}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-xs text-foreground-subtle italic">Unknown Criteria</span>
+                                                    <span className="text-caption text-foreground-subtle italic">Unknown Criteria</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-foreground-secondary">
-                                                        {new Date(log.deliveredAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    <span className="text-body font-medium text-foreground-secondary">
+                                                        {formatAppDate(log.deliveredAt, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </span>
-                                                    <span className="text-xs text-foreground-subtle mt-0.5">
-                                                        {new Date(log.deliveredAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                                    <span className="text-caption text-foreground-subtle mt-0.5">
+                                                        {formatAppTime(log.deliveredAt, { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
                                             </td>
@@ -278,24 +277,24 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className={`text-tiny font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                                    <span className={`text-tiny font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-success/10 text-success border border-success/20' : 'bg-destructive/10 text-destructive border border-destructive/20'}`}>
                                                         {alert.isActive ? 'Active' : 'Inactive'}
                                                     </span>
-                                                    <span className="text-xs text-foreground-tertiary mt-1">Exp: {alert.expiresAt ? format(new Date(alert.expiresAt), "MMM d, yyyy") : 'Never'}</span>
+                                                    <span className="text-caption text-foreground-tertiary mt-1">Exp: {alert.expiresAt ? formatAppDate(new Date(alert.expiresAt)) : 'Never'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs font-medium text-foreground-secondary">Count: {alert.expiryWarningCount || 0}</span>
+                                                    <span className="text-caption font-medium text-foreground-secondary">Count: {alert.expiryWarningCount || 0}</span>
                                                     {alert.expiryWarningSentAt && (
-                                                        <span className="text-tiny text-foreground-subtle italic">{format(new Date(alert.expiryWarningSentAt), "MMM d HH:mm")}</span>
+                                                        <span className="text-tiny text-foreground-subtle italic">{formatAppDateTime(new Date(alert.expiryWarningSentAt))}</span>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button
                                                     onClick={() => handleDeleteAlert(String(alert._id || alert.id))}
-                                                    className="p-1.5 text-foreground-subtle hover:text-red-600 transition-colors"
+                                                    className="p-1.5 text-foreground-subtle hover:text-destructive transition-colors"
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>
@@ -315,14 +314,14 @@ export default function SmartAlertsPage() {
                                 <button
                                     disabled={page === 1}
                                     onClick={() => { setPage(p => p - 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-sm hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     disabled={page === pagination.pages}
                                     onClick={() => { setPage(p => p + 1); setSelectedIds(new Set()); }}
-                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-xs hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 text-caption font-medium bg-card border border-border rounded-md shadow-sm hover:bg-muted/50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
                                     Next
                                 </button>

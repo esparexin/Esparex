@@ -193,8 +193,8 @@ export default function AIConfigPage() {
             <Stack direction="col" gap="lg">
                 {/* KPI Header Grid */}
                 <Grid cols={3} gap="sm">
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-xs flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-success/10 text-success-dark border border-success/20 shrink-0">
                             <ShieldCheck size={22} />
                         </div>
                         <div>
@@ -203,7 +203,7 @@ export default function AIConfigPage() {
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-xs flex items-center gap-3">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
                             <Cpu size={22} />
                         </div>
@@ -213,7 +213,7 @@ export default function AIConfigPage() {
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-card p-4 shadow-xs flex items-center gap-3">
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                             <Key size={22} />
                         </div>
@@ -225,7 +225,7 @@ export default function AIConfigPage() {
                 </Grid>
 
                 {/* Provider API Keys & Settings Accordion */}
-                <div className="rounded-2xl border border-border bg-card p-6 shadow-xs flex flex-col gap-4">
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-sm flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                             <Key className="text-foreground-secondary" size={20} />
@@ -249,7 +249,7 @@ export default function AIConfigPage() {
                             return (
                                 <div
                                     key={prov.id}
-                                    className="rounded-xl border border-border bg-muted/30 overflow-hidden transition-all shadow-2xs"
+                                    className="rounded-xl border border-border bg-muted/30 overflow-hidden transition-all shadow-sm"
                                 >
                                     {/* Accordion Header */}
                                     <div
@@ -259,7 +259,7 @@ export default function AIConfigPage() {
                                         <div className="flex items-center gap-3">
                                             <span className="font-bold text-body text-foreground">{prov.name}</span>
                                             {provData.hasKey && (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-tiny font-bold text-emerald-700 border border-emerald-200">
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-tiny font-bold text-success-dark border border-success/20">
                                                     <CheckCircle size={10} /> Key Configured
                                                 </span>
                                             )}

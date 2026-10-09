@@ -1,5 +1,7 @@
 # Esparex Project Status
 
+> DO NOT EDIT — HISTORICAL / FROZEN. 2026-07-22 snapshot; superseded by `docs/development/MASTER_ROADMAP.md` + EA register + releases.
+
 **Last Updated:** 2026-07-22  
 **Current Branch:** `chore/architecture-stabilization`  
 **Latest Milestone:** `architecture-m2.10` (Program 1 Migration & Stabilization Complete)

@@ -50,16 +50,14 @@ export function BusinessCatalogTabs({
   const filteredItems = useMemo(() => {
     if (!query.trim()) return activeItems;
     const q = query.toLowerCase().trim();
-    return activeItems.filter((item) => {
-      const title = String(item.title || "").toLowerCase();
-      const cat = String(item.category || "").toLowerCase();
-      return title.includes(q) || cat.includes(q);
-    });
+    return activeItems.filter((item) =>
+      String(item.title || "").toLowerCase().includes(q) || String(item.category || "").toLowerCase().includes(q)
+    );
   }, [activeItems, query]);
 
   if (tabs.length === 0) {
     return (
-      <Card className="rounded-2xl border-border shadow-xs bg-card">
+      <Card className="rounded-2xl border-border shadow-sm bg-card">
         <CardContent className="py-12 text-center text-caption text-foreground-subtle font-medium">
           This store does not have any live public listings yet.
         </CardContent>
@@ -73,13 +71,13 @@ export function BusinessCatalogTabs({
     <div className="flex flex-col gap-3 sm:gap-4 w-full min-w-0">
       {/* Tab Segment Controls & In-Store Search Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 w-full min-w-0">
-        <div className="w-full sm:w-auto min-w-0 overflow-x-auto scrollbar-hide overscroll-x-contain touch-pan-x">
+        <div className="w-full sm:w-auto min-w-0">
           <div
             role="tablist"
             aria-label="Store catalog categories"
-            className="inline-flex items-center gap-1.5 p-1 bg-muted/50 rounded-2xl border border-border/70 min-w-max"
+            className="flex sm:inline-flex items-center gap-1 sm:gap-1.5 p-1 bg-muted/50 rounded-2xl border border-border/70 w-full sm:w-auto"
           >
-            {tabs.map((tab) => {
+            {tabs.map((tab, idx) => {
               const isActive = effectiveActiveTab === tab.key;
               return (
                 <button
@@ -89,14 +87,25 @@ export function BusinessCatalogTabs({
                   type="button"
                   aria-selected={isActive}
                   aria-controls={`tabpanel-${tab.key}`}
+                  tabIndex={isActive ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                    e.preventDefault();
+                    const nextTab = tabs[(idx + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+                    if (nextTab) {
+                      onTabChange(nextTab.key);
+                      setQuery("");
+                      document.getElementById(`tab-${nextTab.key}`)?.focus();
+                    }
+                  }}
                   onClick={() => {
                     onTabChange(tab.key);
                     setQuery("");
                   }}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-caption font-semibold transition-all whitespace-nowrap cursor-pointer select-none shrink-0",
+                    "flex-1 sm:flex-initial text-center px-3 sm:px-4 py-2 rounded-xl text-caption font-semibold transition-all whitespace-nowrap cursor-pointer select-none truncate focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
                     isActive
-                      ? "bg-card text-foreground shadow-xs border border-border font-bold"
+                      ? "bg-card text-foreground shadow-sm border border-border font-bold"
                       : "text-foreground-secondary hover:text-foreground hover:bg-muted/60"
                   )}
                 >
@@ -110,19 +119,20 @@ export function BusinessCatalogTabs({
         {/* Quick In-Store Filter */}
         {activeItems.length > 3 && (
           <div className="relative w-full sm:w-56 shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               placeholder={`Search in ${activeTabLabel.toLowerCase()}...`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-8 pr-7 h-9 text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+              className="w-full pl-8 pr-7 h-9 sm:h-[38px] text-body-lg md:text-body bg-card border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted-foreground transition-all"
+              aria-label={`Search in ${activeTabLabel.toLowerCase()}`}
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded"
                 aria-label="Clear search"
               >
                 <X className="size-3.5" />
@@ -133,37 +143,23 @@ export function BusinessCatalogTabs({
       </div>
 
       {/* Tab Panel Content */}
-      <div
-        id={`tabpanel-${effectiveActiveTab}`}
-        role="tabpanel"
-        aria-labelledby={`tab-${effectiveActiveTab}`}
-      >
+      <div id={`tabpanel-${effectiveActiveTab}`} role="tabpanel" aria-labelledby={`tab-${effectiveActiveTab}`}>
         {filteredItems.length > 0 ? (
           <div className="flex flex-col gap-2.5 sm:gap-3">
             {filteredItems.map((item, index) => {
               const record = item as Record<string, unknown>;
               const id = String(record.id || record._id || "");
-              return (
-                <AdCardList
-                  key={id}
-                  ad={item as Ad}
-                  href={buildListingHref(item)}
-                  priority={index < 4}
-                />
-              );
+              return <AdCardList key={id} ad={item as Ad} href={buildListingHref(item)} priority={index < 4} />;
             })}
           </div>
         ) : effectiveActiveTab === "ads" && !query ? (
           <div className="flex items-center justify-center py-10 sm:py-14">
-            <Button
-              asChild
-              className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs cursor-pointer"
-            >
+            <Button asChild className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-sm cursor-pointer">
               <Link href="/post-ad">Post Free Ad</Link>
             </Button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center rounded-2xl border border-border bg-card shadow-xs">
+          <div className="flex flex-col items-center justify-center gap-3 py-12 px-4 text-center rounded-2xl border border-border bg-card shadow-sm">
             <div className="size-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground">
               <LayoutGrid className="size-5" />
             </div>
@@ -176,12 +172,7 @@ export function BusinessCatalogTabs({
               </p>
             </div>
             {query && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setQuery("")}
-                className="h-8 rounded-lg text-caption font-semibold mt-1"
-              >
+              <Button variant="outline" size="sm" onClick={() => setQuery("")} className="h-8 rounded-lg text-caption font-semibold mt-1">
                 Clear filter
               </Button>
             )}

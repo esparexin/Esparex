@@ -1,13 +1,15 @@
 ---
 version: 1.1
-status: Approved
+status: Approved (Historical Modernization Reference)
+tier: Tier 4 — Reference & Program Plan
+authority: Subordinate to AGENTS.md & packages/ui/GOVERNANCE.md
 owner: Platform Architecture
 last_updated: 2026-08-06
 ---
 
-# UI Foundation Blueprint (SSOT)
+# UI Foundation Blueprint
 
-This document serves as the permanent architectural constitution and master plan for the Esparex UI Modernization Program. It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
+This document is the historical program plan for the Esparex UI Modernization Program (it defers to `AGENTS.md` and `packages/ui/GOVERNANCE.md` for UI governance). It defines the universal standards, pipelines, and governance for achieving parity across Web, Admin, and React Native platforms.
 
 ## Core Architecture Principles
 
@@ -36,13 +38,14 @@ Every sprint must adhere to the following principles:
 
 ## Design System Hierarchy
 
-When conflicts arise, the order of authority is as follows:
-1. **UI Foundation Blueprint (SSOT)**
+When conflicts arise, the order of authority is as follows (Blueprint is subordinate to Tier-1 governance):
+1. **`AGENTS.md` (supreme) + `docs/architecture/PLATFORM_ARCHITECTURE.md` + `docs/governance/REPOSITORY-GOVERNANCE.md` + `packages/ui/GOVERNANCE.md`**
 2. **Architecture Decision Records (ADR)**
 3. **`packages/design-tokens`**
 4. **`packages/ui` / `packages/mobile-ui`**
-5. **Feature Components**
-6. **Pages**
+5. **This Blueprint (program constitution, historical after modernization)**
+6. **Feature Components**
+7. **Pages**
 
 ## Repository Structure
 

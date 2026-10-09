@@ -40,9 +40,13 @@ function getServerSnapshot(): string | null {
 export function CookieConsentBanner() {
     const pathname = usePathname();
     const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-    const hasAnyBottomNav = getMobileChromePolicy(pathname).hasAnyBottomNav;
+    const policy = getMobileChromePolicy(pathname);
+    const hasAnyBottomNav = policy.hasAnyBottomNav;
 
-    const visible = consent === null;
+    // Suppress the banner when a tall context action bar is present.
+    // The bar (~6-7rem) would overlap the banner's fixed offset.
+    // The banner will appear once the user navigates away from the detail page.
+    const visible = consent === null && !policy.showContextActionBar;
 
     const setConsent = useCallback((value: string) => {
         try {
@@ -124,14 +128,14 @@ export function CookieConsentBanner() {
                         <Button
                             variant="outline"
                             onClick={handleDecline}
-                            className="flex-1 md:flex-none h-10 md:h-9 px-4 text-body font-medium rounded-xl border-border bg-card hover:bg-muted/60 text-foreground transition-all shadow-2xs active:scale-[0.98]"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-4 text-body font-medium rounded-xl border-border bg-card hover:bg-muted/60 text-foreground transition-all shadow-sm active:scale-[0.98]"
                         >
                             Essential
                         </Button>
                         <Button
                             variant="primary"
                             onClick={handleAccept}
-                            className="flex-1 md:flex-none h-10 md:h-9 px-5 text-body font-semibold rounded-xl transition-all shadow-xs active:scale-[0.98]"
+                            className="flex-1 md:flex-none h-10 md:h-9 px-5 text-body font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]"
                         >
                             Accept All
                         </Button>

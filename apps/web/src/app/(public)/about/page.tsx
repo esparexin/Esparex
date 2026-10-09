@@ -37,13 +37,13 @@ export default function AboutPage() {
                 </section>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 md:p-5 rounded-2xl bg-card border border-border flex flex-col justify-center shadow-xs">
+                    <div className="p-4 md:p-5 rounded-2xl bg-card border border-border flex flex-col justify-center shadow-sm">
                         <h3 className="text-body-lg font-bold text-foreground mb-2">Our Mission</h3>
                         <p className="text-caption text-foreground-secondary leading-relaxed">
                             To dramatically extend the lifespan of consumer electronics by making high-quality spare parts and reliable repair services accessible and affordable to everyone, in every corner of India.
                         </p>
                     </div>
-                    <div className="p-4 md:p-5 rounded-2xl bg-card border border-border flex flex-col justify-center shadow-xs">
+                    <div className="p-4 md:p-5 rounded-2xl bg-card border border-border flex flex-col justify-center shadow-sm">
                         <h3 className="text-body-lg font-bold text-foreground mb-2">Our Vision</h3>
                         <p className="text-caption text-foreground-secondary leading-relaxed">
                             To be the foundational infrastructure for the disorganized electronics repair sector, bringing standardized trust, verified inventory, and hyper-local connectivity to millions of businesses and consumers.

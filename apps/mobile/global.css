@@ -1,5 +1,13 @@
-@import "@esparex/design-tokens/dist/css-variables.css";
-
+/**
+ * apps/mobile/global.css — NativeWind base directives
+ *
+ * The @import "@esparex/design-tokens/dist/css-variables.css" that previously
+ * appeared here has been removed. That file defines :root { --var: hsl(...) }
+ * and .dark { --var: hsl(...) } which are browser-only CSS constructs with no
+ * effect in React Native. NativeWind cannot resolve hsl(var(--...)) references
+ * at StyleSheet.create() build time. Colors are now sourced as concrete hex
+ * values directly in tailwind.config.js via @esparex/design-tokens.
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

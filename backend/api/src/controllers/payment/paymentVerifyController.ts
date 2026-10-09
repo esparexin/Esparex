@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
-import { getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
-import { enqueuePaymentProcessing } from '@esparex/core/queues/paymentQueue';
-import { processSuccessfulPayment } from '@esparex/core/domains/payments/application/PaymentProcessingService';
-import logger, { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+import { getRazorpayRuntimeConfig } from '@esparex/core';
+import { enqueuePaymentProcessing } from '@esparex/core';
+import { processSuccessfulPayment } from '@esparex/core/domains/payments';
+import { logger, logBusiness, logSecurity } from '@esparex/core';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
-import { env } from '@esparex/core/config/env';
+import { env } from '@esparex/core';
 
 /**
  * 🔐 VERIFY PAYMENT CONTROLLER
@@ -34,8 +34,11 @@ export async function verifyPayment(req: Request, res: Response) {
         const paymentIdStr = razorpay_payment_id.trim();
         const signatureStr = razorpay_signature.trim();
 
-        // Mock orders: no signature verification needed
-        if (orderIdStr.startsWith('order_mock_') || env.MOCK_PAYMENTS) {
+        // P1-F23: mock ack needs prefix AND flag (prior `||` acked any order
+        // when flagged, skipping signature check). No fulfillment here (Phase 5 ADR).
+        if (orderIdStr.startsWith('order_mock_')) {
+            if (!env.MOCK_PAYMENTS) return sendErrorResponse(req, res, 400, 'Mock payments are disabled');
+            logSecurity('payment_mock_acknowledged', 'medium', { userId: req.user._id?.toString(), razorpay_order_id: orderIdStr });
             return res.json(respond({ success: true, message: 'Mock payment acknowledged' }));
         }
 
@@ -85,10 +88,11 @@ export async function verifyPayment(req: Request, res: Response) {
 
         return res.json(respond({ success: true, message: 'Payment verified and processed successfully' }));
     } catch (error) {
+        // P1-F26: generic 500 (detail stays in logs above).
         logger.error('[VERIFY_PAYMENT] Payment verification failed', {
             error: error instanceof Error ? error.message : String(error)
         });
-        return sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to verify payment');
+        return sendErrorResponse(req, res, 500, 'Failed to verify payment');
     }
 }
 

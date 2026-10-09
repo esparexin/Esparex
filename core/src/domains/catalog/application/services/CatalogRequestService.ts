@@ -1,18 +1,13 @@
 import CatalogRequest from '../../../../models/CatalogRequest';
 import Brand from '../../../../models/Brand';
 import Model from '../../../../models/Model';
+import type { CatalogRequestPayload } from '@esparex/contracts';
 
-export interface CatalogRequestPayload {
-    requestType: 'brand' | 'model';
-    categoryId: string;
-    parentBrandId?: string;
-    requestedName: string;
-    canonicalName: string;
-    slug: string;
-    requestedBy: string;
-    /** Optional soft reference to the related listing. Null for new-ad flow. */
-    listingId?: string;
-}
+/**
+ * Phase 3a (§5): the local `CatalogRequestPayload` interface is relocated to
+ * `@esparex/contracts` (canonical owner per DECISION-GATE §3) and imported
+ * here. Deletion of the local name (unused beyond this file) is Phase 4 (§10).
+ */
 
 export const findOrCreateCatalogRequest = async (payload: CatalogRequestPayload) => {
     const dedupeQuery = {

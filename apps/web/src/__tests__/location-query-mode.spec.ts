@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
     hasCanonicalLocationId,
     isRegionLocationLevel,
-    shouldUseExactLocationHierarchy,
     shouldUseGeoRadiusLocation,
     isUserSelectedLocation,
     shouldApplyLocationFilter,
@@ -26,7 +25,6 @@ describe("location query mode", () => {
 
         expect(hasCanonicalLocationId(canonical)).toBe(true);
         expect(hasCanonicalLocationId(nonCanonical)).toBe(false);
-        expect(shouldUseExactLocationHierarchy(canonical)).toBe(false);
     });
 
     it("allows city-level selections with coordinates to use geo radius mode", () => {

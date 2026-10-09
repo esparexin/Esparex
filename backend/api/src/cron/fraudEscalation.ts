@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import Admin from '@esparex/core/models/Admin';
-import { env } from '@esparex/core/config/env';
-import AdminLog from '@esparex/core/models/AdminLog';
-import FraudScore from '@esparex/core/models/FraudScore';
-import User from '@esparex/core/models/User';
-import logger from '@esparex/core/utils/logger';
-import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
+import { env } from '@esparex/core';
+import { AdminLog } from '@esparex/core';
+import { FraudScore } from '@esparex/core';
+import { User } from '@esparex/core';
+import { logger } from '@esparex/core';
+import { runWithDistributedJobLock } from '@esparex/core';
+import { findLiveAdminIdForAudit } from '@esparex/core/domains/identity';
 import { USER_STATUS } from "@esparex/contracts";
 const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;
@@ -20,14 +20,11 @@ type FraudScoreDoc = {
     riskLevel: string;
 };
 
-const getAuditAdminId = async (): Promise<mongoose.Types.ObjectId | null> => {
-    const admin = await Admin.findOne({
-        isDeleted: { $ne: true },
-        status: USER_STATUS.LIVE
-    })
-        .select('_id')
-        .lean<{ _id: mongoose.Types.ObjectId } | null>();
-    return admin?._id || null;
+const getAuditAdminId = async (): Promise<string | null> => {
+    // Phase 3b: live-admin lookup via the identity domain service
+    // (was Admin.findOne direct). Remaining FraudScore/User/AdminLog writes
+    // in this cron are a recorded Phase-3b exception (no fraud ports exist).
+    return findLiveAdminIdForAudit();
 };
 
 const runFraudEscalation = async (): Promise<void> => {

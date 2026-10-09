@@ -8,7 +8,7 @@ export interface NotificationEvent {
   count?: number;
 }
 
-export interface NotificationMetrics {
+interface NotificationMetrics {
   totalEvents: number;
   byType: Record<string, number>;
   byErrorCode: Record<string, number>;
@@ -42,30 +42,6 @@ export function recordNotificationEvent(event: NotificationEvent) {
   maybeLogDevSummary();
 }
 
-export function getNotificationMetrics(): NotificationMetrics {
-  return {
-    totalEvents: metrics.totalEvents,
-    byType: { ...metrics.byType },
-    byErrorCode: { ...metrics.byErrorCode },
-    byEndpoint: { ...metrics.byEndpoint },
-  };
-}
 
-export function getTopErrors(limit = 5) {
-  return Object.entries(metrics.byErrorCode)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit);
-}
 
-export function getTopFailingEndpoints(limit = 5) {
-  return Object.entries(metrics.byEndpoint)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit);
-}
 
-export function resetNotificationMetrics() {
-  metrics.totalEvents = 0;
-  metrics.byType = {};
-  metrics.byErrorCode = {};
-  metrics.byEndpoint = {};
-}

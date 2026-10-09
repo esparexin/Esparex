@@ -3,7 +3,8 @@ import { API_ROUTES } from '../../routes';
 import { toApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson } from '../server';
-import { normalizeListingIdentifier, isValidListingIdentifier, normalizeListing, normalizeListingContactNumberResponse, type Listing, type ListingAnalytics, type ListingContactNumberResponse } from './normalizer';
+import { normalizeListingIdentifier, isValidListingIdentifier } from './listingIdNormalizer';
+import { normalizeListing, normalizeListingContactNumberResponse, type UserListing, type ListingAnalytics, type ListingContactNumberResponse } from './normalizer';
 
 export interface GetListingByIdOptions {
     throwOnServerError?: boolean;
@@ -15,7 +16,7 @@ export const getListingById = async (
     id: string | number,
     headers?: Record<string, string>,
     options?: GetListingByIdOptions
-): Promise<Listing | null> => {
+): Promise<UserListing | null> => {
     const normalizedIdentifier = normalizeListingIdentifier(id);
     if (!isValidListingIdentifier(normalizedIdentifier)) return null;
     try {
@@ -25,7 +26,7 @@ export const getListingById = async (
             const payload = unwrapApiPayload(json);
             return payload ? normalizeListing(payload) : null;
         }
-        const { data: result, statusCode } = await toApiResult<Listing>(apiClient.get(endpoint, { headers, silent: true }));
+        const { data: result, statusCode } = await toApiResult<UserListing>(apiClient.get(endpoint, { headers, silent: true }));
         if (statusCode === 404 || !result) return null;
         return normalizeListing(result);
     } catch (e) {

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import type { Document, Model } from 'mongoose';
-import { LISTING_TYPE_VALUES, ListingTypeValue, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { LISTING_TYPE_VALUES, ListingTypeValue } from "@esparex/contracts";
+import { normalizeRole, isAdminRole } from '@esparex/core';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/domains/catalog/application/services/CatalogSearchGovernanceService';
-import { runCatalogShadowRead } from '@esparex/core/utils/catalogShadowRead';
+import { getCache, setCache, CACHE_TTLS } from '@esparex/core';
+import { FeatureFlag, isEnabled } from '@esparex/core';
+import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core';
+import { runCatalogShadowRead } from '@esparex/core';
 import type { ContentOptions } from './types';
 import { CATALOG_MODELS, parseSortQuery, tryAdminCatalogReadSwitch } from './helpers';
 
@@ -17,7 +17,7 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
     try {
         const user = (req as { user?: { role?: unknown } }).user;
         const role = normalizeRole(user?.role as string | undefined);
-        const isAdmin = Boolean((req as { admin?: unknown }).admin) || role === Role.ADMIN || role === Role.SUPER_ADMIN;
+        const isAdmin = Boolean((req as { admin?: unknown }).admin) || isAdminRole(role);
         const isUrlAdmin = req.originalUrl.includes('/admin');
         const { searchFields = ['name'], defaultSort = { name: 1 }, publicQuery = { isActive: true }, adminQuery = {}, populate, select, transformResponse, queryParams } = options;
         const eq = (queryParams || req.query) as Record<string, unknown>;

@@ -4,7 +4,6 @@ import { getCategoryVisual } from "@/config/categoryVisuals";
 import type { CategoryVisual } from "@/config/categoryVisuals";
 import Link from "next/link";
 import type { Category } from "@esparex/contracts";
-import { motion } from "framer-motion";
 import { buildCategoryBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { cn } from "@/lib/utils";
 
@@ -15,21 +14,6 @@ interface CategoryBrowserProps {
 export function CategoryBrowser({ categories }: CategoryBrowserProps) {
     // Limit to exactly 10 categories to form a perfect 5x2 dashboard grid on mobile (and 1x10 row on desktop)
     const displayCategories = categories.length > 0 ? categories.slice(0, 10) : [];
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.05,
-            },
-        },
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 15 },
-        visible: { opacity: 1, y: 0 },
-    };
 
     return (
         <section
@@ -46,18 +30,14 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                 </div>
 
                 <div className="relative">
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
+                    <div
                         className="
                             grid grid-cols-5 gap-1.5
                             sm:flex sm:flex-wrap sm:items-center sm:justify-start sm:gap-2.5 md:gap-3.5
                             w-full
                         "
                     >
-                    {displayCategories.map((cat) => {
+                    {displayCategories.map((cat, index) => {
                         const slug = cat.slug?.toLowerCase();
 
                         const config: CategoryVisual = getCategoryVisual(slug || cat.name || "");
@@ -65,7 +45,12 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                         const Icon = config.icon;
 
                         return (
-                            <motion.div key={cat.id} variants={itemVariants}>
+                            <div
+                                key={cat.id}
+                                className="animate-fade-in-up"
+                                /* design-token-ignore: staggered entrance delay computed per index */
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
                                 <Link
                                     href={buildCategoryBrowseRoute(cat)}
                                     aria-label={`Browse ${cat.name}`}
@@ -73,19 +58,19 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                         group flex flex-col items-center justify-center gap-1.5
                                         py-1.5 md:py-2 px-1.5 md:px-2.5 rounded-xl hover:bg-muted/80
                                         transition-all duration-200 active:scale-95
-                                        min-w-0 sm:w-20 md:w-22 cursor-pointer
+                                        min-w-0 sm:w-20 md:w-[88px] cursor-pointer
                                     "
                                 >
                                     <div
                                         className={cn(
-                                            "flex h-8.5 w-8.5 md:h-9.5 md:w-9.5 items-center justify-center rounded-xl transition-all duration-300 shadow-2xs border border-border/60",
+                                            "flex h-[34px] w-[34px] md:h-[38px] md:w-[38px] items-center justify-center rounded-xl transition-all duration-300 shadow-sm border border-border/60",
                                             config.bg || "bg-muted/40",
-                                            "group-hover:scale-105 group-hover:shadow-xs"
+                                            "group-hover:scale-105 group-hover:shadow-sm"
                                         )}
                                     >
                                         <Icon
                                             className={cn(
-                                                "h-4 w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 group-hover:scale-110",
+                                                "h-4 w-4 md:h-[18px] md:w-[18px] transition-transform duration-300 group-hover:scale-110",
                                                 config.color || "text-foreground-subtle"
                                             )}
                                             aria-hidden="true"
@@ -96,10 +81,10 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                         {cat.name}
                                     </span>
                                 </Link>
-                            </motion.div>
+                            </div>
                         );
                     })}
-                </motion.div>
+                </div>
                 </div>
             </div>
         </section>

@@ -123,7 +123,7 @@ export function ReportAdDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <DialogContent mobileSafe padding="none" className="max-w-md overflow-hidden">
+      <DialogContent variant="mobileSafe" padding="none" className="max-w-md overflow-hidden">
         <DialogHeader className="mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -174,7 +174,7 @@ export function ReportAdDialog({
                   if (additionalInfoError) setAdditionalInfoError(null);
                   if (globalError) setGlobalError(null);
                 }}
-                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-2xs resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="min-h-[100px] rounded-xl text-body-lg md:text-body font-normal border-border bg-card shadow-sm resize-none p-3 leading-relaxed focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
               />
               <FormError message={additionalInfoError} />
             </div>

@@ -19,6 +19,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
     private toDomain(doc: DbModel): Model {
         return {
             id: String(doc._id),
+            _id: String(doc._id),
             name: doc.name,
             canonicalName: doc.canonicalName,
             slug: doc.slug,

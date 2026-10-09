@@ -11,6 +11,7 @@ import {
 } from "@esparex/ui";
 import { FileText, Download, Printer, Loader2, CheckCircle2 } from "@esparex/ui";
 import { fetchInvoiceHtml, downloadInvoiceFile } from "@/lib/api/user/payments";
+import { formatStableNumber } from "@/lib/formatters";
 import { notify } from "@/lib/feedback";
 
 interface InvoicePreviewDialogProps {
@@ -97,7 +98,7 @@ export function InvoicePreviewDialog({
                                 </span>
                             </DialogTitle>
                             <DialogDescription id="invoice-preview-desc" className="text-caption text-foreground-subtle truncate max-w-xs sm:max-w-md">
-                                {description || "Tax Invoice & Receipt"} {amount ? `• ₹${amount.toLocaleString()}` : ""}
+                                {description || "Tax Invoice & Receipt"} {typeof amount === "number" ? `• ₹${formatStableNumber(amount)}` : ""}
                             </DialogDescription>
                         </div>
                     </div>

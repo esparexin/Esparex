@@ -48,7 +48,7 @@ export function AdTitlePriceCard({
                 </h1>
                 {ad.id ? (
                     <span className="text-tiny font-mono font-semibold text-foreground-secondary shrink-0">
-                        {isService ? "Service" : isSparePart ? "Part" : "Ad"} ID: #{String(ad.id).slice(-8)}
+                        {isService ? "Service" : isSparePart ? "Part" : "Device"} ID: #{String(ad.id).slice(-8)}
                     </span>
                 ) : null}
             </div>

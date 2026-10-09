@@ -38,7 +38,14 @@ export function PopupDialogView({
         <RadixDialog.Content
           style={zIndexStyle("popupContent")}
           className={joinClasses(
-            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
+            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-md rounded-2xl border p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200 outline-none",
+            // F-A2: bound to the visual viewport (keyboard-aware) with an
+            // internal scroll region — the previous overflow-hidden with no
+            // max-height clipped action buttons irretrievably on short
+            // viewports. Safe-area bottom padding for home-indicator devices.
+            "max-h-[min(100%,calc(var(--visual-viewport-height,100dvh)-max(1.5rem,calc(env(safe-area-inset-top)+env(safe-area-inset-bottom)))))]",
+            "overflow-y-auto overscroll-contain",
+            "pb-[max(1.25rem,env(safe-area-inset-bottom))]",
             config.cardClass
           )}
           onInteractOutside={() => onClose()}
@@ -69,7 +76,8 @@ export function PopupDialogView({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-foreground-subtle transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              // F-T1: 44px touch target (was h-8 w-8 = 32px)
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-foreground-subtle transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label="Dismiss notification"
             >
               <X className="h-4 w-4" />
@@ -91,7 +99,9 @@ export function PopupDialogView({
                       onClose();
                     }}
                     className={joinClasses(
-                      "rounded-xl px-4 py-2 text-caption font-semibold transition-colors",
+                      // F-T2/F-T5: 44px min-height (was ~34px) + focus-visible
+                      "rounded-xl px-4 py-2 min-h-11 text-caption font-semibold transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       isThrottled
                         ? "cursor-not-allowed bg-muted text-foreground-subtle"
                         : index === 0
@@ -108,7 +118,9 @@ export function PopupDialogView({
                 type="button"
                 onClick={onClose}
                 className={joinClasses(
-                  "rounded-xl px-4 py-2 text-caption font-semibold transition-colors shadow-xs",
+                  // F-T2/F-T5: 44px min-height + focus-visible
+                  "rounded-xl px-4 py-2 min-h-11 text-caption font-semibold transition-colors shadow-sm",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   config.buttonClass
                 )}
               >

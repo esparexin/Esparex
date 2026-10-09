@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { IAuthUser } from '@esparex/core/types/auth';
+import { IAuthUser } from '@esparex/core';
 import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
-import { getListingRepository } from '@esparex/core/composition/listings';
+import { getListingRepository } from '@esparex/core';
 import { ListingFilter } from '@esparex/core/domains/listings';
 import type { ListingTypeValue } from '@esparex/contracts';
 

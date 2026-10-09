@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
     BUSINESS_IMAGE_ACCEPT,
     validateBusinessImageSelection,
-} from "@/schemas/business.schema.shared";
+} from "@/schemas/businessUpload.validators";
 import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
 import { useImageDropzone } from "@/components/user/shared/useImageDropzone";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
@@ -42,7 +42,7 @@ function ShopImageTile({
                 className="object-cover"
             />
             <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-black/65 via-transparent to-transparent p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                <span className="rounded-full bg-background/90 px-2 py-0.5 text-tiny font-semibold text-foreground-secondary shadow-xs">
+                <span className="rounded-full bg-background/90 px-2 py-0.5 text-tiny font-semibold text-foreground-secondary shadow-sm">
                     Photo {index + 1}
                 </span>
                 <Button
@@ -51,7 +51,7 @@ function ShopImageTile({
                     variant="secondary"
                     onClick={onRemove}
                     aria-label={getRemovePhotoAriaLabel(index, total)}
-                    className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-xs hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
+                    className="h-8 w-8 rounded-full bg-background/90 text-foreground-secondary shadow-sm hover:bg-background focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
                 >
                     <X className="h-3.5 w-3.5 text-destructive" />
                 </Button>
@@ -171,7 +171,7 @@ export function ShopPhotosField({
                             variant="outline"
                             onClick={handleOpenPicker}
                             aria-label="Add shop photo"
-                            className="flex h-9 items-center justify-center gap-1.5 rounded-xl border-border bg-card px-4 text-caption font-semibold text-foreground-secondary shadow-2xs hover:bg-muted hover:border-border focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
+                            className="flex h-9 items-center justify-center gap-1.5 rounded-xl border-border bg-card px-4 text-caption font-semibold text-foreground-secondary shadow-sm hover:bg-muted hover:border-border focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
                         >
                             <Upload className="h-3.5 w-3.5 text-primary" />
                             <span>+ Add Photo</span>

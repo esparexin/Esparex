@@ -6,8 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { Bell, Button, DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, Z_INDEX } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
+import logger from "@/lib/logger";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 import { NotificationDropdownBody } from "./NotificationDropdownBody";
+import { getPageRoute } from "@/lib/routeUtils";
 
 type NotificationBellDropdownProps = {
     notificationsData?: NotificationResponse;
@@ -143,7 +145,7 @@ export function NotificationBellDropdown({
         variant === "mobile"
             ? "h-11 w-11 rounded-full hover:bg-muted relative"
             : "h-9 w-9 rounded-full relative text-foreground-secondary hover:text-primary hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer";
-    const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-4.5 w-4.5";
+    const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-[18px] w-[18px]";
 
     if (variant === "mobile") {
         return (
@@ -152,8 +154,8 @@ export function NotificationBellDropdown({
                 onOpenChange={handleOpenChange}
                 notifications={notifications}
                 unreadCount={unreadCount}
-                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => {})}
-                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => {})}
+                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => undefined).catch((err) => { logger.warn("[notifications] mark-read failed:", err); })}
+                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => undefined).catch((err) => { logger.warn("[notifications] mark-all-read failed:", err); })}
                 onSelect={handleNotificationSelect}
                 trigger={
                     <Button
@@ -183,7 +185,7 @@ export function NotificationBellDropdown({
                 >
                     <Bell className={iconClassName} />
                     {unreadCount > 0 ? (
-                        <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-destructive px-1 text-tiny font-bold text-destructive-foreground shadow-xs animate-in zoom-in-50">
+                        <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-destructive px-1 text-tiny font-bold text-destructive-foreground shadow-sm animate-in zoom-in-50">
                             {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                     ) : null}
@@ -213,7 +215,7 @@ export function NotificationBellDropdown({
                     isMarkingRead={markReadMutation.isPending}
                     onViewAll={() => {
                         setOpen(false);
-                        void router.push("/notifications");
+                        void router.push(getPageRoute("smart-alerts"));
                     }}
                 />
             </DropdownMenuContent>

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import logger from "@esparex/core/utils/logger";
+import { logger } from "@esparex/core";
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getUserId } from "./shared";
-import { getVisibleNotificationWindowQuery } from "@esparex/core/domains/notifications/application/NotificationRetentionService";
-import { queryNotificationsForUser } from "@esparex/core/domains/notifications/application/NotificationService";
+import { getVisibleNotificationWindowQuery } from "@esparex/core/domains/notifications";
+import { queryNotificationsForUser } from "@esparex/core/domains/notifications";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

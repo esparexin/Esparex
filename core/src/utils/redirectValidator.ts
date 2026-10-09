@@ -9,6 +9,8 @@ import logger from './logger';
 const DEFAULT_ALLOWED_DOMAINS = [
     'esparex.in',
     'admin.esparex.in',
+    'admintest.esparex.in',
+    'test.esparex.in',
     'api.esparex.in',
     'localhost',
     '127.0.0.1'

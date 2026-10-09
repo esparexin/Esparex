@@ -49,7 +49,6 @@ export function ChatImageLightbox({
         </DialogTitle>
 
         <div className="chat-image-lightbox__frame">
-          { }
           <img
             src={activeImage.url}
             alt={activeImage.name ?? `Chat image ${activeIndex + 1}`}

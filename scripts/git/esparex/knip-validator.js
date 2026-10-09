@@ -32,16 +32,26 @@ function run(val) {
 
   if (fs.existsSync(BASELINE_PATH)) {
     try {
-      baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+      const fileBaseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+      // RC-4 fix: Merge file baseline with defaults instead of replacing.
+      // The old code did `baseline = JSON.parse(...)` which dropped
+      // maxUnusedExports/maxUnusedTypes when the file didn't include them,
+      // causing `177 > undefined` to be false and the check to never fail.
+      baseline = { ...baseline, ...fileBaseline };
     } catch {
       /* fallback to defaults */
     }
   }
 
   const knipBin = path.join(ROOT, 'node_modules/.bin/knip');
+  const knipJs = path.join(ROOT, 'node_modules/knip/bin/knip.js');
+  // RC-1 fix: --no-bin-links environments lack .bin/ symlinks; npx --no-install
+  // also requires them. Fall back to direct node invocation for resilience.
   const cmd = fs.existsSync(knipBin)
     ? `"${knipBin}" --reporter json --no-exit-code`
-    : 'npx --no-install knip --reporter json --no-exit-code';
+    : fs.existsSync(knipJs)
+      ? `node "${knipJs}" --reporter json --no-exit-code`
+      : 'npx --no-install knip --reporter json --no-exit-code';
 
   let data = null;
   try {

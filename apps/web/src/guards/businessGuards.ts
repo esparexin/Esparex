@@ -31,7 +31,3 @@ export function isApprovedBusiness(user: User | null | undefined) {
     return canPublishBusiness(user.businessStatus);
 }
 
-export function isRejectedBusiness(user: User | null | undefined) {
-    if (!user) return false;
-    return normalizeBusinessStatus(user.businessStatus, 'none') === "rejected";
-}

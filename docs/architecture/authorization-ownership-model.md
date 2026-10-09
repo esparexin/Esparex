@@ -1,5 +1,8 @@
 # ESPAREX AUTHORIZATION ARCHITECTURE — OWNERSHIP MODEL & GOVERNANCE BASELINE
 
+> Normative: `.agents/rules/authentication.md` + `.agents/rules/authorization.md`;
+> role SSOT `roleNormalization.ts` (enforced by `npm run guard:auth-ssot`).
+
 **Scope:** Application Authorization & Middleware Boundaries  
 **Governance Standard:** Single Source of Truth (SSOT), Permission-First Architecture, Zero Controller Authorization
 

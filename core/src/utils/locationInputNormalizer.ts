@@ -52,13 +52,6 @@ export type NormalizedLocationPersistenceInput = {
     path: mongoose.Types.ObjectId[];
 };
 
-
-
-
-
-
-
-
 const extractCoordinates = (value: unknown): [number, number] => {
     if (
         value &&

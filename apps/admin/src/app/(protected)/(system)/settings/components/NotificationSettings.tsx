@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Mail } from "@esparex/ui";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { adminFetch, AdminApiError } from "@/lib/api/adminClient";
 import { GenericSettingsSection, type SettingsFieldSchema } from "./GenericSettingsSection";
@@ -142,7 +142,7 @@ export function NotificationSettings(props: SectionProps) {
         columns={2}
       />
 
-      <div className="rounded-xl border border-border bg-card p-6 shadow-xs space-y-4">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2">
           <Mail className="h-5 w-5 text-primary" />
           <h3 className="text-body font-bold text-foreground">SMTP Diagnostic Test</h3>
@@ -174,12 +174,12 @@ export function NotificationSettings(props: SectionProps) {
           <div
             className={`rounded-lg px-4 py-3 text-caption flex items-center gap-2 ${
               testResult.success
-                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                ? "bg-success/10 text-success-dark border border-success/20"
                 : "bg-destructive/10 text-destructive border border-destructive/20"
             }`}
           >
             {testResult.success ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
             ) : (
               <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
             )}

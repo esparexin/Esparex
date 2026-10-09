@@ -29,6 +29,8 @@ interface BoostPlanDialogProps {
   onListingUnavailable?: () => void;
 }
 
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
 export function BoostPlanDialog({
   open,
   onOpenChange,
@@ -52,21 +54,24 @@ export function BoostPlanDialog({
   const [now] = useState(() => Date.now());
   const adExpMs = adExpiresAt ? new Date(adExpiresAt).getTime() : 0;
   const isAdExpired = adExpMs > 0 && adExpMs <= now;
-  const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / (1000 * 60 * 60 * 24))) : 30;
+  const adRemainingDays = adExpMs > 0 ? Math.max(0, Math.ceil((adExpMs - now) / DAY_IN_MS)) : 30;
 
   const baseDuration = isWalletCreditSelected
     ? 1
     : (selectedPlan?.durationDays || boostPlans[0]?.durationDays || 1);
 
   const effectiveDurationDays = Math.max(1, Math.min(baseDuration, adRemainingDays));
-  const effectiveExpiresAt = new Date(now + effectiveDurationDays * 24 * 60 * 60 * 1000);
+  const effectiveExpiresAt = new Date(now + effectiveDurationDays * DAY_IN_MS);
 
   const isPromotionBlocked =
     isSpotlight || (isBoosted && activeCategory === "BOOST_AD");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[min(calc(100dvh-2rem),36rem)] overflow-y-auto overscroll-contain p-6 rounded-2xl bg-card shadow-xl border border-border">
+      {/* F-V4: inherit the Dialog primitive's visual-viewport-bounded max-height.
+          Was max-h-[min(calc(100dvh-2rem),36rem)]: kept full layout-viewport
+          height on keyboard-open, risking sitting under the iOS keyboard. */}
+      <DialogContent className="max-w-md overflow-y-auto overscroll-contain p-6 rounded-2xl bg-card shadow-xl border border-border">
         <DialogHeader className="space-y-1 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
@@ -109,7 +114,7 @@ export function BoostPlanDialog({
                 onClick={() => setActiveCategory("SPOTLIGHT")}
                 className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "SPOTLIGHT"
-                    ? "bg-card text-warning shadow-xs"
+                    ? "bg-card text-warning shadow-sm"
                     : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
@@ -129,7 +134,7 @@ export function BoostPlanDialog({
                 onClick={() => setActiveCategory("BOOST_AD")}
                 className={`py-2 px-3 text-caption font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   activeCategory === "BOOST_AD"
-                    ? "bg-card text-link shadow-xs"
+                    ? "bg-card text-link shadow-sm"
                     : "text-foreground-secondary hover:text-foreground"
                 }`}
               >
@@ -210,7 +215,7 @@ export function BoostPlanDialog({
                   isAdExpired ||
                   (!isWalletCreditSelected && !selectedPlan)
                 }
-                className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-xs transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
+                className={`w-full h-10 text-primary-foreground font-semibold text-caption rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
                   isPromotionBlocked || isAdExpired
                     ? "bg-muted text-foreground-subtle cursor-not-allowed"
                     : activeCategory === "SPOTLIGHT"

@@ -19,12 +19,13 @@ import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
 
 import type { AdminDashboardStatsDTO, CatalogHealthMetricsDTO } from "@esparex/contracts";
+import { formatAppTime, formatStableNumber } from "@esparex/shared";
 
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
   loading: () => (
-    <div className="bg-card p-6 rounded-xl border border-border shadow-xs h-[400px] flex items-center justify-center">
-      <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
+    <div className="bg-card p-6 rounded-xl border border-border shadow-sm h-[400px] flex items-center justify-center">
+      <span className="text-caption font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
     </div>
   ),
 });
@@ -158,15 +159,15 @@ export default function DashboardPage() {
       actions={
         growth !== null ? (
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-body ${growth.rate >= 0
-              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-              : "bg-red-50 text-red-700 border-red-100"
+              ? "bg-success/10 text-success-dark border-success/20"
+              : "bg-destructive/10 text-destructive border-destructive/20"
             }`}>
             <TrendingUp size={16} className={growth.rate < 0 ? "rotate-180" : ""} />
             <span>{growth.rate >= 0 ? "+" : ""}{growth.rate.toFixed(1)}% {growth.label} {growth.rate >= 0 ? "growth" : "decline"}</span>
           </div>
         ) : null
       }
-      className="h-full overflow-y-auto px-4 lg:px-6 py-4"
+      className="h-full overflow-y-auto pb-4"
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Left Main Column: Metrics, Queues & Charts */}
@@ -174,7 +175,7 @@ export default function DashboardPage() {
           {/* Section 1: Operational Queues */}
           <section className="flex flex-col gap-2">
             <div>
-              <h2 className="text-sm font-bold text-foreground">Operational Queues</h2>
+              <h2 className="text-body font-bold text-foreground">Operational Queues</h2>
               <p className="text-tiny text-foreground-tertiary">Action required across moderation & approval queues</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -227,7 +228,7 @@ export default function DashboardPage() {
           {/* Section 2: Directory & Platform Overview */}
           <section className="flex flex-col gap-2">
             <div>
-              <h2 className="text-sm font-bold text-foreground">Directory & Users</h2>
+              <h2 className="text-body font-bold text-foreground">Directory & Users</h2>
               <p className="text-tiny text-foreground-tertiary">Platform account status and active inventory</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -265,13 +266,13 @@ export default function DashboardPage() {
           {/* Section 3: Financials & Trends */}
           <section className="flex flex-col gap-3">
             <div>
-              <h2 className="text-sm font-bold text-foreground">Financials & Activity</h2>
+              <h2 className="text-body font-bold text-foreground">Financials & Activity</h2>
               <p className="text-tiny text-foreground-tertiary">Revenue growth signals and analytics</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <DashboardCard
                 title="Total Revenue"
-                value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
+                value={`₹${formatStableNumber(financeStats?.totalRevenue || 0)}`}
                 icon={DollarSign}
                 variant="success"
                 href={ADMIN_UI_ROUTES.finance()}
@@ -291,18 +292,18 @@ export default function DashboardPage() {
 
         {/* Right Sidebar Column: Live Activity Audit Feed */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="bg-card border border-border rounded-xl p-4 shadow-xs flex flex-col gap-3">
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="text-sm font-bold text-foreground">Live Activity</h3>
+                <h3 className="text-body font-bold text-foreground">Live Activity</h3>
                 <p className="text-tiny text-foreground-tertiary">Real-time audit log stream</p>
               </div>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-tiny font-bold uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/10 text-success-dark text-tiny font-bold uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> Live
               </span>
             </div>
             {error ? (
-              <p className="text-red-500 text-xs italic">{error}</p>
+              <p className="text-destructive text-caption italic">{error}</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {liveLogs.length > 0 ? liveLogs.map((log) => (
@@ -311,7 +312,7 @@ export default function DashboardPage() {
                       <Users size={14} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
+                      <p className="text-caption font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
                       <p className="text-tiny text-foreground-subtle font-medium truncate">
                         {log.adminId && typeof log.adminId === 'object' 
                           ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
@@ -319,11 +320,11 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-tighter shrink-0">
-                      {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatAppTime(log.createdAt, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                 )) : (
-                  <p className="text-xs text-foreground-subtle italic py-4 text-center">No recent activity detected.</p>
+                  <p className="text-caption text-foreground-subtle italic py-4 text-center">No recent activity detected.</p>
                 )}
               </div>
             )}

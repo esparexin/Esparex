@@ -7,7 +7,7 @@ import {
     CATALOG_APPROVAL_STATUS_VALUES,
     type CatalogApprovalStatusValue,
 } from '@esparex/contracts';
-import { IMarketplaceTrust, marketplaceTrustDefinition } from './catalogLifecycle';
+import { IMarketplaceTrust, marketplaceTrustDefinition } from '../domains/catalog';
 
 export interface ICategory extends Document {
     name: string;

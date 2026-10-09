@@ -106,7 +106,8 @@ export class AuthService {
                 const retryResult = await retryOtpWhatsApp(canonicalMobile, existingOtp.reqId);
                 if (!retryResult.success) {
                     return createFailure(502, retryResult.error || 'Failed to deliver OTP via WhatsApp. Please try again.', {
-                        code: 'OTP_DELIVERY_FAILED'
+                        code: retryResult.providerCode || 'OTP_DELIVERY_FAILED',
+                        providerStatus: retryResult.providerStatus
                     });
                 }
                 if (retryResult.reqId && retryResult.reqId !== existingOtp.reqId) {
@@ -132,18 +133,21 @@ export class AuthService {
         const expiresAt = new Date(now.getTime() + OTP_EXPIRY_SECONDS * 1000);
         let reqId: string | undefined;
 
+        let otpHash: string | undefined;
+
         if (env.OTP_PROVIDER === OtpProvider.MSG91) {
             const dispatchResult = await dispatchOtpWhatsApp(canonicalMobile);
             if (!dispatchResult.success) {
                 return createFailure(502, dispatchResult.error || 'Failed to deliver OTP via WhatsApp. Please try again.', {
-                    code: 'OTP_DELIVERY_FAILED'
+                    code: dispatchResult.providerCode || 'OTP_DELIVERY_FAILED',
+                    providerStatus: dispatchResult.providerStatus
                 });
             }
             reqId = dispatchResult.reqId;
+        } else {
+            const otpValue = generateSecureOtp();
+            otpHash = hashOtp(otpValue);
         }
-
-        const otpValue = generateSecureOtp();
-        const otpHash = hashOtp(otpValue);
 
         await Otp.deleteMany({ mobile: { $in: mobileVariants } });
         await Otp.create({
@@ -228,7 +232,8 @@ export class AuthService {
                 }
                 if (!providerResult.success && !providerResult.isInvalid) {
                     return createFailure(502, providerResult.error || 'Server-side OTP verification failed. Please try again.', {
-                        code: 'OTP_VERIFICATION_FAILED'
+                        code: providerResult.providerCode || 'OTP_VERIFICATION_FAILED',
+                        providerStatus: providerResult.providerStatus
                     });
                 }
                 isOtpValid = providerResult.success;

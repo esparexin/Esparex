@@ -1,4 +1,5 @@
-export function formatBrandDisplayName(name?: string): string {
-    if (!name) return "";
-    return name.trim();
-}
+/**
+ * Canonical alias of formatCatalogDisplayName (@esparex/shared, audit F2).
+ * Kept under the domain name so CatalogFacade.brand.format keeps working.
+ */
+export { formatCatalogDisplayName as formatBrandDisplayName } from '../format';

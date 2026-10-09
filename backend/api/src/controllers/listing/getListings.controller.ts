@@ -3,22 +3,94 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import * as AdAggregationService from '@esparex/core/domains/listings/application/ad/ad/AdAggregationService';
-import * as AdDetailService from '@esparex/core/domains/listings/application/ad/ad/AdDetailService';
+import { AdAggregationService } from '@esparex/core';
+import { AdDetailService } from '@esparex/core';
 import * as feedService from '@esparex/core/domains/discovery';
 import * as trendingService from '@esparex/core/domains/discovery';
 
 import { z } from 'zod';
-import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
+import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core';
 import { LISTING_STATUS } from "@esparex/contracts";
 import { respond } from "../../utils/respond";
-import { PaginatedResponse, HomeFeedResponse, ApiResponse, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@esparex/contracts";
+import { normalizeRole, isAdminRole } from '@esparex/core';
 import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
+import type { AdFilters, PaginationOptions, AdsListResult } from '@esparex/core';
+import { CACHE_TTLS, buildDeterministicSearchCacheKey, getCache, setCache } from '@esparex/core';
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+/**
+ * Build common filter options for getAds calls.
+ * Centralizes the repetitive filter object construction shared by getListings and getNearbyListings.
+ */
+const buildGetAdsFilters = (query: ReturnType<typeof getAdsQuerySchema.parse>, overrides: Partial<AdFilters> = {}): AdFilters => ({
+    listingType: query.listingType as ListingTypeValue | undefined,
+    status: query.status || LISTING_STATUS.LIVE,
+    categoryId: query.categoryId,
+    category: query.category,
+    brandId: query.brandId,
+    modelId: query.modelId,
+    locationId: query.locationId,
+    level: query.level,
+    sellerId: query.sellerId,
+    isSpotlight: query.isSpotlight,
+    search: query.q,
+    minPrice: query.minPrice,
+    maxPrice: query.maxPrice,
+    deviceCondition: query.deviceCondition,
+    sortBy: query.sortBy,
+    radiusKm: query.radiusKm,
+    lat: query.lat,
+    lng: query.lng,
+    ...overrides,
+});
+
+/**
+ * Build pagination options from query.
+ */
+const buildPaginationOptions = (query: ReturnType<typeof getAdsQuerySchema.parse>): PaginationOptions => ({
+    page: query.page,
+    limit: query.limit,
+    cursor: query.cursor,
+});
+
+/**
+ * Apply pagination defaults to result.
+ */
+const normalizePagination = (result: AdsListResult, query: ReturnType<typeof getAdsQuerySchema.parse>) => ({
+    ...result.pagination,
+    page: result.pagination.page ?? query.page ?? 1,
+    limit: result.pagination.limit ?? query.limit ?? 20
+});
+
+/**
+ * Send paginated response with consistent formatting.
+ */
+const sendPaginatedResponse = <T,>(
+    req: Request,
+    res: Response,
+    data: T[],
+    pagination: ReturnType<typeof normalizePagination>,
+    etagData?: unknown
+) => {
+    const payload = respond<PaginatedResponse<T>>({
+        success: true,
+        data: data as T[],
+        pagination
+    });
+    if (etagData) {
+        const etagValue = `W/"${Buffer.from(JSON.stringify(etagData)).toString('base64').substring(0, 24)}"`;
+        res.setHeader('ETag', etagValue);
+        if (req.headers['if-none-match'] === etagValue) {
+            return res.status(304).end();
+        }
+    }
+    return res.json(payload);
+};
 
 type CachedSearchResult = {
     data: unknown;
@@ -46,7 +118,7 @@ const getViewerIdForFeed = (req: Request): string | undefined => {
     const user = req.user;
     if (!user?._id) return undefined;
     const role = normalizeRole(user.role);
-    if (role === Role.ADMIN || role === Role.SUPER_ADMIN) return undefined;
+    if (isAdminRole(role)) return undefined;
     return String(user._id);
 };
 
@@ -81,7 +153,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         const viewer = req.user as AuthUser;
         const viewerId = viewer?._id?.toString();
         const viewerRole = normalizeRole(viewer?.role);
-        const isAdmin = viewerRole === Role.ADMIN || viewerRole === Role.SUPER_ADMIN;
+        const isAdmin = isAdminRole(viewerRole);
 
         let adId: string | null = null;
         if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
@@ -145,11 +217,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
             Number.isFinite(requestedPage) &&
             requestedPage <= 5;
 
-        const {
-            getCache,
-            setCache,
-            buildDeterministicSearchCacheKey
-        } = await import('@esparex/core/utils/redisCache');
+        
         let cacheKey: string | null = null;
         let cachedResult: CachedSearchResult | null = null;
 
@@ -178,50 +246,19 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
         }
 
         const result = await AdAggregationService.getAds(
-            {
-                listingType: query.listingType as ListingTypeValue | undefined,
-                status: query.status || LISTING_STATUS.LIVE,
-                categoryId: query.categoryId,
-                category: query.category,
-                brandId: query.brandId,
-                modelId: query.modelId,
-                locationId: query.locationId,
-                level: query.level,
-                sellerId: query.sellerId,
-                isSpotlight: query.isSpotlight,
-                search: query.q,
-                minPrice: query.minPrice,
-                maxPrice: query.maxPrice,
-                deviceCondition: query.deviceCondition,
-                sortBy: query.sortBy,
-                radiusKm: query.radiusKm,
-                lat: query.lat,
-                lng: query.lng
-            },
-            {
-                page: query.page,
-                limit: query.limit,
-                cursor: query.cursor,
-            },
+            buildGetAdsFilters(query),
+            buildPaginationOptions(query),
             { enforcePublicVisibility: true, viewerId }
         );
 
         if (cacheKey && shouldUseSearchCache) {
-            const { CACHE_TTLS } = await import('@esparex/core/utils/redisCache');
+            
             await setCache(cacheKey, result, CACHE_TTLS.SEARCH);
         }
 
-        const pagination = {
-            ...result.pagination,
-            page: result.pagination.page ?? query.page ?? 1,
-            limit: result.pagination.limit ?? query.limit ?? 20
-        };
+        const pagination = normalizePagination(result, query);
 
-        res.json(respond<PaginatedResponse<Ad>>({
-            success: true,
-            data: result.data as Ad[],
-            pagination
-        }));
+        return sendPaginatedResponse(req, res, result.data as Ad[], pagination);
     } catch (error: unknown) {
         next(error);
     }
@@ -247,31 +284,11 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
         }
 
         const result = await AdAggregationService.getAds(
-            {
-                listingType: query.listingType as ListingTypeValue | undefined,
-                status: query.status || LISTING_STATUS.LIVE,
-                categoryId: query.categoryId,
-                category: query.category,
-                brandId: query.brandId,
-                modelId: query.modelId,
-                locationId: query.locationId,
-                level: query.level,
-                sellerId: query.sellerId,
-                isSpotlight: query.isSpotlight,
-                search: query.q,
-                minPrice: query.minPrice,
-                maxPrice: query.maxPrice,
-                deviceCondition: query.deviceCondition,
+            buildGetAdsFilters(query, {
                 sortBy: 'distance',
                 radiusKm: query.radiusKm || 25,
-                lat: query.lat,
-                lng: query.lng
-            },
-            {
-                page: query.page,
-                limit: query.limit,
-                cursor: query.cursor,
-            },
+            }),
+            buildPaginationOptions(query),
             {
                 enforcePublicVisibility: true,
                 disableLocationIntelligence: true,
@@ -279,17 +296,9 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
             }
         );
 
-        const pagination = {
-            ...result.pagination,
-            page: result.pagination.page ?? query.page ?? 1,
-            limit: result.pagination.limit ?? query.limit ?? 20
-        };
+        const pagination = normalizePagination(result, query);
 
-        return res.json(respond<PaginatedResponse<Ad>>({
-            success: true,
-            data: result.data as Ad[],
-            pagination
-        }));
+        return sendPaginatedResponse(req, res, result.data as Ad[], pagination);
     } catch (error: unknown) {
         next(error);
     }

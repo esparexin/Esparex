@@ -97,4 +97,5 @@ export const ADMIN_UI_ROUTES = {
     finance: (query?: QueryShape) => toRoute("/finance", query),
     chat: (query?: QueryShape) => toRoute("/chat", query),
     catalogRequests: (query?: QueryShape) => toRoute("/categories", { tab: "catalog-requests", ...query }),
+    emailTemplates: (query?: QueryShape) => toRoute("/email-templates", query),
 } as const;

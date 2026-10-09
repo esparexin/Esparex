@@ -46,7 +46,7 @@ export default function SafetyTipsPage() {
                 dangerouslySetInnerHTML={{ __html: toSafeJsonLd(safetyTipsSchema) }}
             />
             {/* Safety Commitment Banner */}
-            <div className="flex items-start gap-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 sm:p-5 not-prose shadow-xs">
+            <div className="flex items-start gap-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 sm:p-5 not-prose shadow-sm">
                 <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
                     <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden="true" />
                 </div>
@@ -62,10 +62,10 @@ export default function SafetyTipsPage() {
                 {/* Golden Rules: Buyers vs Sellers */}
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Buyer Rules */}
-                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
+                    <div className="p-5 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-4">
                         <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                                <ShieldCheck className="h-4.5 w-4.5 text-emerald-600" />
+                                <ShieldCheck className="h-[18px] w-[18px] text-emerald-600" />
                             </div>
                             <h3 className="text-h3 font-bold text-foreground">Golden Rules for Buyers</h3>
                         </div>
@@ -98,10 +98,10 @@ export default function SafetyTipsPage() {
                     </div>
 
                     {/* Seller Rules */}
-                    <div className="p-5 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
+                    <div className="p-5 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-4">
                         <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                <Search className="h-4.5 w-4.5 text-primary" />
+                                <Search className="h-[18px] w-[18px] text-primary" />
                             </div>
                             <h3 className="text-h3 font-bold text-foreground">Golden Rules for Sellers</h3>
                         </div>
@@ -135,10 +135,10 @@ export default function SafetyTipsPage() {
                 </div>
 
                 {/* Common Scams to Watch Out For */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center">
-                            <CreditCard className="h-4.5 w-4.5 text-destructive" />
+                            <CreditCard className="h-[18px] w-[18px] text-destructive" />
                         </div>
                         <h3 className="text-h3 font-bold text-foreground">Recognizing Common Fraud Patterns</h3>
                     </div>
@@ -175,10 +175,10 @@ export default function SafetyTipsPage() {
                 </section>
 
                 {/* Safe Meetup & Physical Testing Checklist */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-4">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-4">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                            <MapPin className="h-4.5 w-4.5 text-violet-600" />
+                            <MapPin className="h-[18px] w-[18px] text-violet-600" />
                         </div>
                         <h3 className="text-h3 font-bold text-foreground">Physical Meetup &amp; Testing Checklist</h3>
                     </div>
@@ -212,10 +212,10 @@ export default function SafetyTipsPage() {
                 </section>
 
                 {/* Reporting & Grievance Mechanism */}
-                <section className="p-6 rounded-2xl bg-card border border-border shadow-xs flex flex-col gap-3">
+                <section className="p-6 rounded-2xl bg-card border border-border shadow-sm flex flex-col gap-3">
                     <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Flag className="h-4.5 w-4.5 text-primary" />
+                            <Flag className="h-[18px] w-[18px] text-primary" />
                         </div>
                         <h3 className="text-h3 font-bold text-foreground">How to Report Abuse or Scams</h3>
                     </div>
@@ -235,7 +235,7 @@ export default function SafetyTipsPage() {
                 {/* Child Safety & Minor Protection */}
                 <section className="p-5 rounded-2xl bg-muted/40 border border-border">
                     <div className="flex items-center gap-2 mb-2">
-                        <HelpCircle className="h-4.5 w-4.5 text-foreground-subtle" />
+                        <HelpCircle className="h-[18px] w-[18px] text-foreground-subtle" />
                         <h4 className="text-body font-bold text-foreground">Child &amp; Minor Safety Policy</h4>
                     </div>
                     <p className="text-caption text-foreground-secondary leading-relaxed">

@@ -31,7 +31,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
 
     let jobLog;
     try {
-        const JobLogStart = (await import('@esparex/core/models/JobLog')).default;
+        const JobLogStart = (await import('../models/JobLog')).default;
         jobLog = await JobLogStart.create({
             jobName: 'refreshLocationStats',
             status: 'started',

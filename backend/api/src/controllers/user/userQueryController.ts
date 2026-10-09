@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { respond } from "../../utils/respond";
 import { ApiResponse, User as SharedUser } from "@esparex/contracts";
-import { serializeDoc } from '@esparex/core/utils/serialize';
+import { serializeDoc } from '@esparex/core';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
 import {
@@ -9,8 +9,8 @@ import {
   getPublicSellers as getPublicSellersList,
   type SellerProfilePayload,
   type PublicSellerItem,
-} from '@esparex/core/domains/identity/application/users/UserProfileService';
-import { getUserWithBusiness } from '@esparex/core/domains/identity/application/users/UserService';
+} from '@esparex/core/domains/identity';
+import { getUserWithBusiness } from '@esparex/core/domains/identity';
 import type { AuthUser } from '../../types/auth.types';
 
 const resolveUserId = (req: Request, res: Response): string | null => {

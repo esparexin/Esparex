@@ -1,27 +1,34 @@
 {
-  "version": "1.0.0",
-  "updatedAt": "2026-07-24T12:38:00Z",
+  "version": "1.1.0",
+  "updatedAt": "2026-09-29T08:42:00Z",
   "description": "Esparex Monorepo Canonical Ownership Registry — Single Source of Truth for Domain, Package, and Module Ownership Boundaries",
   "ownership": {
     "packages/contracts": {
       "name": "Monorepo SSOT API Contracts & DTOs",
       "owner": "@esparex/platform-core",
       "boundary": "Provides Zod schemas, API DTOs, request/response payload contracts across all HTTP and RPC boundaries.",
-      "allowedImports": ["@esparex/kernel"],
-      "forbiddenImports": ["@esparex/core", "@esparex/shared", "@esparex/apps-web", "@esparex/apps-admin"]
-    },
-    "packages/kernel": {
-      "name": "Monorepo Domain Kernel",
-      "owner": "@esparex/architecture",
-      "boundary": "Provides shared base domain events, integration event contracts, and core value objects.",
       "allowedImports": [],
-      "forbiddenImports": ["@esparex/contracts", "@esparex/core", "@esparex/shared", "@esparex/apps-web", "@esparex/apps-admin"]
+      "forbiddenImports": ["@esparex/core", "@esparex/shared", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile"]
+    },
+    "packages/design-tokens": {
+      "name": "Monorepo Design Tokens Engine",
+      "owner": "@esparex/frontend-leads",
+      "boundary": "Provides semantic and foundational design tokens (colors, typography, spacing, elevation) and CSS generation scripts.",
+      "allowedImports": [],
+      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile"]
     },
     "packages/ui": {
       "name": "Monorepo Shared UI Design System",
       "owner": "@esparex/frontend-leads",
       "boundary": "Provides shared, domain-agnostic presentation: design tokens (Z_INDEX), UI primitives (Button, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Slider, Dialog, AlertDialog, Drawer, Sheet, Label, FormError, Field), generic data patterns (DataTable, StatusChip), and slot-based layout shells (PageShell, Sidebar, HeaderShell). Must never own routing, auth, API calls, or domain business logic. A component may only be added here when consumed by >=2 distinct applications and passes the zero-domain-logic criteria. See .agents/governance/DESIGN_SYSTEM_GOVERNANCE.md for the full contribution policy.",
-      "allowedImports": ["@esparex/shared", "@esparex/contracts"],
+      "allowedImports": ["@esparex/shared", "@esparex/contracts", "@esparex/design-tokens"],
+      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile"]
+    },
+    "packages/mobile-ui": {
+      "name": "Monorepo React Native UI Primitives",
+      "owner": "@esparex/mobile-team",
+      "boundary": "Provides React Native UI primitives and styling tokens for mobile applications.",
+      "allowedImports": ["@esparex/design-tokens", "@esparex/contracts", "@esparex/shared"],
       "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin"]
     },
     "core/src/domains": {
@@ -44,36 +51,43 @@
         "payments",
         "trust"
       ],
-      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared"],
-      "forbiddenImports": ["@esparex/backend-api", "@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin"]
+      "allowedImports": ["@esparex/contracts", "@esparex/shared", "@esparex/core"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile", "@esparex/mobile-ui"]
     },
     "shared/src": {
       "name": "Monorepo Shared Utilities & Constants",
       "owner": "@esparex/platform-core",
       "boundary": "Provides domain constants, geofencing helpers, API route path definitions, and headless logic.",
-      "allowedImports": ["@esparex/contracts", "@esparex/kernel"],
-      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin"]
+      "allowedImports": ["@esparex/contracts"],
+      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile", "@esparex/mobile-ui"]
     },
     "backend/api": {
       "name": "Express HTTP API Server",
       "owner": "@esparex/backend-team",
       "boundary": "Exposes HTTP routes, middleware, controllers, and maps HTTP requests to core domain services.",
-      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/core"],
-      "forbiddenImports": ["@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin"]
+      "allowedImports": ["@esparex/contracts", "@esparex/shared", "@esparex/core"],
+      "forbiddenImports": ["@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/apps-mobile", "@esparex/mobile-ui"]
     },
     "apps/web": {
       "name": "Next.js User Web Application",
       "owner": "@esparex/web-team",
       "boundary": "User-facing web portal, Next.js App Router pages, user components, and client-side hooks.",
-      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/ui"],
-      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-admin"]
+      "allowedImports": ["@esparex/contracts", "@esparex/shared", "@esparex/ui", "@esparex/design-tokens"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-admin", "@esparex/apps-mobile", "@esparex/mobile-ui", "@esparex/core"]
     },
     "apps/admin": {
       "name": "Next.js Platform Admin Dashboard",
       "owner": "@esparex/admin-team",
       "boundary": "Admin management portal, moderation workflows, user management, system operations UI.",
-      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/ui"],
-      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-web"]
+      "allowedImports": ["@esparex/contracts", "@esparex/shared", "@esparex/ui", "@esparex/design-tokens"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-mobile", "@esparex/mobile-ui", "@esparex/core"]
+    },
+    "apps/mobile": {
+      "name": "Expo React Native Mobile Application",
+      "owner": "@esparex/mobile-team",
+      "boundary": "Cross-platform iOS and Android native application built with Expo SDK 52 and React Native.",
+      "allowedImports": ["@esparex/contracts", "@esparex/shared", "@esparex/design-tokens", "@esparex/mobile-ui"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin", "@esparex/ui", "@esparex/core"]
     }
   },
   "prohibitedDirectories": {
@@ -82,5 +96,49 @@
     "shared/src/contracts": "Prohibited. DTO contracts belong in @esparex/contracts; route path constants belong in shared/src/routes/.",
     "core/src/services/notification": "Prohibited. Notification services belong in core/src/domains/notifications/.",
     ".agents/workflows": "Prohibited. Canonical AI workflows belong in .agents/workflow/."
-  }
+  },
+  "behaviorOwnership": {
+    "scrollLock": {
+      "owner": "packages/ui/src/feedback/Sheet.tsx (Radix RemoveScroll)",
+      "evidence": "scripts/git/esparex/scope-ownership-validator.js; apps/web/src/__tests__/sheet-scroll-restoration.spec.ts",
+      "prohibited": ["custom body{position:fixed} scroll locks", "sheetScrollLock duplicates", "overlayClassName masking"]
+    },
+    "viewportVariables": {
+      "owner": "apps/web/src/hooks/useVisualViewport.ts (--visual-viewport-height, --keyboard-height on <html>)",
+      "evidence": "apps/web/src/__tests__/visual-viewport-ssot.spec.tsx",
+      "prohibited": ["second --keyboard-height compensator", "window.scrollTo viewport locks outside the owner"]
+    },
+    "authSheet": {
+      "owner": "apps/web/src/context/AuthModalContext.tsx + apps/web/src/components/auth/AuthModal.tsx",
+      "evidence": "apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts",
+      "prohibited": ["second auth-sheet manager", "provider reorder without ancestor evidence"]
+    },
+    "apiRetry": {
+      "owner": "apps/web/src/lib/api/client.ts (canonical retry matcher)",
+      "evidence": "apps/web/src/__tests__/api-client-health-gate.spec.ts",
+      "prohibited": ["parallel isSendOtp/isAuthMutation matchers duplicating normalizeRequestPath"]
+    },
+    "listingPresentation": {
+      "owner": "apps/web/src/lib/listings/listingPresentation.ts + apps/web/src/components/user/ad-card/shared.tsx (overlay badges) distinct from profile/StatusBadge.tsx lifecycle status and CreditPackFormatters credit-pack status",
+      "evidence": "apps/web/src/__tests__/listing-presentation.spec.ts; apps/web/src/__tests__/AdCardBadge.spec.tsx",
+      "prohibited": ["global StatusChip merge across badge domains"]
+    }
+  },
+  "highRiskPaths": [
+    "packages/ui/**",
+    "apps/web/src/components/auth/**",
+    "apps/web/src/components/user/auth/**",
+    "apps/web/src/components/providers/**",
+    "apps/web/src/context/**",
+    "apps/web/src/hooks/useVisualViewport.ts",
+    "apps/web/src/lib/api/client.ts",
+    "apps/web/src/lib/listings/**",
+    "apps/web/src/components/user/ad-card/**",
+    "packages/design-tokens/**",
+    "packages/ui/src/styles/**",
+    "packages/ui/src/tokens/**",
+    "apps/web/src/app/**/layout.tsx",
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/layout/**"
+  ]
 }

@@ -116,7 +116,6 @@ PlanSchema.index(
     }
 );
 
-
 const connection = getUserConnection();
 export const Plan: Model<IPlan> =
     (connection.models.Plan as Model<IPlan>) ||

@@ -9,11 +9,14 @@
   "baselines": {
     "namingViolations": [],
     "platformGovernanceViolations": [],
+    "routeCollisionViolations": [],
     "adminStatusLiteralViolations": [],
     "missingPublicBarrels": [],
     "missingDomainManifests": [],
     "orphanFiles": [],
     "duplicateCodeClones": 9,
-    "cssHygieneViolations": []
+    "cssHygieneViolations": [],
+    "formInputZoomViolations": [],
+    "designTokenViolations": []
   }
 }

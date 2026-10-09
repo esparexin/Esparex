@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, FlatList, useWindowDimensions, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Image } from 'expo-image';
 import { Center, AppIcon, AppText } from '@esparex/mobile-ui';
+import { base, semantic } from '@esparex/design-tokens';
 
 interface ImageCarouselProps {
   images: string[];
@@ -28,8 +29,8 @@ export const ImageCarousel = ({
 
   if (!images || images.length === 0) {
     return (
-      <Center className="w-full h-72 bg-slate-100 dark:bg-slate-800">
-        <AppIcon name="Image" size={48} color="#94a3b8" />
+      <Center className="w-full h-72 bg-muted">
+        <AppIcon name="Image" size={48} color={base.slate[500]} />
       </Center>
     );
   }
@@ -74,7 +75,7 @@ export const ImageCarousel = ({
             accessibilityRole="button"
             accessibilityLabel="Share listing"
           >
-            <AppIcon name="Share2" size={18} color="#ffffff" />
+            <AppIcon name="Share2" size={18} color={base.white} />
           </TouchableOpacity>
         )}
         {onToggleSave && (
@@ -89,7 +90,7 @@ export const ImageCarousel = ({
             <AppIcon
               name="Heart"
               size={18}
-              color={isSaved ? '#ef4444' : '#ffffff'}
+              color={isSaved ? semantic.light.destructive : base.white}
             />
           </TouchableOpacity>
         )}
@@ -118,7 +119,7 @@ export const ImageCarousel = ({
       {/* Numerical Counter Pill */}
       {images.length > 1 && (
         <View className="absolute bottom-3 right-3 bg-black/60 px-2 py-0.5 rounded-full">
-          <AppText variant="caption" className="text-white text-tiny font-semibold">
+          <AppText variant="tiny" className="text-white font-semibold">
             {activeIndex + 1}/{images.length}
           </AppText>
         </View>

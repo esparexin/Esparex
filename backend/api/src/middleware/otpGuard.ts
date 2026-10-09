@@ -9,15 +9,14 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { OtpProvider } from '@esparex/contracts';
-import logger from '@esparex/core/utils/logger';
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
+import { logger } from '@esparex/core';
+import { bootstrapLogger } from '@esparex/core';
 
 interface OtpGuardConfig {
     isProduction: boolean;
     isDevelopment: boolean;
     isTest: boolean;
     msg91AuthKey?: string;
-    msg91SenderId?: string;
     msg91WidgetId?: string;
     authBypassOtpLock?: string;
     otpProvider: OtpProvider;
@@ -44,7 +43,7 @@ const otpGuardState: {
  * @throws {Error} If critical OTP requirements not met in production
  */
 export function validateOtpConfiguration(config: OtpGuardConfig): void {
-    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
+    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91WidgetId, authBypassOtpLock, otpProvider } = config;
 
     otpGuardState.warnings = [];
 
@@ -56,9 +55,16 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         return;
     }
 
-    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS/WhatsApp provider validation
+    // Production must strictly use OTP_PROVIDER=msg91 — fail closed
+    if (isProduction && otpProvider !== OtpProvider.MSG91) {
+        throw new Error(
+            `OTP provider "${otpProvider}" is prohibited in production. OTP_PROVIDER must be explicitly configured as "msg91".`
+        );
+    }
+
+    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS/WhatsApp provider validation (dev only)
     if (otpProvider === OtpProvider.TEST) {
-        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+        if (!msg91AuthKey || !msg91WidgetId) {
             const warning = 'MSG91 provider not configured; testing OTP (123456) will be used';
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);
@@ -78,24 +84,19 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         if (!msg91AuthKey) {
             missingKeys.push('MSG91_AUTH_KEY');
         }
-        if (!msg91WidgetId && !msg91SenderId) {
+        if (!msg91WidgetId) {
             missingKeys.push('MSG91_WIDGET_ID');
         }
 
         if (missingKeys.length > 0) {
-            const errorMsg = `🚨 CRITICAL: OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive WhatsApp OTP.`;
-            bootstrapLogger.error(errorMsg);
-
-            if (authBypassOtpLock === 'true') {
-                bootstrapLogger.error('🚨 SECURITY ERROR: AUTH_BYPASS_OTP_LOCK=true is set in production. This bypass is forbidden.');
-                otpGuardState.isSafeToProceed = false;
-                otpGuardState.isConfigured = false;
-                return;
-            }
-
-            otpGuardState.isSafeToProceed = false;
-            otpGuardState.isConfigured = false;
-            return;
+            // Fail fast: booting with OTP_PROVIDER=msg91 but without widget
+            // credentials guarantees 502 OTP_DELIVERY_FAILED on every
+            // POST /api/v1/auth/send-otp. A crashed deploy is reported by the
+            // platform immediately; a green deploy with dead login stayed
+            // undetected for ~150h (Oct 2026 send-otp incident).
+            throw new Error(
+                `OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive WhatsApp OTP.`
+            );
         }
 
         if (authBypassOtpLock === 'true') {
@@ -112,7 +113,7 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
 
     // Development environment with a real provider: warn but allow
     if (isDevelopment) {
-        if (!msg91AuthKey || (!msg91WidgetId && !msg91SenderId)) {
+        if (!msg91AuthKey || !msg91WidgetId) {
             const warning = `OTP provider "${otpProvider}" not fully configured; WhatsApp dispatch will use mock in dev mode`;
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);

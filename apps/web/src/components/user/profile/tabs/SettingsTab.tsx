@@ -134,13 +134,13 @@ export function SettingsTab({
 
     return (
         <div className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card shadow-xs divide-y divide-border/60 overflow-hidden">
+            <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border/60 overflow-hidden">
                 <Controller
                     name="enabled"
                     control={form.control}
                     render={({ field }) => (
                         <SettingRow
-                            icon={<BellRing className="h-4.5 w-4.5" />}
+                            icon={<BellRing className="h-[18px] w-[18px]" />}
                             title="Notification Settings"
                             description="Real-time push and email alerts for messages and ad updates."
                             checked={field.value}
@@ -152,7 +152,7 @@ export function SettingsTab({
                 <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-destructive/[0.02]">
                     <div className="flex items-start gap-3.5 min-w-0">
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10 text-destructive shrink-0 mt-0.5">
-                            <Trash2 className="h-4.5 w-4.5" />
+                            <Trash2 className="h-[18px] w-[18px]" />
                         </div>
                         <div className="space-y-0.5 min-w-0">
                             <p className="font-semibold text-body text-destructive">Delete Account</p>

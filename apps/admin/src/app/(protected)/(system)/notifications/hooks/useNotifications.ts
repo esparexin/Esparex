@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import {
-    buildUrlWithSearchParams,
     normalizeSearchParamValue,
     parsePositiveIntParam,
-    updateSearchParams,
 } from "@/lib/urlSearchParams";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import type { NotificationLog } from "@/types/notification";
 
@@ -50,8 +49,6 @@ const normalizeRecipient = (raw: Record<string, unknown>): NotificationRecipient
 };
 
 export function useNotifications() {
-    const pathname = usePathname();
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     // History & Global State
@@ -93,13 +90,7 @@ export function useNotifications() {
         ? (searchParams.get("targetType") as "all" | "topic" | "users")
         : "any";
 
-    const replaceQueryState = useCallback((updates: Record<string, string | number | null | undefined>) => {
-        const nextUrl = buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, updates));
-        const currentUrl = buildUrlWithSearchParams(pathname, new URLSearchParams(searchParams.toString()));
-        if (nextUrl !== currentUrl) {
-            router.replace(nextUrl, { scroll: false });
-        }
-    }, [pathname, router, searchParams]);
+    const { replaceQueryState } = useAdminQuerySync();
 
     const historyRoute = useMemo(() => {
         const params = new URLSearchParams();

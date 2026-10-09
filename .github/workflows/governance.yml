@@ -1,5 +1,9 @@
 name: Governance Validation
 
+# Weekly observability (non-blocking by design — no pull_request trigger).
+# Policy: if the health-score step fails, the on-call owner MUST open a GitHub
+# Issue with the dashboard summary attached instead of silently ignoring it.
+
 on:
   workflow_dispatch:
   schedule:

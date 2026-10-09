@@ -9,6 +9,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminSessions } from "@/hooks/useAdminSessions";
 import type { AdminSessionItem } from "@/types/adminSession";
+import { formatAppDateTime } from "@esparex/shared";
 
 export default function AdminSessionsPage() {
     const {
@@ -46,7 +47,7 @@ export default function AdminSessionsPage() {
                         <div className="font-semibold text-foreground">
                             {admin?.firstName ? `${admin.firstName} ${admin.lastName || ""}`.trim() : "Unknown admin"}
                         </div>
-                        <div className="text-xs text-foreground-tertiary">{admin?.email || "-"}</div>
+                        <div className="text-caption text-foreground-tertiary">{admin?.email || "-"}</div>
                     </div>
                 );
             },
@@ -54,7 +55,7 @@ export default function AdminSessionsPage() {
         {
             header: "Session",
             cell: (session) => (
-                <div className="space-y-1 text-xs text-foreground-secondary">
+                <div className="space-y-1 text-caption text-foreground-secondary">
                     <div className="font-mono">{session.tokenId || session.id}</div>
                     <div>{session.ip || "Unknown IP"}</div>
                 </div>
@@ -63,7 +64,7 @@ export default function AdminSessionsPage() {
         {
             header: "Device",
             cell: (session) => (
-                <div className="max-w-[280px] truncate text-xs text-foreground-secondary">
+                <div className="max-w-[280px] truncate text-caption text-foreground-secondary">
                     {session.device || "Unknown device"}
                 </div>
             ),
@@ -79,11 +80,11 @@ export default function AdminSessionsPage() {
         },
         {
             header: "Created",
-            cell: (session) => new Date(session.createdAt).toLocaleString(),
+            cell: (session) => formatAppDateTime(session.createdAt),
         },
         {
             header: "Expires",
-            cell: (session) => new Date(session.expiresAt).toLocaleString(),
+            cell: (session) => formatAppDateTime(session.expiresAt),
         },
         {
             header: "Actions",
@@ -92,7 +93,7 @@ export default function AdminSessionsPage() {
                     type="button"
                     disabled={Boolean(session.revokedAt) || isMutating}
                     onClick={() => setRevokingSession(session)}
-                    className="inline-flex items-center gap-1 rounded-md border border-amber-200 px-2 py-1 text-xs font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-md border border-warning/20 px-2 py-1 text-caption font-medium text-warning-dark hover:bg-warning/10 disabled:opacity-50"
                 >
                     <Power size={12} /> Revoke
                 </button>
@@ -121,7 +122,7 @@ export default function AdminSessionsPage() {
                 />
 
                 {error && (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-body font-medium text-destructive">
                         <AlertCircle size={16} /> {error}
                     </div>
                 )}
@@ -143,16 +144,16 @@ export default function AdminSessionsPage() {
                 title="Revoke Admin Session"
             >
                 <div className="p-6 space-y-4">
-                    <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-4 p-4 bg-warning/10 rounded-xl border border-warning/20">
+                        <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
                         <div>
-                            <h3 className="text-sm font-bold text-amber-900">Security Warning</h3>
-                            <p className="mt-1 text-sm text-amber-800 leading-relaxed">
+                            <h3 className="text-body font-bold text-warning-dark">Security Warning</h3>
+                            <p className="mt-1 text-body text-warning-dark leading-relaxed">
                                 Revoking this session will immediately disconnect the administrator. 
                                 They will need to log in again to regain access.
                             </p>
                             {revokingSession && (
-                                <div className="mt-3 text-tiny font-mono text-amber-700 bg-amber-100/50 p-2 rounded border border-amber-200">
+                                <div className="mt-3 text-tiny font-mono text-warning-dark bg-warning/10 p-2 rounded border border-warning/20">
                                     IP: {revokingSession.ip || "Unknown"} <br/>
                                     ID: {revokingSession.id}
                                 </div>
@@ -173,7 +174,7 @@ export default function AdminSessionsPage() {
                             type="button"
                             disabled={isMutating}
                             onClick={onConfirmRevoke}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-body font-bold hover:bg-amber-700 transition-all disabled:opacity-70 shadow-sm cursor-pointer"
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-warning text-white text-body font-bold hover:bg-warning-dark transition-all disabled:opacity-70 shadow-sm cursor-pointer"
                         >
                             {isMutating ? (
                                 <><Loader2 size={16} className="animate-spin" /> Revoking...</>

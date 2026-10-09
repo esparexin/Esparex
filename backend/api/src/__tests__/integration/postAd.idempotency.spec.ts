@@ -3,7 +3,7 @@ import inject from 'light-my-request';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency } from '../../middleware/idempotency';
 import { mutationLimiter } from '../../middleware/rateLimiter';
-import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
+import { IdempotencyRequest } from '@esparex/core';
 
 jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
     __esModule: true,

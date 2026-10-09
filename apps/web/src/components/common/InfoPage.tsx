@@ -13,7 +13,7 @@ interface InfoPageProps {
  */
 export function InfoPage({ title, lastUpdated, containerVariant = "sm", children }: InfoPageProps) {
     return (
-        <main id="main-content" tabIndex={-1} className="w-full focus:outline-hidden">
+        <main id="main-content" tabIndex={-1} className="w-full focus:outline-none">
             <article className="w-full py-4 md:py-8 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
                 <Container variant={containerVariant} className="space-y-6 md:space-y-8">
                     <header className="border-b border-border pb-4 md:pb-5">

@@ -16,7 +16,7 @@ import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
 import { FileUploadCard } from "./FileUploadCard";
 import { ShopPhotosField } from "./ShopPhotosField";
-import { BUSINESS_DOCUMENT_ACCEPT } from "@/schemas/business.schema.shared";
+import { BUSINESS_DOCUMENT_ACCEPT } from "@/schemas/businessUpload.validators";
 import type { StepData } from "./types";
 
 interface BusinessProfileWizardProps {
@@ -193,9 +193,7 @@ export function BusinessProfileWizard({
                 </div>
 
                 <ListingModalBody id="business-wizard-body" className="space-y-3.5">
-                    <div role="alert" aria-live="polite">
-                        <FormError message={formError} className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-2.5 text-caption text-destructive" />
-                    </div>
+                    {formError && <FormError message={formError} />}
                     {submissionStatus ? (
                         <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-caption text-foreground" role="status" aria-live="polite">
                             <div className="flex items-start gap-3">

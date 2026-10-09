@@ -77,6 +77,8 @@ function collectMarkerCounts() {
 }
 
 function main() {
+  const shouldRatchet = process.argv.includes("--ratchet");
+  const checkRatchet = process.argv.includes("--check-ratchet");
   const baseline = readBaseline();
   const actual = collectMarkerCounts();
   const failures = [];
@@ -110,8 +112,53 @@ function main() {
     process.exit(1);
   }
 
+  // Ratchet Analysis
+  let prunableFiles = 0;
+  let lowerableFiles = 0;
+  const ratchetedBaseline = {};
+
+  for (const [file, allowedCount] of Object.entries(baseline)) {
+    const act = actual[file];
+    if (act === undefined || act === 0) {
+      prunableFiles++;
+    } else {
+      if (act < allowedCount) {
+        lowerableFiles++;
+        ratchetedBaseline[file] = act;
+      } else {
+        ratchetedBaseline[file] = allowedCount;
+      }
+    }
+  }
+
+  if (shouldRatchet) {
+    if (prunableFiles > 0 || lowerableFiles > 0) {
+      const sortedBaseline = Object.keys(ratchetedBaseline)
+        .sort()
+        .reduce((acc, key) => {
+          acc[key] = ratchetedBaseline[key];
+          return acc;
+        }, {});
+      fs.writeFileSync(baselinePath, JSON.stringify(sortedBaseline, null, 2) + "\n", "utf8");
+      console.log(`✅ ${RULE_NAME}: baseline ratcheted down successfully`);
+      console.log(`- pruned ${prunableFiles} clean files with zero markers`);
+      console.log(`- lowered ceiling for ${lowerableFiles} files`);
+      console.log(`- new tracked baseline files: ${Object.keys(sortedBaseline).length}`);
+    } else {
+      console.log(`ℹ️ ${RULE_NAME}: baseline is already at minimal ceiling (no ratchet needed)`);
+    }
+  } else if (checkRatchet && (prunableFiles > 0 || lowerableFiles > 0)) {
+    console.error(`❌ ${RULE_NAME}: baseline ratchet check failed!`);
+    console.error(`- ${prunableFiles} clean files can be pruned from baseline`);
+    console.error(`- ${lowerableFiles} files have lower marker counts`);
+    console.error(`Run 'node scripts/enforce-compatibility-markers-baseline.js --ratchet' to lock in progress.`);
+    process.exit(1);
+  } else if (prunableFiles > 0 || lowerableFiles > 0) {
+    console.log(`ℹ️ Ratchet opportunity: ${prunableFiles} clean files can be pruned, ${lowerableFiles} lowered with --ratchet.`);
+  }
+
   console.log(`${RULE_NAME}: passed`);
-  console.log(`- tracked baseline files: ${Object.keys(baseline).length}`);
+  console.log(`- tracked baseline files: ${Object.keys(shouldRatchet ? ratchetedBaseline : baseline).length}`);
   console.log(
     `- current marker files in scope: ${Object.keys(actual).length}`
   );

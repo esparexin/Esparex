@@ -1,14 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { queryKeys } from './queryKeys';
 import { useAuthStatus } from '@/context/AuthContext';
 import { 
     getListingById, 
-    getMyListings, 
     getMyListingsStats,
-    getAdsPage,
     getHomeAds,
-    type ListingPageResult,
-    type ListingFilters,
     type HomeAdsPayload,
     type HomeAdsRequestParams
 } from "@/lib/api/user/listings";
@@ -33,18 +29,6 @@ export const useListingDetailQuery = (
 };
 
 /**
- * Hook to fetch listings created by the current user (all types)
- */
-export const useMyListingsQuery = (type?: string, status?: string, options?: { enabled?: boolean }) => {
-    return useQuery({
-        queryKey: queryKeys.ads.myAds(status, type), // status first for compatibility, then type
-        queryFn: () => getMyListings(type, status),
-        staleTime: 0,
-        ...options
-    });
-};
-
-/**
  * Hook to fetch the current user's aggregated listing stats
  */
 export const useMyListingsStatsQuery = (options?: { enabled?: boolean }) => {
@@ -53,22 +37,6 @@ export const useMyListingsStatsQuery = (options?: { enabled?: boolean }) => {
         queryFn: () => getMyListingsStats(),
         staleTime: 5 * 60 * 1000,
         ...options
-    });
-};
-
-/**
- * Hook to fetch paginated listings based on filters.
- */
-export const useAdsListQuery = (
-    filters: ListingFilters,
-    options?: { enabled?: boolean; initialData?: ListingPageResult }
-) => {
-    return useQuery({
-        queryKey: queryKeys.ads.list(filters),
-        queryFn: () => getAdsPage(filters),
-        staleTime: 5 * 60 * 1000,
-        enabled: options?.enabled ?? true,
-        initialData: options?.initialData,
     });
 };
 
@@ -82,10 +50,11 @@ export const useHomeAdsQuery = (
     const effectiveParams = params ?? {};
     return useQuery({
         queryKey: queryKeys.ads.home(effectiveParams),
-        queryFn: () => getHomeAds(effectiveParams),
+        queryFn: ({ signal }) => getHomeAds(effectiveParams, { signal }),
         staleTime: 1 * 60 * 1000, 
         enabled: options?.enabled ?? true,
         initialData: options?.initialData,
+        placeholderData: keepPreviousData,
     });
 };
 

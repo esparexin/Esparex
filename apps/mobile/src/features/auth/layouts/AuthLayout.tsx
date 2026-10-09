@@ -1,8 +1,8 @@
 import React from 'react';
-import { Image, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardScreen, Container, Stack, AppText, Spacer, AppIcon } from '@esparex/mobile-ui';
-import { base } from '@esparex/design-tokens';
+import { mobileSemanticColors } from '@esparex/design-tokens';
 import { navigate } from '../../../navigation/navigationRef';
 import { ROUTES } from '../../../navigation/routes';
 
@@ -23,9 +23,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 }) => {
   const navigation = useNavigation();
   const parentNav = navigation.getParent();
-  const isDark = useColorScheme() === 'dark';
   const canDismiss = navigation.canGoBack() || Boolean(parentNav?.canGoBack());
-
+  // App is light-mode only — always use the light semantic palette.
+  const palette = mobileSemanticColors.light;
   const handleDismiss = () => {
     if (onDismiss) {
       onDismiss();
@@ -48,9 +48,9 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               accessibilityRole="button"
               accessibilityLabel="Close and return to marketplace"
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center"
+              className="w-10 h-10 rounded-full bg-muted items-center justify-center"
             >
-              <AppIcon name="X" size={20} color={isDark ? base.slate[200] : base.slate[600]} />
+              <AppIcon name="X" size={20} color={palette['muted-foreground']} />
             </TouchableOpacity>
           </View>
         )}
@@ -63,16 +63,16 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               accessibilityRole="image"
               accessibilityLabel="Esparex Logo"
             />
-            <AppText variant="h3" className="text-center font-bold text-slate-900 dark:text-slate-100">
+            <AppText variant="h3" className="text-center font-bold text-foreground">
               {title}
             </AppText>
             {description && (
-              <AppText variant="body" className="text-center text-slate-500 dark:text-slate-400 mt-1">
+              <AppText variant="body" className="text-center text-muted-foreground mt-1">
                 {description}
               </AppText>
             )}
           </Stack>
-          
+
           <Stack spacing="md" className="w-full">
             {children}
           </Stack>

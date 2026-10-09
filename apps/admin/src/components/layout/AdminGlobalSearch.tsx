@@ -93,7 +93,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                 }}
                 onFocus={() => setIsOpen(true)}
                 placeholder="Search users, listings, businesses, reports, and transactions"
-                className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-body text-foreground-secondary placeholder:text-muted-foreground shadow-xs transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="w-full rounded-xl border border-input bg-background py-2.5 pl-10 pr-4 text-body text-foreground-secondary placeholder:text-muted-foreground shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             />
 
             {isOpen && query.trim().length >= 2 && (

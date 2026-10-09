@@ -50,7 +50,7 @@ export function NotificationDropdownBody({
             <div className="max-h-[min(26rem,calc(100vh-10rem))] overflow-y-auto overscroll-contain p-1.5 space-y-1">
                 {notifications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-3 py-10 px-6 text-center rounded-2xl bg-muted/30 m-2">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card border border-border/60 text-muted-foreground shadow-xs">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card border border-border/60 text-muted-foreground shadow-sm">
                             <Bell className="h-6 w-6 text-foreground-subtle" />
                         </div>
                         <div className="space-y-1">

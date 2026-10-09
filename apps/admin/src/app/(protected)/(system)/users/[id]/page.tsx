@@ -13,7 +13,7 @@ import {
 } from "@/components/system/users/userManagement";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { User } from "@esparex/contracts";
-import { normalizeBusinessStatus } from "@esparex/shared";
+import { normalizeBusinessStatus, formatAppDateTime } from "@esparex/shared";
 import { ArrowLeft, Mail, Phone, Shield, User as UserIcon, StatusChip } from "@esparex/ui";
 
 type Props = {
@@ -132,7 +132,7 @@ export default function UserDetailsPage({ params }: Props) {
                                 <p className="mt-2 flex items-center gap-2 text-body text-foreground-secondary"><Shield size={14} /> Role: {user.role}</p>
                                 <p className="mt-1 text-body text-foreground-secondary">Status: {statusPresentation?.label || "Active"}</p>
                                 <p className="mt-1 text-body text-foreground-secondary">Verified: {user.isVerified ? "Yes" : "No"}</p>
-                                <p className="mt-1 text-body text-foreground-secondary">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
+                                <p className="mt-1 text-body text-foreground-secondary">Created: {formatAppDateTime(user.createdAt as string)}</p>
                             </div>
                         </div>
 

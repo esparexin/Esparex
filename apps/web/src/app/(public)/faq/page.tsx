@@ -337,7 +337,7 @@ export default function FaqPage() {
                         <a
                             key={cat.id}
                             href={`#${cat.id}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-caption font-medium bg-card border border-border text-foreground-secondary hover:text-primary hover:border-primary/40 transition-colors shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-caption font-medium bg-card border border-border text-foreground-secondary hover:text-primary hover:border-primary/40 transition-colors shadow-sm"
                         >
                             <cat.icon className="h-3.5 w-3.5 text-primary shrink-0" />
                             <span>{cat.title}</span>
@@ -359,7 +359,7 @@ export default function FaqPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-card border border-border rounded-2xl p-2 sm:p-4 shadow-xs">
+                            <div className="bg-card border border-border rounded-2xl p-2 sm:p-4 shadow-sm">
                                 <Accordion type="single" collapsible className="w-full">
                                     {category.items.map(faq => (
                                         <AccordionItem value={faq.id} key={faq.id} className="border-border">
@@ -378,7 +378,7 @@ export default function FaqPage() {
                 </div>
 
                 {/* Support Contact Box */}
-                <div className="p-6 bg-card border border-border rounded-2xl text-center shadow-xs flex flex-col gap-3">
+                <div className="p-6 bg-card border border-border rounded-2xl text-center shadow-sm flex flex-col gap-3">
                     <h3 className="text-body-lg font-bold text-foreground">Still have questions?</h3>
                     <p className="text-caption text-foreground-secondary max-w-md mx-auto leading-relaxed">
                         Our customer support and trust &amp; safety team are ready to assist you with any platform inquiries or technical assistance.
@@ -386,13 +386,13 @@ export default function FaqPage() {
                     <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                         <Link
                             href="/contact"
-                            className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-primary text-primary-foreground font-semibold text-caption hover:bg-primary/90 transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+                            className="inline-flex items-center justify-center min-h-11 px-5 rounded-lg bg-primary text-primary-foreground font-semibold text-caption hover:bg-primary/90 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                         >
                             Contact Support Desk
                         </Link>
                         <Link
                             href="/safety-tips"
-                            className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-lg bg-muted text-foreground font-semibold text-caption hover:bg-muted/80 border border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-hidden"
+                            className="inline-flex items-center justify-center min-h-11 px-5 rounded-lg bg-muted text-foreground font-semibold text-caption hover:bg-muted/80 border border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                         >
                             Read Safety Guidelines
                         </Link>

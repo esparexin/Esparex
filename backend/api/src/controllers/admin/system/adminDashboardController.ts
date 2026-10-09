@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
 import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '../../../utils/adminBaseController';
 import { getSingleParam } from '../../../utils/requestParams';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import { escapeRegExp } from '@esparex/core';
 
-import { redis } from '@esparex/core/lib/redis';
-import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
-import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
+import { redis } from '@esparex/core';
+import { scanKeysByPattern } from '@esparex/core';
+import { buildPublicAdFilter } from '@esparex/core';
 import {
     getDashboardOverviewStats,
     getContactSubmissionsPaginated,
     updateContactSubmissionById,
     adminGetLocationAnalyticsData,
-} from '@esparex/core/services/AdminDashboardService';
+} from '@esparex/core';
 
 import * as adminAnalyticsController from '../adminAnalyticsController';
 

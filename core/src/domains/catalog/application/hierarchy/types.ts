@@ -57,18 +57,13 @@ export interface RepairSummary {
     screenSizesDeactivated: number;
 }
 
-export interface ModelHierarchyMutationPayload {
-    name?: unknown;
-    displayName?: unknown;
-    canonicalName?: unknown;
-    slug?: unknown;
-    brandId?: unknown;
-    parentModelId?: unknown;
-    variantOfModelId?: unknown;
-    hierarchyPath?: unknown;
-    treeDepth?: unknown;
-    isParentModel?: unknown;
-}
+/**
+ * Phase 3a (§5): the local `ModelHierarchyMutationPayload` interface is
+ * relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3)
+ * and re-exported here so existing importers (`./validation`) keep working.
+ * Deletion of this shim is Phase 4 (§10).
+ */
+export type { ModelHierarchyMutationPayload } from '@esparex/contracts';
 
 export interface ModelDeletionImpact {
     listings: number;

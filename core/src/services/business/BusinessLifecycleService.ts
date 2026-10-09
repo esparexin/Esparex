@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
 import Ad from '../../models/Ad';
-import { mutateStatus, mutateStatuses } from '../lifecycle/StatusMutationService';
+import { mutateStatus, mutateStatuses } from '../../domains/listings/application/lifecycle/StatusMutationService';
 import { BUSINESS_STATUS, LIFECYCLE_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/contracts';
 

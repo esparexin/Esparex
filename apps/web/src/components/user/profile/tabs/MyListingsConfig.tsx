@@ -1,6 +1,6 @@
 import React from "react";
 import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "@esparex/ui";
-import type { Listing } from "@/lib/api/user/listings";
+import type { UserListing } from "@/lib/api/user/listings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { ListingItem } from "@/components/user/shared/ListingItem";
 import {
@@ -30,20 +30,19 @@ const buildTag = (label: string | null, className?: string) => (
 );
 
 export interface ListingActionHandlers {
-  onDelete: (listing: Listing) => void;
-  onDeactivate: (listing: Listing) => void;
-  onActivate: (listing: Listing) => void;
-  onMarkSoldAd?: (listing: Listing) => void;
-  onMarkSoldSpare?: (listing: Listing) => void;
+  onDelete: (listing: UserListing) => void;
+  onDeactivate: (listing: UserListing) => void;
+  onActivate: (listing: UserListing) => void;
+  onMarkSoldAd?: (listing: UserListing) => void;
+  onMarkSoldSpare?: (listing: UserListing) => void;
   onRepostAd?: (id: string) => void;
   onRepostService?: (id: string) => void;
   onRepostSpare?: (id: string) => void;
-  onBoost?: (listing: Listing) => void;
-  getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
+  onBoost?: (listing: UserListing) => void;
 }
 
 export function renderAdItem(
-  listing: Listing,
+  listing: UserListing,
   adsStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {
@@ -59,7 +58,6 @@ export function renderAdItem(
       expiresAt={listing.expiresAt}
       views={listing.views}
       likes={listing.likes}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={adsStatus !== listing.status}
       editHref={`/edit-ad/${listing.id}`}
       detailHref={buildPublicListingDetailRoute({
@@ -81,7 +79,7 @@ export function renderAdItem(
 }
 
 export function renderServiceItem(
-  service: Listing,
+  service: UserListing,
   servicesStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {
@@ -94,7 +92,6 @@ export function renderServiceItem(
       priceLabel={service.priceMin ? `From ₹${formatStableNumber(service.priceMin)}` : "Price on request"}
       badgeColor="violet"
       createdAt={service.createdAt}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={servicesStatus !== service.status}
       editHref={`/edit-service/${service.id}`}
       detailHref={buildPublicListingDetailRoute({
@@ -112,7 +109,7 @@ export function renderServiceItem(
         service.onsiteService !== undefined ? {
           label: service.onsiteService ? "On-site" : "Remote",
           icon: service.onsiteService ? <Home className="h-3 w-3" /> : <Wifi className="h-3 w-3" />,
-          className: service.onsiteService ? "text-green-600" : "text-muted-foreground"
+          className: service.onsiteService ? "text-success" : "text-muted-foreground"
         } : null,
         service.turnaroundTime ? { label: service.turnaroundTime, icon: <Timer className="h-3 w-3" /> } : null
       ].filter((v): v is NonNullable<typeof v> => v != null))}
@@ -128,7 +125,7 @@ export function renderServiceItem(
 }
 
 export function renderSpareItem(
-  listing: Listing,
+  listing: UserListing,
   spareStatus: ListingStatus,
   handlers: ListingActionHandlers
 ) {
@@ -141,7 +138,6 @@ export function renderSpareItem(
       priceLabel={`₹${formatStableNumber(listing.price)}`}
       badgeColor="teal"
       createdAt={listing.createdAt}
-      getStatusBadge={handlers.getStatusBadge}
       showStatusBadge={spareStatus !== listing.status}
       editHref={`/edit-spare-part/${listing.id}`}
       detailHref={buildPublicListingDetailRoute({

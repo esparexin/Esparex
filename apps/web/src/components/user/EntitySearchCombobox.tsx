@@ -4,9 +4,12 @@ import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { Search, Loader2, X, Plus, ChevronDown } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { Input } from "@esparex/ui";
-import { Drawer } from "@esparex/ui";
+import { Sheet, SheetContent, SheetTitle } from "@esparex/ui";
 import { useIsMobile } from "@/hooks/useMobile";
-import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
+import { useListKeyboardNavigation } from "@/hooks/useListKeyboardNavigation";
+import { useDropdownPosition } from "@/hooks/useDropdownPosition";
+import { DesktopDropdownPortal } from "./DesktopDropdownPortal";
+import { EntitySearchOptionsList } from "./EntitySearchOptionsList";
 
 export interface EntitySearchComboboxProps<T> {
     items: T[];
@@ -19,6 +22,7 @@ export interface EntitySearchComboboxProps<T> {
     disabled?: boolean;
     isCustom?: boolean;
     className?: string;
+    id?: string;
     onSelect: (item: T) => void;
     onClear?: () => void;
     onSearchChange?: (search: string) => void;
@@ -41,6 +45,7 @@ export function EntitySearchCombobox<T>({
     disabled = false,
     isCustom = false,
     className,
+    id,
     autoFocus = false,
     onSelect,
     onClear,
@@ -55,6 +60,7 @@ export function EntitySearchCombobox<T>({
     const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const mobileInputRef = useRef<HTMLInputElement>(null);
+    // responsive-exception: dynamic sheet-vs-dropdown routing (layout itself is single-instance CSS).
     const isMobile = useIsMobile();
 
     const selectedName = displayValue || value || "";
@@ -73,6 +79,9 @@ export function EntitySearchCombobox<T>({
 
     const isListOpen = Boolean((isEditing || search) && !disabled);
 
+    // F-Z7: portalled dropdown position (fixed, viewport-relative).
+    const dropdownRect = useDropdownPosition(containerRef, isListOpen && !isMobile);
+
     const handleItemSelect = (item: T) => { onSelect(item); setSearch(""); setIsEditing(false); };
     const handleProposeCustom = (customName: string) => {
         if (!onProposeCustom || !customName.trim()) return;
@@ -82,7 +91,7 @@ export function EntitySearchCombobox<T>({
     };
     const handleClose = () => { setIsEditing(false); setSearch(""); };
 
-    const { activeIndex, setActiveIndex, handleKeyDown } = useKeyboardNavigation({
+    const { activeIndex, setActiveIndex, handleKeyDown } = useListKeyboardNavigation({
         items: filteredItems,
         isOpen: isListOpen,
         onSelect: handleItemSelect,
@@ -127,58 +136,21 @@ export function EntitySearchCombobox<T>({
         return () => evts.forEach((e) => document.removeEventListener(e, handleClickOutside));
     }, [isListOpen, isMobile, listboxId]);
 
-    const renderOptionsList = (isMobileView: boolean) => {
-        if (loading) {
-            return (
-                <div className="p-4 text-center text-body text-foreground-subtle flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                    <span>Loading...</span>
-                </div>
-            );
-        }
-        if (filteredItems.length === 0) {
-            return (
-                <div className="p-4 text-center text-body font-medium text-foreground-secondary">
-                    {emptyMessage}
-                </div>
-            );
-        }
-        return filteredItems.map((item, idx) => {
-            const label = getLabel(item);
-            const id = getId(item);
-            const isSelected = activeIndex === idx;
-            return (
-                <button
-                    key={id || label}
-                    id={`select-option-${sanitizedTitle}-${idx}`}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    onMouseDown={isMobileView ? undefined : (e) => e.preventDefault()}
-                    onClick={() => handleItemSelect(item)}
-                    className={cn(
-                        "w-full px-3 py-2 text-left text-body font-normal rounded-lg transition-colors cursor-pointer select-none",
-                        isMobileView ? "min-h-[44px] flex items-center rounded-xl" : "",
-                        isSelected
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                >
-                    {renderItem ? renderItem(item, isSelected) : label}
-                </button>
-            );
-        });
-    };
-
-    const desktopDropdownContent = (
-        <div
-            id={listboxId}
-            role="listbox"
-            className="absolute top-full left-0 right-0 mt-1.5 max-h-60 bg-popover border border-border rounded-xl shadow-xl overflow-y-auto z-50 p-1.5 overscroll-contain touch-pan-y"
-        >
-            {renderOptionsList(false)}
-        </div>
-    );
+    const desktopDropdownContent = dropdownRect ? (
+        <DesktopDropdownPortal
+            listboxId={listboxId}
+            dropdownRect={dropdownRect}
+            items={filteredItems}
+            loading={loading}
+            activeIndex={activeIndex}
+            emptyMessage={emptyMessage}
+            sanitizedTitle={sanitizedTitle}
+            getLabel={getLabel}
+            getId={getId}
+            renderItem={renderItem}
+            onSelect={handleItemSelect}
+        />
+    ) : null;
 
     return (
         <div
@@ -192,6 +164,7 @@ export function EntitySearchCombobox<T>({
                     </div>
                 )}
                 <Input
+                    id={id}
                     autoFocus={autoFocus && !isMobile}
                     value={search || (isEditing ? "" : selectedName)}
                     onChange={(e) => {
@@ -209,7 +182,7 @@ export function EntitySearchCombobox<T>({
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
                     className={cn(
-                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
+                        "pl-3 h-11 text-body-lg md:text-body font-normal text-foreground placeholder:font-normal placeholder:text-foreground-subtle border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary cursor-pointer",
                         loading ? "pr-14" : "pr-9"
                     )}
                     role="combobox"
@@ -231,7 +204,8 @@ export function EntitySearchCombobox<T>({
                                 onClear?.();
                             }}
                             title="Remove selection"
-                            className="p-1 rounded-md text-foreground-secondary hover:text-destructive hover:bg-muted transition-colors"
+                            aria-label="Remove selection"
+                            className="min-h-8 min-w-8 p-1.5 rounded-md text-foreground-secondary hover:text-destructive hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             <X className="w-4 h-4" />
                         </button>
@@ -243,7 +217,8 @@ export function EntitySearchCombobox<T>({
                                 handleProposeCustom(search);
                             }}
                             title={`Add "${search.trim()}" as custom ${proposeType}`}
-                            className="p-1 rounded-md text-destructive hover:text-destructive hover:bg-destructive-subtle transition-colors"
+                            aria-label={`Add "${search.trim()}" as custom ${proposeType}`}
+                            className="min-h-8 min-w-8 p-1.5 rounded-md text-destructive hover:text-destructive hover:bg-destructive-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                         </button>
@@ -256,9 +231,14 @@ export function EntitySearchCombobox<T>({
             {/* Listbox overlay */}
             {isListOpen && (
                 isMobile ? (
-                    <Drawer title={title} open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
-                        <div className="flex flex-col max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))] px-2 pb-2">
-                            <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
+                    <Sheet open={true} onOpenChange={(open) => { if (!open) handleClose(); }}>
+                        <SheetContent
+                            side="bottom"
+                            className="max-h-[min(65vh,calc(var(--visual-viewport-height,100dvh)-6rem))] px-2 pb-2"
+                        >
+                            <SheetTitle className="sr-only">{title}</SheetTitle>
+                            <div className="flex flex-col">
+                                <div className="sticky top-0 bg-surface pt-1 pb-3 px-1 z-10 border-b border-border mb-2">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle" />
                                     <Input
@@ -271,14 +251,15 @@ export function EntitySearchCombobox<T>({
                                              onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-2xs placeholder:font-normal placeholder:text-foreground-subtle"
+                                        className="pl-9 pr-10 h-10 text-body-lg md:text-body font-normal text-foreground border-border rounded-xl shadow-sm placeholder:font-normal placeholder:text-foreground-subtle"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button
                                              type="button"
                                              onClick={() => handleProposeCustom(search)}
                                              title={`Add "${search.trim()}" as custom ${proposeType}`}
-                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-primary hover:bg-muted transition-colors"
+                                             aria-label={`Add "${search.trim()}" as custom ${proposeType}`}
+                                             className="absolute right-2.5 top-1/2 -translate-y-1/2 min-h-8 min-w-8 p-1.5 rounded-md text-primary hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                         >
                                              <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                                         </button>
@@ -286,10 +267,22 @@ export function EntitySearchCombobox<T>({
                                 </div>
                             </div>
                             <div id={listboxId} role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                                {renderOptionsList(true)}
+                                <EntitySearchOptionsList
+                                    items={filteredItems}
+                                    loading={loading}
+                                    activeIndex={activeIndex}
+                                    isMobileView
+                                    emptyMessage={emptyMessage}
+                                    sanitizedTitle={sanitizedTitle}
+                                    getLabel={getLabel}
+                                    getId={getId}
+                                    renderItem={renderItem}
+                                    onSelect={handleItemSelect}
+                                />
                             </div>
                         </div>
-                    </Drawer>
+                        </SheetContent>
+                    </Sheet>
                 ) : (
                     desktopDropdownContent
                 )

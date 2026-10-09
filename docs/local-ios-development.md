@@ -11,7 +11,7 @@
 - **Related Documents**:
   - Release 1.0 Physical Device Validation (R4)
   - Mobile Architecture Governance (`AGENTS.md`)
-  - Notifications Integration Audit (`docs/reports/Notifications-Integration-Audit.md`)
+  - Mobile Build Specification ([`docs/mobile-build.md`](./mobile-build.md))
 
 ---
 

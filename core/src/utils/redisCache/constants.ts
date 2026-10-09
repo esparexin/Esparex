@@ -41,8 +41,6 @@ export const GOVERNED_CACHE_PATTERNS: ReadonlyArray<string> = [
     `${CACHE_NAMESPACES.SYSTEM}:*`
 ];
 
-export const REDIS_SCAN_BATCH_SIZE = 200;
-export const REDIS_DELETE_BATCH_SIZE = 500;
 export const REDIS_HEALTH_PROBE_TTL_SECONDS = 5;
 export const REDIS_TTL_AUDIT_SAMPLE_LIMIT = 200;
 export const REDIS_MEMORY_PRESSURE_THRESHOLD = 0.7;
@@ -77,7 +75,7 @@ export const getDefaultTtlForKey = (key: string): number | null => {
     return null;
 };
 
-export const normalizeQueryValue = (value: unknown): string | null => {
+const normalizeQueryValue = (value: unknown): string | null => {
     if (value === undefined || value === null) return null;
     if (Array.isArray(value)) {
         const s = value.map((entry) => normalizeQueryValue(entry)).filter((e): e is string => Boolean(e)).sort();

@@ -28,15 +28,16 @@ interface ListingDescriptionCardProps {
 // ── Tab definitions per listing domain ─────────────────────────────────────
 
 /** Canonical tab set for General Ad listings */
-export const TAB_KEYS = ["repair-shops", "description", "spare-parts"] as const;
+export const TAB_KEYS = ["description", "repair-shops", "spare-parts"] as const;
 
 export const SERVICE_TAB_KEYS = ["about-service", "service-centers"] as const;
-export const SPARE_PART_TAB_KEYS = ["part-details", "description"] as const;
+export const SPARE_PART_TAB_KEYS = ["part-details", "repair-shops"] as const;
 
 type TabKey =
     | typeof TAB_KEYS[number]
     | typeof SERVICE_TAB_KEYS[number]
-    | typeof SPARE_PART_TAB_KEYS[number];
+    | typeof SPARE_PART_TAB_KEYS[number]
+    | "description";
 
 // ── Tab label map ────────────────────────────────────────────────────────────
 const TAB_LABELS: Record<TabKey, string> = {
@@ -53,9 +54,9 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
     const isSparePart = listingType === "spare_part";
 
     // Compute the correct tab set and default active tab for this listing domain.
-    // Ad listings keep the original Repair Shops → Description → Working Spare Parts flow.
+    // Ad listings show Description → Repair Shops → Working Spare Parts.
     // Service listings show About This Service → Other Service Centers.
-    // Spare Part listings show Part Details → Description.
+    // Spare Part listings show Part Details → Repair Shops.
     const tabKeys: readonly TabKey[] = isService
         ? SERVICE_TAB_KEYS
         : isSparePart
@@ -70,18 +71,8 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
     const sparePartItems = extractSparePartItems(ad);
     const sparePartsCount = resolveListingSparePartsCount(ad);
 
-    const scrollToSection = () => {
-        if (sectionRef.current && typeof window !== "undefined") {
-            const headerEl = typeof document !== "undefined" ? document.querySelector("header") : null;
-            const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : (window.innerWidth >= 768 ? 70 : 120);
-            const targetY = sectionRef.current.getBoundingClientRect().top + window.pageYOffset - headerHeight - 16;
-            window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
-        }
-    };
-
     const handleTabSelect = (tabKey: TabKey) => {
         setActiveTab(tabKey);
-        scrollToSection();
     };
 
     const handleTabKeyDown = (e: React.KeyboardEvent, currentTab: TabKey) => {
@@ -104,7 +95,6 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
         const nextTab = tabKeys[nextIndex] as TabKey;
         if (nextTab) {
             setActiveTab(nextTab);
-            scrollToSection();
             document.getElementById(`tab-${nextTab}`)?.focus();
         }
     };
@@ -200,7 +190,7 @@ export function ListingDescriptionCard({ ad, navigateTo, listingType = "ad" }: L
             {activeTab === "part-details" && (
                 <ListingDescriptionTab
                     ad={ad}
-                    description=""
+                    description={description}
                     id="tabpanel-part-details"
                     ariaLabelledBy="tab-part-details"
                 />

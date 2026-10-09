@@ -132,7 +132,7 @@ export function ChatActionsMenu({ conversationId, isArchived = false, onActionCo
           )}
           <DropdownMenuItem
             onClick={() => setModal('block')}
-            className="text-red-600 focus:text-red-700 focus:bg-red-50"
+            className="text-destructive focus:text-red-700 focus:bg-red-50"
           >
             🚫 Block User
           </DropdownMenuItem>

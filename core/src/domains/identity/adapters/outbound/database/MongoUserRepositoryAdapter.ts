@@ -6,8 +6,11 @@ import {
     UserRepositoryPort,
     type UserProfileData,
     type UserPhoneVerificationData,
-    type UserAvatarData
+    type UserAvatarData,
+    type UserAuthSnapshot,
+    type UserCoordinatesData
 } from '../../../ports/UserRepositoryPort';
+import type { IBusiness } from '../../../../../models/Business';
 import { normalizeRole } from '../../../application/roles/roleNormalization';
 
 export class MongoUserRepositoryAdapter implements UserRepositoryPort {
@@ -83,5 +86,25 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
 
     public async unblockUserById(blockerId: string, blockedUserId: string): Promise<unknown> {
         return BlockedUser.deleteOne({ blockerId: new mongoose.Types.ObjectId(blockerId), blockedId: new mongoose.Types.ObjectId(blockedUserId) });
+    }
+
+    public async getUserAuthSnapshot(id: string): Promise<UserAuthSnapshot | null> {
+        const safeId = typeof id === 'string' ? id : String(id);
+        return await User.findById(safeId).select('status tokenVersion').lean<UserAuthSnapshot | null>();
+    }
+
+    public async *streamUsersWithCoordinates(): AsyncGenerator<UserCoordinatesData> {
+        const cursor = User.find({ 'location.coordinates': { $exists: true } })
+            .select('_id location.coordinates')
+            .lean<UserCoordinatesData>()
+            .cursor();
+        for await (const doc of cursor) {
+            yield doc;
+        }
+    }
+
+    public async findBusinessByUserId(userId: string): Promise<IBusiness | null> {
+        const safeId = typeof userId === 'string' ? userId : String(userId);
+        return await Business.findOne({ userId: safeId }).lean<IBusiness | null>();
     }
 }

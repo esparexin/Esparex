@@ -14,6 +14,7 @@ import {
 import {
   formatActivityName,
   formatAppliedDateTime,
+  formatOptionalDateTime,
   renderTransactionStatus,
   getListingDetailHref,
 } from './CreditLedgerFormatters';
@@ -26,22 +27,14 @@ interface CreditLedgerDetailPopupProps {
 }
 
 const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-  <div className="flex flex-col sm:flex-row sm:items-start gap-0.5 sm:gap-3 py-2 border-b border-border/30 last:border-0">
-    <span className="text-tiny font-semibold text-muted-foreground sm:w-28 shrink-0">{label}</span>
-    <div className="text-caption text-foreground">{children}</div>
-  </div>
+    <div className="flex flex-col sm:flex-row sm:items-start gap-0.5 sm:gap-3 py-2 border-b border-border/30 last:border-0">
+        <span className="text-tiny font-semibold text-muted-foreground sm:w-28 shrink-0">{label}</span>
+        <div className="text-caption text-foreground">{children}</div>
+    </div>
 );
 
-const formatDate = (iso?: string | null): string => {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-};
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const AD_LIFECYCLE_DAYS = 30;
 
 export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = ({ tx, open, onClose }) => {
   const [now] = React.useState(() => Date.now());
@@ -67,7 +60,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
   const listingPostedDate =
     tx.adPostedAt ||
     (isBoost && tx.adExpiresAt
-      ? new Date(new Date(tx.adExpiresAt).getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      ? new Date(new Date(tx.adExpiresAt).getTime() - AD_LIFECYCLE_DAYS * DAY_IN_MS).toISOString()
       : (isDebit ? tx.createdAt : undefined));
 
   // 2. Validity duration string (e.g., "7 days", "1 day", "30 days")
@@ -78,13 +71,13 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
     if (tx.spotlightExpiresAt) {
       const spotMs = new Date(tx.spotlightExpiresAt).getTime();
       const txMs = new Date(tx.createdAt).getTime();
-      const days = Math.max(1, Math.round((spotMs - txMs) / (1000 * 60 * 60 * 24)));
+      const days = Math.max(1, Math.round((spotMs - txMs) / DAY_IN_MS));
       return `${days} day${days !== 1 ? 's' : ''}`;
     }
     if (tx.adExpiresAt) {
       const expMs = new Date(tx.adExpiresAt).getTime();
       const startMs = new Date(listingPostedDate || tx.createdAt).getTime();
-      const days = Math.max(1, Math.round((expMs - startMs) / (1000 * 60 * 60 * 24)));
+      const days = Math.max(1, Math.round((expMs - startMs) / DAY_IN_MS));
       return `${days} day${days !== 1 ? 's' : ''}`;
     }
     return isDebit ? '30 days' : null;
@@ -107,7 +100,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
         <div className="px-5 py-3">
           {/* 1. When the listing was originally posted */}
           {listingPostedDate && (
-            <Row label="Listing posted">{formatDate(listingPostedDate)}</Row>
+            <Row label="Listing posted">{formatOptionalDateTime(listingPostedDate)}</Row>
           )}
 
           {/* 2. When the credit activity happened */}
@@ -128,7 +121,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {tx.spotlightExpiresAt && (
             <Row label="Boost expires">
               <span className={new Date(tx.spotlightExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
-                {formatDate(tx.spotlightExpiresAt)}
+                {formatOptionalDateTime(tx.spotlightExpiresAt)}
               </span>
             </Row>
           )}
@@ -137,7 +130,7 @@ export const CreditLedgerDetailPopup: React.FC<CreditLedgerDetailPopupProps> = (
           {tx.adExpiresAt && (
             <Row label="Ad expires">
               <span className={new Date(tx.adExpiresAt).getTime() <= now ? 'text-destructive font-medium' : 'text-foreground'}>
-                {formatDate(tx.adExpiresAt)}
+                {formatOptionalDateTime(tx.adExpiresAt)}
               </span>
             </Row>
           )}

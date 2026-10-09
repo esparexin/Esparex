@@ -1,13 +1,8 @@
+import type { ContactSubmissionRequest } from '@esparex/contracts';
 import ContactSubmission, { IContactSubmission } from '../../../../models/ContactSubmission';
 
-interface CreateContactInput {
-    name: string;
-    email: string;
-    mobile?: string;
-    subject?: string;
-    category?: string;
-    message: string;
-}
+// Request DTO owned by @esparex/contracts (audit E17).
+type CreateContactInput = ContactSubmissionRequest;
 
 export async function createContactSubmission(input: CreateContactInput): Promise<IContactSubmission> {
     return ContactSubmission.create({

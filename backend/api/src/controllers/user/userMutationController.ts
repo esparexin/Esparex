@@ -1,34 +1,37 @@
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
+import { logger } from '@esparex/core';
+import { env } from '@esparex/core';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import type { IUser } from '@esparex/core/models/User';
-import * as userService from '@esparex/core/domains/identity/application/users/UserService';
+import type { IUser } from '@esparex/core';
+import * as userService from '@esparex/core/domains/identity';
 import {
   getUserAvatarById,
   checkUserExistsById,
   blockUserById,
   unblockUserById,
-} from '@esparex/core/domains/identity/application/users/UserService';
+} from '@esparex/core/domains/identity';
 import {
   getBusinessByUserIdLean,
   softDeleteBusinessesByUserId,
-} from '@esparex/core/services/business/BusinessCoreService';
+} from '@esparex/core';
 import {
   deleteFromS3Url,
   getMissingS3UploadConfigKeys,
   isPlaceholderImageUrl,
   isS3UploadConfigured
-} from '@esparex/core/utils/s3';
-import { processSingleImage } from '@esparex/core/utils/imageProcessor';
+} from '@esparex/core';
+import { processSingleImage } from '@esparex/core';
 import { sendSuccessResponse } from "../../utils/respond";
-import { normalizeLocation } from '@esparex/core/services/location/LocationNormalizer';
-import { updateUserStatus } from '@esparex/core/domains/identity/application/users/UserStatusService';
+import { normalizeLocation } from '@esparex/core';
+import { updateUserStatus } from '@esparex/core/domains/identity';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+// P4 note: validateUploadPath stays co-located until Phase 5 extracts avatar
+// upload into IdentityService (moving it alone would breach the file-size
+// ratchet on the receiving module for zero structural gain).
 function validateUploadPath(filePath: string): string {
     const tempDir = os.tmpdir();
     const resolvedPath = path.resolve(filePath);
@@ -37,7 +40,7 @@ function validateUploadPath(filePath: string): string {
     }
     return resolvedPath;
 }
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core';
 import {
   getBusinessStatus,
   getStorageSafeId,

@@ -55,7 +55,7 @@ export function BroadcastComposer({
     removeRecipient
 }: BroadcastComposerProps) {
     return (
-        <div className="h-fit rounded-xl border border-border bg-card p-6 shadow-xs lg:col-span-1">
+        <div className="h-fit rounded-xl border border-border bg-card p-6 shadow-sm lg:col-span-1">
             <h2 className="mb-4 flex items-center gap-2 text-body-lg font-bold text-foreground">
                 <Send size={20} className="text-primary" />
                 Compose Broadcast

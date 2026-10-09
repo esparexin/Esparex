@@ -32,8 +32,6 @@ import './CreditRule';
 import './CreditTransaction';
 import './Entitlement';
 
-
-
 import './User';
 import './Ad';
 import './AdMetrics';
@@ -58,6 +56,17 @@ import './ChatMessage';
 import './ChatReport';
 import './BlockedUser';
 import './FraudScore';
+import './AdImage';
+import './AdminMetrics';
+import './AlertDeliveryLog';
+import './Boost';
+import './FraudSignal';
+import './Geofence';
+import './LocationAnalytics';
+import './PhoneRequest';
+import './PhoneRevealLog';
+import './RankingTelemetry';
+import './StatusHistory';
 
 import { getUserConnection, getAdminConnection } from '../config/db';
 import { getIndexAuditTargets } from '../db/indexAuditTargets';

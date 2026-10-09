@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { cn } from "@esparex/ui";
 
 export type AdminTabItem = {
     label: string;
@@ -9,8 +10,6 @@ export type AdminTabItem = {
     count?: number;
     matchPathOnly?: boolean;
 };
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
 
 type AdminModuleTabsProps = {
     tabs: AdminTabItem[];

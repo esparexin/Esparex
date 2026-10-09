@@ -5,9 +5,8 @@ import {
     buildLogFn,
     getActorId
 } from '../../utils/adminBaseController';
-import * as adminListingsService from '@esparex/core/domains/listings/application';
+import { AdminListingsService as adminListingsService } from '@esparex/core';
 import {
-    serializeLegacyCountsAdapter,
     serializeLifecycleActionResponse,
     serializeListingCountsResponse,
     serializeModerationDetailResponse,
@@ -188,14 +187,6 @@ export const adminGetListingCounts = async (req: Request, res: Response) => {
     }
 };
 
-export const adminGetListingCountsLegacyAdapter = async (req: Request, res: Response) => {
-    try {
-        const counts = await adminListingsService.adminGetListingCounts(req.query.listingType);
-        sendSuccessResponse(res, serializeLegacyCountsAdapter(counts));
-    } catch (error) {
-        sendAdminError(req, res, error, 500);
-    }
-};
 
 // ─── Bulk Moderation ─────────────────────────────────────────────────────────
 

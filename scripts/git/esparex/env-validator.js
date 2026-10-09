@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'ENV-001', name: 'Environment Validation', version: '1.0.0', category: 'Configuration' };
@@ -22,9 +21,8 @@ const APPROVED_ENV_VARS = new Set([
   'ADMIN_SESSION_TTL_MS', 'AUTH_LOCAL_RELAXED',
   'ALLOW_DEFAULT_ADMIN_SEED', 'ADMIN_ALLOWED_IPS', 'ENABLE_LOCAL_AUTO_APPROVE',
   // OTP & SMS
-  'OTP_HASH_SECRET', 'HMAC_SECRET', 'USE_DEFAULT_OTP', 'DEV_STATIC_OTP',
-  'MSG91_AUTH_KEY', 'MSG91_WIDGET_ID', 'MSG91_TOKEN_AUTH', 'MSG91_OTP_CHANNEL',
-  'MSG91_SENDER_ID', 'MSG91_TEMPLATE_ID',
+  'OTP_PROVIDER', 'OTP_HASH_SECRET', 'HMAC_SECRET', 'USE_DEFAULT_OTP', 'DEV_STATIC_OTP',
+  'MSG91_AUTH_KEY', 'MSG91_WIDGET_ID', 'MSG91_TOKEN_AUTH',
   'AUTH_BYPASS_OTP_LOCK',
   // Cookies & URLs
   'COOKIE_DOMAIN', 'COOKIE_SAME_SITE', 'COOKIE_SECURE',
@@ -64,8 +62,10 @@ const APPROVED_ENV_VARS = new Set([
   'BACKUP_DIR', 'BACKUP_RETENTION_DAYS', 'BACKUP_CRON_SCHEDULE',
   'BACKUP_ENCRYPTION_KEY', 'ENABLE_AUTO_BACKUPS',
   // NEXT_PUBLIC_* (Frontend)
+  // NOTE (Phase 1 audit P0 F31): NEXT_PUBLIC_HMAC_SECRET removed from the
+  // allowlist with the browser-HMAC deletion. Do not re-add client secrets.
   'NEXT_PUBLIC_APP_ENV', 'NEXT_PUBLIC_PROD_RISK_OVERRIDE',
-  'NEXT_PUBLIC_LOCAL_DEV_AUTH', 'NEXT_PUBLIC_HMAC_SECRET',
+  'NEXT_PUBLIC_LOCAL_DEV_AUTH',
   'NEXT_PUBLIC_FIREBASE_API_KEY', 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
   'NEXT_PUBLIC_FIREBASE_PROJECT_ID', 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
   'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', 'NEXT_PUBLIC_FIREBASE_APP_ID',
@@ -118,15 +118,16 @@ const APPROVED_ENV_VARS = new Set([
 ]);
 
 function run(val) {
-  const changedFiles = (() => {
-    try {
-      const out = execSync('git diff --cached --name-only --diff-filter=ACMR', { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-      return out.split('\n').filter(Boolean);
-    } catch { return []; }
-  })();
+  // DECISION-GATE C-4: staged diff in pre-commit, merge-base diff in CI
+  // (CI checkouts have no staged index — --cached would be vacuous).
+  const { getChangedFiles } = require('./diff-scope');
+  const { files: changedFiles, scope } = getChangedFiles(ROOT);
 
   const srcFiles = changedFiles.filter(f => /\.(ts|tsx|js|jsx)$/.test(f) && !f.includes('node_modules'));
-  if (srcFiles.length === 0) return;
+  if (srcFiles.length === 0) {
+    val.info(`Env contract: no source changes in scope (${scope})`);
+    return;
+  }
 
   const pattern = /process\.env\.([A-Z_][A-Z0-9_]*)/g;
 

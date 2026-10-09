@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { LISTING_TYPE } from "@esparex/contracts";
-import * as AdAggregationService from '@esparex/core/domains/listings/application';
-import * as AdMetricsService from '@esparex/core/domains/listings/application/ad/ad/AdMetricsService';
+import { AdAggregationService } from '@esparex/core';
+import { AdMetricsService } from '@esparex/core';
 
-import { ListingExpiryService } from '@esparex/core/services/lifecycle/ListingExpiryService';
+import { ListingExpiryService } from '@esparex/core';
+import { buildOwnerTabFilter, getStatusMatchCriteria } from '@esparex/core';
 
 /**
  * GET /api/v1/listings/mine/stats
@@ -38,7 +39,7 @@ export const getMyListings = async (req: Request, res: Response) => {
         await ListingExpiryService.runSweep();
 
         const { type, status, page = 1, limit = 20 } = req.query;
-        const { getStatusMatchCriteria } = await import('@esparex/core/utils/statusQueryMapper');
+        
 
         const query: Record<string, unknown> = {
             sellerId: userId,
@@ -160,39 +161,8 @@ export const getMyTabListings = async (req: Request, res: Response) => {
         }
 
         if (tab) {
-            const tabStr = String(tab).trim().toLowerCase();
-            if (tabStr === 'live' || tabStr === 'active') {
-                const { getStatusMatchCriteria } = await import('@esparex/core/utils/statusQueryMapper');
-                const liveCriteria = getStatusMatchCriteria('live');
-                const liveStatuses = typeof liveCriteria === 'object' && '$in' in liveCriteria && Array.isArray(liveCriteria.$in)
-                    ? liveCriteria.$in
-                    : ['live', 'approved', 'active', 'published'];
-
-                // Live/active ads must not have passed expiresAt.
-                // Deactivated ads are explicitly exempt — they carry no expiry semantics.
-                query.$and = [
-                    { status: { $in: [...liveStatuses, 'deactivated'] } },
-                    {
-                        $or: [
-                            { status: 'deactivated' },
-                            { expiresAt: { $exists: false } },
-                            { expiresAt: { $gt: new Date() } },
-                        ]
-                    }
-                ];
-            } else if (tabStr === 'pending') {
-                query.status = 'pending';
-            } else if (tabStr === 'expired') {
-                query.$or = [
-                    { status: { $in: ['expired', 'sold'] } },
-                    {
-                        status: { $in: ['live', 'approved', 'active', 'published'] },
-                        expiresAt: { $lte: new Date() }
-                    }
-                ];
-            } else {
-                query.status = { $in: [] };
-            }
+            // Canonical owner-tab visibility (SSOT: core buildOwnerTabFilter).
+            Object.assign(query, buildOwnerTabFilter(tab as string));
         }
 
         const { items, total } = await AdAggregationService.getOwnerListings(

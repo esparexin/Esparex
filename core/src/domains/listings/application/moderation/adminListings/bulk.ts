@@ -1,4 +1,5 @@
 import { pLimit, ADMIN_BULK_CONCURRENCY } from '../../../../../utils/pLimit';
+import { formatAppDate } from '@esparex/shared';
 import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import { dispatchTemplatedNotification } from '../../../../notifications/application/NotificationService';
 import Ad from '../../../../../models/Ad';
@@ -52,7 +53,7 @@ export const adminBulkExtendListings = async (ids: string[], actorId: string, lo
 export const adminBulkResendListingWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {
     return executeBulkWarningOperation(ids, actorId, logFn, {
         notificationTemplate: 'LISTING_EXPIRY_WARNING_3D',
-        getNotificationData: (ad) => ({ title: ad.title, date: ad.expiresAt?.toLocaleDateString() || 'N/A' }),
+        getNotificationData: (ad) => ({ title: ad.title, date: ad.expiresAt ? formatAppDate(ad.expiresAt) : 'N/A' }),
         getNotificationOptions: (ad) => ({ adId: ad._id.toString() }),
         updateSet: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' },
         updateInc: { expiryWarningCount: 1 },
@@ -65,7 +66,7 @@ export const adminBulkResendSpotlightWarnings = async (ids: string[], actorId: s
     return executeBulkWarningOperation(ids, actorId, logFn, {
         validate: (ad) => (!ad.isSpotlight ? 'Listing is not in spotlight' : null),
         notificationTemplate: 'SPOTLIGHT_EXPIRY_WARNING_3D',
-        getNotificationData: (ad) => ({ title: ad.title, date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' }),
+        getNotificationData: (ad) => ({ title: ad.title, date: ad.spotlightExpiresAt ? formatAppDate(ad.spotlightExpiresAt) : 'N/A' }),
         getNotificationOptions: (ad) => ({ adId: ad._id.toString(), type: 'spotlight' }),
         updateSet: { spotlightWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' },
         updateInc: { spotlightWarningCount: 1 },

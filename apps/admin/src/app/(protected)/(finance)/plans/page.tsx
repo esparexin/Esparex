@@ -46,14 +46,16 @@ export default function PlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus,
         handleArchive,
         handleRestore,
+        togglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
-    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
     const [archivingPlan, setArchivingPlan] = useState<Plan | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
@@ -79,32 +81,14 @@ export default function PlansPage() {
         });
     }, [pathname, router, search, searchParams, typeFilter]);
 
-    const onToggleClick = async (plan: Plan) => {
-        if (plan.active) {
-            // If active, we need a confirmation before disabling
-            setTogglingPlanId(plan.id);
-        } else {
-            // If inactive, we just enable it blindly
-            await handleToggleStatus(plan.id);
-        }
-    };
-
-    const confirmToggleStatus = async () => {
-        if (!togglingPlanId) return;
-        const result = await handleToggleStatus(togglingPlanId);
-        if (result.success) {
-            setTogglingPlanId(null);
-        }
-    };
-
     const columns: ColumnDef<Plan>[] = [
         {
             header: "Plan Name & Code",
             cell: (plan) => (
                 <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === "AD_PACK" ? "bg-blue-50 text-blue-600" :
-                        plan.type === "SPOTLIGHT" ? "bg-amber-50 text-amber-600" :
-                            "bg-purple-50 text-purple-600"
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${plan.type === "AD_PACK" ? "bg-primary/10 text-primary" :
+                        plan.type === "SPOTLIGHT" ? "bg-warning/10 text-warning" :
+                            "bg-muted text-foreground-secondary"
                         }`}>
                         <Package size={20} />
                     </div>
@@ -126,7 +110,7 @@ export default function PlansPage() {
             header: "Pricing",
             cell: (plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-foreground-secondary">
+                    <span className="font-bold text-body text-foreground-secondary">
                         {plan.price === 0 ? "Free" : `${plan.currency} ${plan.price}`}
                     </span>
                     <span className="text-tiny text-foreground-subtle font-medium">
@@ -139,7 +123,7 @@ export default function PlansPage() {
             header: "Type & Audience",
             cell: (plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
+                    <span className="text-caption font-semibold text-foreground-secondary flex items-center gap-1">
                         <Activity size={12} className="text-foreground-subtle" /> {plan.type.replace("_", " ")}
                     </span>
                     <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
@@ -151,21 +135,21 @@ export default function PlansPage() {
         {
             header: "Key Limits",
             cell: (plan) => (
-                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     {plan.type === "FREE_DEFAULT" && (
-                        <div>Free Slots: <strong className="font-semibold text-emerald-700">{plan.limits?.maxAds ?? 2}/month</strong></div>
+                        <div>Free Slots: <strong className="font-semibold text-success-dark">{plan.limits?.maxAds ?? 2}/month</strong></div>
                     )}
                     {plan.type === "AD_PACK" && (
-                        <div>Ad Slots: <strong className="font-semibold text-amber-700">{plan.limits?.maxAds ?? 1} Slots</strong></div>
+                        <div>Ad Slots: <strong className="font-semibold text-warning">{plan.limits?.maxAds ?? 1} Slots</strong></div>
                     )}
                     {plan.type === "BOOST_AD" && (
-                        <div>Boost Priority: <strong className="font-semibold text-amber-600">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
+                        <div>Boost Priority: <strong className="font-semibold text-warning">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
                     )}
                     {plan.type === "SPOTLIGHT" && (
-                        <div>Spotlight: <strong className="font-semibold text-purple-600">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
+                        <div>Spotlight: <strong className="font-semibold text-info">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
                     )}
                     {plan.type === "SMART_ALERT" && (
-                        <div>Alert Slots: <strong className="font-semibold text-sky-600">{plan.limits?.smartAlerts ?? 1} Slots</strong></div>
+                        <div>Alert Slots: <strong className="font-semibold text-info">{plan.limits?.smartAlerts ?? 1} Slots</strong></div>
                     )}
                 </div>
             )
@@ -177,20 +161,20 @@ export default function PlansPage() {
                 type CfgEntry = { dot: string; label: string; text: string };
                 const fallback: CfgEntry = { dot: "bg-foreground-tertiary", label: "Inactive", text: "text-foreground-secondary" };
                 const statusConfig: Partial<Record<string, CfgEntry>> = {
-                    ACTIVE: { dot: "bg-emerald-500", label: "Active", text: "text-emerald-700" },
+                    ACTIVE: { dot: "bg-success", label: "Active", text: "text-success" },
                     INACTIVE: fallback,
-                    DRAFT: { dot: "bg-sky-400", label: "Draft", text: "text-sky-700" },
-                    ARCHIVED: { dot: "bg-amber-500", label: "Archived", text: "text-amber-700" },
+                    DRAFT: { dot: "bg-info", label: "Draft", text: "text-info" },
+                    ARCHIVED: { dot: "bg-warning", label: "Archived", text: "text-warning" },
                 };
                 const cfg: CfgEntry = statusConfig[status] ?? fallback;
                 return (
                     <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                        <span className={`capitalize text-xs font-medium ${cfg.text}`}>
+                        <span className={`capitalize text-caption font-medium ${cfg.text}`}>
                             {cfg.label}
                         </span>
                         {plan.isSystemPlan && (
-                            <ShieldCheck size={12} className="text-sky-500" aria-label="System protected plan" />
+                            <ShieldCheck size={12} className="text-info" aria-label="System protected plan" />
                         )}
                     </div>
                 );
@@ -221,10 +205,10 @@ export default function PlansPage() {
                                 onClick={() => void onToggleClick(plan)}
                                 disabled={isMutating}
                                 aria-label={isActive ? `Disable plan ${plan.name}` : `Enable plan ${plan.name}`}
-                                className={`p-1.5 rounded transition-colors flex items-center gap-1 text-xs font-medium ${
+                                className={`p-1.5 rounded transition-colors flex items-center gap-1 text-caption font-medium ${
                                     isActive
-                                        ? "text-red-600 hover:bg-red-50"
-                                        : "text-emerald-600 hover:bg-emerald-50"
+                                        ? "text-destructive hover:bg-destructive/10"
+                                        : "text-success hover:bg-success/10"
                                 }`}
                             >
                                 {isActive ? <><XCircle size={14} aria-hidden="true" /> Disable</> : <><CheckCircle2 size={14} aria-hidden="true" /> Enable</>}
@@ -236,7 +220,7 @@ export default function PlansPage() {
                                 onClick={() => setArchivingPlan(plan)}
                                 disabled={isMutating}
                                 aria-label={`Archive plan ${plan.name}`}
-                                className="p-1.5 rounded text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-1.5 rounded text-warning hover:bg-warning/10 transition-colors flex items-center gap-1 text-caption font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Archive size={13} aria-hidden="true" /> Archive
                             </button>
@@ -247,7 +231,7 @@ export default function PlansPage() {
                                 onClick={() => void handleRestore(plan.id)}
                                 disabled={isMutating}
                                 aria-label={`Restore plan ${plan.name}`}
-                                className="p-1.5 rounded text-sky-600 hover:bg-sky-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-1.5 rounded text-primary hover:bg-primary/10 transition-colors flex items-center gap-1 text-caption font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <RotateCcw size={13} aria-hidden="true" /> Restore
                             </button>
@@ -255,11 +239,11 @@ export default function PlansPage() {
                         {/* Protected Default Plan lock badge */}
                         {isProtectedPlan && !isArchived && (
                             <span
-                                className="text-xs text-sky-700 bg-sky-50 border border-sky-200 font-semibold flex items-center gap-1 px-2 py-1 rounded-md"
+                                className="text-caption text-primary bg-primary-subtle border border-primary/20 font-semibold flex items-center gap-1 px-2 py-1 rounded-md"
                                 title="Active Default Free Plan is mandatory and protected — cannot be disabled or archived."
                                 aria-label="Active Default Free Plan protected"
                             >
-                                <ShieldCheck size={13} className="text-sky-600" aria-hidden="true" /> Protected
+                                <ShieldCheck size={13} className="text-primary" aria-hidden="true" /> Protected
                             </span>
                         )}
                     </div>
@@ -293,7 +277,7 @@ export default function PlansPage() {
                                 <Filter className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                                 <select
                                     aria-label="Filter by plan type"
-                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={typeFilter}
                                     onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
                                 >
@@ -309,7 +293,7 @@ export default function PlansPage() {
                     />
 
                     {error && (
-                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                        <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-4 text-body font-medium flex items-center gap-2">
                             <AlertCircle size={18} /> {error}
                         </div>
                     )}
@@ -337,7 +321,7 @@ export default function PlansPage() {
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}
-                onClose={() => setTogglingPlanId(null)}
+                onClose={cancelToggleStatus}
                 onConfirm={confirmToggleStatus}
                 isMutating={isMutating}
                 title="Deactivate Plan"

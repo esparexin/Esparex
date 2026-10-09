@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@esparex/contracts": "*",
-    "@sentry/node": "^8.26.0",
+    "@sentry/node": "^10.51.0",
     "slugify": "^1.6.9"
   },
   "peerDependencies": {

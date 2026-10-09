@@ -11,11 +11,11 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
     expect(typeof AdCardList).toBe("object"); // memoized React component
   });
 
-  it("resolves General Device Ad badge correctly with canonical label 'Ad'", () => {
+  it("resolves General Device Ad badge correctly with canonical label 'Device'", () => {
     const badge = resolveListingTypeBadge({ listingType: "ad" });
     expect(badge).toEqual({
       type: "ad",
-      label: "Ad",
+      label: "Device",
       icon: "device",
       className: "bg-blue-50 text-blue-700 border-blue-200",
     });
@@ -41,14 +41,15 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
     });
   });
 
-  it("defaults missing or undefined listingType to 'ad' (General Device Ad)", () => {
-    expect(resolveListingTypeValue(undefined)).toBe("ad");
-    expect(resolveListingTypeValue(null)).toBe("ad");
-    expect(resolveListingTypeValue({ listingType: undefined })).toBe("ad");
+  it("returns no badge for missing or undefined listingType (never defaults to Device)", () => {
+    expect(resolveListingTypeValue(undefined)).toBeUndefined();
+    expect(resolveListingTypeValue(null)).toBeUndefined();
+    expect(resolveListingTypeValue({ listingType: undefined })).toBeUndefined();
+    expect(resolveListingTypeValue({ listingType: "unknown_type" })).toBeUndefined();
 
-    const badge = resolveListingTypeBadge({});
-    expect(badge?.type).toBe("ad");
-    expect(badge?.label).toBe("Ad");
+    expect(resolveListingTypeBadge({})).toBeNull();
+    expect(resolveListingTypeBadge(undefined)).toBeNull();
+    expect(resolveListingTypeBadge({ listingType: "unknown_type" })).toBeNull();
   });
 
   describe("shouldDisplayCategoryBadge (Duplicate Badge Prevention)", () => {
@@ -72,6 +73,8 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
       const adItem = { id: "3", title: "iPhone 13", listingType: "ad" } as any;
       expect(shouldDisplayCategoryBadge("General", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Category", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("Device", adItem)).toBe(false);
+      expect(shouldDisplayCategoryBadge("Devices", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Ad", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("Ads", adItem)).toBe(false);
       expect(shouldDisplayCategoryBadge("", adItem)).toBe(false);

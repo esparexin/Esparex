@@ -1,6 +1,8 @@
 /**
  * locationNormalizer.ts
- * Pure data transforms: normalizeToAppLocation, reverseGeocode, formatLocation.
+ * Pure data transforms: normalizeToAppLocation, reverseGeocode.
+ * Location display formatting is canonical in @esparex/shared
+ * (getLocationLabel / getCompactLocationLabel) — do not fork here.
  * No browser APIs. Safe to import in SSR and tests.
  */
 
@@ -10,7 +12,6 @@ import { reverseGeocode as reverseGeocodeApi } from "@/lib/api/user/locations";
 import {
     toCanonicalGeoPoint,
     normalizeLocationText,
-    sanitizeLocationLabel,
 } from "@esparex/shared";
 
 // ── internal helpers ─────────────────────────────────────────────────────────
@@ -131,15 +132,4 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
 
 export function normalizeLocationName(name: string | undefined | null): string {
     return normalizeLocationText(name);
-}
-
-type LocationLike = { display?: string; city?: string; name?: string } | string | null | undefined;
-
-export function formatLocation(location: LocationLike): string {
-    if (!location) return "";
-    if (typeof location === "string") return sanitizeLocationLabel(location) || "";
-    if (location.city) return sanitizeLocationLabel(location.city) || "";
-    if (location.display) return sanitizeLocationLabel(location.display) || "";
-    if (location.name) return sanitizeLocationLabel(location.name) || "";
-    return "";
 }

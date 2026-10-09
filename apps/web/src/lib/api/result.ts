@@ -127,7 +127,7 @@ const fallbackError = (error: unknown): EsparexError => {
   });
 };
 
-export const createApiErrorResult = (error: unknown) => {
+const createApiErrorResult = (error: unknown) => {
   const normalized = fallbackError(error);
   const responseStatus =
     typeof error === "object" && error !== null && "response" in error

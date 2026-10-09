@@ -2545,5 +2545,321 @@ docs/tracking/engineering-action-register.md
 - ✅ `npm test -w @esparex/apps-admin` ──► PASS (104/104 tests green)
 - ✅ `npm test -w @esparex/core -- AdDetailReportAggregation` ──► PASS (3/3 tests green)
 
+---
 
+### EA-055
 
+**Sprint**: Admin Email Templates Customization & Dedicated Management Console  
+**PR**: PR on `feat/admin-email-customization`  
+**Category**: Notifications & System Configuration  
+**Status**: ✅ Completed  
+
+**Action Taken**:
+1. **Audit & Root Cause Resolution**:
+   - Audited the entire repository for email template customization. Proved that email customization was never previously implemented in the Admin UI; all 14 transactional/system emails existed only as hardcoded TypeScript functions in `core/src/domains/notifications/templates/EmailLayout.ts`, and `SystemConfig.emailTemplates` was an untyped placeholder `unknown[]` without schemas, consumers, or UI.
+2. **Contracts & SSOT Schema Architecture**:
+   - Defined `EMAIL_TEMPLATE_KEY` (14 canonical templates) and `EMAIL_TEMPLATE_CATEGORY` enums in `@esparex/contracts`.
+   - Created `EmailTemplateDTO`, `EmailTemplateVariable`, `EmailTemplateCustomization`, `EmailTemplatePreviewDTO`, and Zod schemas (`emailTemplateCustomizationSchema`, `updateEmailTemplateSchema`, `sendTestEmailTemplateSchema`).
+   - Added canonical API route constants in `shared/src/routes/api/adminRoutes.ts` and UI route helper `emailTemplates` in `adminUiRoutes.ts`.
+3. **Core Domain Catalog Service & Customization Overlay**:
+   - Built `EmailTemplateCatalogService` and `emailTemplateRegistry` in `@esparex/core`, mapping all 14 canonical templates with metadata, variable dictionaries, sample test payloads, live HTML previews, and subject line interpolation (`{{variable}}`).
+   - Replaced untyped `unknown[]` with strongly typed `EmailTemplateCustomization[]` in `core/src/models/SystemConfig.ts` and `systemConfig.validator.ts`.
+4. **Backend API Endpoints**:
+   - Created `backend/api/src/controllers/admin/adminEmailTemplateController.ts` supporting `listEmailTemplates`, `getEmailTemplate`, `getEmailTemplatePreview`, `updateEmailTemplate`, `resetEmailTemplate`, and `sendTestEmailTemplate`.
+   - Protected mutations with `requirePermission('system:config')` and logged actions with `logAdminAction`.
+5. **Dedicated Admin Navigation & Management Page**:
+   - Registered dedicated "Email Templates" module in `apps/admin/src/components/layout/adminNavigation.ts` with `Mail` icon under Management section.
+   - Connected `notificationsTabs` (`Broadcasts`, `Smart Alerts`, `Email Templates`) for unified top-tab navigation.
+   - Created client API layer (`emailTemplates.ts`) and hook `useAdminEmailTemplates.ts`.
+   - Built responsive UI page (`/email-templates`) featuring category filters, search, table with customizer/status badges, live HTML preview modal with desktop/mobile viewport toggle, and customization modal with dynamic variable chips and live test dispatcher.
+   - Enforced Mobile Form Input Font-Size Governance Rule (`text-body-lg md:text-body`) to prevent iOS Safari auto-zoom.
+6. **Automated Testing & Parity Verification**:
+   - Added unit test suite `EmailTemplateCatalogService.spec.ts` (11 tests).
+   - Added API controller test suite `adminEmailTemplateController.spec.ts` (8 tests).
+   - Added UI integration test suite `admin-email-templates.spec.ts` (8 tests) and updated `admin-navigation-integrity.spec.ts` (6 tests).
+   - Added `EmailTemplateParity.spec.ts` (4 tests) enforcing 100% parity between `EmailLayout.ts` and `EmailTemplateCatalogService`.
+
+**Files Created / Modified**:
+```
+apps/admin/src/__tests__/admin-email-templates.spec.ts
+apps/admin/src/__tests__/admin-navigation-integrity.spec.ts
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateEditorModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplatePreviewModal.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/components/EmailTemplateTable.tsx
+apps/admin/src/app/(protected)/(system)/email-templates/page.tsx
+apps/admin/src/components/layout/adminModuleTabSets.ts
+apps/admin/src/components/layout/adminNavigation.ts
+apps/admin/src/hooks/useAdminEmailTemplates.ts
+apps/admin/src/lib/adminUiRoutes.ts
+apps/admin/src/lib/api/emailTemplates.ts
+apps/admin/src/types/systemConfig.ts
+backend/api/src/__tests__/controllers/adminEmailTemplateController.spec.ts
+backend/api/src/controllers/admin/adminEmailTemplateController.ts
+backend/api/src/routes/adminRoutes.ts
+core/src/domains/notifications/__tests__/EmailTemplateCatalogService.spec.ts
+core/src/domains/notifications/__tests__/EmailTemplateParity.spec.ts
+core/src/domains/notifications/application/EmailTemplateCatalogService.ts
+core/src/domains/notifications/application/emailTemplateRegistry.ts
+core/src/domains/notifications/index.ts
+core/src/models/SystemConfig.ts
+core/src/validators/systemConfig.validator.ts
+packages/contracts/src/v1/notifications/dto/emailTemplate.ts
+packages/contracts/src/v1/notifications/enums/emailTemplate.ts
+packages/contracts/src/v1/notifications/index.ts
+packages/contracts/src/v1/notifications/schema/emailTemplate.schema.ts
+shared/src/routes/api/adminRoutes.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Dedicated Email Templates menu, page, live preview modal, customization editor, test email dispatcher, and reset workflows implemented.
+- [x] **Automated Testing**: 100% test suites passed (37 tests across core, api, and admin).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 double casts.
+- [x] **Contract Stability**: Contracts defined cleanly in `@esparex/contracts` without breaking changes.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- EmailTemplate` ──► PASS (15/15 tests green)
+- ✅ `npm test -w @esparex/backend-api -- adminEmailTemplateController` ──► PASS (8/8 tests green)
+- ✅ `npm test -w @esparex/apps-admin -- admin-email-templates admin-navigation-integrity` ──► PASS (14/14 tests green)
+- ✅ `node scripts/guard-type-cast-baseline.js` ──► PASS (0 double casts, 0 suppressions, 0 unsafe casts)
+- ✅ `node scripts/enforce-design-token-adoption.js` ──► PASS (0 raw palette/inline style violations)
+
+---
+
+### EA-056
+**Date**: 2026-09-28  
+**Description**: Web Proxy Canonical Host Redundancy Elimination & Subdomain Hazard Mitigation  
+**Root Cause**: `apps/web/src/proxy.ts` contained a redundant host-level canonicalization block that duplicated the router-level redirect in `apps/web/next.config.mjs` (and Vercel edge domain routing). It introduced an HTTP status code discrepancy (301 in proxy vs 308 in router/edge) and a broad subdomain pattern matching hazard (`cleanHost.endsWith(".esparex.in") && cleanHost !== "admin.esparex.in"`) that risked redirecting administrative subdomains such as `www.admin.esparex.in` to the public apex.  
+**Action**:
+1. **Redundant Host Check Removal**: Removed lines 26–35 in `apps/web/src/proxy.ts`, preserving Next.js Edge proxy execution exclusively for category alias normalization (`/category/[slug]`), admin IP protection, and route authentication guards.
+2. **SSOT Application Router Fallback**: Retained lines 251–262 in `apps/web/next.config.mjs` as the canonical HTTP 308 router-level fallback for non-Vercel/containerized environments.
+3. **Hygiene & Import Cleanup**: Eliminated unused `CANONICAL_ORIGIN` import from `@/lib/seo/canonicalHost` in `proxy.ts`.
+
+**Files Modified**:
+```
+apps/web/src/proxy.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Removed duplicate host redirect in proxy.ts while preserving next.config.mjs and Vercel edge routing.
+- [x] **Automated Testing**: Monorepo test suites passed cleanly (83 test files, 444 tests in apps/web).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated.
+
+**Verification**:
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test -w @esparex/apps-web` ──► PASS (83 suites, 444 tests)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (18/18 gates, 100% Health Score)
+
+---
+
+### EA-057
+**Date**: 2026-09-28  
+**Description**: Test Subdomains CORS and Redirect Whitelist Authorization (`admintest.esparex.in`, `test.esparex.in`)  
+**Root Cause**: Testing feature branches (e.g. `develop`) on staging/test subdomains (`admintest.esparex.in`, `test.esparex.in`) was blocked by backend CORS middleware and redirect URL validation, which only permitted apex and production subdomains (`esparex.in`, `admin.esparex.in`).  
+**Action**:
+1. **Core Origin SSOT Centralization**: Defined `DEFAULT_STATIC_ALLOWED_ORIGINS` and `isAllowedOrigin` helper in `@esparex/core/utils/originConfig.ts` to include `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in`, supporting both full protocol URLs and host-only headers.
+2. **Backend API CORS Integration**: Updated `backend/api/src/app.ts` to consume `DEFAULT_STATIC_ALLOWED_ORIGINS` and validate incoming request origins via `isAllowedOrigin`.
+3. **Redirect Domain Whitelist**: Added `admintest.esparex.in` and `test.esparex.in` to `DEFAULT_ALLOWED_DOMAINS` in `core/src/utils/redirectValidator.ts` so authentication and navigation redirects to staging subdomains are safely permitted.
+4. **Comprehensive Test Coverage**: Added test coverage in `backend/api/src/__tests__/utils/originConfig.spec.ts` (9 tests) and `core/src/__tests__/utils/redirectValidator.spec.ts` (5 tests) verifying production, preview, and test subdomain validation.
+
+**Files Modified**:
+```
+backend/api/src/__tests__/utils/originConfig.spec.ts
+backend/api/src/app.ts
+core/src/__tests__/utils/redirectValidator.spec.ts
+core/src/utils/originConfig.ts
+core/src/utils/redirectValidator.ts
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: Added `admintest.esparex.in`, `test.esparex.in`, `https://admintest.esparex.in`, and `https://test.esparex.in` to allowed origins and redirect domains.
+- [x] **Automated Testing**: Unit tests passed cleanly across core and backend workspaces (14 tests total).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [x] **Zero Suppression Policy**: 0 suppressions added; 0 lint waivers.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-057.
+
+**Verification**:
+- ✅ `npm test -w @esparex/core -- redirectValidator.spec.ts` ──► PASS (5/5 tests green)
+- ✅ `npm test -w @esparex/backend-api -- originConfig.spec.ts` ──► PASS (9/9 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build` ──► PASS (Compiled and bundled all workspaces with exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-058
+**Date**: 2026-09-28  
+**Description**: Center AuthModal on Desktop Viewports (Single Responsive Instance SSOT)  
+**Root Cause**: In `apps/web/src/components/auth/AuthModal.tsx`, the `SheetContent` primitive uses `side="bottom"`, which applies Tailwind utility `fixed inset-x-0 bottom-0`. On desktop viewports (`sm:` breakpoint), `sm:max-w-sm` constrained the container width to 384px, but without resetting `inset-0` or applying `m-auto`, the CSS anchored the 384px card to `left: 0; bottom: 0`, placing it in the bottom-left corner of desktop screens.  
+**Action**:
+1. **Single Responsive Instance Centering**: In `apps/web/src/components/auth/AuthModal.tsx`, added `sm:inset-0 sm:m-auto sm:h-fit sm:max-h-[calc(100dvh-3rem)]` to `SheetContent`. On desktop (`sm:`), the modal centers horizontally and vertically in the viewport with a fit height and proper margin, avoiding CSS transform collisions with touch-drag handlers.
+2. **Preserve Mobile Bottom Sheet UX**: On mobile viewports (`< sm`), `side="bottom"`, touch-to-dismiss drag gestures, and visual viewport keyboard avoidance (`translateY(-var(--keyboard-height))`) remain 100% intact.
+3. **Automated Regression Suite**: Updated `apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts` to assert `sm:inset-0` and `sm:m-auto` are maintained on `AuthModal` desktop styles.
+4. **Zero Duplication**: Preserved the single responsive component instance across mobile and desktop without introducing separate desktop dialog duplicates.
+
+**Files Modified**:
+```
+apps/web/src/__tests__/mobile-keyboard-audit-regression.spec.ts
+apps/web/src/components/auth/AuthModal.tsx
+docs/tracking/engineering-action-register.md
+```
+
+**Definition of Done Checklist**:
+- [x] **Feature Implementation**: AuthModal perfectly centered on desktop viewports while mobile bottom drawer functionality remains intact.
+- [x] **Automated Testing**: Unit and regression tests passed cleanly (`mobile-keyboard-audit-regression.spec.ts`, 13 tests green).
+- [x] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build -w @esparex/apps-web`) pass cleanly with exit code `0`.
+- [x] **Zero Duplication**: Single responsive component instance maintained according to architecture governance.
+- [x] **Accessibility & Keyboard**: Radix sheet focus trap, escape key dismissal, and tab navigation preserved.
+- [x] **Release Notes & EA Ledger**: `engineering-action-register.md` updated with EA-058.
+
+**Verification**:
+- ✅ `npm test -w @esparex/apps-web -- mobile-keyboard-audit-regression.spec.ts` ──► PASS (13/13 tests green)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-060
+**Date**: 2026-09-29  
+**Description**: Remediate Broken Internal Links and Phantom Documentation References Across Monorepo  
+**Root Cause**: Documentation drift caused 34 broken internal links across 9 files pointing to non-existent historical directories (`docs/reports/`), uncommitted matrices (`sprint-4-verification-matrix.md`, `visual-qa-report.md`), deleted sprint audits (`UI_FOUNDATION_AUDIT.md`), and malformed `file://./` URLs in AI skills.  
+**Action**:
+1. Corrected 19 malformed `file://./` relative URIs in `.agents/skills/esparex-ui-ux/SKILL.md` to standard relative links (`./*.md`).
+2. Replaced dead links in `README.md` and `docs/architecture/UI_TECHNICAL_SPECIFICATION.md` with active SSOT `docs/architecture/ui-foundation-blueprint.md`.
+3. Updated `docs/README.md` to eliminate phantom links to non-existent `docs/reports/` and deleted sprint audits, pointing instead to active living audits and playbooks.
+4. Corrected token exceptions link in `packages/design-tokens/README.md` to `docs/design-system/token-catalog.md`.
+5. Updated `docs/local-ios-development.md` and `docs/releases/v1.0.0/verification.md` to reference active tracking and audit files.
+6. Removed non-existent capability test suite reference from `docs/architecture/PLATFORM_CAPABILITY_CATALOG.md`.
+7. Formatted atomic ReDoS regex in `docs/security/security-audit-remediation-report.md` to prevent markdown link parser misinterpretation.
+8. Verified repository-wide: 166 markdown files scanned with 0 broken links remaining.
+
+**Verification**:
+- ✅ Link Audit Scanner ──► PASS (166 markdown files, 0 broken links)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run build` ──► PASS (Exit code 0)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-061
+**Date**: 2026-09-29  
+**Description**: Monorepo Canonical Ownership Registry & Project Context Synchronization  
+**Root Cause**: `.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json` retained references to retired `packages/kernel` (relocated to `core/src/shared-kernel/` per ADR-010) while omitting active workspaces `packages/design-tokens`, `packages/mobile-ui`, and `apps/mobile`. In addition, `.agents/project/PROJECT_CONTEXT.json` referenced pre-DDD file paths without `api/` prefix.  
+**Action**:
+1. Updated `CANONICAL_OWNERSHIP_REGISTRY.json` to register `packages/design-tokens`, `packages/mobile-ui`, and `apps/mobile` with clear ownership and import boundaries.
+2. Removed retired `@esparex/kernel` from allowed imports across all packages and bounded contexts.
+3. Updated `PROJECT_CONTEXT.json` runtime AI paths to active locations in `backend/api/` and `core/`.
+4. Aligned `docs/governance/ENGINEERING-HANDBOOK.md`, `REPOSITORY-GOVERNANCE.md`, and `ARCHITECTURE-GOVERNANCE.md` with active workspace structure.
+
+**Verification**:
+- ✅ `node scripts/git/esparex/architecture-validator.js` ──► PASS
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-062
+**Date**: 2026-09-29  
+**Description**: Resolve UI Component Ownership & Admin Framework Contradictions in Core Docs  
+**Root Cause**: `docs/architecture/UI_TECHNICAL_SPECIFICATION.md` allowed `apps/web/src/components/ui/`, directly contradicting `AGENTS.md` and triggering repository hygiene guards. `.agents/governance/AUDIT_STATUS.md` misclassified `apps/admin` as a Vite application when it is Next.js 15 App Router.  
+**Action**:
+1. Updated `UI_TECHNICAL_SPECIFICATION.md` component table to eliminate `apps/web/src/components/ui/`, affirming that all primitives reside in `@esparex/ui` and `@esparex/mobile-ui`. Added explicit Prohibition Rule banner.
+2. Corrected `apps/admin` technology classification in `AUDIT_STATUS.md` to `Browser / Next.js`.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-063
+**Date**: 2026-09-29  
+**Description**: Historical Audit Status Standardization & Retention Governance  
+**Root Cause**: Completed historical audits lacked status headers distinguishing completed engineering evidence from active tasks.  
+**Action**:
+1. Standardized status metadata across completed audit reports including `docs/audits/HOME_FEED_LISTING_TYPE_LOCATION_AUDIT.md`.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-064
+**Date**: 2026-09-29  
+**Description**: Purge Alien Presentation Debris & Add Log Cleaning to Clean Script  
+**Root Cause**: Obsolete presentation data directories (`.agents/skills/design/data`, `.agents/skills/design-system/data`) lacked `SKILL.md` files and represented alien presentation debris. Furthermore, rotated logs accumulated over 41MB in `backend/api/logs` and `logs` without cleanup coverage in `scripts/clean.js`.  
+**Action**:
+1. Removed invalid skill directories `.agents/skills/design` and `.agents/skills/design-system`.
+2. Enhanced `scripts/clean.js` with `--logs` flag and included `logs`, `backend/api/logs`, and `core/logs` in full repository cleanup.
+3. Purged 41MB of stale rotated log files locally.
+
+**Verification**:
+- ✅ `node scripts/clean.js --logs` ──► PASS
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-065
+**Date**: 2026-09-29  
+**Description**: CODEOWNERS Monorepo Coverage Expansion & Documentation Audit Consolidation  
+**Root Cause**: `.github/CODEOWNERS` omitted entries for `packages/mobile-ui` and `apps/mobile`.  
+**Action**:
+1. Added ownership review rules for `/packages/mobile-ui/` and `/apps/mobile/` to `.github/CODEOWNERS`.
+2. Updated `TODO.md` to reflect completed reference and supporting files audit.
+
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19 gates, 100% Health Score)
+
+---
+
+### EA-066
+**Date**: 2026-09-29  
+**Description**: Skills/SSOT/Workflow Governance Consolidation (audit remediation, branch chore/issue-646-skills-ssot-workflow-consolidation)  
+**Root Cause**: Audit evidenced orchestration triplication (skill-orchestrator vs POLICY_ENGINE vs AI_WORKFLOW 2.5/8), UI/UX 4-way restatement (+ duplicate `esparex-ui-ux` skill identity), hygiene/audit/auth wording overlap, ~30 prose-only "mandatory" rules with no mechanical guard, expired ACTIVE waivers, stale DECISION_LOG (53 days), docs sprawl (65 vs 5 pillars), and heavy pre-push with no docs fast-path.  
+**Action**:
+1. Scoped skill-orchestrator (classifier) / POLICY_ENGINE (data) / AI_WORKFLOW (lifecycle) to single authorities.
+2. Stubbed DESIGN_SYSTEM_GOVERNANCE.md, ESPAREX_UI_UX_DESIGN_STANDARDS.md, PROJECT_SPECIFICATION.md to canonical pointers; deprecated esparex-ui-ux-complete-skill.md snapshot (unique skill identity).
+3. Scoped clean-code/code-quality to discovery + TS standards (gates: verification/pre_implementation.md); added audit + auth router banners.
+4. Extended enforce-ad-ssot-guard.js (mongoose binding, expiresAt clamp, buildPublicAdFilter, date-formatter ban) and guard-location-ssot.js (Nominatim User-Agent + Nominatim-first); wired Ad SSOT into GOV-GUARDS-001 (E-012).
+5. Added AGENTS.md Enforcement Tiers (Tier A blocking / Tier B manually audited); labeled PR template §§1/4.
+6. Closed WAIVER-001/002 (EXPIRED) + waiver-expiry gate check; restored DECISION_LOG; documented governance.yml weekly Issue policy.
+7. Added guard-doc-hygiene.js (docs ratchet 65 + audit-reports allowlist, E-013) wired into guard:hygiene + GOV-GUARDS-001.
+8. Added .husky/pre-push docs-only fast-path; published repo:gate timing budget (~19s, <60s) in AGENTS.md §22.
+
+**Verification**:
+- ✅ `node scripts/enforce-ad-ssot-guard.js` ──► PASS
+- ✅ `node scripts/guard-location-ssot.js` ──► PASS
+- ✅ `npm run guard:auth-ssot` ──► PASS (0 violations)
+- ✅ `npm run guard:ai-governance` ──► PASS
+- ✅ `npm run guard:hygiene` ──► PASS (incl. doc hygiene 65/65)
+- ✅ `npm run guard:duplicate-code` ──► PASS (within DUP-001 ratchet)
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score 100%) after every commit (13 commits)
+
+---
+
+### EA-067
+**Date**: 2026-09-30
+**Description**: Code-quality/duplication remediation — full audit-to-closure execution (branch chore/code-quality-remediation-phased, naming waiver, no issue created)
+**Root Cause**: Audit evidenced SSOT bypasses across contracts/shared/backend/core/admin/web/mobile/tokens: literal triplication (placements, ObjectId, limits), use-case formatter variants, controller date rendering, dual Nominatim transports, in-service mapping, hook/wrapper clones, missing admin theme mappings, surface token bypasses, deep package imports, body-lg type drift.
+**Action** (22 logical commits, 92 files, +706/−563, one branch, tree clean):
+1. Contracts: placement enum single-sourced (b27928af2); ObjectId single owner (69ee7fa35); limits routed through limit SSOT (4ec50292e); dashboard barrels + 2 justified barrel files (0cc9a209f); contact DTO owned by contracts (e5dba0705); DeviceModel alias removal REVERTED — broke web masterData re-export chain, restored with consumer comment (7286e8526).
+2. Shared: getLocationLabel(surface) + aliases (738e88f8d); formatCatalogDisplayName + 6 aliases (29c4934a4).
+3. Backend: contact DTO adoption; deterministic dates in 3 controllers (c9ccccf2c); mid-file imports hoisted; generic-CRUD relocation + E29 doc.save() preserved with evidence (strict aiSectionSchema rejects payload; 40 call sites) (9b2dbb251).
+4. Core: Nominatim HTTP SSOT + compliant UA + 4s ceiling (ebcb97cc0); EmailTemplateMapper extracted (5a77b2892); 9 dates + logging via SSOT (6507c49db).
+5. Admin: cn ×5 → @esparex/ui (9b4c02a92); query-sync wrapper deleted + useNotifications consolidated (94f71b1f9); theme mappings added (d9f475c0a, probe-verified); palette/dates/location-owner sweep (e90c4877f, a59c5ff72).
+6. Web: surface tokens + DAY_IN_MS consts (281a14d6c); composition clusters/wrappers/SSR-fetch/backdrops/categorical colors preserved with import evidence.
+7. Mobile/tokens: thumbnail single owner, root import, token sweep (e39b26e1f); body-lg gap closed, ad enums from contracts (da3310421).
+8. Governance: no-deep-imports-into-packages depcruise rule + spec fix, negative-control proven (7db06fe03).
+**Intentionally preserved (evidence, do not re-flag)**: web composition clusters; DTO-vs-payload pairs; googleAds enums; platform ui/mobile-ui adapter divergence; oversize files (ratchet-guarded, unsplit); list-hook/mutation families; repo toDomain (mapper guard permits); savedSearch trim-variant; TrendsChart/categoryVisuals categorical colors; photo scrims; Razorpay theme hex; crash fallback; E29; query validators; .DS_Store/.env (untracked+ignored).
+**Accepted pre-existing duplication (reviewed, out of scope, not introduced here)**: 2 JSCPD clones — core Model/ServiceType + Brand/Variant Mongoose schema field blocks (9 lines each, 0.02% total vs 0.08%+0.01% ratchet).
+**Verification**:
+- ✅ `npm run repo:gate` ──► PASS (19/19, 100%)
+- ✅ root `npm run type-check` ──► clean (all workspaces)
+- ✅ tests: backend 409 · core 509 · web 467 · admin 111 · mobile 306 — green
+- ✅ `guard:duplicate-code` ──► 0.02% · `guard:knip` ──► PASS · `guard:dependencies` ──► 0 errors (baseline-identical) · `guard:design-token-adoption` ──► 0 violations
+- ✅ Finding-by-finding re-grep: cn 0 · wrapper gone · deep imports 0 · ObjectId locals 0 · placement literals single-sourced · prod console 0 · raw controller/core dates 0

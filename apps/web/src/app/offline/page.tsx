@@ -21,7 +21,7 @@ export default function OfflinePage() {
             >
                 {/* Icon Badge with explicit width/height constraints */}
                 <div
-                    className="mb-6 mx-auto flex size-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 text-amber-600 dark:text-amber-400 shadow-2xs"
+                    className="mb-6 mx-auto flex size-16 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 text-amber-600 dark:text-amber-400 shadow-sm"
                 >
                     <WifiOff
                         className="size-8 text-amber-600 dark:text-amber-400 shrink-0"
@@ -46,7 +46,7 @@ export default function OfflinePage() {
                     <OfflineReloadButton />
                     <Link
                         href="/"
-                        className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background hover:bg-muted px-6 text-body font-semibold text-foreground-secondary transition-all shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background hover:bg-muted px-6 text-body font-semibold text-foreground-secondary transition-all shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         // design-token-ignore: offline fallback page must inline system font in case CSS bundle fails
                         style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
                     >

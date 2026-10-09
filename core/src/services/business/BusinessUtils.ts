@@ -8,9 +8,9 @@ import { IBusinessDocument } from '../../models/Business';
 import { type IdProofTypeValue } from '@esparex/contracts';
 
 export const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
-export const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
+const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
 
-export type BusinessDocumentInput = {
+type BusinessDocumentInput = {
     type: 'id_proof' | 'business_proof' | 'certificate';
     url: string;
     expiryDate?: string | Date;
@@ -91,7 +91,7 @@ export const asOptionalString = (value: unknown): string | undefined => {
     return normalized.length > 0 ? normalized : undefined;
 };
 
-export const extractPincodeFromAddress = (value: unknown): string | undefined => {
+const extractPincodeFromAddress = (value: unknown): string | undefined => {
     const address = asOptionalString(value);
     if (!address) return undefined;
     return address.match(ADDRESS_PINCODE_PATTERN)?.[0];

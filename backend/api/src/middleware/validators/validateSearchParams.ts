@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
-import { stripMongoOperators } from '@esparex/core/utils/mongoQueryValidator';
+import { stripMongoOperators } from '@esparex/core';
 
 export const validateSearchParams = (req: Request, res: Response, next: NextFunction) => {
     req.query = stripMongoOperators(req.query) as Record<string, string | string[] | undefined>;

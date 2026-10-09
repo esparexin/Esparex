@@ -49,15 +49,26 @@ export const buildApprovalTrustMetadata = (params: { requestCount?: number; crea
     };
 };
 
-export const applyMarketplaceTrustMetadata = (entity: Record<string, unknown>, metadata: Record<string, unknown>): void => {
+export const applyMarketplaceTrustMetadata = (entity: { marketplaceTrust?: unknown }, metadata: Record<string, unknown>): void => {
     setEntityField(entity, 'marketplaceTrust', {
         ...(entity.marketplaceTrust && typeof entity.marketplaceTrust === 'object' ? entity.marketplaceTrust : {}),
         ...metadata,
     });
 };
 
+export interface CatalogActivationEntity {
+    categoryIds?: unknown[];
+    save: (options?: { session?: ClientSession | null }) => Promise<unknown>;
+    approvalStatus?: string;
+    isActive?: boolean;
+    status?: string;
+    rejectionReason?: string | null;
+    needsReview?: boolean;
+    marketplaceTrust?: unknown;
+}
+
 export const ensureEntityActiveAndTrusted = async (
-    entity: { categoryIds?: unknown[]; save: (options?: { session?: ClientSession | null }) => Promise<unknown>; approvalStatus?: string; isActive?: boolean; status?: string; rejectionReason?: string | null; needsReview?: boolean },
+    entity: CatalogActivationEntity,
     request: { requestCount?: number; categoryId: unknown },
     session: ClientSession | null | undefined,
     trustParams: { createdCanonicalEntity?: boolean; duplicateResolution?: boolean }

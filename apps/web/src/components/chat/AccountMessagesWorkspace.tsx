@@ -38,10 +38,10 @@ export function AccountMessagesWorkspace({
         <div className="hidden md:flex h-full min-h-0 flex-col items-center justify-center bg-muted/30 p-6 text-center">
           {/* Sparkle Chat Bubble Illustration */}
           <div className="relative mb-3.5 flex items-center justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-xs">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
               <MessageSquare className="h-7 w-7" />
             </div>
-            <Sparkles className="absolute -top-1.5 -right-1.5 h-4 w-4 text-amber-500 fill-amber-500/20" />
+            <Sparkles className="absolute -top-1.5 -right-1.5 h-4 w-4 text-warning fill-warning/20" />
           </div>
 
           <h3 className="text-body-lg font-bold text-foreground">No conversations yet</h3>
@@ -51,7 +51,7 @@ export function AccountMessagesWorkspace({
 
           <Link
             href="/browse"
-            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 h-9 text-caption font-semibold shadow-xs transition-colors"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground px-4 h-9 text-caption font-semibold shadow-sm transition-colors"
           >
             <MessageSquare className="h-3.5 w-3.5" />
             <span>Browse Listings</span>
@@ -91,7 +91,7 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <div className="flex flex-col h-full md:h-[480px] md:max-h-[480px] md:min-h-[480px] rounded-none md:rounded-2xl border-0 md:border md:border-border/80 bg-white md:shadow-xs overflow-hidden flex-1 min-h-0">
+    <div className="flex flex-col h-full md:h-[480px] md:max-h-[480px] md:min-h-[480px] rounded-none md:rounded-2xl border-0 md:border md:border-border/80 bg-white md:shadow-sm overflow-hidden flex-1 min-h-0">
       <div className="md:grid md:flex-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] overflow-hidden min-h-0 h-full md:max-h-[480px]">
         <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-border/80 bg-white h-full min-h-0 md:max-h-[480px] overflow-hidden flex flex-col`}>
           <ChatList

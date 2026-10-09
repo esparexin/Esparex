@@ -7,7 +7,10 @@
 
 const { execSync } = require('child_process');
 
-const port = process.argv[2] || '5001';
+const rawPort = process.argv[2] || '5001';
+// Sanitize: only a numeric port may be interpolated into the RegExp below
+// (CodeQL js/regex-injection). Fall back to the default on anything else.
+const port = /^\d{1,5}$/.test(rawPort) ? rawPort : '5001';
 
 console.log(`🔍 Checking port ${port}...`);
 

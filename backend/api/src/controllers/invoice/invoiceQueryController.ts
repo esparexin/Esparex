@@ -1,9 +1,9 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { Request, Response } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
 import { getErrorMessage } from './shared';
-import * as invoiceService from '@esparex/core/domains/payments/application/InvoiceService';
+import * as invoiceService from '@esparex/core/domains/payments';
 
 export const getInvoices = async (req: Request, res: Response) => {
     try {

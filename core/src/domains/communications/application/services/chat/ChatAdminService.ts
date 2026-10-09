@@ -8,8 +8,8 @@ import { escapeRegExp } from '../../../../../utils/stringUtils';
 import {
     CHAT_CLOSED_STATUSES,
 } from '../ChatAvailabilityService';
+import type { PopulatedConv } from '../../../ports/ChatRepositoryPort';
 import {
-    PopulatedConv,
     AdminConvSummary,
     shapeConv
 } from './ChatUtils';

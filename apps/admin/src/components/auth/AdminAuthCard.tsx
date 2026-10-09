@@ -2,8 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Lock } from "lucide-react";
-import { Heading } from "@esparex/ui";
+import { Heading, Lock } from "@esparex/ui";
 
 interface AdminAuthCardProps {
   title: string;
@@ -31,7 +30,7 @@ export function AdminAuthCard({ title, subtitle, children }: AdminAuthCardProps)
               className="h-8 w-auto object-contain"
             />
           </div>
-          <Heading variant="h2" className="font-extrabold tracking-tight">
+          <Heading variant="h2" className="font-bold tracking-tight">
             {title}
           </Heading>
           {subtitle && (

@@ -1,29 +1,24 @@
 "use client";
+/* ui-guard-ignore: parallel-responsive-dom [Single-instance shell header with responsive desktop/mobile action bars] */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import {
-  Search,
-  LogIn,
-  Button,
-  Input,
-  Z_INDEX,
-} from "@esparex/ui";
+import { Search, LogIn, Button, Input, Z_INDEX } from "@esparex/ui";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import type { User } from "@esparex/contracts";
 import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
-import { useMounted } from "@/hooks/useMounted";
+import { useMounted } from "@esparex/shared";
 import type { UserPage } from "@/lib/routeUtils";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
-import { HeaderDesktopActions } from "./header/HeaderDesktopActions";
 import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
-import { MobileHeaderTopBar } from "./header/MobileHeaderTopBar";
+import { HeaderActions } from "./header/HeaderActions";
+import { HeaderTopBar } from "./header/HeaderTopBar";
 import { cn } from "@/lib/utils";
 
 export interface HeaderProps {
@@ -38,13 +33,7 @@ export interface HeaderProps {
 }
 
 export function Header({
-  navigateTo,
-  isLoggedIn,
-  isAuthLoading = false,
-  onLogout = () => {},
-  user = null,
-  onSearch,
-  onShowLogin,
+  navigateTo, isLoggedIn, isAuthLoading = false, onLogout = () => {}, user = null, onSearch, onShowLogin,
 }: HeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -105,10 +94,16 @@ export function Header({
     setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
+  const openMobileLocationSelector = useCallback(() => setShowLocationSelector(true), [setShowLocationSelector]);
+  const handleCloseLocationOverlay = useCallback(() => {
+    setShowLocationSelector(false);
+    setHeaderLocationQuery("");
+  }, [setShowLocationSelector]);
+
   return (
     <header
       style={{ zIndex: Z_INDEX.userHeader }}
-      className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border/80 shadow-xs transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
+      className="fixed top-0 left-0 right-0 w-full bg-background border-b border-border shadow-sm transition-shadow duration-200 pt-[env(safe-area-inset-top)] md:pt-0"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
@@ -119,7 +114,10 @@ export function Header({
         <div className="relative" ref={locationDropdownRef}>
           <HeaderLocation
             isOpen={showLocationSelector}
-            onOpenChange={(open) => { setShowLocationSelector(open); if (open) setShowSearchDropdown(false); }}
+            onOpenChange={(open) => { 
+              if (open) setShowSearchDropdown(false);
+              setShowLocationSelector(open);
+            }}
             query={headerLocationQuery}
             onQueryChange={setHeaderLocationQuery}
           />
@@ -132,7 +130,7 @@ export function Header({
             <Input
               id="header-desktop-search"
               aria-label="Search for mobiles, parts, services"
-              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-xl shadow-xs text-body-lg md:text-body"
+              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-xl shadow-sm text-body-lg md:text-body"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -149,7 +147,7 @@ export function Header({
           />
         </div>
 
-        <HeaderDesktopActions
+        <HeaderActions
           isMounted={isMounted}
           isAuthLoading={isAuthLoading}
           isLoggedIn={isLoggedIn}
@@ -164,16 +162,16 @@ export function Header({
       </div>
 
       <div className="flex md:hidden flex-col">
-        <MobileHeaderTopBar
+        <HeaderTopBar
           isMounted={isMounted}
           resolvedHeaderLocation={resolvedHeaderLocation}
           showLocation={chromePolicy.showMobileLocation}
           onNavigateHome={() => navigateTo("home")}
-          onOpenLocationSelector={() => setShowLocationSelector(true)}
+          onOpenLocationSelector={openMobileLocationSelector}
           onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
         />
         {chromePolicy.showMobileSearch && (
-          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5 border-b border-border/40">
+          <div className="flex items-center px-3 py-1 bg-background h-14 min-h-[56px] gap-2.5">
             {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
               <button
                 type="button"
@@ -231,7 +229,7 @@ export function Header({
 
       <LocationOverlayHost
         isOpen={showLocationSelector}
-        onClose={() => { setShowLocationSelector(false); setHeaderLocationQuery(""); }}
+        onClose={handleCloseLocationOverlay}
         containerRef={locationDropdownRef}
         locationQuery={headerLocationQuery}
         onLocationQueryChange={setHeaderLocationQuery}
@@ -239,3 +237,4 @@ export function Header({
     </header>
   );
 }
+

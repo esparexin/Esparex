@@ -1,4 +1,5 @@
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
+import { formatStableNumber } from "@esparex/shared";
 import type { ModerationItem } from "./moderationTypes";
 
 type ListingPresentation = {
@@ -18,7 +19,7 @@ type ListingAttribute = {
 };
 
 const formatMoney = (currency: string, amount: number): string =>
-    `${currency} ${amount.toLocaleString()}`;
+    `${currency} ${formatStableNumber(amount)}`;
 
 const startCase = (value: string): string =>
     value

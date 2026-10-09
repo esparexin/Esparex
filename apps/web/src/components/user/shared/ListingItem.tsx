@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ interface ListingItemProps {
   expiresAt?: string | Date;
   views?: number | { total: number; unique?: number; favorites?: number; lastViewedAt?: string };
   likes?: number;
-  getStatusBadge: (status: string) => React.ReactNode;
   editHref: string;
   detailHref?: string;
   onDelete: () => void;
@@ -67,7 +65,6 @@ export function ListingItem({
   expiresAt,
   views,
   likes: _likes,
-  getStatusBadge,
   editHref,
   detailHref,
   onDelete,
@@ -116,40 +113,19 @@ export function ListingItem({
   return (
     <div
       className={cn(
-        "flex gap-3 py-3.5",
+        "relative group flex gap-3 py-3.5",
         "md:gap-4 md:py-4",
         "border-b border-border last:border-b-0 bg-transparent",
         className
       )}
     >
       {/* ── ZONE 1: Thumbnail (62px / 68px) ── */}
-      {detailHref ? (
-        <Link href={detailHref} className="shrink-0 self-center group cursor-pointer">
-          <div
-            className={cn(
-              "relative w-[62px] h-[62px]",
-              "md:w-[68px] md:h-[68px]",
-              "rounded-lg overflow-hidden bg-muted border border-border group-hover:opacity-90 transition-opacity"
-            )}
-          >
-            <SafeImage
-              src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
-              alt={title}
-              fill
-              priority={priority}
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 768px) 62px, 68px"
-            />
-          </div>
-        </Link>
-      ) : (
+      <div className="shrink-0 self-center">
         <div
           className={cn(
-            "shrink-0 self-center",
             "relative w-[62px] h-[62px]",
             "md:w-[68px] md:h-[68px]",
-            "rounded-lg overflow-hidden bg-muted border border-border"
+            "rounded-lg overflow-hidden bg-muted border border-border group-hover:opacity-90 transition-opacity"
           )}
         >
           <SafeImage
@@ -162,12 +138,15 @@ export function ListingItem({
             sizes="(max-width: 768px) 62px, 68px"
           />
         </div>
-      )}
+      </div>
 
       {/* ── ZONE 2: Content (Title, Price, Meta) ── */}
       <div className="flex-1 min-w-0 self-center flex flex-col gap-1.5">
         {detailHref ? (
-          <Link href={detailHref} className="min-w-0 hover:text-primary transition-colors cursor-pointer">
+          <Link
+            href={detailHref}
+            className="min-w-0 hover:text-primary transition-colors cursor-pointer after:absolute after:inset-0 after:content-[''] after:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm"
+          >
             <h3 className="text-body font-semibold text-foreground leading-normal line-clamp-1">
               {title}
             </h3>
@@ -181,7 +160,7 @@ export function ListingItem({
         <p
           className={cn(
             "text-body font-semibold md:text-h4 md:font-bold leading-normal",
-            priceClassName || "text-emerald-700 font-bold"
+            priceClassName || "text-success-dark font-bold"
           )}
         >
           {priceLabel}
@@ -201,30 +180,31 @@ export function ListingItem({
       </div>
 
       {/* ── ZONE 3: Actions ── */}
-      <ListingItemActions
-        status={status}
-        title={title}
-        detailHref={detailHref}
-        editHref={editHref}
-        getStatusBadge={getStatusBadge}
-        showStatusBadge={showStatusBadge}
-        showEdit={showEdit}
-        showDeactivate={showDeactivate}
-        showActivate={showActivate}
-        showMarkSold={showMarkSold}
-        showRenew={showRenew}
-        showBoost={showBoost}
-        showDelete={showDelete}
-        hasOverflowItems={hasOverflowItems}
-        isSpotlight={isSpotlight}
-        isActive={isActive}
-        onDelete={onDelete}
-        onRenew={onRenew}
-        onDeactivate={onDeactivate}
-        onActivate={onActivate}
-        onMarkSold={onMarkSold}
-        onBoost={onBoost}
-      />
+      <div className="relative z-20 shrink-0">
+        <ListingItemActions
+          status={status}
+          title={title}
+          detailHref={detailHref}
+          editHref={editHref}
+          showStatusBadge={showStatusBadge}
+          showEdit={showEdit}
+          showDeactivate={showDeactivate}
+          showActivate={showActivate}
+          showMarkSold={showMarkSold}
+          showRenew={showRenew}
+          showBoost={showBoost}
+          showDelete={showDelete}
+          hasOverflowItems={hasOverflowItems}
+          isSpotlight={isSpotlight}
+          isActive={isActive}
+          onDelete={onDelete}
+          onRenew={onRenew}
+          onDeactivate={onDeactivate}
+          onActivate={onActivate}
+          onMarkSold={onMarkSold}
+          onBoost={onBoost}
+        />
+      </div>
     </div>
   );
 }

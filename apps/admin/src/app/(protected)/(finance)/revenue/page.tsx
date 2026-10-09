@@ -9,6 +9,7 @@ import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { fetchRevenueSummarySeries } from "@/lib/api/finance";
 import type { FinanceStats } from "@/types/transaction";
+import { formatStableNumber } from "@esparex/shared";
 
 export default function RevenuePage() {
   const [stats, setStats] = useState<FinanceStats | null>(null);
@@ -59,26 +60,26 @@ export default function RevenuePage() {
       tabs={<AdminModuleTabs tabs={financeTabs} />}
     >
       {error ? (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-body text-destructive">
           <AlertCircle size={16} /> {error}
         </div>
       ) : null}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 max-w-3xl">
         <DashboardCard
           title="Total Revenue"
-          value={loading ? "..." : `₹${stats?.totalRevenue.toLocaleString() || "0"}`}
+          value={loading ? "..." : `₹${formatStableNumber(stats?.totalRevenue ?? 0)}`}
           icon={BadgeIndianRupee}
           description="Successful captured payments"
         />
         <DashboardCard
           title="Today"
-          value={loading ? "..." : `₹${stats?.todayRevenue.toLocaleString() || "0"}`}
+          value={loading ? "..." : `₹${formatStableNumber(stats?.todayRevenue ?? 0)}`}
           icon={TrendingUp}
           description="Revenue for the last 24 hours"
         />
         <DashboardCard
           title="This Month"
-          value={loading ? "..." : `₹${stats?.thisMonthRevenue.toLocaleString() || "0"}`}
+          value={loading ? "..." : `₹${formatStableNumber(stats?.thisMonthRevenue ?? 0)}`}
           icon={Wallet}
           description="Month-to-date recognized revenue"
         />

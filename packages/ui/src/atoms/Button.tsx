@@ -19,7 +19,7 @@ const variants = {
 
 const sizes = {
   default: "h-11 px-5",
-  sm: "h-9 px-4 text-caption sm:text-small font-medium",
+  sm: "h-9 px-4 text-small font-medium",
   lg: "h-12 px-6 text-body-lg",
   icon: "size-11",
 };

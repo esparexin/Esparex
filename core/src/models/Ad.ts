@@ -7,7 +7,7 @@ import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/co
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/contracts';
 import { getUserConnection } from '../config/db';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
-import { syncConversationAvailabilityForListing } from '../domains/communications/application/services/ChatAvailabilityService';
+import { chatAvailability } from '../composition/chatAvailability';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 
 export interface IAd extends Document, ISoftDeleteDocument {
@@ -533,7 +533,7 @@ AdSchema.post('save', async function (doc: IAd) {
     if (!shouldSync) return;
 
     const session = typeof doc.$session === 'function' ? doc.$session() : undefined;
-    await syncConversationAvailabilityForListing(
+    await chatAvailability.syncConversationAvailabilityForListing(
         {
             _id: doc._id,
             status: doc.status,
@@ -550,7 +550,7 @@ AdSchema.post('findOneAndUpdate', async function (doc: IAd | null) {
     }
 
     const options = this.getOptions() as { session?: unknown };
-    await syncConversationAvailabilityForListing(
+    await chatAvailability.syncConversationAvailabilityForListing(
         {
             _id: doc._id,
             status: doc.status,

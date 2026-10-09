@@ -28,12 +28,12 @@ export function DataTableToolbar<T>({
     }
 
     return (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/70 px-4 py-3">
             <div className="flex flex-wrap items-center gap-3">
                 {toolbar}
                 {bulkActions && selectedCount > 0 && (
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        <span className="text-tiny font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                             {selectedCount} selected
                         </span>
                         {bulkActions}
@@ -46,17 +46,17 @@ export function DataTableToolbar<T>({
                         <button
                             type="button"
                             onClick={() => setShowColumnsMenu((prev) => !prev)}
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-caption font-semibold text-foreground-secondary hover:bg-muted"
                             aria-label="Toggle column visibility menu"
                         >
                             <EyeOff size={14} /> Columns
                         </button>
                         {showColumnsMenu && (
-                            <div className="absolute right-0 top-full z-20 mt-2 min-w-[220px] rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                            <div className="absolute right-0 top-full z-20 mt-2 min-w-[220px] rounded-xl border border-border bg-card p-2 shadow-xl">
                                 {columns.map((column, index) => {
                                     const key = column.id || String(column.accessorKey || index);
                                     return (
-                                        <label key={key} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                            <label key={key} className="flex items-center gap-2 rounded-lg px-2 py-2 text-body text-foreground-secondary hover:bg-muted">
                                             <input
                                                 type="checkbox"
                                                 checked={columnVisibility[key] !== false}
@@ -80,7 +80,7 @@ export function DataTableToolbar<T>({
                     <button
                         type="button"
                         onClick={exportCsv}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-caption font-semibold text-foreground-secondary hover:bg-muted"
                         aria-label="Export table as CSV"
                     >
                         <Download size={14} /> Export CSV

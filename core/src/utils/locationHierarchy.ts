@@ -192,7 +192,44 @@ const equalsIgnoreCase = (left: string | undefined, right: string | undefined) =
     return left.trim().toLowerCase() === right.trim().toLowerCase();
 };
 
+type ParentQueryContext = { country: string; state: string; district: string; city: string };
 
+/** Adds an exact country filter to a parent query when a country is known. */
+const withCountryFilter = (query: Record<string, unknown>, country: string): Record<string, unknown> =>
+    country ? { ...query, country: toExactRegex(country) } : query;
+
+type ParentQueryBuilder = (
+    ctx: ParentQueryContext,
+    baseQuery: Record<string, unknown>,
+) => Record<string, unknown> | null;
+
+/**
+ * Per-level parent-query builders. Each is a flat ternary chain (depth ≤ 2);
+ * the previous if/else-if chain nested 6 deep at the last branch.
+ */
+const PARENT_QUERY_BUILDERS: Record<string, ParentQueryBuilder> = {
+    // `name` on a country-level doc matches the country via $or (older docs store it either way).
+    state: (c, b) => (c.country
+        ? { ...b, level: 'country', $or: [{ name: toExactRegex(c.country) }, { country: toExactRegex(c.country) }] }
+        : null),
+    district: (c, b) => (c.state
+        ? withCountryFilter({ ...b, level: 'state', name: toExactRegex(c.state) }, c.country)
+        : null),
+    // Parent of a city is its district when known, else its state.
+    city: (c, b) => ((!c.district && !c.state)
+        ? null
+        : withCountryFilter(c.district
+            ? { ...b, level: 'district', name: toExactRegex(c.district) }
+            : { ...b, level: 'state', name: toExactRegex(c.state || '') }, c.country)),
+    // Parent of an area is a city; `name` on a city-level doc IS the city name.
+    area: (c, b) => (c.city
+        ? withCountryFilter({ ...b, level: 'city', name: toExactRegex(c.city) }, c.country)
+        : null),
+    // Parent of a village is an area; `name` on an area-level doc IS the area/city name.
+    village: (c, b) => (c.city
+        ? withCountryFilter({ ...b, level: 'area', name: toExactRegex(c.city) }, c.country)
+        : null),
+};
 
 export const resolveParentLocation = async (params: {
     level?: unknown;
@@ -218,60 +255,12 @@ export const resolveParentLocation = async (params: {
 
     // All queries now use `name` (the location's own name field) + `level` instead of
     // the removed deprecated `city`/`state` flat fields.
-    let parentQuery: Record<string, unknown> | null = null;
-
-    if (level === 'state') {
-        if (!country) return null;
-        parentQuery = {
-            ...baseQuery,
-            level: 'country',
-            $or: [
-                { name: toExactRegex(country) },
-                { country: toExactRegex(country) },
-            ],
-        };
-    } else if (level === 'district') {
-        if (!state) return null;
-        parentQuery = {
-            ...baseQuery,
-            level: 'state',
-            name: toExactRegex(state),
-            ...(country ? { country: toExactRegex(country) } : {}),
-        };
-    } else if (level === 'city') {
-        if (!district && !state) return null;
-        parentQuery = district
-            ? {
-                ...baseQuery,
-                level: 'district',
-                name: toExactRegex(district),
-                ...(country ? { country: toExactRegex(country) } : {}),
-            }
-            : {
-                ...baseQuery,
-                level: 'state',
-                name: toExactRegex(state || ''),
-                ...(country ? { country: toExactRegex(country) } : {}),
-            };
-    } else if (level === 'area') {
-        if (!city) return null;
-        // Parent of an area is a city; `name` on a city-level doc IS the city name
-        parentQuery = {
-            ...baseQuery,
-            level: 'city',
-            name: toExactRegex(city),
-            ...(country ? { country: toExactRegex(country) } : {}),
-        };
-    } else if (level === 'village') {
-        if (!city) return null;
-        // Parent of a village is an area; `name` on an area-level doc IS the area/city name
-        parentQuery = {
-            ...baseQuery,
-            level: 'area',
-            name: toExactRegex(city),
-            ...(country ? { country: toExactRegex(country) } : {}),
-        };
-    }
+    // Per-level parent-query construction lives in PARENT_QUERY_BUILDERS above,
+    // keeping this function's control-flow depth flat.
+    const buildParentQuery = PARENT_QUERY_BUILDERS[level];
+    const parentQuery = buildParentQuery
+        ? buildParentQuery({ country, state, district, city }, baseQuery)
+        : null;
 
     if (!parentQuery) return null;
 

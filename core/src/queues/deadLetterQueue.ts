@@ -22,8 +22,6 @@ export interface DeadLetterQueueJobData {
     };
 }
 
-
-
 export const deadLetterQueue = shouldDisableQueueConnection
     ? createNoopQueue<DeadLetterQueueJobData>()
     : new Queue<DeadLetterQueueJobData>('dead-letter-events', {
@@ -130,15 +128,3 @@ export const enqueueDeadLetter = async (
     }
 };
 
-export const replayDeadLetterJob = async (deadLetterJobData: DeadLetterQueueJobData): Promise<boolean> => {
-    try {
-        logger.info('[DLQ] Replaying dead letter job', {
-            sourceQueue: deadLetterJobData.sourceQueue,
-            sourceJobName: deadLetterJobData.sourceJobName
-        });
-        return true;
-    } catch (err) {
-        logger.error('[DLQ] Replay failed', { error: err instanceof Error ? err.message : String(err) });
-        return false;
-    }
-};

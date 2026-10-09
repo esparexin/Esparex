@@ -6,7 +6,7 @@ import {
     CatalogApprovalStatusValue,
 } from '@esparex/contracts';
 import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance';
-import { IMarketplaceTrust, marketplaceTrustDefinition } from './catalogLifecycle';
+import { IMarketplaceTrust, marketplaceTrustDefinition } from '../domains/catalog';
 
 export interface IModel extends Document {
     name: string;

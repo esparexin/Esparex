@@ -29,7 +29,7 @@ export function RelatedBusinessCard({ business, distanceLabel }: RelatedBusiness
 
   return (
     <Link href={businessHref} className="block shrink-0 group">
-      <Card className="w-56 md:w-60 shrink-0 border border-border shadow-2xs rounded-xl bg-card p-2.5 md:p-3 space-y-2 group-hover:border-primary/40 transition-colors">
+      <Card className="w-56 md:w-60 shrink-0 border border-border shadow-sm rounded-xl bg-card p-2.5 md:p-3 space-y-2 group-hover:border-primary/40 transition-colors">
         <div className="flex items-start gap-2.5">
           <div className="relative size-11 md:size-12 shrink-0 rounded-lg overflow-hidden bg-muted/50 border border-border">
             <SafeImage

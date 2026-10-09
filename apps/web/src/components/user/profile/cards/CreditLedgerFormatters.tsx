@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CreditLedgerDTO } from '@esparex/contracts';
-
+import { formatStableDateTime } from '@/lib/formatters';
+import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 const formatReason = (reason?: string): string => {
   if (!reason) return 'Plan Activity';
   const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
@@ -33,15 +34,11 @@ export const formatActivityName = (tx: CreditLedgerDTO): string => {
 };
 
 export const formatAppliedDateTime = (isoDate: string): string => {
-  const d = new Date(isoDate);
-  return d.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return formatStableDateTime(isoDate);
 };
+
+export const formatOptionalDateTime = (iso?: string | null): string =>
+  !iso ? '—' : formatStableDateTime(iso);
 
 export const renderTransactionStatus = (tx: CreditLedgerDTO): React.ReactNode => {
   const reasonLower = (tx.reason || '').toLowerCase();
@@ -125,16 +122,15 @@ export const matchesLedgerFilter = (
 
 /**
  * Canonical URL builder for listings linked from credit transactions.
- * Resolves to `/ads/${slug}-${id}` (canonical) or `/ads/${id}` to prevent 404 / malformed slug params.
+ * Delegates to buildPublicListingDetailRoute (SSOT) for slug/id joining;
+ * preserves the transaction-specific rules (null when unlinked, slug
+ * already ending in id resolves bare) that the generic builder lacks.
  */
 export const getListingDetailHref = (tx: { adSlug?: string; listingId?: string }): string | null => {
   const id = tx.listingId;
   const slug = tx.adSlug;
   if (!id && !slug) return null;
-  if (slug && id) {
-    if (slug.endsWith(id)) return `/ads/${slug}`;
-    return `/ads/${slug}-${id}`;
-  }
-  return `/ads/${slug || id}`;
+  if (slug && id && slug.endsWith(id)) return `/ads/${slug}`;
+  return buildPublicListingDetailRoute({ id: id ?? undefined, slug: slug ?? undefined });
 };
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { bulkImportService } from '@esparex/core/services/BulkImportService';
+import { bulkImportService } from '@esparex/core';
 import { sendErrorResponse } from "../../../utils/errorResponse";
 import { respond } from "../../../utils/respond";
 

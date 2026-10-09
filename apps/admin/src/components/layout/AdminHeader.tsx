@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Bell, LogOut, ShieldCheck, Menu } from "@esparex/ui";
+import { formatAppDate } from "@esparex/shared";
 
 import Image from "next/image";
 
@@ -15,12 +16,12 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
 
     const todayLabel = useMemo(
         () =>
-            new Intl.DateTimeFormat("en-IN", {
+            formatAppDate(new Date(), {
                 weekday: "short",
                 day: "numeric",
                 month: "short",
                 year: "numeric",
-            }).format(new Date()),
+            }),
         []
     );
 
@@ -55,16 +56,16 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
                 <div className="flex items-center gap-3">
                     <button
                         type="button"
-                        className="relative rounded-full border border-border bg-card p-2 text-foreground-tertiary shadow-xs transition-colors hover:bg-accent hover:text-foreground"
+                        className="relative rounded-full border border-border bg-card p-2 text-foreground-tertiary shadow-sm transition-colors hover:bg-accent hover:text-foreground"
                         aria-label="Notifications"
                     >
                         <Bell size={18} />
-                        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-card bg-rose-500" />
+                        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-card bg-destructive" />
                     </button>
 
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-1.5 shadow-xs">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-1.5 shadow-sm">
                         <div className="text-right hidden sm:block">
-                            <p className="text-xs font-semibold leading-tight text-foreground">
+                            <p className="text-caption font-semibold leading-tight text-foreground">
                                 {admin?.firstName} {admin?.lastName}
                             </p>
                             <span className="mt-0.5 inline-flex rounded-full bg-muted px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
@@ -74,7 +75,7 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
                         <button
                             type="button"
                             onClick={() => void logout()}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-foreground-secondary transition-all hover:bg-rose-50 hover:text-rose-600"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-foreground-secondary transition-all hover:bg-destructive/10 hover:text-destructive"
                             title="Logout"
                             aria-label="Logout"
                         >

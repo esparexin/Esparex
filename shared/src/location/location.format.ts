@@ -85,94 +85,115 @@ export function isGenericDetectedLocation(location: {
     ].some((candidate) => isGenericLocationLabel(candidate));
 }
 
-export function getSearchLocationLabel(location: LocationLabelInput): string | undefined {
-    if (!location || location.source === "default") return undefined;
+export type LocationLabelSurface = 'search' | 'display' | 'header' | 'compact';
 
-    if (location.level === "state") {
+/**
+ * getLocationLabel — Canonical location label formatter (audit F1).
+ *
+ * The three surfaces differ only in candidate ordering/composites;
+ * all ordering logic lives here, so there is exactly one
+ * implementation. The surface-named exports below are thin aliases
+ * preserving existing signatures — behavior is identical to before,
+ * only the code motion changed.
+ */
+export function getLocationLabel(
+    location: LocationLabelInput,
+    surface: LocationLabelSurface = 'display',
+): string | undefined {
+    if (!location) return undefined;
+    if (surface === 'search' && location.source === 'default') return undefined;
+
+    if (location.level === 'state') {
         return pickLocationLabel(location.state, location.country);
     }
 
-    if (location.level === "country") {
+    if (location.level === 'country') {
         return pickLocationLabel(location.country);
     }
 
-    if (location.level === "area" || location.level === "village") {
+    if (surface === 'header') {
+        if (location.level === 'area' || location.level === 'village') {
+            return pickLocationLabel(
+                location.display,
+                location.formattedAddress,
+                location.name && location.city && location.state ? `${location.name}, ${location.city}, ${location.state}` : undefined,
+                location.city,
+                location.state
+            );
+        }
+
+        const city = sanitizeLocationLabel(location.city);
+        const state = sanitizeLocationLabel(location.state);
+        if (city && state && city.toLowerCase() !== state.toLowerCase()) {
+            return `${city}, ${state}`;
+        }
+
         return pickLocationLabel(
+            city,
+            state,
             location.name,
             location.display,
             location.formattedAddress,
-            location.city,
-            location.state
+            location.country
         );
     }
 
-    return pickLocationLabel(
-        location.city,
-        location.name,
-        location.display,
-        location.formattedAddress,
-        location.state,
-        location.country
-    );
-}
+    if (surface === 'search') {
+        if (location.level === 'area' || location.level === 'village') {
+            return pickLocationLabel(
+                location.name,
+                location.display,
+                location.formattedAddress,
+                location.city,
+                location.state
+            );
+        }
 
-export function getDisplayLocationLabel(location: LocationLabelInput): string | undefined {
-    if (!location) return undefined;
-
-    if (location.level === "state") {
-        return pickLocationLabel(location.state, location.country);
-    }
-
-    if (location.level === "country") {
-        return pickLocationLabel(location.country);
-    }
-
-    return pickLocationLabel(
-        location.display,
-        location.formattedAddress,
-        location.name,
-        location.city,
-        location.state,
-        location.country
-    );
-}
-
-export function getHeaderLocationLabel(location: LocationLabelInput): string | undefined {
-    if (!location) return undefined;
-
-    if (location.level === "state") {
-        return pickLocationLabel(location.state, location.country);
-    }
-
-    if (location.level === "country") {
-        return pickLocationLabel(location.country);
-    }
-
-    if (location.level === "area" || location.level === "village") {
         return pickLocationLabel(
+            location.city,
+            location.name,
             location.display,
             location.formattedAddress,
-            location.name && location.city && location.state ? `${location.name}, ${location.city}, ${location.state}` : undefined,
-            location.city,
-            location.state
+            location.state,
+            location.country
         );
     }
 
-    const city = sanitizeLocationLabel(location.city);
-    const state = sanitizeLocationLabel(location.state);
-    if (city && state && city.toLowerCase() !== state.toLowerCase()) {
-        return `${city}, ${state}`;
+    if (surface === 'compact') {
+        // Compact card surface: city-first single label for dense UI
+        // (Ad cards, list rows). Previously forked in web locationNormalizer.
+        return pickLocationLabel(
+            location.city,
+            location.display,
+            location.name
+        );
     }
 
     return pickLocationLabel(
-        city,
-        state,
-        location.name,
         location.display,
         location.formattedAddress,
+        location.name,
+        location.city,
+        location.state,
         location.country
     );
 }
+
+/** Canonical alias: getLocationLabel(location, 'search'). */
+export const getSearchLocationLabel = (location: LocationLabelInput): string | undefined =>
+    getLocationLabel(location, 'search');
+
+/** Canonical alias: getLocationLabel(location, 'display'). */
+export const getDisplayLocationLabel = (location: LocationLabelInput): string | undefined =>
+    getLocationLabel(location, 'display');
+
+/** Canonical alias: getLocationLabel(location, 'header'). */
+export const getHeaderLocationLabel = (location: LocationLabelInput): string | undefined =>
+    getLocationLabel(location, 'header');
+
+/** Canonical alias: getLocationLabel(location, 'compact'). */
+export const getCompactLocationLabel = (location: LocationLabelInput): string | undefined =>
+    getLocationLabel(location, 'compact');
 
 export function getHeaderLocationText(location: LocationLabelInput) {
     const label = getHeaderLocationLabel(location);

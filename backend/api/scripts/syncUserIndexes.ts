@@ -18,7 +18,7 @@ async function syncIndexes() {
     console.log('Connected to MongoDB');
 
     // Dynamic import to avoid circular deps at module level
-    const { default: User } = await import('@esparex/core/models/User');
+    const { User } = await import('@esparex/core');
 
     console.log('Syncing User indexes...');
     await User.syncIndexes();

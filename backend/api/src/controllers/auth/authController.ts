@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthService, SendOtpResult, VerifyOtpResult } from '@esparex/core/domains/identity/application/auth/AuthService';
-import { removeUserFcmToken } from '@esparex/core/domains/identity/application/users/UserService';
-import { blacklistToken } from '@esparex/core/utils/redisCache';
-import { verifyToken } from '@esparex/core/utils/auth';
+import { AuthService, SendOtpResult, VerifyOtpResult } from '@esparex/core/domains/identity';
+import { removeUserFcmToken } from '@esparex/core/domains/identity';
+import { blacklistToken } from '@esparex/core';
+import { verifyToken } from '@esparex/core';
 import { sendSuccessResponse } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core';
 
 export class AuthController {
     private static sendAuthFailure(req: Request, res: Response, result: SendOtpResult | VerifyOtpResult) {

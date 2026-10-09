@@ -207,7 +207,7 @@ export function MarkAsSoldDialog({
             type="button"
             onClick={handleSubmit}
             disabled={!activeReason || isSubmitting}
-            className="w-full sm:w-auto h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold rounded-xl shadow-xs cursor-pointer"
+            className="w-full sm:w-auto h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-bold rounded-xl shadow-sm cursor-pointer"
           >
             {isSubmitting ? "Updating..." : "Confirm Sold"}
           </Button>

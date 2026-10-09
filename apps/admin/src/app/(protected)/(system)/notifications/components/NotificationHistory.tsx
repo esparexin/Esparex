@@ -13,6 +13,7 @@ import {
 } from "@esparex/ui";
 import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import type { NotificationLog } from "@/types/notification";
+import { formatAppDate, formatAppTime } from "@esparex/shared";
 
 interface NotificationHistoryProps {
     history: NotificationLog[];
@@ -28,9 +29,9 @@ interface NotificationHistoryProps {
 }
 
 const getTargetIcon = (targetType: NotificationLog["targetType"]) => {
-    if (targetType === "all") return <Globe size={14} className="text-blue-500" />;
+    if (targetType === "all") return <Globe size={14} className="text-primary" />;
     if (targetType === "users") return <Users size={14} className="text-purple-500" />;
-    return <Smartphone size={14} className="text-emerald-500" />;
+    return <Smartphone size={14} className="text-success" />;
 };
 
 const getTargetLabel = (targetType: NotificationLog["targetType"], targetValue?: string) => {
@@ -55,7 +56,7 @@ export function NotificationHistory({
             cell: (log) => (
                 <div className="max-w-[320px]">
                     <div className="font-bold text-foreground truncate">{log.title}</div>
-                    <div className="text-xs text-foreground-tertiary line-clamp-2">{log.body}</div>
+                    <div className="text-caption text-foreground-tertiary line-clamp-2">{log.body}</div>
                     {log.actionUrl ? (
                         <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-1 text-tiny font-medium text-foreground-secondary">
                             <LinkIcon size={10} />
@@ -71,7 +72,7 @@ export function NotificationHistory({
                 <div className="flex items-center gap-2">
                     {getTargetIcon(log.targetType)}
                     <div>
-                        <div className="text-xs font-semibold text-foreground-secondary">{getTargetLabel(log.targetType, log.targetValue)}</div>
+                        <div className="text-caption font-semibold text-foreground-secondary">{getTargetLabel(log.targetType, log.targetValue)}</div>
                         {log.targetType === "users" && log.userIds?.length ? (
                             <div className="text-tiny text-foreground-subtle">{log.userIds.length} users</div>
                         ) : null}
@@ -82,14 +83,14 @@ export function NotificationHistory({
         {
             header: "Delivery",
             cell: (log) => (
-                <div className="text-xs">
+                <div className="text-caption">
                     {log.status === "scheduled" ? (
-                        <span className="font-semibold text-amber-600">Scheduled</span>
+                        <span className="font-semibold text-warning">Scheduled</span>
                     ) : (
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className="font-bold text-emerald-600">{log.successCount} sent</span>
-                            <span className="font-bold text-amber-600">{log.skippedCount} skipped</span>
-                            <span className="font-bold text-red-500">{log.failureCount} failed</span>
+                            <span className="font-bold text-success">{log.successCount} sent</span>
+                            <span className="font-bold text-warning">{log.skippedCount} skipped</span>
+                            <span className="font-bold text-destructive">{log.failureCount} failed</span>
                         </div>
                     )}
                 </div>
@@ -101,10 +102,10 @@ export function NotificationHistory({
                 <span
                     className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
                         log.status === "sent"
-                            ? "bg-emerald-100 text-emerald-700"
+                            ? "bg-success/10 text-success-dark"
                             : log.status === "failed"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-amber-100 text-amber-700"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-warning/10 text-warning-dark"
                     }`}
                 >
                     {log.status}
@@ -114,11 +115,11 @@ export function NotificationHistory({
         {
             header: "Date",
             cell: (log) => (
-                <div className="text-xs text-foreground-tertiary">
-                    <div>{new Date(log.createdAt).toLocaleDateString()}</div>
+                <div className="text-caption text-foreground-tertiary">
+                    <div>{formatAppDate(log.createdAt)}</div>
                     <div className="text-tiny text-foreground-subtle">
                         {log.status === "scheduled" ? "Scheduled" : "Sent"}{" "}
-                        {new Date(log.sendAt || log.createdAt).toLocaleTimeString([], {
+                        {formatAppTime(log.sendAt || log.createdAt, {
                             hour: "2-digit",
                             minute: "2-digit",
                         })}
@@ -130,7 +131,7 @@ export function NotificationHistory({
 
     return (
         <div className="space-y-4 lg:col-span-2">
-            <div className="rounded-xl border border-border bg-card p-4 shadow-xs">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
                 <h2 className="mb-4 flex items-center gap-2 text-body-lg font-bold text-foreground">
                     <HistoryIcon size={20} className="text-foreground-subtle" />
                     Delivery History
@@ -160,7 +161,7 @@ export function NotificationHistory({
                     This is the outbound broadcast console. Use it for platform announcements, scheduled reminders,
                     and targeted outreach to specific users or device-platform audiences.
                 </p>
-                <p className="mt-2 text-xs text-foreground-tertiary">
+                <p className="mt-2 text-caption text-foreground-tertiary">
                     Device platform targeting means users with registered web, Android, or iOS push tokens. It is not a content,
                     city, or seller segment builder.
                 </p>

@@ -35,8 +35,8 @@ export default function HowItWorksPage() {
                 Whether you{"'"}re looking to offload old electronics, source bulk iPhone displays, or find a technician to fix your shattered screen, Esparex is built to make the process completely seamless and transparent.
             </p>
             <div className="space-y-4 not-prose">
-                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-xs">
-                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-xs">1</div>
+                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-sm">
+                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-sm">1</div>
                     <div className="flex-1">
                         <h3 className="font-bold text-foreground text-body-lg mb-1.5">For Buyers: Finding the Perfect Part</h3>
                         <p className="text-caption text-foreground-secondary leading-relaxed mb-3">
@@ -50,8 +50,8 @@ export default function HowItWorksPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-xs">
-                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-xs">2</div>
+                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-sm">
+                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-sm">2</div>
                     <div className="flex-1">
                         <h3 className="font-bold text-foreground text-body-lg mb-1.5">For Sellers: Turning Inventory into Cash</h3>
                         <p className="text-caption text-foreground-secondary leading-relaxed mb-3">
@@ -65,8 +65,8 @@ export default function HowItWorksPage() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-xs">
-                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-xs">3</div>
+                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 md:p-5 rounded-2xl bg-card border border-border shadow-sm">
+                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0 text-primary-foreground font-bold text-body-lg shadow-sm">3</div>
                     <div className="flex-1">
                         <h3 className="font-bold text-foreground text-body-lg mb-1.5">For Service Providers & Technicians</h3>
                         <p className="text-caption text-foreground-secondary leading-relaxed mb-3">

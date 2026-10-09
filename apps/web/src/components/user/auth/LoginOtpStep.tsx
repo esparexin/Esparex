@@ -3,7 +3,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Loader2, Pencil } from "@esparex/ui";
 import { formatSeconds } from "@/lib/otpHelpers";
-import { WhatsAppIcon } from "./LoginMobileStep";
+import { WhatsAppIcon } from "./WhatsAppIcon";
 import {
   Button,
   FieldRoot,
@@ -59,7 +59,7 @@ export function LoginOtpStep({
   const isOtpComplete = otpValue.length === 6;
 
   return (
-    <div className="flex-1 flex flex-col justify-between h-full">
+    <div className="flex flex-col gap-6">
       <div className="space-y-4">
         {/* Recipient Notice & Change */}
         <div className="flex flex-col items-center justify-center gap-0.5 text-center -mt-2 sm:-mt-3 pb-1">
@@ -89,13 +89,11 @@ export function LoginOtpStep({
         </div>
 
         {authError?.type === "blocked" && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{authError.message}</p>
-          </div>
+          <UiFormError message={authError.message} className="text-center" />
         )}
 
         {step === "locked" && (
-          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5">
+          <div className="text-center p-3 bg-amber-50/90 dark:bg-amber-950/30 rounded-xl border border-amber-300/80 dark:border-amber-800/40 space-y-0.5" role="alert">
             <p className="text-caption font-bold text-amber-900 dark:text-amber-300">
               Too many incorrect OTP attempts.
             </p>
@@ -106,9 +104,7 @@ export function LoginOtpStep({
         )}
 
         {!isLocked && otpRateLimitMessage && (
-          <div className="text-center py-2.5 px-3 bg-destructive/5 rounded-xl border border-destructive/20">
-            <p className="text-caption text-destructive font-semibold">{otpRateLimitMessage}</p>
-          </div>
+          <UiFormError message={otpRateLimitMessage} className="text-center" />
         )}
 
         {step === "enterNameAndOtp" && (
@@ -119,10 +115,10 @@ export function LoginOtpStep({
                 <FieldLabel className="text-body sm:text-body-lg font-medium text-foreground">
                   Your Full Name <span className="text-destructive">*</span>
                 </FieldLabel>
-                <FieldControl animateOnError>
+                <FieldControl>
                   <Input
                     placeholder="Enter your name"
-                    className="h-12 px-4 text-body-lg sm:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-xs"
+                    className="h-12 px-4 text-body-lg md:text-body font-medium bg-background border-border/80 rounded-xl focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20 transition-all shadow-sm"
                     disabled={isBlocked || isLocked}
                     autoComplete="name"
                     {...field}
@@ -152,7 +148,6 @@ export function LoginOtpStep({
             disabled={otpInputDisabled}
             autoFocus={step === "enterOtp"}
             className="justify-center py-1 sm:py-2"
-            animateOnError
           />
           <p className="text-body text-muted-foreground font-normal">
             Enter the 6-digit code sent to your WhatsApp
@@ -177,7 +172,7 @@ export function LoginOtpStep({
           variant="outline"
           onClick={handleResend}
           disabled={!canResend || isSendingOTP || isVerifying}
-          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-all cursor-pointer shrink-0 disabled:opacity-60 shadow-xs flex items-center justify-center gap-1.5"
+          className="h-12 px-4 rounded-xl text-body font-medium border border-border/80 bg-background hover:bg-muted/60 text-foreground transition-colors cursor-pointer shrink-0 disabled:opacity-60 shadow-sm flex items-center justify-center gap-1.5"
         >
           {isSendingOTP ? (
             <>

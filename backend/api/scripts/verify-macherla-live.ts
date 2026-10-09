@@ -11,13 +11,13 @@
  */
 
 import mongoose from 'mongoose';
-import { connectDB, closeDB } from '@esparex/core/config/db';
-import Location from '@esparex/core/models/Location';
-import Ad from '@esparex/core/models/Ad';
-import User from '@esparex/core/models/User';
-import Category from '@esparex/core/models/Category';
-import { getAds } from '@esparex/core/domains/listings/application/aggregation/adAggregation/pipeline';
-import { buildHomeFeed } from '@esparex/core/domains/discovery/application/services/feed/FeedQueryService';
+import { connectDB, closeDB } from '@esparex/core';
+import { Location } from '@esparex/core';
+import { Ad } from '@esparex/core';
+import { User } from '@esparex/core';
+import { Category } from '@esparex/core';
+import { getAds } from '@esparex/core';
+import { buildHomeFeed } from '@esparex/core/domains/discovery';
 import { MODERATION_STATUS, CATALOG_STATUS, USER_STATUS, LOCATION_STATUS } from '@esparex/contracts';
 import type { Role } from '@esparex/contracts';
 

@@ -10,6 +10,7 @@ import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { AuthModalProvider } from "@/context/AuthModalContext";
 import { PostAdModalProvider } from "@/context/PostAdModalContext";
 import { SmartAlertModalProvider } from "@/context/SmartAlertModalContext";
+import { BottomSheetManagerProvider } from "@/context/BottomSheetManagerContext";
 
 export function UserAppProviders({
     children,
@@ -24,14 +25,16 @@ export function UserAppProviders({
                 <AppBootstrapProvider initialHasAuthCookie={initialHasAuthCookie}>
                     <BackendStatusProvider>
                         <NavigationProvider>
-                            <AuthModalProvider>
-                                <PostAdModalProvider>
-                                    <SmartAlertModalProvider>
-                                        <PwaRegister />
-                                        {children}
-                                    </SmartAlertModalProvider>
-                                </PostAdModalProvider>
-                            </AuthModalProvider>
+                            <BottomSheetManagerProvider>
+                                <AuthModalProvider>
+                                    <PostAdModalProvider>
+                                        <SmartAlertModalProvider>
+                                            <PwaRegister />
+                                            {children}
+                                        </SmartAlertModalProvider>
+                                    </PostAdModalProvider>
+                                </AuthModalProvider>
+                            </BottomSheetManagerProvider>
                         </NavigationProvider>
                     </BackendStatusProvider>
                 </AppBootstrapProvider>

@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { SlidersHorizontal } from "@esparex/ui";
 import type { Category } from "@/lib/api/user/categories";
-import { Button, Drawer } from "@esparex/ui";
+import { Button, Sheet, SheetTrigger, SheetContent, SheetTitle } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import type { PublicBrowseType } from "@/lib/publicBrowseRoutes";
 import { BrowseFiltersDrawerPanels, type FilterTab } from "./BrowseFiltersDrawerPanels";
@@ -72,12 +72,8 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
   };
 
   return (
-    <Drawer
-      title="Filters"
-      titleClassName="text-body-lg font-semibold tracking-tight text-foreground"
-      open={open}
-      onOpenChange={setOpen}
-      trigger={
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button
           variant="outline"
           onClick={(e) => e.currentTarget.blur()}
@@ -92,11 +88,15 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
             </span>
           ) : null}
         </Button>
-      }
-    >
-      <div className="flex flex-col h-[min(380px,calc(var(--visual-viewport-height,100dvh)-5rem))] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] -mx-4 -mb-4">
-        {/* 2-Panel Layout: Left Tabs + Right Options */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+      </SheetTrigger>
+      <SheetContent
+        side="right"
+        className="h-[min(380px,calc(var(--visual-viewport-height,100dvh)-5rem))] max-h-[calc(var(--visual-viewport-height,100dvh)-2rem)] -mx-4 -mb-4 p-0"
+      >
+        <SheetTitle className="sr-only">Filters</SheetTitle>
+        <div className="flex flex-col h-full">
+          {/* 2-Panel Layout: Left Tabs + Right Options */}
+          <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Left Vertical Navigation Tabs */}
           <div className="w-[115px] shrink-0 bg-muted/50 border-r border-border overflow-y-auto">
             {onTypeChange && (
@@ -106,7 +106,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                 className={cn(
                   "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                   activeTab === "type"
-                    ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                    ? "bg-card text-foreground border-primary font-bold shadow-sm"
                     : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
                 )}
               >
@@ -120,7 +120,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "category"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -133,7 +133,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "budget"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -146,7 +146,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
               className={cn(
                 "w-full text-left px-3 py-2.5 text-caption font-semibold border-l-4 transition-colors min-h-[40px] cursor-pointer",
                 activeTab === "condition"
-                  ? "bg-card text-foreground border-primary font-bold shadow-xs"
+                  ? "bg-card text-foreground border-primary font-bold shadow-sm"
                   : "text-foreground-secondary border-transparent hover:text-primary hover:bg-card/50"
               )}
             >
@@ -182,14 +182,15 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
           >
             Clear All
           </Button>
-          <Button
+<Button
             onClick={handleApply}
-            className="flex-1 h-10 text-small font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+            className="flex-1 h-10 text-small font-bold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
           >
             Apply Filters
           </Button>
         </div>
       </div>
-    </Drawer>
-  );
+    </SheetContent>
+  </Sheet>
+);
 });

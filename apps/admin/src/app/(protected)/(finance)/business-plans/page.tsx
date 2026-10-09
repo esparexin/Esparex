@@ -39,12 +39,14 @@ export default function BusinessPlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus
+        togglingPlanId,
+        onToggleClick,
+        confirmToggleStatus,
+        cancelToggleStatus,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
-    const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const search = normalizeSearchParamValue(rawSearch);
@@ -66,35 +68,19 @@ export default function BusinessPlansPage() {
         });
     }, [pathname, router, search, searchParams]);
 
-    const onToggleClick = async (plan: Plan) => {
-        if (plan.active) {
-            setTogglingPlanId(plan.id);
-        } else {
-            await handleToggleStatus(plan.id);
-        }
-    };
-
-    const confirmToggleStatus = async () => {
-        if (!togglingPlanId) return;
-        const result = await handleToggleStatus(togglingPlanId);
-        if (result.success) {
-            setTogglingPlanId(null);
-        }
-    };
-
     const columns: ColumnDef<Plan>[] = [
         {
             header: "Plan Name & Code",
             cell: (plan: Plan) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 text-primary border border-primary/20">
                         <Award size={20} />
                     </div>
                     <div>
                         <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-tiny bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                <span className="text-tiny bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
                                     Default Business Plan
                                 </span>
                             )}
@@ -110,7 +96,7 @@ export default function BusinessPlansPage() {
             header: "Pricing & Duration",
             cell: (plan: Plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-foreground-secondary">
+                    <span className="font-bold text-body text-foreground-secondary">
                         {plan.price === 0 ? "Free / Included" : `${plan.currency} ${plan.price}`}
                     </span>
                     <span className="text-tiny text-foreground-subtle font-medium">
@@ -123,11 +109,11 @@ export default function BusinessPlansPage() {
             header: "Trust & Priority",
             cell: (plan: Plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
-                        <Activity size={12} className="text-sky-500" /> Priority: {plan.features?.priorityWeight ?? 1}/10
+                    <span className="text-caption font-semibold text-foreground-secondary flex items-center gap-1">
+                        <Activity size={12} className="text-info" /> Priority: {plan.features?.priorityWeight ?? 1}/10
                     </span>
                     <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
-                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-emerald-500" : "text-foreground-subtle"} />
+                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-success" : "text-foreground-subtle"} />
                         Badge: {plan.features?.businessBadge ? "Enabled" : "Disabled"}
                     </span>
                 </div>
@@ -136,7 +122,7 @@ export default function BusinessPlansPage() {
         {
             header: "Posting Quotas",
             cell: (plan: Plan) => (
-                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                <div className="text-caption text-foreground-secondary flex flex-col gap-1">
                     <div>Ads: <span className="font-medium text-foreground">{plan.limits?.maxAds ?? "Configurable"}</span></div>
                     <div>Services: <span className="font-medium text-foreground">{plan.limits?.maxServices ?? "Configurable"}</span></div>
                     <div>Spare Parts: <span className="font-medium text-foreground">{plan.limits?.maxParts ?? "Configurable"}</span></div>
@@ -152,7 +138,7 @@ export default function BusinessPlansPage() {
                     disabled={isMutating}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-medium transition-colors cursor-pointer ${
                         plan.active
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                            ? "bg-success/10 text-success border border-success/20 hover:bg-success/20"
                             : "bg-muted text-foreground-secondary border border-border hover:bg-muted/80"
                     }`}
                 >
@@ -171,7 +157,7 @@ export default function BusinessPlansPage() {
                             setEditPlan(plan);
                             setShowModal(true);
                         }}
-                        className="p-1.5 text-foreground-subtle hover:text-sky-600 rounded-lg hover:bg-sky-50 transition-colors"
+                        className="p-1.5 text-foreground-subtle hover:text-primary rounded-lg hover:bg-primary/10 transition-colors"
                         title="Edit Plan"
                         aria-label={`Edit ${plan.name}`}
                     >
@@ -235,7 +221,7 @@ export default function BusinessPlansPage() {
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}
-                onClose={() => setTogglingPlanId(null)}
+                onClose={cancelToggleStatus}
                 onConfirm={confirmToggleStatus}
                 isMutating={isMutating}
                 title="Deactivate Business Plan"

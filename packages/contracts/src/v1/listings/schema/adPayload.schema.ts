@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
+import { PRICE_LIMITS, TEXT_LIMITS } from '../../common/constants/fieldLimits';
+import { objectIdSchema } from '../../common/schema/common.schemas';
 import { LocationMetaSchema } from '../../common/schema/location.schema';
 import { validatedTextSchema } from '../../common/schema/text.schema';
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
 
 
-const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId');
-const optionalObjectId = z.union([objectId, z.literal('')]).optional();
+// Single ObjectId owner: common.schemas objectIdSchema (audit E2).
+// optionalObjectId keeps the z.literal('') union per Form & Zod governance.
+const optionalObjectId = z.union([objectIdSchema, z.literal('')]).optional();
 
 
 
@@ -23,8 +26,8 @@ export const BaseAdPayloadSchema = z.object({
     modelId: optionalObjectId, // Canonical
     pendingBrandRequestId: optionalObjectId,
     pendingModelRequestId: optionalObjectId,
-    customBrandName: z.string().trim().max(120).optional(),
-    customModelName: z.string().trim().max(120).optional(),
+    customBrandName: z.union([z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX), z.literal('')]).optional(),
+    customModelName: z.union([z.string().trim().max(TEXT_LIMITS.BUSINESS_NAME.MAX), z.literal('')]).optional(),
 
     screenSize: z.string(),
     listingType: z.enum(LISTING_TYPE_VALUES).optional(),
@@ -55,7 +58,7 @@ export const BaseAdPayloadSchema = z.object({
         z.number({
             required_error: 'Price is required',
             invalid_type_error: 'Enter a valid price',
-        }).min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore')
+        }).min(PRICE_LIMITS.MIN, PRICE_LIMITS.ERROR_MIN).max(PRICE_LIMITS.MAX, PRICE_LIMITS.ERROR_MAX)
     ),
     images: z
         .array(z.string(), {
@@ -71,7 +74,7 @@ export const BaseAdPayloadSchema = z.object({
 
 
     spareParts: z
-        .array(objectId)
+        .array(objectIdSchema)
         .max(10, `Maximum ${MAX_AD_SPARE_PARTS} spare parts allowed`)
         .optional(),
     deviceCondition: z.enum(['power_on', 'power_off']).optional(),

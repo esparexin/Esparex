@@ -39,7 +39,7 @@ export const TitleField = ({
             ) : (
               <>
                 <AppIcon name="Sparkles" size={12} color={base.brand[500]} />
-                <AppText variant="caption" className="ml-1 text-sky-700 dark:text-sky-300 font-semibold text-xs">
+                <AppText variant="caption" className="ml-1 text-primary font-semibold">
                   Auto-fill (AI)
                 </AppText>
               </>
@@ -63,8 +63,8 @@ export const TitleField = ({
       <View className="flex-row justify-end mt-1">
         <AppText
           variant="caption"
-          className={`text-xs ${
-            currentLength > MAX_AD_TITLE_CHARS ? 'text-red-500 font-bold' : 'text-slate-400'
+          className={`text-caption ${
+            currentLength > MAX_AD_TITLE_CHARS ? 'text-destructive font-bold' : 'text-muted-foreground'
           }`}
         >
           {currentLength} / {MAX_AD_TITLE_CHARS} characters

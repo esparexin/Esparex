@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, type DragEvent, type KeyboardEvent } from "react";
+import { useState, useCallback, type DragEvent } from "react";
 
 interface UseImageDropzoneOptions {
     onUpload: (files: File[]) => void;
@@ -40,22 +40,12 @@ export function useImageDropzone({ onUpload, disabled = false }: UseImageDropzon
         }
     }, [disabled, onUpload]);
 
-    const handleKeyDown = useCallback((e: KeyboardEvent<HTMLElement>) => {
-        if (disabled) return;
-        if (e.key === " " || e.key === "Enter") {
-            e.preventDefault();
-            const input = e.currentTarget.querySelector("input[type='file']") as HTMLInputElement | null;
-            input?.click();
-        }
-    }, [disabled]);
-
     return {
         isDraggingOver,
         dropzoneProps: {
             onDragOver: handleDragOver,
             onDragLeave: handleDragLeave,
             onDrop: handleDrop,
-            onKeyDown: handleKeyDown,
         },
     };
 }

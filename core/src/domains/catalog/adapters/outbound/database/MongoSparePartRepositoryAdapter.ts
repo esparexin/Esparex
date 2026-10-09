@@ -20,6 +20,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
     private toDomain(doc: DbSparePart): SparePart {
         return {
             id: String(doc._id),
+            _id: String(doc._id),
             name: doc.name,
             canonicalName: doc.canonicalName,
             slug: doc.slug,

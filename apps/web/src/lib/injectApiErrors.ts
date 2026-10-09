@@ -54,8 +54,12 @@ function extractFieldErrors(payload: unknown): BackendFieldError[] {
       .flatMap(([field, message]) => typeof message === "string" ? [{ field, message }] : []);
   }
 
-  return Object.entries(record)
-    .flatMap(([field, message]) => typeof message === "string" ? [{ field, message }] : []);
+  // Do NOT fall through to treating top-level keys as field errors.
+  // A 500 with body {code, message} would create phantom errors for
+  // non-existent "code"/"message" fields, causing the caller to skip the
+  // generic popup while nothing is displayed (silent swallow).
+  // Only details-shaped payloads produce field errors.
+  return [];
 }
 
 /**

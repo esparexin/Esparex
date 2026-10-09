@@ -23,9 +23,9 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
       accessibilityRole="button"
       accessibilityLabel={`${listing.title}, ${listing.price.formatted}${listing.location?.display ? `, ${listing.location.display}` : ''}`}
     >
-      <Card padded={false} className="overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+      <Card padded={false} className="overflow-hidden rounded-2xl">
         {/* Media Thumbnail */}
-        <View style={styles.thumbnailContainer} className="w-full bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
+        <View style={styles.thumbnailContainer} className="w-full bg-muted relative overflow-hidden">
           {primaryImage ? (
             <Image
               source={{ uri: primaryImage }}
@@ -36,15 +36,15 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               accessibilityLabel={`Photo of ${listing.title}`}
             />
           ) : (
-            <View style={StyleSheet.absoluteFillObject} className="items-center justify-center bg-slate-100 dark:bg-slate-800">
+            <View style={StyleSheet.absoluteFillObject} className="items-center justify-center bg-muted">
               <AppIcon name="Image" size={28} color={base.slate[400]} />
             </View>
           )}
 
           {listing.isSpotlight ? (
-            <View className="absolute top-2 left-2 flex-row items-center bg-amber-500 px-2 py-0.5 rounded-full shadow-sm z-10">
+            <View className="absolute top-2 left-2 flex-row items-center bg-warning px-2 py-0.5 rounded-full shadow-sm z-10">
               <AppIcon name="Sparkles" size={10} color={base.white} />
-              <AppText variant="caption" className="text-white text-tiny font-bold ml-1 uppercase tracking-wider">
+              <AppText variant="tiny" className="text-white font-bold ml-1 uppercase tracking-wider">
                 Spotlight
               </AppText>
             </View>
@@ -56,7 +56,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
           {listing.seller.isVerified && (
             <View
-              className={`absolute top-2 ${onToggleSave ? 'right-9' : 'right-2'} bg-white/90 dark:bg-slate-900/90 rounded-full p-0.5 shadow-sm z-10`}
+              className={`absolute top-2 ${onToggleSave ? 'right-9' : 'right-2'} bg-card/90 rounded-full p-0.5 shadow-sm z-10`}
             >
               <AppIcon name="CheckCircle2" size={14} color={base.success[500]} />
             </View>
@@ -70,7 +70,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               }}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              className="absolute top-2 right-2 bg-white/90 dark:bg-slate-900/90 rounded-full p-1.5 shadow-sm items-center justify-center z-10"
+              className="absolute top-2 right-2 bg-card/90 rounded-full p-1.5 shadow-sm items-center justify-center z-10"
               accessibilityRole="button"
               accessibilityLabel={isSaved ? `Remove ${listing.title} from saved` : `Save ${listing.title}`}
             >
@@ -87,7 +87,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
         <View className="p-2.5">
           {/* Price & Condition Row */}
           <View className="flex-row items-center justify-between">
-            <AppText variant="body" className="text-emerald-600 dark:text-emerald-400 font-bold text-base">
+            <AppText variant="body-lg" className="text-success font-bold">
               {listing.price.formatted}
             </AppText>
 
@@ -95,8 +95,8 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
               <View
                 className={`flex-row items-center px-1.5 py-0.5 rounded border ${
                   listing.condition === 'power_on'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800'
-                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800'
+                    ? 'bg-success/10 border-success/30'
+                    : 'bg-destructive/10 border-destructive/30'
                 }`}
                 accessibilityLabel={`Device condition: ${listing.condition === 'power_on' ? 'Power On' : 'Power Off'}`}
               >
@@ -109,8 +109,8 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
                   variant="caption"
                   className={`ml-1 text-tiny font-bold uppercase tracking-wider ${
                     listing.condition === 'power_on'
-                      ? 'text-emerald-700 dark:text-emerald-400'
-                      : 'text-rose-700 dark:text-rose-400'
+                      ? 'text-success'
+                      : 'text-destructive'
                   }`}
                 >
                   {listing.condition === 'power_on' ? 'ON' : 'OFF'}
@@ -122,7 +122,7 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
           {/* Title (2 lines) */}
           <AppText
             variant="caption"
-            className="text-slate-800 dark:text-slate-100 font-medium mt-1 leading-snug"
+            className="text-foreground font-medium mt-1 leading-snug"
             numberOfLines={2}
           >
             {listing.title}
@@ -130,11 +130,11 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
           {/* Location */}
           {listing.location?.display && (
-            <View className="flex-row items-center mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
-              <AppIcon name="MapPin" size={11} color={base.slate[400]} />
+            <View className="flex-row items-center mt-1.5 pt-1.5 border-t border-border">
+              <AppIcon name="MapPin" size={11} color={base.slate[500]} />
               <AppText
                 variant="caption"
-                className="text-slate-400 dark:text-slate-500 ml-1 text-xs flex-1"
+                className="text-foreground-secondary ml-1 flex-1"
                 numberOfLines={1}
               >
                 {listing.location.display}
@@ -149,9 +149,9 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress, isS
 
 ListingCard.displayName = 'ListingCard';
 
+/** Shared thumbnail dimensions (audit C2): single owner, also used by ListingSkeleton. */
+export const listingThumbnailStyle = { width: '100%', height: 130 } as const;
+
 const styles = StyleSheet.create({
-  thumbnailContainer: {
-    width: '100%',
-    height: 130,
-  },
+  thumbnailContainer: listingThumbnailStyle,
 });

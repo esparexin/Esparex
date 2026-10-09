@@ -30,7 +30,7 @@ export function BusinessListingGatePage({
 
     if (isLoading || !isFetched) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-muted flex items-center justify-center p-4">
                 <div className="text-muted-foreground font-medium">Checking business verification...</div>
             </div>
         );

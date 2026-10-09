@@ -12,10 +12,10 @@ describe("ListingDescriptionCard Tab Architecture & Structure", () => {
     expect(typeof ListingWorkingSparePartsTab).toBe("function");
   });
 
-  it("enforces canonical tab sequence for general ads: Repair Shops -> Description -> Working Spare Parts", () => {
-    expect(TAB_KEYS).toEqual(["repair-shops", "description", "spare-parts"]);
-    expect(TAB_KEYS[0]).toBe("repair-shops");
-    expect(TAB_KEYS[1]).toBe("description");
+  it("enforces canonical tab sequence for general ads: Description -> Repair Shops -> Working Spare Parts", () => {
+    expect(TAB_KEYS).toEqual(["description", "repair-shops", "spare-parts"]);
+    expect(TAB_KEYS[0]).toBe("description");
+    expect(TAB_KEYS[1]).toBe("repair-shops");
     expect(TAB_KEYS[2]).toBe("spare-parts");
   });
 
@@ -25,10 +25,10 @@ describe("ListingDescriptionCard Tab Architecture & Structure", () => {
     expect(SERVICE_TAB_KEYS[1]).toBe("service-centers");
   });
 
-  it("enforces canonical tab sequence for spare parts: Part Details -> Description", () => {
-    expect(SPARE_PART_TAB_KEYS).toEqual(["part-details", "description"]);
+  it("enforces canonical tab sequence for spare parts: Part Details -> Repair Shops", () => {
+    expect(SPARE_PART_TAB_KEYS).toEqual(["part-details", "repair-shops"]);
     expect(SPARE_PART_TAB_KEYS[0]).toBe("part-details");
-    expect(SPARE_PART_TAB_KEYS[1]).toBe("description");
+    expect(SPARE_PART_TAB_KEYS[1]).toBe("repair-shops");
   });
 
   it("extracts spare parts from snapshot and array correctly", () => {

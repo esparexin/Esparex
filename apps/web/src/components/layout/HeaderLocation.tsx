@@ -5,7 +5,7 @@ import { ChevronDown, MapPin, Target, X } from "@esparex/ui";
 import { Spinner } from "@esparex/ui";
 import { useLocationData, useLocationDispatch, useLocationStatus } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
-import { useMounted } from "@/hooks/useMounted";
+import { useMounted } from "@esparex/shared";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +89,7 @@ export function HeaderLocation({
         <div
             onClick={handleContainerClick}
             className={cn(
-                "flex items-center gap-1.5 rounded-xl border border-border bg-background px-2.5 h-11 shadow-xs transition-all w-[220px] lg:w-[260px] cursor-text",
+                "flex items-center gap-1.5 rounded-xl border border-border bg-background px-2.5 h-11 shadow-sm transition-all w-[220px] lg:w-[260px] cursor-text",
                 isOpen
                     ? "border-primary ring-2 ring-primary/20 bg-background"
                     : "hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"

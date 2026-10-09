@@ -27,6 +27,7 @@ import {
 } from "@/components/system/users/userManagement";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useClientUsers } from "@/hooks/useClientUsers";
+import { formatAppDate, formatStableNumber } from "@esparex/shared";
 
 import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
 
@@ -159,7 +160,7 @@ export default function UsersPage() {
         {
             header: "Mobile",
             cell: (user) => (
-                <div className="text-sm font-medium text-foreground-secondary flex items-center gap-1">
+                <div className="text-body font-medium text-foreground-secondary flex items-center gap-1">
                     {user.mobile}
                 </div>
             )
@@ -167,7 +168,7 @@ export default function UsersPage() {
         {
             header: "Email",
             cell: (user) => (
-                <div className="text-xs text-foreground-secondary flex items-center gap-1">
+                <div className="text-caption text-foreground-secondary flex items-center gap-1">
                     <Mail size={12} className="text-foreground-subtle" />
                     {user.email || "No email"}
                 </div>
@@ -186,12 +187,12 @@ export default function UsersPage() {
         },
         {
             header: "Joined Date",
-            cell: (user) => new Date(user.createdAt as string).toLocaleDateString()
+            cell: (user) => formatAppDate(user.createdAt as string)
         },
         {
             header: "Total Ads Posted",
             cell: (user) => (
-                <span className="text-xs font-semibold text-foreground-secondary">
+                <span className="text-caption font-semibold text-foreground-secondary">
                     {Number(user.totalAdsPosted ?? user.totalAds ?? 0)}
                 </span>
             )
@@ -231,25 +232,25 @@ export default function UsersPage() {
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-border bg-card px-2.5 py-1.5 shadow-xs transition hover:border-border/80">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-border bg-card px-2.5 py-1.5 shadow-sm transition hover:border-border/80">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
-                            <p className="mt-0.5 text-body font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-foreground">{formatStableNumber(overview.totalUsers)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-emerald-300">
-                            <p className="text-tiny font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
-                            <p className="mt-0.5 text-body font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-success/20 bg-success-subtle/40 px-2.5 py-1.5 shadow-sm transition hover:border-success/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-success-dark">Individuals</p>
+                            <p className="mt-0.5 text-body font-bold text-success">{formatStableNumber(overview.individuals)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-blue-300">
-                            <p className="text-tiny font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
-                            <p className="mt-0.5 text-body font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-primary/20 bg-primary-subtle/40 px-2.5 py-1.5 shadow-sm transition hover:border-primary/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-primary">Businesses</p>
+                            <p className="mt-0.5 text-body font-bold text-info">{formatStableNumber(overview.businesses)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-indigo-300">
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-sm transition hover:border-indigo-300">
                             <p className="text-tiny font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
-                            <p className="mt-0.5 text-body font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
+                            <p className="mt-0.5 text-body font-bold text-primary">{formatStableNumber(overview.verifiedBusinesses)}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-xs transition hover:border-red-300">
-                            <p className="text-tiny font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
-                            <p className="mt-0.5 text-body font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-destructive/20 bg-destructive/10 px-2.5 py-1.5 shadow-sm transition hover:border-destructive/40">
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-destructive">Blocked Users</p>
+                            <p className="mt-0.5 text-body font-bold text-destructive">{formatStableNumber(overview.blockedUsers)}</p>
                         </Link>
                     </div>
 
@@ -274,7 +275,7 @@ export default function UsersPage() {
                         extraFilters={
                             <>
                                 <select
-                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={roleFilter}
                                     onChange={(event) => {
                                         const nextRole = event.target.value;
@@ -294,7 +295,7 @@ export default function UsersPage() {
                                     <option value="business">Businesses</option>
                                 </select>
                                 <select
-                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    className="rounded-lg border border-input bg-background px-2.5 py-1.5 text-body-lg md:text-body font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                     value={verifiedFilter}
                                     onChange={(event) => {
                                         const nextVerified = event.target.value as "all" | "true" | "false";
@@ -318,7 +319,7 @@ export default function UsersPage() {
                     />
 
                     {error ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                        <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-body text-destructive">
                             <AlertCircle size={16} />
                             <span>{error}</span>
                         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/common/SafeImage";
 import Link from "next/link";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { unsaveAd, type SavedAd } from "@/lib/api/user/users";
@@ -9,7 +9,7 @@ import { formatPrice, formatDate } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import { Button, Card, Spinner } from "@esparex/ui";
+import { Button, Card, Spinner, EmptyState } from "@esparex/ui";
 import { Heart, MapPin, Calendar, ArrowRight } from "@esparex/ui";
 import { notify } from "@/lib/feedback";
 import { useQueryClient } from "@tanstack/react-query";
@@ -53,7 +53,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
 
   if (isError) {
     return (
-      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-xs">
+      <Card className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-center shadow-sm">
         <p className="text-body font-semibold text-destructive">Failed to load saved ads</p>
         <p className="text-caption text-destructive/80 mt-1">Please try refreshing the page.</p>
       </Card>
@@ -64,24 +64,29 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
     <div className="space-y-4 w-full">
       {/* Empty State */}
       {savedAds.length === 0 ? (
-        <Card className="rounded-2xl border border-border/80 bg-card shadow-xs p-8 sm:p-12 text-center flex flex-col items-center justify-center">
-          <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 dark:text-pink-400 border border-pink-500/20 mb-3.5">
-            <Heart className="h-6 w-6 sm:h-7 sm:w-7 fill-pink-500/20" />
-          </div>
-          <h3 className="text-body-lg font-semibold text-foreground">No saved ads yet</h3>
-          <Button
-            onClick={() => navigateTo("browse")}
-            className="mt-4 h-10 px-6 rounded-xl font-semibold text-body shadow-xs inline-flex items-center justify-center gap-2 cursor-pointer"
-          >
-            Explore Marketplace
-          </Button>
+        <Card className="rounded-2xl border border-border/80 bg-card shadow-sm">
+          <EmptyState
+            icon={Heart}
+            title="No saved ads yet"
+            description="Ads you bookmark while browsing will appear here."
+            action={
+              <Button
+                type="button"
+                onClick={() => navigateTo("browse")}
+                className="h-10 rounded-xl px-6 font-semibold text-body shadow-sm cursor-pointer"
+              >
+                Explore Marketplace
+              </Button>
+            }
+          />
         </Card>
       ) : (
         /* Saved Ads Compact List View */
-        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+        <div className="divide-y divide-border rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           {savedAds.map((ad) => {
             const detailHref = buildPublicListingDetailRoute({
               id: ad.id,
+              listingType: (ad as Record<string, unknown>).listingType,
               slug: typeof ad.slug === "string" ? ad.slug : undefined,
               title: typeof ad.title === "string" ? ad.title : undefined,
             });
@@ -93,14 +98,13 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
             const isRemoving = removingId === String(ad.id);
 
             return (
-              <Link
+              <div
                 key={ad.id}
-                href={detailHref}
-                className="group flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-muted/50 transition-colors"
+                className="group relative flex items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 hover:bg-muted/50 transition-colors"
               >
                 {/* Left Thumbnail */}
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
-                  <Image
+                  <SafeImage
                     src={imageSrc}
                     alt={ad.title}
                     fill
@@ -120,7 +124,12 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     {formatPrice(ad.price)}
                   </p>
                   <h4 className="text-body font-medium text-foreground truncate mt-0.5 group-hover:text-primary transition-colors">
-                    {ad.title}
+                    <Link
+                      href={detailHref}
+                      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm after:absolute after:inset-0 after:content-[''] after:z-10"
+                    >
+                      {ad.title}
+                    </Link>
                   </h4>
                   <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-tiny text-foreground-subtle mt-1">
                     {location && (
@@ -139,7 +148,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                 </div>
 
                 {/* Right Action: Unsave Button */}
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
+                <div className="relative z-20 flex items-center gap-1.5 shrink-0 ml-1">
                   <button
                     type="button"
                     onClick={(e) => void handleUnsave(ad.id, e)}
@@ -150,11 +159,11 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                   >
                     <Heart className="h-4 w-4 fill-pink-600 dark:fill-pink-400" />
                   </button>
-                  <div className="hidden sm:flex h-8 w-8 items-center justify-center text-muted-foreground/50 group-hover:text-primary transition-colors">
+                  <div className="hidden sm:flex h-8 w-8 items-center justify-center text-muted-foreground/50 group-hover:text-primary transition-colors pointer-events-none">
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>

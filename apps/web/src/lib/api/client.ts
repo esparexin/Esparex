@@ -69,6 +69,30 @@ export function shouldSuppressPopupForApiError(
     return status === 404 && isListingDetailRequest(requestConfig?.url?.toString(), requestConfig?.method);
 }
 
+export function isSendOtpRequest(url?: string): boolean {
+    if (!url) return false;
+    const normalized = normalizeRequestPath(url);
+    return (
+        normalized === 'auth/send-otp' ||
+        normalized.endsWith('/auth/send-otp') ||
+        url.replace(/^\//, '').includes('auth/send-otp')
+    );
+}
+
+export function isAuthMutationRequest(url?: string): boolean {
+    if (!url) return false;
+    if (isSendOtpRequest(url)) return true;
+    const normalized = normalizeRequestPath(url);
+    return (
+        normalized === 'auth/verify-otp' ||
+        normalized.endsWith('/auth/verify-otp') ||
+        normalized === 'auth/cancel-otp' ||
+        normalized.endsWith('/auth/cancel-otp') ||
+        url.replace(/^\//, '').includes('auth/verify-otp') ||
+        url.replace(/^\//, '').includes('auth/cancel-otp')
+    );
+}
+
 /* ======================================================
    API CLIENT
 ====================================================== */
@@ -209,37 +233,11 @@ export class APIClient {
             headers.set('x-correlation-id', TraceContext.getCorrelationId());
             config.headers = headers;
 
-            // 🔐 HMAC SIGNATURE FOR FINANCIAL SAFETY
-            // NOTE: Browser-side HMAC is not a true security boundary — NEXT_PUBLIC_* vars are
-            // visible in the compiled client JS bundle. Signing is skipped if no secret is set.
-            const SENSITIVE_ENDPOINTS = [
-                '/users/:id/wallet',
-                '/wallet/adjust',
-                '/payments/create'
-            ];
-
-            const normalizedPath = normalizeRequestPath(config.url);
-            const isSensitive = SENSITIVE_ENDPOINTS.some(pattern => {
-                const regex = new RegExp('^' + pattern.replace(':id', '[^/]+').replace(/^\/+/, '') + '$', 'i');
-                return regex.test(normalizedPath);
-            });
-
-            if (isSensitive && config.data && this.isStateChangingMethod(config.method)) {
-                const secret = process.env.NEXT_PUBLIC_HMAC_SECRET;
-                if (secret) {
-                    try {
-                        const CryptoJS = (await import('crypto-js')).default;
-                        const bodyStr = JSON.stringify(config.data);
-                        const signature = CryptoJS.HmacSHA256(bodyStr, secret).toString(CryptoJS.enc.Hex);
-                        
-                        const headers = new AxiosHeaders(config.headers);
-                        headers.set('x-signature', signature);
-                        config.headers = headers;
-                    } catch (cryptoError) {
-                        logger.error('[API Client] Failed to generate HMAC signature:', cryptoError);
-                    }
-                }
-            }
+            // 🔐 FINANCIAL SAFETY (Phase 1 audit P0: F31/F21)
+            // Browser-side HMAC removed — NEXT_PUBLIC_* vars ship in the client
+            // bundle and are not a security boundary. Server-side auth (protect),
+            // CSRF double-submit, velocity limits, and idempotency are the real
+            // enforcement for sensitive endpoints. Do not reintroduce client secrets.
 
             const isCsrfBootstrapRequest = config.url?.endsWith(API_ROUTES.USER.CSRF_TOKEN);
             if (!isCsrfBootstrapRequest && this.isStateChangingMethod(method)) {
@@ -394,14 +392,16 @@ export class APIClient {
                 const maxRetries = requestConfig?.maxRetries ?? 1;
                 const currentRetryCount = requestConfig?._retryCount ?? 0;
 
-                const isSendOtp = (requestUrl || '').includes('/auth/send-otp');
+                const isSendOtp = isSendOtpRequest(requestUrl);
+                const isAuthMutation = isAuthMutationRequest(requestUrl);
 
                 const isTransientError =
                     (latestStatus === 0 || // Network error
                     latestStatus === 408 || // Timeout
                     latestStatus >= 500) && // Server error
                     latestStatus !== 429 && // Exclude 429 from auto-retries
-                    !isSendOtp; // Exclude /auth/send-otp under any circumstance
+                    !isSendOtp &&
+                    !isAuthMutation; // Exclude /auth/send-otp and auth mutations under any circumstance
 
 
                 

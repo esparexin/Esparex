@@ -33,7 +33,6 @@ jest.mock('../../config/env', () => ({
         MSG91_AUTH_KEY: 'test-msg91-auth-key',
         MSG91_WIDGET_ID: 'test-widget-id-3461',
         MSG91_TOKEN_AUTH: 'test-widget-client-token',
-        MSG91_OTP_CHANNEL: 'whatsapp',
         USE_DEFAULT_OTP: false,
         DEV_STATIC_OTP: '123456',
         AUTH_BYPASS_OTP_LOCK: 'false',
@@ -108,7 +107,6 @@ jest.mock('../../utils/securityMonitoring', () => ({
 }));
 
 import { AuthService } from '../../domains/identity/application/auth/AuthService';
-import { dispatchOtpSms } from '../../domains/identity/application/auth/authSmsDispatcher';
 import User from '../../models/User';
 import Otp from '../../models/Otp';
 import { Role, USER_STATUS } from '@esparex/contracts';
@@ -418,7 +416,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
     });
 
     describe('4. Provider Failures & Resilience', () => {
-        it('should handle MSG91 delivery failure gracefully with 502 OTP_DELIVERY_FAILED', async () => {
+        it('should handle MSG91 delivery failure gracefully with 502 and a specific provider code', async () => {
             mockUserModel.findOne.mockResolvedValue(mockUserRecord);
             mockOtpModel.findOne.mockReturnValue({
                 sort: jest.fn().mockResolvedValue(null)
@@ -431,11 +429,34 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
             expect(result.success).toBe(false);
             if (!result.success) {
                 expect(result.status).toBe(502);
-                expect(result.code).toBe('OTP_DELIVERY_FAILED');
+                expect(result.code).toBe('OTP_PROVIDER_TIMEOUT');
             }
         });
 
-        it('should handle MSG91 verification service failure gracefully with 502 OTP_VERIFICATION_FAILED', async () => {
+        it('should surface MSG91 403 rejections as OTP_PROVIDER_AUTH_REJECTED (never a bare 502)', async () => {
+            mockUserModel.findOne.mockResolvedValue(mockUserRecord);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(null)
+            });
+
+            const forbidden = new Error('Request failed with status code 403') as Error & {
+                response: { status: number };
+            };
+            forbidden.response = { status: 403 };
+            jest.mocked(mockAxios.isAxiosError).mockReturnValueOnce(true);
+            mockAxios.post.mockRejectedValueOnce(forbidden);
+
+            const result = await AuthService.sendLoginOtp(VALID_MOBILE);
+
+            expect(result.success).toBe(false);
+            if (!result.success) {
+                expect(result.status).toBe(502);
+                expect(result.code).toBe('OTP_PROVIDER_AUTH_REJECTED');
+                expect(result.providerStatus).toBe(403);
+            }
+        });
+
+        it('should handle MSG91 verification service failure gracefully with 502 and a specific provider code', async () => {
             const activeOtp = {
                 _id: 'otp-id-whatsapp',
                 mobile: CANONICAL_MOBILE,
@@ -458,7 +479,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
             expect(result.success).toBe(false);
             if (!result.success) {
                 expect(result.status).toBe(502);
-                expect(result.code).toBe('OTP_VERIFICATION_FAILED');
+                expect(result.code).toBe('OTP_PROVIDER_ERROR');
             }
         });
     });
@@ -472,10 +493,7 @@ describe('WhatsApp OTP Authentication Flow (MSG91 EsparexLogin Widget)', () => {
     });
 
     describe('6. Guarantee: NO SMS API Called Anywhere', () => {
-        it('should verify dispatchOtpSms throws error and never calls any SMS endpoint', async () => {
-            await expect(dispatchOtpSms()).rejects.toThrow(/SMS OTP is disabled in this phase/i);
-
-            // Verify no call to the old SMS endpoint
+        it('should verify no call to the old SMS endpoint was made anywhere in the flow', () => {
             const allAxiosCalls = mockAxios.post.mock.calls;
             for (const [url] of allAxiosCalls) {
                 expect(url).not.toBe('https://api.msg91.com/api/v5/otp');

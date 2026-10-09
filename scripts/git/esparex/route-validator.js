@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { runStandalone, ROOT } = require('../shared');
 
 const META = { id: 'ROUTE-001', name: 'Route Validation', version: '1.0.0', category: 'API' };
@@ -39,24 +38,30 @@ function isRedirectOnlyPage(filePath, content) {
 }
 
 function run(val) {
-  const changedFiles = (() => {
-    try {
-      const out = execSync('git diff --cached --name-only --diff-filter=ACMR', { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-      return out.split('\n').filter(Boolean);
-    } catch { return []; }
-  })();
+  // DECISION-GATE C-4: staged diff in pre-commit, merge-base diff in CI
+  // (CI checkouts have no staged index — --cached would be vacuous).
+  const { getChangedFiles } = require('./diff-scope');
+  const { files: changedFiles, scope } = getChangedFiles(ROOT);
 
   const routeFiles = changedFiles.filter(f =>
     (f.endsWith('.ts') || f.endsWith('.js')) &&
     (f.includes('/routes/') || f.includes('/router') || f.endsWith('-routes.ts') || f.endsWith('.route.ts'))
   );
 
-  if (routeFiles.length === 0) return;
+  if (routeFiles.length === 0) {
+    val.info(`Route validation: no route files in scope (${scope})`);
+    return;
+  }
 
-  const routes = new Map();
+  // Duplicate routes are only meaningful within a single router file: different
+  // routers mount at different prefixes, so identical literal paths across files
+  // are NOT duplicates (cf. P0-3 double-mount — mount-prefix aware checks live
+  // in enforce-route-collision-guard.js). A per-file map avoids false positives
+  // when the CI merge-base diff touches many routers at once (DECISION-GATE C-4).
   for (const file of routeFiles) {
     const fullPath = path.join(ROOT, file);
     if (!fs.existsSync(fullPath)) continue;
+    const routes = new Map();
     const content = fs.readFileSync(fullPath, 'utf-8');
     const routeMatches = content.match(/(?:router|route)\.(?:get|post|put|patch|delete|options)\s*\(\s*['"`](\/[^'"`]*)['"`]/gi);
     if (routeMatches) {
@@ -68,9 +73,10 @@ function run(val) {
           const routePath = parts[1];
           const key = `${method} ${routePath}`;
           if (routes.has(key)) {
-            val.error(`Duplicate route "${key}" in ${file} and ${routes.get(key)}`);
+            val.error(`Duplicate route "${key}" registered twice in ${file} (first at line ${routes.get(key)})`);
           } else {
-            routes.set(key, file);
+            const lineNo = content.slice(0, content.indexOf(match)).split('\n').length;
+            routes.set(key, lineNo);
           }
         }
       }

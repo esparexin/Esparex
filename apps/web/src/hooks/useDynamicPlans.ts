@@ -5,7 +5,7 @@ import type { User } from "@esparex/contracts";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 import logger from "@/lib/logger";
 
-export function getPlanEntitlementFeatures(p: {
+function getPlanEntitlementFeatures(p: {
     type: string;
     description?: string;
     name?: string;

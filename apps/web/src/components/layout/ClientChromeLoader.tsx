@@ -2,26 +2,27 @@
 
 import { usePathname } from "next/navigation";
 import { BottomActionsBar } from "@/components/BottomActionsBar";
-import { BackendStatusBanner } from "@/components/common/BackendStatusBanner";
-import { ConnectivityBanner } from "@/components/common/ConnectivityBanner";
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { StatusBannerHost } from "@/components/common/StatusBannerHost";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
+import { isWizardPathname } from "@/lib/routeUtils";
+import { BottomNavChrome } from "./BottomNavChrome";
 
 interface ClientChromeLoaderProps {
     apiUnavailable?: boolean;
 }
 
-export function ClientChromeLoader({
-    apiUnavailable = false,
-}: ClientChromeLoaderProps) {
+export function ClientChromeLoader({ apiUnavailable = false }: ClientChromeLoaderProps) {
     const pathname = usePathname();
     const policy = getMobileChromePolicy(pathname);
 
     return (
         <>
-            <BackendStatusBanner />
-            <ConnectivityBanner apiUnavailable={apiUnavailable} />
-            <MobileBottomNav enabled={policy.showMobileBottomNav} />
+            <StatusBannerHost
+                apiUnavailable={apiUnavailable}
+                hasCompactHeader={!policy.showMobileSearch}
+                hideHeader={isWizardPathname(pathname)}
+            />
+            <BottomNavChrome />
             <BottomActionsBar enabled={policy.showBottomActionsBar} />
         </>
     );

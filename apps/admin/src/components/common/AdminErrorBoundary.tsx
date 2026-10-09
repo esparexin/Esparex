@@ -30,14 +30,14 @@ export class AdminErrorBoundary extends Component<Props, State> {
     public override render() {
         if (this.state.hasError) {
             return (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-red-100 bg-red-50/50 p-8 text-center">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+                <div className="flex flex-col items-center justify-center rounded-xl border border-destructive/20 bg-destructive/10 p-8 text-center">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
                         <AlertTriangle size={24} />
                     </div>
-                    <h3 className="mb-2 text-lg font-semibold text-foreground">
+                    <h3 className="mb-2 text-h4 font-semibold text-foreground">
                         {this.props.fallbackLabel || "Component Rendering Failed"}
                     </h3>
-                    <p className="max-w-md text-sm text-foreground-secondary">
+                    <p className="max-w-md text-body text-foreground-secondary">
                         A runtime error occurred while rendering this module. Our team has been notified.
                     </p>
                     <button

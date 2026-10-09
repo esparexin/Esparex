@@ -1,0 +1,182 @@
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/contracts';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import { LISTING_STATUS_VALUES } from '@esparex/contracts';
+import { getSystemConfigForRead } from '../../../../services/SystemConfigService';
+
+export type AdStatus = LifecycleStatus;
+
+export interface StatusTransitionData {
+    reason?: string;
+    rejectionReason?: string;
+    soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
+    actorId?: string;
+    actorType?: 'user' | 'admin' | 'system';
+}
+
+/**
+ * Normalizes status input to canonical LIFECYCLE_STATUS.
+ * Maps legacy 'active' and 'approved' to 'live'.
+ */
+export const normalizeAdStatus = (status: string): string => {
+    if (!status) return status;
+    const s = String(status).toLowerCase().trim();
+    if (s === 'active' || s === 'approved') return LIFECYCLE_STATUS.LIVE;
+    return s;
+};
+
+/**
+ * Validates if a string is a recognized Ad status.
+ */
+export const isValidAdStatus = (status: string): boolean => {
+    if (!status || typeof status !== 'string') return false;
+    return (LISTING_STATUS_VALUES as readonly string[]).includes(status);
+};
+
+
+import { getListingRepository } from '../../../../composition/listings';
+import { mutateStatus } from './StatusMutationService';
+import { MS_IN_DAY, GOVERNANCE } from '../../../../config/constants';
+import logger from '../../../../utils/logger';
+import { lifecycleEvents } from '../../../../events';
+import { ListingExpiryService } from './ListingExpiryService';
+// P1-3: Boost-record writes funnel through the boosts-domain write API.
+import { expireBoosts as expireBoostRecords } from '../../../boosts/application/services/BoostService';
+
+// E1: mutateStatus returns doc.toObject() — typed as Record<string, unknown> | null
+export const updateAdStatus = async (
+    id: string,
+    newStatus: string,
+    data: StatusTransitionData
+): Promise<Record<string, unknown> | null> => {
+    return mutateStatus({
+        domain: 'ad',
+        entityId: id,
+        toStatus: normalizeAdStatus(newStatus),
+        actor: { type: data.actorType || 'admin', id: data.actorId, ip: '', userAgent: '' },
+        reason: data.reason || data.rejectionReason || data.soldReason,
+        patch: {
+            soldReason: data.soldReason,
+            rejectionReason: data.rejectionReason
+        }
+    });
+};
+
+
+export const deleteAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<Record<string, unknown> | null> => {
+
+    return mutateStatus({
+        domain: 'ad',
+        entityId: id,
+        toStatus: LIFECYCLE_STATUS.DEACTIVATED,
+        actor: { type: actorType, id: actorId, ip: '', userAgent: '' },
+        reason: 'Ad soft deleted',
+        metadata: {
+            action: 'soft_delete',
+        },
+        patch: {
+            isDeleted: true,
+            deletedAt: new Date(),
+            isSpotlight: false,
+            isChatLocked: true,
+        },
+    });
+};
+
+export const restoreAd = async (id: string, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'user'): Promise<Record<string, unknown> | null> => {
+
+    return mutateStatus({
+        domain: 'ad',
+        entityId: id,
+        toStatus: LIFECYCLE_STATUS.PENDING,
+        actor: { type: actorType, id: actorId, ip: '', userAgent: '' },
+        reason: 'Ad restored for moderation review',
+        metadata: {
+            action: 'restore',
+        },
+        patch: {
+            isDeleted: false,
+            deletedAt: undefined,
+            moderationStatus: 'held_for_review',
+        },
+    });
+};
+
+/**
+ * Calculates the expiration date for a listing based on its type.
+ * Fetches dynamic values from SystemConfig (DB) if available, 
+ * otherwise falls back to hardcoded GOVERNANCE constants.
+ */
+export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTING_TYPE.AD): Promise<Date> => {
+    let days = listingType === LISTING_TYPE.SERVICE
+        ? 90
+        : listingType === LISTING_TYPE.SPARE_PART
+            ? 60
+            : GOVERNANCE.AD.EXPIRY_DAYS;
+
+    try {
+        const config = await getSystemConfigForRead();
+        if (config?.listing?.expiryDays) {
+            const dynamicDays = config.listing.expiryDays[listingType];
+            if (typeof dynamicDays === 'number') {
+                days = dynamicDays;
+            }
+        }
+    } catch (error) {
+        logger.warn('computeActiveExpiry: Failed to fetch SystemConfig, falling back to defaults', { error });
+    }
+
+    return new Date(Date.now() + days * MS_IN_DAY);
+};
+
+export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'admin'): Promise<Record<string, unknown> | null> => {
+    const ad = await getListingRepository().findById(id);
+    if (!ad) return null;
+    const now = Date.now();
+    const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : now;
+    // Always compute extension from the later of currentExpiry or now to ensure a strictly future expiry timestamp
+    const baseTime = currentExpiry < now ? now : currentExpiry;
+    // P2: 30-day hard ceiling (AGENTS.md §20). Extensions/renewals must never
+    // extend beyond now + GOVERNANCE.AD.EXPIRY_DAYS, even from a future base.
+    const maxExpiresAt = now + GOVERNANCE.AD.EXPIRY_DAYS * MS_IN_DAY;
+    const newExpiresAt = new Date(Math.min(baseTime + daysToAdd * MS_IN_DAY, maxExpiresAt));
+    const isExpired = ad.status === LIFECYCLE_STATUS.EXPIRED;
+    const toStatus = isExpired ? LIFECYCLE_STATUS.LIVE : (ad.status ?? LIFECYCLE_STATUS.LIVE);
+    
+    return mutateStatus({
+        domain: 'ad',
+        entityId: id,
+        toStatus,
+        actor: { type: actorType, id: actorId, ip: '', userAgent: '' },
+        reason: `Extended by ${daysToAdd} days`,
+        patch: {
+            expiresAt: newExpiresAt,
+            ...(isExpired ? { isChatLocked: false, expiryWarningSentAt: null, expiryWarningCount: 0 } : {})
+        }
+    });
+};
+
+
+
+export const expireOutdatedAds = async (): Promise<number> => {
+    const result = await ListingExpiryService.runSweep(new Date());
+    return result.expiredCount;
+};
+
+export const expireBoosts = async (): Promise<number> => {
+    const now = new Date();
+    // P5: never resurrect spotlight badges on soft-deleted ads.
+    const count = await getListingRepository().updateMany(
+        { isSpotlight: true, spotlightExpiresAt: { $lt: now }, isDeleted: { $ne: true } },
+        { isSpotlight: false, spotlightExpiresAt: null }
+    );
+
+    // P1-3 (DECISION-GATE §2/§3): the Boost-record write goes through the
+    // boosts-domain write API — no direct Boost model writes outside boosts.
+    await expireBoostRecords(now);
+    
+    if (count > 0) {
+        await lifecycleEvents.dispatch('ad.spotlight.expired', { count, source: 'cron_expireBoosts' });
+    }
+    
+    return count;
+};

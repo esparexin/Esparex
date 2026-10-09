@@ -48,13 +48,13 @@ jest.mock("@esparex/core/utils/logger", () => ({
         info: jest.fn(),
     },
 }));
-jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
+jest.mock("@esparex/core/domains/listings/application/lifecycle/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn().mockResolvedValue(undefined),
 }));
 
 import mongoose from "mongoose";
-import { mutateStatus } from "../../services/lifecycle/StatusMutationService";
+import { mutateStatus } from "../../domains/listings/application/lifecycle/StatusMutationService";
 import {
     findReportForUpdate,
     autoHideAdIfOverThreshold,

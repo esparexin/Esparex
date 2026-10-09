@@ -72,7 +72,7 @@ export function SmartAlertRulesSection({
                     </p>
                 </div>
             ) : (
-                <div className="rounded-2xl border border-border bg-card shadow-2xs divide-y divide-border overflow-hidden">
+                <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border overflow-hidden">
                     {smartAlerts.map((alert) => {
                         const formattedLoc = formatAlertLocation(alert.location, alert.radiusKm, alert.name);
                         const isPaused = alert.active === false;

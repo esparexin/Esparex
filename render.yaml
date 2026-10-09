@@ -30,9 +30,11 @@ services:
         sync: false
       - key: ADMIN_JWT_SECRET
         sync: false
+      - key: OTP_PROVIDER
+        value: msg91
       - key: OTP_HASH_SECRET
         sync: false
-      # HMAC_SECRET: used for OTP HMAC signing. The code has an insecure dev
+      # HMAC_SECRET: used for AI secret encryption. The code has an insecure dev
       # fallback — this entry ensures the production value is always injected
       # explicitly from the Render dashboard. (D1 audit I-010)
       - key: HMAC_SECRET
@@ -87,10 +89,15 @@ services:
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
 
-      # ── SMS ────────────────────────────────────────────────────────────────
+      # ── WhatsApp OTP (MSG91 Widget) ────────────────────────────────────────
       - key: MSG91_AUTH_KEY
         sync: false
-      - key: MSG91_SENDER_ID
+      # MSG91_WIDGET_ID / MSG91_TOKEN_AUTH: required by the MSG91 OTP Widget
+      # (WhatsApp) dispatch path in core/src/domains/identity/.../authSmsDispatcher.ts.
+      # Production fails fast at startup if MSG91_WIDGET_ID is missing.
+      - key: MSG91_WIDGET_ID
+        sync: false
+      - key: MSG91_TOKEN_AUTH
         sync: false
 
       # ── AI ─────────────────────────────────────────────────────────────────
@@ -106,11 +113,10 @@ services:
         sync: false
 
       # ── OTP ─────────────────────────────────────────────────────────────────
-      # OTP_PROVIDER=test: testing OTP (123456) intentionally active for staging /
-      # pre-launch validation. For live production SMS delivery, configure sync: false
-      # or set to "msg91" in the Render dashboard once MSG91/DLT registration is active.
+      # OTP provider is managed in the Render dashboard (production runs msg91).
+      # sync: false keeps the blueprint from overwriting the dashboard value.
       - key: OTP_PROVIDER
-        value: test
+        sync: false
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false
 

@@ -170,16 +170,16 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         throw new Error('REDIS_URL/REDIS_HOST cannot use localhost in production');
     }
 
-    console.log('[DIAGNOSTIC] NODE_ENV:', sourceEnv.NODE_ENV);
-    console.log('[DIAGNOSTIC] ALLOW_REDIS raw:', typeof sourceEnv.ALLOW_REDIS, JSON.stringify(sourceEnv.ALLOW_REDIS));
-    console.log('[DIAGNOSTIC] REDIS_URL exists:', hasValue(sourceEnv.REDIS_URL));
-    console.log('[DIAGNOSTIC] REDIS_HOST exists:', hasValue(sourceEnv.REDIS_HOST));
-    console.log('[DIAGNOSTIC] REDIS_PORT exists:', hasValue(sourceEnv.REDIS_PORT));
-    console.log('[DIAGNOSTIC] REDIS_DB exists:', hasValue(sourceEnv.REDIS_DB));
-    console.log('[DIAGNOSTIC] REDIS_USERNAME exists:', hasValue(sourceEnv.REDIS_USERNAME));
-    console.log('[DIAGNOSTIC] REDIS_PASSWORD exists:', hasValue(sourceEnv.REDIS_PASSWORD));
-    console.log('[DIAGNOSTIC] isLocalRedisHost:', isLocalRedisHost(redisConfig.host));
-    console.log('[DIAGNOSTIC] process.env keys:', Object.keys(sourceEnv).filter(k => k.includes('REDIS') || k.includes('ENV')));
+    bootstrapLogger.debug('[DIAGNOSTIC] NODE_ENV:', sourceEnv.NODE_ENV);
+    bootstrapLogger.debug('[DIAGNOSTIC] ALLOW_REDIS raw:', typeof sourceEnv.ALLOW_REDIS, JSON.stringify(sourceEnv.ALLOW_REDIS));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_URL exists:', hasValue(sourceEnv.REDIS_URL));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_HOST exists:', hasValue(sourceEnv.REDIS_HOST));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_PORT exists:', hasValue(sourceEnv.REDIS_PORT));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_DB exists:', hasValue(sourceEnv.REDIS_DB));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_USERNAME exists:', hasValue(sourceEnv.REDIS_USERNAME));
+    bootstrapLogger.debug('[DIAGNOSTIC] REDIS_PASSWORD exists:', hasValue(sourceEnv.REDIS_PASSWORD));
+    bootstrapLogger.debug('[DIAGNOSTIC] isLocalRedisHost:', isLocalRedisHost(redisConfig.host));
+    bootstrapLogger.debug('[DIAGNOSTIC] process.env keys:', Object.keys(sourceEnv).filter(k => k.includes('REDIS') || k.includes('ENV')));
 
     if (!isEnabledFlag(sourceEnv.ALLOW_REDIS)) {
         throw new Error('ALLOW_REDIS must be true in production');
@@ -225,41 +225,37 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
     }
 
     const otpProvider = (sourceEnv.OTP_PROVIDER || '').trim().toLowerCase();
-    const isOtpTestMode = otpProvider === OtpProvider.TEST;
+    if (otpProvider !== OtpProvider.MSG91) {
+        throw new Error(
+            '🚨 SECURITY BLOCK: OTP_PROVIDER must be explicitly configured as "msg91" in production. ' +
+            'Silently falling back to "test" static OTP mode in production is prohibited.'
+        );
+    }
 
-    if (isOtpTestMode) {
-        bootstrapLogger.info('ℹ️  OTP_PROVIDER=test: testing OTP (123456) active in production — SMS provider validation deferred');
-    } else {
-        const rawUseDefaultOtp = (sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase();
-        const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+    const rawUseDefaultOtp = (sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase();
+    const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
 
-        if (rawUseDefaultOtp === 'true') {
-            if (isRiskOverrideActive) {
-                bootstrapLogger.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
-            } else {
-                throw new Error(
-                    '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
-                    'This flag enables authentication bypass with a static OTP for every user. ' +
-                    'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
-                );
-            }
+    if (rawUseDefaultOtp === 'true') {
+        if (isRiskOverrideActive) {
+            bootstrapLogger.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
+        } else {
+            throw new Error(
+                '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
+                'This flag enables authentication bypass with a static OTP for every user. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+            );
         }
     }
 
     if ((sourceEnv.AUTH_BYPASS_OTP_LOCK || '').trim().toLowerCase() === 'true') {
-        if (isOtpTestMode) {
-            bootstrapLogger.warn('⚠️  AUTH_BYPASS_OTP_LOCK is active in production with OTP_PROVIDER=test — brute-force protection is disabled');
+        if (isRiskOverrideActive) {
+            bootstrapLogger.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
         } else {
-            const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
-            if (isRiskOverrideActive) {
-                bootstrapLogger.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
-            } else {
-                throw new Error(
-                    '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
-                    'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
-                    'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
-                );
-            }
+            throw new Error(
+                '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
+                'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
+                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+            );
         }
     }
 

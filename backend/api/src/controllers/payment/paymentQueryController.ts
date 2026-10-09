@@ -1,17 +1,19 @@
-import logger from '@esparex/core/utils/logger';
-import { renderInvoiceHtml } from '@esparex/core/domains/payments/application/InvoicePdfService';
+import { logger } from '@esparex/core';
+import { renderInvoiceHtml } from '@esparex/core/domains/payments';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { respond } from "../../utils/respond";
-import { ApiResponse, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { ApiResponse } from "@esparex/contracts";
+import { normalizeRole, isAdminRole } from '@esparex/core';
+import { formatAppDate } from '@esparex/shared';
 import { sendErrorResponse } from "../../utils/errorResponse";
-import { InvoiceUser } from '@esparex/core/config/razorpay';
-import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domains/payments/application/TransactionService';
-import { getActivePlans } from '@esparex/core/domains/payments/application/PlanService';
-import { getInvoiceByIdOrTransaction } from '@esparex/core/domains/payments/application/InvoiceService';
-import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
-import { validateRedirectUrl } from '@esparex/core/utils/redirectValidator';
+import { InvoiceUser } from '@esparex/core';
+import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domains/payments';
+import { getActivePlans } from '@esparex/core/domains/payments';
+import { getInvoiceByIdOrTransaction } from '@esparex/core/domains/payments';
+import { splitGstFromInclusive } from '@esparex/core/domains/payments';
+import { DashboardFacade } from '@esparex/core/domains/payments';
+import { validateRedirectUrl } from '@esparex/core';
 
 /**
  * 3. GET PLANS
@@ -83,7 +85,7 @@ export const getInvoice = async (req: Request, res: Response) => {
         if (invoice) {
             const ownerId = invoice.userId?.toString?.() ?? String(invoice.userId);
             const role = normalizeRole(req.user?.role);
-            const isAdmin = role === Role.ADMIN || role === Role.SUPER_ADMIN;
+            const isAdmin = isAdminRole(role);
             if (ownerId !== req.user._id.toString() && !isAdmin) {
                 return sendErrorResponse(req, res, 403, 'Unauthorized');
             }
@@ -106,13 +108,13 @@ export const getInvoice = async (req: Request, res: Response) => {
             : (rawUser?.toString() || '');
         const user = (rawUser && typeof rawUser === 'object' ? rawUser : {}) as Partial<InvoiceUser>;
         const reqUserRole = normalizeRole(req.user?.role);
-        const isReqUserAdmin = reqUserRole === Role.ADMIN || reqUserRole === Role.SUPER_ADMIN;
+        const isReqUserAdmin = isAdminRole(reqUserRole);
 
         if (ownerId && ownerId !== req.user._id.toString() && !isReqUserAdmin) {
             return sendErrorResponse(req, res, 403, 'Unauthorized');
         }
 
-        const date = new Date(transaction.createdAt).toLocaleDateString('en-IN', {
+        const date = formatAppDate(transaction.createdAt, {
             year: 'numeric', month: 'long', day: 'numeric'
         });
 
@@ -121,8 +123,11 @@ export const getInvoice = async (req: Request, res: Response) => {
         const orderId = transaction.gatewayOrderId || transaction.gatewayPaymentId || '-';
 
         const invoiceNumber = invoice?.invoiceNumber || `INV-${new Date(transaction.createdAt).getFullYear()}${String(new Date(transaction.createdAt).getMonth() + 1).padStart(2, '0')}-${String(transaction._id).slice(-5).toUpperCase()}`;
-        const subtotal = invoice?.subtotal || (invoice?.amount ? Math.round((invoice.amount / 1.18) * 100) / 100 : Math.round((transaction.amount / 1.18) * 100) / 100);
-        const taxGst = invoice?.tax?.gst || (invoice?.amount ? Math.round((invoice.amount - subtotal) * 100) / 100 : Math.round((transaction.amount - subtotal) * 100) / 100);
+        // Canonical GST-inclusive split (SSOT: core splitGstFromInclusive).
+        const splitBase = invoice?.amount ?? transaction.amount;
+        const split = splitGstFromInclusive(splitBase);
+        const subtotal = invoice?.subtotal || split.subtotal;
+        const taxGst = invoice?.tax?.gst || split.gstAmount;
         const sacCode = invoice?.sacCode || '998599';
         const gstin = invoice?.gstin || '29AAAAA0000A1Z5';
 

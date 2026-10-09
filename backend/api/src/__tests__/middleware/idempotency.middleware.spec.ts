@@ -2,14 +2,15 @@ import type { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
-import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
+import { idempotencyRepository } from '@esparex/core';
 
-jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
-    __esModule: true,
-    default: {
-        findOne: jest.fn(),
-        findOneAndUpdate: jest.fn(),
-        updateOne: jest.fn(),
+// Phase 3b: middleware persists via the idempotency repository port.
+jest.mock('@esparex/core', () => ({
+    ...jest.requireActual('@esparex/core'),
+    idempotencyRepository: {
+        findRequest: jest.fn(),
+        markProcessing: jest.fn(),
+        markCompleted: jest.fn(),
     },
 }));
 
@@ -17,7 +18,11 @@ type MockResponse = Response & {
     payload?: unknown;
 };
 
-const mockedIdempotencyModel = IdempotencyRequest as any;
+const mockedIdempotencyRepository = idempotencyRepository as {
+    findRequest: jest.Mock;
+    markProcessing: jest.Mock;
+    markCompleted: jest.Mock;
+};
 
 const stableStringify = (value: unknown): string => {
     if (value === undefined || typeof value !== 'object') return JSON.stringify(value);
@@ -73,7 +78,7 @@ const makeRes = (): MockResponse => {
 describe('enforceCreateAdIdempotency', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockedIdempotencyModel.updateOne.mockResolvedValue({ acknowledged: true });
+        mockedIdempotencyRepository.markCompleted.mockResolvedValue(undefined);
     });
 
     it('rejects invalid UUID idempotency keys', async () => {
@@ -103,12 +108,10 @@ describe('enforceCreateAdIdempotency', () => {
         const res = makeRes();
         const next = jest.fn();
 
-        mockedIdempotencyModel.findOne.mockReturnValue({
-            lean: jest.fn().mockResolvedValue({
-                requestHash: 'different-hash',
-                status: 'processing',
-                updatedAt: new Date(),
-            }),
+        mockedIdempotencyRepository.findRequest.mockResolvedValue({
+            requestHash: 'different-hash',
+            status: 'processing',
+            updatedAt: new Date(),
         });
 
         await enforceCreateAdIdempotency(req, res, next);
@@ -132,12 +135,10 @@ describe('enforceCreateAdIdempotency', () => {
         const res = makeRes();
         const next = jest.fn();
 
-        mockedIdempotencyModel.findOne.mockReturnValue({
-            lean: jest.fn().mockResolvedValue({
-                requestHash: buildRequestHash(req.body, userId),
-                status: 'processing',
-                updatedAt: new Date(),
-            }),
+        mockedIdempotencyRepository.findRequest.mockResolvedValue({
+            requestHash: buildRequestHash(req.body, userId),
+            status: 'processing',
+            updatedAt: new Date(),
         });
 
         await enforceCreateAdIdempotency(req, res, next);
@@ -163,21 +164,19 @@ describe('enforceCreateAdIdempotency', () => {
         const res = makeRes();
         const next = jest.fn();
 
-        mockedIdempotencyModel.findOne.mockReturnValue({
-            lean: jest.fn().mockResolvedValue({
-                requestHash: buildRequestHash(req.body, userId, 'POST:/api/v1/services'),
-                status: 'processing',
-                updatedAt: new Date(),
-            }),
+        mockedIdempotencyRepository.findRequest.mockResolvedValue({
+            requestHash: buildRequestHash(req.body, userId, 'POST:/api/v1/services'),
+            status: 'processing',
+            updatedAt: new Date(),
         });
 
         await enforceCreateServiceIdempotency(req, res, next);
 
-        expect(mockedIdempotencyModel.findOne).toHaveBeenCalledWith({
+        expect(mockedIdempotencyRepository.findRequest).toHaveBeenCalledWith(
             userId,
-            scope: 'POST:/api/v1/services',
-            key: idempotencyKey,
-        });
+            'POST:/api/v1/services',
+            idempotencyKey
+        );
         expect(res.statusCode).toBe(429);
         expect(res.payload).toMatchObject({
             code: 'IDEMPOTENCY_IN_PROGRESS',

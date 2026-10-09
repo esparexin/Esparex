@@ -179,12 +179,12 @@ export function BusinessRegistrationWizardScreen({ initialBusiness, onSuccess, o
   };
 
   return (
-    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <View className="flex-row items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100 text-base">
+    <Screen className="flex-1">
+      <View className="flex-row items-center justify-between px-4 py-3 bg-card border-b border-border">
+        <AppText variant="body-lg" className="font-bold text-foreground">
           {isEditMode ? 'Edit Business Profile' : 'Business Registration'}
         </AppText>
-        <AppText variant="caption" className="font-semibold text-slate-500 dark:text-slate-400">
+        <AppText variant="caption" className="font-semibold text-foreground-secondary">
           Step {currentStepIndex + 1} of {STEPS_ORDER.length}
         </AppText>
       </View>
@@ -193,9 +193,9 @@ export function BusinessRegistrationWizardScreen({ initialBusiness, onSuccess, o
         {renderStepComponent()}
       </ScrollView>
 
-      <View className="flex-row items-center justify-between p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+      <View className="flex-row items-center justify-between p-4 bg-card border-t border-border">
         <TouchableOpacity className="py-3 px-4" onPress={handlePrev}>
-          <AppText variant="body" className="font-semibold text-slate-600 dark:text-slate-400">
+          <AppText variant="body" className="font-semibold text-foreground-secondary">
             {currentStepIndex === 0 ? 'Cancel' : 'Back'}
           </AppText>
         </TouchableOpacity>

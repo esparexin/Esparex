@@ -2,7 +2,7 @@ import type { LucideIcon } from "@esparex/ui";
 import { ChevronRight, LogOut, Separator } from "@esparex/ui";
 import type { ProfileTabValue } from "@/config/navigation";
 
-export interface AccountNavItem {
+interface AccountNavItem {
   value: ProfileTabValue;
   label: string;
   icon: LucideIcon;
@@ -72,7 +72,7 @@ export function AccountNavItemList({
               aria-current={isActive ? "page" : undefined}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
                 ${isActive
-                  ? "bg-primary/10 text-primary shadow-xs ring-1 ring-primary/20"
+                  ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
                   : "text-foreground-secondary hover:bg-muted/70 hover:text-primary"
                 }`}
             >
@@ -97,7 +97,7 @@ export function AccountNavItemList({
             type="button"
             role="listitem"
             onClick={() => onTabChange(item.value)}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-foreground-secondary hover:bg-muted/60 active:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px]"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-foreground-secondary hover:bg-muted/60 active:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-11"
           >
             <Icon className="h-5 w-5 text-foreground-subtle flex-shrink-0" />
             <span className="flex-1 text-foreground font-medium text-body">{item.label}</span>
@@ -115,7 +115,7 @@ export function AccountNavItemList({
             onClick={() => { void onLogout(); }}
             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors hover:bg-destructive/10 text-destructive font-medium text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
           >
-            <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
+            <LogOut className="h-[18px] w-[18px] flex-shrink-0" />
             <span>Log out</span>
           </button>
         </>
@@ -126,7 +126,7 @@ export function AccountNavItemList({
           <button
             type="button"
             onClick={() => { void onLogout(); }}
-            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-body text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
           >
             <LogOut className="h-5 w-5 flex-shrink-0" />
             <span>Log out</span>

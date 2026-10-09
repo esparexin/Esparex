@@ -7,6 +7,7 @@ import {
   Clock,
   Grid,
 } from '@esparex/ui';
+import { formatStableDate } from '@/lib/formatters';
 
 export interface WalletOverviewCardProps {
   wallet: WalletSummaryDTO;
@@ -30,9 +31,7 @@ function nearestExpiry(
   if (!active.length) return null;
   active.sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
   const first = active[0];
-  return first
-    ? new Date(first.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
-    : null;
+  return first ? formatStableDate(first.expiresAt) : null;
 }
 
 interface StatTileProps {
@@ -127,7 +126,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({
   const hasFreeAdsUsage = freeAdsUsed > 0;
 
   return (
-    <Card className="border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs rounded-none sm:rounded-2xl">
+    <Card className="border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-sm rounded-none sm:rounded-2xl">
       <CardContent className="p-0 sm:p-5 space-y-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between gap-2">

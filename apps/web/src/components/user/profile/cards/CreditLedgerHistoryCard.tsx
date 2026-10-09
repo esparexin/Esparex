@@ -2,9 +2,6 @@ import React, { useState, useMemo } from 'react';
 import type { CreditLedgerDTO, CreditPackDTO } from '@esparex/contracts';
 import {
   Pagination,
-  ArrowUp,
-  ArrowDown,
-  Info,
   Button,
   Select,
   SelectTrigger,
@@ -12,17 +9,12 @@ import {
   SelectContent,
   SelectItem,
 } from '@esparex/ui';
-import Link from 'next/link';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 import {
-  formatActivityCategory,
-  formatAppliedDateTime,
-  renderTransactionStatus,
   matchesLedgerFilter,
-  getListingDetailHref,
   type LedgerFilterType,
 } from './CreditLedgerFormatters';
-import { CreditLedgerDesktopTable } from './CreditLedgerDesktopTable';
+import { CreditLedgerTable } from './CreditLedgerTable';
 import { CreditLedgerDetailPopup } from './CreditLedgerDetailPopup';
 
 export interface CreditLedgerHistoryCardProps {
@@ -125,85 +117,7 @@ export const CreditLedgerHistoryCard: React.FC<CreditLedgerHistoryCardProps> = (
       {/* Transactions */}
       {!isLoading && filteredItems.length > 0 && (
         <>
-          <CreditLedgerDesktopTable items={filteredItems} onRowClick={setSelectedTx} />
-
-          {/* Mobile View: Unified container with subtle dividers */}
-          <div className="md:hidden divide-y divide-border/40 rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
-            {filteredItems.map((tx) => {
-              const isDebit = tx.type === 'DEBIT';
-              const absAmount = Math.abs(tx.amount);
-              const adHref = getListingDetailHref(tx);
-
-              return (
-                <div
-                  key={tx.transactionId}
-                  onClick={() => setSelectedTx(tx)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setSelectedTx(tx);
-                    }
-                  }}
-                  className="p-3 sm:p-3.5 hover:bg-muted/20 active:bg-muted/40 transition-colors space-y-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  aria-label="View activity details"
-                >
-                  {/* Row 1: Plan Title + Amount Badge (Zero duplicate words) */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-foreground text-body leading-snug">
-                      {formatActivityCategory(tx)}
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-tiny font-semibold tabular-nums shrink-0 ${
-                        isDebit
-                          ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                      }`}
-                    >
-                      {isDebit ? (
-                        <>
-                          <ArrowDown className="w-3 h-3" />-{absAmount} USED
-                        </>
-                      ) : (
-                        <>
-                          <ArrowUp className="w-3 h-3" />+{absAmount} ADDED
-                        </>
-                      )}
-                    </span>
-                  </div>
-
-                  {/* Row 2: Listing link (dedicated line with full width) */}
-                  {adHref && tx.adTitle && (
-                    <div className="text-caption">
-                      <Link
-                        href={adHref}
-                        onClick={(e) => e.stopPropagation()}
-                        className="font-medium text-primary hover:underline line-clamp-1"
-                      >
-                        {tx.adTitle}
-                      </Link>
-                    </div>
-                  )}
-
-                  {/* Row 3: Date on left, Validity & Status on right */}
-                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30 text-tiny text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      {formatAppliedDateTime(tx.createdAt)}
-                      <Info className="w-3 h-3 opacity-60 shrink-0" />
-                    </span>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      {tx.validityText && (
-                        <span>{tx.validityText}</span>
-                      )}
-                      {renderTransactionStatus(tx)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <CreditLedgerTable items={filteredItems} onRowClick={setSelectedTx} />
 
           {/* Pagination positioned at bottom */}
           {pagination && pagination.totalPages > 1 && (

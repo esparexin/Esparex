@@ -3,55 +3,42 @@
 import { memo } from "react";
 import { Card } from "@esparex/ui";
 import { cn } from "@/lib/utils";
-import {
-  AdCardLinkWrapper,
-  type AdCardData,
-} from "../shared";
+import { type AdCardData, type AdCardClickEvent, type AdCardKeyboardEvent } from "../shared";
 
 export interface AdCardShellProps {
   ad: AdCardData;
-  resolvedHref?: string;
-  useDeclarativeLink: boolean;
-  handleCardClick: (e?: React.MouseEvent) => void;
+  handleCardClick: (e?: AdCardClickEvent) => void;
+  handleKeyDown?: (e: AdCardKeyboardEvent) => void;
   className?: string;
   children: React.ReactNode;
 }
 
 export const AdCardShell = memo(function AdCardShell({
   ad,
-  resolvedHref,
-  useDeclarativeLink,
   handleCardClick,
+  handleKeyDown,
   className,
   children,
 }: AdCardShellProps) {
   return (
-    <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
-      {/* article gives screen readers proper document structure for list items */}
-      <article aria-label={ad.title}>
-        <Card
-          tabIndex={useDeclarativeLink ? undefined : 0}
-          role={useDeclarativeLink ? undefined : "button"}
-          className={cn(
-            "overflow-hidden transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            className
-          )}
-          onClick={useDeclarativeLink ? undefined : handleCardClick}
-          onKeyDown={
-            useDeclarativeLink
-              ? undefined
-              : (e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleCardClick();
-                  }
-                }
-          }
-        >
-          {children}
-        </Card>
-      </article>
-    </AdCardLinkWrapper>
+    /* article gives screen readers proper landmark for list card items */
+    <article
+      aria-label={ad.title}
+      className="group relative"
+    >
+      <Card
+        tabIndex={0}
+        role="button"
+        className={cn(
+          "overflow-hidden transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+          className
+        )}
+        onClick={handleCardClick}
+        onKeyDown={handleKeyDown}
+      >
+        {children}
+      </Card>
+    </article>
   );
 });
 

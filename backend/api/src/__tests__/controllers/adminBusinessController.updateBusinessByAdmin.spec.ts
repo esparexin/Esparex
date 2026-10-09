@@ -63,7 +63,7 @@ jest.mock("@esparex/core/services/AdminBusinessService", () => ({
     serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
-jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
+jest.mock("@esparex/core/domains/listings/application/lifecycle/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn(),
     mutateStatuses: jest.fn(),
@@ -96,7 +96,7 @@ jest.mock("@esparex/core/utils/s3", () => ({
 
 import type { Request, Response } from "express";
 import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
-import * as adminBusinessService from "@esparex/core/services/AdminBusinessService";
+import * as adminBusinessService from "@esparex/core";
 
 const createMockRes = (req?: Record<string, unknown>) => {
     const res = {

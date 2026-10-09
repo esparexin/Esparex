@@ -7,7 +7,7 @@ jest.mock('@esparex/core/domains/listings/application/mutations/AdMutationServic
     repostAd: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/lifecycle/StatusMutationService', () => ({
+jest.mock('@esparex/core/domains/listings/application/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
@@ -40,11 +40,11 @@ jest.mock('../../utils/requestParams', () => ({
 }));
 
 import { Request, Response } from 'express';
-import AdMutationService from '@esparex/core/domains/listings/application/mutations/AdMutationService';
+import { repostAd } from '@esparex/core';
 import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
-const mockedRepostAd = AdMutationService.repostAd as jest.Mock;
+const mockedRepostAd = repostAd as jest.Mock;
 const mockedGetAndVerifyOwnedListing = getAndVerifyOwnedListing as jest.Mock;
 
 const makeRes = (): Response => {

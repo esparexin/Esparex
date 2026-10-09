@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import mongoose from 'mongoose';
 import {
     adminListConversations,
@@ -84,7 +84,7 @@ export const muteAdminChat = async (req: Request, res: Response) => {
 
         await adminMuteConversation(id, adminId, reason ? String(reason) : undefined);
 
-        void logAdminAction(req, 'CHAT_MUTE', 'Conversation', new mongoose.Types.ObjectId(id));
+        void logAdminAction({ req, action: 'CHAT_MUTE', targetType: 'Conversation', targetId: new mongoose.Types.ObjectId(id)});
 
         return res.status(200).json({
             success: true,
@@ -117,7 +117,7 @@ export const exportAdminChat = async (req: Request, res: Response) => {
 
         const data = await adminExportConversation(id);
 
-        void logAdminAction(req, 'CHAT_EXPORT', 'Conversation', new mongoose.Types.ObjectId(id));
+        void logAdminAction({ req, action: 'CHAT_EXPORT', targetType: 'Conversation', targetId: new mongoose.Types.ObjectId(id)});
 
         return res.status(200).json({
             success: true,

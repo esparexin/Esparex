@@ -3,11 +3,11 @@ import * as paymentController from '../controllers/payment';
 import { protect } from '../middleware/authMiddleware';
 import { paymentRateLimiter, searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@esparex/core/validators/finance.validator';
+import * as Validators from '@esparex/core';
 
 import { verifyPaymentWebhook } from '../middleware/verifyPaymentWebhook';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core';
+import { logger } from '@esparex/core';
 
 if (env.NODE_ENV === 'production') {
     const missing = (['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'] as const)
@@ -39,7 +39,10 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
 router.post('/orders', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.createPaymentOrderSchema), paymentController.createPaymentOrder);
 
 // Verify Client Payment (Mobile Native Checkout Signature)
-router.post('/verify', protect, paymentRateLimiter, validateRequest(Validators.verifyPaymentSchema), paymentController.verifyPayment);
+// Phase 1 audit P0 (F25): idempotency enabled (passthrough without
+// `x-request-id`; 409 on duplicate). Fail-closed unification deferred to
+// Phase 5 with ADR; middleware stays fail-open for non-payment routes.
+router.post('/verify', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.verifyPaymentSchema), paymentController.verifyPayment);
 
 import * as creditController from '../controllers/payment/creditController';
 

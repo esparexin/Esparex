@@ -50,6 +50,9 @@
   --link: 221.2 83.2% 53.3%;        /* blue-600 #2563eb */
   --link-dark: 224.3 76.3% 48%;     /* blue-700 #1d4ed8 — hover/active state */
   --link-foreground: 0 0% 100%;
+
+  /* Keyboard animation synchronization (matches durations.keyboard: 300ms) */
+  --duration-keyboard: 300ms;
 }
 
 .dark {
@@ -65,10 +68,10 @@
   --sidebar-border: 217.2 32.6% 17.5%;
   --sidebar-ring: 217.2 91.2% 59.8%;
 
-  /* Extended foreground text tokens (dark mode) */
-  --foreground-secondary: 215 20.2% 75.1%;
-  --foreground-tertiary: 215 20.2% 65.1%;
-  --foreground-subtle: 215 20.2% 45.1%;
+  /* Extended foreground text tokens (enforced light-mode SSOT to prevent low-contrast text on white surfaces) */
+  --foreground-secondary: 215.3 25% 26.7%;
+  --foreground-tertiary: 215.4 16.3% 38%;
+  --foreground-subtle: 215.4 16.3% 38%;
 
   /* Link / interactive blue (slightly lighter in dark mode) */
   --link: 213.1 93.9% 67.8%;        /* blue-400 for better contrast on dark bg */
@@ -178,9 +181,12 @@
 /* =========================================
    HTML / BODY SAFETY + OPTIONAL IMPROVEMENTS
    ========================================= */
+:root,
 html {
   font-size: var(--font-size); /* 16px — preserves rem scale for spacing/layout */
-  color-scheme: light dark;
+  color-scheme: only light;
+  supported-color-schemes: light;
+  -webkit-text-size-adjust: 100%;
 }
 
 html,
@@ -190,13 +196,44 @@ body {
   position: relative;
 }
 
-/* Ensure form controls inherit typography */
+/* Ensure form controls inherit typography and maintain high-contrast light theme text on iOS WebKit/Safari in Dark Mode */
 button,
 input,
 textarea,
 select {
   font-family: inherit;
   font-size: inherit;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Enforce crisp placeholder contrast on iOS Safari (which defaults to 0.54 opacity) */
+input::placeholder,
+textarea::placeholder {
+  opacity: 1;
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Enforce light-mode presentation on iOS Safari WebKit autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+  box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px hsl(var(--background)) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Prevent iOS Safari from auto-recoloring telephone / date numbers to dark-mode system link colors */
+a[href^="tel"] {
+  color: inherit;
+  text-decoration: inherit;
 }
 
 /* =========================================
@@ -211,26 +248,36 @@ select {
 }
 
 /* =========================================
-   PREMIUM UI UTILITIES
-   ========================================= */
-.shadow-premium {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 4px 10px -5px rgba(0, 0, 0, 0.03);
-}
-
-/* =========================================
    MOBILE KEYBOARD & OVERLAY SAFETY
    ========================================= */
-/* Instantly suppress mobile bottom navigation bars while on-screen software keyboard is active */
+   /* Instantly suppress mobile bottom navigation bars while on-screen software keyboard is active */
 html[data-keyboard-open="true"] nav[aria-label="Mobile footer navigation"],
 html[data-keyboard-open="true"] nav[aria-label="Mobile account navigation"] {
   display: none !important;
 }
 
-/* Compact decorative elements on small mobile viewports when virtual keyboard is active */
-@media (max-width: 640px) {
-  html[data-keyboard-open="true"] [data-keyboard-hide-on-mobile="true"] {
-    display: none !important;
+
+
+/* =========================================
+   ENTRANCE ANIMATIONS (replaces framer-motion for simple cases)
+   ========================================= */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+}

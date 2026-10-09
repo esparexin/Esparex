@@ -32,9 +32,16 @@ const path = require("path");
 const args = process.argv.slice(2);
 const WARN_ONLY = args.includes("--warn-only");
 const SCOPE_ARG = args.find((a) => a.startsWith("--path="));
-const SCAN_ROOT = SCOPE_ARG
-  ? path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))
-  : path.resolve(__dirname, "..", "apps", "web", "src");
+// Scan roots cover all UI layers (web + admin + canonical primitives).
+// Per user governance decision, admin stays covered: the 4 raw admin modals
+// were portalized in Phase 5, so multi-scope is green and blocks regressions.
+const SCAN_ROOTS = SCOPE_ARG
+  ? [path.resolve(process.cwd(), SCOPE_ARG.replace("--path=", ""))]
+  : [
+      path.resolve(__dirname, "..", "apps", "web", "src"),
+      path.resolve(__dirname, "..", "apps", "admin", "src"),
+      path.resolve(__dirname, "..", "packages", "ui", "src"),
+    ];
 
 // ─── Rules ────────────────────────────────────────────────────────────────────
 const RULES = {
@@ -46,7 +53,17 @@ const RULES = {
   PARALLEL_RESPONSIVE: {
     id: "parallel-responsive-dom",
     severity: "error",
-    description: "Parallel responsive DOM subtrees (lg:hidden + hidden lg:)",
+    description: "Parallel responsive DOM subtrees (*:hidden + hidden *:*)",
+  },
+  VIEWPORT_COMPONENT_FORBIDDEN: {
+    id: "viewport-component-forbidden",
+    severity: "error",
+    description: "Viewport-split component pair (e.g. WidgetDesktop.tsx + WidgetMobile.tsx in the same directory) — AGENTS.md mandates a single responsive component instance. Lone viewport affixes are warnings.",
+  },
+  WAIVER_SYNTAX: {
+    id: "waiver-syntax",
+    severity: "error",
+    description: "ui-guard-ignore waiver missing mandatory justification (must include [Reason] or — Reason)",
   },
   MULTIPLE_H1: {
     id: "multiple-h1",
@@ -68,6 +85,26 @@ const RULES = {
     severity: "warning",
     description: "Native <button> element — consider <Button> from @esparex/ui",
   },
+  NATIVE_INPUT: {
+    id: "native-input",
+    severity: "warning",
+    description: "Native <input>/<select>/<textarea> — consume Input/Select/Textarea from @esparex/ui (SSOT)",
+  },
+  JS_VIEWPORT_BRANCH: {
+    id: "js-viewport-branch",
+    severity: "warning",
+    description: "JS viewport branching (useIsMobile/window.innerWidth) for layout — use single-instance CSS breakpoints",
+  },
+  RAW_LOCALE_FORMAT: {
+    id: "raw-locale-format",
+    severity: "error",
+    description: "Raw toLocaleDateString/toLocaleString — use formatAppDate/formatPrice (@esparex/shared) per §20.3",
+  },
+  RAW_FETCH_UI: {
+    id: "raw-fetch-ui",
+    severity: "warning",
+    description: "Raw fetch() in UI layer — consolidate through apiClient except documented SSR/S3 exceptions",
+  },
   INLINE_COLOR_STYLE: {
     id: "inline-color-style",
     severity: "warning",
@@ -83,11 +120,69 @@ const RULES = {
     severity: "warning",
     description: "Inline <svg> element — must use canonical icons exported from @esparex/ui",
   },
+  STICKY_Z_HOST: {
+    id: "sticky-z-host",
+    severity: "error",
+    description:
+      "Sticky strip with explicit zIndex — status stacking host is owned exclusively by StatusBannerHost.tsx",
+  },
 };
 
-const NATIVE_BUTTON_BASELINE = 138;
+const NATIVE_BUTTON_BASELINE = 257; // web + admin scope (was 138 web-only)
 const LUCIDE_DIRECT_IMPORT_BASELINE = 0;
 const RAW_INLINE_SVG_BASELINE = 0;
+
+// ─── Viewport affix detector (DECISION-GATE C-6) ─────────────────────────────
+// General affix detector replacing the narrow Desktop|Mobile + Table|Card|...
+// regex. Detects viewport-denoting affixes as PascalCase/camelCase segments in
+// component file basenames (e.g. OrderTabletCard, WidgetDesktop, HelpPhone).
+// A lone affix is a *candidate* (warning); a complementary affix PAIR in the
+// same directory (WidgetDesktop + WidgetMobile, or WidgetMobile + Widget) is
+// the true single-instance violation (error).
+const VIEWPORT_AFFIXES = ['Desktop', 'Mobile', 'Tablet', 'Phone', 'Handset', 'Portrait', 'Landscape'];
+const VIEWPORT_AFFIX_RE = new RegExp('(?:^|[^A-Z])(' + VIEWPORT_AFFIXES.join('|') + ')(?=[A-Z0-9]|\\.|$)');
+
+function detectViewportAffix(baseName) {
+  const m = baseName.match(VIEWPORT_AFFIX_RE);
+  return m ? m[1] : null;
+}
+
+function stripViewportAffix(baseName, affix) {
+  const idx = baseName.indexOf(affix);
+  if (idx === -1) return baseName;
+  return (baseName.slice(0, idx) + baseName.slice(idx + affix.length)).replace(/[_.-]{2,}/g, '_');
+}
+
+/**
+ * Pair detection: given absolute file paths, returns the subset that form a
+ * viewport-split pair — same directory, same stem after affix stripping, and
+ * complementary affixes (A vs B, or affixed vs bare).
+ */
+function detectViewportPairs(files) {
+  const byDir = new Map();
+  for (const f of files) {
+    const dir = path.dirname(f);
+    const base = path.basename(f).replace(/\.(tsx|jsx)$/, '');
+    if (f.includes('apps/mobile')) continue;
+    const affix = detectViewportAffix(base);
+    if (!byDir.has(dir)) byDir.set(dir, []);
+    byDir.get(dir).push({ file: f, base, affix, stem: affix ? stripViewportAffix(base, affix) : base });
+  }
+  const paired = new Set();
+  for (const entries of byDir.values()) {
+    for (let i = 0; i < entries.length; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        const a = entries[i], b = entries[j];
+        if (a.stem !== b.stem) continue;
+        if (!a.affix && !b.affix) continue;
+        if (a.affix && b.affix && a.affix === b.affix) continue;
+        paired.add(a.file);
+        paired.add(b.file);
+      }
+    }
+  }
+  return paired;
+}
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -168,15 +263,63 @@ function auditFile(filePath) {
   }
 
   // ── Rule: Parallel responsive DOM subtrees ─────────────────────────────────
-  const hasLgHidden = lines.some((l) => /className=["'][^"']*lg:hidden/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
-  const hasHiddenLg = lines.some((l) => /className=["'][^"']*hidden lg:(?:block|flex|grid)/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
-  if (hasLgHidden && hasHiddenLg) {
-    violations.push({
-      rule: RULES.PARALLEL_RESPONSIVE,
-      file: relPath,
-      line: 0,
-      content: "Both 'lg:hidden' and 'hidden lg:*' classes present — likely parallel DOM duplication",
-    });
+  const patternHit = (idx, re) => {
+    const line = lines[idx];
+    const prevLine = idx > 0 ? lines[idx - 1] : "";
+    return re.test(line) && !isIgnored(line, RULES.PARALLEL_RESPONSIVE.id, prevLine);
+  };
+  const isFileLevelParallelIgnored = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.PARALLEL_RESPONSIVE.id}`));
+  if (!isFileLevelParallelIgnored) {
+    const CANONICAL_BREAKPOINTS = ["sm", "md", "lg", "xl", "2xl"];
+    for (const bp of CANONICAL_BREAKPOINTS) {
+      const hasBpHidden = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b${bp}:hidden(?![-\\w])`)));
+      const hasHiddenBp = lines.some((_, idx) => patternHit(idx, new RegExp(`className=["'][^"']*\\b(?:hidden\\s+${bp}:(?:block|flex|grid|table)|${bp}:(?:block|flex|grid|table)\\s+hidden)(?![-\\w])`)));
+      if (hasBpHidden && hasHiddenBp) {
+        violations.push({
+          rule: RULES.PARALLEL_RESPONSIVE,
+          file: relPath,
+          line: 0,
+          content: `Both '${bp}:hidden' and 'hidden ${bp}:*' classes present — likely parallel DOM duplication`,
+        });
+        break;
+      }
+    }
+  }
+
+  // ── Rule: Waiver Syntax Validation ─────────────────────────────────────────
+  lines.forEach((l, i) => {
+    if (l.includes("ui-guard-ignore:")) {
+      const match = l.match(/ui-guard-ignore:\s*([a-z0-9-]+)(?:\s+(.+?))?(?:\s*\*\/|\s*-->|\s*$)/i);
+      let justification = (match && match[2]) ? match[2].trim() : "";
+      justification = justification.replace(/[\]}]+$/, "").replace(/^[[{]+/, "").trim();
+      if (!justification || justification.length < 8) {
+        violations.push({
+          rule: RULES.WAIVER_SYNTAX,
+          file: relPath,
+          line: i + 1,
+          content: `ui-guard-ignore waiver missing mandatory justification (min 8 chars): /* ui-guard-ignore: <rule-id> [<Justification>] */`,
+        });
+      }
+    }
+  });
+
+  // ── Rule: Viewport-split component file naming (DECISION-GATE C-6) ─────────
+  // General affix detector (see VIEWPORT_AFFIXES above). auditFile records the
+  // violation at error severity; run() demotes lone affixes (no pair in the
+  // same directory) to warnings, keeping pairs as blocking errors.
+  const baseName = path.basename(filePath);
+  const stemName = baseName.replace(/\.(tsx|jsx)$/, '');
+  const viewportAffix = detectViewportAffix(stemName);
+  if (viewportAffix && !filePath.includes("apps/mobile")) {
+    const isIgnoredFile = lines.some((l) => l.includes(`ui-guard-ignore: ${RULES.VIEWPORT_COMPONENT_FORBIDDEN.id}`));
+    if (!isIgnoredFile) {
+      violations.push({
+        rule: RULES.VIEWPORT_COMPONENT_FORBIDDEN,
+        file: relPath,
+        line: 1,
+        content: `File name '${baseName}' carries viewport affix '${viewportAffix}' — a viewport-split pair in the same directory violates the single-instance responsive rule (AGENTS.md).`,
+      });
+    }
   }
 
   // ── Rule: Hardcoded hex colors in TSX ─────────────────────────────────────
@@ -192,10 +335,11 @@ function auditFile(filePath) {
   });
 
   // ── Rule: Raw unportalled modal overlays ─────────────────────────────────
+  // Catches both role=dialog divs AND fixed inset-0 + bg-black overlays
+  // without a portal/dialog import (admin modals bypassed the old check).
   const hasPortalOrDialogImport =
-    /from\s+["']@esparex\/ui["']/.test(src) ||
-    /from\s+["']@radix-ui\/react-dialog["']/.test(src) ||
-    /createPortal/.test(src);
+    /DialogPortal|DialogContent|DialogOverlay|createPortal/.test(src) ||
+    /from\s+["']@radix-ui\/react-dialog["']/.test(src);
 
   if (!hasPortalOrDialogImport) {
     const RAW_MODAL_PATTERN = /<div[^>]*\brole=["'](?:dialog|alertdialog)["']/;
@@ -205,16 +349,70 @@ function auditFile(filePath) {
         report(RULES.RAW_MODAL_OVERLAY, i, l);
       }
     });
+    const hasFixedOverlay = lines.some((l) => /fixed\s+inset-0/.test(l) && !/lg:hidden/.test(l));
+    const hasDarkScrim = lines.some((l) => /bg-black\//.test(l));
+    if (hasFixedOverlay && hasDarkScrim) {
+      const idx = lines.findIndex((l) => /fixed\s+inset-0/.test(l) && !/lg:hidden/.test(l));
+      const prevLine = idx > 0 ? lines[idx - 1] : "";
+      if (!isIgnored(lines[idx], RULES.RAW_MODAL_OVERLAY.id, prevLine)) {
+        report(RULES.RAW_MODAL_OVERLAY, idx, lines[idx]);
+      }
+    }
   }
 
   // ── Warning: Native <button> elements ─────────────────────────────────────
+  // Canonical @esparex/ui primitives themselves are exempt (they ARE the SSOT).
+  const isCanonicalUiOwner = filePath.includes(`${path.sep}packages${path.sep}ui${path.sep}src`) || filePath.includes("packages/ui/src");
   const NATIVE_BUTTON_PATTERN = /^\s*<button\b(?!.*ui-guard-ignore)/;
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (NATIVE_BUTTON_PATTERN.test(l) && !isIgnored(l, RULES.NATIVE_BUTTON.id, prevLine)) {
       report(RULES.NATIVE_BUTTON, i, l);
     }
   });
+
+  // ── Warning: Native <input>/<select>/<textarea> (SSOT primitives) ─────────
+  const NATIVE_FIELD_PATTERN = /^\s*<(input|select|textarea)\b/;
+  lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (NATIVE_FIELD_PATTERN.test(l) && !isIgnored(l, RULES.NATIVE_INPUT.id, prevLine)) {
+      if (/type=["']hidden["']/.test(l)) return;
+      report(RULES.NATIVE_INPUT, i, l);
+    }
+  });
+
+  // ── Warning: JS viewport branching for layout ────────────────────────────
+  // A `responsive-exception:` comment on the same/previous line documents a
+  // permitted dynamic-behavior use (sheet routing, ad density, autofocus,
+  // canvas measurement) and suppresses this warning for that line.
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/responsive-exception:/.test(l) || /responsive-exception:/.test(prevLine)) return;
+    if ((/useIsMobile|useIsMobileDevice/.test(l) || /window\.innerWidth/.test(l)) && !isIgnored(l, RULES.JS_VIEWPORT_BRANCH.id, prevLine)) {
+      report(RULES.JS_VIEWPORT_BRANCH, i, l);
+    }
+  });
+
+  // ── Warning: Raw locale formatting (§20.3) ────────────────────────────────
+  lines.forEach((l, i) => {
+    const prevLine = i > 0 ? lines[i - 1] : "";
+    if (/\.toLocale(DateString|String)\(/.test(l) && !isIgnored(l, RULES.RAW_LOCALE_FORMAT.id, prevLine)) {
+      report(RULES.RAW_LOCALE_FORMAT, i, l);
+    }
+  });
+
+  // ── Warning: Raw fetch() in UI layer ─────────────────────────────────────
+  const isUiLayer = /apps\/(web|admin)\/src\/(components|context|hooks)/.test(filePath);
+  if (isUiLayer) {
+    lines.forEach((l, i) => {
+      const prevLine = i > 0 ? lines[i - 1] : "";
+      if (/(^|[^a-zA-Z])fetch\(/.test(l) && !/refetch\(/.test(l) && !isIgnored(l, RULES.RAW_FETCH_UI.id, prevLine)) {
+        report(RULES.RAW_FETCH_UI, i, l);
+      }
+    });
+  }
 
   // ── Warning: Inline style with color ─────────────────────────────────────
   const INLINE_COLOR_PATTERN = /style=\{[^}]*(?:color|background)[^}]*#[0-9a-fA-F]{3,6}/;
@@ -227,6 +425,7 @@ function auditFile(filePath) {
 
   // ── Warning: Direct lucide-react import ───────────────────────────────────
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (/from\s+["']lucide-react["']/.test(l) && !isIgnored(l, RULES.LUCIDE_DIRECT_IMPORT.id, prevLine)) {
       report(RULES.LUCIDE_DIRECT_IMPORT, i, l);
@@ -235,11 +434,29 @@ function auditFile(filePath) {
 
   // ── Warning: Inline <svg> element ─────────────────────────────────────────
   lines.forEach((l, i) => {
+    if (isCanonicalUiOwner) return;
     const prevLine = i > 0 ? lines[i - 1] : "";
     if (/<svg[\s>]/.test(l) && !isIgnored(l, RULES.RAW_INLINE_SVG.id, prevLine)) {
       report(RULES.RAW_INLINE_SVG, i, l);
     }
   });
+
+  // ── Error: Sticky strip with explicit inline zIndex outside status host ───
+  // Single stacking-owner invariant: only StatusBannerHost.tsx may combine a
+  // `sticky top-0` strip with an explicit inline zIndex (Z_INDEX.statusBanner).
+  // This prevents the former dual-banner stacking (two sticky hosts at
+  // z 9999/10000 painting above dialog/sheet backdrops) from reappearing.
+  const isStatusBannerHost = relPath.replace(/\\/g, "/").endsWith("common/StatusBannerHost.tsx");
+  if (!isStatusBannerHost) {
+    const stickyIdx = lines.findIndex((l) => l.includes("sticky top-0"));
+    const hasInlineZIndex = lines.some((l) => /style=\{\{[^}]*zIndex/.test(l));
+    if (stickyIdx !== -1 && hasInlineZIndex) {
+      const prevLine = stickyIdx > 0 ? lines[stickyIdx - 1] : "";
+      if (!isIgnored(lines[stickyIdx], RULES.STICKY_Z_HOST.id, prevLine)) {
+        report(RULES.STICKY_Z_HOST, stickyIdx, lines[stickyIdx]);
+      }
+    }
+  }
 
   return violations;
 }
@@ -247,12 +464,28 @@ function auditFile(filePath) {
 // ─── Run ──────────────────────────────────────────────────────────────────────
 
 function run() {
-  const files = walk(SCAN_ROOT);
+  const files = SCAN_ROOTS.flatMap((root) => walk(root));
   const allViolations = [];
 
   for (const file of files) {
     const v = auditFile(file);
     allViolations.push(...v);
+  }
+
+  // DECISION-GATE C-6: pair detection. A viewport affix recorded by auditFile is
+  // only a blocking error when the file forms a split pair in its directory;
+  // lone affixes (e.g. MobileNavDrawer, PersonalProfileMobileVisibilitySection)
+  // are demoted to non-blocking warnings.
+  const pairedFiles = detectViewportPairs(files);
+  const repoRoot = path.resolve(__dirname, '..');
+  for (const v of allViolations) {
+    if (v.rule.id === RULES.VIEWPORT_COMPONENT_FORBIDDEN.id) {
+      const abs = path.resolve(repoRoot, v.file);
+      if (!pairedFiles.has(abs)) {
+        v.rule = { ...v.rule, severity: 'warning' };
+        v.content += ' (lone affix — no split pair detected; warning only)';
+      }
+    }
   }
 
   const errors = allViolations.filter((v) => v.rule.severity === "error");
@@ -302,8 +535,11 @@ function run() {
   }
 
   // ── Print report ──────────────────────────────────────────────────────────
+  const scannedLabel = SCOPE_ARG
+    ? path.relative(process.cwd(), SCAN_ROOTS[0]) || "."
+    : SCAN_ROOTS.map((r) => path.relative(process.cwd(), r) || ".").join(", ");
   console.log(`\n🛡️  Esparex UI Architecture Guard`);
-  console.log(`   Scanned: ${files.length} TSX/JSX files in ${path.relative(process.cwd(), SCAN_ROOT) || "."}`);
+  console.log(`   Scanned: ${files.length} TSX/JSX files in ${scannedLabel}`);
   console.log(`   Errors:   ${errors.length}`);
   console.log(`   Warnings: ${warnings.length}\n`);
 
@@ -340,4 +576,8 @@ function run() {
   }
 }
 
-run();
+if (require.main === module) {
+  run();
+}
+
+module.exports = { auditFile, RULES, detectViewportAffix, detectViewportPairs, VIEWPORT_AFFIXES };

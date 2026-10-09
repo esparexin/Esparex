@@ -1,29 +1,15 @@
 /**
  * Admin Chat API — uses adminFetch (cookie-based admin JWT + CSRF)
+ *
+ * Phase 3a (§5): the local `AdminConvSummary` / `AdminChatListResponse`
+ * interfaces are relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3) and re-exported here so existing importers keep working.
+ * Deletion of these shims is Phase 4 (§10).
  */
 import { adminFetch } from './adminClient';
+import type { AdminConvSummary, AdminChatListResponse } from '@esparex/contracts';
 
-export interface AdminConvSummary {
-  id: string;
-  buyerName: string;
-  sellerName: string;
-  adTitle: string;
-  lastMessage?: string;
-  lastMessageAt?: string;
-  isBlocked: boolean;
-  isAdClosed: boolean;
-  unreadBuyer: number;
-  unreadSeller: number;
-  updatedAt: string;
-}
-
-export interface AdminChatListResponse {
-  success: boolean;
-  data: AdminConvSummary[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export type { AdminConvSummary, AdminChatListResponse };
 
 export type AdminChatFilter = 'all' | 'reported' | 'high_risk' | 'blocked' | 'closed';
 

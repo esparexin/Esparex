@@ -53,7 +53,7 @@ export default function GlobalError({
                                 <button
                                     type="button"
                                     onClick={reset}
-                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-body font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95"
+                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-body font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95"
                                 >
                                     <RefreshCcw className="h-4 w-4" />
                                     <span>Try Again</span>

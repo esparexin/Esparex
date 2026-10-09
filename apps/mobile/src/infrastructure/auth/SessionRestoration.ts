@@ -8,7 +8,7 @@ export type SessionState =
  * Checks whether a JWT token has expired or is invalid.
  * Validates payload exp claim against current timestamp (with 10s grace leeway).
  */
-export function isJwtExpired(token: string): boolean {
+function isJwtExpired(token: string): boolean {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return false;

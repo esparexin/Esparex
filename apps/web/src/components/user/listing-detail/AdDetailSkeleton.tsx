@@ -1,3 +1,4 @@
+/* ui-guard-ignore: parallel-responsive-dom [Single-instance skeleton layout matching detail page column structure] */
 import { Skeleton } from "@esparex/ui";
 import { Card, CardContent } from "@esparex/ui";
 
@@ -20,7 +21,7 @@ function TitleAndMetricsSkeleton({ isDesktop = false }: { isDesktop?: boolean })
 
 export function AdDetailSkeleton() {
     return (
-        <div className="bg-gray-50 pb-6">
+        <div className="bg-muted pb-6">
             <div className="max-w-7xl mx-auto md:px-6 lg:px-8 md:py-6">
                 {/* Breadcrumb Skeleton */}
                 <div className="flex gap-2 mb-4 px-4 md:px-0">
@@ -38,7 +39,7 @@ export function AdDetailSkeleton() {
                         <Card className="rounded-none md:rounded-lg overflow-hidden border-0 md:border">
                             <Skeleton className="aspect-[4/3] md:aspect-[16/10] w-full" />
                             {/* Thumbnails */}
-                            <div className="hidden md:flex gap-2 p-3 bg-white">
+                            <div className="hidden md:flex gap-2 p-3 bg-card">
                                 <Skeleton className="w-20 h-20 rounded-xl" />
                                 <Skeleton className="w-20 h-20 rounded-xl" />
                                 <Skeleton className="w-20 h-20 rounded-xl" />

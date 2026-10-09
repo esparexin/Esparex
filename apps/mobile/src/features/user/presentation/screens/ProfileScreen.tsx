@@ -94,19 +94,19 @@ export const ProfileScreen = ({ navigation }: Props) => {
   if (authStatus === 'anonymous') {
     return (
       <Screen edges={['top', 'left', 'right']}>
-        <Container className="flex-1 bg-slate-50 dark:bg-slate-950 p-4">
+        <Container className="flex-1 p-4">
           <View className="px-2 pt-2 pb-4">
-            <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+            <AppText variant="h2" className="font-bold text-foreground">
               My Profile
             </AppText>
           </View>
 
           <Card className="p-6 mb-4 items-center">
             <Avatar fallback="GU" size="lg" className="mb-3" />
-            <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center">
+            <AppText variant="h2" className="font-bold text-foreground text-center">
               Welcome to Esparex
             </AppText>
-            <AppText variant="body" className="text-slate-500 dark:text-slate-400 mt-1 text-center mb-5">
+            <AppText variant="body" className="text-foreground-secondary mt-1 text-center mb-5">
               Sign in to manage your listings, view saved items, and access account settings.
             </AppText>
             <AppButton
@@ -126,7 +126,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <AppIcon name="Shield" size={18} color={base.slate[500]} />
-                  <AppText variant="body" className="font-semibold text-slate-800 dark:text-slate-200 ml-2.5">
+                  <AppText variant="body" className="font-semibold text-foreground ml-2.5">
                     Terms of Service &amp; Privacy Policy
                   </AppText>
                 </View>
@@ -159,10 +159,10 @@ export const ProfileScreen = ({ navigation }: Props) => {
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <Container className="flex-1">
         {/* Top Header */}
         <View className="flex-row items-center justify-between px-4 pt-2 pb-1">
-          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+          <AppText variant="h2" className="font-bold text-foreground">
             My Profile
           </AppText>
           <TouchableOpacity
@@ -191,10 +191,10 @@ export const ProfileScreen = ({ navigation }: Props) => {
               className="mr-3.5"
             />
             <View className="flex-1">
-              <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
+              <AppText variant="h3" className="font-bold text-foreground">
                 {profile?.name || 'Esparex User'}
               </AppText>
-              <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5">
+              <AppText variant="caption" className="text-foreground-secondary mt-0.5">
                 {profile?.mobile || profile?.email || 'No contact provided'}
               </AppText>
 
@@ -202,7 +202,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
                 {profile?.isPhoneVerified && (
                   <View className="flex-row items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                     <AppIcon name="CheckCircle2" size={10} color={base.success} />
-                    <AppText variant="caption" className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1 text-tiny">
+                    <AppText variant="tiny" className="text-success font-semibold ml-1">
                       Verified
                     </AppText>
                   </View>

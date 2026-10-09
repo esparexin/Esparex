@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ListingStatsResponse } from "@/lib/api/user/listings";
 import type { User } from "@esparex/contracts";
@@ -21,7 +21,6 @@ interface MyListingsTabProps {
   adCounts: ListingStatsResponse;
   user: User | null;
   navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
-  getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
   formatDate: (date: string | Date) => string;
   businessStatus: BusinessStatusValue | "none";
   onRegisterBusiness?: () => void;
@@ -34,7 +33,6 @@ export function MyListingsTab({
   adCounts,
   user,
   navigateTo,
-  getStatusBadge,
   businessStatus,
   onRegisterBusiness: _onRegisterBusiness,
   initialSubTab = "ads",
@@ -158,7 +156,6 @@ export function MyListingsTab({
     handleRepostAd,
     handleRepostService,
     handleRepostSpare,
-    getStatusBadge,
     fetchMyAds,
   });
 

@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { toOptionalString } from './inputCoercion';
-import { setCache } from '@esparex/core/utils/redisCache';
-import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/domains/catalog/application/services/CatalogBrandModelService';
-import { validateModelHierarchyMutation } from '@esparex/core/domains/catalog/application/services/CatalogHierarchyService';
-import { detectDuplicateCandidates } from '@esparex/core/domains/catalog/application/services/CatalogSearchGovernanceService';
+import { setCache } from '@esparex/core';
+import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core';
+import { validateModelHierarchyMutation } from '@esparex/core';
+import { detectDuplicateCandidates } from '@esparex/core';
 
 export const CATALOG_CACHE_TTL = 300;
 
-export const normalizeCacheValue = (value: unknown): string => {
+const normalizeCacheValue = (value: unknown): string => {
     if (Array.isArray(value)) return value.map(normalizeCacheValue).join(',');
     if (value === undefined || value === null || value === '') return 'all';
     return encodeURIComponent(String(value));

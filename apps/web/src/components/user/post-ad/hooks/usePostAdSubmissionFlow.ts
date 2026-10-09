@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Listing } from "@/lib/api/user/listings/normalizer";
+import { UserListing } from "@/lib/api/user/listings/normalizer";
 import { useListingSubmission } from "@/hooks/listings/useListingSubmission";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import {
@@ -23,7 +23,7 @@ interface UsePostAdSubmissionFlowProps {
     editAdId?: string;
     isLocationLocked: boolean;
     setFormError: (message: string | null) => void;
-    setSubmittedAd: (ad: Listing | null) => void;
+    setSubmittedAd: (ad: UserListing | null) => void;
 }
 
 export function usePostAdSubmissionFlow({
@@ -63,17 +63,17 @@ export function usePostAdSubmissionFlow({
         });
     }, [form]);
 
-    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }): Promise<Listing> => {
+    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }): Promise<UserListing> => {
         trackPostAdEvent({ event: "publish_clicked", metadata: { isEditMode } });
         const rawPayload: unknown = payload;
-        const listingData = rawPayload as Partial<Listing>;
+        const listingData = rawPayload as Partial<UserListing>;
         const result = (isEditMode && editAdId)
-            ? updateAdListing(editAdId, buildEditAdPayload(payload) as Partial<Listing>)
+            ? updateAdListing(editAdId, buildEditAdPayload(payload) as Partial<UserListing>)
             : createAdListing(listingData, options);
-        return result as Promise<Listing>;
+        return result as Promise<UserListing>;
     }, [buildEditAdPayload, editAdId, isEditMode]);
 
-    const handleSuccess = useCallback((ad: Listing) => {
+    const handleSuccess = useCallback((ad: UserListing) => {
         trackPostAdEvent({ event: "publish_success", metadata: { adId: ad.id } });
         if (!isEditMode) {
             localStorage.removeItem("esparex_post_ad_draft");
@@ -92,7 +92,6 @@ export function usePostAdSubmissionFlow({
         form,
         listingImages,
         isEditMode,
-        editId: editAdId,
         schema: postAdSchema,
         partialSchema: partialAdSchema,
         submitFn: submitAdApiCall,

@@ -13,6 +13,7 @@ const checks = [
   require('./esparex/ssot-validator'),
   require('./esparex/architecture-validator'),
   require('./esparex/governance-guards-validator'),
+  require('./esparex/scope-ownership-validator'),
   require('./esparex/architecture-platform-validator'),
   require('./esparex/duplicate-validator'),
   require('./esparex/knip-validator'),
@@ -21,6 +22,9 @@ const checks = [
   require('./esparex/auditor-validator'),
   require('./esparex/ui-validator'),
   require('./esparex/script-validator'),
+  require('./esparex/guard-wiring-validator'),
+  require('./esparex/exports-surface-validator'),
+  require('./esparex/doc-conformance-validator'),
 ];
 
 const results = [];

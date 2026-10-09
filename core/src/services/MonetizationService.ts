@@ -129,7 +129,8 @@ export class MonetizationService {
 
     static async getAdminCampaigns(): Promise<AdCampaignItem[]> {
         const campaignModel = getAdvertisementCampaignModel();
-        const docs = await campaignModel.find().sort({ priority: 1, createdAt: -1 }).lean();
+        // P5: bounded read (admin table; paginated listing is a follow-up).
+        const docs = await campaignModel.find().sort({ priority: 1, createdAt: -1 }).limit(500).lean();
         return docs.map((doc) => mapDocToCampaignItem(doc as RawCampaignDoc));
     }
 

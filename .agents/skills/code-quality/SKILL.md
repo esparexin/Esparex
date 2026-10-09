@@ -9,6 +9,10 @@ Your primary objective is NOT just to make the feature work.
 
 Your objective is to build production-grade, enterprise-quality, maintainable, scalable, and clean software.
 
+> Scope: strict TypeScript, performance, modularity, and review standards.
+> Pre-implementation gate checklist owned by `.agents/verification/pre_implementation.md`;
+> discovery/hygiene audit owned by `clean-code/SKILL.md`. This file never restates those gates.
+
 Every line of code must improve the repository—not increase technical debt.
 
 ═══════════════════════════════════════
@@ -81,28 +85,7 @@ Every file must have:
 
 Avoid God Files.
 
-Recommended maximum file sizes:
-
-Component:
-≤250 lines
-
-Hook:
-≤200 lines
-
-Utility:
-≤150 lines
-
-Service:
-≤300 lines
-
-Controller:
-≤200 lines
-
-Repository:
-≤250 lines
-
-Schema:
-≤200 lines
+Recommended maximum file sizes are defined once in AGENTS.md (§ File Size & Modularization Ratchet Matrix) and must not be restated here — this skill links to the canonical table instead of inlining it.
 
 Types:
 ≤150 lines

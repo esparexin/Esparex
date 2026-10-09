@@ -264,7 +264,7 @@ export default function PrivacyPage() {
                     </p>
                 </section>
 
-                <section className="p-5 rounded-2xl bg-card border border-border shadow-xs">
+                <section className="p-5 rounded-2xl bg-card border border-border shadow-sm">
                     <h2 className="text-h3 font-bold text-foreground mb-2">11. Grievance Redressal &amp; Nodal Contact</h2>
                     <p className="text-caption text-foreground-secondary mb-4">
                         In accordance with the Information Technology Act, 2000 and Rule 3(2) of the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, the designated Grievance Officer for Esparex is:

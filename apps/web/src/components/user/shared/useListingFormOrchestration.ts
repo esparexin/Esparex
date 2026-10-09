@@ -154,7 +154,6 @@ export function useListingFormOrchestration({
         form,
         listingImages: images,
         isEditMode,
-        editId,
         schema: config.schema,
         partialSchema: activePartialSchema,
         submitFn,

@@ -10,6 +10,13 @@ import CreditTransaction from "../../../../models/CreditTransaction";
 import redisClient from "../../../../config/redis";
 import { AppError } from "../../../../shared-kernel/errors/AppError";
 import { BusinessErrorCode } from "@esparex/contracts";
+// P0-6: all UserWallet writes funnel through the entitlements-owned write API.
+import {
+    getMonthlyCycleStart as canonicalGetMonthlyCycleStart,
+    resetMonthlyCycleForUser,
+    adjustWalletCredits,
+    incrementMonthlyUsage,
+} from "../../../entitlements/application/EntitlementWalletWriter";
 
 import Plan from "../../../../models/Plan";
 import logger from "../../../../utils/logger";
@@ -60,43 +67,28 @@ export interface AdPostingBalance {
 
 /**
  * Returns the start of the current monthly cycle in UTC.
+ *
+ * @deprecated P0-6 consolidation (DECISION-GATE §1/§3): canonical owner is
+ * entitlements (`EntitlementWalletWriter.getMonthlyCycleStart`). Re-exported here
+ * only for existing callers. Do not import from here in new code.
  */
 export function getMonthlyCycleStart(now?: Date): Date {
-    const d = now ?? new Date();
-    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1, 0, 0, 0, 0));
+    return canonicalGetMonthlyCycleStart(now);
 }
 
 /**
  * Ensures wallet exists and monthly free ad count resets at cycle start.
+ *
+ * @deprecated P0-6 consolidation (DECISION-GATE §1/§3): canonical owner is
+ * entitlements (`EntitlementWalletWriter.resetMonthlyCycleForUser`), which resets
+ * the full schema-derived monthly field set. Delegating wrapper — do not import
+ * from here in new code.
  */
 export async function syncWalletCycle(
     userId: string,
     session?: ClientSession
 ): Promise<void> {
-    const cycleStart = getMonthlyCycleStart();
-    const existingWallet = await UserWallet.findOne({ userId })
-        .session(session ?? null)
-        .lean();
-
-    const lastMonthlyReset = existingWallet?.lastMonthlyReset
-        ? new Date(existingWallet.lastMonthlyReset)
-        : null;
-
-    const requiresReset =
-        !existingWallet ||
-        !lastMonthlyReset ||
-        lastMonthlyReset.getTime() < cycleStart.getTime();
-
-    if (!requiresReset) return;
-
-    await UserWallet.updateOne(
-        { userId },
-        {
-            $setOnInsert: { userId, adCredits: 0 },
-            $set: { monthlyFreeAdsUsed: 0, monthlyFreeAlertsUsed: 0, lastMonthlyReset: cycleStart },
-        },
-        { upsert: true, session }
-    );
+    return resetMonthlyCycleForUser({ userId, session });
 }
 
 /**
@@ -106,7 +98,7 @@ export async function getAdPostingBalance(
     userId: string,
     session?: ClientSession
 ): Promise<AdPostingBalance> {
-    const cycleStart = getMonthlyCycleStart();
+    const cycleStart = canonicalGetMonthlyCycleStart();
     let walletQuery = UserWallet.findOne({ userId });
     if (session) walletQuery = walletQuery.session(session);
 
@@ -115,7 +107,7 @@ export async function getAdPostingBalance(
     const requiresReset = !wallet || !lastMonthlyReset || lastMonthlyReset.getTime() < cycleStart.getTime();
 
     if (requiresReset) {
-        await syncWalletCycle(userId, session);
+        await resetMonthlyCycleForUser({ userId, session });
         let refreshedQuery = UserWallet.findOne({ userId });
         if (session) refreshedQuery = refreshedQuery.session(session);
         wallet = await refreshedQuery.lean();
@@ -144,8 +136,9 @@ export async function addAdCredits(
     session?: ClientSession
 ): Promise<void> {
     if (credits <= 0) return;
-    await syncWalletCycle(userId, session);
-    await UserWallet.updateOne({ userId }, { $inc: { adCredits: credits } }, { session });
+    await resetMonthlyCycleForUser({ userId, session });
+    // P0-6: wallet write via the entitlements-owned API.
+    await adjustWalletCredits({ userId, delta: { adCredits: credits }, session });
 }
 
 /**
@@ -204,9 +197,8 @@ export const AdSlotService = {
         session?: ClientSession,
         adId?: string
     ): Promise<{ source: AdPostingSlotSource }> {
-        await syncWalletCycle(userId, session);
+        await resetMonthlyCycleForUser({ userId, session });
         const balance = await getAdPostingBalance(userId, session);
-
         if (balance.totalRemaining <= 0) {
             throw new AppError(
                 "No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset.",
@@ -219,9 +211,11 @@ export const AdSlotService = {
         const source: AdPostingSlotSource = isFreeSlot ? "free_slot" : "ad_credit";
 
         if (isFreeSlot) {
-            await UserWallet.updateOne({ userId }, { $inc: { monthlyFreeAdsUsed: 1 } }, { session });
+            // P0-6: wallet write via the entitlements-owned API.
+            await incrementMonthlyUsage({ userId, field: 'monthlyFreeAdsUsed', amount: 1, session });
         } else {
-            await UserWallet.updateOne({ userId }, { $inc: { adCredits: -1 } }, { session });
+            // P0-6: wallet write via the entitlements-owned API.
+            await adjustWalletCredits({ userId, delta: { adCredits: -1 }, session });
             await Entitlement.findOneAndUpdate(
                 {
                     userId: new Types.ObjectId(userId),

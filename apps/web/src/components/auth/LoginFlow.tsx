@@ -1,23 +1,26 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "@esparex/ui";
 import { Login } from "@/components/user/Login";
 import { useAuth } from "@/context/AuthContext";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
+// Boundary (Phase 8): modal orchestration (callback/redirect) around user/Login
+// (form/OTP). Layered composition, not duplication — keep both. Entry: AuthModal.
 interface LoginFlowProps {
   callbackUrl?: string | null;
-  mode?: "page" | "modal";
+  mode?: "modal";
   onClose?: () => void;
   onBack?: () => void;
+  onRegisterBackAction?: (action: (() => void) | null) => void;
 }
 
 export function LoginFlow({
   callbackUrl,
-  mode = "modal",
   onClose,
   onBack,
+  onRegisterBackAction,
 }: LoginFlowProps) {
   const router = useRouter();
   const { status } = useAuth();
@@ -27,9 +30,7 @@ export function LoginFlow({
   );
 
   const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const isAutoRedirecting = mode === "page" && status === "authenticated";
-  const showRedirectOverlay = (isRedirecting || isAutoRedirecting) && status !== "unauthenticated";
+  const showRedirectOverlay = isRedirecting && status !== "unauthenticated";
 
   const handleLoginSuccess = useCallback(
     () => {
@@ -40,19 +41,12 @@ export function LoginFlow({
     [safeCallbackUrl, onClose, router]
   );
 
-  useEffect(() => {
-    // Page mode auto-redirect guard if already authenticated when visiting /login page directly
-    if (mode === "page" && status === "authenticated") {
-      void router.push(safeCallbackUrl);
-    }
-  }, [mode, status, safeCallbackUrl, router]);
-
   return (
-    <div className="relative flex-1 flex flex-col justify-between h-full">
+    <div className="relative flex-1 min-h-0 flex flex-col">
       <Login
-        mode={mode}
         onLoginSuccess={handleLoginSuccess}
-        onBack={onBack ?? (mode === "page" ? () => void router.push("/") : undefined)}
+        onBack={onBack}
+        onRegisterBackAction={onRegisterBackAction}
       />
 
       {showRedirectOverlay && (

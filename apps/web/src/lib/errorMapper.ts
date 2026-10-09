@@ -6,7 +6,7 @@
 
 import logger from "@/lib/logger";
 
-export interface ApiError {
+interface ApiError {
     code?: string;
     message?: string;
     userMessage?: string;
@@ -174,7 +174,7 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
                 case 502:
                 case 503:
                 case 504:
-                    return "Payment couldn't be started right now. Please try again in a few moments.";
+                    return 'Server error. Please try again in a few moments.';
                 default:
                     break;
             }
@@ -209,13 +209,3 @@ import { isNetworkError } from "@esparex/shared";
 
 export { isNetworkError };
 
-/**
- * Checks if error is an authentication error
- */
-export function isAuthError(error: unknown): boolean {
-    if (typeof error === 'object' && error !== undefined) {
-        const apiError = error as ApiError;
-        return apiError.status === 401 || apiError.code?.startsWith('AUTH_') || false;
-    }
-    return false;
-}

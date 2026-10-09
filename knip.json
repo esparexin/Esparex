@@ -9,7 +9,11 @@
     "types": "error",
     "duplicates": "error"
   },
-  "ignoreBinaries": ["eslint", "tsc", "expo"],
+  "ignoreBinaries": [
+    "eslint",
+    "tsc",
+    "expo"
+  ],
   "ignoreDependencies": [
     "expo-splash-screen",
     "@radix-ui/*",
@@ -87,20 +91,52 @@
   ],
   "workspaces": {
     "apps/admin": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/proxy.ts", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "entry": [
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+        "src/proxy.ts",
+        "src/middleware.ts",
+        "next.config.mjs",
+        "tailwind.config.ts",
+        "postcss.config.mjs"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/proxy.ts", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "entry": [
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+        "src/proxy.ts",
+        "src/middleware.ts",
+        "next.config.mjs",
+        "tailwind.config.ts",
+        "postcss.config.mjs"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ]
     },
     "apps/mobile": {
-      "entry": ["App.tsx", "index.js"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "entry": [
+        "App.tsx",
+        "index.js"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ]
     },
     "backend/api": {
-      "entry": ["src/index.ts", "src/cron/**/*.ts", "src/smoke.ts", "src/scripts/**/*.ts"],
-      "project": ["src/**/*.ts"]
+      "entry": [
+        "src/index.ts",
+        "src/cron/**/*.ts",
+        "src/smoke.ts",
+        "src/scripts/**/*.ts"
+      ],
+      "project": [
+        "src/**/*.ts"
+      ]
     },
     "core": {
       "entry": [
@@ -109,15 +145,25 @@
         "src/domains/**/ports/*.ts",
         "src/scripts/**/*.ts"
       ],
-      "project": ["src/**/*.ts"]
+      "project": [
+        "src/**/*.ts"
+      ]
     },
     "shared": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.ts"]
+      "entry": [
+        "src/index.ts"
+      ],
+      "project": [
+        "src/**/*.ts"
+      ]
     },
     "packages/*": {
-      "entry": ["src/index.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "entry": [
+        "src/index.ts"
+      ],
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ]
     }
   },
   "ignore": [
@@ -136,7 +182,6 @@
     "**/.eslintcache",
     "**/storybook-static/**",
     "**/public/build/**",
-    "scripts/**",
     "eslint.config.mjs",
     "tooling/**",
     "backend/api/scripts/**",

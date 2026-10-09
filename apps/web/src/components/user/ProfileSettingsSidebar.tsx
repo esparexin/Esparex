@@ -9,12 +9,12 @@ import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@esparex/contracts";
 
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
-import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
-import { AccountDesktopSidebar } from "./profile/AccountDesktopSidebar";
+import { AccountSidebar } from "./profile/AccountSidebar";
 import { ProfileTabContentRouter } from "./profile/ProfileTabContentRouter";
 import { AccountHeader } from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ProfileTabValue } from "@/config/navigation";
+import { AccountTabBar } from "./profile/AccountTabBar";
 import { useProfileSidebarState } from "./profile/useProfileSidebarState";
 
 interface ProfileSettingsProps {
@@ -95,7 +95,7 @@ export function ProfileSettingsSidebar({
                 size="sm"
                 variant="primary"
                 onClick={() => navigateTo("post-ad")}
-                className="text-caption h-8 px-3 font-semibold rounded-lg shadow-xs"
+                className="text-caption h-8 px-3 font-semibold rounded-lg shadow-sm"
               >
                 + Post Ad
               </Button>
@@ -112,7 +112,7 @@ export function ProfileSettingsSidebar({
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6 flex-1 min-h-0">
           {/* LEFT SIDEBAR (Desktop Only) */}
-          <AccountDesktopSidebar
+          <AccountSidebar
             items={visibleProfileTabItems}
             activeTab={activeTab}
             onTabChange={handleTabChange}
@@ -149,7 +149,11 @@ export function ProfileSettingsSidebar({
       </div>
 
       {!isViewingActiveChat && (
-        <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
+        <AccountTabBar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          unreadCount={chatUnreadCount}
+        />
       )}
 
       {/* Extracted Dialogs */}

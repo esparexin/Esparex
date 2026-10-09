@@ -1,6 +1,6 @@
 import React from "react";
 import { Package, Wrench, CircuitBoard } from "@esparex/ui";
-import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
+import type { UserListing, ListingStatsResponse } from "@/lib/api/user/listings";
 import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { ACCOUNT_LISTING_STATUS_TABS } from "@/lib/accountListingRoutes";
 import {
@@ -18,7 +18,7 @@ export interface MyListingsSectionConfig {
   selectedStatus: ListingStatus;
   onStatusChange: (status: ListingStatus) => void;
   getStatusCount: (status: ListingStatus) => number;
-  items: Listing[];
+  items: UserListing[];
   loading: boolean;
   error: unknown;
   onRetry?: () => void | Promise<unknown>;
@@ -26,7 +26,7 @@ export interface MyListingsSectionConfig {
   postLabel: string;
   emptyTitle: string;
   emptyDesc: string;
-  render: (item: Listing) => React.ReactNode;
+  render: (item: UserListing) => React.ReactNode;
   pagination?: {
     page: number;
     limit: number;
@@ -42,15 +42,15 @@ export interface BuildMyListingsSectionConfigParams {
   spareStatus: ListingStatus;
   handleStatusChange: (status: ListingStatus) => void;
   adCounts: ListingStatsResponse;
-  myAds: Listing[];
+  myAds: UserListing[];
   loadingAds: boolean;
   adsError: unknown;
   fetchMyAds: () => void | Promise<unknown>;
-  myServices: Listing[];
+  myServices: UserListing[];
   loadingServices: boolean;
   servicesError: unknown;
   fetchMyServices: () => void | Promise<unknown>;
-  mySpare: Listing[];
+  mySpare: UserListing[];
   loadingSpare: boolean;
   spareError: unknown;
   fetchMySpare: () => void | Promise<unknown>;
@@ -111,7 +111,7 @@ export function buildMyListingsSectionConfig({
       postLabel: "Post Ad",
       emptyTitle: `No ${adsStatus} ads`,
       emptyDesc: "Post your first ad to reach thousands of buyers.",
-      render: (listing: Listing) => renderAdItem(listing, adsStatus, actionHandlers),
+      render: (listing: UserListing) => renderAdItem(listing, adsStatus, actionHandlers),
       pagination: {
         page: adsPagination?.page ?? currentPage,
         limit: adsPagination?.limit ?? listingsPerPage,
@@ -141,7 +141,7 @@ export function buildMyListingsSectionConfig({
       postLabel: "Post Service",
       emptyTitle: `No ${servicesStatus} services`,
       emptyDesc: "List your repair or maintenance services to attract customers.",
-      render: (service: Listing) => renderServiceItem(service, servicesStatus, actionHandlers),
+      render: (service: UserListing) => renderServiceItem(service, servicesStatus, actionHandlers),
       pagination: {
         page: servicesPagination?.page ?? currentPage,
         limit: servicesPagination?.limit ?? listingsPerPage,
@@ -171,7 +171,7 @@ export function buildMyListingsSectionConfig({
       postLabel: "Post Spare Part",
       emptyTitle: `No ${spareStatus} listings`,
       emptyDesc: "List spare parts to sell to repair shops and customers.",
-      render: (listing: Listing) => renderSpareItem(listing, spareStatus, actionHandlers),
+      render: (listing: UserListing) => renderSpareItem(listing, spareStatus, actionHandlers),
       pagination: {
         page: sparePagination?.page ?? currentPage,
         limit: sparePagination?.limit ?? listingsPerPage,

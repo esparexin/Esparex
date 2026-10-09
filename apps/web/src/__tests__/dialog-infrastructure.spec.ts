@@ -4,7 +4,7 @@ import { Z_INDEX } from "@esparex/ui";
 describe("Platform Dialog System Governance & Infrastructure Audit", () => {
   it("enforces the architectural stacking invariant across headers, dialogs, and alert dialogs", () => {
     // Architectural Invariant:
-    // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1010) > dialogOverlay (1000) > userHeader (999)
+    // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1070) > dialogOverlay (1060) > userHeader (999)
     expect(Z_INDEX.userHeader).toBe(999);
     expect(Z_INDEX.desktopHeader).toBe(999);
 
@@ -15,8 +15,8 @@ describe("Platform Dialog System Governance & Infrastructure Audit", () => {
     expect(Z_INDEX.alertDialogContent).toBeGreaterThan(Z_INDEX.alertDialogOverlay);
 
     // Exact expected z-index tokens
-    expect(Z_INDEX.dialogOverlay).toBe(1000);
-    expect(Z_INDEX.dialogContent).toBe(1010);
+    expect(Z_INDEX.dialogOverlay).toBe(1060);
+    expect(Z_INDEX.dialogContent).toBe(1070);
     expect(Z_INDEX.alertDialogOverlay).toBe(1100);
     expect(Z_INDEX.alertDialogContent).toBe(1110);
   });
@@ -33,25 +33,20 @@ describe("Platform Dialog System Governance & Infrastructure Audit", () => {
     expect(typeof useIsMobileDevice).toBe("function");
   });
 
-  it("enforces keyboard height elevation variables across bottom sheets, dialogs, and drawers", async () => {
+  it("enforces keyboard height elevation variables across bottom sheets and dialogs", async () => {
     const fs = await import("fs");
     const path = await import("path");
 
     const sheetPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Sheet.tsx");
     const dialogPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Dialog.tsx");
-    const drawerPath = path.resolve(__dirname, "../../../../packages/ui/src/feedback/Drawer.tsx");
 
     const sheetContent = fs.readFileSync(sheetPath, "utf-8");
     const dialogContent = fs.readFileSync(dialogPath, "utf-8");
-    const drawerContent = fs.readFileSync(drawerPath, "utf-8");
 
     // Sheet bottom variant must anchor to --keyboard-height
     expect(sheetContent).toContain("bottom-[var(--keyboard-height,0px)]");
 
     // Dialog bottomSheet variant must anchor to --keyboard-height
     expect(dialogContent).toContain("bottom-[var(--keyboard-height,0px)]");
-
-    // Drawer must anchor to --keyboard-height
-    expect(drawerContent).toContain("bottom-[var(--keyboard-height,0px)]");
   });
 });

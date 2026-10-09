@@ -120,7 +120,6 @@ const connectSrc = [
     'https://maps.googleapis.com',
     'https://maps.gstatic.com',
     'https://nominatim.openstreetmap.org',
-    'https://control.msg91.com',
     'https://images.unsplash.com',
     'https://ipapi.co',
     'https://ipinfo.io',
@@ -225,6 +224,15 @@ const nextConfig = {
                 ]
             },
             {
+                source: '/sw.js',
+                headers: [
+                    { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
+                    { key: 'Expires', value: '0' },
+                ]
+            },
+            {
                 source: '/sitemap.xml',
                 headers: [
                     { key: 'Content-Type', value: 'application/xml' },
@@ -237,6 +245,24 @@ const nextConfig = {
                 headers: [
                     { key: 'Content-Type', value: 'text/plain' },
                     { key: 'Cache-Control', value: 'public, max-age=86400, s-maxage=86400' }
+                ]
+            },
+            {
+                source: '/sw.js',
+                headers: [
+                    { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
+                    { key: 'Expires', value: '0' }
+                ]
+            },
+            {
+                source: '/manifest.json',
+                headers: [
+                    { key: 'Content-Type', value: 'application/manifest+json; charset=utf-8' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    { key: 'Pragma', value: 'no-cache' },
+                    { key: 'Expires', value: '0' }
                 ]
             }
         ];

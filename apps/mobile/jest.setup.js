@@ -25,3 +25,20 @@ jest.mock('expo-image-picker', () => ({
   MediaTypeOptions: { Images: 'Images' },
 }));
 
+// Synchronously resolve Animated.timing in test environment to prevent
+// un-acted background timer warnings from TouchableOpacity and animation hooks.
+const { Animated } = require('react-native');
+if (Animated && typeof Animated.timing === 'function') {
+  Animated.timing = (value, config) => ({
+    start: (callback) => {
+      if (value && typeof value.setValue === 'function' && config && config.toValue !== undefined) {
+        value.setValue(config.toValue);
+      }
+      if (callback) {
+        callback({ finished: true });
+      }
+    },
+    stop: () => {},
+    reset: () => {},
+  });
+}

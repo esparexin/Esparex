@@ -1,4 +1,4 @@
-import { type Ad, AdSchema } from "@esparex/contracts";
+import { type Ad, AdSchema, type ListingContactNumberResponse } from "@esparex/contracts";
 import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';
@@ -6,16 +6,15 @@ import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/loca
 import { formatAppDate, decodeHtmlEntities } from '@/lib/formatters';
 import type { LocationLevel } from '@/types/location';
 import { stripEmptyObjectIdFields as stripSharedObjectIdFields } from '../listingsShared';
+// P4: identifier + geo normalization live in sibling modules (single owner).
+import { OBJECT_ID_PATTERN, extractId } from './listingIdNormalizer';
+import { normalizeListingGeo } from './listingGeoNormalizer';
 
 // --- Shared Constants & Types ---
 
-export const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
-export const LISTING_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-export const RESERVED_LISTING_IDENTIFIERS = new Set([
-    '', 'undefined', 'null', 'nan', 'true', 'false', 'favicon.ico',
-]);
+// P4: OBJECT_ID_PATTERN + identifier helpers live in ./listingIdNormalizer.
 
-export interface Listing extends Ad {
+export interface UserListing extends Ad {
     priceMin?: number | null;
     priceMax?: number | null;
     isChatLocked?: boolean;
@@ -55,7 +54,7 @@ export interface ListingFilters {
 }
 
 export interface ListingPageResult {
-    data: Listing[];
+    data: UserListing[];
     pagination: PaginationEnvelope;
 }
 
@@ -74,22 +73,14 @@ interface RawListingContactNumberResponse {
     masked?: string;
 }
 
-export interface ListingContactNumberResponse {
-    mobile?: string;
-    masked?: string;
-}
+// SSOT: canonical DTO lives in @esparex/contracts; the local duplicate was
+// removed so response shape has a single owner.
+export type { ListingContactNumberResponse };
 
 // --- Helpers ---
 
-export function normalizeListingIdentifier(value: string | number): string {
-    const raw = String(value).trim();
-    if (!raw) return '';
-    try {
-        return decodeURIComponent(raw).trim();
-    } catch {
-        return raw;
-    }
-}
+// P4: normalizeListingIdentifier/isValidListingIdentifier/extractId live in
+// ./listingIdNormalizer (single owner).
 
 export function normalizeListingContactNumberResponse(data: unknown): ListingContactNumberResponse | null {
     if (!data || typeof data !== 'object') return null;
@@ -112,30 +103,6 @@ export function normalizeListingContactNumberResponse(data: unknown): ListingCon
         ...(mobile ? { mobile } : {}),
         ...(masked ? { masked } : {}),
     };
-}
-
-export function isValidListingIdentifier(value: string | number): boolean {
-    const identifier = normalizeListingIdentifier(value);
-    if (!identifier || identifier.length > 200) return false;
-    if (RESERVED_LISTING_IDENTIFIERS.has(identifier.toLowerCase())) return false;
-    if (identifier.includes("/") || identifier.includes("\\")) return false;
-
-    if (OBJECT_ID_PATTERN.test(identifier)) return true;
-    if (identifier.length < 2) return false;
-    return LISTING_SLUG_PATTERN.test(identifier.toLowerCase());
-}
-
-
-
-export function extractId(value: unknown): string | undefined {
-    if (typeof value === 'string' || typeof value === 'number') {
-        return String(value);
-    }
-    if (value && typeof value === 'object') {
-        const record = value as Record<string, unknown>;
-        return String(record.id || record._id || '');
-    }
-    return undefined;
 }
 
 function normalizeImageUrl(url: string): string {
@@ -215,43 +182,7 @@ function toListingSchemaCompatible(data: unknown): unknown {
     normalizeHydratedNameField("brandName", "brand");
     normalizeHydratedNameField("modelName", "model");
 
-    if (record.location && typeof record.location === 'object' && !Array.isArray(record.location)) {
-        const loc = { ...(record.location as Record<string, unknown>) };
-        if (loc.coordinates) {
-            let coords: [number, number] | null = null;
-            if (Array.isArray(loc.coordinates) && loc.coordinates.length === 2) {
-                const lng = Number(loc.coordinates[0]);
-                const lat = Number(loc.coordinates[1]);
-                if (Number.isFinite(lng) && Number.isFinite(lat)) {
-                    coords = [lng, lat];
-                }
-            } else if (typeof loc.coordinates === 'object' && loc.coordinates !== null) {
-                const pointObj = loc.coordinates as Record<string, unknown>;
-                if (Array.isArray(pointObj.coordinates) && pointObj.coordinates.length === 2) {
-                    const lng = Number(pointObj.coordinates[0]);
-                    const lat = Number(pointObj.coordinates[1]);
-                    if (Number.isFinite(lng) && Number.isFinite(lat)) {
-                        coords = [lng, lat];
-                    }
-                }
-            }
-
-            if (
-                coords &&
-                !(coords[0] === 0 && coords[1] === 0) &&
-                coords[0] >= -180 && coords[0] <= 180 &&
-                coords[1] >= -90 && coords[1] <= 90
-            ) {
-                loc.coordinates = {
-                    type: 'Point',
-                    coordinates: coords,
-                };
-            } else {
-                delete loc.coordinates;
-            }
-        }
-        record.location = loc;
-    }
+    record.location = normalizeListingGeo(record.location);
 
     if (Array.isArray(record.sparePartsSnapshot)) {
         record.sparePartsSnapshot = record.sparePartsSnapshot
@@ -298,7 +229,7 @@ function toListingSchemaCompatible(data: unknown): unknown {
     return record;
 }
 
-function coerceListingFallback(data: unknown): Listing {
+function coerceListingFallback(data: unknown): UserListing {
     const record = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
     const id = extractId(record.id) ?? extractId(record._id) ?? '';
     const title = typeof record.title === 'string' ? record.title : '';
@@ -319,6 +250,11 @@ function coerceListingFallback(data: unknown): Listing {
     const sparePartIds = Array.isArray(record.sparePartIds)
         ? record.sparePartIds.map(extractId).filter((pId): pId is string => typeof pId === 'string' && pId.length > 0)
         : undefined;
+
+    const fallbackListingType =
+        record.listingType === 'ad' || record.listingType === 'service' || record.listingType === 'spare_part'
+            ? record.listingType
+            : undefined;
 
     const sparePartsSnapshot = Array.isArray(record.sparePartsSnapshot)
         ? record.sparePartsSnapshot
@@ -342,6 +278,7 @@ function coerceListingFallback(data: unknown): Listing {
         status: normalizeAdStatus(typeof record.status === 'string' ? record.status : 'pending'),
         sellerId: extractId(record.sellerId) ?? '',
         createdAt,
+        ...(fallbackListingType ? { listingType: fallbackListingType } : {}),
         updatedAt: typeof record.updatedAt === 'string' ? record.updatedAt : (record.updatedAt instanceof Date ? record.updatedAt.toISOString() : undefined),
         views: typeof record.views === 'number' ? record.views : 0,
         spareParts: Array.isArray(record.spareParts) ? (record.spareParts as (string | Record<string, unknown>)[]) : undefined,
@@ -356,10 +293,10 @@ function coerceListingFallback(data: unknown): Listing {
         deviceCondition: (record.deviceCondition === 'power_on' || record.deviceCondition === 'power_off') ? record.deviceCondition : undefined,
         warranty: typeof record.warranty === 'string' ? record.warranty : undefined,
         sparePartId: extractId(record.sparePartId),
-    } as Listing;
+    } as UserListing;
 }
 
-export function unwrapListingPayload(data: unknown, depth = 0): unknown {
+function unwrapListingPayload(data: unknown, depth = 0): unknown {
     if (depth > 3 || !data || typeof data !== 'object') return data;
     const record = data as Record<string, unknown>;
     if (record.ad && typeof record.ad === 'object') return record.ad;
@@ -368,7 +305,7 @@ export function unwrapListingPayload(data: unknown, depth = 0): unknown {
     return data;
 }
 
-export function normalizeListing(data: unknown): Listing {
+export function normalizeListing(data: unknown): UserListing {
     const compatible = toListingSchemaCompatible(unwrapListingPayload(data));
     const parsed = AdSchema.safeParse(compatible);
     const validated = parsed.success ? parsed.data : coerceListingFallback(compatible);
@@ -447,12 +384,12 @@ export function normalizeListing(data: unknown): Listing {
         sellerName: decodedSellerName,
         sellerId: extractId(validated.sellerId) || '',
         views,
-        location: (location || { city: "" }) as Listing['location'],
+        location: (location || { city: "" }) as UserListing['location'],
         isSpotlight,
         spotlightExpiresAt,
         isBoosted,
         boostExpiresAt,
-    } as Listing;
+    } as UserListing;
 }
 
 export function stripEmptyObjectIdFields<T extends Record<string, unknown>>(payload: T): T {

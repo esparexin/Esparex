@@ -18,7 +18,6 @@ import { DEFAULT_INDIA_COORDINATES } from "@esparex/shared";
  */
 
 export type AppLocationSource = "auto" | "ip" | "manual" | "default";
-export type CanonicalLocation = SharedLocation;
 export type LocationLevel = SharedLocationLevel;
 export type LocationStatus = "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection";
 

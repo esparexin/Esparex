@@ -54,7 +54,7 @@ export function AdSellerCard({
     const renderAvatar = () => {
         if (ad.isBusiness) {
             return (
-                <div className={`h-10 w-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-xs ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                <div className={`h-10 w-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-sm ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
                     <Building2 className="h-5 w-5 text-primary-foreground" />
                 </div>
             );
@@ -117,7 +117,7 @@ export function AdSellerCard({
                             <Button
                                 onClick={onChat}
                                 aria-label="Chat with seller"
-                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption sm:text-small font-semibold gap-1.5 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
+                                className="w-full h-10 px-2.5 sm:px-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-caption sm:text-small font-semibold gap-1.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer"
                             >
                                 <MessageCircle className="h-4 w-4 shrink-0" />
                                 <span>Chat</span>

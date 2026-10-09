@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { Listing as Ad } from '@/lib/api/user/listings';
+import type { UserListing as Ad } from '@/lib/api/user/listings';
 import { isAdSold, getSoldDetails } from '@/lib/logic/soldStatus';
 
 export function useAdStatus(ad: Ad | undefined | null) {

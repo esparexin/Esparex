@@ -3,8 +3,8 @@
 ## Purpose
 
 `guard-ui-architecture.js` is a static analysis guard that enforces the
-[Single-Instance Responsive Architecture governance rules](./ESPAREX_UI_UX_DESIGN_STANDARDS.md)
-across all TSX/JSX files in `apps/web/src`.
+[Single-Instance Responsive Architecture governance rules](../../AGENTS.md)
+across all TSX/JSX files in `apps/web/src` (see also [UI Technical Specification](./UI_TECHNICAL_SPECIFICATION.md)).
 
 It runs as part of the CI `governance:guards` chain and can be executed locally
 before any commit.

@@ -40,7 +40,7 @@ export function HeaderAccountMenu({
         <Button
           variant="ghost"
           size="icon"
-          className="relative rounded-full h-9 w-9 flex-shrink-0 border-none hover:bg-transparent p-0 overflow-hidden ring-1 ring-border/80 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all cursor-pointer shadow-xs"
+          className="relative rounded-full h-9 w-9 flex-shrink-0 border-none hover:bg-transparent p-0 overflow-hidden ring-1 ring-border/80 hover:ring-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all cursor-pointer shadow-sm"
           aria-label="Open account menu"
         >
           {safeProfilePhoto ? (
@@ -73,7 +73,7 @@ export function HeaderAccountMenu({
         }}
       >
         <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-xl mb-1 border border-border/40">
-          <div className="h-10 w-10 rounded-full overflow-hidden shrink-0 border border-border bg-card flex items-center justify-center font-bold text-caption text-foreground-secondary shadow-xs">
+          <div className="h-10 w-10 rounded-full overflow-hidden shrink-0 border border-border bg-card flex items-center justify-center font-bold text-caption text-foreground-secondary shadow-sm">
             {safeProfilePhoto ? (
               <Image
                 src={avatarSrc}
@@ -107,7 +107,7 @@ export function HeaderAccountMenu({
               <DropdownMenuItem
                 key={item.id}
                 onClick={() => onMenuItemClick(item)}
-                className="cursor-pointer rounded-xl h-9.5 px-2.5 text-body font-medium hover:bg-muted/80 focus:bg-muted/80 transition-colors"
+                className="cursor-pointer rounded-xl h-[38px] px-2.5 text-body font-medium hover:bg-muted/80 focus:bg-muted/80 transition-colors"
               >
                 <Icon className="mr-2.5 h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="truncate">{item.label}</span>
@@ -120,7 +120,7 @@ export function HeaderAccountMenu({
 
         <DropdownMenuItem
           onClick={onLogout}
-          className="cursor-pointer rounded-xl h-9.5 px-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive hover:bg-destructive/10 transition-colors font-semibold"
+          className="cursor-pointer rounded-xl h-[38px] px-2.5 text-destructive focus:bg-destructive/10 focus:text-destructive hover:bg-destructive/10 transition-colors font-semibold"
         >
           <LogOut className="mr-2.5 h-4 w-4 shrink-0" />
           <span>Log out</span>

@@ -1,6 +1,6 @@
 import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS, Role } from "@esparex/contracts";
 export type AdminRole = Role.SUPER_ADMIN | Role.ADMIN | Role.MODERATOR;
-export const ADMIN_STATUS_OPTIONS = [
+const ADMIN_STATUS_OPTIONS = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,
     USER_STATUS.SUSPENDED,
@@ -48,25 +48,17 @@ export const DEFAULT_CREATE_FORM: AdminCreateFormState = {
     permissionsText: "",
 };
 
-export const DEFAULT_EDIT_FORM: AdminEditFormState = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: Role.MODERATOR,
-    status: USER_STATUS.LIVE,
-    permissionsText: "",
-};
 
 export const ROLE_COLORS: Record<string, string> = {
-    [Role.SUPER_ADMIN]: "bg-purple-100 text-purple-700",
-    superAdmin: "bg-purple-100 text-purple-700",
-    [Role.ADMIN]: "bg-blue-100 text-blue-700",
-    [Role.MODERATOR]: "bg-amber-100 text-amber-700",
-    business: "bg-amber-100 text-amber-700",
-    user_manager: "bg-teal-100 text-teal-700",
-    finance_manager: "bg-green-100 text-green-700",
-    content_moderator: "bg-orange-100 text-orange-700",
-    editor: "bg-sky-100 text-sky-700",
+    [Role.SUPER_ADMIN]: "bg-primary/10 text-primary",
+    superAdmin: "bg-primary/10 text-primary",
+    [Role.ADMIN]: "bg-primary/10 text-primary",
+    [Role.MODERATOR]: "bg-warning/10 text-warning",
+    business: "bg-warning/10 text-warning",
+    user_manager: "bg-info/10 text-info",
+    finance_manager: "bg-success/10 text-success",
+    content_moderator: "bg-warning/10 text-warning",
+    editor: "bg-primary-subtle text-primary",
     viewer: "bg-muted text-foreground-secondary",
 };
 

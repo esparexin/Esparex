@@ -31,7 +31,7 @@ export function AITestingConsole() {
     };
 
     return (
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100 shrink-0">
@@ -47,7 +47,7 @@ export function AITestingConsole() {
                     type="button"
                     onClick={handleRunTest}
                     disabled={running}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-caption font-bold text-primary-foreground shadow-xs hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-caption font-bold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50 transition-all active:scale-95 cursor-pointer"
                 >
                     <Play size={14} /> {running ? "Running Test..." : "Run AI Benchmark"}
                 </button>
@@ -110,10 +110,10 @@ export function AITestingConsole() {
             {testResult && (
                 <div className="space-y-3 pt-2 border-t border-border">
                     <div className="flex items-center gap-3 text-caption">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 font-bold text-emerald-700 border border-emerald-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 font-bold text-success-dark border border-success/20">
                             <CheckCircle size={12} /> {String(testResult.provider ?? "")} ({String(testResult.model ?? "")})
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2.5 py-1 font-bold text-sky-700 border border-sky-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary-subtle px-2.5 py-1 font-bold text-primary border border-primary/20">
                             <Clock size={12} /> Latency: {testResult.latencyMs} ms
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 font-bold text-purple-700 border border-purple-200">

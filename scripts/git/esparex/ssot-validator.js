@@ -92,6 +92,21 @@ function run(val) {
             val.error(`Location SSOT Violation: ${relPath} detected. Location display formatting must be consumed from @esparex/shared.`);
           }
 
+          // Rule E: Alien Global Bridge Guard — Prohibit arbitrary window.__* or global.__* state attachments
+          const windowGlobalMatches = content.matchAll(/window\.__(\w+)\s*=/g);
+          const ALLOWED_WINDOW_GLOBALS = new Set(['esparex_notify', 'esparex_emitPopup']);
+          for (const match of windowGlobalMatches) {
+            const globalProp = match[1];
+            if (!ALLOWED_WINDOW_GLOBALS.has(globalProp)) {
+              val.error(`Alien Architecture Violation: ${relPath} attaches unauthorized "window.__${globalProp}". Ad-hoc global state bridges are prohibited; use React Context or canonical package SSOT.`);
+            }
+          }
+
+          // Rule F: Duplicate UI Timer Extraction Guard — UI components must derive cooldowns from contracts, not regex error matching
+          if (relPath.includes('/components/') && /match\(\s*\/.*(?:\\d\{1,2\}:\\d\{2\}|\b(?:in\s+)?\\d+\s*s(?:ec)?).*\/[a-z]*\)/i.test(content)) {
+            val.error(`Semantic SSOT Violation: ${relPath} performs regex cooldown parsing on error messages. Cooldown timers must be derived from structured API contracts (e.g. retryAfterMs).`);
+          }
+
           // Rule B: Dynamic Canonical Ownership & Import Resolution
           // Check if app file exports a local symbol that collides with a canonical package symbol
           const localExports = content.matchAll(/^export\s+(?:const|function|class|interface|type|enum)\s+(\w+)/gm);
@@ -154,8 +169,8 @@ function run(val) {
   // 4. Legacy Core Services and Models Ratchet (ADR-008 DDD Migration)
   const CORE_SERVICES_DIR = path.join(ROOT, 'core/src/services');
   const CORE_MODELS_DIR = path.join(ROOT, 'core/src/models');
-  let MAX_SERVICES_COUNT = 70;
-  let MAX_MODELS_COUNT = 63;
+  let MAX_SERVICES_COUNT = 60;
+  let MAX_MODELS_COUNT = 62;
 
   function countSourceFiles(dir) {
     if (!fs.existsSync(dir)) return 0;

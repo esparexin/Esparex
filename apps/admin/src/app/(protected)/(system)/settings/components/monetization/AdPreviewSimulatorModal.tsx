@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Monitor, Tablet, Smartphone } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  Sparkles,
+  Monitor,
+  Tablet,
+  Smartphone,
+} from "@esparex/ui";
 import type { InContentPlacementId } from "@esparex/contracts";
 import { PLACEMENT_LABELS } from "./CampaignListTable";
 
@@ -19,21 +28,20 @@ export function AdPreviewSimulatorModal({
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [previewPlacement, setPreviewPlacement] = useState<InContentPlacementId>("listing_detail_sidebar_bottom");
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="w-full max-w-3xl bg-card rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+    <Dialog open={isOpen} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="w-full max-w-3xl max-h-[92dvh] overflow-y-auto bg-card rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-body font-bold text-foreground">Multi-Device In-Content Ad Simulator</h3>
+            <DialogTitle className="text-body font-bold text-foreground">Multi-Device In-Content Ad Simulator</DialogTitle>
           </div>
+          <DialogDescription className="sr-only">Preview in-content ad placements across desktop, tablet, and mobile viewports.</DialogDescription>
           <div className="flex items-center gap-2">
             <select
               value={previewPlacement}
               onChange={(e) => setPreviewPlacement(e.target.value as InContentPlacementId)}
-              className="h-8 px-2 rounded-xl border border-border bg-card text-caption text-foreground focus:outline-none"
+              className="h-8 px-2 rounded-xl border border-border bg-card text-body-lg md:text-body text-foreground focus:outline-none"
               aria-label="Select placement slot for simulation"
             >
               {Object.entries(PLACEMENT_LABELS).map(([key, label]) => (
@@ -47,7 +55,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("desktop")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "desktop" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "desktop" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Desktop view"
             >
@@ -57,7 +65,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("tablet")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "tablet" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "tablet" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Tablet view"
             >
@@ -67,7 +75,7 @@ export function AdPreviewSimulatorModal({
               type="button"
               onClick={() => setPreviewDevice("mobile")}
               className={`p-1.5 rounded-lg text-caption font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
-                previewDevice === "mobile" ? "bg-card text-primary shadow-xs" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
+                previewDevice === "mobile" ? "bg-card text-primary shadow-sm" : "text-foreground-subtle hover:bg-muted/80 hover:text-foreground"
               }`}
               aria-label="Mobile view"
             >
@@ -79,7 +87,7 @@ export function AdPreviewSimulatorModal({
 
         <div className="p-4 bg-muted/30 rounded-2xl flex items-center justify-center min-h-[300px]">
           <div
-            className={`bg-card border border-border rounded-2xl p-4 shadow-xs transition-all text-center flex flex-col items-center justify-center gap-2 ${
+            className={`bg-card border border-border rounded-2xl p-4 shadow-sm transition-all text-center flex flex-col items-center justify-center gap-2 ${
               previewDevice === "desktop"
                 ? "w-[480px] h-[260px]"
                 : previewDevice === "tablet"
@@ -108,7 +116,7 @@ export function AdPreviewSimulatorModal({
             Close Simulator
           </button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -6,6 +6,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
     MoreVertical,
+    cn,
     type LucideIcon,
 } from "@esparex/ui";
 
@@ -24,8 +25,6 @@ export type AdminActionMenuProps = {
     className?: string;
 };
 
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
-
 export function AdminActionMenu({
     items,
     align = "end",
@@ -38,7 +37,7 @@ export function AdminActionMenu({
         <DropdownMenu>
             <DropdownMenuTrigger
                 className={cn(
-                    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-foreground-secondary shadow-xs transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer",
+                    "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-foreground-secondary shadow-sm transition-colors hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer",
                     className
                 )}
                 aria-label={ariaLabel}
@@ -54,7 +53,7 @@ export function AdminActionMenu({
                             onClick={item.onClick}
                             disabled={item.disabled}
                             variant={item.variant === "danger" ? "destructive" : "default"}
-                            className="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium cursor-pointer rounded-lg"
+                            className="flex items-center gap-2 px-2.5 py-1.5 text-caption font-medium cursor-pointer rounded-lg"
                         >
                             {Icon && <Icon size={14} className="shrink-0" />}
                             <span>{item.label}</span>

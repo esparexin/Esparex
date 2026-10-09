@@ -24,7 +24,6 @@ export type SchedulerJobName =
 
 type SchedulerProcessor = (job: Job<TraceableJobData>) => Promise<unknown>;
 
-
 const shouldDisableSchedulerQueue =
     env.NODE_ENV === 'test' && !env.ALLOW_SCHEDULER_QUEUE;
 
@@ -96,7 +95,6 @@ export const registerSchedulerJobProcessors = async (
     ].filter(Boolean));
 };
 
-
 export const registerSchedulerRepeatableJobs = async () => {
     if (shouldDisableSchedulerQueue || !schedulerQueue) return;
 
@@ -140,5 +138,5 @@ export const closeSchedulerQueue = async () => {
     processorsRegistered = false;
 };
 
-export { shouldDisableSchedulerQueue, schedulerRepeatCrons };
+export { shouldDisableSchedulerQueue};
 export default schedulerQueue;

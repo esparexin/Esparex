@@ -6,12 +6,11 @@ import {
 import {
     getSystemConfigForRead,
     updateSystemConfigSections
-} from '@esparex/core/services/SystemConfigService';
+} from '@esparex/core';
 import { logAdminAction } from '../../utils/adminLogger';
+import { emailService, renderEmailLayout } from '@esparex/core/domains/notifications';
 
 type AuthenticatedRequest = Request & { user?: { _id?: string } };
-
-
 
 /**
  * Mask sensitive fields in the configuration object
@@ -113,7 +112,7 @@ export const updateSystemConfig = async (req: Request, res: Response) => {
         const adminId = adminIdRaw ? String(adminIdRaw) : undefined;
         const { config, updatedSections } = await updateSystemConfigSections(updates, adminId);
 
-        await logAdminAction(req, 'UPDATE_SYSTEM_CONFIG', 'Config', 'global', { sections: updatedSections });
+        await logAdminAction({ req, action: 'UPDATE_SYSTEM_CONFIG', targetType: 'Config', targetId: 'global', metadata: { sections: updatedSections }});
 
         const maskedConfig = maskSecrets(config.toJSON ? config.toJSON() : config);
         sendSuccessResponse(res, maskedConfig, 'System configuration updated successfully');
@@ -133,7 +132,7 @@ export const sendTestEmail = async (req: Request, res: Response) => {
             return sendAdminError(req, res, 'Valid recipient email address is required', 400);
         }
 
-        const { emailService } = await import('@esparex/core/domains/notifications/application/EmailService');
+        
 
         // Probe the SMTP server before attempting a send — surfaces auth/TLS errors immediately
         const verifyResult = await emailService.verify();
@@ -142,7 +141,7 @@ export const sendTestEmail = async (req: Request, res: Response) => {
             return sendAdminError(req, res, `SMTP connection failed: ${diagnostic}`, 400);
         }
 
-        const { renderEmailLayout } = await import('@esparex/core/domains/notifications/templates/EmailLayout');
+        
         const testHtml = renderEmailLayout({
             title: 'Esparex SMTP Diagnostic Probe',
             preheader: 'This is a test email confirming that your Esparex SMTP service is active.',
@@ -169,7 +168,7 @@ export const sendTestEmail = async (req: Request, res: Response) => {
             return sendAdminError(req, res, `SMTP send failed: ${detail}`, 502);
         }
 
-        await logAdminAction(req, 'TEST_SMTP_EMAIL', 'Config', 'notifications.email', { recipient: target, messageId: result.messageId });
+        await logAdminAction({ req, action: 'TEST_SMTP_EMAIL', targetType: 'Config', targetId: 'notifications.email', metadata: { recipient: target, messageId: result.messageId }});
         sendSuccessResponse(res, { messageId: result.messageId, recipient: target }, `Test email sent successfully to ${target}`);
     } catch (error) {
         return sendAdminError(req, res, error);

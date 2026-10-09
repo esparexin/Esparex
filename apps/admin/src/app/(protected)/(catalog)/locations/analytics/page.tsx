@@ -17,6 +17,7 @@ import {
     updateSearchParams,
 } from "@/lib/urlSearchParams";
 import { MapPin, TrendingUp, BarChart2, Users, Search, Flame } from "@esparex/ui";
+import { formatStableNumber } from "@esparex/shared";
 
 function LocationAnalyticsPageContent({
     initialCity,
@@ -136,13 +137,13 @@ function LocationAnalyticsPageContent({
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 rounded-xl border border-border shadow-xs">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
                         <input
                             type="text"
                             placeholder="Filter by city..."
-                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="w-full pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                             value={cityInput}
                             onChange={(e) => setCityInput(e.target.value)}
                         />
@@ -150,12 +151,12 @@ function LocationAnalyticsPageContent({
                     <input
                         type="text"
                         placeholder="Filter by district..."
-                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="w-full px-4 py-2 bg-background border border-input rounded-lg text-body-lg md:text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={districtInput}
                         onChange={(e) => setDistrictInput(e.target.value)}
                     />
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialState}
                         onChange={(e) => replaceQueryState({ state: e.target.value || null })}
                     >
@@ -167,7 +168,7 @@ function LocationAnalyticsPageContent({
                         ))}
                     </select>
                     <select
-                        className="bg-background border border-input text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        className="bg-background border border-input text-body-lg md:text-body text-foreground rounded-lg py-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         value={initialCountry}
                         onChange={(e) => replaceQueryState({ country: e.target.value || null })}
                     >
@@ -177,13 +178,13 @@ function LocationAnalyticsPageContent({
                 </div>
 
                 {(initialCity || initialDistrict || initialState || initialCountry) && (
-                    <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                    <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-body text-primary">
                         Analytics cards and charts are scoped to the selected hierarchy filters.
                     </div>
                 )}
 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-body font-medium">
                         {error}
                     </div>
                 )}
@@ -203,7 +204,7 @@ function LocationAnalyticsPageContent({
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <TrendingUp size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Top Cities by Ads</h3>
@@ -228,7 +229,7 @@ function LocationAnalyticsPageContent({
                                 </div>
                             </div>
 
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
                                     <BarChart2 size={18} className="text-primary" />
                                     <h3 className="font-bold text-foreground">Ads by State</h3>
@@ -257,9 +258,9 @@ function LocationAnalyticsPageContent({
                         </div>
 
                         {data.hotZones?.length ? (
-                            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+                            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                                    <Flame size={18} className="text-orange-500" />
+                                    <Flame size={18} className="text-warning" />
                                     <h3 className="font-bold text-foreground">Hot Zones</h3>
                                     <span className="ml-auto text-caption text-foreground-subtle font-medium">High search & ad activity</span>
                                 </div>
@@ -268,7 +269,7 @@ function LocationAnalyticsPageContent({
                                         <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
                                                 <div className="font-semibold text-foreground text-body flex items-center gap-1.5">
-                                                    {zone.isHotZone && <Flame size={13} className="text-orange-500" />}
+                                                    {zone.isHotZone && <Flame size={13} className="text-warning" />}
                                                     {zone.city}
                                                 </div>
                                                 <div className="text-caption text-foreground-subtle">{zone.state}</div>
@@ -313,17 +314,17 @@ function StatCard({ icon, label, value, color }: {
     color: "blue" | "emerald" | "violet";
 }) {
     const colorMap = {
-        blue: "bg-blue-50 text-blue-600",
-        emerald: "bg-emerald-50 text-emerald-600",
-        violet: "bg-violet-50 text-violet-600",
+        blue: "bg-primary/10 text-primary",
+        emerald: "bg-success/10 text-success",
+        violet: "bg-muted text-foreground-secondary",
     };
     return (
-        <div className="bg-card rounded-xl border border-border shadow-xs p-3.5 flex items-center gap-3">
+        <div className="bg-card rounded-xl border border-border shadow-sm p-3.5 flex items-center gap-3">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${colorMap[color]}`}>
                 {icon}
             </div>
             <div>
-                <div className="text-body-lg font-bold text-foreground leading-tight">{value?.toLocaleString() ?? "—"}</div>
+                <div className="text-body-lg font-bold text-foreground leading-tight">{value != null ? formatStableNumber(value) : "—"}</div>
                 <div className="text-tiny font-medium text-foreground-tertiary uppercase tracking-wider">{label}</div>
             </div>
         </div>

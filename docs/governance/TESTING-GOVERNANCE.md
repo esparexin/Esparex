@@ -12,7 +12,7 @@
 | Integration (core/backend) | supertest/mongodb-memory | per domain contract |
 | E2E | Playwright (restored Wave 5) | module journeys J01–J19 + admin |
 | A11y | axe-core + keyboard smoke | every release (AGENTS) |
-| Visual | Playwright screenshots / visual QA matrix (23 viewports) | `docs/audits/visual-qa-report.md` |
+| Visual | Playwright screenshots / visual QA matrix (23 viewports) | CI artifacts + PR evidence |
 | Performance | Lighthouse CI + k6 (Wave 5) | budgets: LCP<2.5s, CLS<0.1, INP<200ms |
 
 > **Gap status**: `apps/web` tests exist but excluded from `npm test`/CI (V2-1 — Wave 4, Small); admin currently 0 unit tests; contracts/ui/shared 0 tests (Wave 4 adds minimum).

@@ -18,8 +18,8 @@ export function DescriptionSection() {
                 name="description"
                 render={({ field }) => (
                     <div className="flex flex-col gap-1.5">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                            <FieldLabel required className="text-caption sm:text-small font-medium leading-snug text-foreground-secondary">
+                        <div className="flex items-center justify-between gap-2">
+                            <FieldLabel required className="text-small font-medium leading-snug text-foreground-secondary">
                                 Description
                             </FieldLabel>
                             {isAiAvailable && (
@@ -41,7 +41,7 @@ export function DescriptionSection() {
                                 rows={3}
                                 placeholder="Describe the condition, issues, and what's included..."
                                 maxLength={MAX_AD_DESCRIPTION_CHARS}
-                                className="min-h-[88px] text-body-lg md:text-body font-normal border-border rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary py-2.5 px-3 leading-relaxed"
+                                className="min-h-[88px] text-body-lg md:text-body font-normal border-border rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary py-2.5 px-3 leading-relaxed"
                             />
                         </FieldControl>
                         <div className="flex justify-between items-start mt-1">

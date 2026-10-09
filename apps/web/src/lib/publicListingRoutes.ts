@@ -1,7 +1,7 @@
-import { LISTING_TYPE } from "@esparex/contracts";
+import { LISTING_TYPE, type ListingTypeValue } from "@esparex/contracts";
 import { generateAdSlug } from "@/lib/slug";
 
-export type PublicListingType = "ad" | "service" | "spare_part";
+type PublicListingType = ListingTypeValue;
 
 export interface PublicListingRouteInput {
     id?: string | number | null;
@@ -18,13 +18,28 @@ const LISTING_BASE_PATH: Record<PublicListingType, string> = {
 };
 
 const normalizePublicListingType = (value: unknown): PublicListingType => {
-    if (value === LISTING_TYPE.SERVICE || value === "service") {
-        return "service";
+    if (!value) return LISTING_TYPE.AD;
+    if (value === LISTING_TYPE.SERVICE) {
+        return LISTING_TYPE.SERVICE;
     }
-    if (value === LISTING_TYPE.SPARE_PART || value === "spare_part") {
-        return "spare_part";
+    if (value === LISTING_TYPE.SPARE_PART) {
+        return LISTING_TYPE.SPARE_PART;
     }
-    return "ad";
+    if (typeof value === "string") {
+        const normalized = value.toLowerCase().trim().replace(/-/g, "_");
+        if (normalized === LISTING_TYPE.SERVICE || normalized === "services") {
+            return LISTING_TYPE.SERVICE;
+        }
+        if (
+            normalized === LISTING_TYPE.SPARE_PART ||
+            normalized === "spare_parts" ||
+            normalized === "spareparts" ||
+            normalized === "sparepart"
+        ) {
+            return LISTING_TYPE.SPARE_PART;
+        }
+    }
+    return LISTING_TYPE.AD;
 };
 
 export const buildPublicListingDetailRoute = ({

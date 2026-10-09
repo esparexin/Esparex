@@ -54,7 +54,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
       </label>
       {opts?.rows ? (
         <textarea
-          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body-lg md:text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
           rows={opts.rows}
           value={form[key]}
           onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
@@ -63,7 +63,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
       ) : (
         <input
           type={opts?.type ?? "text"}
-          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body-lg md:text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           value={form[key]}
           onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
           disabled={loading}

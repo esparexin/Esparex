@@ -30,11 +30,11 @@ export function CatalogDeleteModal({
                 {customContent ? (
                     customContent
                 ) : (
-                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                    <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/10 p-4">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
                         <div>
-                            <p className="text-sm font-semibold text-red-700">Delete confirmation</p>
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="text-body font-semibold text-destructive">Delete confirmation</p>
+                            <p className="mt-1 text-body text-destructive">
                                 Are you sure you want to delete <strong>&ldquo;{itemName}&rdquo;</strong>?
                             </p>
                         </div>

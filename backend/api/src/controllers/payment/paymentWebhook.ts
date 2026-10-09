@@ -1,10 +1,10 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
 // backend/src/controllers/admin/paymentWebhook.ts
 import { Request, Response } from "express";
-import { enqueuePaymentProcessing } from "@esparex/core/queues/paymentQueue";
-import { logBusiness } from "@esparex/core/utils/logger";
+import { enqueuePaymentProcessing } from "@esparex/core";
+import { logBusiness } from "@esparex/core";
 
 /**
  * 📡 IDEMPOTENT PAYMENT WEBHOOK CONTROLLER

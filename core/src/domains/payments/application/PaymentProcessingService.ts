@@ -12,9 +12,19 @@ import logger, { logBusiness, logSecurity } from '../../../utils/logger';
 import AdminLog from '../../../models/AdminLog';
 import { lifecycleEvents } from '../../../events/LifecycleEventDispatcher';
 import { DashboardFacade } from './DashboardFacade';
+import type {
+    ProcessPaymentResponse,
+} from '@esparex/contracts';
+
+/**
+ * Phase 3a (§5): the local `PaymentProcessResult` / `ProcessPaymentResponse`
+ * types are relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3) and imported here. This is the result contract of the
+ * payments-domain orchestration, consumed across the core/backend boundary.
+ * Deletion of the local names (unused beyond this file) is Phase 4 (§10).
+ */
 
 export type PaymentProcessingSource = 'webhook' | 'recovery';
-export type PaymentProcessResult = 'processed' | 'duplicate' | 'missing' | 'failed';
 
 export type ProcessPaymentParams = {
     gatewayPaymentId?: string;
@@ -23,13 +33,6 @@ export type ProcessPaymentParams = {
     gatewayCurrency?: string;
     source: PaymentProcessingSource;
     event?: string;
-};
-
-export type ProcessPaymentResponse = {
-    result: PaymentProcessResult;
-    transactionId?: string;
-    invoiceId?: string;
-    reason?: string;
 };
 
 /**

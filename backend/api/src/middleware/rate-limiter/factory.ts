@@ -1,10 +1,10 @@
 import rateLimit, { type Store } from 'express-rate-limit';
 import RedisStore, { type RedisReply } from 'rate-limit-redis';
-import redisClient from '@esparex/core/config/redis';
+import { redis as redisClient } from '@esparex/core';
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
-import { recordOtpAbuseSignal, recordRateLimitSignal } from '@esparex/core/utils/securityMonitoring';
+import { logger } from '@esparex/core';
+import { env } from '@esparex/core';
+import { recordOtpAbuseSignal, recordRateLimitSignal } from '@esparex/core';
 import { sendErrorResponse } from '../../utils/errorResponse';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
@@ -23,7 +23,7 @@ export const resolveRequestIp = (req: Request): string => req.ip || req.socket?.
 
 type RequestWithOptionalUser = Request & { user?: { _id?: unknown } };
 
-export const resolveUserOrMobile = (req: RequestWithOptionalUser): string | undefined => {
+const resolveUserOrMobile = (req: RequestWithOptionalUser): string | undefined => {
     const userId = req.user?._id ? String(req.user._id) : undefined;
     if (userId) return userId;
     const body = req.body as { mobile?: unknown; email?: unknown } | undefined;

@@ -1,14 +1,14 @@
-import logger from '@esparex/core/utils/logger';
-import { Business, ApiResponse, Role } from "@esparex/contracts";
-import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { logger } from '@esparex/core';
+import { Business, ApiResponse } from "@esparex/contracts";
+import { normalizeRole, isAdminRole } from '@esparex/core';
 import { respond } from "../../utils/respond";
 import { Request, Response } from 'express';
-import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
-import * as businessSearchService from '@esparex/core/services/business/BusinessSearchService';
+import * as businessCoreService from '@esparex/core';
+import * as businessSearchService from '@esparex/core';
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { LISTING_TYPE } from "@esparex/contracts";
-import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
+import { isBusinessPublishedStatus } from '@esparex/core';
 import {
     BusinessStatsPayload,
     findBusinessByIdentifier,
@@ -90,7 +90,7 @@ export const getBusinessById = async (req: Request, res: Response) => {
         const user = req.user;
         const userRole = normalizeRole(user?.role);
         const isOwner = Boolean(user && business.userId.toString() === user._id.toString());
-        const isAdmin = Boolean(user && (userRole === Role.ADMIN || userRole === Role.SUPER_ADMIN || user.isAdmin));
+        const isAdmin = Boolean(user && (isAdminRole(userRole) || user.isAdmin));
 
         if (!isBusinessPublishedStatus(business.status) && !isOwner && !isAdmin) {
             sendErrorResponse(req, res, 403, 'Profile unverified', {

@@ -5,8 +5,8 @@ import { AppError } from '../../../../../shared-kernel/errors/AppError';
 import { createAd } from '../../ad/AdOrchestrator';
 import { updateAdTransactional, extendListingExpiry } from '../../mutations/AdMutationService';
 import { bulkResolveReports } from '../../../../analytics/application/services/ReportService';
-import { mutateStatus } from '../../../../../services/lifecycle/StatusMutationService';
-import { computeActiveExpiry } from '../../../../../services/lifecycle/AdStatusService';
+import { mutateStatus } from '../../lifecycle/StatusMutationService';
+import { computeActiveExpiry } from '../../lifecycle/AdStatusService';
 import { getModerationListingById } from '../ListingModerationQueryService';
 import type { AdminLogFn } from './types';
 import {

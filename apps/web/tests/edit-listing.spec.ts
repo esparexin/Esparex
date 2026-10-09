@@ -212,6 +212,38 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
                 }),
             })
         );
+
+        // Entitlements & Notifications mocks (prevents background 500s during edit session)
+        await page.route(/\/api\/v1\/entitlements/, (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify(envelope({ allowed: true, quota: 10, remaining: 10 })),
+            })
+        );
+        await page.route(/\/api\/v1\/notifications/, (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify(envelope([])),
+            })
+        );
+
+        // Analytics & Location telemetry mocks
+        await page.route(/\/api\/v1\/locations\/log-event/, (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({ success: true }),
+            })
+        );
+        await page.route(/\/api\/v1\/analytics/, (route) =>
+            route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify({ success: true }),
+            })
+        );
     });
 
     // -------------------------------------------------------------------------
@@ -333,16 +365,25 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await expect(removeButton).toBeVisible();
         await removeButton.click();
 
+        // Confirm removal in the AlertDialog (replaced window.confirm in popup remediation)
+        const confirmDialog = page.locator('[role="alertdialog"]');
+        await expect(confirmDialog).toBeVisible({ timeout: 5_000 });
+        await confirmDialog.locator('button:has-text("Remove")').click();
+
         // Upload a replacement image (target gallery input specifically to avoid strict mode violation with camera input)
         const fileInput = page.locator('input[type="file"][multiple]').or(page.locator('input[type="file"]').last()).first();
+        const validImageBuffer = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+            "base64"
+        );
         await fileInput.setInputFiles({
-            name:     "new-image.jpg",
-            mimeType: "image/jpeg",
-            buffer:   Buffer.from("fake-image-data"),
+            name:     "new-image.png",
+            mimeType: "image/png",
+            buffer:   validImageBuffer,
         });
 
         // Wait for the blob preview to confirm async compression/processing is done
-        await expect(page.locator('img[src^="blob:"]').first()).toBeVisible({ timeout: 10_000 });
+        await expect(page.locator('img[src^="blob:"]').or(page.locator('img[alt^="Photo 2"]')).first()).toBeVisible({ timeout: 10_000 });
 
         const saveBtn = page.locator('button:has-text("Save Changes")');
         await saveBtn.click();
@@ -404,7 +445,7 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await saveBtn.click();
 
         await expect(
-            page.locator("text=Ad Updated").or(page.locator("text=Ad Submitted"))
+            page.locator("text=Device Updated").or(page.locator("text=Device Submitted"))
         ).toBeVisible({ timeout: 10_000 });
 
         const doneBtn = page.locator('button:has-text("Done")');

@@ -12,6 +12,9 @@ export * from './application/RevenueAnalytics';
 // Domain Policies
 export * from './domain/policies/PlanEngine';
 
+// Domain Utilities
+export * from './utils/gst';
+
 // Ports
 export * from './ports/PaymentGatewayPort';
 export * from './ports/DocumentStoragePort';
@@ -22,3 +25,8 @@ export * from './ports/WalletRepositoryPort';
 export * from './ports/PlanRepositoryPort';
 export * from './ports/UserReadRepositoryPort';
 export * from './ports/BusinessReadRepositoryPort';
+
+// ─── P1-10: consolidated re-exports (2026-10-07) ───
+export * from './application/DashboardFacade';
+export * from './application/PlanService';
+export { calculateUserPlan } from './application/PlanService';

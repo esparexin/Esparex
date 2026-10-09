@@ -18,16 +18,16 @@ Esparex is an npm workspaces monorepo with the following structure:
 - `core/`: The "Brain" — core business domains (`core/src/domains/`), outbound adapters (`core/src/adapters/`), and composition root factories (`core/src/composition/`). See [ARCHITECTURE.md](ARCHITECTURE.md).
 - `shared/`: SSOT for types, enums, and interfaces
 - `scripts/`: Repo governance, guardrails, and CI tooling
-- `ai-governance`: Canonical instructions for repo-aware AI agents
+- `.agents/`: Canonical execution architecture and skills for repo-aware AI agents (governed by [AGENTS.md](AGENTS.md))
 - `docs/`: [Master Documentation Registry](docs/README.md)
-  - **Living UI Technical Specification**: [`docs/architecture/UI_TECHNICAL_SPECIFICATION.md`](docs/architecture/UI_TECHNICAL_SPECIFICATION.md)
-  - **Sprint 1 UI Audit Milestone**: [`docs/audits/UI_FOUNDATION_AUDIT.md`](docs/audits/UI_FOUNDATION_AUDIT.md)
+  - **UI Technical Specification**: [`docs/architecture/UI_TECHNICAL_SPECIFICATION.md`](docs/architecture/UI_TECHNICAL_SPECIFICATION.md)
+  - **UI Foundation Blueprint**: [`docs/architecture/ui-foundation-blueprint.md`](docs/architecture/ui-foundation-blueprint.md)
 - `ARCHITECTURE.md`: Developer-facing guide to Ports & Adapters, UnitOfWork, Caching, and Composition Root conventions.
 
 ## UI Documentation
 
-- [UI Technical Specification (Living SSOT)](docs/architecture/UI_TECHNICAL_SPECIFICATION.md)
-- [Sprint 1 UI Foundation Audit (Immutable Milestone)](docs/audits/UI_FOUNDATION_AUDIT.md)
+- [UI Technical Specification (Cross-Platform Implementation Guide)](docs/architecture/UI_TECHNICAL_SPECIFICATION.md)
+- [UI Foundation Blueprint (Modernization Reference)](docs/architecture/ui-foundation-blueprint.md)
 
 > **Workspace Governance Rule**: Every top-level directory in this repository must either be a registered npm workspace (listed in the root `package.json` `workspaces` array), or explicitly documented as an infrastructure/runtime wrapper in this README. Undocumented directories are not permitted.
 >

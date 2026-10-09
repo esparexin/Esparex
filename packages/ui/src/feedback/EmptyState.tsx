@@ -38,7 +38,7 @@ export function EmptyState({
           className={cn(
             isSimple
               ? "mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-muted text-muted-foreground"
-              : "mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xs"
+              : "mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm"
           )}
         >
           <Icon className={isSimple ? "h-5 w-5" : "h-7 w-7"} />
@@ -47,8 +47,8 @@ export function EmptyState({
       <h3
         className={cn(
           isSimple
-            ? "text-body-lg sm:text-h4 font-semibold text-foreground tracking-tight"
-            : "text-body-lg font-bold text-foreground md:text-h4"
+            ? "text-body-lg font-semibold text-foreground tracking-tight"
+            : "text-body-lg font-bold text-foreground tracking-tight"
         )}
       >
         {title}
@@ -57,7 +57,7 @@ export function EmptyState({
         <p
           className={cn(
             isSimple
-              ? "mt-1 max-w-sm text-caption sm:text-small text-muted-foreground leading-normal"
+              ? "mt-1 max-w-sm text-caption text-muted-foreground leading-normal"
               : "mt-1.5 max-w-sm text-caption text-muted-foreground leading-relaxed"
           )}
         >

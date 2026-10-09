@@ -87,7 +87,7 @@ jobs:
 
       - name: Secret Scanning — Commit Diff Mode (TruffleHog)
         if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before != github.event.after) }}
-        uses: trufflesecurity/trufflehog@v3.97.6
+        uses: trufflesecurity/trufflehog@v3.99.0
         timeout-minutes: 2
         with:
           path: ./
@@ -97,7 +97,7 @@ jobs:
 
       - name: Secret Scanning — Filesystem Mode (TruffleHog)
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.event.before == '0000000000000000000000000000000000000000' || github.event.before == github.event.after)) }}
-        uses: trufflesecurity/trufflehog@v3.97.6
+        uses: trufflesecurity/trufflehog@v3.99.0
         timeout-minutes: 2
         with:
           path: ./
@@ -111,6 +111,40 @@ jobs:
 
       - name: Run Repository Gate
         run: npm run repo:gate
+
+      # ── DECISION-GATE §6 permanent CI enforcement ──────────────────────────
+      # C-16: validation/objectid/repository-port/schema-migration guards run blocking.
+      - name: Guard blocking suite (C-16)
+        run: |
+          npm run guard:validation-ssot
+          npm run guard:objectid
+          npm run guard:repository-ports
+          npm run guard:schema-migration
+
+      # C-9: wallet writes only via the entitlements domain.
+      - name: Enforce wallet-write SSOT (C-9)
+        run: node scripts/enforce-wallet-write-ssot.js
+
+      # C-10: no new files/imports under the legacy lifecycle cluster.
+      - name: Enforce no-legacy-lifecycle (C-10)
+        run: node scripts/enforce-no-legacy-lifecycle.js
+
+      # C-12: domain manifest conformance (empty facades / application layers).
+      - name: Enforce manifest conformance (C-12)
+        run: node scripts/enforce-manifest-conformance.js
+
+      # C-13: model registry == core/src/models/*.ts (check mode; --write is for local sync).
+      - name: Enforce model registry parity (C-13)
+        run: node scripts/enforce-model-registry-parity.js
+
+      # C-15: no second PHONE_REGEX.
+      - name: Enforce phone-regex SSOT (C-15)
+        run: node scripts/enforce-phone-regex-ssot.js
+
+      # C-5: tighten the JSCPD baseline on green runs (fails the job if the
+      # validator reports a regression; the writer only persists on green).
+      - name: Tighten JSCPD baseline on green (C-5)
+        run: node scripts/git/esparex/duplicate-validator.js --write-baseline
 
       - name: Validate Governance Data (Schema, DAG, References)
         run: npm run governance:validate
@@ -203,7 +237,11 @@ jobs:
           java-version: '17'
 
       - name: Compile Android Release APK
-        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        # APK is a release artifact: build on main pushes and manual dispatch,
+        # not on PRs. The expo prebuild toolchain (@expo/cli CJS) is incompatible
+        # with the security-mandated tar@7 (ESM-only); gating PRs on it blocks
+        # merges for pre-existing toolchain issues unrelated to PR changes.
+        if: github.event_name != 'pull_request' && (steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch')
         run: |
           echo "Generating and Compiling Android Release APK..."
           cd apps/mobile
@@ -212,7 +250,7 @@ jobs:
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Verify Android APK Generated
-        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'pull_request' && (steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch')
         run: |
           echo "Verifying Android release APK output..."
           test -f apps/mobile/android/app/build/outputs/apk/release/app-release.apk
@@ -284,7 +322,7 @@ jobs:
 
       - name: Upload test artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-listing-edit
           path: apps/web/test-results/

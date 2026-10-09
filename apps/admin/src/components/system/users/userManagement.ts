@@ -36,7 +36,7 @@ export function getUserDisplayName(user: Pick<User, "name" | "mobile" | "email">
     return user.name || user.mobile || user.email || "Unknown";
 }
 
-export function normalizeManagedUserStatus(status?: User["status"]) {
+function normalizeManagedUserStatus(status?: User["status"]) {
     return normalizeUserStatus(status, USER_STATUS.LIVE);
 }
 

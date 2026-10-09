@@ -68,7 +68,7 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
     const [expandedKey, setExpandedKey] = useState<string | null>("post_ad_title");
 
     return (
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
                     <Cpu size={16} />
@@ -95,7 +95,7 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
                     return (
                         <div
                             key={key}
-                            className="rounded-lg border border-border bg-muted/20 overflow-hidden transition-all shadow-xs"
+                            className="rounded-lg border border-border bg-muted/20 overflow-hidden transition-all shadow-sm"
                         >
                             {/* Accordion Header */}
                             <div

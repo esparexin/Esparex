@@ -66,7 +66,7 @@ export function LocationSelectorPanel({
                     <Input
                         id="location-selector-search-input"
                         placeholder="Search city, area or district..."
-                        className="h-11 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-xs hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+                        className="h-11 rounded-xl pl-9 pr-9 text-body-lg md:text-body bg-background border border-border shadow-sm hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={onKeyDown}
@@ -89,7 +89,7 @@ export function LocationSelectorPanel({
                     type="button"
                     variant="outline"
                     className={cn(
-                        "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
+                        "h-auto min-h-11 w-full justify-between rounded-xl border-primary/25 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
                         isDetecting && "border-primary/50 bg-primary/10"
                     )}
                     disabled={isDetecting || !!successFeedback}

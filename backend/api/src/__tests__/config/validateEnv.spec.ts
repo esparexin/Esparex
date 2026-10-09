@@ -2,13 +2,14 @@ import {
     validateProductionEnvOrThrow,
     validateS3BucketEnvAliasOrThrow,
     validateS3RuntimeEnvOrThrow
-} from '@esparex/core/config/validateEnv';
-import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
+} from '@esparex/core';
+import { bootstrapLogger } from '@esparex/core';
 
 jest.mock('@esparex/core/utils/bootstrapLogger', () => ({
     warn: jest.fn(),
     info: jest.fn(),
     error: jest.fn(),
+    debug: jest.fn(),
 }));
 
 const VALID_ACCESS_KEY_ID = 'AKIAIOSFODNN7EXAMPLE';
@@ -16,6 +17,7 @@ const VALID_SECRET_ACCESS_KEY = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
 
 const baseProductionEnv: NodeJS.ProcessEnv = {
     NODE_ENV: 'production',
+    OTP_PROVIDER: 'msg91',
     RAZORPAY_WEBHOOK_SECRET: 'webhook_secret',
     OTP_HASH_SECRET: 'otp_hash_secret',
     JWT_SECRET: 'jwt_secret_value_long_enough_for_tests',
@@ -36,6 +38,20 @@ describe('validateProductionEnvOrThrow', () => {
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
             /^Missing required production environment variables: .*JWT_SECRET/
+        );
+    });
+
+    it('throws when OTP_PROVIDER is missing or not msg91 in production', () => {
+        const missingEnv = { ...baseProductionEnv };
+        delete missingEnv.OTP_PROVIDER;
+
+        expect(() => validateProductionEnvOrThrow(missingEnv)).toThrow(
+            /OTP_PROVIDER must be explicitly configured as "msg91" in production/
+        );
+
+        const testModeEnv = { ...baseProductionEnv, OTP_PROVIDER: 'test' };
+        expect(() => validateProductionEnvOrThrow(testModeEnv)).toThrow(
+            /OTP_PROVIDER must be explicitly configured as "msg91" in production/
         );
     });
 

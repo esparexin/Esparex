@@ -21,7 +21,7 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   }, [admin, loading, error, pathname, router]);
 
   if (loading) {
-    return <div className="p-6 text-sm text-foreground-secondary">Loading admin session...</div>;
+    return <div className="p-6 text-body text-foreground-secondary">Loading admin session...</div>;
   }
 
 
@@ -30,15 +30,15 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   if (error && !admin) {
     return (
       <div className="p-8 text-center max-w-md mx-auto">
-        <h2 className="text-xl font-bold text-rose-600 dark:text-rose-500 mb-4">Connection Error</h2>
-        <p className="text-sm text-muted-foreground mb-6">
+        <h2 className="text-h3 font-bold text-destructive mb-4">Connection Error</h2>
+        <p className="text-body text-muted-foreground mb-6">
           We&apos;re having trouble connecting to the administration server.
           <br />
           {error.message}
         </p>
         <button
           onClick={() => refresh()}
-          className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
+          className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-body hover:opacity-90 transition-opacity shadow-sm"
         >
           Try Again
         </button>

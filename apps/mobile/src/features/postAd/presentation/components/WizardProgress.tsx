@@ -18,9 +18,9 @@ export const WizardProgress = ({ currentStep }: WizardProgressProps) => {
   const currentMeta = WIZARD_STEPS[currentStep];
 
   return (
-    <View className="px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+    <View className="px-4 py-3 bg-card border-b border-border">
       {/* Step label */}
-      <AppText variant="label" className="text-slate-500 dark:text-slate-400 text-center mb-3">
+      <AppText variant="label" className="text-foreground-secondary text-center mb-3">
         Step {currentStep + 1} of {WIZARD_STEPS.length} — {currentMeta.label}
       </AppText>
 
@@ -36,10 +36,10 @@ export const WizardProgress = ({ currentStep }: WizardProgressProps) => {
               className={[
                 'h-2 rounded-full',
                 isActive
-                  ? 'w-8 bg-sky-500'
+                  ? 'w-8 bg-primary'
                   : isCompleted
-                  ? 'w-2 bg-sky-300 dark:bg-sky-700'
-                  : 'w-2 bg-slate-200 dark:bg-slate-700',
+                  ? 'w-2 bg-primary/40'
+                  : 'w-2 bg-muted',
               ].join(' ')}
               accessibilityLabel={`Step ${step + 1}${isCompleted ? ', completed' : isActive ? ', current' : ''}`}
             />

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
 import {
@@ -25,8 +25,8 @@ import {
   messagesQuerySchema,
   chatUploadUrlSchema,
   type AllowedChatMimeType,
-} from '@esparex/core/validators/chat.validator';
-import { generatePresignedUploadUrl } from '@esparex/core/utils/s3';
+} from '@esparex/core';
+import { generatePresignedUploadUrl } from '@esparex/core';
 
 const MIME_TO_EXT: Record<AllowedChatMimeType, string> = {
   'image/jpeg': 'jpg',

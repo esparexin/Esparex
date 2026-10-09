@@ -29,15 +29,20 @@ function areAdCardGridPropsEqual(
   prevProps: AdCardGridProps,
   nextProps: AdCardGridProps
 ): boolean {
+  const prevImg = (prevProps.ad as { image?: string }).image ?? (prevProps.ad as { images?: string[] }).images?.[0];
+  const nextImg = (nextProps.ad as { image?: string }).image ?? (nextProps.ad as { images?: string[] }).images?.[0];
+
   return (
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.isSaved === nextProps.isSaved &&
     isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
     prevProps.ad.title === nextProps.ad.title &&
     prevProps.ad.price === nextProps.ad.price &&
-    prevProps.ad.image === nextProps.ad.image &&
+    prevImg === nextImg &&
     prevProps.responsiveCompactList === nextProps.responsiveCompactList &&
-    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType
+    (prevProps.ad as Record<string, unknown>).listingType === (nextProps.ad as Record<string, unknown>).listingType &&
+    (prevProps.ad as Record<string, unknown>).deviceCondition === (nextProps.ad as Record<string, unknown>).deviceCondition &&
+    (prevProps.ad as Record<string, unknown>).condition === (nextProps.ad as Record<string, unknown>).condition
   );
 }
 
@@ -52,7 +57,7 @@ export const AdCardGrid = memo(function AdCardGrid({
   className,
   responsiveCompactList = false,
 }: AdCardGridProps) {
-  const { adRecord, href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { adRecord, href: resolvedHref, imageUrl, adId, handleCardClick, handleKeyDown } =
     useAdCardBase({ ad, href, onClick });
 
   const isBusiness = Boolean(adRecord.isBusiness);
@@ -60,16 +65,15 @@ export const AdCardGrid = memo(function AdCardGrid({
   return (
     <AdCardShell
       ad={ad}
-      resolvedHref={resolvedHref}
-      useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
+      handleKeyDown={handleKeyDown}
       className={cn(
-        "duration-200 border border-border bg-card text-card-foreground shadow-2xs transition-all hover:shadow-xs hover:border-border-hover",
+        "duration-200 border border-border bg-card text-card-foreground shadow-sm transition-all hover:shadow-sm hover:border-border-hover",
         responsiveCompactList
           ? "flex flex-row sm:flex-col items-stretch rounded-xl sm:rounded-2xl"
           : "flex flex-col rounded-2xl hover:-translate-y-0.5",
         isSpotlightAd(ad) &&
-          "ring-2 ring-amber-400/50 shadow-xs",
+          "ring-2 ring-amber-400/50 shadow-sm",
         className
       )}
     >
@@ -114,7 +118,7 @@ export const AdCardGrid = memo(function AdCardGrid({
             : "p-3 pt-2 sm:p-3.5 sm:pt-2.5"
         )}
       >
-        <AdCardMeta ad={ad} variant="default" />
+        <AdCardMeta ad={ad} href={resolvedHref} variant="default" />
       </CardContent>
     </AdCardShell>
   );

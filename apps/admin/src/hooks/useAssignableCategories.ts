@@ -29,7 +29,7 @@ export function useAssignableCategories(categories: CategoryData[], condition?: 
     }, [categories, condition]);
 }
 
-export const categorySupportsListingType = (category: Pick<CategoryData, "listingType">, listingType: ListingTypeValue) =>
+const categorySupportsListingType = (category: Pick<CategoryData, "listingType">, listingType: ListingTypeValue) =>
     Array.isArray(category.listingType) && category.listingType.includes(listingType);
 
 export const categorySupportsAds = (category: Pick<CategoryData, "listingType">) =>

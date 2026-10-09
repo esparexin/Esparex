@@ -9,7 +9,6 @@ import {
   Package,
   Search,
   Settings,
-  Sparkles,
   CreditCard,
   ShoppingBag,
 } from "@esparex/ui";
@@ -21,11 +20,11 @@ import type { User as AppUser } from "@esparex/contracts";
 import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 
-export type NavigationRole = "guest" | "user" | "business";
+type NavigationRole = "guest" | "user" | "business";
 export type NavigationSurface = "profile-dropdown" | "mobile-drawer" | "mobile-bottom-nav";
-export type NavigationSection = "main" | "account";
+type NavigationSection = "main" | "account";
 
-export interface WebNavigationItem {
+interface WebNavigationItem {
   id: string;
   label: string;
   slug: string;
@@ -80,6 +79,10 @@ export const PROFILE_TAB_ITEMS: ProfileTabItem[] = [
     { value: "settings", label: "Settings", icon: Settings },
   ];
 
+// SSOT: /account/wallet, /account/plans, /account/purchases all render the
+// same PlansTab (OVERVIEW / BUY_PLANS / INVOICES). Tab values "plans" and
+// "buyplans" are historic names — do not rename without migrating
+// ProfileTabContentRouter, AccountPageShell, and MobileAccountBottomNav.
 export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>> =
   Object.freeze({
     personal: "profile",
@@ -128,7 +131,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "profile",
-    label: "Edit Profile",
+    label: "Account",
     slug: "profile",
     icon: UserIcon,
     roles: ["user", "business"],
@@ -158,7 +161,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "favorites",
-    label: "Favorites",
+    label: "Saved Ads",
     slug: "saved-ads",
     icon: Heart,
     roles: ["user", "business"],
@@ -170,7 +173,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
     id: "smart-alerts",
     label: "Smart Alerts",
     slug: "smart-alerts",
-    icon: Sparkles,
+    icon: Bell,
     roles: ["user", "business"],
     showIn: ["profile-dropdown", "mobile-drawer"],
     section: "account",
@@ -218,7 +221,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
   {
     id: "bottom-nav-profile",
-    label: "Profile",
+    label: "Account",
     slug: "account-profile",
     icon: Settings,
     roles: ["guest", "user", "business"],
@@ -228,7 +231,7 @@ const BASE_NAVIGATION: WebNavigationItem[] = [
   },
 ];
 
-export function getNavigationRole(user: AppUser | null): NavigationRole {
+function getNavigationRole(user: AppUser | null): NavigationRole {
   if (!user) return "guest";
   const isBusiness = isBusinessActiveStatus(user.businessStatus);
   return isBusiness ? "business" : "user";
@@ -304,4 +307,19 @@ export function getNavigationSections(items: ResolvedNavigationItem[]) {
     main: items.filter((item) => item.section === "main"),
     account: items.filter((item) => item.section === "account"),
   };
+}
+
+/**
+ * Primary tabs shown in the mobile account bottom navigation (P1-1).
+ * Moved here from the deprecated `MobileAccountBottomNav` so the tab set is
+ * part of the navigation SSOT.
+ */
+export const PRIMARY_PROFILE_TABS: ProfileTabValue[] = ["personal", "mylistings", "messages", "smartalerts"];
+
+/**
+ * Resolves any profile tab to the tab highlighted in the mobile account
+ * bottom navigation (secondary tabs collapse to "more").
+ */
+export function resolveBottomNavActiveTab(activeTab: ProfileTabValue): ProfileTabValue {
+  return PRIMARY_PROFILE_TABS.includes(activeTab) ? activeTab : "more";
 }

@@ -1,14 +1,19 @@
 import * as React from "react";
 import { cn } from "../utils";
+import type { AdProviderConfig } from "@esparex/contracts";
+import { AD_FALLBACK_STRATEGY } from "@esparex/contracts";
+
+export type GoogleAdFormat = NonNullable<AdProviderConfig["googleFormat"]>;
+export type GoogleAdFallbackStrategy = (typeof AD_FALLBACK_STRATEGY)[keyof typeof AD_FALLBACK_STRATEGY];
 
 export interface GoogleAdUnitProps {
   slot: string;
   client?: string;
-  format?: "auto" | "fluid" | "rectangle" | "vertical" | "horizontal";
+  format?: GoogleAdFormat;
   responsive?: boolean;
   className?: string;
   ariaLabel?: string;
-  fallbackStrategy?: "collapse" | "internal_promo";
+  fallbackStrategy?: GoogleAdFallbackStrategy;
   fallbackContent?: React.ReactNode;
 }
 
@@ -50,14 +55,14 @@ export function GoogleAdUnit({
         role="region"
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs text-slate-500",
+          "flex items-center justify-center rounded-xl border border-dashed border-border bg-muted p-4 text-center text-caption text-muted-foreground",
           className
         )}
       >
         {fallbackContent || (
           <div>
-            <p className="font-bold text-slate-700">Promote Your Business on Esparex</p>
-            <p className="text-tiny text-slate-500 mt-0.5">Reach thousands of buyers & sellers daily</p>
+            <p className="font-bold text-foreground">Promote Your Business on Esparex</p>
+            <p className="text-tiny text-muted-foreground mt-0.5">Reach thousands of buyers & sellers daily</p>
           </div>
         )}
       </div>

@@ -162,7 +162,7 @@ export function ListingDetailDialogs({
                 void onDeleteConfirm();
               }}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? "Deleting..." : "Delete Ad"}
             </AlertDialogAction>

@@ -3,9 +3,12 @@ import { calculateUserPlan } from '../../payments';
 import { UserPlanModel, PlanModel } from '../../payments';
 import { consumeCredit } from '../../payments';
 import { SmartAlertModel, type SmartAlertDocument } from './SmartAlertService';
-import UserWallet from '../../../models/UserWallet';
-import Entitlement from '../../../models/Entitlement';
-import { syncWalletCycle } from '../../boosts/application/services/AdSlotService';
+import { fetchSmartAlertSlotState } from './smartAlertSlotState';
+// P0-6: all UserWallet writes funnel through the entitlements-owned write API.
+import {
+    resetMonthlyCycleForUser,
+    incrementMonthlyUsage,
+} from '../../entitlements/application/EntitlementWalletWriter';
 import { resolveMasterDataIds } from '../../../utils/masterDataResolver';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 import { GOVERNANCE, MS_IN_DAY } from '../../../config/constants';
@@ -15,26 +18,17 @@ import {
     normalizeLocation,
 } from "../../../services/location/LocationNormalizer";
 import { UnifiedMutationEngine } from '../../../services/mutations/UnifiedMutationEngine';
+import type {
+    SmartAlertCriteriaPayload,
+    SmartAlertPayload,
+} from '@esparex/contracts';
 
-export type SmartAlertCriteriaPayload = {
-    keywords?: string;
-    category?: string;
-    brand?: string;
-    model?: string;
-    categoryId?: unknown;
-    brandId?: unknown;
-    modelId?: unknown;
-    coordinates?: unknown;
-} & Record<string, unknown>;
-
-export type SmartAlertPayload = {
-    criteria?: SmartAlertCriteriaPayload;
-    frequency?: unknown;
-    name?: unknown;
-    coordinates?: unknown;
-    radiusKm?: unknown;
-    notificationChannels?: unknown;
-} & Record<string, unknown>;
+/**
+ * Phase 3a (§5): the local `SmartAlertCriteriaPayload` / `SmartAlertPayload`
+ * types are relocated to `@esparex/contracts` (canonical owner per
+ * DECISION-GATE §3) and imported here. Deletion of the local names (unused
+ * beyond this file) is Phase 4 (§10).
+ */
 
 type AdminContext = { id?: string; _id?: string } | undefined;
 
@@ -187,22 +181,9 @@ export const createSmartAlertMutation = async ({
     }
 
     const planLimit = await resolvePlanLimit(userId);
-    await syncWalletCycle(userId);
+    await resetMonthlyCycleForUser({ userId });
 
-    const [wallet, rawEntitlements] = await Promise.all([
-        UserWallet.findOne({ userId }).lean(),
-        Entitlement.find({
-            userId,
-            type: 'SMART_ALERT_SLOT',
-            status: 'ACTIVE',
-            remaining: { $gt: 0 },
-            $or: [{ expiresAt: { $gte: new Date() } }, { expiresAt: null }],
-        }).lean(),
-    ]);
-
-    const activePaidSlots = rawEntitlements.length > 0
-        ? rawEntitlements.reduce((acc, e) => acc + (typeof e.remaining === 'number' ? e.remaining : 0), 0)
-        : Math.max(0, ((wallet?.smartAlertSlots as number | undefined) || FREE_ALERT_BASE) - FREE_ALERT_BASE);
+    const { wallet, activePaidSlots } = await fetchSmartAlertSlotState(userId);
 
     const monthlyUsed = Number(wallet?.monthlyFreeAlertsUsed || 0);
     const requiresWalletSlot = monthlyUsed >= planLimit;
@@ -230,11 +211,10 @@ export const createSmartAlertMutation = async ({
             metadata: { action: 'create_smart_alert' },
         });
     } else {
-        await UserWallet.updateOne(
-            { userId },
-            { $inc: { monthlyFreeAlertsUsed: 1 } },
-            { upsert: true }
-        );
+        // P0-6: routed through the entitlements-owned write API — the increment now
+        // runs inside a transaction (opening its own session when the caller has none),
+        // fixing the previous no-session write (D-03).
+        await incrementMonthlyUsage({ userId, field: 'monthlyFreeAlertsUsed', amount: 1 });
     }
 
     return SmartAlertModel.create({

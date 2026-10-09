@@ -2,6 +2,7 @@
 
 import { AlertCircle, ArrowRight } from "@esparex/ui";
 import { Button } from "@esparex/ui";
+import { formatStableDate } from "@/lib/formatters";
 import type { SingleEntitlementState } from "@esparex/contracts";
 
 interface EntitlementExhaustedShellProps {
@@ -22,7 +23,7 @@ export function EntitlementExhaustedShell({
 
   return (
     <div className="p-6 text-center space-y-6 max-w-md mx-auto my-auto">
-      <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center mx-auto text-amber-600 shadow-xs">
+      <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center mx-auto text-amber-600 shadow-sm">
         <AlertCircle className="w-8 h-8" />
       </div>
 
@@ -53,7 +54,7 @@ export function EntitlementExhaustedShell({
         {entitlement.resetDate && (
           <div className="flex justify-between items-center pt-1 border-t border-border/60 text-foreground-tertiary">
             <span>Monthly Reset Date</span>
-            <span>{new Date(entitlement.resetDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+            <span>{formatStableDate(entitlement.resetDate, { year: undefined })}</span>
           </div>
         )}
       </div>

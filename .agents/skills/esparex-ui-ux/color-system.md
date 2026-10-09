@@ -1,5 +1,7 @@
 # Esparex Color System Standard
 
+> **Canonical palette:** `AGENTS.md` §21 (Green `#16A34A` + Warm Neutral) + `packages/design-tokens/src/colors.ts` (`base.*`). Slate/blue values below are legacy blue-era references; for new work use Green primary + Warm Neutral surfaces.
+
 ## Governance Principle
 
 > **Primitive tokens define the palette. Semantic tokens define meaning. Component tokens define implementation. Application code should consume semantic or component tokens, not raw primitives, wherever an appropriate semantic token exists.**
@@ -32,7 +34,7 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 | `text-foreground-secondary` | Secondary text, form labels, card subtitles | `slate-700` (`#334155`) | `slate-300` (`#cbd5e1`) |
 | `text-muted-foreground` | Timestamps, helper text, subtitles | `slate-500` (`#64748b`) | `slate-400` (`#94a3b8`) |
 | `border-border` / `border-subtle` | Structural dividers, input borders | `slate-200` (`#e2e8f0`) | `slate-800` (`#1e293b`) |
-| `bg-primary` / `text-action` | Primary interactive controls & CTAs | `blue-600` (`#2563eb` Royal Blue) | `blue-500` (`#3b82f6`) |
+| `bg-primary` / `text-action` | Primary interactive controls & CTAs | Green (`#16a34a` per §21; legacy blue `#2563eb` below is superseded) | `blue-500` (`#3b82f6`) |
 | `text-success` / `bg-success` | Trust signals, prices, condition ON | `emerald-600` (`#059669`) | `emerald-500` (`#10b981`) |
 | `bg-destructive` | Danger buttons & destructive actions | `error` (`#dc2626`) | `error` (`#dc2626`) |
 
@@ -41,7 +43,7 @@ Primitive Tokens (Palette) ──► Semantic Tokens (Meaning) ──► Compone
 ## Interactive Text Hover Governance Rule (MANDATORY)
 
 Interactive text elements (navigation links, breadcrumbs, accordion headers, inactive tab buttons, search dropdown action triggers) MUST NOT perform low-contrast grayscale shifts (e.g. `text-muted-foreground hover:text-foreground` or `text-foreground-secondary hover:text-foreground`).
-- **Interactive links and triggers**: MUST hover to brand accent: `hover:text-primary` (`#2563EB` Royal Blue).
+- **Interactive links and triggers**: MUST hover to brand accent: `hover:text-primary` (Green `#16A34A` per §21).
 - **Listing titles on cards**: MUST transition to primary on hover: `group-hover:text-primary transition-colors`.
 - **Surface controls**: When hovering over bordered tiles or buttons, combine with surface hover: `hover:bg-muted hover:text-primary`.
 

@@ -1,10 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
-export const downloadInvoice = async (transactionId: string): Promise<void> => {
-    const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
-    window.open(invoiceUrl, "_blank", "noopener,noreferrer");
-};
 
 export const fetchInvoiceHtml = async (transactionId: string): Promise<string> => {
     try {
@@ -13,6 +9,8 @@ export const fetchInvoiceHtml = async (transactionId: string): Promise<string> =
         });
         return html;
     } catch {
+        // Fallback: direct backend fetch when apiClient cannot handle text/blob;
+        // URL built from runtime base (same backend origin). Intentional exception.
         const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
         const response = await fetch(invoiceUrl, { credentials: 'include' });
         if (!response.ok) {

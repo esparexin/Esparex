@@ -2,7 +2,7 @@ import { CreateBusinessRequestMapper } from '../CreateBusinessRequestMapper';
 import { BusinessFormState } from '../../../domain/BusinessFormState';
 
 describe('CreateBusinessRequestMapper', () => {
-  it('correctly maps valid BusinessFormState to CreateBusinessPayload', () => {
+  it('correctly maps valid BusinessFormState to the canonical CreateBusinessPayload', () => {
     const state: BusinessFormState = {
       name: '  Metro Electronics  ',
       description: '  Quality spare parts and repairs  ',
@@ -17,6 +17,7 @@ describe('CreateBusinessRequestMapper', () => {
       pincode: '400001',
       documents: [
         { type: 'id_proof', url: 'https://s3.example.com/id.jpg', idProofType: 'aadhaar' },
+        { type: 'business_proof', url: 'https://s3.example.com/shop.jpg' },
       ],
     };
 
@@ -29,7 +30,36 @@ describe('CreateBusinessRequestMapper', () => {
     expect(payload.email).toBe('metro@example.com');
     expect(payload.location.address).toBe('Shop 12, Main Street');
     expect(payload.location.city).toBe('Mumbai');
-    expect(payload.documents).toHaveLength(1);
-    expect(payload.documents[0].type).toBe('id_proof');
+    // Canonical documents shape: typed entries partitioned into idProof/businessProof
+    expect(payload.documents.idProofType).toBe('aadhaar');
+    expect(payload.documents.idProof).toEqual(['https://s3.example.com/id.jpg']);
+    expect(payload.documents.businessProof).toEqual(['https://s3.example.com/shop.jpg']);
+    expect(payload.documents.certificates).toBeUndefined();
+  });
+
+  it('omits empty optionals and defaults idProofType', () => {
+    const state: BusinessFormState = {
+      name: 'Test Shop',
+      description: '',
+      businessType: '',
+      mobile: '9876543210',
+      email: 'test@example.com',
+      website: '',
+      gstNumber: '',
+      address: 'Shop 1',
+      city: '',
+      state: '',
+      pincode: '',
+      documents: [],
+    };
+
+    const payload = CreateBusinessRequestMapper.toPayload(state);
+
+    expect(payload.description).toBeUndefined();
+    expect(payload.website).toBeUndefined();
+    expect(payload.location.city).toBeUndefined();
+    expect(payload.businessTypes).toEqual(['Repair services']);
+    expect(payload.documents.idProofType).toBe('aadhaar');
+    expect(payload.documents.idProof).toEqual([]);
   });
 });

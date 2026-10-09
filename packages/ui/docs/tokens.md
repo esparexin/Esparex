@@ -1,6 +1,6 @@
-# Canonical Design Tokens
+# Canonical Design Tokens (rendered view — authoritative values in `AGENTS.md` §21 + `packages/design-tokens/src/colors.ts`)
 
-This document serves as the Single Source of Truth (SSOT) for UI tokens across the Esparex platform. All new components must consume these semantic tokens rather than relying on raw utility classes.
+> This document is a rendered reference only. Single palette authority: `AGENTS.md` §21 (Green `#16A34A` + Warm Neutral) + `packages/design-tokens/src/colors.ts` (`base.*`). Do not treat HSL values below as superseding the canonical palette.
 
 ## 🎨 Semantic Colors
 

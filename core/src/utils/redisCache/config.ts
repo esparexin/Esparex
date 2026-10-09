@@ -13,7 +13,7 @@ export let isConnected = false;
 // eslint-disable-next-line prefer-const -- reassigned from admin.ts via globalThis
 export let isHighMemoryPressure = false;
 let redisDisconnectedSince: number | null = null;
-export const REDIS_RECOVERY_PROBE_TIMEOUT_MS = env.RELIABILITY_REDIS_RECOVERY_PROBE_TIMEOUT_MS ?? 2_000;
+const REDIS_RECOVERY_PROBE_TIMEOUT_MS = env.RELIABILITY_REDIS_RECOVERY_PROBE_TIMEOUT_MS ?? 2_000;
 
 export const cacheMetrics = {
     hits: 0, misses: 0, errors: 0, keys: 0, memory: 0, lastUpdated: new Date()

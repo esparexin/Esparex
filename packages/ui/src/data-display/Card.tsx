@@ -10,8 +10,8 @@ export interface CardProps extends React.ComponentProps<"div"> {
 
 const elevationVariants: Record<NonNullable<CardProps["elevation"]>, string> = {
   0: "shadow-none border-transparent",
-  1: "shadow-2xs",
-  2: "shadow-xs hover:shadow-sm hover:-translate-y-0.5",
+  1: "shadow-sm",
+  2: "shadow-sm hover:shadow-sm hover:-translate-y-0.5",
   3: "shadow-md",
   4: "shadow-xl",
 };
@@ -48,7 +48,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-header"
       className={cn(
-        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1 px-3 pt-3 sm:px-3.5 sm:pt-3.5 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-2 sm:[.border-b]:pb-2.5",
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1 px-3 pt-3 sm:px-4 sm:pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-2 sm:[.border-b]:pb-3",
         className
       )}
       {...props}
@@ -80,7 +80,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-3 sm:px-3.5 [&:last-child]:pb-3 sm:[&:last-child]:pb-3.5", className)}
+      className={cn("px-3 sm:px-4 [&:last-child]:pb-3 sm:[&:last-child]:pb-4", className)}
       {...props}
     />
   );

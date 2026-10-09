@@ -4,7 +4,7 @@ import {
     createBusinessSchema,
     publicBusinessQuerySchema,
     updateBusinessSchema,
-} from "@esparex/core/validators/business.validator";
+} from "@esparex/core";
 
 const issueMessages = (result: { success: false; error?: { issues: Array<{ message: string }> } }) =>
     result.error?.issues.map((issue) => issue.message).join(" ") || "";
@@ -36,21 +36,29 @@ describe("createBusinessSchema", () => {
         },
     };
 
-    it("requires current-location coordinates for business registration", () => {
+    it("accepts registration without coordinates or images (P1-9: optional at the wire contract; clients without capture UI, e.g. mobile, may omit them)", () => {
         const result = createBusinessSchema.safeParse({
             ...validPayload,
             location: {
-                ...validPayload.location,
-                coordinates: undefined,
+                address: validPayload.location.address,
+                display: validPayload.location.display,
+                city: validPayload.location.city,
+                state: validPayload.location.state,
+                country: validPayload.location.country,
             },
+            images: undefined,
+        });
+
+        expect(result.success).toBe(true);
+    });
+
+    it("still rejects an empty images array when images are provided", () => {
+        const result = createBusinessSchema.safeParse({
+            ...validPayload,
+            images: [],
         });
 
         expect(result.success).toBe(false);
-        expect(
-            result.error?.issues.some(
-                (issue) => issue.path.join(".") === "location.coordinates" && issue.message === "Required",
-            ),
-        ).toBe(true);
     });
 
     it("accepts the payload without a canonical locationId", () => {

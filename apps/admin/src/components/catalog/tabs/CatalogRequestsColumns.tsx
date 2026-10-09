@@ -80,7 +80,7 @@ export function generateCatalogRequestsColumns({
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold uppercase tracking-wider ${
               isBrandAndModel
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                ? "bg-success/10 text-success-dark border border-success/20"
                 : "bg-indigo-50 text-indigo-700 border border-indigo-200"
             }`}
           >
@@ -112,7 +112,7 @@ export function generateCatalogRequestsColumns({
           <div className="flex flex-col gap-1 min-w-[160px] max-w-[240px]">
             <CatalogEntityCell
               icon={<ClipboardList size={18} />}
-              iconClassName="bg-amber-50 text-amber-600"
+              iconClassName="bg-warning/10 text-warning"
               title={req.requestedName}
               subtitle={parentBrandName ? `Brand: ${parentBrandName}` : (req.requestType === "brand" ? "New Brand & Model" : undefined)}
             />
@@ -137,12 +137,12 @@ export function generateCatalogRequestsColumns({
         <span
           className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider ${
             req.status === "approved" || req.status === "resolved"
-              ? "bg-emerald-100 text-emerald-700"
+              ? "bg-success/10 text-success-dark"
               : req.status === "rejected"
               ? "bg-destructive/10 text-destructive"
               : req.status === "duplicate" || req.status === "merged"
               ? "bg-primary/10 text-primary"
-              : "bg-amber-100 text-amber-700"
+              : "bg-warning/10 text-warning-dark"
           }`}
         >
           {req.status === "pending" ? (
@@ -167,9 +167,9 @@ export function generateCatalogRequestsColumns({
           <span
             className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-tiny font-bold ${
               isHot
-                ? "bg-rose-100 text-rose-700"
+                ? "bg-destructive/10 text-destructive"
                 : count >= 2
-                ? "bg-amber-100 text-amber-700"
+                ? "bg-warning/10 text-warning-dark"
                 : "bg-muted text-foreground-tertiary"
             }`}
           >
@@ -187,13 +187,13 @@ export function generateCatalogRequestsColumns({
             <>
               <CatalogActionIconButton
                 onClick={() => void handleApprove(req.id)}
-                className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                className="p-1.5 text-success hover:bg-success/10 rounded-lg transition-all"
                 title="Approve"
                 icon={<CheckCircle size={18} />}
               />
               <CatalogActionIconButton
                 onClick={() => onOpenRejectModal(req)}
-                className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                className="p-1.5 text-warning hover:bg-warning/10 rounded-lg transition-all"
                 title="Reject"
                 icon={<XCircle size={18} />}
               />

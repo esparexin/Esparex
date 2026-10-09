@@ -3,7 +3,7 @@ import {
     sendMessageSchema,
     chatUploadUrlSchema,
     ALLOWED_CHAT_MIME_TYPES,
-} from "@esparex/core/validators/chat.validator";
+} from "@esparex/core";
 
 describe("chat.validator", () => {
     const validConversationId = "507f1f77bcf86cd799439011";

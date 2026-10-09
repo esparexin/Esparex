@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { TextInput, TextInputProps, View } from 'react-native';
+import { mobileSemanticColors } from '@esparex/design-tokens';
 import { AppText } from './AppText';
 
 export interface AppInputProps extends TextInputProps {
@@ -21,17 +22,20 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
   ...props
 }, ref) => {
   const hasError = !!error;
-  const baseInput = 'flex-1 h-12 text-base text-slate-900 dark:text-slate-100';
-  const containerBase = 'flex-row items-center border rounded-lg bg-white dark:bg-slate-900 px-3';
-  
-  const borderState = hasError 
-    ? 'border-error' 
-    : 'border-slate-300 dark:border-slate-700 focus:border-brand-500 dark:focus:border-brand-400';
+  // RC-5 FIX: Replaced primitive palette classes (whose dark: variants were inert
+  // when darkMode was absent from the NativeWind config) with semantic tokens that
+  // now resolve to concrete hex values via the fixed tailwind.config.js.
+  const baseInput = 'flex-1 h-12 text-body-lg text-foreground';
+  const containerBase = 'flex-row items-center border rounded-lg bg-background px-3';
+
+  const borderState = hasError
+    ? 'border-destructive'
+    : 'border-input focus:border-primary';
 
   return (
     <View className={`w-full ${containerClassName}`}>
       {label && (
-        <AppText variant="label" className="mb-2 text-slate-700 dark:text-slate-300">
+        <AppText variant="label" className="mb-2 text-foreground-secondary">
           {label}
         </AppText>
       )}
@@ -40,7 +44,8 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
         <TextInput
           ref={ref}
           className={`${baseInput} ${className}`}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={props.placeholderTextColor || mobileSemanticColors.light['muted-foreground']}
+          keyboardAppearance="light"
           accessibilityRole="text"
           accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
           accessibilityState={{

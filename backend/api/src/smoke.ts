@@ -9,8 +9,8 @@
  *
  * Run with: MONGODB_URI, ADMIN_MONGODB_URI, REDIS_URL set (see ci.yml).
  */
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
+import { env } from '@esparex/core';
+import { logger } from '@esparex/core';
 import { bootstrap, startListener, shutdownServer } from './server';
 
 const PORT = env.PORT;

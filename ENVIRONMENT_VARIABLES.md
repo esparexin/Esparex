@@ -45,11 +45,12 @@
 | `ADMIN_SESSION_TTL_MS` | No | — | all | Render | No | Admin session TTL |
 | `AUTH_LOCAL_RELAXED` | No | `false` | dev only | local | No | Relaxed auth in dev (blocked in prod) |
 | `ALLOW_DEFAULT_ADMIN_SEED` | No | `false` | dev only | local | No | Seed default admin (blocked in prod) |
+| `OTP_PROVIDER` | Yes (prod) | `test` (dev) | all | Render | No | OTP provider (`msg91` required in prod) |
 | `OTP_HASH_SECRET` | No | — | prod | Render | Yes | OTP hashing secret |
-| `HMAC_SECRET` | No | (dev fallback) | all | all | Yes | OTP HMAC signing key |
-| `MSG91_AUTH_KEY` | No | — | prod | Render | Yes | MSG91 SMS API key |
-| `MSG91_SENDER_ID` | No | — | prod | Render | No | SMS sender ID |
-| `MSG91_TEMPLATE_ID` | No | — | prod | Render | No | SMS template ID |
+| `HMAC_SECRET` | No | (dev fallback) | all | all | Yes | AI encryption secret key |
+| `MSG91_AUTH_KEY` | Yes (prod) | — | prod | Render | Yes | MSG91 API auth key |
+| `MSG91_WIDGET_ID` | Yes (prod) | — | prod | Render | No | MSG91 OTP Widget ID |
+| `MSG91_TOKEN_AUTH` | No | — | prod | Render | Yes | MSG91 OTP Widget token auth |
 | `AUTH_BYPASS_OTP_LOCK` | No | — | dev only | local | No | Disable OTP brute-force lock (blocked in prod) |
 | `USE_DEFAULT_OTP` | No | `false` | dev only | local | No | Use static OTP (blocked in prod) |
 | `DEV_STATIC_OTP` | No | `123456` | dev only | local | No | Static OTP value for dev |
@@ -125,7 +126,7 @@
 | `NEXT_PUBLIC_APP_ENV` | No | `local` | all | Vercel | No | Deployment environment label |
 | `NEXT_PUBLIC_PROD_RISK_OVERRIDE` | No | `false` | prod | Vercel | No | Bypass production validation guards |
 | `NEXT_PUBLIC_LOCAL_DEV_AUTH` | No | `false` | dev only | local | No | Enable local auth bypass |
-| `NEXT_PUBLIC_HMAC_SECRET` | No | — | all | Vercel Web | Yes* | Browser HMAC key (*exposed to client) |
+| ~~`NEXT_PUBLIC_HMAC_SECRET`~~ removed (Phase 1 audit P0 F31: browser HMAC deleted; server auth/CSRF/velocity/idempotency are the boundary) | — | — | — | — | — | Do not reintroduce client secrets |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | No | — | all | Vercel Web | No | Firebase web API key |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | No | — | all | Vercel Web | No | Firebase auth domain |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | No | — | all | Vercel Web | No | Firebase project ID |
@@ -251,14 +252,14 @@ Admin: copy `apps/admin/.env.local.example` → `apps/admin/.env.local`
 3. **`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`** — S3 bucket access.
 4. **`RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET`** — Payment processing.
 5. **`FIREBASE_SERVICE_ACCOUNT_JSON`** — Full Firebase Admin access.
-6. **`HMAC_SECRET`** — OTP signing (has insecure dev fallback).
+6. **`HMAC_SECRET`** — AI secret encryption key (has insecure dev fallback).
 7. **`OTP_HASH_SECRET`** — OTP hashing.
 
 ### NEXT_PUBLIC_* Exposure
 
 All `NEXT_PUBLIC_*` variables are bundled into the client-side JavaScript. Never put secrets here. The Firebase config values are intentionally public by Firebase's design (they are not secrets — Firebase enforces security through App Check and Security Rules).
 
-⚠️ **`NEXT_PUBLIC_HMAC_SECRET`** is a special case — it IS a secret value exposed to the browser. The code notes this is "not a true security boundary." This should be removed when the browser-side HMAC implementation is refactored.
+⚠️ **`NEXT_PUBLIC_HMAC_SECRET`** — REMOVED (Phase 1 audit P0 F31). Browser-side HMAC was deleted; no secret may live in `NEXT_PUBLIC_*` vars. Server-side auth/CSRF/velocity/idempotency enforce financial endpoints.
 
 ### Production Safety Gates
 

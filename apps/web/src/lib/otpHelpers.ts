@@ -1,12 +1,13 @@
 import { mapErrorToMessage } from "@/lib/errorMapper";
+import { OTP_RESEND_COOLDOWN_SECONDS } from "@esparex/contracts";
 
 export const OTP_LENGTH = 6;
-export const RESEND_COOLDOWN_SECONDS = 30;
+export const RESEND_COOLDOWN_SECONDS = OTP_RESEND_COOLDOWN_SECONDS;
 export const DEFAULT_RATE_LIMIT_RETRY_SECONDS = 30 * 60;
-export const OTP_EXPIRED_CODE = "OTP_EXPIRED";
+const OTP_EXPIRED_CODE = "OTP_EXPIRED";
 export const OTP_INVALID_CODE = "OTP_INVALID";
 
-export const RATE_LIMIT_ERROR_CODES = new Set([
+const RATE_LIMIT_ERROR_CODES = new Set([
     "RATE_LIMITED",
     "OTP_SEND_IP_RATE_LIMIT",
     "OTP_SEND_MOBILE_RATE_LIMIT",
@@ -30,16 +31,26 @@ export const formatSeconds = (seconds: number): string => {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
 
+export const sanitizeRateLimitBaseMessage = (message: string): string => {
+    return message
+        .replace(/\.?\s*(?:please\s+)?try again in\s+\d{1,2}:\d{2}\.?/gi, "")
+        .replace(/\.?\s*(?:please\s+)?try again later\.?/gi, "")
+        .trim()
+        .replace(/\.+$/, "");
+};
+
 export const appendRateLimitCountdown = (
     message: string,
     isRateLimited: boolean,
     remainingSeconds: number
 ): string => {
     if (!isRateLimited) return message;
-    return `${message} Try again in ${formatSeconds(remainingSeconds)}.`;
+    const base = sanitizeRateLimitBaseMessage(message) || "Too many requests";
+    if (remainingSeconds <= 0) return `${base}.`;
+    return `${base}. Please try again in ${formatSeconds(remainingSeconds)}.`;
 };
 
-export const extractRawAuthMessage = (value: unknown): string | null => {
+const extractRawAuthMessage = (value: unknown): string | null => {
     if (!value || typeof value !== "object") {
         if (value instanceof Error && typeof value.message === "string") return value.message;
         if (typeof value === "string") return value;

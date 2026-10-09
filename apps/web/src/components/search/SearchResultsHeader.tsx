@@ -10,6 +10,7 @@ import {
 } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { ChevronDown, SortAsc } from "@esparex/ui";
+import { ViewToggle } from "./ViewToggle";
 import {
     PUBLIC_BROWSE_SORT_LABELS,
     type SortOption,
@@ -86,7 +87,7 @@ function SortDropdownMenu({
                     onSelect={() => onSelect(key)}
                     aria-selected={sort === key}
                     className={cn(
-                        "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-body",
+                        "min-h-11 cursor-pointer rounded-lg px-3 py-2.5 text-body",
                         sort === key
                             ? "bg-primary text-primary-foreground font-medium focus:bg-primary focus:text-primary-foreground"
                             : "text-foreground focus:bg-muted focus:text-primary"
@@ -134,7 +135,9 @@ function SortDropdown({
 export function SearchResultsHeader({
     total,
     sort,
+    view,
     onSortChange,
+    onViewChange,
     filterNode,
     categoryName,
 }: SearchResultsHeaderProps) {
@@ -157,8 +160,9 @@ export function SearchResultsHeader({
                     ) : null}
                 </div>
 
-                {/* Right side: SortDropdown instance */}
+                {/* Right side: View toggle & SortDropdown instance */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
+                    {onViewChange && <ViewToggle view={view ?? "grid"} onViewChange={onViewChange} />}
                     <SortDropdown
                         open={sortOpen}
                         onOpenChange={setSortOpen}

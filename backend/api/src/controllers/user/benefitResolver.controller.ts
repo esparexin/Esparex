@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import { sendSuccessResponse } from '../../utils/respond';
 import { sendErrorResponse } from '../../utils/errorResponse';
-import { resolveBalances } from '@esparex/core/domains/entitlements/application/EntitlementBalanceService';
+import { resolveBalances } from '@esparex/core/domains/entitlements';
 import { getStorageSafeId } from './shared';
 import type { AuthUser } from '../../types/auth.types';
 import type { UserBenefitsResponseDTO } from '@esparex/contracts';

@@ -8,6 +8,7 @@ import { ROUTES } from '../../../../navigation/routes';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { AppNotification } from '../../domain/Notification';
+import { formatAppDateTime } from '@esparex/shared';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 export const NotificationScreen = () => {
@@ -53,7 +54,7 @@ export const NotificationScreen = () => {
   const renderNotificationItem = useCallback(
     ({ item }: { item: AppNotification }) => {
       const formattedDate = item.createdAt
-        ? new Date(item.createdAt).toLocaleDateString([], {
+        ? formatAppDateTime(item.createdAt, {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
@@ -63,8 +64,8 @@ export const NotificationScreen = () => {
 
       return (
         <Card
-          className={`mb-3 p-4 border-slate-200 dark:border-slate-800 ${
-            item.isRead ? 'bg-white dark:bg-slate-900' : 'bg-sky-50/50 dark:bg-sky-950/20'
+          className={`mb-3 p-4 ${
+            item.isRead ? '' : 'bg-primary/10'
           }`}
         >
           <TouchableOpacity
@@ -74,8 +75,8 @@ export const NotificationScreen = () => {
             {/* Icon */}
             <View
               className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-                item.isRead ? 'bg-slate-100 dark:bg-slate-800' : 'bg-sky-100 dark:bg-sky-900/50'
-              }`}
+              item.isRead ? 'bg-muted' : 'bg-primary/10'
+            }`}
             >
               <AppIcon name={getNotificationIcon(item.type)} size={18} color={base.brand[500]} />
             </View>
@@ -85,21 +86,21 @@ export const NotificationScreen = () => {
               <View className="flex-row items-center justify-between mb-1">
                 <AppText
                   variant="body"
-                  className={`font-bold ${item.isRead ? 'text-slate-800 dark:text-slate-200' : 'text-slate-900 dark:text-white'}`}
+                  className="font-bold text-foreground"
                 >
                   {item.title}
                 </AppText>
                 {!item.isRead && (
-                  <View className="w-2 h-2 rounded-full bg-sky-500 ml-2" />
+                  <View className="w-2 h-2 rounded-full bg-primary ml-2" />
                 )}
               </View>
 
-              <AppText variant="caption" className="text-slate-600 dark:text-slate-400 mb-1">
+              <AppText variant="caption" className="text-foreground-secondary mb-1">
                 {item.body}
               </AppText>
 
               {formattedDate ? (
-                <AppText variant="caption" className="text-slate-400 text-xs">
+                <AppText variant="caption" className="text-foreground-secondary">
                   {formattedDate}
                 </AppText>
               ) : null}
@@ -154,15 +155,15 @@ export const NotificationScreen = () => {
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <Container className="flex-1 bg-slate-50 dark:bg-slate-950 p-4">
+      <Container className="flex-1 bg-background p-4">
         {/* Header */}
         <View className="flex-row items-center justify-between mb-4">
-          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+          <AppText variant="h2" className="font-bold text-foreground">
             Notifications
           </AppText>
           {hasUnread && (
-            <TouchableOpacity onPress={handleMarkAllRead} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
-              <AppText variant="caption" className="font-semibold text-sky-600 dark:text-sky-400">
+            <TouchableOpacity onPress={handleMarkAllRead} className="px-3 py-1 bg-muted rounded-full">
+              <AppText variant="caption" className="font-semibold text-primary">
                 Mark all read
               </AppText>
             </TouchableOpacity>
@@ -183,13 +184,13 @@ export const NotificationScreen = () => {
           ListEmptyComponent={
             !isLoading ? (
               <View className="items-center justify-center py-16 px-4">
-                <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
-                  <AppIcon name="Bell" size={28} color={base.slate[400]} />
+                <View className="w-16 h-16 rounded-full bg-muted items-center justify-center mb-4">
+                  <AppIcon name="Bell" size={28} color={base.slate[500]} />
                 </View>
-                <AppText variant="h3" className="font-bold text-slate-800 dark:text-slate-200 mb-1">
+                <AppText variant="h3" className="font-bold text-foreground mb-1">
                   No Notifications
                 </AppText>
-                <AppText variant="caption" className="text-slate-500 text-center">
+                <AppText variant="caption" className="text-foreground-secondary text-center">
                   You&apos;re all caught up! Updates regarding your ads, chats, and account will appear here.
                 </AppText>
               </View>

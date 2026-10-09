@@ -21,6 +21,7 @@ import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useAuditLogs } from "@/hooks/useAuditLogs";
+import { formatAppDate, formatAppTime } from "@esparex/shared";
 
 const ACTION_OPTIONS = [
     { value: "all", label: "Every Action" },
@@ -122,7 +123,7 @@ export default function AuditLogsPage() {
             header: "Action",
             cell: (log) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-xs text-primary uppercase tracking-tight">{log.action.replace(/_/g, ' ')}</span>
+                    <span className="font-bold text-caption text-primary uppercase tracking-tight">{log.action.replace(/_/g, ' ')}</span>
                     <span className="text-tiny text-foreground-subtle flex items-center gap-1">
                         <Database size={10} /> {log.targetType}
                     </span>
@@ -157,9 +158,9 @@ export default function AuditLogsPage() {
         {
             header: "Timestamp",
             cell: (log) => (
-                <div className="text-xs text-foreground-tertiary font-medium">
-                    <div className="flex items-center gap-1"><Calendar size={12} className="text-foreground-subtle" /> {new Date(log.createdAt).toLocaleDateString()}</div>
-                    <div className="text-tiny ml-4">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                <div className="text-caption text-foreground-tertiary font-medium">
+                    <div className="flex items-center gap-1"><Calendar size={12} className="text-foreground-subtle" /> {formatAppDate(log.createdAt)}</div>
+                    <div className="text-tiny ml-4">{formatAppTime(log.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
                 </div>
             )
         }
@@ -171,7 +172,7 @@ export default function AuditLogsPage() {
             description="Review administrative activities and security events."
             tabs={<AdminModuleTabs tabs={administrationTabs} />}
             actions={
-                <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 flex items-center gap-2 text-xs font-bold">
+                <div className="p-2 bg-success/10 text-success-dark rounded-lg border border-success/20 flex items-center gap-2 text-caption font-bold">
                     <Shield size={16} /> Integrity Verified
                 </div>
             }
@@ -203,16 +204,16 @@ export default function AuditLogsPage() {
             />
 
             {error ? (
-                <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-body text-destructive">
                     <AlertCircle size={16} />
                     <span>{error}</span>
                 </div>
             ) : null}
 
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-border bg-muted/20 flex items-center gap-2 text-foreground">
                     <Activity size={18} className="text-foreground-subtle" />
-                    <h2 className="text-sm font-bold text-foreground-secondary">Audit Trail</h2>
+                    <h2 className="text-body font-bold text-foreground-secondary">Audit Trail</h2>
                 </div>
                 <DataTable
                     data={logs}

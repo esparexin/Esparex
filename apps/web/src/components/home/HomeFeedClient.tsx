@@ -2,13 +2,14 @@
 "use client";
 
 import { Fragment, startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Loader2, PackageOpen } from "@esparex/ui";
-import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
+import { Button, Loader2, PackageOpen, cn } from "@esparex/ui";
+import { type UserListing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
+import { buildFeedLocationIdentity } from "@/lib/location/feedIdentity";
 import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 import { HomePromoAdCard } from "./HomePromoAdCard";
@@ -65,8 +66,7 @@ function FeedEmptyState({ selectedType }: { selectedType?: PublicBrowseType }) {
 
 /**
  * HomeFeedClient - Handles state and rendering for the home marketplace feed across listing types.
- * This component is keyed by location in the parent (HomeFeed), so it automatically 
- * resets when the location changes.
+ * Preserves the current grid across location updates; new results replace it only when ready.
  */
 export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const [cursor, setCursor] = useState<{ createdAt: string; id?: string } | undefined>(undefined);
@@ -84,32 +84,26 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
     const locationIdentity = useMemo(() => {
         if (!hasUserLocation) return "default";
-        const rawLocationId = location.locationId || location.id || "";
-        const validLocationId = sanitizeMongoObjectId(rawLocationId) || "";
-        const latStr = typeof latitude === "number" ? latitude.toFixed(3) : "";
-        const lngStr = typeof longitude === "number" ? longitude.toFixed(3) : "";
-        return [validLocationId, location.city || "", location.level || "", latStr, lngStr].join(":");
+        return buildFeedLocationIdentity({ locationId: location.locationId, id: location.id, city: location.city, level: location.level, latitude, longitude }, true);
     }, [hasUserLocation, latitude, location.city, location.id, location.level, location.locationId, longitude]);
 
-    // Soft-reset pagination cursor when location changes without unmounting tree
+    // Reset pagination cursor when location changes; preserve displayed ads until new page arrives
     const prevLocationIdentityRef = useRef(locationIdentity);
     useEffect(() => {
         if (prevLocationIdentityRef.current !== locationIdentity) {
             prevLocationIdentityRef.current = locationIdentity;
             setCursor(undefined);
             setNextCursor(null);
-            setFeedAds([]);
         }
     }, [locationIdentity]);
 
-    // Soft-reset pagination cursor and feed state when active listing tab changes
+    // Reset pagination cursor when active listing tab changes; preserve ads until new page arrives
     const prevSelectedTypeRef = useRef(selectedType);
     useEffect(() => {
         if (prevSelectedTypeRef.current !== selectedType) {
             prevSelectedTypeRef.current = selectedType;
             setCursor(undefined);
             setNextCursor(null);
-            setFeedAds([]);
         }
     }, [selectedType]);
     
@@ -129,42 +123,36 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         };
     }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, selectedType, shouldUseGeoSearch]);
 
-    const shouldUseInitialData = !cursor && !hasUserLocation && selectedType === "all";
+    // Reuse SSR payload on initial default page; background query refetches for client location.
+    const shouldUseInitialData = !cursor && selectedType === "all" && !hasUserLocation;
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,
         {
-            enabled: isLoaded,
+            enabled: shouldUseInitialData ? true : isLoaded,
             initialData: shouldUseInitialData ? initialData : undefined,
         }
     );
 
-    // Sync feed ads accumulation
+    // Sync feed accumulation and pagination metadata in a single pass.
+    // Aborted (superseded) pages resolve to an `aborted` sentinel and are skipped.
+    /* eslint-disable react-hooks/set-state-in-effect -- sync query data with accumulated feed state */
     useEffect(() => {
-        if (!data) return;
+        if (!data || data.aborted) return;
         const pageAds = Array.isArray(data.ads) ? data.ads : [];
-        
-        void (async () => {
-            if (!cursor) {
-                setFeedAds((previous) => (
-                    pageAds.length > 0 || (data as { isFallback?: boolean }).isFallback || previous.length === 0
-                        ? replaceFeedPage(previous, pageAds)
-                        : previous
-                ));
-            } else if (pageAds.length > 0) {
-                setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
-            }
-        })();
+        if (!cursor) {
+            setFeedAds((previous) =>
+                pageAds.length > 0 || data.isFallback || previous.length === 0
+                    ? replaceFeedPage(previous, pageAds)
+                    : previous
+            );
+        } else if (pageAds.length > 0) {
+            setFeedAds((previous) => appendUniqueFeedPage(previous, pageAds));
+        }
+        setNextCursor(data.nextCursor ?? null);
+        setHasMore(data.hasMore === true);
     }, [cursor, data]);
-
-    // Sync pagination metadata
-    useEffect(() => {
-        if (!data) return;
-        void (async () => {
-            setNextCursor(data.nextCursor ?? null);
-            setHasMore(data.hasMore === true);
-        })();
-    }, [data]);
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     const displayedAds = feedAds;
     const canLoadMore = hasMore && Boolean(nextCursor?.createdAt);
@@ -188,21 +176,19 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                         activeType={selectedType}
                         onTypeChange={setSelectedType}
                     />
+                    {isFetching && displayedAds.length > 0 && (
+                        <p role="status" className="text-tiny text-foreground-secondary">Updating listings…</p>
+                    )}
                 </div>
 
                 {(isLoading || isFetching) && displayedAds.length === 0 && <FeedSkeletonGrid />}
 
-                {isError && displayedAds.length === 0 && (
-                    <FeedErrorState onRetry={() => refetch()} />
-                )}
-
-                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && (
-                    <FeedEmptyState selectedType={selectedType} />
-                )}
+                {isError && displayedAds.length === 0 && <FeedErrorState onRetry={() => refetch()} />}
+                {!isLoading && !isFetching && !isError && displayedAds.length === 0 && <FeedEmptyState selectedType={selectedType} />}
 
                 {displayedAds.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4">
+                        <div aria-busy={isFetching} className={cn("grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:gap-3.5 lg:grid-cols-4 transition-opacity duration-200", isFetching && "opacity-80")}>
                             {displayedAds.map((ad, index) => (
                                 <Fragment key={ad.id}>
                                     <AdCardGrid
@@ -235,7 +221,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                     disabled={isFetching}
                                     aria-label="Load more listings"
                                     aria-busy={isFetching}
-                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                                    className="w-full sm:w-auto min-w-[220px] rounded-full border-2 border-border-hover hover:border-primary hover:bg-primary/5 text-foreground font-semibold shadow-sm hover:shadow-sm transition-all duration-200 active:scale-95 cursor-pointer"
                                 >
                                     {isFetching ? (
                                         <>

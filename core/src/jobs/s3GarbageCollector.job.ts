@@ -69,32 +69,30 @@ export const runS3GarbageCollectorJob = async () => {
                 // ── Step 1: Collect all referenced S3 keys from MongoDB ────────────────
                 const validKeys = new Set<string>();
 
+                // P5: stream via cursor (bounded memory) instead of loading
+                // entire collections with find().lean() into arrays.
                 // A. AdImage table (dedicated image records)
-                const adImagesTable = await AdImage.find().select('imageUrl').lean();
-                adImagesTable.forEach(img => {
+                for await (const img of AdImage.find().select('imageUrl').lean().cursor()) {
                     const key = extractKey(img.imageUrl);
                     if (key) validKeys.add(key);
-                });
+                }
 
                 // B. Ad embedded images (ads, services, spare parts — all share the Ad model)
-                const ads = await Ad.find().select('images').lean();
-                ads.forEach(ad => {
+                for await (const ad of Ad.find().select('images').lean().cursor()) {
                     ad.images?.forEach(url => {
                         const key = extractKey(url);
                         if (key) validKeys.add(key);
                     });
-                });
+                }
 
                 // C. User avatars
-                const users = await User.find({ avatar: { $exists: true, $ne: null } }).select('avatar').lean();
-                users.forEach(u => {
+                for await (const u of User.find({ avatar: { $exists: true, $ne: null } }).select('avatar').lean().cursor()) {
                     const key = extractKey(u.avatar);
                     if (key) validKeys.add(key);
-                });
+                }
 
                 // D. Business images & documents
-                const businesses = await Business.find().select('images documents logo').lean();
-                businesses.forEach(b => {
+                for await (const b of Business.find().select('images documents logo').lean().cursor()) {
                     // Logo
                     const logoKey = extractKey((b as { logo?: string }).logo);
                     if (logoKey) validKeys.add(logoKey);
@@ -129,7 +127,7 @@ export const runS3GarbageCollectorJob = async () => {
                             }
                         });
                     }
-                });
+                }
 
                 logger.info(`Gathered ${validKeys.size} valid referenced keys from DB.`);
 

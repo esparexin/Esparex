@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { UserPlus, Power, Trash2, Save, XCircle, DataTable, StatusChip, type ColumnDef } from "@esparex/ui";
 import { USER_STATUS, Role } from "@esparex/contracts";
-import { normalizeRole } from "@esparex/shared";
+import { normalizeRole, formatAppDateTime } from "@esparex/shared";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";
@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
             },
             {
                 header: "Last Login",
-                cell: (admin) => (admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : "Never"),
+                cell: (admin) => (admin.lastLogin ? formatAppDateTime(admin.lastLogin) : "Never"),
             },
             {
                 header: "Actions",
@@ -181,7 +181,7 @@ export default function AdminUsersPage() {
                             className="p-1.5 hover:bg-muted rounded-lg text-foreground-subtle hover:text-primary transition-all group cursor-pointer"
                             title={admin.status === "inactive" ? "Activate" : "Deactivate"}
                         >
-                            <Power size={14} className={admin.status === "inactive" ? "text-foreground-subtle" : "text-emerald-500"} />
+                            <Power size={14} className={admin.status === "inactive" ? "text-foreground-subtle" : "text-success"} />
                         </button>
                         <button
                             onClick={() => onStartEdit(admin)}
@@ -233,23 +233,23 @@ export default function AdminUsersPage() {
             <AdminModuleTabs tabs={administrationTabs} />
 
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3 xl:grid-cols-5 mt-3 max-w-4xl">
-                <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-xs">
+                <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-sm">
                     <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
                     <p className="mt-0.5 text-h4 font-bold text-purple-700">{superAdmins}</p>
                 </div>
-                <div className="rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 shadow-xs">
-                    <p className="text-tiny font-semibold uppercase tracking-wide text-blue-700">Admins</p>
-                    <p className="mt-0.5 text-h4 font-bold text-blue-700">{adminCount}</p>
+                <div className="rounded-lg border border-primary/20 bg-primary-subtle/40 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-primary">Admins</p>
+                    <p className="mt-0.5 text-h4 font-bold text-primary">{adminCount}</p>
                 </div>
-                <div className="rounded-lg border border-amber-200 bg-amber-50/40 px-3 py-2 shadow-xs">
-                    <p className="text-tiny font-semibold uppercase tracking-wide text-amber-700">Moderators</p>
-                    <p className="mt-0.5 text-h4 font-bold text-amber-700">{moderators}</p>
+                <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-warning-dark">Moderators</p>
+                    <p className="mt-0.5 text-h4 font-bold text-warning-dark">{moderators}</p>
                 </div>
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2 shadow-xs">
-                    <p className="text-tiny font-semibold uppercase tracking-wide text-emerald-700">Active</p>
-                    <p className="mt-0.5 text-h4 font-bold text-emerald-700">{activeAdmins}</p>
+                <div className="rounded-lg border border-success/20 bg-success/10 px-3 py-2 shadow-sm">
+                    <p className="text-tiny font-semibold uppercase tracking-wide text-success-dark">Active</p>
+                    <p className="mt-0.5 text-h4 font-bold text-success-dark">{activeAdmins}</p>
                 </div>
-                <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-xs">
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm">
                     <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Total Accounts</p>
                     <p className="mt-0.5 text-h4 font-bold text-indigo-700">{totalAdmins}</p>
                 </div>
@@ -301,7 +301,7 @@ export default function AdminUsersPage() {
                 title="Confirm Account Deletion"
             >
                 <div className="p-6">
-                    <p className="text-sm text-foreground-secondary mb-6 leading-relaxed">
+                    <p className="text-body text-foreground-secondary mb-6 leading-relaxed">
                         Are you sure you want to delete the administrator account for <span className="font-bold text-foreground">{deletingAdmin ? getAdminDisplayName(deletingAdmin) : "this user"}</span>? This action is permanent and will immediately revoke all access.
                     </p>
                     <div className="flex justify-end gap-3">

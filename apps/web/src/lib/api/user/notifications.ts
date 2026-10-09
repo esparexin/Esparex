@@ -1,35 +1,23 @@
-import { NotificationTypeValue } from "@esparex/contracts";
+import type { Notification, NotificationListResponse as NotificationResponse, NotificationTypeValue } from "@esparex/contracts";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
 
-export interface Notification {
-    id: string;
-    userId: string;
-    type: NotificationTypeValue;
-    title: string;
-    message: string;
-    data?: Record<string, unknown>;
-    isRead: boolean;
-    readAt?: string;
-    createdAt: string;
-    actionUrl?: string;
-    priority?: "low" | "medium" | "high";
-    channels?: string[];
-    deliveryStatus?: Record<string, "pending" | "sent" | "failed" | "skipped">;
-    entityRef?: { domain: string; id: string };
-}
-
-export interface NotificationResponse {
-    success: boolean;
-    notifications: Notification[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        pages: number;
-    };
-    unreadCount: number;
-}
+/**
+ * Phase 3a (§5): the local `Notification` / `NotificationResponse` interfaces
+ * are relocated to `@esparex/contracts` (canonical owner per DECISION-GATE §3)
+ * and re-exported here under their historic names so existing importers keep
+ * working.
+ *
+ * CONFLICT (recorded, not merged): the local `NotificationResponse`
+ * (notification list { success, notifications, pagination, unreadCount })
+ * collides by name with mobile's `NotificationResponse` (device tap
+ * interaction) in
+ * `apps/mobile/src/features/notifications/domain/NotificationPayload.ts:15`.
+ * The canonical names are `NotificationListResponse` (this file's historic
+ * shape) and `PushNotificationActionResponse` (mobile's shape). Deletion of
+ * these shims — and any rename to the canonical names — is Phase 4 (§10).
+ */
+export type { Notification, NotificationResponse };
 
 type NotificationListParams = {
     page?: number;

@@ -38,12 +38,19 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: '#ffffff',
+  colorScheme: 'light',
   interactiveWidget: 'resizes-content',
 };
 
 export const metadata: Metadata = {
     metadataBase,
     applicationName: 'Esparex',
+    formatDetection: {
+      telephone: false,
+      date: false,
+      email: false,
+      address: false,
+    },
     title: {
         default: 'Esparex — Buy & Sell Spare Parts & Refurbished Electronics Online',
         template: '%s | Esparex',

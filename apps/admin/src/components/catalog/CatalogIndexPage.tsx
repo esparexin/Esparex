@@ -3,9 +3,7 @@
 import type { ReactNode } from "react";
 
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { DataTable, type ColumnDef } from "@esparex/ui";
-
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
+import { DataTable, cn, type ColumnDef } from "@esparex/ui";
 
 interface CatalogPaginationProps {
     currentPage: number;
@@ -71,7 +69,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
                     {filters ? (
                         <div
                             className={cn(
-                                "grid grid-cols-1 gap-4 items-center rounded-xl border border-border bg-card p-4 shadow-xs",
+                                "grid grid-cols-1 gap-4 items-center rounded-xl border border-border bg-card p-4 shadow-sm",
                                 filterLayoutClassName
                             )}
                         >
@@ -80,7 +78,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
                     ) : null}
 
                     {error ? (
-                        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                        <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-body font-medium text-destructive">
                             {error}
                         </div>
                     ) : null}

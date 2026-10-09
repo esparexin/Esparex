@@ -2,7 +2,7 @@ import express from "express";
 import * as locationController from "../controllers/location/locationController";
 import { searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@esparex/core/validators/location.validator';
+import * as Validators from '@esparex/core';
 
 import { publicCacheControl, privateNoCacheControl } from '../middleware/publicCacheControl';
 

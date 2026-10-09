@@ -1,24 +1,25 @@
 import { Request } from 'express';
-import { logAdminActionDirect, AdminLogTargetType } from '@esparex/core/utils/adminLogger';
+import { logAdminActionDirect, AdminLogTargetType } from '@esparex/core';
+
+/**
+ * Parameter DTO for {@link logAdminAction} (Zero Primitive Obsession:
+ * whole-object parameter passing instead of six positional primitives).
+ */
+export interface LogAdminActionParams {
+    req: Request;
+    action: string;
+    targetType: AdminLogTargetType;
+    targetId?: string | { toString: () => string };
+    metadata?: Record<string, unknown>;
+    actorIdOverride?: string;
+}
 
 /**
  * Asynchronously logs an admin action.
  * Fail-safe: Any errors during logging are caught and logged to console, ensuring the main action proceeds.
- * 
- * @param req - Express Request object (to extract admin user, IP, UA)
- * @param action - Action name (e.g., 'BAN_USER', 'APPROVE_AD')
- * @param targetType - Type of target entity (e.g., 'User', 'Ad')
- * @param targetId - ID of the target entity
- * @param metadata - Optional extra data (before/after states, reasons)
  */
-export const logAdminAction = async (
-    req: Request,
-    action: string,
-    targetType: AdminLogTargetType,
-    targetId?: string | { toString: () => string },
-    metadata?: Record<string, unknown>,
-    actorIdOverride?: string
-) => {
+export const logAdminAction = async (params: LogAdminActionParams) => {
+    const { req, action, targetType, targetId, metadata, actorIdOverride } = params;
     const authUser = req.user as { _id?: string; id?: string } | undefined;
     const adminId = actorIdOverride || authUser?._id || authUser?.id;
 
@@ -40,4 +41,4 @@ export const logAdminAction = async (
     );
 };
 
-export { logAdminActionDirect, AdminLogTargetType, AdminLogFn } from '@esparex/core/utils/adminLogger';
+export { logAdminActionDirect, AdminLogTargetType, AdminLogFn } from '@esparex/core';

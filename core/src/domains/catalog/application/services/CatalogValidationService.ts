@@ -9,13 +9,22 @@ import {
     normalizeCatalogCanonicalName as normalizeCatalogCanonicalNameGoverned,
 } from '../../../../utils/catalogGovernance';
 
-import {
-    CategoryRepositoryPort,
-    BrandRepositoryPort,
-    ModelRepositoryPort,
-    SparePartRepositoryPort,
-    ListingTypeValue
-} from '../..';
+import { CategoryRepositoryPort } from '../../ports/CategoryRepositoryPort';
+import { BrandRepositoryPort } from '../../ports/BrandRepositoryPort';
+import { ModelRepositoryPort } from '../../ports/ModelRepositoryPort';
+import { SparePartRepositoryPort } from '../../ports/SparePartRepositoryPort';
+import { ListingTypeValue } from '@esparex/contracts';
+import type {
+    SparePartRelationPayload,
+    ScreenSizeRelationPayload,
+} from '@esparex/contracts';
+
+/**
+ * Phase 3a (§5): the local `SparePartRelationPayload` /
+ * `ScreenSizeRelationPayload` interfaces are relocated to
+ * `@esparex/contracts` (canonical owner per DECISION-GATE §3) and imported
+ * here. Deletion of the local names (unused beyond this file) is Phase 4 (§10).
+ */
 
 // ─── Shared Mongo query fragments (Retained for backwards compatibility if needed elsewhere) ─
 
@@ -347,19 +356,8 @@ export async function getCategorySelectionMode(categoryId: unknown): Promise<'si
     return getServiceInstance().getCategorySelectionMode(categoryId);
 }
 
-export interface SparePartRelationPayload {
-    categoryIds: string[];
-    brandId?: string;
-    modelId?: string;
-}
-
 export async function validateSparePartRelations(payload: SparePartRelationPayload): Promise<ValidationResult> {
     return getServiceInstance().validateSparePartRelations(payload);
-}
-
-export interface ScreenSizeRelationPayload {
-    categoryId: string;
-    brandId?: string;
 }
 
 export async function validateScreenSizeRelations(payload: ScreenSizeRelationPayload): Promise<ValidationResult> {

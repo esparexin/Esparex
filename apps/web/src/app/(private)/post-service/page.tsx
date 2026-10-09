@@ -8,7 +8,7 @@ function PostServicePage() {
     return (
         <BusinessListingGatePage
             listingTypeLabel="services"
-            contentContainerClassName="min-h-screen bg-slate-100 sm:py-10"
+            contentContainerClassName="min-h-screen bg-muted sm:py-10"
         >
             <PostServiceForm />
         </BusinessListingGatePage>

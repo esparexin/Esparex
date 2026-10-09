@@ -1,4 +1,4 @@
-export { SmartAlertModel } from '@esparex/core/domains/notifications/application/SmartAlertService';
+export { SmartAlertModel } from '@esparex/core/domains/notifications';
 export {
     getErrorMessage,
     getRequiredAlertId,

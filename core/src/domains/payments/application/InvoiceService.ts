@@ -9,6 +9,8 @@ import { type ITransaction } from '../../../models/Transaction';
 import logger, { logBusiness } from '../../../utils/logger';
 import { emailService } from '../../../domains/notifications/application/EmailService';
 import { renderInvoiceEmail } from '../../../domains/notifications/templates/EmailLayout';
+import { formatStableDate } from '@esparex/shared';
+import { splitGstFromInclusive } from '../utils/gst';
 
 export const PAYMENT_SAC_CODE = '998599';
 
@@ -176,9 +178,7 @@ export const buildInvoicePayload = async (
         business = await Business.findById(user.businessId).session(session || null).lean<PaymentBusinessLike | null>();
     }
 
-    const subtotal = Number((tx.amount / 1.18).toFixed(2));
-    const gstAmount = Number((tx.amount - subtotal).toFixed(2));
-    const halfTax = Number((gstAmount / 2).toFixed(2));
+    const { subtotal, gstAmount, cgst: halfTax } = splitGstFromInclusive(tx.amount);
     const issuedAt = new Date();
 
     const gstin = typeof business?.gstNumber === 'string' ? business.gstNumber : undefined;
@@ -287,11 +287,11 @@ export const ensureInvoicePdf = async (invoiceId?: string) => {
 
         if (pdfUser?.email && typeof pdfUser.email === 'string' && pdfUser.email.includes('@')) {
             try {
-                const invoiceDate = invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString('en-IN', {
+                const invoiceDate = formatStableDate(invoice.issuedAt ?? new Date(), {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
-                }) : new Date().toLocaleDateString('en-IN');
+                });
                 const invoiceHtml = renderInvoiceEmail({
                     invoiceNumber: invoice.invoiceNumber,
                     planName: invoice.items?.[0]?.description || 'Subscription Plan',

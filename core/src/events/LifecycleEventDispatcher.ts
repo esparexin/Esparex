@@ -16,17 +16,17 @@ export interface AdStatusChangedEvent {
     reason?: string;
 }
 
-export interface AdExpiredBulkEvent {
+interface AdExpiredBulkEvent {
     count: number;
     source: string;
 }
 
-export interface AdSpotlightExpiredEvent {
+interface AdSpotlightExpiredEvent {
     count: number;
     source: string;
 }
 
-export interface ListingApprovedEvent {
+interface ListingApprovedEvent {
     listingId: string;
     listingType: string;
     approvedAt: string;
@@ -35,13 +35,13 @@ export interface ListingApprovedEvent {
     source: string;
 }
 
-export interface ListingExpiredBulkEvent {
+interface ListingExpiredBulkEvent {
     count: number;
     listingIds: string[];
     source: string;
 }
 
-export interface ListingRejectedEvent {
+interface ListingRejectedEvent {
     listingId: string;
     listingType: string;
     rejectionReason?: string;
@@ -60,7 +60,7 @@ export interface PaymentCompletedEvent {
     gatewayPaymentId: string;
 }
 
-export interface LifecycleEventMap {
+interface LifecycleEventMap {
     'ad.lifecycle.changed': AdStatusChangedEvent;
     'ad.expired.bulk': AdExpiredBulkEvent;
     'ad.spotlight.expired': AdSpotlightExpiredEvent;

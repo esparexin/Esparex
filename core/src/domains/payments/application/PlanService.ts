@@ -4,16 +4,16 @@ import Plan, { type IPlan } from '../../../models/Plan';
 import { type AdPostingSlotSource } from '../../boosts/application/services/AdSlotService';
 import { LISTING_TYPE } from '@esparex/contracts';
 import { getListingRepository } from '../../../composition/listings';
-import { 
-    AdSlotService, 
-    getMonthlyCycleStart,
+import {
+    AdSlotService,
     getAdPostingBalance as adSlotGetBalance
 } from '../../boosts/application/services/AdSlotService';
+// P0-6: monthly cycle reset is owned by entitlements (single resetMonthlyCycle).
+import { resetMonthlyCycleBulk } from '../../entitlements/application/EntitlementWalletWriter';
 import { AppError } from '../../../shared-kernel/errors/AppError';
 import { calculateUserPlan } from '../domain/policies/PlanEngine';
 export { calculateUserPlan };
 import logger from '../../../utils/logger';
-import UserWallet from '../../../models/UserWallet';
 import { withUserPostingLock } from '../../boosts/application/services/AdSlotService';
 import { getSystemConfigForRead } from '../../../services/SystemConfigService';
 import { findPlanByIdOrCode } from './planQueryHelpers';
@@ -95,24 +95,17 @@ export const renewBusinessPlan = async (
     );
 };
 
+/**
+ * Bulk monthly wallet cycle reset (monthly cron).
+ *
+ * @deprecated P0-6 consolidation (DECISION-GATE §1/§3): canonical owner is
+ * entitlements (`EntitlementWalletWriter.resetMonthlyCycleBulk`), which resets the
+ * full schema-derived monthly field set. The old implementation here reset only
+ * `monthlyFreeAdsUsed` (the D-02 field-set drift). Delegating wrapper — the cron
+ * job now imports the canonical API directly.
+ */
 export const resetWalletsForNewCycle = async (now: Date = new Date()) => {
-    const cycleStart = getMonthlyCycleStart(now);
-    const result = await UserWallet.updateMany(
-        {
-            $or: [
-                { lastMonthlyReset: { $exists: false } },
-                { lastMonthlyReset: { $lt: cycleStart } }
-            ]
-        },
-        {
-            $set: {
-                lastMonthlyReset: now,
-                monthlyFreeAdsUsed: 0
-            }
-        }
-    );
-
-    return { cycleStart, modifiedCount: result.modifiedCount };
+    return resetMonthlyCycleBulk({ now });
 };
 
 export const consumeAdPostingSlot = async (

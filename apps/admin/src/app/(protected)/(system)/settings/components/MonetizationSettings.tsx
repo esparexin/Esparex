@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "@esparex/ui";
 import type {
   AdCampaignItem,
   MonetizationSystemState,
@@ -147,7 +147,7 @@ export function MonetizationSettings() {
         <div
           className={`flex items-center gap-2 p-3.5 rounded-xl border text-caption font-semibold ${
             feedback.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              ? "bg-success/10 border-success/20 text-success-dark"
               : "bg-destructive/10 border-destructive/20 text-destructive"
           }`}
         >

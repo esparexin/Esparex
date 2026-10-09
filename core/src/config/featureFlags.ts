@@ -10,7 +10,15 @@ export enum FeatureFlag {
     USE_ADMIN_CATALOG_READS = 'USE_ADMIN_CATALOG_READS',
     ENABLE_ATLAS_CATALOG_SEARCH = 'ENABLE_ATLAS_CATALOG_SEARCH',
     ENABLE_BEHAVIORAL_RANKING_GOVERNANCE = 'ENABLE_BEHAVIORAL_RANKING_GOVERNANCE',
-    ENABLE_RANKING_REPLAY_EVALUATION = 'ENABLE_RANKING_REPLAY_EVALUATION'
+    ENABLE_RANKING_REPLAY_EVALUATION = 'ENABLE_RANKING_REPLAY_EVALUATION',
+    /**
+     * P0-1 consolidation (2026-10-06, DECISION-GATE §1/§3): routes every promotion
+     * application through the single boosts-domain `applyPromotion`.
+     * ON (default): unified flow. OFF: rollback to the retired legacy flows
+     * (payments `PromotionService` / listings `promoteAdLogic`).
+     * Rollback-only flag — retire it once the retired flows are deleted (Phase 4).
+     */
+    ENABLE_UNIFIED_APPLY_PROMOTION = 'ENABLE_UNIFIED_APPLY_PROMOTION'
 }
 
 const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
@@ -23,6 +31,7 @@ const DEFAULT_FLAGS: Record<FeatureFlag, boolean> = {
     [FeatureFlag.ENABLE_ATLAS_CATALOG_SEARCH]: false,
     [FeatureFlag.ENABLE_BEHAVIORAL_RANKING_GOVERNANCE]: false,
     [FeatureFlag.ENABLE_RANKING_REPLAY_EVALUATION]: false,
+    [FeatureFlag.ENABLE_UNIFIED_APPLY_PROMOTION]: true,
 };
 
 let warnedProductionAdminCatalogReads = false;

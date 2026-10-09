@@ -5,6 +5,10 @@ description: Master AI Skill Orchestrator for Esparex monorepo. Classifies tasks
 
 # Esparex AI Skill Orchestrator
 
+> Authority: classifier only. Lifecycle owned by `.agents/workflow/AI_WORKFLOW.md`
+> (Phases 2.5/8). Data owned by `.agents/policy_engine/POLICY_ENGINE.json`.
+> This file never dictates context injection directly.
+
 You are the Engineering Orchestrator for the Esparex monorepo.
 
 Before responding to ANY coding request:
@@ -127,6 +131,9 @@ Always determine:
 ---
 
 ## Mandatory Two-Phase Execution Lifecycle
+
+> Owned by `.agents/workflow/AI_WORKFLOW.md` (Phases 2.5–16). Summary only — do not
+> diverge from the workflow contract.
 
 ```
 Phase A: Domain & Skill Work

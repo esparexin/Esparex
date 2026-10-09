@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Zap, Badge, Power } from "@esparex/ui";
 import { cn } from "@/lib/utils";
@@ -28,15 +27,18 @@ export interface UseAdCardBaseOptions extends UseAdCardNavigationOptions {
   ad: AdCardData;
 }
 
-interface AdCardLinkWrapperProps {
-  href?: string;
-  enabled: boolean;
-  children: ReactNode;
-}
 
 /* -------------------------------------------------------------------------- */
 /* Navigation helpers                                                          */
 /* -------------------------------------------------------------------------- */
+
+export type AdCardClickEvent =
+  | React.MouseEvent
+  | { target?: EventTarget | null; currentTarget?: EventTarget | null };
+
+export type AdCardKeyboardEvent =
+  | React.KeyboardEvent
+  | { key: string; target?: EventTarget | null; currentTarget?: EventTarget | null; preventDefault?: () => void };
 
 export function useAdCardNavigation({
   href,
@@ -46,7 +48,14 @@ export function useAdCardNavigation({
   const router = useRouter();
   const useDeclarativeLink = Boolean(href && !onClick && !disableDeclarativeLink);
 
-  const handleCardClick = () => {
+  const handleCardClick = (e?: AdCardClickEvent) => {
+    // If the click originated from a descendant interactive element (button, link, input), let it handle its own event
+    const target = e?.target as HTMLElement | undefined;
+    const currentTarget = e?.currentTarget as HTMLElement | undefined;
+    const interactive = target?.closest?.("button, [role='button'], a, input, select, textarea");
+    if (interactive && interactive !== currentTarget) {
+      return;
+    }
     if (onClick) {
       onClick();
       return;
@@ -56,29 +65,28 @@ export function useAdCardNavigation({
     }
   };
 
-  return { useDeclarativeLink, handleCardClick };
+  const handleKeyDown = (e: AdCardKeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      const target = e.target as HTMLElement | undefined;
+      const currentTarget = e.currentTarget as HTMLElement | undefined;
+      const interactive = target?.closest?.("button, [role='button'], a, input, select, textarea");
+      if (interactive && interactive !== currentTarget) {
+        return;
+      }
+      e.preventDefault?.();
+      handleCardClick();
+    }
+  };
+
+  return { useDeclarativeLink, handleCardClick, handleKeyDown };
 }
 
-export function AdCardLinkWrapper({
-  href,
-  enabled,
-  children,
-}: AdCardLinkWrapperProps) {
-  if (!enabled || !href) {
-    return <>{children}</>;
-  }
-  return (
-    <Link href={href} className="block w-full">
-      {children}
-    </Link>
-  );
-}
 
-export function toAdRecord(ad: AdCardData): Record<string, unknown> {
+function toAdRecord(ad: AdCardData): Record<string, unknown> {
   return ad as Record<string, unknown>;
 }
 
-export function resolveAdImageUrl(adRecord: Record<string, unknown>): string {
+function resolveAdImageUrl(adRecord: Record<string, unknown>): string {
   const candidateImage =
     (typeof adRecord.image === "string" ? adRecord.image : undefined) ||
     (Array.isArray(adRecord.images) && typeof adRecord.images[0] === "string"
@@ -113,7 +121,7 @@ export function useAdCardBase({
         })
       : undefined);
 
-  const { useDeclarativeLink, handleCardClick } = useAdCardNavigation({
+  const { useDeclarativeLink, handleCardClick, handleKeyDown } = useAdCardNavigation({
     href: resolvedHref,
     onClick,
     disableDeclarativeLink,
@@ -126,6 +134,7 @@ export function useAdCardBase({
     adId,
     useDeclarativeLink,
     handleCardClick,
+    handleKeyDown,
   };
 }
 
@@ -140,12 +149,8 @@ export function resolveDeviceCondition(
 
   // 1. Direct fields check
   const raw =
-    (typeof adRecord.deviceCondition === "string"
-      ? adRecord.deviceCondition
-      : undefined) ||
-    (typeof adRecord.condition === "string"
-      ? adRecord.condition
-      : undefined) ||
+    (typeof adRecord.deviceCondition === "string" ? adRecord.deviceCondition : undefined) ||
+    (typeof adRecord.condition === "string" ? adRecord.condition : undefined) ||
     (adRecord.specs && typeof adRecord.specs === "object"
       ? (adRecord.specs as Record<string, unknown>).deviceCondition ||
         (adRecord.specs as Record<string, unknown>).condition
@@ -153,53 +158,16 @@ export function resolveDeviceCondition(
 
   if (typeof raw === "string" && raw.trim()) {
     const norm = raw.toLowerCase().trim().replace(/[\s_-]+/g, "_");
-    if (
-      norm.includes("power_on") ||
-      norm.includes("powers_on") ||
-      norm === "working"
-    ) {
-      return "power_on";
-    }
-    if (
-      norm.includes("power_off") ||
-      norm.includes("powers_off") ||
-      norm === "dead"
-    ) {
-      return "power_off";
-    }
+    if (norm.includes("power_on") || norm.includes("powers_on") || norm === "working") return "power_on";
+    if (norm.includes("power_off") || norm.includes("powers_off") || norm === "dead") return "power_off";
   }
 
   // 2. Fallback title parsing for explicit condition indicators
   const title = typeof ad.title === "string" ? ad.title.toLowerCase() : "";
-  if (
-    title.includes("powers on") ||
-    title.includes("power on") ||
-    title.includes("(power on)") ||
-    title.includes("- power on")
-  ) {
-    return "power_on";
-  }
-  if (
-    title.includes("powers off") ||
-    title.includes("power off") ||
-    title.includes("(power off)") ||
-    title.includes("- power off")
-  ) {
-    return "power_off";
-  }
+  if (/powers?\s+on|\(power\s+on\)|-\s*power\s+on/.test(title)) return "power_on";
+  if (/powers?\s+off|\(power\s+off\)|-\s*power\s+off/.test(title)) return "power_off";
 
   return undefined;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Date formatting helper for mobile cards (compact current year dates)       */
-/* -------------------------------------------------------------------------- */
-
-export function formatCompactCardDate(dateStr: string | undefined): string {
-  if (!dateStr) return "Just now";
-  const currentYear = new Date().getFullYear().toString();
-  const yearRegex = new RegExp(`\\s*${currentYear}\\s*`, "g");
-  return dateStr.replace(yearRegex, "").trim() || dateStr;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -207,7 +175,7 @@ export function formatCompactCardDate(dateStr: string | undefined): string {
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-tiny font-bold uppercase tracking-wide h-4.5 px-1.5 rounded-md shadow-2xs flex items-center gap-1";
+  "border-0 text-tiny font-bold uppercase tracking-wide h-[18px] px-1.5 rounded-md shadow-sm flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -248,7 +216,7 @@ export function ListingTypeBadge({
   return (
     <Badge
       className={cn(
-        "border text-tiny font-bold px-1.5 h-4.5 rounded-md uppercase tracking-wide flex items-center shadow-2xs select-none backdrop-blur-xs",
+        "border text-tiny font-bold px-1.5 h-[18px] rounded-md uppercase tracking-wide flex items-center shadow-sm select-none backdrop-blur-xs",
         typeBadge.className,
         className
       )}
@@ -311,10 +279,10 @@ export function shouldDisplayCategoryBadge(
     return false;
   }
 
-  // Handle ad variations (e.g. "ad", "ads")
+  // Handle device / ad variations (e.g. "device", "devices", "ad", "ads")
   if (
-    (typeLabel === "ad" || rawType === "ad") &&
-    (normalized === "ad" || normalized === "ads")
+    (typeLabel === "device" || typeLabel === "ad" || rawType === "ad" || rawType === "device") &&
+    (normalized === "device" || normalized === "devices" || normalized === "ad" || normalized === "ads")
   ) {
     return false;
   }
@@ -334,7 +302,7 @@ export function getPlanBadge(
 
   return (
     <Badge
-      className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
+      className={cn("bg-warning text-warning-foreground font-bold shadow-sm border border-warning/30", merged)}
       aria-label="Spotlight listing"
     >
       <Zap className="h-2.5 w-2.5" aria-hidden="true" />
@@ -351,59 +319,6 @@ export function getPlanBadge(
 /* These three serve different domains and must NOT be consolidated.           */
 /* -------------------------------------------------------------------------- */
 
-export function getAdOverlayBadge(
-  ad: AdCardData,
-  className?: string
-): ReactNode | null {
-  const adRecord = toAdRecord(ad);
-  const status =
-    typeof adRecord.status === "string" ? adRecord.status.toLowerCase() : "";
-  const isReserved = adRecord.isReserved === true;
-  const isNew = adRecord.isNew === true;
-
-  const merged = cn(BADGE_BASE, className);
-
-  if (status === "sold") {
-    return (
-      <Badge
-        className={cn("bg-slate-700/90 text-white border-0", merged)}
-        aria-label="Listing sold"
-      >
-        Sold
-      </Badge>
-    );
-  }
-
-  if (isReserved) {
-    return (
-      <Badge
-        className={cn(
-          "bg-amber-50 text-amber-700 border border-amber-200",
-          merged
-        )}
-        aria-label="Listing reserved"
-      >
-        Reserved
-      </Badge>
-    );
-  }
-
-  if (isNew) {
-    return (
-      <Badge
-        className={cn(
-          "bg-blue-50 text-blue-700 border border-blue-200",
-          merged
-        )}
-        aria-label="New listing"
-      >
-        New
-      </Badge>
-    );
-  }
-
-  return null;
-}
 
 /* -------------------------------------------------------------------------- */
 /* Compact Status Chip for Condition (Power On / Power Off)                   */
@@ -438,20 +353,20 @@ export function getConditionBadge(
       className={cn(
         "inline-flex items-center gap-1 text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
-          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800"
-          : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800",
+          ? "bg-primary/10 text-primary border-primary/20"
+          : "bg-destructive/10 text-destructive border-destructive/20",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
       {isPowerOn ? (
         <>
-          <Zap className="size-3 text-emerald-600 fill-emerald-600 shrink-0" aria-hidden="true" />
+          <Zap className="size-3 text-primary fill-primary shrink-0" aria-hidden="true" />
           <span>ON</span>
         </>
       ) : (
         <>
-          <Power className="size-3 text-red-600 shrink-0" aria-hidden="true" />
+          <Power className="size-3 text-destructive shrink-0" aria-hidden="true" />
           <span>OFF</span>
         </>
       )}

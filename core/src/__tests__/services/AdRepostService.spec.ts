@@ -57,11 +57,11 @@ jest.mock('../../domains/listings/application/policies/ListingSubmissionPolicy',
     },
 }));
 
-jest.mock('../../services/lifecycle/StatusMutationService', () => ({
+jest.mock('../../domains/listings/application/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('../../services/lifecycle/AdStatusService', () => ({
+jest.mock('../../domains/listings/application/lifecycle/AdStatusService', () => ({
     normalizeAdStatus: jest.fn((status) => status),
 }));
 
@@ -73,13 +73,13 @@ jest.mock('../../utils/redisCache', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import mongoose from 'mongoose';
-import { repostAdLogic } from '../../domains/listings/application/ad/ad/AdRepostService';
+import { repostAdLogic } from '../../domains/listings/application/ad/AdRepostService';
 import Ad from '../../models/Ad';
 import { ListingSubmissionPolicy } from '../../domains/listings/application/policies/ListingSubmissionPolicy';
-import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
+import * as StatusMutationService from '../../domains/listings/application/lifecycle/StatusMutationService';
 import { LISTING_STATUS } from '@esparex/contracts';
 
-import { getListingRepository } from '@esparex/core/composition/listings';
+import { getListingRepository } from '../../composition/listings';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 

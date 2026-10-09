@@ -69,14 +69,14 @@ export function AdminPermissionScopeSelector({
                         onClick={() => onChange(PERMISSION_PRESETS.moderator.join(", "))}
                         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-tiny font-medium text-foreground-secondary hover:bg-muted hover:text-foreground transition-all cursor-pointer"
                     >
-                        <Sparkles size={11} className="text-amber-500" /> Moderator
+                        <Sparkles size={11} className="text-warning" /> Moderator
                     </button>
                     <button
                         type="button"
                         onClick={() => onChange(PERMISSION_PRESETS.admin.join(", "))}
                         className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-tiny font-medium text-foreground-secondary hover:bg-muted hover:text-foreground transition-all cursor-pointer"
                     >
-                        <Sparkles size={11} className="text-blue-500" /> Admin
+                        <Sparkles size={11} className="text-primary" /> Admin
                     </button>
                     <button
                         type="button"
@@ -102,7 +102,7 @@ export function AdminPermissionScopeSelector({
                     {selectedScopes.map((scope) => (
                         <span
                             key={scope}
-                            className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/25 px-2 py-0.5 text-caption font-mono font-medium text-primary shadow-2xs"
+                            className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/25 px-2 py-0.5 text-caption font-mono font-medium text-primary shadow-sm"
                         >
                             {scope}
                             <button
@@ -140,7 +140,7 @@ export function AdminPermissionScopeSelector({
                                         aria-pressed={isSelected}
                                         className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-tiny font-medium transition-all cursor-pointer ${
                                             isSelected
-                                                ? "bg-primary text-primary-foreground shadow-xs font-semibold ring-1 ring-primary/50"
+                                                ? "bg-primary text-primary-foreground shadow-sm font-semibold ring-1 ring-primary/50"
                                                 : "bg-muted/70 text-foreground-secondary hover:bg-muted hover:text-foreground border border-border/50"
                                         }`}
                                     >

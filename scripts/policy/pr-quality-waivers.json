@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Auditable waivers for PR Quality guard (guard-pr-quality.js) ratchet violations. The guard remains BLOCKING by default; a violation is only waived when a valid, non-expired waiver entry exists for the exact file. Expired waivers FAIL LOUDLY (they do not silently pass) to prevent permanent bypass. Each waiver requires an explicit reason and owner approval.",
+  "waiverSchema": {
+    "allowedLines": "integer (required) - maximum permitted line count for the file (baseline + accepted growth)",
+    "approvedAt": "string (required) - ISO 8601 timestamp of approval",
+    "approvedBy": "string (required) - owner identifier who approved the waiver",
+    "baseline": "integer (required) - merge-base line count at time of waiver (documents what was accepted)",
+    "expiresAt": "string (required) - ISO 8601 timestamp; waiver FAILS after this date (no silent permanence)",
+    "file": "string (required) - exact repo-relative path, e.g. 'packages/ui/src/feedback/Sheet.tsx'",
+    "pr": "integer (optional) - PR number this waiver was granted for (audit trail)",
+    "reason": "string (required) - human-readable justification; must reference the specific work (e.g. P1 finding IDs, PR scope)"
+  },
+  "waivers": [
+    {
+      "file": "packages/ui/src/feedback/Sheet.tsx",
+      "allowedLines": 133,
+      "baseline": 124,
+      "reason": "Popup remediation P1 fixes (F-A1 focus restoration wiring, F-T1 44px close targets). Growth reviewed as minimum necessary; further extraction would be artificial per owner decision.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "packages/ui/src/feedback/popup/popupDialogView.tsx",
+      "allowedLines": 135,
+      "baseline": 124,
+      "reason": "Popup remediation P1 fixes (F-V1 visual-viewport contract, F-T1/F-T2 44px targets, focus-visible). Growth reviewed as minimum necessary; further extraction would be artificial per owner decision.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/common/AdPlacementSlot.tsx",
+      "allowedLines": 239,
+      "baseline": 229,
+      "reason": "Pre-existing growth from lighthouse performance phase (22 commits before popup remediation). Out of scope for popup work; accepted as-is per owner decision. Not to be modified in this PR series.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/common/CookieConsentBanner.tsx",
+      "allowedLines": 161,
+      "baseline": 153,
+      "reason": "Pre-existing growth from UI/UX audit phase (22 commits before popup remediation). Out of scope for popup work; accepted as-is per owner decision. Not to be modified in this PR series.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/home/HomeLocationAutoPrompt.tsx",
+      "allowedLines": 70,
+      "baseline": 32,
+      "reason": "Pre-existing growth from lighthouse performance phase (22 commits before popup remediation). Out of scope for popup work; accepted as-is per owner decision. Not to be modified in this PR series.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/user/post-ad/PostAdWizard.tsx",
+      "allowedLines": 165,
+      "baseline": 159,
+      "reason": "Pre-existing growth from UI/UX audit phase (22 commits before popup remediation). Out of scope for popup work; accepted as-is per owner decision. Not to be modified in this PR series.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/user/post-ad/steps/common/attribute-fields.tsx",
+      "allowedLines": 104,
+      "baseline": 88,
+      "reason": "Pre-existing growth from UI/UX audit phase (22 commits before popup remediation). Out of scope for popup work; accepted as-is per owner decision. Not to be modified in this PR series.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-08T04:20:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z",
+      "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/auth/AuthModal.tsx",
+      "allowedLines": 84,
+      "baseline": 54,
+      "reason": "Pre-existing growth from mobile viewport login sheet and accessibility navigation (F-V1/F-K3). Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "apps/web/src/components/location/LocationOverlayHost.tsx",
+      "allowedLines": 154,
+      "baseline": 147,
+      "reason": "Pre-existing growth from location portal lifecycle cleanup. Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "apps/web/src/components/user/profile/tabs/SavedAdsTab.tsx",
+      "allowedLines": 174,
+      "baseline": 165,
+      "reason": "Pre-existing growth from saved ads empty-state accessibility and bookmark actions. Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "core/src/utils/originConfig.ts",
+      "allowedLines": 198,
+      "baseline": 160,
+      "reason": "Pre-existing growth from CORS domain security verification and Vercel preview domain helpers.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    }
+  ]
+}

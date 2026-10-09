@@ -1,4 +1,4 @@
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core';
 import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";

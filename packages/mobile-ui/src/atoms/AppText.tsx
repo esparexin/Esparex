@@ -2,8 +2,8 @@ import React from 'react';
 import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
 export interface AppTextProps extends RNTextProps {
-  variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
-  color?: 'default' | 'muted' | 'brand' | 'error' | 'success';
+  variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body-lg' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
+  color?: 'default' | 'secondary' | 'muted' | 'brand' | 'error' | 'success';
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   align?: 'left' | 'center' | 'right';
   className?: string;
@@ -30,28 +30,33 @@ export const AppText: React.FC<AppTextProps> = ({
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
-      case 'display': return 'text-4xl leading-tight font-bold tracking-tight'; // 36px
-      case 'h1': return 'text-3xl leading-snug font-bold tracking-tight'; // 30px
-      case 'h2': return 'text-2xl leading-snug font-bold tracking-tight'; // 24px
-      case 'h3': return 'text-xl leading-normal font-semibold tracking-tight'; // 20px
-      case 'h4': return 'text-lg leading-normal font-semibold'; // 18px
-      case 'body': return 'text-sm leading-normal'; // 14px
+      case 'display': return 'text-display leading-tight font-bold tracking-tight'; // 36px
+      case 'h1': return 'text-h1 leading-snug font-bold tracking-tight'; // 30px
+      case 'h2': return 'text-h2 leading-snug font-bold tracking-tight'; // 24px
+      case 'h3': return 'text-h3 leading-normal font-semibold tracking-tight'; // 20px
+      case 'h4': return 'text-h4 leading-normal font-semibold'; // 18px
+      case 'body-lg': return 'text-body-lg leading-normal'; // 16px
+      case 'body': return 'text-body leading-normal'; // 14px
       case 'small': return 'text-small leading-normal'; // 13px
-      case 'label': return 'text-sm font-medium leading-none'; // 14px
-      case 'caption': return 'text-xs leading-tight'; // 12px
+      case 'label': return 'text-body font-medium leading-none'; // 14px
+      case 'caption': return 'text-caption leading-tight'; // 12px
       case 'tiny': return 'text-tiny leading-tight'; // 11px
-      default: return 'text-sm leading-normal';
+      default: return 'text-body leading-normal';
     }
   };
 
   const getColorStyles = () => {
     switch (color) {
-      case 'muted': return 'text-slate-500 dark:text-slate-400';
-      case 'brand': return 'text-brand-600 dark:text-brand-400';
-      case 'error': return 'text-error';
+      case 'secondary': return 'text-foreground-secondary';
+      case 'muted': return 'text-muted-foreground';
+      case 'brand': return 'text-brand-600';
+      case 'error': return 'text-destructive';
       case 'success': return 'text-success';
-      case 'default':
-      default: return 'text-slate-900 dark:text-slate-50';
+      case 'default': return 'text-foreground';
+      // RC-5 FIX: Use semantic text-foreground instead of the primitive
+      // palette classes whose dark: variants were inert without darkMode (RC-1).
+      // text-foreground resolves to a concrete hex via the fixed NativeWind config.
+      default: return 'text-foreground';
     }
   };
 

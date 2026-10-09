@@ -297,7 +297,7 @@ test.describe("Post Ad authenticated smoke", () => {
       await page.getByRole("button", { name: "Confirm & Post Ad" }).click();
 
       // 10. Verify Success Screen
-      await expect(page.getByText("Ad Submitted", { exact: true })).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByText("Device Submitted", { exact: true })).toBeVisible({ timeout: 20_000 });
       expect(captures.listings).toHaveLength(1);
       expect(captures.listings[0]).toMatchObject({
         categoryId: CATEGORY_ID,

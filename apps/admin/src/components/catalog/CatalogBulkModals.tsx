@@ -29,11 +29,11 @@ export function CatalogBulkRejectModal({
             title="Bulk Reject Requests"
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
-                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                <div className="flex items-start gap-3 rounded-xl border border-warning/20 bg-warning/10 p-4">
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
                     <div>
-                        <p className="text-sm font-semibold text-orange-700">Bulk Rejection Action</p>
-                        <p className="mt-1 text-sm text-orange-600">
+                        <p className="text-body font-semibold text-warning-dark">Bulk Rejection Action</p>
+                        <p className="mt-1 text-body text-warning">
                             You are about to reject <strong>{selectedCount}</strong> selected requests. Please provide a reason to notify the submitters.
                         </p>
                     </div>
@@ -106,11 +106,11 @@ export function CatalogBulkDuplicateModal({
             title="Bulk Mark As Duplicate"
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
-                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary-subtle p-4">
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <div>
-                        <p className="text-sm font-semibold text-blue-700">Bulk Mark As Duplicate</p>
-                        <p className="mt-1 text-sm text-blue-600">
+                        <p className="text-body font-semibold text-primary">Bulk Mark As Duplicate</p>
+                        <p className="mt-1 text-body text-primary">
                             Select the canonical {requestType === "brand" ? "brand" : "model"} that these <strong>{selectedCount}</strong> requests are duplicates of.
                         </p>
                     </div>

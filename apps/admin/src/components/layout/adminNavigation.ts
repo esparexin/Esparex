@@ -15,6 +15,7 @@ import {
     Tag,
     List,
     Cpu,
+    Mail,
 } from "@esparex/ui";
 
 export type AdminModuleKey =
@@ -26,6 +27,7 @@ export type AdminModuleKey =
     | "businessMaster"
     | "reports"
     | "notifications"
+    | "emailTemplates"
     | "chatModeration"
     | "analytics"
     | "administration"
@@ -130,6 +132,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         roles: ["admin", "superAdmin"],
         section: "Management",
         aliases: ["/notifications", "/smart-alerts"],
+    },
+    {
+        key: "emailTemplates",
+        label: "Email Templates",
+        icon: Mail,
+        href: "/email-templates",
+        roles: ["admin", "superAdmin"],
+        section: "Management",
+        aliases: ["/email-templates"],
     },
     {
         key: "chatModeration",

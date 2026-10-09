@@ -24,36 +24,23 @@ const BRANDS_STALE_TIME = 10 * 60 * 1000; // 10 minutes
 const MODELS_STALE_TIME = 5 * 60 * 1000; // 5 minutes
 const SCREEN_SIZES_STALE_TIME = 10 * 60 * 1000; // 10 minutes
 
-/**
- * Normalizes and merges a brand into existing brands array preserving alphabetical sorting by name.
- */
-function mergeBrandIntoList(list: Brand[], entity: { id: string; name: string }): Brand[] {
+// P4: single merge owner (was mergeBrandIntoList/mergeModelIntoList duplicates).
+function mergeNamedEntityIntoList<T extends { id: string; _id?: string; name: string }>(
+    list: T[],
+    entity: T
+): T[] {
     const existingIndex = list.findIndex(
-        (b) => b.id === entity.id || b._id === entity.id || b.name.toLowerCase() === entity.name.toLowerCase()
+        (item) =>
+            item.id === entity.id ||
+            item._id === entity.id ||
+            item.name.toLowerCase() === entity.name.toLowerCase()
     );
-    let updated: Brand[];
+    let updated: T[];
     if (existingIndex >= 0) {
         updated = [...list];
-        updated[existingIndex] = { ...updated[existingIndex], id: entity.id, _id: entity.id, name: entity.name };
+        updated[existingIndex] = { ...updated[existingIndex], ...entity, _id: entity.id };
     } else {
-        updated = [...list, { id: entity.id, _id: entity.id, name: entity.name }];
-    }
-    return updated.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
-}
-
-/**
- * Normalizes and merges a device model into existing models array preserving alphabetical sorting by name.
- */
-function mergeModelIntoList(list: DeviceModel[], entity: { id: string; name: string; brandId?: string; categoryId?: string }): DeviceModel[] {
-    const existingIndex = list.findIndex(
-        (m) => m.id === entity.id || m._id === entity.id || m.name.toLowerCase() === entity.name.toLowerCase()
-    );
-    let updated: DeviceModel[];
-    if (existingIndex >= 0) {
-        updated = [...list];
-        updated[existingIndex] = { ...updated[existingIndex], id: entity.id, _id: entity.id, name: entity.name, brandId: entity.brandId, categoryId: entity.categoryId };
-    } else {
-        updated = [...list, { id: entity.id, _id: entity.id, name: entity.name, brandId: entity.brandId, categoryId: entity.categoryId }];
+        updated = [...list, { ...entity, _id: entity.id }];
     }
     return updated.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
@@ -279,12 +266,12 @@ export function useBrandCatalog({
             const queryKey = ["catalog", "brands", activeCategoryId];
             try {
                 // First merge optimistically so visibility is immediate and normalized
-                queryClient.setQueryData<Brand[]>(queryKey, (oldData = []) => mergeBrandIntoList(oldData, entity));
+                queryClient.setQueryData<Brand[]>(queryKey, (oldData = []) => mergeNamedEntityIntoList(oldData, entity));
                 // Then invalidate to ensure server consistency
                 await queryClient.invalidateQueries({ queryKey });
             } catch (error) {
                 logger.warn(`[Catalog] ensureBrandVisible refetch failed or timed out, retaining merged cache:`, error);
-                queryClient.setQueryData<Brand[]>(queryKey, (oldData = []) => mergeBrandIntoList(oldData, entity));
+                queryClient.setQueryData<Brand[]>(queryKey, (oldData = []) => mergeNamedEntityIntoList(oldData, entity));
             }
         },
         [activeCategoryId, queryClient]
@@ -307,12 +294,12 @@ export function useBrandCatalog({
             ];
             try {
                 // First merge optimistically so visibility is immediate and normalized
-                queryClient.setQueryData<DeviceModel[]>(queryKey, (oldData = []) => mergeModelIntoList(oldData, { ...entity, categoryId: activeCategoryId }));
+                queryClient.setQueryData<DeviceModel[]>(queryKey, (oldData = []) => mergeNamedEntityIntoList(oldData, { ...entity, categoryId: activeCategoryId }));
                 // Then invalidate to ensure server consistency
                 await queryClient.invalidateQueries({ queryKey });
             } catch (error) {
                 logger.warn(`[Catalog] ensureModelVisible refetch failed or timed out, retaining merged cache:`, error);
-                queryClient.setQueryData<DeviceModel[]>(queryKey, (oldData = []) => mergeModelIntoList(oldData, { ...entity, categoryId: activeCategoryId }));
+                queryClient.setQueryData<DeviceModel[]>(queryKey, (oldData = []) => mergeNamedEntityIntoList(oldData, { ...entity, categoryId: activeCategoryId }));
             }
         },
         [activeCategoryId, modelSearch, queryClient]

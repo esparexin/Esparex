@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CheckCircle2, User as UserIcon, X, StatusChip } from "@esparex/ui";
 import { REPORT_STATUS } from "@esparex/contracts";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
+import { formatAppDateTime } from "@esparex/shared";
 import {
     getUserDisplayName,
     getUserStatusPresentation,
@@ -17,7 +18,7 @@ interface UserQuickDetailsPanelProps {
 
 export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelProps) {
     const statusPresentation = getUserStatusPresentation(user.status);
-    const createdAtLabel = user.createdAt ? new Date(user.createdAt).toLocaleString() : "Unknown";
+    const createdAtLabel = user.createdAt ? formatAppDateTime(user.createdAt) : "Unknown";
 
     return (
         <div className="absolute right-0 top-0 z-10 h-full w-[400px] overflow-y-auto border-l border-border bg-card shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.05)]">
@@ -55,7 +56,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.mobile}
                             {user.isPhoneVerified ? (
-                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                <CheckCircle2 size={14} className="text-success" />
                             ) : null}
                         </div>
                     </div>
@@ -64,7 +65,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="flex items-center gap-2 font-semibold text-foreground text-body">
                             {user.email || "N/A"}
                             {user.isEmailVerified ? (
-                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                <CheckCircle2 size={14} className="text-success" />
                             ) : null}
                         </div>
                     </div>
@@ -72,7 +73,7 @@ export function UserQuickDetailsPanel({ user, onClose }: UserQuickDetailsPanelPr
                         <div className="mb-1 text-tiny text-foreground-tertiary">Overall Verification</div>
                         <div className="font-semibold text-foreground text-body">
                             {user.isVerified ? (
-                                <span className="text-emerald-600">Verified</span>
+                                <span className="text-success">Verified</span>
                             ) : (
                                 <span className="text-foreground-subtle">Unverified</span>
                             )}

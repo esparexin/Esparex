@@ -1,13 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { services } from '../../../../bootstrap';
-import type { IMessageDTO } from '@esparex/contracts';
+import type { IMessageDTO, MobileChatSendMessagePayload as SendMessagePayload } from '@esparex/contracts';
 
-interface SendMessagePayload {
-  conversationId: string;
-  text: string;
-  senderId?: string;
-  tempId?: string;
-}
+/**
+ * Phase 3a (§5): the local `SendMessagePayload` interface is relocated to
+ * `@esparex/contracts` as `MobileChatSendMessagePayload` (canonical owner per
+ * DECISION-GATE §3) and imported under its historic local name.
+ *
+ * CONFLICT (recorded, not merged): this shape
+ * ({ conversationId, text, senderId?, tempId? }) collides by name with the
+ * web's `SendMessagePayload` (`apps/web/src/lib/api/chatApi.ts:21`,
+ * { conversationId, text, attachments? }); the web shape is canonicalized as
+ * `ChatSendMessagePayload`. A future gate decision may unify them.
+ */
 
 interface MutationContext {
   tempId: string;

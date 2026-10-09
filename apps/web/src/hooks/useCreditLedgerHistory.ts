@@ -1,17 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import type { CreditLedgerDTO } from '@esparex/contracts';
+import type { CreditLedgerDTO, PaginatedLedgerResponse } from '@esparex/contracts';
 import { apiClient } from '@/lib/api/client';
 import logger from '@/lib/logger';
 
-export interface PaginatedLedgerResponse {
-  items: CreditLedgerDTO[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+/**
+ * Phase 3a (§5): the local `PaginatedLedgerResponse` interface is relocated
+ * to `@esparex/contracts` (canonical owner per DECISION-GATE §3) and imported
+ * here. Deletion of the local name (unused beyond this file) is Phase 4 (§10).
+ */
 
 export function useCreditLedgerHistory(page: number = 1, limit: number = 4) {
   return useQuery<PaginatedLedgerResponse | null>({

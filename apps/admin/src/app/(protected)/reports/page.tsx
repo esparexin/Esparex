@@ -15,6 +15,7 @@ import { fetchAdminAdDetail } from "@/lib/api/moderation";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
 import { LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
+import { formatAppDateTime } from "@esparex/shared";
 
 const REPORT_STATUS_OPTIONS = [
     { value: "all", label: "All Reports" },
@@ -223,7 +224,7 @@ export default function ReportsPage() {
                     <div className="space-y-1">
                         <div className="text-body font-medium text-foreground-secondary">{item.reason}</div>
                         {item.isAutoHidden ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-tiny font-semibold text-amber-700">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-tiny font-semibold text-warning">
                                 <ShieldAlert size={10} /> Auto-hidden
                             </span>
                         ) : null}
@@ -245,7 +246,7 @@ export default function ReportsPage() {
                 header: "Reported",
                 cell: (item) => (
                     <div className="text-caption text-foreground-tertiary">
-                        {item.reportedAt ? new Date(item.reportedAt).toLocaleString() : "Unknown"}
+                        {item.reportedAt ? formatAppDateTime(item.reportedAt) : "Unknown"}
                     </div>
                 ),
             },
@@ -256,7 +257,7 @@ export default function ReportsPage() {
                         <button
                             type="button"
                             onClick={() => void handleOpenView(item)}
-                            className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-caption font-semibold text-foreground-secondary hover:bg-muted hover:text-foreground transition-colors shadow-xs"
+                            className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-2.5 py-1.5 text-caption font-semibold text-foreground-secondary hover:bg-muted hover:text-foreground transition-colors shadow-sm"
                             aria-label={`View ad ${item.ad?.title || item.id}`}
                         >
                             <Eye size={14} />
@@ -370,7 +371,7 @@ export default function ReportsPage() {
                 />
 
                 {error ? (
-                    <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-caption text-red-600">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-caption text-destructive">
                         <AlertCircle size={16} />
                         <span>{error}</span>
                     </div>

@@ -12,7 +12,7 @@ jest.mock("../../utils/adminLogger", () => ({
 
 import type { Request, Response } from "express";
 import * as apiKeyController from "../../controllers/admin/adminApiKeyController";
-import * as apiKeyService from "@esparex/core/services/ApiKeyService";
+import * as apiKeyService from "@esparex/core";
 
 const createMockRes = (req?: Record<string, unknown>) => ({
     status: jest.fn().mockReturnThis(),

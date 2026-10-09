@@ -51,6 +51,7 @@ describe("Admin Navigation & Route Integrity SSOT", () => {
         expect(keys.has("administration")).toBe(true);
         expect(keys.has("settings")).toBe(true);
         expect(keys.has("aiConfig")).toBe(true);
+        expect(keys.has("emailTemplates")).toBe(true);
     });
 
     it("should resolve active admin modules by pathname and aliases via getAdminModuleByPath", () => {
@@ -68,6 +69,7 @@ describe("Admin Navigation & Route Integrity SSOT", () => {
         expect(getAdminModuleByPath("/admin-users")?.key).toBe("administration");
         expect(getAdminModuleByPath("/settings")?.key).toBe("settings");
         expect(getAdminModuleByPath("/ai-config")?.key).toBe("aiConfig");
+        expect(getAdminModuleByPath("/email-templates")?.key).toBe("emailTemplates");
     });
 
     it("should maintain valid tab route structures across all module tab sets", () => {
@@ -98,6 +100,7 @@ describe("Admin Navigation & Route Integrity SSOT", () => {
         expect(ADMIN_UI_ROUTES.services({ status: "live" })).toBe("/services?status=live");
         expect(ADMIN_UI_ROUTES.spareParts({ status: "sold" })).toBe("/spare-parts?status=sold");
         expect(ADMIN_UI_ROUTES.userById("usr_123")).toBe("/users/usr_123");
+        expect(ADMIN_UI_ROUTES.emailTemplates()).toBe("/email-templates");
         expect(ADMIN_UI_ROUTES.login("/dashboard")).toBe("/login?next=%2Fdashboard");
 
         expect(adminListingModerationRoute("ad", { status: "pending" })).toBe("/ads?status=pending");

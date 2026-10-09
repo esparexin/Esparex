@@ -4,7 +4,7 @@ import { apiClient } from '@/lib/api/client';
 import logger from '@/lib/logger';
 import { useAuth } from '@/context/AuthContext';
 
-export const PLANS_WALLET_QUERY_KEYS = {
+const PLANS_WALLET_QUERY_KEYS = {
   all: ['plans-wallet'] as const,
   dashboard: (userId?: string) => [...PLANS_WALLET_QUERY_KEYS.all, 'dashboard', userId || 'me'] as const,
 };

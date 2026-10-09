@@ -6,7 +6,7 @@ import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import type { CatalogRequestItem } from "@/lib/api/catalogRequests";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { CatalogSelectFilter, CatalogSearchInput } from "@/components/catalog/primitives";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { useAdminQuerySync } from "@/hooks/useAdminQuerySync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useCatalogRequestsBulkActions } from "./useCatalogRequestsBulkActions";
 import { generateCatalogRequestsColumns } from "./CatalogRequestsColumns";
@@ -47,7 +47,7 @@ export default function CatalogRequestsTab() {
     },
   });
 
-  const { replaceQueryState } = useCatalogQueryStateSync({
+  const { replaceQueryState } = useAdminQuerySync({
     searchInput,
     initialSearch,
     loading,
@@ -108,21 +108,21 @@ export default function CatalogRequestsTab() {
       <button
         type="button"
         onClick={openBulkReject}
-        className="rounded-lg bg-amber-600 px-3 py-2 text-caption font-semibold text-white hover:bg-amber-700 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-warning px-3 py-2 text-caption font-semibold text-white hover:bg-warning-dark transition-all shadow-sm cursor-pointer"
       >
         Quick Reject
       </button>
       <button
         type="button"
         onClick={openBulkDuplicate}
-        className="rounded-lg bg-primary px-3 py-2 text-caption font-semibold text-primary-foreground hover:bg-primary/90 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-primary px-3 py-2 text-caption font-semibold text-primary-foreground hover:bg-primary/90 transition-all shadow-sm cursor-pointer"
       >
         Quick Duplicate
       </button>
       <button
         type="button"
         onClick={openBulkDelete}
-        className="rounded-lg bg-destructive px-3 py-2 text-caption font-semibold text-destructive-foreground hover:bg-destructive/90 transition-all shadow-xs cursor-pointer"
+        className="rounded-lg bg-destructive px-3 py-2 text-caption font-semibold text-destructive-foreground hover:bg-destructive/90 transition-all shadow-sm cursor-pointer"
       >
         Quick Delete
       </button>

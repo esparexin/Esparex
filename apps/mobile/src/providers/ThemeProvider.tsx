@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import { useColorScheme as useNativeColorScheme } from 'react-native';
 
 type ColorScheme = 'light' | 'dark' | 'system';
 
@@ -22,13 +21,9 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const systemColorScheme = useNativeColorScheme();
+  // Esparex is enforced light-mode only (EA-059, PR #650).
   const [colorScheme, setColorScheme] = useState<ColorScheme>('system');
-
-  const activeTheme: 'light' | 'dark' =
-    colorScheme === 'system'
-      ? (systemColorScheme === 'dark' ? 'dark' : 'light')
-      : colorScheme;
+  const activeTheme: 'light' | 'dark' = 'light';
 
   return (
     <ThemeContext.Provider value={{ colorScheme, activeTheme, setColorScheme }}>

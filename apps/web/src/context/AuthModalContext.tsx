@@ -1,9 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, Suspense } from "react";
+import React, { createContext, useContext, useCallback, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { useBottomSheetManager } from "@/context/BottomSheetManagerContext";
 
 interface AuthModalContextType {
   isAuthModalOpen: boolean;
@@ -13,65 +14,54 @@ interface AuthModalContextType {
 
 const AuthModalContext = createContext<AuthModalContextType | undefined>(undefined);
 
-function AuthModalQueryWatcher({
-  onLoginParam,
-}: {
-  onLoginParam: (callbackUrlParam: string | null) => void;
-}) {
+function AuthModalQueryWatcher({ onLoginParam }: { onLoginParam: (param: string | null) => void }) {
   const searchParams = useSearchParams();
   const loginParam = searchParams?.get("login");
   const callbackUrlParam = searchParams?.get("callbackUrl");
-
   useEffect(() => {
-    if (loginParam === "true") {
-      onLoginParam(callbackUrlParam);
-    }
+    if (loginParam === "true") onLoginParam(callbackUrlParam);
   }, [loginParam, callbackUrlParam, onLoginParam]);
-
   return null;
 }
 
-export function AuthModalProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+function cleanupLoginUrl() {
+  if (typeof window === "undefined" || !window.location.search.includes("login=true")) return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete("login");
+  url.searchParams.delete("callbackUrl");
+  const cleanSearch = url.searchParams.toString();
+  window.history.replaceState({}, "", `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`);
+}
 
-  const handleLoginParam = useCallback((callbackUrlParam: string | null) => {
-    setCallbackUrl(normalizeAuthCallbackUrl(callbackUrlParam));
-    setIsOpen(true);
-  }, []);
+export function AuthModalProvider({ children }: { children: React.ReactNode }) {
+  const { activeSheetId, registerSheet, unregisterSheet, openSheet, closeSheet } = useBottomSheetManager();
+  const [callbackUrl, setCallbackUrl] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    registerSheet("auth", {
+      onClose: () => {
+        cleanupLoginUrl();
+        setCallbackUrl(null);
+      },
+    });
+    return () => unregisterSheet("auth");
+  }, [registerSheet, unregisterSheet]);
+
+  const handleLoginParam = useCallback((param: string | null) => {
+    setCallbackUrl(normalizeAuthCallbackUrl(param));
+    openSheet("auth");
+  }, [openSheet]);
 
   const showLogin = useCallback((url?: string) => {
     setCallbackUrl(url ? normalizeAuthCallbackUrl(url) : "/");
-    setIsOpen(true);
-  }, []);
+    openSheet("auth");
+  }, [openSheet]);
 
-  const hideLogin = useCallback(() => {
-    setIsOpen(false);
-    if (typeof window !== "undefined" && window.location.search.includes("login=true")) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("login");
-      url.searchParams.delete("callbackUrl");
-      const cleanSearch = url.searchParams.toString();
-      const newUrl = `${url.pathname}${cleanSearch ? `?${cleanSearch}` : ""}${url.hash}`;
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, []);
+  const hideLogin = useCallback(() => closeSheet("auth"), [closeSheet]);
+  const isAuthModalOpen = activeSheetId === "auth";
+  const handleOpenChange = useCallback((open: boolean) => (open ? openSheet("auth") : hideLogin()), [hideLogin, openSheet]);
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        hideLogin();
-      } else {
-        setIsOpen(true);
-      }
-    },
-    [hideLogin]
-  );
-
-  const value = useMemo(
-    () => ({ isAuthModalOpen: isOpen, showLogin, hideLogin }),
-    [isOpen, showLogin, hideLogin]
-  );
+  const value = useMemo(() => ({ isAuthModalOpen, showLogin, hideLogin }), [isAuthModalOpen, showLogin, hideLogin]);
 
   return (
     <AuthModalContext.Provider value={value}>
@@ -79,19 +69,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
         <AuthModalQueryWatcher onLoginParam={handleLoginParam} />
       </Suspense>
       {children}
-      <AuthModal
-        open={isOpen}
-        onOpenChange={handleOpenChange}
-        callbackUrl={callbackUrl}
-      />
+      <AuthModal open={isAuthModalOpen} onOpenChange={handleOpenChange} callbackUrl={callbackUrl} />
     </AuthModalContext.Provider>
   );
 }
 
 export function useAuthModal() {
   const context = useContext(AuthModalContext);
-  if (context === undefined) {
-    throw new Error("useAuthModal must be used within an AuthModalProvider");
-  }
+  if (context === undefined) throw new Error("useAuthModal must be used within an AuthModalProvider");
   return context;
 }
