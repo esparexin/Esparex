@@ -68,7 +68,7 @@ function SheetContent({
   const { handleOpenAutoFocus, handleCloseAutoFocus } = useDialogFocusRestore();
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay className={side === "none" ? "bg-card sm:bg-black/50" : undefined} />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         /* design-token-ignore: dynamic z-index layering */

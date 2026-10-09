@@ -42,16 +42,20 @@ describe("Mobile Viewport Login & Keyboard Integration Regression Suite", () => 
             expect(fileContent).toContain("pb-[max(1.5rem,env(safe-area-inset-bottom))]");
         });
 
-        it("provides internal scroll container with overscroll containment", () => {
+        it("provides internal scroll container with overscroll containment and touch pan isolation", () => {
             const fileContent = fs.readFileSync(authModalPath, "utf-8");
 
-            expect(fileContent).toContain("flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain");
+            expect(fileContent).toContain("flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain touch-pan-y");
+            expect(fileContent).toContain("touch-none select-none");
         });
 
-        it("maintains side='none' to avoid bottom-sheet slide animation jank", () => {
+        it("maintains side='none' with opaque mobile overlay to eliminate background bleed", () => {
             const fileContent = fs.readFileSync(authModalPath, "utf-8");
-
             expect(fileContent).toContain('side="none"');
+
+            const sheetPath = path.join(packagesUiSrc, "feedback", "Sheet.tsx");
+            const sheetContent = fs.readFileSync(sheetPath, "utf-8");
+            expect(sheetContent).toContain('side === "none" ? "bg-card sm:bg-black/50" : undefined');
         });
     });
 

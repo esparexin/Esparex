@@ -55,7 +55,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         <SheetDescription className="sr-only">Sign in or create an account.</SheetDescription>
 
         {/* Top Navigation Bar: Clear and Consistent Back and Close buttons */}
-        <div className="flex items-center justify-between w-full shrink-0 mb-2 sm:mb-4">
+        <div className="flex items-center justify-between w-full shrink-0 mb-2 sm:mb-4 touch-none select-none">
           <button
             type="button"
             onClick={handleBack}
@@ -73,7 +73,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           </SheetClose>
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pb-0 -mx-4 px-4 sm:-mx-6 sm:px-6">
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain touch-pan-y pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pb-0 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <LoginFlow
             callbackUrl={callbackUrl}
             onClose={() => handleOpenChange(false)}
