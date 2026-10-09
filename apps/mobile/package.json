@@ -69,6 +69,11 @@
   },
   "private": true,
   "expo": {
+    "install": {
+      "exclude": [
+        "jest"
+      ]
+    },
     "doctor": {
       "reactNativeDirectoryCheck": {
         "exclude": [
