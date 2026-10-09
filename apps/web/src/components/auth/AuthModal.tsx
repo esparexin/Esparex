@@ -49,7 +49,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         <SheetTitle className="sr-only">Authentication</SheetTitle>
         <SheetDescription className="sr-only">Sign in or create an account.</SheetDescription>
 
-        <div className="w-full h-[var(--visual-viewport-height,100dvh)] max-h-full flex flex-col p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-0 sm:p-0 sm:h-auto sm:max-h-none sm:contents">
+        <div className="w-full h-[var(--visual-viewport-height,100dvh)] max-h-full flex flex-col translate-y-[var(--visual-viewport-offset-top,0px)] sm:translate-y-0 p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-0 sm:p-0 sm:h-auto sm:max-h-none sm:contents">
           {/* Top Navigation Bar: Clear and Consistent Back and Close buttons */}
           <div className="flex items-center justify-between w-full shrink-0 mb-2 sm:mb-4 touch-none select-none">
             <button

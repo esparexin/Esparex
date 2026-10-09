@@ -15,6 +15,7 @@ describe("Mobile Viewport Login & Keyboard Integration Regression Suite", () => 
 
             expect(hookContent).toContain("visualViewport");
             expect(hookContent).toContain("--visual-viewport-height");
+            expect(hookContent).toContain("--visual-viewport-offset-top");
             expect(hookContent).toContain("--keyboard-height");
             expect(hookContent).toContain("data-keyboard-open");
         });
@@ -33,6 +34,7 @@ describe("Mobile Viewport Login & Keyboard Integration Regression Suite", () => 
 
             // Height must bind to the visual viewport variable for keyboard awareness
             expect(fileContent).toContain("h-[var(--visual-viewport-height,100dvh)]");
+            expect(fileContent).toContain("translate-y-[var(--visual-viewport-offset-top,0px)]");
         });
 
         it("includes safe-area insets at top and bottom to clear iOS home bar and floating controls", () => {
