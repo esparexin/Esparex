@@ -28,6 +28,7 @@
     "lint:no-api-string-literals": "node scripts/enforce-no-api-string-literals.js",
     "guard:component-api-boundary": "node scripts/enforce-component-api-boundary.js",
     "guard:compatibility-markers": "node scripts/enforce-compatibility-markers-baseline.js",
+    "guard:compatibility-markers:ratchet": "node scripts/enforce-compatibility-markers-baseline.js --ratchet",
     "guard:route-collision": "node scripts/enforce-route-collision-guard.js",
     "guard:route-hierarchy": "node scripts/guard-route-shadowing.js",
     "guard:mobile-architecture": "node scripts/enforce-mobile-architecture-guard.js",
