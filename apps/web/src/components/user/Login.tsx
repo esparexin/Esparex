@@ -32,8 +32,8 @@ export function Login({
     <Card
       className="w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex-1 min-h-0 flex flex-col"
     >
-      <CardHeader className="relative text-center p-0 mb-4 sm:mb-7 shrink-0">
-        <div className="mx-auto mb-2 w-fit">
+      <CardHeader className="relative text-center p-0 mb-4 sm:mb-7 shrink-0 [[data-keyboard-open=true]_&]:mb-1.5">
+        <div className="mx-auto mb-2 w-fit [[data-keyboard-open=true]_&]:hidden">
           <div className="flex items-center justify-center h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/15 p-2">
             <Image
               src="/images/recycle-icon.png"
@@ -71,7 +71,7 @@ export function Login({
             )}
           </CardTitle>
           {step === "enterMobile" && (
-            <p className="text-body text-muted-foreground font-normal leading-normal">
+            <p className="text-body text-muted-foreground font-normal leading-normal [[data-keyboard-open=true]_&]:hidden">
               Login to buy & sell mobile spares
             </p>
           )}
