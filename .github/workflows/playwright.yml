@@ -40,7 +40,7 @@ jobs:
         npm run start -w @esparex/apps-web &
         npx wait-on http://localhost:3000 --timeout 60000
         npx playwright test
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
