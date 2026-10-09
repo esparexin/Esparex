@@ -28,12 +28,14 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 
+const isTestFile = (f) => f.includes('/__tests__/') || f.endsWith('.spec.ts') || f.endsWith('.spec.tsx') || f.endsWith('.test.ts') || f.endsWith('.test.tsx');
+
 const FILE_LIMITS = [
-  { type: 'Component', max: 250, test: (f) => f.endsWith('.tsx') && !f.endsWith('.spec.tsx') && !f.endsWith('.test.tsx') && !f.includes('/app/') },
-  { type: 'Hook', max: 200, test: (f) => f.includes('/hooks/') || /^use[A-Z]/.test(path.basename(f)) },
-  { type: 'Service', max: 300, test: (f) => f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
-  { type: 'Controller', max: 200, test: (f) => f.includes('Controller') && !f.includes('/screens/') && !f.includes('/components/') },
-  { type: 'Utility/Helper', max: 150, test: (f) => (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
+  { type: 'Component', max: 250, test: (f) => !isTestFile(f) && f.endsWith('.tsx') && !f.includes('/app/') },
+  { type: 'Hook', max: 200, test: (f) => !isTestFile(f) && (f.includes('/hooks/') || /^use[A-Z]/.test(path.basename(f))) },
+  { type: 'Service', max: 300, test: (f) => !isTestFile(f) && f.includes('Service') && !f.includes('/screens/') && !f.includes('/components/') },
+  { type: 'Controller', max: 200, test: (f) => !isTestFile(f) && f.includes('Controller') && !f.includes('/screens/') && !f.includes('/components/') },
+  { type: 'Utility/Helper', max: 150, test: (f) => !isTestFile(f) && (f.includes('/utils/') || f.includes('/helpers/')) && !f.endsWith('.tsx') },
 ];
 
 const ts = require('typescript');

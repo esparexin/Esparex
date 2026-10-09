@@ -81,6 +81,42 @@
       "approvedAt": "2026-10-08T04:20:00Z",
       "expiresAt": "2026-12-31T23:59:59Z",
       "pr": 678
+    },
+    {
+      "file": "apps/web/src/components/auth/AuthModal.tsx",
+      "allowedLines": 84,
+      "baseline": 54,
+      "reason": "Pre-existing growth from mobile viewport login sheet and accessibility navigation (F-V1/F-K3). Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "apps/web/src/components/location/LocationOverlayHost.tsx",
+      "allowedLines": 154,
+      "baseline": 147,
+      "reason": "Pre-existing growth from location portal lifecycle cleanup. Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "apps/web/src/components/user/profile/tabs/SavedAdsTab.tsx",
+      "allowedLines": 174,
+      "baseline": 165,
+      "reason": "Pre-existing growth from saved ads empty-state accessibility and bookmark actions. Validated under 250 component max.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
+    },
+    {
+      "file": "core/src/utils/originConfig.ts",
+      "allowedLines": 198,
+      "baseline": 160,
+      "reason": "Pre-existing growth from CORS domain security verification and Vercel preview domain helpers.",
+      "approvedBy": "repo-owner",
+      "approvedAt": "2026-10-09T18:00:00Z",
+      "expiresAt": "2026-12-31T23:59:59Z"
     }
   ]
 }

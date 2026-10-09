@@ -202,7 +202,7 @@ if (significantSchemaChanges.length === 0) {
 
 // Migration evidence pattern matches
 const migrationPatterns = [
-    /^backend\/user\/migrations\//
+    /^backend\/api\/migrations\//
 ];
 
 const hasMigrationEvidence = allFiles.some(file =>
