@@ -30,7 +30,7 @@ export function Login({
 
   return (
     <Card
-      className="w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex flex-col"
+      className="w-full max-w-sm mx-auto border-0 shadow-none sm:border-0 rounded-none bg-transparent flex-1 min-h-0 flex flex-col"
     >
       <CardHeader className="relative text-center p-0 mb-4 sm:mb-7 shrink-0">
         <div className="mx-auto mb-2 w-fit">
@@ -77,7 +77,7 @@ export function Login({
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-0 w-full flex flex-col">
+      <CardContent className="p-0 w-full flex-1 min-h-0 flex flex-col">
         <LoginForm
           flow={flow}
           onBack={onBack}

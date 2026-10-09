@@ -41,7 +41,7 @@ const SheetOverlay = React.forwardRef<
       data-slot="sheet-overlay"
       style={{ zIndex: Z_INDEX.sheetOverlay }}
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-black/50",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 bg-black/50 touch-none overscroll-contain",
         className,
       )}
       {...props}
