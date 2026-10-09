@@ -39,6 +39,7 @@ export function LoginMobileStep({
     authError,
     clearAuthErrorOfTypes,
     isSendRateLimited,
+    sendRateLimitMessage,
     rateLimitRemainingSeconds,
     getMobileLockInfo,
   } = flow;
@@ -101,7 +102,9 @@ export function LoginMobileStep({
                   />
                 </div>
               </FieldControl>
-              <FieldMessage className="text-caption mt-1" />
+              <FieldMessage className="text-caption mt-1">
+                {isSendRateLimited ? sendRateLimitMessage : undefined}
+              </FieldMessage>
               <p className="text-tiny text-muted-foreground mt-1">
                 A 6-digit verification code will be sent to your WhatsApp
               </p>

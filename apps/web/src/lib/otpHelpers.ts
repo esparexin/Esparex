@@ -31,13 +31,23 @@ export const formatSeconds = (seconds: number): string => {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
 
+export const sanitizeRateLimitBaseMessage = (message: string): string => {
+    return message
+        .replace(/\.?\s*(?:please\s+)?try again in\s+\d{1,2}:\d{2}\.?/gi, "")
+        .replace(/\.?\s*(?:please\s+)?try again later\.?/gi, "")
+        .trim()
+        .replace(/\.+$/, "");
+};
+
 export const appendRateLimitCountdown = (
     message: string,
     isRateLimited: boolean,
     remainingSeconds: number
 ): string => {
     if (!isRateLimited) return message;
-    return `${message} Try again in ${formatSeconds(remainingSeconds)}.`;
+    const base = sanitizeRateLimitBaseMessage(message) || "Too many requests";
+    if (remainingSeconds <= 0) return `${base}.`;
+    return `${base}. Please try again in ${formatSeconds(remainingSeconds)}.`;
 };
 
 const extractRawAuthMessage = (value: unknown): string | null => {

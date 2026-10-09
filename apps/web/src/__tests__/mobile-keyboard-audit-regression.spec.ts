@@ -50,9 +50,9 @@ describe("Mobile Keyboard Audit & Viewport Governance Regression Suite", () => {
         const authModalPath = path.join(webSrc, "components", "auth", "AuthModal.tsx");
         const authModalContent = fs.readFileSync(authModalPath, "utf-8");
         
-        // AuthModal should use Sheet, not Dialog variant="bottomSheet"
+        // AuthModal should use Sheet with side="none" (eliminating slide animations), not Dialog variant="bottomSheet"
         expect(authModalContent).toContain("Sheet");
-        expect(authModalContent).toContain('side="bottom"');
+        expect(authModalContent).toContain('side="none"');
         expect(authModalContent).not.toContain('variant="bottomSheet"');
         // AuthModal must center on desktop viewports without corner docking
         expect(authModalContent).toContain("sm:inset-0");
