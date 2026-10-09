@@ -3,6 +3,7 @@ import { formatPrice } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
 import { MapPin, Clock } from "@esparex/ui";
+import { shouldDisplayCategoryBadge, isSpotlightAd } from "@/components/user/ad-card/shared";
 
 interface AdTitlePriceCardProps {
     ad: Ad;
@@ -18,13 +19,14 @@ export function AdTitlePriceCard({
     const locationLabel = resolveListingLocationLabel(ad.location, "full");
     const isService = ad.listingType === "service";
     const isSparePart = ad.listingType === "spare_part";
-    const isActiveSpotlight = Boolean(ad.isSpotlight);
+    const isActiveSpotlight = isSpotlightAd(ad);
+    const showCategoryBadge = shouldDisplayCategoryBadge(categoryLabel, ad);
 
     return (
         <div className="space-y-3 pb-4 border-b border-border">
             <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                 {/* Category Badge */}
-                {categoryLabel && categoryLabel !== "Category" && (
+                {showCategoryBadge && (
                     <Badge variant="outline" className="flex-shrink-0 font-medium border-border text-foreground-subtle rounded-lg bg-muted px-2.5 py-0.5 text-tiny">
                         {categoryLabel}
                     </Badge>
