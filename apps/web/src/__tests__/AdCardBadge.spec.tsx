@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { resolveListingTypeBadge, resolveListingTypeValue } from "@/lib/listings/listingPresentation";
-import { ListingTypeBadge, shouldDisplayCategoryBadge, isSpotlightAd } from "@/components/user/ad-card/shared";
+import {
+  ListingTypeBadge,
+  shouldDisplayCategoryBadge,
+  isSpotlightAd,
+  resolveDeviceCondition,
+} from "@/components/user/ad-card/shared";
 import { AdCardGrid } from "@/components/user/ad-card/AdCardGrid";
 import { AdCardList } from "@/components/user/ad-card/AdCardList";
 
@@ -126,6 +131,23 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
       } as any;
 
       expect(isSpotlightAd(soldAd)).toBe(false);
+    });
+  });
+
+  describe("resolveDeviceCondition (Condition Gating SSOT)", () => {
+    it("resolves device condition on untyped legacy ads from deviceCondition", () => {
+      const untypedAd = { id: "u-1", title: "iPhone 11", deviceCondition: "power_on" } as any;
+      expect(resolveDeviceCondition(untypedAd)).toBe("power_on");
+    });
+
+    it("resolves device condition from title when explicit field is missing", () => {
+      const untypedAd = { id: "u-2", title: "MacBook Air (Power On)" } as any;
+      expect(resolveDeviceCondition(untypedAd)).toBe("power_on");
+    });
+
+    it("returns undefined for listings without condition indicators", () => {
+      const serviceAd = { id: "s-1", title: "Screen Replacement Service", listingType: "service" } as any;
+      expect(resolveDeviceCondition(serviceAd)).toBeUndefined();
     });
   });
 });

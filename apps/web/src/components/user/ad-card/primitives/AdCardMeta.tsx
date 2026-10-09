@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import {
   type AdCardData,
   getConditionBadge,
+  resolveDeviceCondition,
 } from "../shared";
 
 /* -------------------------------------------------------------------------- */
@@ -44,7 +45,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
   /* ── Price display & Type guards ───────────────────────────────── */
   const isService = typeof adRecord.listingType === "string" && adRecord.listingType === "service";
-  const isDevice = adRecord.listingType === "ad";
+  const isDevice = adRecord.listingType === "ad" || (!adRecord.listingType && Boolean(resolveDeviceCondition(ad)));
   const conditionBadge = isDevice ? getConditionBadge(ad) : null;
 
   const priceDisplay = (() => {
