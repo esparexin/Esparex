@@ -53,6 +53,14 @@ export type DbListing = {
 
     spotlightExpiresAt?: Date;
     expiresAt?: Date;
+    categoryName?: string;
+    brandName?: string;
+    modelName?: string;
+    isBusiness?: boolean;
+    verified?: boolean;
+    businessName?: string;
+    sellerName?: string;
+    isBoosted?: boolean;
     views?: {
         total?: number;
         unique?: number;
@@ -118,6 +126,14 @@ export function toDomain(doc: DbListing): Listing {
         // and surfaces deviceCondition for the condition badge on all repository paths.
         sellerType: doc.sellerType,
         businessId: doc.businessId ? String(doc.businessId) : undefined,
+        categoryName: doc.categoryName ? String(doc.categoryName) : undefined,
+        brandName: doc.brandName ? String(doc.brandName) : undefined,
+        modelName: doc.modelName ? String(doc.modelName) : undefined,
+        isBusiness: doc.sellerType === 'business' || !!doc.businessId || Boolean(doc.isBusiness),
+        verified: Boolean(doc.verified),
+        businessName: doc.businessName ? String(doc.businessName) : undefined,
+        sellerName: doc.sellerName ? String(doc.sellerName) : undefined,
+        isBoosted: Boolean(doc.isBoosted),
         deviceCondition: doc.deviceCondition,
         sparePartIds: Array.isArray(doc.sparePartIds) ? doc.sparePartIds.map(id => String(id)) : (Array.isArray(doc.spareParts) ? doc.spareParts.map(id => String(id)) : undefined),
         sparePartsSnapshot: Array.isArray(doc.sparePartsSnapshot) ? doc.sparePartsSnapshot.map(p => ({

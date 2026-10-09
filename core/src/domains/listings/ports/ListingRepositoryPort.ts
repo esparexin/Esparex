@@ -48,6 +48,14 @@ export interface Listing {
         readonly favorites?: number;
         readonly lastViewedAt?: Date;
     };
+    readonly categoryName?: string;
+    readonly brandName?: string;
+    readonly modelName?: string;
+    readonly isBusiness?: boolean;
+    readonly verified?: boolean;
+    readonly businessName?: string;
+    readonly sellerName?: string;
+    readonly isBoosted?: boolean;
     readonly reviewVersion?: number;
     readonly createdAt: Date;
     readonly updatedAt: Date;
