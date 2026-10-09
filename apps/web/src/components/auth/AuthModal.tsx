@@ -42,7 +42,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         }}
         className={cn(
           // Mobile: full-viewport opaque modal surface eliminating background bleed and keyboard gaps.
-          "top-0 left-0 right-0 w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden h-full",
+          "top-0 left-0 right-0 w-full max-w-none border-none rounded-none bg-card shadow-2xl flex flex-col overflow-hidden h-full bottom-0",
           "sm:inset-0 sm:m-auto sm:w-full sm:max-w-sm sm:h-fit sm:min-h-[480px] sm:max-h-[calc(var(--visual-viewport-height,100dvh)-3rem)] sm:p-6 sm:pb-6 sm:rounded-2xl sm:border sm:border-border/80 sm:shadow-2xl"
         )}
       >
