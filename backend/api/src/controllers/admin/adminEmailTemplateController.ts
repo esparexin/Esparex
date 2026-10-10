@@ -13,33 +13,16 @@ import {
     updateSystemConfigSections,
 } from '@esparex/core';
 
-import { sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
+import { getActorId, sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
 import { logAdminAction } from '../../utils/adminLogger';
 
-type AuthenticatedAdminUser = {
-    _id?: string;
-    id?: string;
-    email?: string;
-};
+const getAdminIdentifier = (req: Request): string =>
+    (req.user as { email?: string })?.email || getActorId(req) || 'admin';
 
-const getAdminIdentifier = (req: Request): string => {
-    const user = req.user as AuthenticatedAdminUser | undefined;
-    return user?.email || user?._id || user?.id || 'admin';
-};
+const isValidTemplateKey = (key: unknown): key is EmailTemplateKey =>
+    typeof key === 'string' && Object.values(EMAIL_TEMPLATE_KEY).includes(key as EmailTemplateKey);
 
-const getAdminUserId = (req: Request): string | undefined => {
-    const user = req.user as AuthenticatedAdminUser | undefined;
-    const id = user?._id || user?.id;
-    return id ? String(id) : undefined;
-};
-
-const isValidTemplateKey = (key: unknown): key is EmailTemplateKey => {
-    return typeof key === 'string' && Object.values(EMAIL_TEMPLATE_KEY).includes(key as EmailTemplateKey);
-};
-
-/**
- * Lists all registered canonical email templates with merged system customizations.
- */
+/** Lists all registered canonical email templates with merged system customizations. */
 export const listEmailTemplates = async (req: Request, res: Response) => {
     try {
         const config = await getSystemConfigForRead();
@@ -52,9 +35,7 @@ export const listEmailTemplates = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Retrieves a single email template by key.
- */
+/** Retrieves a single email template by key. */
 export const getEmailTemplate = async (req: Request, res: Response) => {
     try {
         const { key } = req.params;
@@ -76,9 +57,7 @@ export const getEmailTemplate = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Generates an HTML live preview for an email template, optionally with live customization overrides.
- */
+/** Generates an HTML live preview for an email template, optionally with live customization overrides. */
 export const getEmailTemplatePreview = async (req: Request, res: Response) => {
     try {
         const { key } = req.params;
@@ -95,9 +74,7 @@ export const getEmailTemplatePreview = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Saves customizations (subject, headline, note) for a canonical email template.
- */
+/** Saves customizations (subject, headline, note) for a canonical email template. */
 export const updateEmailTemplate = async (req: Request, res: Response) => {
     try {
         const { key } = req.params;
@@ -121,7 +98,7 @@ export const updateEmailTemplate = async (req: Request, res: Response) => {
         };
 
         const nextCustomizations = [...existingCustomizations, updatedCustomization];
-        await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getAdminUserId(req));
+        await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getActorId(req) || undefined);
 
         await logAdminAction({
             req,
@@ -138,9 +115,7 @@ export const updateEmailTemplate = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Resets customizations for an email template back to default system layout.
- */
+/** Resets customizations for an email template back to default system layout. */
 export const resetEmailTemplate = async (req: Request, res: Response) => {
     try {
         const { key } = req.params;
@@ -153,7 +128,7 @@ export const resetEmailTemplate = async (req: Request, res: Response) => {
             (c) => c.key !== key
         );
 
-        await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getAdminUserId(req));
+        await updateSystemConfigSections({ emailTemplates: nextCustomizations }, getActorId(req) || undefined);
 
         await logAdminAction({
             req,
@@ -170,9 +145,7 @@ export const resetEmailTemplate = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Dispatches a live test email rendered with the specified template & customizations.
- */
+/** Dispatches a live test email rendered with the specified template & customizations. */
 export const sendTestEmailTemplate = async (req: Request, res: Response) => {
     try {
         const { key } = req.params;
