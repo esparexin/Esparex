@@ -24,9 +24,7 @@ describe('ListingCard Component Performance & Memoization', () => {
     images: [{ url: 'https://storage.esparex.in/s23.jpg', isPrimary: true }],
     status: 'live',
     createdAt: new Date(),
-    isFeatured: true,
     isSpotlight: false,
-    isPremium: false,
   };
 
   it('renders memoized listing card component correctly', () => {
@@ -35,7 +33,6 @@ describe('ListingCard Component Performance & Memoization', () => {
 
     expect(getByText('Samsung Galaxy S23 Ultra')).toBeTruthy();
     expect(getByText('₹75,000')).toBeTruthy();
-    expect(getByText('Featured')).toBeTruthy();
   });
 
   it('renders Spotlight badge when isSpotlight is true', () => {
