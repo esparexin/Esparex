@@ -135,7 +135,7 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
   });
 
   describe("resolveDeviceCondition (Condition Gating SSOT)", () => {
-    it("resolves device condition on untyped legacy ads from deviceCondition", () => {
+    it("resolves device condition on untyped ads from deviceCondition", () => {
       const untypedAd = { id: "u-1", title: "iPhone 11", deviceCondition: "power_on" } as any;
       expect(resolveDeviceCondition(untypedAd)).toBe("power_on");
     });
