@@ -37,8 +37,6 @@ export interface AdData {
     spareParts?: string[];
 
     // Flags (Computed/Optional)
-    isFeatured?: boolean;
-    isPremium?: boolean;
     isSpotlight?: boolean;
     isBusiness?: boolean;
     verified?: boolean;

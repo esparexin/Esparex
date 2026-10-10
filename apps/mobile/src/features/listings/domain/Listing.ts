@@ -47,7 +47,7 @@ export interface Listing {
   categoryId?: string;
   condition?: 'power_on' | 'power_off';
   spareParts?: ListingSparePart[];
-  isFeatured: boolean;
+  isFeatured?: boolean;
   isSpotlight?: boolean;
-  isPremium: boolean;
+  isPremium?: boolean;
 }

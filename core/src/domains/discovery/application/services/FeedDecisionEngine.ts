@@ -116,7 +116,13 @@ export class FeedDecisionEngine {
                 const idStr = String(ad.id);
                 if (!seenIds.has(idStr)) {
                     seenIds.add(idStr);
-                    mergedAds.push({ ...ad, _id: ad.id });
+                    const now = Date.now();
+                    const spotlightExp = ad.spotlightExpiresAt ? new Date(String(ad.spotlightExpiresAt)).getTime() : 0;
+                    const isSpotlightActive = Boolean(
+                        (spotlightExp > 0 && spotlightExp > now) ||
+                        (ad.isSpotlight && spotlightExp === 0)
+                    );
+                    mergedAds.push({ ...ad, _id: ad.id, isSpotlight: isSpotlightActive });
                 }
             }
 

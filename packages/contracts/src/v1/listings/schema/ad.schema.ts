@@ -45,8 +45,6 @@ export const AdSchema = z.object({
     deviceCondition: z.enum(['power_on', 'power_off']).optional(),
 
     brand: z.string().optional(),
-    isFeatured: z.boolean().optional(),
-    isPremium: z.boolean().optional(),
     isBusiness: z.boolean().optional(),
     verified: z.boolean().optional(),
     inquiries: z.number().optional(),

@@ -53,6 +53,14 @@ export type DbListing = {
 
     spotlightExpiresAt?: Date;
     expiresAt?: Date;
+    categoryName?: string;
+    brandName?: string;
+    modelName?: string;
+    isBusiness?: boolean;
+    verified?: boolean;
+    businessName?: string;
+    sellerName?: string;
+    isBoosted?: boolean;
     views?: {
         total?: number;
         unique?: number;
@@ -68,7 +76,7 @@ export const PUBLIC_LISTING_PROJECTION = {
     attributes: 1, category: 1, seoSlug: 1, categoryId: 1, categoryName: 1,
     brandId: 1, brandName: 1, modelId: 1, modelName: 1, screenSize: 1,
     location: 1, sellerId: 1, status: 1, sellerType: 1, createdAt: 1,
-    updatedAt: 1, views: 1, isFeatured: 1, isSpotlight: 1, isBoosted: 1,
+    updatedAt: 1, views: 1, isSpotlight: 1, isBoosted: 1,
     isBusiness: 1, verified: 1, businessName: 1, businessId: 1, sellerName: 1, expiresAt: 1,
     sparePartIds: 1, spareParts: 1, sparePartsSnapshot: 1, serviceTypeIds: 1,
     sparePartId: 1, priceMin: 1, priceMax: 1, diagnosticFee: 1, onsiteService: 1
@@ -118,6 +126,14 @@ export function toDomain(doc: DbListing): Listing {
         // and surfaces deviceCondition for the condition badge on all repository paths.
         sellerType: doc.sellerType,
         businessId: doc.businessId ? String(doc.businessId) : undefined,
+        categoryName: doc.categoryName ? String(doc.categoryName) : undefined,
+        brandName: doc.brandName ? String(doc.brandName) : undefined,
+        modelName: doc.modelName ? String(doc.modelName) : undefined,
+        isBusiness: doc.sellerType === 'business' || !!doc.businessId || Boolean(doc.isBusiness),
+        verified: Boolean(doc.verified),
+        businessName: doc.businessName ? String(doc.businessName) : undefined,
+        sellerName: doc.sellerName ? String(doc.sellerName) : undefined,
+        isBoosted: Boolean(doc.isBoosted),
         deviceCondition: doc.deviceCondition,
         sparePartIds: Array.isArray(doc.sparePartIds) ? doc.sparePartIds.map(id => String(id)) : (Array.isArray(doc.spareParts) ? doc.spareParts.map(id => String(id)) : undefined),
         sparePartsSnapshot: Array.isArray(doc.sparePartsSnapshot) ? doc.sparePartsSnapshot.map(p => ({

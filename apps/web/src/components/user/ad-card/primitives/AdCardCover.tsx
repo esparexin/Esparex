@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { Badge } from "@esparex/ui";
 import { SafeImage } from "@/components/common/SafeImage";
 import { cn } from "@/lib/utils";
 import { getPlanBadge, ListingTypeBadge, type AdCardData } from "../shared";
@@ -20,17 +21,14 @@ export const AdCardCover = memo(function AdCardCover({
   imageUrl,
   priority = false,
   className,
-  showBusinessBadge: _showBusinessBadge = true,
+  showBusinessBadge = true,
   customStatus,
   children,
 }: AdCardCoverProps) {
   const adRecord = ad as Record<string, unknown>;
-  const status =
-    typeof adRecord?.status === "string" ? adRecord.status.toLowerCase() : "";
-  const isSold =
-    status === "sold" ||
-    (typeof customStatus === "string" &&
-      customStatus.toLowerCase().includes("sold"));
+  const status = typeof adRecord?.status === "string" ? adRecord.status.toLowerCase() : "";
+  const isSold = status === "sold" || (typeof customStatus === "string" && customStatus.toLowerCase().includes("sold"));
+  const isBusinessSeller = Boolean(adRecord.isBusiness || adRecord.verified);
 
   // Resolve promotion badge once — hide on sold items per business rules
   const planBadge = isSold ? null : getPlanBadge(ad);
@@ -85,9 +83,15 @@ export const AdCardCover = memo(function AdCardCover({
         </div>
       )}
 
-      {/* Bottom-Left Overlay Badge (Listing Type: Ad / Service / Parts) */}
-      <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-10 flex items-center pointer-events-none">
+      {/* Bottom-Left Overlay Badge (Listing Type & Business / Verified) */}
+      <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 z-10 flex items-center gap-1 pointer-events-none">
         <ListingTypeBadge ad={ad} />
+        {showBusinessBadge && isBusinessSeller && (
+          <Badge
+            className="border text-tiny font-bold px-1.5 h-[18px] rounded-md uppercase tracking-wide flex items-center shadow-sm select-none backdrop-blur-xs bg-primary/90 text-primary-foreground border-primary/20"
+            aria-label={adRecord.isBusiness ? "Business Seller" : "Verified Seller"}
+          >{adRecord.isBusiness ? "Business" : "Verified"}</Badge>
+        )}
       </div>
 
       {children}

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { resolveListingTypeBadge, resolveListingTypeValue } from "@/lib/listings/listingPresentation";
-import { ListingTypeBadge, shouldDisplayCategoryBadge } from "@/components/user/ad-card/shared";
+import {
+  ListingTypeBadge,
+  shouldDisplayCategoryBadge,
+  isSpotlightAd,
+  resolveDeviceCondition,
+} from "@/components/user/ad-card/shared";
 import { AdCardGrid } from "@/components/user/ad-card/AdCardGrid";
 import { AdCardList } from "@/components/user/ad-card/AdCardList";
 
@@ -88,6 +93,61 @@ describe("ListingTypeBadge & Listing Type SSOT Resolution", () => {
 
       const deviceAd = { id: "5", title: "Pixel 7 Pro", listingType: "ad" } as any;
       expect(shouldDisplayCategoryBadge("Smartphones", deviceAd)).toBe(true);
+    });
+  });
+
+  describe("isSpotlightAd (Spotlight Expiration SSOT)", () => {
+    it("strictly evaluates to false when spotlightExpiresAt is in the past", () => {
+      const expiredAd = {
+        id: "exp-1",
+        title: "iPhone 12",
+        status: "live",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() - 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(expiredAd)).toBe(false);
+    });
+
+    it("evaluates to true when spotlightExpiresAt is in the future", () => {
+      const activeAd = {
+        id: "act-1",
+        title: "iPhone 13",
+        status: "live",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(activeAd)).toBe(true);
+    });
+
+    it("returns false for non-live listings even if spotlight is active", () => {
+      const soldAd = {
+        id: "sold-1",
+        title: "Galaxy S22",
+        status: "sold",
+        isSpotlight: true,
+        spotlightExpiresAt: new Date(Date.now() + 3600000).toISOString(),
+      } as any;
+
+      expect(isSpotlightAd(soldAd)).toBe(false);
+    });
+  });
+
+  describe("resolveDeviceCondition (Condition Gating SSOT)", () => {
+    it("resolves device condition on untyped ads from deviceCondition", () => {
+      const untypedAd = { id: "u-1", title: "iPhone 11", deviceCondition: "power_on" } as any;
+      expect(resolveDeviceCondition(untypedAd)).toBe("power_on");
+    });
+
+    it("resolves device condition from title when explicit field is missing", () => {
+      const untypedAd = { id: "u-2", title: "MacBook Air (Power On)" } as any;
+      expect(resolveDeviceCondition(untypedAd)).toBe("power_on");
+    });
+
+    it("returns undefined for listings without condition indicators", () => {
+      const serviceAd = { id: "s-1", title: "Screen Replacement Service", listingType: "service" } as any;
+      expect(resolveDeviceCondition(serviceAd)).toBeUndefined();
     });
   });
 });

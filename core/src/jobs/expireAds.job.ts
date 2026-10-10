@@ -11,15 +11,17 @@ export const runExpireAdsJob = async () => {
             const now = new Date();
             try {
                 logger.info('Expire Ads Job started', { timestamp: now.toISOString() });
-                const [expiryResult, expiredBoostsCount] = await Promise.all([
+                const [expiryResult, expiredBoostsCount, expiredSpotlightsCount] = await Promise.all([
                     ListingExpiryService.runSweep(now),
-                    expireBoosts()
+                    expireBoosts(),
+                    ListingExpiryService.sweepExpiredSpotlights(now)
                 ]);
 
                 logger.info('Expire Ads Job completed', {
                     expiredCount: expiryResult.expiredCount,
                     touchedCount: expiryResult.touchedCount,
-                    expiredBoostsCount
+                    expiredBoostsCount,
+                    expiredSpotlightsCount
                 });
             } catch (error) {
                 logger.error('Expire Ads Job failed', {
